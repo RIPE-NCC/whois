@@ -1,0 +1,357 @@
+package net.ripe.db.whois.scheduler.task.grs;
+
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.rpsl.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GrsSourceImporterTest {
+
+    @Rule public TemporaryFolder folder = new TemporaryFolder();
+
+    @Mock GrsDownloader grsDownloader;
+    @Mock AttributeSanitizer sanitizer;
+    @Mock ResourceTagger resourceTagger;
+    @Mock GrsSource grsSource;
+    @Mock GrsDao grsDao;
+    @Mock GrsDao.UpdateResult updateResultCreate;
+    @Mock GrsDao.UpdateResult updateResultUpdate;
+    @Mock ResourceData resourceData;
+
+    Logger logger = LoggerFactory.getLogger(GrsSourceImporter.class);
+
+    GrsSourceImporter subject;
+
+    @Before
+    public void setUp() throws Exception {
+        when(grsSource.getDao()).thenReturn(grsDao);
+        when(grsSource.getLogger()).thenReturn(logger);
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                final File file = (File) invocationOnMock.getArguments()[1];
+                final GrsDownloader.AcquireHandler acquireHandler = (GrsDownloader.AcquireHandler) invocationOnMock.getArguments()[2];
+                acquireHandler.acquire(file);
+                return null;
+            }
+        }).when(grsDownloader).acquire(any(GrsSource.class), any(File.class), any(GrsDownloader.AcquireHandler.class));
+
+        when(sanitizer.sanitize(any(RpslObject.class), any(ObjectMessages.class))).thenAnswer(new Answer<RpslObject>() {
+            @Override
+            public RpslObject answer(InvocationOnMock invocation) throws Throwable {
+                return (RpslObject) invocation.getArguments()[0];
+            }
+        });
+
+        when(grsDao.createObject(any(RpslObject.class))).thenReturn(updateResultCreate);
+        when(grsDao.updateObject(any(GrsObjectInfo.class), any(RpslObject.class))).thenReturn(updateResultUpdate);
+
+        subject = new GrsSourceImporter("RIPE", folder.getRoot().getAbsolutePath(), grsDownloader, sanitizer, resourceTagger);
+    }
+
+    @Test
+    public void run_rebuild() {
+        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        subject.grsImport(grsSource, true);
+
+        verify(grsDao).cleanDatabase();
+        verify(grsDao, never()).getCurrentObjectIds();
+    }
+
+    @Test
+    public void run_rebuild_ripe() {
+        when(grsSource.getSource()).thenReturn("RIPE-GRS");
+        subject.grsImport(grsSource, true);
+
+        verify(grsDao, never()).cleanDatabase();
+        verify(grsDao, never()).getCurrentObjectIds();
+    }
+
+    @Test
+    public void run_without_rebuild() {
+        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        subject.grsImport(grsSource, false);
+
+        verify(grsDao, never()).cleanDatabase();
+        verify(grsDao).getCurrentObjectIds();
+    }
+
+    @Test
+    public void run_without_rebuild_ripe() {
+        when(grsSource.getSource()).thenReturn("RIPE-GRS");
+        subject.grsImport(grsSource, false);
+
+        verify(grsDao, never()).cleanDatabase();
+        verify(grsDao, never()).getCurrentObjectIds();
+    }
+
+    @Test
+    public void acquire_and_process() throws IOException {
+        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+
+        subject.grsImport(grsSource, false);
+
+        final File resourceDataFile = new File(folder.getRoot(), "APNIC-GRS-RES");
+        final File dumpFile = new File(folder.getRoot(), "APNIC-GRS-DMP");
+        verify(grsSource).acquireResourceData(resourceDataFile);
+        verify(grsSource).acquireDump(dumpFile);
+        verify(grsSource).handleObjects(eq(dumpFile), any(ObjectHandler.class));
+    }
+
+    @Test
+    public void acquire_and_process_ripe() throws IOException {
+        when(grsSource.getSource()).thenReturn("RIPE-GRS");
+
+        subject.grsImport(grsSource, false);
+
+        final File resourceDataFile = new File(folder.getRoot(), "RIPE-GRS-RES");
+        verify(grsSource).acquireResourceData(resourceDataFile);
+        verify(grsSource, never()).acquireDump(any(File.class));
+        verify(grsSource, never()).handleObjects(any(File.class), any(ObjectHandler.class));
+    }
+
+    @Test
+    public void process_nothing_does_not_delete() {
+        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsDao.getCurrentObjectIds()).thenReturn(Lists.newArrayList(1));
+
+        subject.grsImport(grsSource, false);
+
+        verify(grsDao, never()).deleteObject(anyInt());
+    }
+
+    @Test
+    public void process_throws_exception() throws IOException {
+        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        doThrow(RuntimeException.class).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
+
+        try {
+            subject.grsImport(grsSource, false);
+            fail("Expected RuntimeException");
+        } catch (RuntimeException e) {
+            verify(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
+        }
+    }
+
+    @Test
+    public void handle_object_create() throws IOException {
+        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(resourceData.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                final ObjectHandler objectHandler = (ObjectHandler) invocationOnMock.getArguments()[1];
+                objectHandler.handle(RpslObjectBase.parse("" +
+                        "aut-num:       AS1263\n" +
+                        "as-name:       NSN-TEST-AS\n" +
+                        "descr:         NSN-TEST-AS\n" +
+                        "admin-c:       Not available\n" +
+                        "tech-c:        See MAINT-AS1263\n" +
+                        "mnt-by:        MAINT-AS1263\n" +
+                        "changed:       DB-admin@merit.edu 19950201\n" +
+                        "source:        RIPE"
+                ));
+                return null;
+            }
+        }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
+
+        subject.grsImport(grsSource, false, resourceData);
+
+        verify(grsDao).createObject(RpslObject.parse("" +
+                "aut-num:        AS1263\n" +
+                "as-name:        NSN-TEST-AS\n" +
+                "descr:          NSN-TEST-AS\n" +
+                "admin-c:        Not available\n" +
+                "tech-c:         See MAINT-AS1263\n" +
+                "mnt-by:         MAINT-AS1263\n" +
+                "changed:        DB-admin@merit.edu 19950201\n" +
+                "source:         APNIC-GRS"));
+
+        verify(sanitizer).sanitize(any(RpslObject.class), any(ObjectMessages.class));
+    }
+
+    @Test
+    public void handle_object_create_unknown_type() throws IOException {
+        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                final ObjectHandler objectHandler = (ObjectHandler) invocationOnMock.getArguments()[1];
+                objectHandler.handle(RpslObjectBase.parse("" +
+                        "unknown:       SOME\n" +
+                        "changed:       DB-admin@merit.edu 19950201\n" +
+                        "source:        RIPE"
+                ));
+                return null;
+            }
+        }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
+
+        subject.grsImport(grsSource, false);
+
+        verify(grsDao, never()).createObject(any(RpslObject.class));
+        verify(sanitizer, never()).sanitize(any(RpslObject.class), any(ObjectMessages.class));
+    }
+
+    @Test
+    public void handle_object_create_syntax_errors() throws IOException {
+        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                final ObjectHandler objectHandler = (ObjectHandler) invocationOnMock.getArguments()[1];
+                objectHandler.handle(RpslObjectBase.parse("" +
+                        "unknown:       SOME\n" +
+                        "changed:       DB-admin@merit.edu 19950201\n" +
+                        "source:        RIPE"
+                ));
+
+                return null;
+            }
+        }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
+
+        subject.grsImport(grsSource, false);
+
+        verify(grsDao, never()).createObject(any(RpslObject.class));
+        verify(sanitizer, never()).sanitize(any(RpslObject.class), any(ObjectMessages.class));
+    }
+
+    @Test
+    public void handle_lines_create_with_unknown_attribute() throws IOException {
+        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(resourceData.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                final ObjectHandler objectHandler = (ObjectHandler) invocationOnMock.getArguments()[1];
+                objectHandler.handle(Lists.newArrayList(
+                        "aut-num:       AS1263\n",
+                        "as-name:       NSN-TEST-AS\n",
+                        "descr:         NSN-TEST-AS\n",
+                        "               NSN-TEST-AS\n",
+                        "admin-c:       Not available\n",
+                        "unknown:       oops\n",
+                        "tech-c:        See MAINT-AS1263\n",
+                        "mnt-by:        MAINT-AS1263\n",
+                        "changed:       DB-admin@merit.edu 19950201\n",
+                        "source:        RIPE\n"
+                ));
+                return null;
+            }
+        }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
+
+        subject.grsImport(grsSource, false, resourceData);
+
+        verify(grsDao).createObject(RpslObject.parse("" +
+                "aut-num:        AS1263\n" +
+                "as-name:        NSN-TEST-AS\n" +
+                "descr:          NSN-TEST-AS\n" +
+                "                NSN-TEST-AS\n" +
+                "admin-c:        Not available\n" +
+                "tech-c:         See MAINT-AS1263\n" +
+                "mnt-by:         MAINT-AS1263\n" +
+                "changed:        DB-admin@merit.edu 19950201\n" +
+                "source:         APNIC-GRS"));
+
+        verify(sanitizer).sanitize(any(RpslObject.class), any(ObjectMessages.class));
+    }
+
+    @Test
+    public void handle_lines_no_source_managed_by_rir() throws IOException {
+        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(resourceData.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                final ObjectHandler objectHandler = (ObjectHandler) invocationOnMock.getArguments()[1];
+                objectHandler.handle(Lists.newArrayList(
+                        "aut-num:       AS1263\n",
+                        "changed:       DB-admin@merit.edu 19950201\n"
+                ));
+                return null;
+            }
+        }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
+
+        subject.grsImport(grsSource, false, resourceData);
+
+        verify(grsDao).createObject(RpslObject.parse("" +
+                "aut-num:        AS1263\n" +
+                "changed:        DB-admin@merit.edu 19950201\n" +
+                "source:         APNIC-GRS"));
+
+        verify(sanitizer).sanitize(any(RpslObject.class), any(ObjectMessages.class));
+    }
+
+    @Test
+    public void run_create_update_delete() throws IOException {
+        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsDao.getCurrentObjectIds()).thenReturn(Lists.newArrayList(1, 2, 3));
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                final ObjectHandler objectHandler = (ObjectHandler) invocation.getArguments()[1];
+
+                objectHandler.handle(RpslObjectBase.parse("" +
+                        "mntner: MODIFY-MNT\n" +
+                        "mnt-by: CREATE-MNT\n"));
+
+                objectHandler.handle(RpslObjectBase.parse("" +
+                        "mntner: CREATE-MNT\n" +
+                        "mnt-by: CREATE-MNT\n"));
+
+                objectHandler.handle(RpslObjectBase.parse("" +
+                        "mntner: NOOP-MNT\n"));
+
+                return null;
+            }
+        }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
+
+        when(updateResultUpdate.hasMissingReferences()).thenReturn(true);
+
+        final GrsObjectInfo grsObjectInfo1 = new GrsObjectInfo(1, 1, RpslObject.parse("mntner: MODIFY-MNT"));
+        when(grsDao.find("MODIFY-MNT", ObjectType.MNTNER)).thenReturn(grsObjectInfo1);
+
+        final GrsObjectInfo grsObjectInfo2 = new GrsObjectInfo(2, 2, RpslObject.parse("mntner:         NOOP-MNT\nsource:         APNIC-GRS"));
+        when(grsDao.find("NOOP-MNT", ObjectType.MNTNER)).thenReturn(grsObjectInfo2);
+
+        subject.grsImport(grsSource, false);
+
+        verify(grsDao).createObject(RpslObject.parse("" +
+                "mntner:         CREATE-MNT\n" +
+                "mnt-by:         CREATE-MNT\n" +
+                "source:         APNIC-GRS"));
+
+        verify(grsDao).updateObject(grsObjectInfo1, RpslObject.parse("" +
+                "mntner:         MODIFY-MNT\n" +
+                "mnt-by:         CREATE-MNT\n" +
+                "source:         APNIC-GRS"));
+
+        verify(grsDao).updateIndexes(0);
+        verify(grsDao, times(1)).updateObject(any(GrsObjectInfo.class), any(RpslObject.class));
+
+        verify(grsDao).deleteObject(3);
+    }
+}

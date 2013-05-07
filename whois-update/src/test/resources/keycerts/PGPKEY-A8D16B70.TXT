@@ -1,0 +1,28 @@
+key-cert:       PGPKEY-A8D16B70
+method:         PGP
+owner:          Test Person5 <noreply5@ripe.net>
+fingerpr:       D079 99F1 92D5 41B6 E7BC  6578 9175 DB8D A8D1 6B70
+certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
+certif:         Version: GnuPG/MacGPG2 v2.0.18 (Darwin)
+certif:         Comment: GPGTools - http://gpgtools.org
+certif:
+certif:         mI0EUXD+mAEEAKbIL2qj82+7FXCFJntqY50bdNI4NrhrMfGiBMpwmuuFscvI+iT7
+certif:         /9AcLaAefKrKCqrM/MYLOx6b6UnIyBFqu/JVdl4aAtUpEUc4YV6jjvKa/29lAwi4
+certif:         /gepCwBFL1b5hV7pxnM13ZOODrf10FMjq4Y0EXP4CFVf0wi0ryqIftatABEBAAG0
+certif:         IFRlc3QgUGVyc29uNSA8bm9yZXBseTVAcmlwZS5uZXQ+iLkEEwECACMFAlFw/pgC
+certif:         GwMHCwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCRdduNqNFrcDArBACPPxu+
+certif:         mdBqhEysSeQR1DrL02X4mwR3kkCElva4Yx91/TaZf0NC/Xa3Zr4mUKQgNW+Bp3j8
+certif:         QN05jY4nqVYjkiFW6U9TMnGyFcwVzQdEJzgvjeZsuANd1RxdL8E4N0l4J+lYf5WN
+certif:         5wfDgHE1aRm1QC5h1bOqThZ4/hFmddffL3TI77iNBFFw/pgBBACsA5ZBIZ7Ax2oA
+certif:         XGPHooWP6K5d9Q5MDDyoyI6eyhVGhRFY0W40/9EdCCnzv3NNC5rnkXNrUpct3WVl
+certif:         NpZybSVUqMkuOyAwgxqfe8k/EPpi6IfRUZeft/Hfpby7ycVUSWPxb4AmzNvR4lUp
+certif:         wLfAJSETsrffOCo1hhGgT7Qg2SMLswARAQABiJ8EGAECAAkFAlFw/pgCGwwACgkQ
+certif:         kXXbjajRa3AecwP7BbunGw89R2u8C+sw+chO3gyWr+klccxZ2g2RiGOMKWEVQXUM
+certif:         Ru0OLzbKfGajl1RO4oo6aTLQAKwi7RoQO31mf699Nadt8nLnI3anVT3tcdI/HXNM
+certif:         0qCy3r2tct/P63LCn+uIT4WvBjCp3gxPok3FdJf6iRon/J5lMNe3M3VjJoM=
+certif:         =DgsR
+certif:         -----END PGP PUBLIC KEY BLOCK-----
+certif:
+mnt-by:         UPD-MNT
+changed:        dbtest@ripe.net 20120101
+source:         TEST

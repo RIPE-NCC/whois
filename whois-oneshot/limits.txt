@@ -1,0 +1,9 @@
+curl -H "Content-Type:application/json" -X POST -d @limit.json http://localhost:9001/api/acl/limits?apiKey=DB-WHOIS-......
+
+limit.json
+{
+  "prefix" : "87.101.224.84 - 87.101.224.87",
+  "comment" : "LIR course in Riyadh until 2013-02-28",
+  "personObjectLimit" : -1,
+  "unlimitedConnections" : true
+}

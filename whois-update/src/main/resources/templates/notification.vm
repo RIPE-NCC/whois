@@ -1,0 +1,84 @@
+>>>>>
+This is to notify you of changes in RIPE Database or
+object authorisation failures.
+
+This message is auto-generated.
+Please DO NOT reply to this message.
+
+If you do not understand why we sent you this message,
+or for assistance or clarification please contact:
+RIPE Database Administration <ripe-dbm@ripe.net>
+
+Change requested from:
+<<<<<
+
+$origin.notificationHeader
+
+#if( $failedAuthentication.size() > 0)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Some objects in which you are referenced as a
+maintainer were requested to be changed, but *failed*
+the proper authorisation for any of the referenced
+maintainers.
+
+Please contact the sender of this update about
+changes that need to be made to the following objects.
+#foreach( $update in $failedAuthentication )
+---
+$update.action REQUESTED FOR:
+
+$update.referenceObject
+
+$update.reason
+
+#end
+#end
+
+#if( $success.size() > 0)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Some object(s) in RIPE Database that you either
+maintain or you are listed in as to-be-notified have
+been added, deleted or changed.
+
+#foreach( $update in $success )
+---
+OBJECT BELOW $update.result:
+
+#if ($update.replacement)
+$update.referenceObject
+
+REPLACED BY:
+
+$update.updatedObject
+#else
+$update.updatedObject
+#end
+$update.reason
+#end
+#end
+
+
+#if( $successReference.size() > 0)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Some object(s) in RIPE Database added references to
+objects you are listed in as to-be-notified.
+
+#foreach( $update in $successReference )
+---
+OBJECT BELOW $update.result:
+
+#if ($update.replacement)
+$update.referenceObject
+
+REPLACED BY:
+
+$update.updatedObject
+#else
+$update.updatedObject
+#end
+$update.reason
+#end
+#end
+
+#parse("/templates/include/terms-and-conditions.vm")
+#parse("/templates/include/version.vm")

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <entry key="max">100000000</entry>
+    <entry key="skip">0</entry>
+    <entry key="entries"></entry>
+    <entry key="ignores">
+        <![CDATA[
+        <4FB38B7A.5050006@ventelo.no>
+        <41DA2F6B03CD6B4495EF33E1B275089D0127F264@SBIPS-ADE-001.corp.sharedband.com>
+        ]]>
+    </entry>
+</properties>

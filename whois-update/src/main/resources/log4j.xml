@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
+
+    <!-- Appenders -->
+    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+        <errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
+        <param name="Target" value="System.out"/>
+        <param name="Threshold" value="ALL"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <!-- The default pattern: Date Priority [Category] Message\n -->
+            <param name="ConversionPattern" value="%d{ISO8601} %-5p %t [%c{1}] %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="UPDATELOG" class="org.apache.log4j.rolling.RollingFileAppender">
+        <param name="Append" value="true" />
+        <param name="Threshold" value="DEBUG" />
+
+        <rollingPolicy name="UPDATELOG" class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+            <param name="FileNamePattern" value="var/log/updlog.%d{yyyyMMdd}" />
+        </rollingPolicy>
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyyMMdd HH:mm:ss} %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="UNREFCLEANUPLOG" class="org.apache.log4j.rolling.RollingFileAppender">
+        <param name="Append" value="true" />
+        <param name="Threshold" value="DEBUG" />
+
+        <rollingPolicy name="UNREFCLEANUPLOG" class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+            <param name="FileNamePattern" value="var/log/unref/unref.%d{yyyyMMdd}" />
+        </rollingPolicy>
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyyMMdd HH:mm:ss} %m%n" />
+        </layout>
+    </appender>
+
+    <!-- Loggers -->
+    <logger name="net.ripe.db.whois.update.log.UpdateLog" additivity="false">
+        <level value="ALL" />
+        <appender-ref ref="UPDATELOG" />
+    </logger>
+    <logger name="net.ripe.db.whois.scheduler.task.unref.UnrefCleanup" additivity="false">
+        <level value="ALL" />
+        <appender-ref ref="UNREFCLEANUPLOG" />
+    </logger>
+    <logger name="net.ripe.db.whois">
+        <level value="INFO"/>
+    </logger>
+    <logger name="net.ripe.db.whois.update.mail">
+        <level value="INFO"/>
+    </logger>
+    <logger name="net.schmizz.sshj">
+        <level value="WARN"/>
+    </logger>
+
+    <!-- Root -->
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</log4j:configuration>

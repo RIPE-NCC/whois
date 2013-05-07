@@ -1,0 +1,2610 @@
+aut-num:         AS8631
+as-name:         MSK-IX-RS
+descr:           Routing Arbiter for Moscow Internet Exchange
+org:             ORG-AM16-RIPE
+import:          from AS2118 action pref=100; accept AS-RELCOM
+import:          from AS2578 action pref=100; accept AS-DEMOS AS-DEMOS-IPV6 AS-RUDEMOS
+import:          from AS2683 action pref=100; accept AS-RADIOMSU
+import:          from AS2820 action pref=100; accept AS-ELVIS
+import:          from AS2848 action pref=100; accept AS-MSURUNNET
+import:          from AS2854 action pref=100; accept AS-ROSPRINT AS-OBSRUSSIA6
+import:          from AS2895 action pref=100; accept AS-FREENET
+import:          from AS3058 action pref=100; accept AS-RASNET
+import:          from AS3218 action pref=100; accept AS-COSMOS
+import:          from AS3267 action pref=100; accept AS-RUNNET
+import:          from AS3316 action pref=100; accept AS-RELARN
+import:          from AS3327 action pref=100; accept AS-LINXTELECOM-MSK-IX
+import:          from AS5429 action pref=100; accept AS-IIPNET-MSK-IX
+import:          from AS5431 action pref=100; accept AS-FGNET
+import:          from AS5467 action pref=100; accept AS-MIPT
+import:          from AS5523 action pref=100; accept AS-RMT
+import:          from AS5537 action pref=100; accept AS-GARANTPARK
+import:          from AS5563 action pref=100; accept AS-URAL
+import:          from AS5568 action pref=100; accept AS-RBNET
+import:          from AS6670 action pref=100; accept AS6670
+import:          from AS6673 action pref=100; accept AS-INCOMA
+import:          from AS6679 action pref=100; accept AS-SKADI
+import:          from AS6690 action pref=100; accept AS-WEBPLUS
+import:          from AS6723 action pref=100; accept AS-6723 AS-6723-V6
+import:          from AS6850 action pref=100; accept AS-METROCOM
+import:          from AS6863 action pref=100; accept AS-ROSNET
+import:          from AS6870 action pref=100; accept AS6870
+import:          from AS6880 action pref=100; accept AS-ORBITA
+import:          from AS6903 action pref=100; accept AS-ZENON
+import:          from AS8241 action pref=100; accept AS-RELLINE
+import:          from AS8299 action pref=100; accept AS-INFOTEL
+import:          from AS8331 action pref=100; accept AS-RURINET
+import:          from AS8359 action pref=100; accept AS-MTU-V6
+import:          from AS8369 action pref=100; accept AS-INTERSVYAZ
+import:          from AS8395 action pref=100; accept AS-EAST
+import:          from AS8491 action pref=100; accept AS-BSH
+import:          from AS8492 action pref=100; accept AS-OBIT
+import:          from AS8515 action pref=100; accept AS-DATAFORCE
+import:          from AS8557 action pref=100; accept AS-ELKATEL
+import:          from AS8595 action pref=100; accept AS-WESTCALL-IX
+import:          from AS8615 action pref=100; accept AS-CNTPEERS
+import:          from AS8629 action pref=100; accept AS-MCNTT
+import:          from AS8636 action pref=100; accept AS-MAX
+import:          from AS8641 action pref=100; accept AS-NAUKANET
+import:          from AS8732 action pref=100; accept AS-COMCOR
+import:          from AS8744 action pref=100; accept AS-WIMAX
+import:          from AS8752 action pref=100; accept AS-ASVT
+import:          from AS8905 action pref=100; accept AS-DIGIT1
+import:          from AS8997 action pref=100; accept AS-SPBNIT
+import:          from AS9002 action pref=100; accept AS-RETN AS-RETN6
+import:          from AS9031 action pref=100; accept AS-EDPNET AS-EDPNET-V6
+import:          from AS9032 action pref=100; accept AS-EDUNET
+import:          from AS9039 action pref=100; accept AS-IIAT
+import:          from AS9110 action pref=100; accept AS-AGTEL-RUS
+import:          from AS9123 action pref=100; accept AS-TIMEWEB
+import:          from AS12076 action pref=100; accept AS-MICROSOFT
+import:          from AS12314 action pref=100; accept AS-ROPNET
+import:          from AS12335 action pref=100; accept AS12335
+import:          from AS12389 action pref=100; accept AS-ROSTELECOM
+import:          from AS12550 action pref=100; accept AS-OSS
+import:          from AS12555 action pref=100; accept AS-CUBIO-RUS-IX
+import:          from AS12622 action pref=100; accept AS-COMINTERN
+import:          from AS12690 action pref=100; accept AS-MKSNET
+import:          from AS12695 action pref=100; accept AS-DINET AS-DINET-V6
+import:          from AS12714 action pref=100; accept AS-TI
+import:          from AS12739 action pref=100; accept AS-NETLINE
+import:          from AS12883 action pref=100; accept AS-UCOMLINE
+import:          from AS12958 action pref=100; accept AS-MCC
+import:          from AS12976 action pref=100; accept AS-RUCWSVYAZ
+import:          from AS12979 action pref=100; accept AS-TSINET
+import:          from AS13002 action pref=100; accept AS-LINKEY
+import:          from AS13105 action pref=100; accept AS-LUKOIL
+import:          from AS13194 action pref=100; accept AS-BITE
+import:          from AS13230 action pref=100; accept AS-NCPORT
+import:          from AS13238 action pref=100; accept AS-YANDEX
+import:          from AS15169 action pref=100; accept AS-GOOGLE
+import:          from AS15493 action pref=100; accept AS-RUSCOMP
+import:          from AS15632 action pref=100; accept AS15632
+import:          from AS15672 action pref=100; accept AS-TZTELECOM
+import:          from AS15682 action pref=100; accept AS-ITERANET
+import:          from AS15731 action pref=100; accept AS-BELCOM
+import:          from AS15756 action pref=100; accept AS-CARAVANRUS
+import:          from AS15757 action pref=100; accept AS-GASCOM
+import:          from AS15835 action pref=100; accept AS-MAP
+import:          from AS15934 action pref=100; accept AS-ZEBRA
+import:          from AS16020 action pref=100; accept AS-TASCOM
+import:          from AS16083 action pref=100; accept AS-STACK AS-STACK6
+import:          from AS16094 action pref=100; accept AS-ROILCOM
+import:          from AS16143 action pref=100; accept AS-RATEL
+import:          from AS20483 action pref=100; accept AS-RTNET
+import:          from AS20544 action pref=100; accept AS-EXPR
+import:          from AS20632 action pref=100; accept AS-PETERSTAR
+import:          from AS20655 action pref=100; accept AS-EST
+import:          from AS20702 action pref=100; accept AS20702
+import:          from AS20764 action pref=100; accept AS-RASCOM
+import:          from AS20807 action pref=100; accept AS-CREDOLINK
+import:          from AS20919 action pref=100; accept AS-IBS
+import:          from AS20946 action pref=100; accept AS-CCE
+import:          from AS20985 action pref=100; accept AS-ARTX
+import:          from AS21011 action pref=100; accept AS21011:AS-EXT
+import:          from AS21109 action pref=100; accept AS21109
+import:          from AS21135 action pref=100; accept AS-MTT
+import:          from AS21156 action pref=100; accept AS-DATAGRUPARU
+import:          from AS21219 action pref=100; accept AS-FF-TRANSIT
+import:          from AS21225 action pref=100; accept AS-AMTKOM
+import:          from AS21240 action pref=100; accept AS-HELIOSNET
+import:          from AS21353 action pref=100; accept AS-ARTCOMS
+import:          from AS21367 action pref=100; accept AS-ZVEZDATEL
+import:          from AS21372 action pref=100; accept AS21372
+import:          from AS21414 action pref=100; accept AS-RCNET
+import:          from AS21416 action pref=100; accept AS21416
+import:          from AS21446 action pref=100; accept AS-ALMAZTELECOM
+import:          from AS21453 action pref=100; accept AS-FLEX
+import:          from AS24599 action pref=100; accept AS-MIRTELECOM
+import:          from AS24638 action pref=100; accept AS-RAMTEL AS-RAMTEL6
+import:          from AS24663 action pref=100; accept AS-COMPLAT
+import:          from AS24680 action pref=100; accept AS-COMPNET
+import:          from AS24762 action pref=100; accept AS-STELCOM
+import:          from AS24829 action pref=100; accept AS24829
+import:          from AS24936 action pref=100; accept AS-RIM2000M
+import:          from AS25189 action pref=100; accept AS-NLINE
+import:          from AS25292 action pref=100; accept AS25292
+import:          from AS25308 action pref=100; accept AS-CITYLAN
+import:          from AS25371 action pref=100; accept as25371
+import:          from AS25408 action pref=100; accept AS-WESTCALLSPB
+import:          from AS25478 action pref=100; accept AS-IHOME AS-IHOME6
+import:          from AS25511 action pref=100; accept AS-NET21
+import:          from AS25531 action pref=100; accept AS-INTINFORM
+import:          from AS26415 action pref=100; accept AS-GTLD
+import:          from AS28762 action pref=100; accept AS-AWAX
+import:          from AS28870 action pref=100; accept AS-PLUS-RU
+import:          from AS28891 action pref=100; accept AS-CITTEL
+import:          from AS28917 action pref=100; accept AS-FIORD-V6
+import:          from AS28968 action pref=100; accept AS-EUT
+import:          from AS29000 action pref=100; accept AS-SENSYS
+import:          from AS29053 action pref=100; accept AS-JSC-TELENET
+import:          from AS29069 action pref=100; accept AS-TRANSLINECOM
+import:          from AS29076 action pref=100; accept AS-CITYTELECOM
+import:          from AS29124 action pref=100; accept AS-SU29TELECOM
+import:          from AS29182 action pref=100; accept AS-ISPSYSTEM
+import:          from AS29226 action pref=100; accept AS-MASTERTEL
+import:          from AS29285 action pref=100; accept AS-AMTMGTS
+import:          from AS29319 action pref=100; accept AS-IMSYS
+import:          from AS29329 action pref=100; accept AS-NODEX
+import:          from AS29388 action pref=100; accept AS-BESTCOM
+import:          from AS29530 action pref=100; accept AS-TITL
+import:          from AS29632 action pref=100; accept AS-NETASSIST
+import:          from AS29651 action pref=100; accept AS-CTCS
+import:          from AS30124 action pref=100; accept AS30124 AS3557
+import:          from AS30733 action pref=100; accept AS-GLOBUS
+import:          from AS30784 action pref=100; accept AS-ISKRATELECOM
+import:          from AS30833 action pref=100; accept AS-TNC
+import:          from AS30853 action pref=100; accept AS30853
+import:          from AS31059 action pref=100; accept AS-AVELACOM
+import:          from AS31133 action pref=100; accept AS-MF-MGSM
+import:          from AS31189 action pref=100; accept AS-WESTTEL
+import:          from AS31225 action pref=100; accept AS-OBLCOM
+import:          from AS31261 action pref=100; accept AS-GARS
+import:          from AS31294 action pref=100; accept AS31294
+import:          from AS31368 action pref=100; accept AS-ASTELNET
+import:          from AS31370 action pref=100; accept AS-MOSLINE
+import:          from AS31415 action pref=100; accept AS-SVSCOMM
+import:          from AS31430 action pref=100; accept AS-TEL-NET
+import:          from AS31444 action pref=100; accept AS-SEANET
+import:          from AS31494 action pref=100; accept AS-Infoseti
+import:          from AS31500 action pref=100; accept AS-GLOBAL-NET
+import:          from AS31514 action pref=100; accept AS31514
+import:          from AS31720 action pref=100; accept AS-ENGINET
+import:          from AS33842 action pref=100; accept AS-RU-CROSSTEL
+import:          from AS33902 action pref=100; accept AS-STARNETWORKS
+import:          from AS33904 action pref=100; accept AS-INTELCOM
+import:          from AS34030 action pref=100; accept AS-BORODINO
+import:          from AS34034 action pref=100; accept AS-ARCTEL
+import:          from AS34035 action pref=100; accept AS34035
+import:          from AS34123 action pref=100; accept AS-NETORN
+import:          from AS34139 action pref=100; accept AS34139
+import:          from AS34277 action pref=100; accept AS34277
+import:          from AS34300 action pref=100; accept AS34300
+import:          from AS34352 action pref=100; accept AS-MCN
+import:          from AS34456 action pref=100; accept AS-RCPEERS
+import:          from AS34485 action pref=100; accept AS34485
+import:          from AS34550 action pref=100; accept AS-INTERCON
+import:          from AS34602 action pref=100; accept AS-STARLNK
+import:          from AS34879 action pref=100; accept AS-NGENIX-MSK
+import:          from AS34898 action pref=100; accept AS-SYMBIOS
+import:          from AS35000 action pref=100; accept AS-PROMETEY-IX
+import:          from AS35087 action pref=100; accept AS-NTSI
+import:          from AS35178 action pref=100; accept AS-TELART
+import:          from AS35271 action pref=100; accept AS35271
+import:          from AS35297 action pref=100; accept AS-DL-WORLD
+import:          from AS35320 action pref=100; accept AS-ETT
+import:          from AS35357 action pref=100; accept AS-RTS
+import:          from AS35475 action pref=100; accept AS35475
+import:          from AS35511 action pref=100; accept AS-IWAN
+import:          from AS35522 action pref=100; accept AS35522
+import:          from AS35539 action pref=100; accept AS-INFOLINK
+import:          from AS35598 action pref=100; accept AS35598
+import:          from AS35640 action pref=100; accept AS-MIGRAPH
+import:          from AS35641 action pref=100; accept AS-ELECTROCOM
+import:          from AS35723 action pref=100; accept AS35723
+import:          from AS35768 action pref=100; accept AS-MSLINK
+import:          from AS35770 action pref=100; accept AS-NCTRADE
+import:          from AS35810 action pref=100; accept AS-BIGTELECOM
+import:          from AS38964 action pref=100; accept AS38964
+import:          from AS38984 action pref=100; accept AS38984
+import:          from AS39045 action pref=100; accept AS-GAZTELECOM
+import:          from AS39087 action pref=100; accept AS-PAKT
+import:          from AS39102 action pref=100; accept AS-NNZ
+import:          from AS39134 action pref=100; accept AS-UNITEDNET
+import:          from AS39153 action pref=100; accept AS-SETEL
+import:          from AS39684 action pref=100; accept AS39684
+import:          from AS39709 action pref=100; accept AS-MARYNONET
+import:          from AS39792 action pref=100; accept AS-ANDERS
+import:          from AS39821 action pref=100; accept AS-CANMOS
+import:          from AS41034 action pref=100; accept AS-IMPULS
+import:          from AS41095 action pref=100; accept AS-IPTP
+import:          from AS41109 action pref=100; accept AS41109
+import:          from AS41145 action pref=100; accept AS-TELIX
+import:          from AS41349 action pref=100; accept AS-MVM
+import:          from AS41475 action pref=100; accept AS-SDK
+import:          from AS41554 action pref=100; accept AS-LEGIONCOM
+import:          from AS41601 action pref=100; accept AS-OBLTELECOM
+import:          from AS41667 action pref=100; accept AS41667
+import:          from AS41691 action pref=100; accept AS-SUMTEL
+import:          from AS41733 action pref=100; accept AS-ZTELECOM
+import:          from AS41802 action pref=100; accept AS-KVIDEX
+import:          from AS41842 action pref=100; accept AS-MEDIAL
+import:          from AS41853 action pref=100; accept AS41853 AS42240 AS47690
+import:          from AS42145 action pref=100; accept AS42145
+import:          from AS42226 action pref=100; accept AS-EETC
+import:          from AS42291 action pref=100; accept AS42291
+import:          from AS42317 action pref=100; accept AS42317 AS9113
+import:          from AS42368 action pref=100; accept AS42368
+import:          from AS42377 action pref=100; accept AS42377
+import:          from AS42388 action pref=100; accept AS-BSVT
+import:          from AS42429 action pref=100; accept AS42429
+import:          from AS42484 action pref=100; accept AS-GPTEL
+import:          from AS42511 action pref=100; accept AS-STATION
+import:          from AS42583 action pref=100; accept AS-ULCOMNET
+import:          from AS42610 action pref=100; accept AS-NCNET
+import:          from AS42632 action pref=100; accept AS-MNOGOBYTE
+import:          from AS42668 action pref=100; accept AS-NEVALINK
+import:          from AS42678 action pref=100; accept AS-MEGANET
+import:          from AS42754 action pref=100; accept AS-7SKY
+import:          from AS42861 action pref=100; accept AS-PRIME-LINE AS-PRIME-LINE-V6
+import:          from AS42909 action pref=100; accept AS42909
+import:          from AS43045 action pref=100; accept AS-SvHolding
+import:          from AS43268 action pref=100; accept AS-VSD
+import:          from AS43304 action pref=100; accept AS-FAST
+import:          from AS43317 action pref=100; accept AS43317
+import:          from AS43404 action pref=100; accept AS-UCANET
+import:          from AS43567 action pref=100; accept AS43567
+import:          from AS43666 action pref=100; accept AS-CTS-MSKIX
+import:          from AS43686 action pref=100; accept AS43686
+import:          from AS43714 action pref=100; accept AS-EPL
+import:          from AS43727 action pref=100; accept AS-SETKT
+import:          from AS43798 action pref=100; accept AS43798
+import:          from AS43832 action pref=100; accept AS-NS5_RIPN_NET
+import:          from AS43966 action pref=100; accept AS-ITREGION
+import:          from AS43973 action pref=100; accept AS-OSMP
+import:          from AS44030 action pref=100; accept AS-LENTEL
+import:          from AS44041 action pref=100; accept AS44041
+import:          from AS44048 action pref=100; accept AS44048
+import:          from AS44050 action pref=100; accept AS-PIN-MSKIX
+import:          from AS44237 action pref=100; accept AS-CTC-CORE
+import:          from AS44281 action pref=100; accept AS-BUTOVOCOM
+import:          from AS44283 action pref=100; accept AS44283
+import:          from AS44436 action pref=100; accept AS-EFFORTEL-MSK-IX
+import:          from AS44479 action pref=100; accept AS44479
+import:          from AS44532 action pref=100; accept AS44532
+import:          from AS44552 action pref=100; accept AS-SCTS
+import:          from AS44618 action pref=100; accept AS-GIGABIT
+import:          from AS44670 action pref=100; accept AS44670
+import:          from AS44678 action pref=100; accept AS44678
+import:          from AS44696 action pref=100; accept AS44696
+import:          from AS44816 action pref=100; accept AS-DELFINTELECOM
+import:          from AS44882 action pref=100; accept AS-VSEVNET
+import:          from AS44893 action pref=100; accept AS44893
+import:          from AS44927 action pref=100; accept AS-TMPK
+import:          from AS44943 action pref=100; accept AS-RAMNET
+import:          from AS45009 action pref=100; accept AS-MRSNET
+import:          from AS45046 action pref=100; accept AS-ISATEL
+import:          from AS47104 action pref=100; accept AS-PROLINKMO
+import:          from AS47119 action pref=100; accept AS47119
+import:          from AS47156 action pref=100; accept AS47156
+import:          from AS47321 action pref=100; accept AS47321
+import:          from AS47395 action pref=100; accept AS-SCARTEL
+import:          from AS47440 action pref=100; accept AS-BST
+import:          from AS47522 action pref=100; accept AS-NETFORT
+import:          from AS47562 action pref=100; accept AS-FAST_LINK
+import:          from AS47614 action pref=100; accept AS-MEGANN
+import:          from AS47645 action pref=100; accept AS-SET-STC-NET
+import:          from AS47724 action pref=100; accept AS47724
+import:          from AS47747 action pref=100; accept AS-TMK
+import:          from AS47764 action pref=100; accept AS-MAILRU
+import:          from AS48061 action pref=100; accept AS48061
+import:          from AS48076 action pref=100; accept AS-OLYMP-TELECOM
+import:          from AS48166 action pref=100; accept AS-FORTEX
+import:          from AS48172 action pref=100; accept AS-MERCUR
+import:          from AS48249 action pref=100; accept AS-CAPTEL
+import:          from AS48268 action pref=100; accept AS-INTERFIBER
+import:          from AS48287 action pref=100; accept AS-RUCENTER
+import:          from AS48293 action pref=100; accept AS-UNIONTEL-RU
+import:          from AS48297 action pref=100; accept AS48297
+import:          from AS48467 action pref=100; accept AS-PRANET
+import:          from AS48781 action pref=100; accept AS48781
+import:          from AS48822 action pref=100; accept AS-UNIVERSUMNET AS-UNIVERSUMNET-V6
+import:          from AS48848 action pref=100; accept AS-MCM
+import:          from AS48914 action pref=100; accept AS-ZEPPELIN
+import:          from AS49058 action pref=100; accept AS-PRIMELINK
+import:          from AS49060 action pref=100; accept AS-FASTTEL AS-KOMLAN AS-UNIONLINE
+import:          from AS49063 action pref=100; accept AS-DTLN
+import:          from AS49291 action pref=100; accept as-interproekt
+import:          from AS49307 action pref=100; accept AS-INTERTAX-MSK
+import:          from AS49335 action pref=100; accept AS-NCONNECT
+import:          from AS49342 action pref=100; accept AS-SPEEDYLINE
+import:          from AS49403 action pref=100; accept AS-AVK-WELLCOM
+import:          from AS49779 action pref=100; accept AS49779
+import:          from AS49813 action pref=100; accept AS-INN
+import:          from AS49973 action pref=100; accept AS49973
+import:          from AS50277 action pref=100; accept AS-WEBTV
+import:          from AS50289 action pref=100; accept AS-WELLCOMM
+import:          from AS50384 action pref=100; accept AS-W-IX
+import:          from AS50448 action pref=100; accept AS-SSERVICE
+import:          from AS50473 action pref=100; accept AS-ECO
+import:          from AS50577 action pref=100; accept AS50577
+import:          from AS50677 action pref=100; accept AS-MSK910
+import:          from AS50923 action pref=100; accept AS-METRO-SET
+import:          from AS51011 action pref=100; accept AS51011
+import:          from AS51218 action pref=100; accept AS51218
+import:          from AS51297 action pref=100; accept AS51297
+import:          from AS51343 action pref=100; accept AS51343
+import:          from AS51408 action pref=100; accept AS-SIRIUS
+import:          from AS51437 action pref=100; accept AS51437
+import:          from AS51464 action pref=100; accept AS51464
+import:          from AS51548 action pref=100; accept AS51548
+import:          from AS51665 action pref=100; accept AS-TELEDISCOUNT
+import:          from AS51764 action pref=100; accept AS-AMTEL
+import:          from AS51904 action pref=100; accept AS51904
+import:          from AS51939 action pref=100; accept AS-EXPATEL
+import:          from AS52201 action pref=100; accept AS-TCTEL
+import:          from AS56462 action pref=100; accept AS-DDESTINY
+import:          from AS56762 action pref=100; accept AS56762
+import:          from AS56902 action pref=100; accept AS56902
+import:          from AS57107 action pref=100; accept AS57107
+import:          from AS57359 action pref=100; accept AS-TERMPLUS AS57359
+import:          from AS57363 action pref=100; accept AS-CDNVIDEO
+import:          from AS57420 action pref=100; accept AS-FORATELECOM
+import:          from AS57629 action pref=100; accept AS57629
+import:          from AS196695 action pref=100; accept AS-NETONERUS
+import:          from AS197062 action pref=100; accept AS197062
+import:          from AS197140 action pref=100; accept AS197140
+import:          from AS197826 action pref=100; accept AS-SKYNET-MSK
+import:          from AS198028 action pref=100; accept AS198028
+export:          to AS2118 announce AS-MSKROUTESERVER
+export:          to AS2578 announce AS-MSKROUTESERVER
+export:          to AS2683 announce AS-MSKROUTESERVER
+export:          to AS2820 announce AS-MSKROUTESERVER
+export:          to AS2848 announce AS-MSKROUTESERVER
+export:          to AS2854 announce AS-MSKROUTESERVER
+export:          to AS2895 announce AS-MSKROUTESERVER
+export:          to AS3058 announce AS-MSKROUTESERVER
+export:          to AS3218 announce AS-MSKROUTESERVER
+export:          to AS3267 announce AS-MSKROUTESERVER
+export:          to AS3316 announce AS-MSKROUTESERVER
+export:          to AS3327 announce AS-MSKROUTESERVER
+export:          to AS5429 announce AS-MSKROUTESERVER
+export:          to AS5431 announce AS-MSKROUTESERVER
+export:          to AS5467 announce AS-MSKROUTESERVER
+export:          to AS5523 announce AS-MSKROUTESERVER
+export:          to AS5537 announce AS-MSKROUTESERVER
+export:          to AS5563 announce AS-MSKROUTESERVER
+export:          to AS5568 announce AS-MSKROUTESERVER
+export:          to AS6670 announce AS-MSKROUTESERVER
+export:          to AS6673 announce AS-MSKROUTESERVER
+export:          to AS6679 announce AS-MSKROUTESERVER
+export:          to AS6690 announce AS-MSKROUTESERVER
+export:          to AS6723 announce AS-MSKROUTESERVER
+export:          to AS6850 announce AS-MSKROUTESERVER
+export:          to AS6863 announce AS-MSKROUTESERVER
+export:          to AS6870 announce AS-MSKROUTESERVER
+export:          to AS6880 announce AS-MSKROUTESERVER
+export:          to AS6903 announce AS-MSKROUTESERVER
+export:          to AS8241 announce AS-MSKROUTESERVER
+export:          to AS8299 announce AS-MSKROUTESERVER
+export:          to AS8331 announce AS-MSKROUTESERVER
+export:          to AS8359 announce AS-MSKROUTESERVER
+export:          to AS8369 announce AS-MSKROUTESERVER
+export:          to AS8395 announce AS-MSKROUTESERVER
+export:          to AS8491 announce AS-MSKROUTESERVER
+export:          to AS8492 announce AS-MSKROUTESERVER
+export:          to AS8515 announce AS-MSKROUTESERVER
+export:          to AS8557 announce AS-MSKROUTESERVER
+export:          to AS8595 announce AS-MSKROUTESERVER
+export:          to AS8615 announce AS-MSKROUTESERVER
+export:          to AS8629 announce AS-MSKROUTESERVER
+export:          to AS8636 announce AS-MSKROUTESERVER
+export:          to AS8641 announce AS-MSKROUTESERVER
+export:          to AS8732 announce AS-MSKROUTESERVER
+export:          to AS8744 announce AS-MSKROUTESERVER
+export:          to AS8752 announce AS-MSKROUTESERVER
+export:          to AS8905 announce AS-MSKROUTESERVER
+export:          to AS8997 announce AS-MSKROUTESERVER
+export:          to AS9002 announce AS-MSKROUTESERVER
+export:          to AS9031 announce AS-MSKROUTESERVER
+export:          to AS9032 announce AS-MSKROUTESERVER
+export:          to AS9039 announce AS-MSKROUTESERVER
+export:          to AS9110 announce AS-MSKROUTESERVER
+export:          to AS9123 announce AS-MSKROUTESERVER
+export:          to AS12076 announce AS-MSKROUTESERVER
+export:          to AS12314 announce AS-MSKROUTESERVER
+export:          to AS12335 announce AS-MSKROUTESERVER
+export:          to AS12389 announce AS-MSKROUTESERVER
+export:          to AS12550 announce AS-MSKROUTESERVER
+export:          to AS12555 announce AS-MSKROUTESERVER
+export:          to AS12622 announce AS-MSKROUTESERVER
+export:          to AS12690 announce AS-MSKROUTESERVER
+export:          to AS12695 announce AS-MSKROUTESERVER
+export:          to AS12714 announce AS-MSKROUTESERVER
+export:          to AS12739 announce AS-MSKROUTESERVER
+export:          to AS12883 announce AS-MSKROUTESERVER
+export:          to AS12958 announce AS-MSKROUTESERVER
+export:          to AS12976 announce AS-MSKROUTESERVER
+export:          to AS12979 announce AS-MSKROUTESERVER
+export:          to AS13002 announce AS-MSKROUTESERVER
+export:          to AS13105 announce AS-MSKROUTESERVER
+export:          to AS13194 announce AS-MSKROUTESERVER
+export:          to AS13230 announce AS-MSKROUTESERVER
+export:          to AS13238 announce AS-MSKROUTESERVER
+export:          to AS15169 announce AS-MSKROUTESERVER
+export:          to AS15493 announce AS-MSKROUTESERVER
+export:          to AS15632 announce AS-MSKROUTESERVER
+export:          to AS15672 announce AS-MSKROUTESERVER
+export:          to AS15682 announce AS-MSKROUTESERVER
+export:          to AS15731 announce AS-MSKROUTESERVER
+export:          to AS15756 announce AS-MSKROUTESERVER
+export:          to AS15757 announce AS-MSKROUTESERVER
+export:          to AS15835 announce AS-MSKROUTESERVER
+export:          to AS15934 announce AS-MSKROUTESERVER
+export:          to AS16020 announce AS-MSKROUTESERVER
+export:          to AS16083 announce AS-MSKROUTESERVER
+export:          to AS16094 announce AS-MSKROUTESERVER
+export:          to AS16143 announce AS-MSKROUTESERVER
+export:          to AS20483 announce AS-MSKROUTESERVER
+export:          to AS20544 announce AS-MSKROUTESERVER
+export:          to AS20632 announce AS-MSKROUTESERVER
+export:          to AS20655 announce AS-MSKROUTESERVER
+export:          to AS20702 announce AS-MSKROUTESERVER
+export:          to AS20764 announce AS-MSKROUTESERVER
+export:          to AS20807 announce AS-MSKROUTESERVER
+export:          to AS20919 announce AS-MSKROUTESERVER
+export:          to AS20946 announce AS-MSKROUTESERVER
+export:          to AS20985 announce AS-MSKROUTESERVER
+export:          to AS21011 announce AS-MSKROUTESERVER
+export:          to AS21109 announce AS-MSKROUTESERVER
+export:          to AS21135 announce AS-MSKROUTESERVER
+export:          to AS21156 announce AS-MSKROUTESERVER
+export:          to AS21219 announce AS-MSKROUTESERVER
+export:          to AS21225 announce AS-MSKROUTESERVER
+export:          to AS21240 announce AS-MSKROUTESERVER
+export:          to AS21353 announce AS-MSKROUTESERVER
+export:          to AS21367 announce AS-MSKROUTESERVER
+export:          to AS21372 announce AS-MSKROUTESERVER
+export:          to AS21414 announce AS-MSKROUTESERVER
+export:          to AS21416 announce AS-MSKROUTESERVER
+export:          to AS21446 announce AS-MSKROUTESERVER
+export:          to AS21453 announce AS-MSKROUTESERVER
+export:          to AS24599 announce AS-MSKROUTESERVER
+export:          to AS24638 announce AS-MSKROUTESERVER
+export:          to AS24663 announce AS-MSKROUTESERVER
+export:          to AS24680 announce AS-MSKROUTESERVER
+export:          to AS24762 announce AS-MSKROUTESERVER
+export:          to AS24829 announce AS-MSKROUTESERVER
+export:          to AS24936 announce AS-MSKROUTESERVER
+export:          to AS25189 announce AS-MSKROUTESERVER
+export:          to AS25292 announce AS-MSKROUTESERVER
+export:          to AS25308 announce AS-MSKROUTESERVER
+export:          to AS25371 announce AS-MSKROUTESERVER
+export:          to AS25408 announce AS-MSKROUTESERVER
+export:          to AS25478 announce AS-MSKROUTESERVER
+export:          to AS25511 announce AS-MSKROUTESERVER
+export:          to AS25531 announce AS-MSKROUTESERVER
+export:          to AS26415 announce AS-MSKROUTESERVER
+export:          to AS28762 announce AS-MSKROUTESERVER
+export:          to AS28870 announce AS-MSKROUTESERVER
+export:          to AS28891 announce AS-MSKROUTESERVER
+export:          to AS28917 announce AS-MSKROUTESERVER
+export:          to AS28968 announce AS-MSKROUTESERVER
+export:          to AS29000 announce AS-MSKROUTESERVER
+export:          to AS29053 announce AS-MSKROUTESERVER
+export:          to AS29069 announce AS-MSKROUTESERVER
+export:          to AS29076 announce AS-MSKROUTESERVER
+export:          to AS29124 announce AS-MSKROUTESERVER
+export:          to AS29182 announce AS-MSKROUTESERVER
+export:          to AS29226 announce AS-MSKROUTESERVER
+export:          to AS29285 announce AS-MSKROUTESERVER
+export:          to AS29319 announce AS-MSKROUTESERVER
+export:          to AS29329 announce AS-MSKROUTESERVER
+export:          to AS29388 announce AS-MSKROUTESERVER
+export:          to AS29530 announce AS-MSKROUTESERVER
+export:          to AS29632 announce AS-MSKROUTESERVER
+export:          to AS29651 announce AS-MSKROUTESERVER
+export:          to AS30124 announce AS-MSKROUTESERVER
+export:          to AS30733 announce AS-MSKROUTESERVER
+export:          to AS30784 announce AS-MSKROUTESERVER
+export:          to AS30833 announce AS-MSKROUTESERVER
+export:          to AS30853 announce AS-MSKROUTESERVER
+export:          to AS31059 announce AS-MSKROUTESERVER
+export:          to AS31133 announce AS-MSKROUTESERVER
+export:          to AS31189 announce AS-MSKROUTESERVER
+export:          to AS31225 announce AS-MSKROUTESERVER
+export:          to AS31261 announce AS-MSKROUTESERVER
+export:          to AS31294 announce AS-MSKROUTESERVER
+export:          to AS31368 announce AS-MSKROUTESERVER
+export:          to AS31370 announce AS-MSKROUTESERVER
+export:          to AS31415 announce AS-MSKROUTESERVER
+export:          to AS31430 announce AS-MSKROUTESERVER
+export:          to AS31444 announce AS-MSKROUTESERVER
+export:          to AS31494 announce AS-MSKROUTESERVER
+export:          to AS31500 announce AS-MSKROUTESERVER
+export:          to AS31514 announce AS-MSKROUTESERVER
+export:          to AS31720 announce AS-MSKROUTESERVER
+export:          to AS33842 announce AS-MSKROUTESERVER
+export:          to AS33902 announce AS-MSKROUTESERVER
+export:          to AS33904 announce AS-MSKROUTESERVER
+export:          to AS34030 announce AS-MSKROUTESERVER
+export:          to AS34034 announce AS-MSKROUTESERVER
+export:          to AS34035 announce AS-MSKROUTESERVER
+export:          to AS34123 announce AS-MSKROUTESERVER
+export:          to AS34139 announce AS-MSKROUTESERVER
+export:          to AS34277 announce AS-MSKROUTESERVER
+export:          to AS34300 announce AS-MSKROUTESERVER
+export:          to AS34352 announce AS-MSKROUTESERVER
+export:          to AS34456 announce AS-MSKROUTESERVER
+export:          to AS34485 announce AS-MSKROUTESERVER
+export:          to AS34550 announce AS-MSKROUTESERVER
+export:          to AS34602 announce AS-MSKROUTESERVER
+export:          to AS34879 announce AS-MSKROUTESERVER
+export:          to AS34898 announce AS-MSKROUTESERVER
+export:          to AS35000 announce AS-MSKROUTESERVER
+export:          to AS35087 announce AS-MSKROUTESERVER
+export:          to AS35178 announce AS-MSKROUTESERVER
+export:          to AS35271 announce AS-MSKROUTESERVER
+export:          to AS35297 announce AS-MSKROUTESERVER
+export:          to AS35320 announce AS-MSKROUTESERVER
+export:          to AS35357 announce AS-MSKROUTESERVER
+export:          to AS35475 announce AS-MSKROUTESERVER
+export:          to AS35511 announce AS-MSKROUTESERVER
+export:          to AS35522 announce AS-MSKROUTESERVER
+export:          to AS35539 announce AS-MSKROUTESERVER
+export:          to AS35598 announce AS-MSKROUTESERVER
+export:          to AS35640 announce AS-MSKROUTESERVER
+export:          to AS35641 announce AS-MSKROUTESERVER
+export:          to AS35723 announce AS-MSKROUTESERVER
+export:          to AS35768 announce AS-MSKROUTESERVER
+export:          to AS35770 announce AS-MSKROUTESERVER
+export:          to AS35810 announce AS-MSKROUTESERVER
+export:          to AS38964 announce AS-MSKROUTESERVER
+export:          to AS38984 announce AS-MSKROUTESERVER
+export:          to AS39045 announce AS-MSKROUTESERVER
+export:          to AS39087 announce AS-MSKROUTESERVER
+export:          to AS39102 announce AS-MSKROUTESERVER
+export:          to AS39134 announce AS-MSKROUTESERVER
+export:          to AS39153 announce AS-MSKROUTESERVER
+export:          to AS39684 announce AS-MSKROUTESERVER
+export:          to AS39709 announce AS-MSKROUTESERVER
+export:          to AS39792 announce AS-MSKROUTESERVER
+export:          to AS39821 announce AS-MSKROUTESERVER
+export:          to AS41034 announce AS-MSKROUTESERVER
+export:          to AS41095 announce AS-MSKROUTESERVER
+export:          to AS41109 announce AS-MSKROUTESERVER
+export:          to AS41145 announce AS-MSKROUTESERVER
+export:          to AS41349 announce AS-MSKROUTESERVER
+export:          to AS41475 announce AS-MSKROUTESERVER
+export:          to AS41554 announce AS-MSKROUTESERVER
+export:          to AS41601 announce AS-MSKROUTESERVER
+export:          to AS41667 announce AS-MSKROUTESERVER
+export:          to AS41691 announce AS-MSKROUTESERVER
+export:          to AS41733 announce AS-MSKROUTESERVER
+export:          to AS41802 announce AS-MSKROUTESERVER
+export:          to AS41842 announce AS-MSKROUTESERVER
+export:          to AS41853 announce AS-MSKROUTESERVER
+export:          to AS42145 announce AS-MSKROUTESERVER
+export:          to AS42226 announce AS-MSKROUTESERVER
+export:          to AS42291 announce AS-MSKROUTESERVER
+export:          to AS42317 announce AS-MSKROUTESERVER
+export:          to AS42368 announce AS-MSKROUTESERVER
+export:          to AS42377 announce AS-MSKROUTESERVER
+export:          to AS42388 announce AS-MSKROUTESERVER
+export:          to AS42429 announce AS-MSKROUTESERVER
+export:          to AS42484 announce AS-MSKROUTESERVER
+export:          to AS42511 announce AS-MSKROUTESERVER
+export:          to AS42583 announce AS-MSKROUTESERVER
+export:          to AS42610 announce AS-MSKROUTESERVER
+export:          to AS42632 announce AS-MSKROUTESERVER
+export:          to AS42668 announce AS-MSKROUTESERVER
+export:          to AS42678 announce AS-MSKROUTESERVER
+export:          to AS42754 announce AS-MSKROUTESERVER
+export:          to AS42861 announce AS-MSKROUTESERVER
+export:          to AS42909 announce AS-MSKROUTESERVER
+export:          to AS43045 announce AS-MSKROUTESERVER
+export:          to AS43268 announce AS-MSKROUTESERVER
+export:          to AS43304 announce AS-MSKROUTESERVER
+export:          to AS43317 announce AS-MSKROUTESERVER
+export:          to AS43404 announce AS-MSKROUTESERVER
+export:          to AS43567 announce AS-MSKROUTESERVER
+export:          to AS43666 announce AS-MSKROUTESERVER
+export:          to AS43686 announce AS-MSKROUTESERVER
+export:          to AS43714 announce AS-MSKROUTESERVER
+export:          to AS43727 announce AS-MSKROUTESERVER
+export:          to AS43798 announce AS-MSKROUTESERVER
+export:          to AS43832 announce AS-MSKROUTESERVER
+export:          to AS43966 announce AS-MSKROUTESERVER
+export:          to AS43973 announce AS-MSKROUTESERVER
+export:          to AS44030 announce AS-MSKROUTESERVER
+export:          to AS44041 announce AS-MSKROUTESERVER
+export:          to AS44048 announce AS-MSKROUTESERVER
+export:          to AS44050 announce AS-MSKROUTESERVER
+export:          to AS44237 announce AS-MSKROUTESERVER
+export:          to AS44281 announce AS-MSKROUTESERVER
+export:          to AS44283 announce AS-MSKROUTESERVER
+export:          to AS44436 announce AS-MSKROUTESERVER
+export:          to AS44479 announce AS-MSKROUTESERVER
+export:          to AS44532 announce AS-MSKROUTESERVER
+export:          to AS44552 announce AS-MSKROUTESERVER
+export:          to AS44618 announce AS-MSKROUTESERVER
+export:          to AS44670 announce AS-MSKROUTESERVER
+export:          to AS44678 announce AS-MSKROUTESERVER
+export:          to AS44696 announce AS-MSKROUTESERVER
+export:          to AS44816 announce AS-MSKROUTESERVER
+export:          to AS44882 announce AS-MSKROUTESERVER
+export:          to AS44893 announce AS-MSKROUTESERVER
+export:          to AS44927 announce AS-MSKROUTESERVER
+export:          to AS44943 announce AS-MSKROUTESERVER
+export:          to AS45009 announce AS-MSKROUTESERVER
+export:          to AS45046 announce AS-MSKROUTESERVER
+export:          to AS47104 announce AS-MSKROUTESERVER
+export:          to AS47119 announce AS-MSKROUTESERVER
+export:          to AS47156 announce AS-MSKROUTESERVER
+export:          to AS47321 announce AS-MSKROUTESERVER
+export:          to AS47395 announce AS-MSKROUTESERVER
+export:          to AS47440 announce AS-MSKROUTESERVER
+export:          to AS47522 announce AS-MSKROUTESERVER
+export:          to AS47562 announce AS-MSKROUTESERVER
+export:          to AS47614 announce AS-MSKROUTESERVER
+export:          to AS47645 announce AS-MSKROUTESERVER
+export:          to AS47724 announce AS-MSKROUTESERVER
+export:          to AS47747 announce AS-MSKROUTESERVER
+export:          to AS47764 announce AS-MSKROUTESERVER
+export:          to AS48061 announce AS-MSKROUTESERVER
+export:          to AS48076 announce AS-MSKROUTESERVER
+export:          to AS48166 announce AS-MSKROUTESERVER
+export:          to AS48172 announce AS-MSKROUTESERVER
+export:          to AS48249 announce AS-MSKROUTESERVER
+export:          to AS48268 announce AS-MSKROUTESERVER
+export:          to AS48287 announce AS-MSKROUTESERVER
+export:          to AS48293 announce AS-MSKROUTESERVER
+export:          to AS48297 announce AS-MSKROUTESERVER
+export:          to AS48467 announce AS-MSKROUTESERVER
+export:          to AS48781 announce AS-MSKROUTESERVER
+export:          to AS48822 announce AS-MSKROUTESERVER
+export:          to AS48848 announce AS-MSKROUTESERVER
+export:          to AS48914 announce AS-MSKROUTESERVER
+export:          to AS49058 announce AS-MSKROUTESERVER
+export:          to AS49060 announce AS-MSKROUTESERVER
+export:          to AS49063 announce AS-MSKROUTESERVER
+export:          to AS49291 announce AS-MSKROUTESERVER
+export:          to AS49307 announce AS-MSKROUTESERVER
+export:          to AS49335 announce AS-MSKROUTESERVER
+export:          to AS49342 announce AS-MSKROUTESERVER
+export:          to AS49403 announce AS-MSKROUTESERVER
+export:          to AS49779 announce AS-MSKROUTESERVER
+export:          to AS49813 announce AS-MSKROUTESERVER
+export:          to AS49973 announce AS-MSKROUTESERVER
+export:          to AS50277 announce AS-MSKROUTESERVER
+export:          to AS50289 announce AS-MSKROUTESERVER
+export:          to AS50384 announce AS-MSKROUTESERVER
+export:          to AS50448 announce AS-MSKROUTESERVER
+export:          to AS50473 announce AS-MSKROUTESERVER
+export:          to AS50577 announce AS-MSKROUTESERVER
+export:          to AS50677 announce AS-MSKROUTESERVER
+export:          to AS50923 announce AS-MSKROUTESERVER
+export:          to AS51011 announce AS-MSKROUTESERVER
+export:          to AS51218 announce AS-MSKROUTESERVER
+export:          to AS51297 announce AS-MSKROUTESERVER
+export:          to AS51343 announce AS-MSKROUTESERVER
+export:          to AS51408 announce AS-MSKROUTESERVER
+export:          to AS51437 announce AS-MSKROUTESERVER
+export:          to AS51464 announce AS-MSKROUTESERVER
+export:          to AS51548 announce AS-MSKROUTESERVER
+export:          to AS51665 announce AS-MSKROUTESERVER
+export:          to AS51764 announce AS-MSKROUTESERVER
+export:          to AS51904 announce AS-MSKROUTESERVER
+export:          to AS51939 announce AS-MSKROUTESERVER
+export:          to AS52201 announce AS-MSKROUTESERVER
+export:          to AS56462 announce AS-MSKROUTESERVER
+export:          to AS56762 announce AS-MSKROUTESERVER
+export:          to AS56902 announce AS-MSKROUTESERVER
+export:          to AS57107 announce AS-MSKROUTESERVER
+export:          to AS57359 announce AS-MSKROUTESERVER
+export:          to AS57363 announce AS-MSKROUTESERVER
+export:          to AS57420 announce AS-MSKROUTESERVER
+export:          to AS57629 announce AS-MSKROUTESERVER
+export:          to AS196695 announce AS-MSKROUTESERVER
+export:          to AS197062 announce AS-MSKROUTESERVER
+export:          to AS197140 announce AS-MSKROUTESERVER
+export:          to AS197826 announce AS-MSKROUTESERVER
+export:          to AS198028 announce AS-MSKROUTESERVER
+admin-c:         RA-ORG
+tech-c:          RN1863-RIPE
+mnt-by:          RIPE-NCC-END-MNT
+mnt-by:          RUIX-MNT
+remarks:         * -------------------------------------------------------------
+remarks:         AS8631 is used for the MSK-IX Route Servers.
+remarks:         All ASes participating in the Route Servers peering
+remarks:         are grouped into the AS-SET: AS-MSKROUTESERVER
+remarks:
+remarks:         This AS has no route policy registered
+remarks:         due the nature of how the route servers operate.
+remarks:
+remarks:         You may use communities to control outgoing information
+remarks:         via the route server. The meaning and order of evaluation is
+remarks:         important:
+remarks:
+remarks:         block announcement of a route to a certain peer 0:peer-as
+remarks:         announcement of a route to a certain peer       8631:peer-as
+remarks:         block announcement of a route to all peers      0:8631
+remarks:         announcement of a route to all peers            8631:8631
+remarks:
+remarks:         Please visit http://www.msk-ix.ru/network/routeserver.html
+remarks:         for more information on the MSK-IX Route Servers
+remarks:         and for more filtering options.
+remarks:         * -------------------------------------------------------------
+import:          from AS2118
+                 action pref=100;
+                 accept AS-RELCOM
+import:          from AS2578
+                 action pref=100;
+                 accept AS-DEMOS AS-DEMOS-IPV6 AS-RUDEMOS
+import:          from AS2683
+                 action pref=100;
+                 accept AS-RADIOMSU
+import:          from AS2820
+                 action pref=100;
+                 accept AS-ELVIS
+import:          from AS2848
+                 action pref=100;
+                 accept AS-MSURUNNET
+import:          from AS2854
+                 action pref=100;
+                 accept AS-ROSPRINT AS-OBSRUSSIA6
+import:          from AS2895
+                 action pref=100;
+                 accept AS-FREENET
+import:          from AS3058
+                 action pref=100;
+                 accept AS-RASNET
+import:          from AS3218
+                 action pref=100;
+                 accept AS-COSMOS
+import:          from AS3255
+                 action pref=100;
+                 accept AS-UARNET
+import:          from AS3267
+                 action pref=100;
+                 accept AS-RUNNET
+import:          from AS3316
+                 action pref=100;
+                 accept AS-RELARN
+import:          from AS3327
+                 action pref=100;
+                 accept AS-LINXTELECOM-MSK-IX
+import:          from AS5429
+                 action pref=100;
+                 accept AS-IIPNET-MSK-IX
+import:          from AS5431
+                 action pref=100;
+                 accept AS-FGNET
+import:          from AS5467
+                 action pref=100;
+                 accept AS-MIPT
+import:          from AS5523
+                 action pref=100;
+                 accept AS-RMT
+import:          from AS5537
+                 action pref=100;
+                 accept AS-GARANTPARK
+import:          from AS5563
+                 action pref=100;
+                 accept AS-URAL
+import:          from AS5568
+                 action pref=100;
+                 accept AS-RBNET
+import:          from AS6670
+                 action pref=100;
+                 accept AS6670
+import:          from AS6673
+                 action pref=100;
+                 accept AS-INCOMA
+import:          from AS6679
+                 action pref=100;
+                 accept AS-SKADI
+import:          from AS6690
+                 action pref=100;
+                 accept AS-WEBPLUS
+import:          from AS6863
+                 action pref=100;
+                 accept AS-ROSNET
+import:          from AS6870
+                 action pref=100;
+                 accept AS6870
+import:          from AS6880
+                 action pref=100;
+                 accept AS-ORBITA
+import:          from AS6903
+                 action pref=100;
+                 accept AS-ZENON
+import:          from AS8241
+                 action pref=100;
+                 accept AS-RELLINE
+import:          from AS8299
+                 action pref=100;
+                 accept AS-INFOTEL
+import:          from AS8331
+                 action pref=100;
+                 accept AS-RURINET
+import:          from AS8359
+                 action pref=100;
+                 accept AS-MTU-V6
+import:          from AS8369
+                 action pref=100;
+                 accept AS-INTERSVYAZ
+import:          from AS8395
+                 action pref=100;
+                 accept AS-EAST
+import:          from AS8491
+                 action pref=100;
+                 accept AS-BSH
+import:          from AS8492
+                 action pref=100;
+                 accept AS-OBIT
+import:          from AS8515
+                 action pref=100;
+                 accept AS-DATAFORCE
+import:          from AS8557
+                 action pref=100;
+                 accept AS-ELKATEL
+import:          from AS8595
+                 action pref=100;
+                 accept AS-WESTCALL-IX
+import:          from AS8615
+                 action pref=100;
+                 accept AS-CNTPEERS
+import:          from AS8629
+                 action pref=100;
+                 accept AS-MCNTT
+import:          from AS8636
+                 action pref=100;
+                 accept AS-MAX
+import:          from AS8641
+                 action pref=100;
+                 accept AS-NAUKANET
+import:          from AS8732
+                 action pref=100;
+                 accept AS-COMCOR
+import:          from AS8744
+                 action pref=100;
+                 accept AS-WIMAX
+import:          from AS8752
+                 action pref=100;
+                 accept AS-ASVT
+import:          from AS8905
+                 action pref=100;
+                 accept AS-DIGIT1
+import:          from AS8997
+                 action pref=100;
+                 accept AS-SPBNIT
+import:          from AS9002
+                 action pref=100;
+                 accept AS-RETN AS-RETN6
+import:          from AS9031
+                 action pref=100;
+                 accept AS-EDPNET AS-EDPNET-V6
+import:          from AS9032
+                 action pref=100;
+                 accept AS-EDUNET
+import:          from AS9039
+                 action pref=100;
+                 accept AS-IIAT
+import:          from AS9049
+                 action pref=100;
+                 accept AS-ERTH
+import:          from AS9110
+                 action pref=100;
+                 accept AS-AGTEL-RUS
+import:          from AS9123
+                 action pref=100;
+                 accept AS-TIMEWEB
+import:          from AS12076
+                 action pref=100;
+                 accept AS-MICROSOFT
+import:          from AS12314
+                 action pref=100;
+                 accept AS-ROPNET
+import:          from AS12335
+                 action pref=100;
+                 accept AS12335
+import:          from AS12389
+                 action pref=100;
+                 accept AS-ROSTELECOM
+import:          from AS12550
+                 action pref=100;
+                 accept AS-OSS
+import:          from AS12555
+                 action pref=100;
+                 accept AS-CUBIO-RUS-IX
+import:          from AS12622
+                 action pref=100;
+                 accept AS-COMINTERN
+import:          from AS12690
+                 action pref=100;
+                 accept AS-MKSNET
+import:          from AS12695
+                 action pref=100;
+                 accept AS-DINET AS-DINET-V6
+import:          from AS12714
+                 action pref=100;
+                 accept AS-TI
+import:          from AS12739
+                 action pref=100;
+                 accept AS-NETLINE
+import:          from AS12883
+                 action pref=100;
+                 accept AS-UCOMLINE
+import:          from AS12958
+                 action pref=100;
+                 accept AS-MCC
+import:          from AS12976
+                 action pref=100;
+                 accept AS-RUCWSVYAZ
+import:          from AS12979
+                 action pref=100;
+                 accept AS-TSINET
+import:          from AS13002
+                 action pref=100;
+                 accept AS-LINKEY
+import:          from AS13105
+                 action pref=100;
+                 accept AS-LUKOIL
+import:          from AS13194
+                 action pref=100;
+                 accept AS-BITE
+import:          from AS13230
+                 action pref=100;
+                 accept AS-NCPORT
+import:          from AS13238
+                 action pref=100;
+                 accept AS-YANDEX
+import:          from AS15169
+                 action pref=100;
+                 accept AS-GOOGLE
+import:          from AS15493
+                 action pref=100;
+                 accept AS-RUSCOMP
+import:          from AS15632
+                 action pref=100;
+                 accept AS15632
+import:          from AS15672
+                 action pref=100;
+                 accept AS-TZTELECOM
+import:          from AS15682
+                 action pref=100;
+                 accept AS-ITERANET
+import:          from AS15731
+                 action pref=100;
+                 accept AS-BELCOM
+import:          from AS15756
+                 action pref=100;
+                 accept AS-CARAVANRUS
+import:          from AS15757
+                 action pref=100;
+                 accept AS-GASCOM
+import:          from AS15835
+                 action pref=100;
+                 accept AS-MAP
+import:          from AS15934
+                 action pref=100;
+                 accept AS-ZEBRA
+import:          from AS16020
+                 action pref=100;
+                 accept AS-TASCOM
+import:          from AS16083
+                 action pref=100;
+                 accept AS-STACK AS-STACK6
+import:          from AS16094
+                 action pref=100;
+                 accept AS-ROILCOM
+import:          from AS16143
+                 action pref=100;
+                 accept AS-RATEL
+import:          from AS20483
+                 action pref=100;
+                 accept AS-RTNET
+import:          from AS20544
+                 action pref=100;
+                 accept AS-EXPR
+import:          from AS20632
+                 action pref=100;
+                 accept AS-PETERSTAR
+import:          from AS20655
+                 action pref=100;
+                 accept AS-EST
+import:          from AS20702
+                 action pref=100;
+                 accept AS20702
+import:          from AS20764
+                 action pref=100;
+                 accept AS-RASCOM
+import:          from AS20807
+                 action pref=100;
+                 accept AS-CREDOLINK
+import:          from AS20919
+                 action pref=100;
+                 accept AS-IBS
+import:          from AS20946
+                 action pref=100;
+                 accept AS-CCE
+import:          from AS20985
+                 action pref=100;
+                 accept AS-ARTX
+import:          from AS21011
+                 action pref=100;
+                 accept AS21011:AS-EXT
+import:          from AS21109
+                 action pref=100;
+                 accept AS21109
+import:          from AS21135
+                 action pref=100;
+                 accept AS-MTT
+import:          from AS21156
+                 action pref=100;
+                 accept AS-DATAGRUPARU
+import:          from AS21219
+                 action pref=100;
+                 accept AS-FF-TRANSIT
+import:          from AS21225
+                 action pref=100;
+                 accept AS-AMTKOM
+import:          from AS21240
+                 action pref=100;
+                 accept AS-HELIOSNET
+import:          from AS21353
+                 action pref=100;
+                 accept AS-ARTCOMS
+import:          from AS21367
+                 action pref=100;
+                 accept AS-ZVEZDATEL
+import:          from AS21372
+                 action pref=100;
+                 accept AS21372
+import:          from AS21414
+                 action pref=100;
+                 accept AS-RCNET
+import:          from AS21416
+                 action pref=100;
+                 accept AS21416
+import:          from AS21446
+                 action pref=100;
+                 accept AS-ALMAZTELECOM
+import:          from AS21453
+                 action pref=100;
+                 accept AS-FLEX
+import:          from AS24599
+                 action pref=100;
+                 accept AS-MIRTELECOM
+import:          from AS24638
+                 action pref=100;
+                 accept AS-RAMTEL AS-RAMTEL6
+import:          from AS24663
+                 action pref=100;
+                 accept AS-COMPLAT
+import:          from AS24680
+                 action pref=100;
+                 accept AS-COMPNET
+import:          from AS24689
+                 action pref=100;
+                 accept AS-ROSINTEL
+import:          from AS24762
+                 action pref=100;
+                 accept AS-STELCOM
+import:          from AS24829
+                 action pref=100;
+                 accept AS24829
+import:          from AS24936
+                 action pref=100;
+                 accept AS-RIM2000M
+import:          from AS25189
+                 action pref=100;
+                 accept AS-NLINE
+import:          from AS25227
+                 action pref=100;
+                 accept AS-MATRIXTELECOM
+import:          from AS25292
+                 action pref=100;
+                 accept AS25292
+import:          from AS25308
+                 action pref=100;
+                 accept AS-CITYLAN
+import:          from AS25371
+                 action pref=100;
+                 accept as25371
+import:          from AS25408
+                 action pref=100;
+                 accept AS-WESTCALLSPB
+import:          from AS25478
+                 action pref=100;
+                 accept AS-IHOME AS-IHOME6
+import:          from AS25511
+                 action pref=100;
+                 accept AS-NET21
+import:          from AS25531
+                 action pref=100;
+                 accept AS-INTINFORM
+import:          from AS26415
+                 action pref=100;
+                 accept AS-GTLD
+import:          from AS28762
+                 action pref=100;
+                 accept AS-AWAX
+import:          from AS28870
+                 action pref=100;
+                 accept AS-PLUS-RU
+import:          from AS28891
+                 action pref=100;
+                 accept AS-CITTEL
+import:          from AS28917
+                 action pref=100;
+                 accept AS-FIORD
+import:          from AS28968
+                 action pref=100;
+                 accept AS-EUT
+import:          from AS29000
+                 action pref=100;
+                 accept AS-SENSYS
+import:          from AS29053
+                 action pref=100;
+                 accept AS-JSC-TELENET
+import:          from AS29069
+                 action pref=100;
+                 accept AS-TRANSLINECOM
+import:          from AS29076
+                 action pref=100;
+                 accept AS-CITYTELECOM
+import:          from AS29124
+                 action pref=100;
+                 accept AS-SU29TELECOM
+import:          from AS29182
+                 action pref=100;
+                 accept AS-ISPSYSTEM
+import:          from AS29226
+                 action pref=100;
+                 accept AS-MASTERTEL
+import:          from AS29285
+                 action pref=100;
+                 accept AS-AMTMGTS
+import:          from AS29319
+                 action pref=100;
+                 accept AS-IMSYS
+import:          from AS29329
+                 action pref=100;
+                 accept AS-NODEX
+import:          from AS29388
+                 action pref=100;
+                 accept AS-BESTCOM
+import:          from AS29530
+                 action pref=100;
+                 accept AS-TITL
+import:          from AS29632
+                 action pref=100;
+                 accept AS-NETASSIST
+import:          from AS29651
+                 action pref=100;
+                 accept AS-CTCS
+import:          from AS30124
+                 action pref=100;
+                 accept AS30124 AS3557
+import:          from AS30733
+                 action pref=100;
+                 accept AS-GLOBUS
+import:          from AS30784
+                 action pref=100;
+                 accept AS-ISKRATELECOM
+import:          from AS30833
+                 action pref=100;
+                 accept AS-TNC
+import:          from AS30853
+                 action pref=100;
+                 accept AS30853
+import:          from AS31059
+                 action pref=100;
+                 accept AS-AVELACOM
+import:          from AS31133
+                 action pref=100;
+                 accept AS-MF-MGSM
+import:          from AS31189
+                 action pref=100;
+                 accept AS-WESTTEL
+import:          from AS31225
+                 action pref=100;
+                 accept AS-OBLCOM
+import:          from AS31261
+                 action pref=100;
+                 accept AS-GARS AS-GARSV6
+import:          from AS31294
+                 action pref=100;
+                 accept AS-LANTECH
+import:          from AS31368
+                 action pref=100;
+                 accept AS-ASTELNET
+import:          from AS31370
+                 action pref=100;
+                 accept AS-MOSLINE
+import:          from AS31376
+                 action pref=100;
+                 accept AS-SMART-C
+import:          from AS31415
+                 action pref=100;
+                 accept AS-SVSCOMM
+import:          from AS31430
+                 action pref=100;
+                 accept AS-TEL-NET
+import:          from AS31444
+                 action pref=100;
+                 accept AS-SEANET
+import:          from AS31494
+                 action pref=100;
+                 accept AS-Infoseti
+import:          from AS31499
+                 action pref=100;
+                 accept AS-MOTIV
+import:          from AS31500
+                 action pref=100;
+                 accept AS-GLOBAL-NET
+import:          from AS31514
+                 action pref=100;
+                 accept AS31514
+import:          from AS31529
+                 action pref=100;
+                 accept AS-DENIC-ANY
+import:          from AS31720
+                 action pref=100;
+                 accept AS-ENGINET
+import:          from AS33842
+                 action pref=100;
+                 accept AS-RU-CROSSTEL
+import:          from AS33871
+                 action pref=100;
+                 accept AS33871
+import:          from AS33902
+                 action pref=100;
+                 accept AS-STARNETWORKS
+import:          from AS33904
+                 action pref=100;
+                 accept AS-INTELCOM
+import:          from AS34030
+                 action pref=100;
+                 accept AS-BORODINO
+import:          from AS34034
+                 action pref=100;
+                 accept AS-ARCTEL
+import:          from AS34035
+                 action pref=100;
+                 accept AS34035
+import:          from AS34123
+                 action pref=100;
+                 accept AS-NETORN
+import:          from AS34139
+                 action pref=100;
+                 accept AS34139
+import:          from AS34277
+                 action pref=100;
+                 accept AS-SUN-TEL
+import:          from AS34300
+                 action pref=100;
+                 accept AS34300
+import:          from AS34352
+                 action pref=100;
+                 accept AS-MCN
+import:          from AS34456
+                 action pref=100;
+                 accept AS-RCPEERS
+import:          from AS34485
+                 action pref=100;
+                 accept AS34485
+import:          from AS34550
+                 action pref=100;
+                 accept AS-INTERCON
+import:          from AS34602
+                 action pref=100;
+                 accept AS-STARLNK
+import:          from AS34879
+                 action pref=100;
+                 accept AS-NGENIX-MSK
+import:          from AS34898
+                 action pref=100;
+                 accept AS-SYMBIOS
+import:          from AS35000
+                 action pref=100;
+                 accept AS-PROMETEY-IX
+import:          from AS35087
+                 action pref=100;
+                 accept AS-NTSI
+import:          from AS35178
+                 action pref=100;
+                 accept AS-TELART
+import:          from AS35254
+                 action pref=100;
+                 accept AS-BALTCOMIP
+import:          from AS35271
+                 action pref=100;
+                 accept AS35271
+import:          from AS35297
+                 action pref=100;
+                 accept AS-DL-WORLD
+import:          from AS35320
+                 action pref=100;
+                 accept AS-ETT
+import:          from AS35357
+                 action pref=100;
+                 accept AS-RTS
+import:          from AS35374
+                 action pref=100;
+                 accept AS-RC
+import:          from AS35475
+                 action pref=100;
+                 accept AS35475
+import:          from AS35511
+                 action pref=100;
+                 accept AS-IWAN
+import:          from AS35522
+                 action pref=100;
+                 accept AS35522
+import:          from AS35539
+                 action pref=100;
+                 accept AS-INFOLINK
+import:          from AS35598
+                 action pref=100;
+                 accept AS35598
+import:          from AS35640
+                 action pref=100;
+                 accept AS-MIGRAPH
+import:          from AS35641
+                 action pref=100;
+                 accept AS-ELECTROCOM
+import:          from AS35723
+                 action pref=100;
+                 accept AS35723
+import:          from AS35768
+                 action pref=100;
+                 accept AS-MSLINK
+import:          from AS35770
+                 action pref=100;
+                 accept AS-NCTRADE
+import:          from AS35810
+                 action pref=100;
+                 accept AS-BIGTELECOM
+import:          from AS38964
+                 action pref=100;
+                 accept AS38964
+import:          from AS38984
+                 action pref=100;
+                 accept AS38984
+import:          from AS39045
+                 action pref=100;
+                 accept AS-GAZTELECOM
+import:          from AS39087
+                 action pref=100;
+                 accept AS-PAKT
+import:          from AS39102
+                 action pref=100;
+                 accept AS-NNZ
+import:          from AS39134
+                 action pref=100;
+                 accept AS-UNITEDNET
+import:          from AS39153
+                 action pref=100;
+                 accept AS-SETEL
+import:          from AS39684
+                 action pref=100;
+                 accept AS39684
+import:          from AS39709
+                 action pref=100;
+                 accept AS-MARYNONET
+import:          from AS39792
+                 action pref=100;
+                 accept AS-ANDERS
+import:          from AS39821
+                 action pref=100;
+                 accept AS-CANMOS
+import:          from AS39927
+                 action pref=100;
+                 accept AS-ELIGHT
+import:          from AS41034
+                 action pref=100;
+                 accept AS-IMPULS
+import:          from AS41095
+                 action pref=100;
+                 accept AS-IPTP
+import:          from AS41109
+                 action pref=100;
+                 accept AS41109
+import:          from AS41145
+                 action pref=100;
+                 accept AS-TELIX
+import:          from AS41349
+                 action pref=100;
+                 accept AS-MVM
+import:          from AS41475
+                 action pref=100;
+                 accept AS-SDK
+import:          from AS41554
+                 action pref=100;
+                 accept AS-LEGIONCOM
+import:          from AS41601
+                 action pref=100;
+                 accept AS-OBLTELECOM
+import:          from AS41667
+                 action pref=100;
+                 accept AS41667
+import:          from AS41691
+                 action pref=100;
+                 accept AS-SUMTEL
+import:          from AS41733
+                 action pref=100;
+                 accept AS-ZTELECOM
+import:          from AS41802
+                 action pref=100;
+                 accept AS-KVIDEX
+import:          from AS41842
+                 action pref=100;
+                 accept AS-MEDIAL
+import:          from AS41853
+                 action pref=100;
+                 accept AS41853 AS42240 AS47690
+import:          from AS42145
+                 action pref=100;
+                 accept AS42145
+import:          from AS42226
+                 action pref=100;
+                 accept AS-EETC
+import:          from AS42291
+                 action pref=100;
+                 accept AS42291
+import:          from AS42368
+                 action pref=100;
+                 accept AS42368
+import:          from AS42377
+                 action pref=100;
+                 accept AS42377
+import:          from AS42388
+                 action pref=100;
+                 accept AS-BSVT
+import:          from AS42429
+                 action pref=100;
+                 accept AS-TELERU
+import:          from AS42484
+                 action pref=100;
+                 accept AS-GPTEL
+import:          from AS42511
+                 action pref=100;
+                 accept AS-STATION
+import:          from AS42583
+                 action pref=100;
+                 accept AS-ULCOMNET
+import:          from AS42610
+                 action pref=100;
+                 accept AS-NCNET
+import:          from AS42632
+                 action pref=100;
+                 accept AS-MNOGOBYTE
+import:          from AS42668
+                 action pref=100;
+                 accept AS-NEVALINK
+import:          from AS42678
+                 action pref=100;
+                 accept AS-MEGANET
+import:          from AS42754
+                 action pref=100;
+                 accept AS-7SKY
+import:          from AS42861
+                 action pref=100;
+                 accept AS-PRIME-LINE AS-PRIME-LINE-V6
+import:          from AS42909
+                 action pref=100;
+                 accept AS42909
+import:          from AS42972
+                 action pref=100;
+                 accept AS42972
+import:          from AS43045
+                 action pref=100;
+                 accept AS-SvHolding
+import:          from AS43168
+                 action pref=100;
+                 accept AS43168
+import:          from AS43268
+                 action pref=100;
+                 accept AS-VSD
+import:          from AS43304
+                 action pref=100;
+                 accept AS-FAST
+import:          from AS43317
+                 action pref=100;
+                 accept AS43317
+import:          from AS43404
+                 action pref=100;
+                 accept AS-UCANET
+import:          from AS43537
+                 action pref=100;
+                 accept AS-INTELCOMNET
+import:          from AS43567
+                 action pref=100;
+                 accept AS43567
+import:          from AS43666
+                 action pref=100;
+                 accept AS-CTS-MSKIX
+import:          from AS43686
+                 action pref=100;
+                 accept AS43686
+import:          from AS43714
+                 action pref=100;
+                 accept AS-EPL
+import:          from AS43727
+                 action pref=100;
+                 accept AS-SETKT
+import:          from AS43798
+                 action pref=100;
+                 accept AS43798
+import:          from AS43832
+                 action pref=100;
+                 accept AS-NS5_RIPN_NET
+import:          from AS43966
+                 action pref=100;
+                 accept AS-ITREGION
+import:          from AS43973
+                 action pref=100;
+                 accept AS-OSMP
+import:          from AS44020
+                 action pref=100;
+                 accept AS44020
+import:          from AS44030
+                 action pref=100;
+                 accept AS-LENTEL
+import:          from AS44041
+                 action pref=100;
+                 accept AS44041
+import:          from AS44048
+                 action pref=100;
+                 accept AS44048
+import:          from AS44050
+                 action pref=100;
+                 accept AS-PIN-MSKIX
+import:          from AS44237
+                 action pref=100;
+                 accept AS-CTC-CORE
+import:          from AS44281
+                 action pref=100;
+                 accept AS-BUTOVOCOM
+import:          from AS44436
+                 action pref=100;
+                 accept AS-EFFORTEL-MSK-IX
+import:          from AS44479
+                 action pref=100;
+                 accept AS44479
+import:          from AS44532
+                 action pref=100;
+                 accept AS44532
+import:          from AS44552
+                 action pref=100;
+                 accept AS-SCTS
+import:          from AS44618
+                 action pref=100;
+                 accept AS-GIGABIT
+import:          from AS44670
+                 action pref=100;
+                 accept AS44670
+import:          from AS44696
+                 action pref=100;
+                 accept AS44696
+import:          from AS44816
+                 action pref=100;
+                 accept AS-DELFINTELECOM
+import:          from AS44843
+                 action pref=100;
+                 accept AS-AMSTEL
+import:          from AS44882
+                 action pref=100;
+                 accept AS-VSEVNET
+import:          from AS44893
+                 action pref=100;
+                 accept AS44893
+import:          from AS44927
+                 action pref=100;
+                 accept AS-TMPK
+import:          from AS44943
+                 action pref=100;
+                 accept AS-RAMNET
+import:          from AS45046
+                 action pref=100;
+                 accept AS-ISATEL
+import:          from AS47104
+                 action pref=100;
+                 accept AS-PROLINKMO
+import:          from AS47119
+                 action pref=100;
+                 accept AS47119
+import:          from AS47151
+                 action pref=100;
+                 accept AS47151
+import:          from AS47156
+                 action pref=100;
+                 accept AS47156
+import:          from AS47321
+                 action pref=100;
+                 accept AS47321
+import:          from AS47395
+                 action pref=100;
+                 accept AS-SCARTEL
+import:          from AS47440
+                 action pref=100;
+                 accept AS-BST
+import:          from AS47522
+                 action pref=100;
+                 accept AS-NETFORT
+import:          from AS47531
+                 action pref=100;
+                 accept AS47531
+import:          from AS47562
+                 action pref=100;
+                 accept AS-FAST_LINK
+import:          from AS47614
+                 action pref=100;
+                 accept AS-MEGANN
+import:          from AS47645
+                 action pref=100;
+                 accept AS-SET-STC-NET
+import:          from AS47655
+                 action pref=100;
+                 accept AS-SET-LINKINTEL
+import:          from AS47724
+                 action pref=100;
+                 accept AS47724
+import:          from AS47747
+                 action pref=100;
+                 accept AS-TMK
+import:          from AS47764
+                 action pref=100;
+                 accept AS-MAILRU
+import:          from AS47989
+                 action pref=100;
+                 accept AS-MOSINFOCOM
+import:          from AS48061
+                 action pref=100;
+                 accept AS48061
+import:          from AS48076
+                 action pref=100;
+                 accept AS-OLYMP-TELECOM
+import:          from AS48166
+                 action pref=100;
+                 accept AS-FORTEX
+import:          from AS48172
+                 action pref=100;
+                 accept AS-MERCUR
+import:          from AS48249
+                 action pref=100;
+                 accept AS-CAPTEL
+import:          from AS48268
+                 action pref=100;
+                 accept AS-INTERFIBER
+import:          from AS48287
+                 action pref=100;
+                 accept AS-RUCENTER
+import:          from AS48293
+                 action pref=100;
+                 accept AS-UNIONTEL-RU
+import:          from AS48297
+                 action pref=100;
+                 accept AS48297
+import:          from AS48467
+                 action pref=100;
+                 accept AS-PRANET
+import:          from AS48719
+                 action pref=100;
+                 accept AS-INTELSVYAZ
+import:          from AS48781
+                 action pref=100;
+                 accept AS-AVK-COM
+import:          from AS48822
+                 action pref=100;
+                 accept AS-UNIVERSUMNET AS-UNIVERSUMNET-V6
+import:          from AS48848
+                 action pref=100;
+                 accept AS-MCM
+import:          from AS48914
+                 action pref=100;
+                 accept AS-ZEPPELIN
+import:          from AS49058
+                 action pref=100;
+                 accept AS-PRIMELINK
+import:          from AS49060
+                 action pref=100;
+                 accept AS-FASTTEL AS-KOMLAN AS-UNIONLINE
+import:          from AS49063
+                 action pref=100;
+                 accept AS-DTLN
+import:          from AS49124
+                 action pref=100;
+                 accept AS49124
+import:          from AS49291
+                 action pref=100;
+                 accept as-interproekt
+import:          from AS49307
+                 action pref=100;
+                 accept AS-INTERTAX-MSK
+import:          from AS49342
+                 action pref=100;
+                 accept AS-SPEEDYLINE
+import:          from AS49403
+                 action pref=100;
+                 accept AS-AVK-WELLCOM
+import:          from AS49505
+                 action pref=100;
+                 accept AS49505
+import:          from AS49508
+                 action pref=100;
+                 accept AS49508
+import:          from AS49779
+                 action pref=100;
+                 accept AS49779
+import:          from AS49813
+                 action pref=100;
+                 accept AS-INN
+import:          from AS49973
+                 action pref=100;
+                 accept AS49973
+import:          from AS50277
+                 action pref=100;
+                 accept AS-WEBTV
+import:          from AS50289
+                 action pref=100;
+                 accept AS-WELLCOMM
+import:          from AS50384
+                 action pref=100;
+                 accept AS-W-IX
+import:          from AS50448
+                 action pref=100;
+                 accept AS-SSERVICE
+import:          from AS50473
+                 action pref=100;
+                 accept AS-ECO
+import:          from AS50577
+                 action pref=100;
+                 accept AS50577
+import:          from AS50677
+                 action pref=100;
+                 accept AS-MSK910
+import:          from AS50923
+                 action pref=100;
+                 accept AS-METRO-SET
+import:          from AS51011
+                 action pref=100;
+                 accept AS-P-T-K
+import:          from AS51218
+                 action pref=100;
+                 accept AS51218
+import:          from AS51297
+                 action pref=100;
+                 accept AS51297
+import:          from AS51343
+                 action pref=100;
+                 accept AS51343
+import:          from AS51408
+                 action pref=100;
+                 accept AS-SIRIUS
+import:          from AS51437
+                 action pref=100;
+                 accept AS51437
+import:          from AS51464
+                 action pref=100;
+                 accept AS-IBANK2RU AS28983
+import:          from AS51548
+                 action pref=100;
+                 accept AS51548
+import:          from AS51665
+                 action pref=100;
+                 accept AS-TELEDISCOUNT
+import:          from AS51764
+                 action pref=100;
+                 accept AS-AMTEL
+import:          from AS51904
+                 action pref=100;
+                 accept AS47373 AS51904
+import:          from AS51939
+                 action pref=100;
+                 accept AS-EXPATEL
+import:          from AS52201
+                 action pref=100;
+                 accept AS-TCTEL
+import:          from AS56462
+                 action pref=100;
+                 accept AS-DDESTINY
+import:          from AS56762
+                 action pref=100;
+                 accept AS56762
+import:          from AS56902
+                 action pref=100;
+                 accept AS56902
+import:          from AS57107
+                 action pref=100;
+                 accept AS57107
+import:          from AS57359
+                 action pref=100;
+                 accept AS-TERMPLUS AS57359
+import:          from AS57363
+                 action pref=100;
+                 accept AS-CDNVIDEO
+import:          from AS57420
+                 action pref=100;
+                 accept AS-FORATELECOM
+import:          from AS57629
+                 action pref=100;
+                 accept AS57629
+import:          from AS58002
+                 action pref=100;
+                 accept AS-SI
+import:          from AS196678
+                 action pref=100;
+                 accept AS-HOSTEROV
+import:          from AS196695
+                 action pref=100;
+                 accept AS-NETONERUS
+import:          from AS197062
+                 action pref=100;
+                 accept AS197062
+import:          from AS197140
+                 action pref=100;
+                 accept AS197140
+import:          from AS197464
+                 action pref=100;
+                 accept AS197464
+import:          from AS197826
+                 action pref=100;
+                 accept AS-SKYNET-MSK
+import:          from AS198028
+                 action pref=100;
+                 accept AS198028
+export:          to AS2118
+                 announce AS-MSKROUTESERVER
+export:          to AS2578
+                 announce AS-MSKROUTESERVER
+export:          to AS2683
+                 announce AS-MSKROUTESERVER
+export:          to AS2820
+                 announce AS-MSKROUTESERVER
+export:          to AS2848
+                 announce AS-MSKROUTESERVER
+export:          to AS2854
+                 announce AS-MSKROUTESERVER
+export:          to AS2895
+                 announce AS-MSKROUTESERVER
+export:          to AS3058
+                 announce AS-MSKROUTESERVER
+export:          to AS3218
+                 announce AS-MSKROUTESERVER
+export:          to AS3255
+                 announce AS-MSKROUTESERVER
+export:          to AS3267
+                 announce AS-MSKROUTESERVER
+export:          to AS3316
+                 announce AS-MSKROUTESERVER
+export:          to AS3327
+                 announce AS-MSKROUTESERVER
+export:          to AS5429
+                 announce AS-MSKROUTESERVER
+export:          to AS5431
+                 announce AS-MSKROUTESERVER
+export:          to AS5467
+                 announce AS-MSKROUTESERVER
+export:          to AS5523
+                 announce AS-MSKROUTESERVER
+export:          to AS5537
+                 announce AS-MSKROUTESERVER
+export:          to AS5563
+                 announce AS-MSKROUTESERVER
+export:          to AS5568
+                 announce AS-MSKROUTESERVER
+export:          to AS6670
+                 announce AS-MSKROUTESERVER
+export:          to AS6673
+                 announce AS-MSKROUTESERVER
+export:          to AS6679
+                 announce AS-MSKROUTESERVER
+export:          to AS6690
+                 announce AS-MSKROUTESERVER
+export:          to AS6863
+                 announce AS-MSKROUTESERVER
+export:          to AS6870
+                 announce AS-MSKROUTESERVER
+export:          to AS6880
+                 announce AS-MSKROUTESERVER
+export:          to AS6903
+                 announce AS-MSKROUTESERVER
+export:          to AS8241
+                 announce AS-MSKROUTESERVER
+export:          to AS8299
+                 announce AS-MSKROUTESERVER
+export:          to AS8331
+                 announce AS-MSKROUTESERVER
+export:          to AS8359
+                 announce AS-MSKROUTESERVER
+export:          to AS8369
+                 announce AS-MSKROUTESERVER
+export:          to AS8395
+                 announce AS-MSKROUTESERVER
+export:          to AS8491
+                 announce AS-MSKROUTESERVER
+export:          to AS8492
+                 announce AS-MSKROUTESERVER
+export:          to AS8515
+                 announce AS-MSKROUTESERVER
+export:          to AS8557
+                 announce AS-MSKROUTESERVER
+export:          to AS8595
+                 announce AS-MSKROUTESERVER
+export:          to AS8615
+                 announce AS-MSKROUTESERVER
+export:          to AS8629
+                 announce AS-MSKROUTESERVER
+export:          to AS8636
+                 announce AS-MSKROUTESERVER
+export:          to AS8641
+                 announce AS-MSKROUTESERVER
+export:          to AS8732
+                 announce AS-MSKROUTESERVER
+export:          to AS8744
+                 announce AS-MSKROUTESERVER
+export:          to AS8752
+                 announce AS-MSKROUTESERVER
+export:          to AS8905
+                 announce AS-MSKROUTESERVER
+export:          to AS8997
+                 announce AS-MSKROUTESERVER
+export:          to AS9002
+                 announce AS-MSKROUTESERVER
+export:          to AS9031
+                 announce AS-MSKROUTESERVER
+export:          to AS9032
+                 announce AS-MSKROUTESERVER
+export:          to AS9039
+                 announce AS-MSKROUTESERVER
+export:          to AS9049
+                 announce AS-MSKROUTESERVER
+export:          to AS9110
+                 announce AS-MSKROUTESERVER
+export:          to AS9123
+                 announce AS-MSKROUTESERVER
+export:          to AS12076
+                 announce AS-MSKROUTESERVER
+export:          to AS12314
+                 announce AS-MSKROUTESERVER
+export:          to AS12335
+                 announce AS-MSKROUTESERVER
+export:          to AS12389
+                 announce AS-MSKROUTESERVER
+export:          to AS12550
+                 announce AS-MSKROUTESERVER
+export:          to AS12555
+                 announce AS-MSKROUTESERVER
+export:          to AS12622
+                 announce AS-MSKROUTESERVER
+export:          to AS12690
+                 announce AS-MSKROUTESERVER
+export:          to AS12695
+                 announce AS-MSKROUTESERVER
+export:          to AS12714
+                 announce AS-MSKROUTESERVER
+export:          to AS12739
+                 announce AS-MSKROUTESERVER
+export:          to AS12883
+                 announce AS-MSKROUTESERVER
+export:          to AS12958
+                 announce AS-MSKROUTESERVER
+export:          to AS12976
+                 announce AS-MSKROUTESERVER
+export:          to AS12979
+                 announce AS-MSKROUTESERVER
+export:          to AS13002
+                 announce AS-MSKROUTESERVER
+export:          to AS13105
+                 announce AS-MSKROUTESERVER
+export:          to AS13194
+                 announce AS-MSKROUTESERVER
+export:          to AS13230
+                 announce AS-MSKROUTESERVER
+export:          to AS13238
+                 announce AS-MSKROUTESERVER
+export:          to AS15169
+                 announce AS-MSKROUTESERVER
+export:          to AS15493
+                 announce AS-MSKROUTESERVER
+export:          to AS15632
+                 announce AS-MSKROUTESERVER
+export:          to AS15672
+                 announce AS-MSKROUTESERVER
+export:          to AS15682
+                 announce AS-MSKROUTESERVER
+export:          to AS15731
+                 announce AS-MSKROUTESERVER
+export:          to AS15756
+                 announce AS-MSKROUTESERVER
+export:          to AS15757
+                 announce AS-MSKROUTESERVER
+export:          to AS15835
+                 announce AS-MSKROUTESERVER
+export:          to AS15934
+                 announce AS-MSKROUTESERVER
+export:          to AS16020
+                 announce AS-MSKROUTESERVER
+export:          to AS16083
+                 announce AS-MSKROUTESERVER
+export:          to AS16094
+                 announce AS-MSKROUTESERVER
+export:          to AS16143
+                 announce AS-MSKROUTESERVER
+export:          to AS20483
+                 announce AS-MSKROUTESERVER
+export:          to AS20544
+                 announce AS-MSKROUTESERVER
+export:          to AS20632
+                 announce AS-MSKROUTESERVER
+export:          to AS20655
+                 announce AS-MSKROUTESERVER
+export:          to AS20702
+                 announce AS-MSKROUTESERVER
+export:          to AS20764
+                 announce AS-MSKROUTESERVER
+export:          to AS20807
+                 announce AS-MSKROUTESERVER
+export:          to AS20919
+                 announce AS-MSKROUTESERVER
+export:          to AS20946
+                 announce AS-MSKROUTESERVER
+export:          to AS20985
+                 announce AS-MSKROUTESERVER
+export:          to AS21011
+                 announce AS-MSKROUTESERVER
+export:          to AS21109
+                 announce AS-MSKROUTESERVER
+export:          to AS21135
+                 announce AS-MSKROUTESERVER
+export:          to AS21156
+                 announce AS-MSKROUTESERVER
+export:          to AS21219
+                 announce AS-MSKROUTESERVER
+export:          to AS21225
+                 announce AS-MSKROUTESERVER
+export:          to AS21240
+                 announce AS-MSKROUTESERVER
+export:          to AS21353
+                 announce AS-MSKROUTESERVER
+export:          to AS21367
+                 announce AS-MSKROUTESERVER
+export:          to AS21372
+                 announce AS-MSKROUTESERVER
+export:          to AS21414
+                 announce AS-MSKROUTESERVER
+export:          to AS21416
+                 announce AS-MSKROUTESERVER
+export:          to AS21446
+                 announce AS-MSKROUTESERVER
+export:          to AS21453
+                 announce AS-MSKROUTESERVER
+export:          to AS24599
+                 announce AS-MSKROUTESERVER
+export:          to AS24638
+                 announce AS-MSKROUTESERVER
+export:          to AS24663
+                 announce AS-MSKROUTESERVER
+export:          to AS24680
+                 announce AS-MSKROUTESERVER
+export:          to AS24689
+                 announce AS-MSKROUTESERVER
+export:          to AS24762
+                 announce AS-MSKROUTESERVER
+export:          to AS24829
+                 announce AS-MSKROUTESERVER
+export:          to AS24936
+                 announce AS-MSKROUTESERVER
+export:          to AS25189
+                 announce AS-MSKROUTESERVER
+export:          to AS25227
+                 announce AS-MSKROUTESERVER
+export:          to AS25292
+                 announce AS-MSKROUTESERVER
+export:          to AS25308
+                 announce AS-MSKROUTESERVER
+export:          to AS25371
+                 announce AS-MSKROUTESERVER
+export:          to AS25408
+                 announce AS-MSKROUTESERVER
+export:          to AS25478
+                 announce AS-MSKROUTESERVER
+export:          to AS25511
+                 announce AS-MSKROUTESERVER
+export:          to AS25531
+                 announce AS-MSKROUTESERVER
+export:          to AS26415
+                 announce AS-MSKROUTESERVER
+export:          to AS28762
+                 announce AS-MSKROUTESERVER
+export:          to AS28870
+                 announce AS-MSKROUTESERVER
+export:          to AS28891
+                 announce AS-MSKROUTESERVER
+export:          to AS28917
+                 announce AS-MSKROUTESERVER
+export:          to AS28968
+                 announce AS-MSKROUTESERVER
+export:          to AS29000
+                 announce AS-MSKROUTESERVER
+export:          to AS29053
+                 announce AS-MSKROUTESERVER
+export:          to AS29069
+                 announce AS-MSKROUTESERVER
+export:          to AS29076
+                 announce AS-MSKROUTESERVER
+export:          to AS29124
+                 announce AS-MSKROUTESERVER
+export:          to AS29182
+                 announce AS-MSKROUTESERVER
+export:          to AS29226
+                 announce AS-MSKROUTESERVER
+export:          to AS29285
+                 announce AS-MSKROUTESERVER
+export:          to AS29319
+                 announce AS-MSKROUTESERVER
+export:          to AS29329
+                 announce AS-MSKROUTESERVER
+export:          to AS29388
+                 announce AS-MSKROUTESERVER
+export:          to AS29530
+                 announce AS-MSKROUTESERVER
+export:          to AS29632
+                 announce AS-MSKROUTESERVER
+export:          to AS29651
+                 announce AS-MSKROUTESERVER
+export:          to AS30124
+                 announce AS-MSKROUTESERVER
+export:          to AS30733
+                 announce AS-MSKROUTESERVER
+export:          to AS30784
+                 announce AS-MSKROUTESERVER
+export:          to AS30833
+                 announce AS-MSKROUTESERVER
+export:          to AS30853
+                 announce AS-MSKROUTESERVER
+export:          to AS31059
+                 announce AS-MSKROUTESERVER
+export:          to AS31133
+                 announce AS-MSKROUTESERVER
+export:          to AS31189
+                 announce AS-MSKROUTESERVER
+export:          to AS31225
+                 announce AS-MSKROUTESERVER
+export:          to AS31261
+                 announce AS-MSKROUTESERVER
+export:          to AS31294
+                 announce AS-MSKROUTESERVER
+export:          to AS31368
+                 announce AS-MSKROUTESERVER
+export:          to AS31370
+                 announce AS-MSKROUTESERVER
+export:          to AS31376
+                 announce AS-MSKROUTESERVER
+export:          to AS31415
+                 announce AS-MSKROUTESERVER
+export:          to AS31430
+                 announce AS-MSKROUTESERVER
+export:          to AS31444
+                 announce AS-MSKROUTESERVER
+export:          to AS31494
+                 announce AS-MSKROUTESERVER
+export:          to AS31499
+                 announce AS-MSKROUTESERVER
+export:          to AS31500
+                 announce AS-MSKROUTESERVER
+export:          to AS31514
+                 announce AS-MSKROUTESERVER
+export:          to AS31529
+                 announce AS-MSKROUTESERVER
+export:          to AS31720
+                 announce AS-MSKROUTESERVER
+export:          to AS33842
+                 announce AS-MSKROUTESERVER
+export:          to AS33871
+                 announce AS-MSKROUTESERVER
+export:          to AS33902
+                 announce AS-MSKROUTESERVER
+export:          to AS33904
+                 announce AS-MSKROUTESERVER
+export:          to AS34030
+                 announce AS-MSKROUTESERVER
+export:          to AS34034
+                 announce AS-MSKROUTESERVER
+export:          to AS34035
+                 announce AS-MSKROUTESERVER
+export:          to AS34123
+                 announce AS-MSKROUTESERVER
+export:          to AS34139
+                 announce AS-MSKROUTESERVER
+export:          to AS34277
+                 announce AS-MSKROUTESERVER
+export:          to AS34300
+                 announce AS-MSKROUTESERVER
+export:          to AS34352
+                 announce AS-MSKROUTESERVER
+export:          to AS34456
+                 announce AS-MSKROUTESERVER
+export:          to AS34485
+                 announce AS-MSKROUTESERVER
+export:          to AS34550
+                 announce AS-MSKROUTESERVER
+export:          to AS34602
+                 announce AS-MSKROUTESERVER
+export:          to AS34879
+                 announce AS-MSKROUTESERVER
+export:          to AS34898
+                 announce AS-MSKROUTESERVER
+export:          to AS35000
+                 announce AS-MSKROUTESERVER
+export:          to AS35087
+                 announce AS-MSKROUTESERVER
+export:          to AS35178
+                 announce AS-MSKROUTESERVER
+export:          to AS35254
+                 announce AS-MSKROUTESERVER
+export:          to AS35271
+                 announce AS-MSKROUTESERVER
+export:          to AS35297
+                 announce AS-MSKROUTESERVER
+export:          to AS35320
+                 announce AS-MSKROUTESERVER
+export:          to AS35357
+                 announce AS-MSKROUTESERVER
+export:          to AS35374
+                 announce AS-MSKROUTESERVER
+export:          to AS35475
+                 announce AS-MSKROUTESERVER
+export:          to AS35511
+                 announce AS-MSKROUTESERVER
+export:          to AS35522
+                 announce AS-MSKROUTESERVER
+export:          to AS35539
+                 announce AS-MSKROUTESERVER
+export:          to AS35598
+                 announce AS-MSKROUTESERVER
+export:          to AS35640
+                 announce AS-MSKROUTESERVER
+export:          to AS35641
+                 announce AS-MSKROUTESERVER
+export:          to AS35723
+                 announce AS-MSKROUTESERVER
+export:          to AS35768
+                 announce AS-MSKROUTESERVER
+export:          to AS35770
+                 announce AS-MSKROUTESERVER
+export:          to AS35810
+                 announce AS-MSKROUTESERVER
+export:          to AS38964
+                 announce AS-MSKROUTESERVER
+export:          to AS38984
+                 announce AS-MSKROUTESERVER
+export:          to AS39045
+                 announce AS-MSKROUTESERVER
+export:          to AS39087
+                 announce AS-MSKROUTESERVER
+export:          to AS39102
+                 announce AS-MSKROUTESERVER
+export:          to AS39134
+                 announce AS-MSKROUTESERVER
+export:          to AS39153
+                 announce AS-MSKROUTESERVER
+export:          to AS39684
+                 announce AS-MSKROUTESERVER
+export:          to AS39709
+                 announce AS-MSKROUTESERVER
+export:          to AS39792
+                 announce AS-MSKROUTESERVER
+export:          to AS39821
+                 announce AS-MSKROUTESERVER
+export:          to AS39927
+                 announce AS-MSKROUTESERVER
+export:          to AS41034
+                 announce AS-MSKROUTESERVER
+export:          to AS41095
+                 announce AS-MSKROUTESERVER
+export:          to AS41109
+                 announce AS-MSKROUTESERVER
+export:          to AS41145
+                 announce AS-MSKROUTESERVER
+export:          to AS41349
+                 announce AS-MSKROUTESERVER
+export:          to AS41475
+                 announce AS-MSKROUTESERVER
+export:          to AS41554
+                 announce AS-MSKROUTESERVER
+export:          to AS41601
+                 announce AS-MSKROUTESERVER
+export:          to AS41667
+                 announce AS-MSKROUTESERVER
+export:          to AS41691
+                 announce AS-MSKROUTESERVER
+export:          to AS41733
+                 announce AS-MSKROUTESERVER
+export:          to AS41802
+                 announce AS-MSKROUTESERVER
+export:          to AS41842
+                 announce AS-MSKROUTESERVER
+export:          to AS41853
+                 announce AS-MSKROUTESERVER
+export:          to AS42145
+                 announce AS-MSKROUTESERVER
+export:          to AS42226
+                 announce AS-MSKROUTESERVER
+export:          to AS42291
+                 announce AS-MSKROUTESERVER
+export:          to AS42368
+                 announce AS-MSKROUTESERVER
+export:          to AS42377
+                 announce AS-MSKROUTESERVER
+export:          to AS42388
+                 announce AS-MSKROUTESERVER
+export:          to AS42429
+                 announce AS-MSKROUTESERVER
+export:          to AS42484
+                 announce AS-MSKROUTESERVER
+export:          to AS42511
+                 announce AS-MSKROUTESERVER
+export:          to AS42583
+                 announce AS-MSKROUTESERVER
+export:          to AS42610
+                 announce AS-MSKROUTESERVER
+export:          to AS42632
+                 announce AS-MSKROUTESERVER
+export:          to AS42668
+                 announce AS-MSKROUTESERVER
+export:          to AS42678
+                 announce AS-MSKROUTESERVER
+export:          to AS42754
+                 announce AS-MSKROUTESERVER
+export:          to AS42861
+                 announce AS-MSKROUTESERVER
+export:          to AS42909
+                 announce AS-MSKROUTESERVER
+export:          to AS42972
+                 announce AS-MSKROUTESERVER
+export:          to AS43045
+                 announce AS-MSKROUTESERVER
+export:          to AS43168
+                 announce AS-MSKROUTESERVER
+export:          to AS43268
+                 announce AS-MSKROUTESERVER
+export:          to AS43304
+                 announce AS-MSKROUTESERVER
+export:          to AS43317
+                 announce AS-MSKROUTESERVER
+export:          to AS43404
+                 announce AS-MSKROUTESERVER
+export:          to AS43537
+                 announce AS-MSKROUTESERVER
+export:          to AS43567
+                 announce AS-MSKROUTESERVER
+export:          to AS43666
+                 announce AS-MSKROUTESERVER
+export:          to AS43686
+                 announce AS-MSKROUTESERVER
+export:          to AS43714
+                 announce AS-MSKROUTESERVER
+export:          to AS43727
+                 announce AS-MSKROUTESERVER
+export:          to AS43798
+                 announce AS-MSKROUTESERVER
+export:          to AS43832
+                 announce AS-MSKROUTESERVER
+export:          to AS43966
+                 announce AS-MSKROUTESERVER
+export:          to AS43973
+                 announce AS-MSKROUTESERVER
+export:          to AS44020
+                 announce AS-MSKROUTESERVER
+export:          to AS44030
+                 announce AS-MSKROUTESERVER
+export:          to AS44041
+                 announce AS-MSKROUTESERVER
+export:          to AS44048
+                 announce AS-MSKROUTESERVER
+export:          to AS44050
+                 announce AS-MSKROUTESERVER
+export:          to AS44237
+                 announce AS-MSKROUTESERVER
+export:          to AS44281
+                 announce AS-MSKROUTESERVER
+export:          to AS44436
+                 announce AS-MSKROUTESERVER
+export:          to AS44479
+                 announce AS-MSKROUTESERVER
+export:          to AS44532
+                 announce AS-MSKROUTESERVER
+export:          to AS44552
+                 announce AS-MSKROUTESERVER
+export:          to AS44618
+                 announce AS-MSKROUTESERVER
+export:          to AS44670
+                 announce AS-MSKROUTESERVER
+export:          to AS44696
+                 announce AS-MSKROUTESERVER
+export:          to AS44816
+                 announce AS-MSKROUTESERVER
+export:          to AS44843
+                 announce AS-MSKROUTESERVER
+export:          to AS44882
+                 announce AS-MSKROUTESERVER
+export:          to AS44893
+                 announce AS-MSKROUTESERVER
+export:          to AS44927
+                 announce AS-MSKROUTESERVER
+export:          to AS44943
+                 announce AS-MSKROUTESERVER
+export:          to AS45046
+                 announce AS-MSKROUTESERVER
+export:          to AS47104
+                 announce AS-MSKROUTESERVER
+export:          to AS47119
+                 announce AS-MSKROUTESERVER
+export:          to AS47151
+                 announce AS-MSKROUTESERVER
+export:          to AS47156
+                 announce AS-MSKROUTESERVER
+export:          to AS47321
+                 announce AS-MSKROUTESERVER
+export:          to AS47395
+                 announce AS-MSKROUTESERVER
+export:          to AS47440
+                 announce AS-MSKROUTESERVER
+export:          to AS47522
+                 announce AS-MSKROUTESERVER
+export:          to AS47531
+                 announce AS-MSKROUTESERVER
+export:          to AS47562
+                 announce AS-MSKROUTESERVER
+export:          to AS47614
+                 announce AS-MSKROUTESERVER
+export:          to AS47645
+                 announce AS-MSKROUTESERVER
+export:          to AS47655
+                 announce AS-MSKROUTESERVER
+export:          to AS47724
+                 announce AS-MSKROUTESERVER
+export:          to AS47747
+                 announce AS-MSKROUTESERVER
+export:          to AS47764
+                 announce AS-MSKROUTESERVER
+export:          to AS47989
+                 announce AS-MSKROUTESERVER
+export:          to AS48061
+                 announce AS-MSKROUTESERVER
+export:          to AS48076
+                 announce AS-MSKROUTESERVER
+export:          to AS48166
+                 announce AS-MSKROUTESERVER
+export:          to AS48172
+                 announce AS-MSKROUTESERVER
+export:          to AS48249
+                 announce AS-MSKROUTESERVER
+export:          to AS48268
+                 announce AS-MSKROUTESERVER
+export:          to AS48287
+                 announce AS-MSKROUTESERVER
+export:          to AS48293
+                 announce AS-MSKROUTESERVER
+export:          to AS48297
+                 announce AS-MSKROUTESERVER
+export:          to AS48467
+                 announce AS-MSKROUTESERVER
+export:          to AS48719
+                 announce AS-MSKROUTESERVER
+export:          to AS48781
+                 announce AS-MSKROUTESERVER
+export:          to AS48822
+                 announce AS-MSKROUTESERVER
+export:          to AS48848
+                 announce AS-MSKROUTESERVER
+export:          to AS48914
+                 announce AS-MSKROUTESERVER
+export:          to AS49058
+                 announce AS-MSKROUTESERVER
+export:          to AS49060
+                 announce AS-MSKROUTESERVER
+export:          to AS49063
+                 announce AS-MSKROUTESERVER
+export:          to AS49124
+                 announce AS-MSKROUTESERVER
+export:          to AS49291
+                 announce AS-MSKROUTESERVER
+export:          to AS49307
+                 announce AS-MSKROUTESERVER
+export:          to AS49342
+                 announce AS-MSKROUTESERVER
+export:          to AS49403
+                 announce AS-MSKROUTESERVER
+export:          to AS49505
+                 announce AS-MSKROUTESERVER
+export:          to AS49508
+                 announce AS-MSKROUTESERVER
+export:          to AS49779
+                 announce AS-MSKROUTESERVER
+export:          to AS49813
+                 announce AS-MSKROUTESERVER
+export:          to AS49973
+                 announce AS-MSKROUTESERVER
+export:          to AS50277
+                 announce AS-MSKROUTESERVER
+export:          to AS50289
+                 announce AS-MSKROUTESERVER
+export:          to AS50384
+                 announce AS-MSKROUTESERVER
+export:          to AS50448
+                 announce AS-MSKROUTESERVER
+export:          to AS50473
+                 announce AS-MSKROUTESERVER
+export:          to AS50577
+                 announce AS-MSKROUTESERVER
+export:          to AS50677
+                 announce AS-MSKROUTESERVER
+export:          to AS50923
+                 announce AS-MSKROUTESERVER
+export:          to AS51011
+                 announce AS-MSKROUTESERVER
+export:          to AS51218
+                 announce AS-MSKROUTESERVER
+export:          to AS51297
+                 announce AS-MSKROUTESERVER
+export:          to AS51343
+                 announce AS-MSKROUTESERVER
+export:          to AS51408
+                 announce AS-MSKROUTESERVER
+export:          to AS51437
+                 announce AS-MSKROUTESERVER
+export:          to AS51464
+                 announce AS-MSKROUTESERVER
+export:          to AS51548
+                 announce AS-MSKROUTESERVER
+export:          to AS51665
+                 announce AS-MSKROUTESERVER
+export:          to AS51764
+                 announce AS-MSKROUTESERVER
+export:          to AS51904
+                 announce AS-MSKROUTESERVER
+export:          to AS51939
+                 announce AS-MSKROUTESERVER
+export:          to AS52201
+                 announce AS-MSKROUTESERVER
+export:          to AS56462
+                 announce AS-MSKROUTESERVER
+export:          to AS56762
+                 announce AS-MSKROUTESERVER
+export:          to AS56902
+                 announce AS-MSKROUTESERVER
+export:          to AS57107
+                 announce AS-MSKROUTESERVER
+export:          to AS57359
+                 announce AS-MSKROUTESERVER
+export:          to AS57363
+                 announce AS-MSKROUTESERVER
+export:          to AS57420
+                 announce AS-MSKROUTESERVER
+export:          to AS57629
+                 announce AS-MSKROUTESERVER
+export:          to AS58002
+                 announce AS-MSKROUTESERVER
+export:          to AS196678
+                 announce AS-MSKROUTESERVER
+export:          to AS196695
+                 announce AS-MSKROUTESERVER
+export:          to AS197062
+                 announce AS-MSKROUTESERVER
+export:          to AS197140
+                 announce AS-MSKROUTESERVER
+export:          to AS197464
+                 announce AS-MSKROUTESERVER
+export:          to AS197826
+                 announce AS-MSKROUTESERVER
+export:          to AS198028
+                 announce AS-MSKROUTESERVER
+changed:         msk-ix-noc@ripn.net 20120813
+source:          RIPE
+

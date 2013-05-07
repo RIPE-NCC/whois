@@ -1,0 +1,353 @@
+package net.ripe.db.whois.api.freetext;
+
+import net.ripe.db.whois.api.AbstractRestClientTest;
+import net.ripe.db.whois.api.httpserver.Audience;
+import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.solr.client.solrj.impl.XMLResponseParser;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.util.NamedList;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.StringReader;
+import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+
+@Category(IntegrationTest.class)
+public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
+    private static final Audience AUDIENCE = Audience.PUBLIC;
+
+    @Autowired FreeTextIndex freeTextIndex;
+
+    @Before
+    public void setUp() throws Exception {
+        freeTextIndex.rebuild();
+    }
+
+    @Test
+    public void search_single() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner: DEV-MNT\n" +
+                "source: RIPE"));
+
+        freeTextIndex.update();
+
+        final String searchResult = query("q=DEV-MNT");
+
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+
+        final SolrDocument solrDocument = queryResponse.getResults().get(0);
+        solrDocument.addField("primary-key", "1");
+        solrDocument.addField("object-type", "mntner");
+        solrDocument.addField("lookup-key", "DEV-MNT");
+        solrDocument.addField("mntner", "DEV-MNT");
+        assertThat(solrDocument.getFirstValue("primary-key").toString(), is("1"));
+        assertThat(solrDocument.getFirstValue("object-type").toString(), is("mntner"));
+        assertThat(solrDocument.getFirstValue("lookup-key").toString(), is("DEV-MNT"));
+        assertThat(solrDocument.getFirstValue("mntner").toString(), is("DEV-MNT"));
+    }
+
+    @Test
+    public void search_multiple_with_highlighting() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner: DEV1-MNT\n" +
+                "remarks: Some remark\n" +
+                "source: RIPE"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner: DEV2-MNT\n" +
+                "remarks: Second remark\n" +
+                "source: RIPE"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner: DEV3-MNT\n" +
+                "remarks: Other remark\n" +
+                "source: RIPE"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner: DEV4-MNT\n" +
+                "source: RIPE"));
+
+        freeTextIndex.rebuild();
+
+        final String searchResult = query("q=remark&hl=true");
+
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(3L));
+
+        final Map<String, Map<String, List<String>>> highlighting = queryResponse.getHighlighting();
+        assertThat(highlighting.keySet(), hasSize(3));
+        final Map<String, List<String>> map = highlighting.get("1");
+        assertThat(map.keySet(), contains("remarks"));
+    }
+
+    @Test
+    public void search_multiple_with_facet() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner: DEV1-MNT\n" +
+                "remarks: Some remark\n" +
+                "source: RIPE"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person: First Last\n" +
+                "nic-hdl: AA1-RIPE\n" +
+                "remarks: Some remark\n" +
+                "source: RIPE"));
+
+        freeTextIndex.rebuild();
+
+        final String searchResult = query("q=remark&facet=true");
+
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(2L));
+
+        final List<FacetField> facets = queryResponse.getFacetFields();
+        assertThat(facets.size(), is(1));
+        final FacetField facet = facets.get(0);
+        assertThat(facet.getName(), is("object-type"));
+        assertThat(facet.getValueCount(), is(2));
+        assertThat(facet.getValues().toString(), containsString("mntner (1)"));
+        assertThat(facet.getValues().toString(), containsString("person (1)"));
+    }
+
+    @Test
+    public void no_exact_match_for_highlighting() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:  AARD-MNT\n" +
+                "source: RIPE"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "domain:          198.76.217.in-addr.arpa\n" +
+                "descr:           T.E.S.T. Ltd\n" +
+                "nserver:         ns.foo.ua\n" +
+                "nserver:         ns2.foo.ua\n" +
+                "changed:         bar@foo.ua 20120911\n" +
+                "notify:          bar@foo.ua\n" +
+                "source:          RIPE\n" +
+                "mnt-by:          AARD-MNT"));
+
+        freeTextIndex.update();
+
+        final String searchResult = query("q=test&hl=true");
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+
+        final Map<String, Map<String, List<String>>> highlighting = queryResponse.getHighlighting();
+        assertThat(highlighting.keySet(), contains("2"));
+        final Map<String, List<String>> map = highlighting.get("2");
+        assertThat(map.keySet(), contains("descr"));
+        assertThat(map.get("descr"), contains("<b>T.E.S.T</b>. Ltd"));
+    }
+
+    @Test
+    public void search_no_match() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner: DEV-MNT\n" +
+                "source: RIPE"));
+
+        freeTextIndex.update();
+
+        final String searchResult = query("q=10.0.0.0");
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(0L));
+    }
+
+    @Test
+    public void search_word_match_subword_case_change() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person: John McDonald\n" +
+                "nic-hdl: AA1-RIPE\n" +
+                "source: RIPE"));
+
+        freeTextIndex.rebuild();
+
+        final String searchResult = query("q=donald");
+
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+    }
+
+    @Test
+    public void search_word_match_subword_dash_separator() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:  MNT-TESTUA\n" +
+                "source: RIPE"));
+
+        freeTextIndex.rebuild();
+
+        final String searchResult = query("q=TESTUA");
+
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+    }
+
+    @Test
+    public void search_word_match_original() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person: John McDonald1\n" +
+                "nic-hdl: AA1-RIPE\n" +
+                "source: RIPE"));
+
+        freeTextIndex.rebuild();
+
+        final String searchResult = query("q=mcdonald1");
+
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+    }
+
+    @Test
+    public void search_word_with_matching_object_type() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person: John McDonald\n" +
+                "nic-hdl: AA1-RIPE\n" +
+                "source: RIPE"));
+
+        freeTextIndex.rebuild();
+
+        final String searchResult = query("q=mcdonald+AND+object-type%3Aperson");
+
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+    }
+
+    @Test
+    public void search_word_with_non_matching_object_type() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person: John McDonald\n" +
+                "nic-hdl: AA1-RIPE\n" +
+                "source: RIPE"));
+
+        freeTextIndex.rebuild();
+
+        final String searchResult = query("q=mcdonald+AND+object-type%3Ainetnum");
+
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(0L));
+    }
+
+    @Test
+    public void search_word_term_is_not_tokenised() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:  TESTUA-MNT\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:  NINJA-MNT\n" +
+                "source: RIPE"));
+        freeTextIndex.rebuild();
+
+        final String searchResult = query("q=NINJA-MNT");
+
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+    }
+
+    @Test
+    public void search_match_all_terms() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person: John McDonald\n" +
+                "nic-hdl: JM1-RIPE\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person: Kate McDonald\n" +
+                "nic-hdl: KM1-RIPE\n" +
+                "source: RIPE"));
+
+        freeTextIndex.rebuild();
+
+        final String searchResult = query("q=John+McDonald");
+
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+    }
+
+    private final String query(final String queryString) {
+        return client
+                .resource(String.format("http://localhost:%s/search?%s", getPort(AUDIENCE), queryString))
+                .get(String.class);
+    }
+
+    @Test
+    public void search_for_deleted_object() {
+        final RpslObject object = RpslObject.parse("" +
+                "person: John McDonald\n" +
+                "nic-hdl: JM1-RIPE\n" +
+                "source: RIPE");
+        databaseHelper.addObject(object);
+        freeTextIndex.rebuild();
+
+        assertThat(query("q=JM1-RIPE"), containsString("numFound=\"1\""));
+
+        databaseHelper.removeObject(object);
+        freeTextIndex.scheduledUpdate();
+
+        assertThat(query("q=JM1-RIPE"), containsString("numFound=\"0\""));
+    }
+
+    @Test
+    public void search_with_forwardslash() {
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        freeTextIndex.rebuild();
+
+        final String response = query("q=2a00:1f78::fffe/48");
+        assertThat(response, containsString("numFound=\"1\""));
+
+        final String other = query("q=212.166.64.0/19");
+        assertThat(other, containsString("numFound=\"0\""));
+    }
+
+    @Test
+    public void nullpointerbug() {
+        final String response = query("q=%28http%5C%3A%2F%2Fvv.uka.ru%29");
+        assertThat(response, containsString("numFound=\"0\""));
+    }
+}

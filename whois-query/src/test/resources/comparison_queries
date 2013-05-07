@@ -1,0 +1,564 @@
+# Most of these queries use real data. Where possible I use RIPE resources.
+# But it is possible some tests may fail in the future because the data has changed.
+
+# -K queries
+-K dw-ripe
+############### BUG ###############
+-Km 193.0.0.0 - 193.0.23.255
+############### BUG ###############
+-Km 2001:638::/32
+############### BUG ###############
+-KL 2001:638::/32
+
+# -b queries
+############### BUG ###############
+-b dw-ripe
+-b 193.0.0.1
+############### BUG ###############
+-Gb 193.0.0.1
+
+# -c -C queries
+-rBG 193.67.254.0 - 193.67.254.255
+-rBGc 193.67.254.0 - 193.67.254.255
+-rBG 2001:0638:0201::/48
+-rBGc 2001:0638:0201::/48
+-rBGC 2001:0638:0201::/48
+
+# -d queries
+-rd
+-rd denis@ripe.net
+-r 193.0.0.1
+-rd 193.0.0.1
+-rdT inetnum 193.0.0.1
+-rdT domain 193.0.0.1
+-rdT route 193.0.0.1
+-rdT route6 193.0.0.1
+-rT domain 193.0.0.1
+-r 0.0.193.in-addr.arpa
+-rd 0.0.193.in-addr.arpa
+-rdT domain 0.0.193.in-addr.arpa
+-rdT inetnum 0.0.193.in-addr.arpa
+-rdT route 0.0.193.in-addr.arpa
+-rdT route6 0.0.193.in-addr.arpa
+-rBG 2001:780::/32
+-rBGd 2001:780::/32
+-rBGdT inet6num 2001:780::/32
+-rBGdT domain 2001:780::/32
+-rBGdT route6 2001:780::/32
+-rBGdT route 2001:780::/32
+-rBGmd 2001:780::/32
+############### BUG ###############
+-rBGdK  2001:780:0:1::/64
+-rGdKL  2001:780:0:1::/64
+
+
+############### BUG ###############
+-rGm 0.0.0.1/0
+
+############### BUG ###############
+#-q sources
+#-q types
+#-q version
+#-q queries
+
+############### BUG ###############
+#-q fred
+#-q
+#-q version -q types
+#-q -q
+#-q types -q
+#-q -q -q
+#-q version 0/0
+
+# Help query
+-t person HELP
+
+# Template and verbose queries
+-t inetnum
+-v inet6num
+-t person,role
+-t person, role
+ -t person dw-ripe
+-v inetnum,inet6num
+-rt inetnum 0/0
+-rBt route -G -T route 0/0
+-v route6 -T route6 ::0/0
+-v person -t role
+-a -tperson
+
+# inverse queries
+
+-i admin-c AP110-RIPE
+-i ac AP110-RIPE
+-i ac,ac AP110-RIPE
+-i admin-c,ac AP110-RIPE
+-i admin-c, ac AP110-RIPE
+-i author DB65536-RIPE
+-i ah DB65536-RIPE
+-i tech-c MS31447-RIPE
+-i tc MS31447-RIPE
+-i tc alex
+-i zone-c ML17241-RIPE
+-i zc ML17241-RIPE
+-i ping-hdl IKS-RIPE
+-i pc IKS-RIPE
+-i person dw-ripe
+-i pn dw-ripe
+-i pn AS24-DE
+-i pn AST24
+-i pn CS15-ARIN
+
+# an mnt-routes with included prefix
+-i mu AS13213-MNT
+-i mnt-domains ARTFILES-MNT
+-i md ARTFILES-MNT
+-i mnt-ref DTAG-RR
+-i mz DTAG-RR
+-i mbrs-by-ref DTAG-RR
+-i mr DTAG-RR
+-i mr ANY
+
+-i mnt-nfy admin-c-ripe@magix.net
+-i mn admin-c-ripe@magix.net
+-i ref-nfy hm-dbm-msgs@ripe.net
+-i RN hm-dbm-msgs@ripe.net
+-i notify 4ripe@ellipse.com.ua
+-i nY 4ripe@ellipse.com.ua
+-i irt-nfy ripe@burst.net
+-i Iy ripe@burst.net
+-i upd-to admin-c-ripe@magix.net
+-i DT admin-c-ripe@magix.net
+-i abuse-mailbox abuse@ripe.net
+-i am abuse@ripe.net
+
+-i auth PGpkeY-03BB9E7B
+-i at x509-1
+-i ds-rdata 11850 5 1 A95AFB27588FB9939CD75495304FFED9607B092E
+-i ds 2240 7 2 3061b1d704ce9101a8a86712839e57c1a88698ba095f2afe93b1adb1 b16ab723
+-i fingerpr 00 3E A8 49 A3 87 ED C4 2B 96 5B 23 CD 51 CC 2F
+-i fp 00 3e a8 49 a3 87 ed c4 2B 96 5B 23 CD 51 CC 2F
+-i origin AS3333
+-i or AS3333
+-i nserver a.enum.at
+-i ns a.enUM.At
+-i org ORG-AA1-RIPE
+-i og ORG-AA1-RIPE
+-i local-as AS3333
+-i la AS3333
+-i member-of AS-TPN
+-i mo AS3320:AS-AUTH-PILOT-BLACKHOLE-FROM-AS6724
+-i mo AS20773:RS-HOSTEUROPE
+-i mnt-irt irt-CERT-NL
+-i mi irt-CERT-NL
+-i form FORM-HAIKU
+-i fr FORM-HAIKU
+-rGKi sub-dom 128.135.88.in-addr.arpa
+-rGKi referral-by aardvark-mnt
+# never implemented
+-i mnt-routes6 fred-mnt
+
+# inverse queries on NIC Hdl
+-i admin-c dw-ripe
+-i ac,TC dw-ripe
+-i pn dw-ripe
+-Br -i pn RD132-RIPE
+-GBr -i PN -T mntner  RD132-RIPE
+
+# queries with -s and -a
+-s
+-s fred
+-s RIPE
+-rBG -s ripe,afrinic-grs 0/0
+-rBG -sripe,afrinic-grs,ripe-grs,arin-grs,apnic-grs,radb-grs,jpirr-grs,lacnic-grs 0/0
+-sripe,fred 0/0
+-sRIPE -r -T inetnum 193.0.0.0 - 193.0.7.255
+-s RIPE-GRS -r -T inetnum 193.0.0.0 - 193.0.7.255
+-s ARIN-grS -r -T inetnum 193.0.0.0 - 193.0.7.255
+############### BUG ###############
+-a
+############### BUG ###############
+-a 0/0
+-rBG -a -sripe,afrinic-grs,ripe-grs,arin-grs,apnic-grs,radb-grs,jpirr-grs,lacnic-grs 0/0
+
+#queries with -F
+-F 193.0.0.1
+-F Unknown
+
+# queries with multiple -T
+-TInetnum -T rouTE 193.0.0.0 - 193.0.7.255
+-GTInetnum -T rouTE 193.0.0.0 - 193.0.7.255
+-TInetnum,Route 193.0.0.0 - 193.0.7.255
+-TInetnum,Route 193.0.0.0 - 193.0.7.255
+-T inetnum,route 193.0.0.0 - 193.0.23.255
+-T inetnum,inet6num -T route6,route 193.0.0.0 - 193.0.23.255
+
+# queries without -T
+-r fred
+aardvark
+193.0.0.0 - 193.0.23.255
+-GBr 193.0.0.0 - 193.0.23.255
+AS-RIPENCC
+OPS4-RIPE
+2001:67c:2e8:26::2
+ORG-Bb2-RIPE
+0.0.193.in-addr.arpa
+
+# -T queries without -r and with -G
+-T ineTnum -G 193.0.0.0 - 193.0.7.255
+-LT ineTnum -G 193.0.0.0 - 193.0.7.255
+-GBTinet6num 2001:610::/32
+-G -T Organisation oRG-ncc1-RIPE
+-GT AUT-NUM as3333
+-BG -T MntnEr RIPE-dbm-MNT
+-T oA -G ORG-nCc1-RIPE
+# ROLE type with PERSON reference
+-T roLe -GB denis walker
+# PERSON type with ROLE reference
+-GT PN RD132-RIPE
+
+# -T queries without -r and without -G
+-T ineTnum 193.0.0.0 - 193.0.7.255
+-LT ineTnum 193.0.0.0 - 193.0.7.255
+-BTinet6num 2001:610::/32
+-T Organisation oRG-ncc1-RIPE
+-T AUT-NUM as3333
+-B -T MntnEr RIPE-dbm-MNT
+-T oA ORG-nCc1-RIPE
+# ROLE type with PERSON reference
+-T roLe -B denis walker
+# PERSON type with ROLE reference
+-T PN RD132-RIPE
+
+# -T UNKNOWN queries with -r
+-rT UNKNOWN fred
+
+# -T ROUTE queries with -r
+-rTRoUtE 193.0.0.0/21
+-T route -r 93.175.147.0/24
+
+# -T ROUTE6 queries with -r
+-rTRoUtE6 2001:7FB:FF03::/48
+-GBrTroutE6 2001:67c:2e8::/48
+
+# -T DOMAIN queries with -r
+-rTdomAIN 1.0.193.in-addr.arpa
+############### BUG ###############
+-r -T domain e164.arpa
+############### BUG ###############
+-T domain -rBG e164.ARpa
+-rT   domAIN    1.0.0.193.in-addr.arpa
+-rTdomAIN 1.0.0.193.in-addr.arpa.
+-rT domAIN 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa
+
+# -T AS-SET queries with -r
+-rT AS-SET AS-RESTENA
+-r -T as-SET AS-restena
+-r -T aS-Set As-RESTENA
+-rT AS-SET AS5511:AS-CUSTOMERS_ASIA
+-rT AS-SET
+
+# -T ROUTE-SET queries with -r
+-rT ROUTE-SET RS-TEST
+-r -T route-SET RS-TesT
+-r -T roUTe-Set Rs-tesT
+-rT ROUTE-SET AS3239:RS-PREF:AS35400
+
+# -T RTR-SET queries with -r
+-rT RTR-SET rtrs-mways-callback
+-r -T rtr-SET rtrs-MWAYS-callback
+-r -T rTr-Set Rtrs-mwAys-callbacK
+-rT RTR-SET AS28816:rtrs-arbinet-customer-rs
+
+# -T FILTER-SET queries with -r
+-rT FILTER-SET AS8627:fltr-PEER-OUT
+-rT FILteR-SET As8627:FLTR-peer-OUT
+-r -T filter-set fltr-caladan-block
+-r -T filter-set AS6774:FLTR-MARTIAN:FLTR-IPV4
+
+# -T PEERING-SET queries with -r
+-r -T PEERING-set prng-MEDIAFAX
+-r -T PEerING-set PRNG-MEDiafAX
+
+# -T RTR-SET queries with -r
+-rT INET-RTR kst1-core.swip.net
+-r -T iNeT-RTr kst1-CORE.swIp.net
+
+# -T KEY-CERT queries with -r
+-rT KEY-CERT x509-1
+-r -T key-cerT X509-1
+-rT KEY-CERT X.509-1
+-rT KEY-CERT PGPKEY-159560E6
+-rT KEY-CERT PGPKEY-15956e6
+-rT KEY-CERT
+
+# -T POETIC-FORM queries with -r
+-rT POEtIC-FORM FORM-HAIKU
+#no search term
+-r -T poetiC-Form
+-rTpoetiC-Form form-SONNET-ENGLISH
+
+# -T POEM queries with -r
+-rT POEM POEM-MARVIN-SDV
+-rT POeM POEM-marvin-SDV
+#no search term
+-r -TpoEm
+
+# -T AUT-NUM queries with -r
+-r -T AUT-NUM as3333
+# AUT-NUMs matching start and end of as-block AS3209 - AS3353
+-rT aut-NUM AS3209
+-r -T AUT-num AS3353
+# first aut-num
+-rT aut-num As0
+# last 16 bit ASN
+-rT aUt-NuM aS65535
+# 32 bit aut-num
+-rT aut-num AS133120
+# last 32 bit ASN
+-rT aut-num AS4294967295
+# no search string
+-rT aut-num
+
+# -T ORGANISATION queries with -r
+-r -T ORGANISATION ORG-NCC1-RIPE
+-r -T Organisation oRG-ncc1-RIPE
+-r -T organisatioN RIPE Network Coordination Centre
+-r -T organisatioN RIPE Network Coordination CENTRE
+-r -T Oa ORG-NCC1-RIPE
+# person nic-hdl
+-r -T ORGANISATION DW-RIPE
+
+# -T PERSON queries with -r
+-r -T PERSON DW-RIPE
+-r -T Person dw-RIPE
+-r -T persoN DENIS walker
+-r -T PN DW-RIPE
+# no search string
+-rT person
+# role nic-hdl
+-r -T PERSON RD132-RIPE
+# ORGANISATION name
+-r -T PERSON RIPE Network Coordination Centre
+# non existant person
+-r -T PERSON DW99999-RIPE
+
+# -T ROLE queries with -r
+-r -T ROLE RD132-RIPE
+-r -T Role rd132-RIPE
+-rB -T roLe denis walker
+-rB -T roLe denis walker
+-r -T rO RD132-RIPE
+# no search string
+-rT ROLE
+# person nic-hdl
+-r -T ROLE DW-RIPE
+
+
+# -T AS-BLOCK queries with -r
+# an ASN contained within a block
+-r -T AS-BLOCK as3333
+# an exact match block
+-rT as-block AS3209 - as3353
+# a block contained within a block
+-rT as-block aS3333 - As3343
+# overlapping block
+-rT as-block AS3343 - AS3363
+# inverted block
+-rT as-block AS3353 - AS3209
+# single number block
+-rT as-block AS0 - AS0
+# last 16 bit ASN
+-rT as-block AS65535
+# 32 bit as-block
+-rT as-block AS133120 - AS196607
+# last 32 bit ASN
+-rT as-block AS4294967295 - AS4294967295
+# beyond last 32 bit ASN
+-rT as-block AS94294967295 - AS94294967295
+# no number block
+-rT as-block AS - AS
+# 'O' instead of '0'
+-rT as-block ASO - ASO
+# no spaces
+-rT as-block AS0-as0
+# multiple spaces
+-rT   as-block AS0  -     as0
+# no spaces parameter
+-rT as-block AS0 -as0
+
+# -T INET(6)NUM queries without any of -BG[xlLmM] but still with -r
+-r -T inetnum 193.0.0.0 - 193.0.7.255
+-rTinetnum 195.169.6.0 - 195.169.7.255
+
+# the following object has no IRT reference
+-rTinet6num 2001:610::/32
+
+# -T INET6NUM queries with combinations of -rBG[xlLmM]
+-rBGx -T inet6num 2001:610:240::/42
+-rBGl -Tinet6num 2001:610:240::/42
+-rBGL -T inet6num 2001:610:240::/42
+-rBGL -T    inet6num 2001:610:240::/42
+-rBGm -T inet6num 2001:610:240::/42
+-r -B -G -M -Tinet6num 2001:610:240::/42
+-rTinet6num -x 2001:610:240::/42
+
+# -T INETNUM queries with combinations of -rBG[xlL]
+-rBGx -T inetnum 193.0.0.0 - 193.0.7.255
+-rBGl -Tinetnum 193.0.0.0 - 193.0.7.255
+-rBGxl -Tinetnum 193.0.0.0 - 193.0.7.255
+-rBGL -T inetnum 193.0.0.0 - 193.0.7.255
+-rBGL -T    inetnum 193.0.0.0 - 193.0.7.255
+-rBGLT inetnum 193.0.0.0    -     193.0.7.255
+-rBGl -Tinetnum 193.0.0.0- 193.0.7.255
+-rBGl -Tinetnum 193.0.0.0 -193.0.7.255
+-rBGl -Tinetnum 193.0.0.0-193.0.7.255
+
+# reversed range
+-rBGx -T inetnum 193.0.7.255 - 193.0.0.0
+-r -BGx -T inetnum 193.0.0.0 - 193.0.7.255
+-r -B -G -x -T inetnum 193.0.0.0 - 193.0.7.255
+-T inetnum -rBG -x 193.0.0.0 - 193.0.7.255
+-rBGx inetnum -T 193.0.0.0 - 193.0.7.255
+-rBG -T inetnum 193.0.0.0 - 193.0.7.255 -x
+193.0.0.0 - 193.0.7.255 -rBGL -T inetnum
+-rBGx -rBG -T inetnum 193.0.0.0 - 193.0.7.255
+-rBGx -rBGx -T inetnum 193.0.0.0 - 193.0.7.255
+-rBGl -rBGx -T inetnum 193.0.0.0 - 193.0.7.255
+-rBGx -rBGl -T inetnum 193.0.0.0 - 193.0.7.255
+-BGx -T inetnum 193.0.0.0 -r - 193.0.7.255
+
+# -T INETNUM queries with combinations of -rBG[mM]
+-rBGm -T inetnum 193.0.0.0 - 193.0.255.255
+-rBGM -Tinetnum 193.0.0.0 - 193.0.31.255
+-rBGmM -T inetnum 193.0.0.0 - 193.0.255.255
+
+# -T INETNUM queries with combinations of -rG[xlL]
+# these don't have -B, so objects are filtered
+-r -G -T inetnum -x 193.0.0.0 - 193.0.7.255
+-rGT inetnum -l 193.0.0.0 - 193.0.7.255
+-rL -GT inetnum 193.0.0.0 - 193.0.7.255
+
+# -T INETNUM queries with combinations of -rB[xlL]
+# these don't have -G, so objects are grouped
+-r -B -T inetnum -x 193.0.0.0 - 193.0.7.255
+-rBT inetnum -l 193.0.0.0 - 193.0.7.255
+-Lr -BT inetnum 193.0.0.0 - 193.0.7.255
+
+# -T INETNUM queries with combinations of -r[xlL]
+# these don't have -B, so objects are filtered
+# these don't have -G, so objects are grouped
+-r -T inetnum -x 193.0.0.0 - 193.0.7.255
+-rT inetnum -l 193.0.0.0 - 193.0.7.255
+-r -LT inetnum 193.0.0.0 - 193.0.7.255
+
+# -T MNTNER queries with combinations of -rBG
+-rBGT mntner RIPE-DBM-MNT
+-r -GT mntner RIPE-DBM-MNT
+-r -B -T mntner RIPE-DBM-MNT
+-T mntner -r RIPE-DBM-MNT
+
+# -T IRT queries
+-r -T IRT irt-CERT-NL
+-rT irt irt-CERT-NL
+
+# mixed random queries
+-Br AS1
+-B RIPE-DBM-MNT
+-r -G -B -T inetnum -x not-an-ip-address
+############### BUG ###############
+-r -G -B -T inetnum -x
+-LM 193.0.0.0 - 193.0.23.255
+193.0.7.255 - 193.0.0.0
+193.0.0
+193/16
+193.0.0/16
+e164.arpa
+1.3.e164.arpa
+-rBG
+############### BUG ###############
+-rBG denis@ripe.net
+999.0.0.0
+199.0.0.0.0
+199.0.0.999
+2001:XYZ::
+2001:6DE.0.0
+199.0.2001:6DE
+2001.6DE.0.0
+199/256
+2001::/256
+2001::0::1
+-R denis@ripe.net
+# ifaddr in the inet-rtr object is a forward lookup <-- maybe more research needed to see if it is ever used
+-rGK 128.86.1.2
+
+# queries with known differences
+-t Following queries have known differences
+-t person,role
+-t person, role
+-v inetnum,inet6num
+-i ping-hdl IKS-RIPE
+-i pc IKS-RIPE
+-i mnt-routes RIPE-NCC-MNT
+-i mu RIPE-NCC-MNT
+-i at x509-1
+-rT UNKNOWN fred
+-rT as-block AS3353 - AS3209
+-rBGx inetnum -T 193.0.0.0 - 193.0.7.255
+-rd 0.0.193.in-addr.arpa
+193.0.0/16
+-rTdomAIN 1.0.0.193.in-addr.arpa.
+
+# changed behaviour
+-t Following queries have known changed behaviour
+-rBG -T inetnum 193.0.0.0 - 193.0.7.255 -x
+193.0.0.0 - 193.0.7.255 -rBGL -T inetnum
+-rBGx -rBGx -T inetnum 193.0.0.0 - 193.0.7.255
+-BGx -T inetnum 193.0.0.0 -r - 193.0.7.255
+-t person dw-ripe
+-rt inetnum 0/0
+-rBt route -G -T route 0/0
+-v route6 -xT route6 ::0/0
+-v person -t role
+############### BUG ###############
+-t person -t role
+############### BUG ###############
+-v role -v person
+-t person HELP
+-LM 193.0.0.0 - 193.0.23.255
+193.0.0
+-rBGl -Tinetnum 193.0.0.0 -193.0.7.255
+-rTinetnum 195.169.6.0 - 195.169.7.255
+-R denis@ripe.net
+-rBG 193.67.254.0 - 193.67.254.255
+-rBG 2001:0638:0201::/48
+-rBGC 2001:0638:0201::/48
+-rT as-block AS0 -as0
+-rGKi sub-dom 128.135.88.in-addr.arpa
+-rGKi referral-by aardvark-mnt
+-rGK 128.86.1.2
+-b 193.0.0.1
+-K dw-ripe
+-rd
+
+# -T queries, inverse queries on maintainers
+-i mb aardvARk-mnt
+-i mnt-routes RIPE-NCC-MNT
+-i mu RIPE-NCC-MNT
+-r -i mb,ml ripe-ncc-hm-mnt
+-i mnt-by RIPE-NCC-MNT
+-i mb RIPE-NCC-MNT
+-i mnt-lower RIPE-NCC-MNT
+-i ml RIPE-NCC-MNT
+
+
+# whois -h db-int -p 43
+
+# telnet db-int 43
+
+# query for pre whois
+# whois -h whois-pre -p 43
+
+# telnet whois-pre 43
+
+# test mirror source
+-r -s ARIN-GRS MIRR-RIPE

@@ -1,0 +1,62 @@
+From root@XXXsource.test.de Mon May 28 00:04:45 2012
+Return-path: <root@XXXsource.test.de>
+Envelope-to: dbase@XXXwhois-update.db.ripe.net
+Delivery-date: Mon, 28 May 2012 00:04:45 +0200
+Received: from postgirl.ipv6.ripe.net ([2001:67c:2e8:11::c100:1342] helo=postgirl.ripe.net)
+        by dbc-whois5.ripe.net with esmtps (TLSv1:AES256-SHA:256)
+        (Exim 4.72)
+        (envelope-from <root@XXXsource.test.de>)
+        id 1SYlZt-0005L5-Mb
+        for dbase@XXXwhois-update.db.ripe.net; Mon, 28 May 2012 00:04:45 +0200
+Received: from source.test.de ([91.202.41.161])
+        by postgirl.ripe.net with esmtp (Exim 4.72)
+        (envelope-from <root@XXXsource.test.de>)
+        id 1SYlZs-0000pa-SS
+        for auto-dbm@XXXripe.net; Mon, 28 May 2012 00:04:45 +0200
+Received: by source.test.de (Postfix, from userid 0)
+        id BBBD94DA15C; Mon, 28 May 2012 00:04:44 +0200 (CEST)
+Date: Mon, 28 May 2012 00:04:44 +0200
+From: "foo@test.de" <bitbucket@ripe.net>
+To: auto-dbm@XXXripe.net
+Message-ID: <20120527220444.GA6565@XXXsource.test.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.17+20080114 (2008-01-14)
+X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.48/RELEASE,
+         bases: 20120425 #7816575, check: 20120527 clean
+X-RIPE-Spam-Level: /
+X-RIPE-Spam-Report: Spam Total Points:   -0.1 points
+  pts rule name              description
+ ---- ---------------------- ------------------------------------
+ -0.0 T_RP_MATCHES_RCVD      Envelope sender domain matches handover relay
+                             domain
+ -1.9 BAYES_00               BODY: Bayes spam probability is 0 to 1%
+                             [score: 0.0000]
+  1.8 MISSING_SUBJECT        Missing Subject: header
+X-RIPE-Signature: 40b13f0ba793ebc40e8a27f942b04bbbe5c7af17113f755c19e8c78c99bae556
+
+inetnum: 109.69.68.0 - 109.69.68.7
+netname: delete
+descr: Description
+country: DE
+admin-c: T1-RIPE
+tech-c: T1-RIPE
+status: ASSIGNED PA
+mnt-by: TEST-MNT
+password: password
+changed: changed@ripe.net 20120528
+source: RIPE
+
+inetnum: 109.69.68.0 - 109.69.68.7
+netname: delete
+descr: Description
+country: DE
+admin-c: T1-RIPE
+tech-c: T1-RIPE
+status: ASSIGNED PA
+mnt-by: TEST-MNT
+password: password
+changed: changed@ripe.net 20120528
+source: RIPE
+delete: new subnet size

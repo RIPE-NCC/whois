@@ -1,0 +1,2963 @@
+#    ________ .___ ___________
+#   /  _____/ |   |\__    ___/
+#  /   \  ___ |   |  |    |   
+#  \    \_\  \|   |  |    |   
+#   \______  /|___|  |____|   
+#          \/                 
+# git clone git:operational
+# conf/whois-test/TEST.db
+# ****************************************
+#
+
+###
+### Objects inherited from legacy (pre-whois-cluster) test DB; simply a standard set of objects that seem to be useful
+###
+
+person:         John Smith
+address:        Example LTD
+                High street 12
+		        St.Mery Mead
+	            Essex, UK
+phone:          +44 1737 892 004
+e-mail:         john.smith@example.com
+nic-hdl:        JS1-TEST
+remarks:        *******************************
+remarks:        This object is only an example!
+remarks:        *******************************
+mnt-by:         EXAMPLE-MNT
+abuse-mailbox:  abuse@example.com
+changed:        john.smith@example.com 20051104
+changed:        john.smith@example.com 20051105
+source:         TEST
+
+mntner:         TEST-ROOT-MNT
+descr:          Mntner for TEST-DBM-MNT
+admin-c:        AA1-TEST
+tech-c:         AA2-TEST
+upd-to:         bitbucket@ripe.net
+mnt-nfy:        bitbucket@ripe.net
+auth:           MD5-PW $1$XXXXXXXX$XXXXXXXXXXXXXXXXXXXXX/ 
+notify:         bitbucket@ripe.net
+mnt-by:         TEST-ROOT-MNT
+referral-by:    TEST-ROOT-MNT
+remarks:        This is an automatically created object.
+changed:        bitbucket@ripe.net 20051031
+source:         TEST
+
+mntner:         TEST-DBM-MNT
+descr:          Mntner for TEST DBM objects.
+admin-c:        AA1-TEST
+tech-c:         AA2-TEST
+upd-to:         bitbucket@ripe.net
+mnt-nfy:        bitbucket@ripe.net
+auth:           MD5-PW $1$N2zhyJ3g$hzX7XTL84DtBkCWhBZE2c/
+remarks:        ********************************************************************** 
+remarks:        Password is "emptypassword" without the quotes.
+remarks:        ********************************************************************** 
+notify:         bitbucket@ripe.net
+mnt-by:         TEST-ROOT-MNT
+referral-by:    TEST-ROOT-MNT
+remarks:        This is an automatically created object.
+changed:        bitbucket@ripe.net 20051031
+source:         TEST
+
+person:         Test Person
+mnt-by:         TEST-ROOT-MNT
+address:        Somewhere in nowhere
+phone:          +12 34 5678900
+fax-no:         +12 34 5678900
+e-mail:         bitbucket@ripe.net
+nic-hdl:        AA1-TEST
+remarks:        This is an automatically created object.
+changed:        bitbucket@ripe.net 20051031
+source:         TEST
+
+role:           TEST ROLE
+nic-hdl:        AA2-TEST
+address:        Somewhere in nowhere
+phone:          +12 34 567 8900
+fax-no:         +12 34 567 8900
+e-mail:         bitbucket@ripe.net
+abuse-mailbox:  bitbucket@ripe.net
+admin-c:        AA1-TEST
+tech-c:         AA2-TEST
+mnt-by:         TEST-ROOT-MNT
+remarks:        This is an automatically created object.
+changed:        bitbucket@ripe.net 20051031
+source:         TEST
+
+organisation: ORG-TT1-TEST
+org-name:     ORG TEST
+org-type:     RIR
+address:      Somewhere in nowhere
+phone:        +12 34 567 8900
+fax-no:       +12 34 567 8900
+e-mail:       bitbucket@ripe.net
+admin-c:      AA1-TEST
+tech-c:       AA2-TEST
+ref-nfy:      bitbucket@ripe.net
+mnt-ref:      TEST-DBM-MNT
+notify:       bitbucket@ripe.net
+mnt-by:       TEST-ROOT-MNT
+remarks:      This is an automatically created object.
+changed:      bitbucket@ripe.net 20051031
+source:       TEST
+
+inetnum:      0.0.0.0 - 255.255.255.255
+netname:      IANA-BLK
+descr:        The whole IPv4 address space
+country:      EU # Country is really world wide
+org:          ORG-TT1-TEST
+admin-c:      AA1-TEST
+tech-c:       AA2-TEST
+status:       ALLOCATED UNSPECIFIED
+remarks:      The country is really worldwide.
+mnt-by:       TEST-ROOT-MNT
+mnt-lower:    TEST-DBM-MNT
+mnt-routes:   TEST-DBM-MNT
+remarks:      This is an automatically created object.
+changed:      bitbucket@ripe.net 20051031
+source:       TEST
+
+inet6num:     0::/0
+netname:      ROOT
+descr:        Root inet6num object
+country:      EU # Country is really world wide
+org:          ORG-TT1-TEST
+admin-c:      AA1-TEST
+tech-c:       AA2-TEST
+mnt-by:       TEST-ROOT-MNT
+mnt-lower:    TEST-DBM-MNT
+mnt-routes:   TEST-DBM-MNT
+status:       ALLOCATED-BY-RIR
+remarks:      This network in not allocated.
+remarks:      This is an automatically created object.
+changed:      bitbucket@ripe.net 20051031
+source:       TEST
+
+as-block:     AS1 - AS4294967295
+descr:        whole as block
+org:          ORG-TT1-TEST
+admin-c:      AA1-TEST
+tech-c:       AA2-TEST
+mnt-by:       TEST-ROOT-MNT
+mnt-lower:    TEST-DBM-MNT
+remarks:      This is an automatically created object.
+changed:      bitbucket@ripe.net 20051031
+source:       TEST
+
+domain:       in-addr.arpa
+descr:        The whole IPv4 address space
+admin-c:      AA1-TEST
+tech-c:       AA2-TEST
+zone-c:       AA2-TEST
+nserver:      ns.ripe.net # this is just a placeholder
+mnt-by:       TEST-ROOT-MNT
+mnt-lower:    TEST-DBM-MNT
+remarks:      This is an automatically created object.
+changed:      bitbucket@ripe.net 20051031
+source:       TEST
+
+domain:       ip6.arpa
+descr:        The whole IPv6 address space
+admin-c:      AA1-TEST
+tech-c:       AA2-TEST
+zone-c:       AA2-TEST
+nserver:      ns.ripe.net # this is just a placeholder
+mnt-by:       TEST-ROOT-MNT
+mnt-lower:    TEST-DBM-MNT
+remarks:      This is an automatically created object.
+changed:      bitbucket@ripe.net 20051031
+source:       TEST
+
+domain:       e164.arpa
+descr:        The whole IPv6 address space
+admin-c:      AA1-TEST
+tech-c:       AA2-TEST
+zone-c:       AA2-TEST
+nserver:      ns.ripe.net # this is just a placeholder
+mnt-by:       TEST-ROOT-MNT
+mnt-lower:    TEST-DBM-MNT
+remarks:      This is an automatically created object.
+changed:      bitbucket@ripe.net 20051031
+source:       TEST
+
+inetnum:        10.0.0.0 - 10.255.255.255
+netname:        IANA-ABLK-RESERVED1
+descr:          Class A address space for private internets
+descr:          See http://www.ripe.net/db/rfc1918.html for details
+country:        EU # Country is really world wide
+admin-c:        AA1-TEST
+tech-c:         AA2-TEST
+status:         ALLOCATED UNSPECIFIED
+remarks:        This network should never be routed outside an enterprise
+remarks:        See RFC1918 for further information
+mnt-by:         TEST-ROOT-MNT
+mnt-lower:      TEST-DBM-MNT
+mnt-routes:     TEST-DBM-MNT
+geoloc:		52.37559917665907 4.888916015625
+org:		ORG-TT1-TEST
+changed:        bitbucket@ripe.net 20051031
+source:         TEST
+
+mntner:         EXAMPLE-MNT
+descr:          Sample maintainer for example
+admin-c:        JS1-TEST
+tech-c:         JS1-TEST
+upd-to:         john.smith@example.com
+mnt-nfy:        john.smith@example.com
+auth:           MD5-PW $1$wCDUXtMe$MptgAFcPa3sy9QqQnbX4X/
+notify:         john.smith@example.com
+abuse-mailbox:  abuse@example.com
+mnt-by:         EXAMPLE-MNT
+referral-by:    TEST-DBM-MNT
+changed:        john.smith@example.com 20051104
+source:         TEST
+
+inetnum:        10.11.11.0 - 10.11.11.255
+netname:        Example-Network
+descr:          This is a fictitious assignment for the
+descr:          End-User called "Example"
+country:        GB
+admin-c:        JS1-TEST
+tech-c:         JS1-TEST
+status:         ASSIGNED PA
+notify:         john.smith@example.com
+mnt-by:         EXAMPLE-MNT
+mnt-lower:      EXAMPLE-MNT
+mnt-routes:     EXAMPLE-MNT
+changed:        john.smith@example.com 20051125
+source:         TEST
+
+aut-num:        AS101111
+as-name:        Test-AS-2
+descr:          AS for 10.11.11.0 - 10.11.11.255
+org:		ORG-TT1-TEST
+admin-c:        JS1-TEST
+tech-c:         JS1-TEST
+mnt-by:         EXAMPLE-MNT
+changed:        unread@ripe.net 20101010
+source:         TEST
+
+route:          10.11.11.0/24
+origin:         AS101111
+descr:          route
+mnt-by:         EXAMPLE-MNT
+changed:        unread@ripe.net 20110101
+source:         TEST
+
+inetnum:        10.11.13.0 - 10.11.13.255
+netname:        Example-Network-2
+descr:          This is another fictitious assignment for the
+descr:          End-User called "Example"
+country:        GB
+admin-c:        JS1-TEST
+tech-c:         JS1-TEST
+status:         ASSIGNED PA
+notify:         john.smith@example.com
+mnt-by:         EXAMPLE-MNT
+mnt-lower:      EXAMPLE-MNT
+mnt-routes:     EXAMPLE-MNT
+changed:        john.smith@example.com 20051125
+source:         TEST
+
+###
+### Objects for BAD test suite
+###
+
+
+organisation:   ORG-BADT18-TEST
+org-name:       BAD Test
+org-type:       LIR
+address:        648 Some street
+address:        1019 EJ Amsterdam
+address:        NL
+e-mail:         bad@ripe.net
+mnt-ref:        RIPE-NCC-BA-MNT
+mnt-by:         TEST-NCC-HM-MNT
+changed:        bad@ripe.net 20071025
+source:         TEST
+
+mntner:         TEST-NCC-HM-MNT
+descr:          Should have been inserted automatically
+admin-c:        AA1-TEST
+upd-to:         me@test.de
+auth:           MD5-PW $1$N2zhyJ3g$hzX7XTL84DtBkCWhBZE2c/
+remarks:        **********************************************************************
+remarks:        Password is "emptypassword" without the quotes.
+remarks:        **********************************************************************
+mnt-by:         TEST-DBM-MNT
+referral-by:    TEST-DBM-MNT
+changed:        me@test.de 20010314
+source:         TEST
+
+person:         BA Engineer
+address:        Singel 258
+address:        1016 AB
+address:        Amsterdam
+address:        The Netherlands
+phone:          +31 0000000000
+fax-no:         +31 0000000000
+nic-hdl:        BADT-RIPE
+mnt-by:         RIPE-NCC-BA-MNT
+source:         TEST
+changed:        bitbucket@ripe.net 20110301
+
+mntner:         RIPE-NCC-BA-MNT
+descr:          RIPE-NCC BA Maintainer
+admin-c:        BADT-RIPE
+upd-to:         bad@ripe.net
+auth:           MD5-PW $1$gzTyjS7h$3ctGphaA6wjahQ6V6WKVY/
+mnt-by:         RIPE-NCC-BA-MNT
+referral-by:    RIPE-NCC-BA-MNT
+changed:        bad@ripe.net 20071025
+source:         TEST
+
+
+mntner: RIPE-DBM-STARTUP-MNT
+descr: Mntner for creating new person objects.
+admin-c: JS1-TEST
+tech-c: JS1-TEST
+org: ORG-TT1-TEST
+upd-to: unread@ripe.net
+mnt-nfy: unread@ripe.net
+auth: MD5-PW $1$umvARPdD$7HVvS66psAx9qZtkDpmWY/
+notify: unread@ripe.net
+mnt-by: RIPE-DBM-STARTUP-MNT
+referral-by: RIPE-DBM-STARTUP-MNT
+changed: ripe-dbm@ripe.net 20080806
+changed: ripe-dbm@ripe.net 20080909
+source: TEST
+
+###
+### The dummy object for dummification
+###
+
+person:         Placeholder Person Object
+address:        RIPE Network Coordination Centre
+address:        P.O. Box 10096
+address:        1001 EB Amsterdam
+address:        The Netherlands
+phone:          +31 20 535 4444
+nic-hdl:        DUMY-RIPE
+mnt-by:         TEST-DBM-MNT
+remarks:        **********************************************************
+remarks:        * This is a placeholder object to protect personal data.
+remarks:        * To view the original object, please query the RIPE
+remarks:        * Database at:
+remarks:        * http://www.ripe.net/whois
+remarks:        **********************************************************
+changed:        bitbucket@ripe.net 20090724
+source:         TEST
+
+###
+### Objects from Training, for Routing Registry training course (from Ferenc & Andzrej, 2012-06-05)
+###
+
+person:		Course Trainer
+remarks:	I am a trainer at the RIPE NCC
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		trainer@example.org
+nic-hdl:	TS1-TEST
+mnt-by:		TS1-MNT
+changed:	trainer@example.org 20120508
+source:		TEST
+
+mntner:		TS1-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by trainer
+admin-c:	TS1-TEST
+mnt-by:		TS1-MNT
+referral-by:	TS1-MNT
+auth:		MD5-PW $1$nhN4mW9L$CtrhHYQwR6m6Q1KdL5V8d1
+changed:	hostmaster@example.org 20121115
+upd-to:		trainer@example.org
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TS1-TEST
+org-name:	RIPE NCC Training Services
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		xnotify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+as-set:		AS-set-attendees
+descr:		AS-set containing all attendees' ASNs.
+tech-c:		TS1-TEST
+admin-c:	TS1-TEST
+members:	as1,as2,as3,as4,as5,as6,as7,as8,as9,as10,
+members:	as11,as12,as13,as14,as15,as16,as17,as18,as19,as20
+members:	as21,as22,as23,as24,as25,as26,as27,as28,as29,as30
+mnt-by:		TS1-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+aut-num:	AS101
+as-name:	Transit-AS
+descr:		ASN of a transit provider to all attendees
+org:		ORG-TS1-TEST
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+import:		from AS-set-attendees accept PeerAS
+export:		to AS-set-attendees announce ANY
+mp-import:	afi ipv6.unicast from AS-set-attendees accept PeerAS
+mp-export:	afi ipv6.unicast to AS-set-attendees announce ANY
+mnt-by:		TEST-DBM-MNT
+mnt-by:		TS1-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+aut-num:	AS601
+as-name:	Peer-AS
+descr:		ASN of a peer to all attendees
+org:		ORG-TS1-TEST
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+import:		from AS-set-attendees accept PeerAS
+import:		from AS-set-attendees accept as201
+export:		to AS-set-attendees announce 601
+mp-import:	afi ipv6.unicast from AS-set-attendees accept PeerAS
+mp-import:	afi ipv6.unicast from AS-set-attendees accept  201
+mp-export:	afi ipv6.unicast to AS-set-attendees announce 601
+mnt-by:		TEST-DBM-MNT
+mnt-by:		TS1-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+aut-num:	AS201
+as-name:	End-User-AS
+descr:		ASN of a customer to all attendees
+org:		ORG-TS1-TEST
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+import:		from AS-set-attendees accept ANY
+export:		to AS-set-attendeess announce as201
+mp-import:	afi ipv6.unicast from AS-set-attendees accept ANY
+mp-export:	afi ipv6.unicast to AS-set-attendees announce as201
+mnt-by:		TEST-DBM-MNT
+mnt-by:		TS1-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inetnum:	172.16.60.0 - 172.16.60.255
+netname:	NL-RIPENCC-TS1-20120101
+org:		ORG-TS1-TEST
+descr:		RIPE NCC Training Services
+remarks:	Peer's (AS601's) Allocation used in the training courses
+country:	EU
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	TS1-MNT
+mnt-routes:	TS1-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:60::/48
+netname:	NL-RIPENCC-TS1-20120101
+org:		ORG-TS1-TEST
+descr:		RIPE NCC Training Services
+remarks:	Peer's (AS601's) Allocation used in the training courses
+country:	EU
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	TS1-MNT
+mnt-routes:	TS1-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee1
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA1-TEST
+mnt-by:		CM1-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM1-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 1
+admin-c:	CA1-TEST
+mnt-by:		CM1-MNT
+referral-by:	CM1-MNT
+auth:		MD5-PW $1$FX2KLhzv$z2onl0vKBOXeNyR11rWKs.
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA1-TEST
+org-name:	RIPE NCC Training Services Attendee 1 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.1.0 - 172.16.1.255
+netname:	NL-RIPENCC-TCA1-20120101
+org:		ORG-TCA1-TEST
+descr:		RIPE NCC Training Services Attendee 1
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA1-TEST
+tech-c:		CA1-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM1-MNT
+mnt-routes:	CM1-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:1::/48
+netname:	NL-RIPENCC-TCA1-20120101
+org:		ORG-TCA1-TEST
+descr:		RIPE NCC Training Services Attendee 1
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA1-TEST
+tech-c:		CA1-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM1-MNT
+mnt-routes:	CM1-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS1
+as-name:	Attendee1-Asnumber
+descr:		ASN of attendee 1
+org:		ORG-TCA1-TEST
+admin-c:	CA1-TEST
+tech-c:		CA1-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM1-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee2
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA2-TEST
+mnt-by:		CM2-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM2-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 2
+admin-c:	CA2-TEST
+mnt-by:		CM2-MNT
+referral-by:	CM2-MNT
+auth:		MD5-PW $1$1iIgIZez$3m5T8y5GXwvuUYolYG8YJ.
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA2-TEST
+org-name:	RIPE NCC Training Services Attendee 2 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.2.0 - 172.16.2.255
+netname:	NL-RIPENCC-TCA2-20120101
+org:		ORG-TCA2-TEST
+descr:		RIPE NCC Training Services Attendee 2
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA2-TEST
+tech-c:		CA2-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM2-MNT
+mnt-routes:	CM2-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:2::/48
+netname:	NL-RIPENCC-TCA2-20120101
+org:		ORG-TCA2-TEST
+descr:		RIPE NCC Training Services Attendee 2
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA2-TEST
+tech-c:		CA2-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM2-MNT
+mnt-routes:	CM2-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS2
+as-name:	Attendee2-Asnumber
+descr:		ASN of attendee 2
+org:		ORG-TCA2-TEST
+admin-c:	CA2-TEST
+tech-c:		CA2-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM2-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee3
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA3-TEST
+mnt-by:		CM3-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM3-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 3
+admin-c:	CA3-TEST
+mnt-by:		CM3-MNT
+referral-by:	CM3-MNT
+auth:		MD5-PW $1$MRAzBivc$vxFE81qLIMRNDi5VI0Fzn.
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA3-TEST
+org-name:	RIPE NCC Training Services Attendee 3 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.3.0 - 172.16.3.255
+netname:	NL-RIPENCC-TCA3-20120101
+org:		ORG-TCA3-TEST
+descr:		RIPE NCC Training Services Attendee 3
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA3-TEST
+tech-c:		CA3-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM3-MNT
+mnt-routes:	CM3-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:3::/48
+netname:	NL-RIPENCC-TCA3-20120101
+org:		ORG-TCA3-TEST
+descr:		RIPE NCC Training Services Attendee 3
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA3-TEST
+tech-c:		CA3-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM3-MNT
+mnt-routes:	CM3-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS3
+as-name:	Attendee3-Asnumber
+descr:		ASN of attendee 3
+org:		ORG-TCA3-TEST
+admin-c:	CA3-TEST
+tech-c:		CA3-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM3-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee4
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA4-TEST
+mnt-by:		CM4-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM4-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 4
+admin-c:	CA4-TEST
+mnt-by:		CM4-MNT
+referral-by:	CM4-MNT
+auth:		MD5-PW $1$xtwDyXI0$I..kpGzHD2IZsxfUakPid/
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA4-TEST
+org-name:	RIPE NCC Training Services Attendee 4 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.4.0 - 172.16.4.255
+netname:	NL-RIPENCC-TCA4-20120101
+org:		ORG-TCA4-TEST
+descr:		RIPE NCC Training Services Attendee 4
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA4-TEST
+tech-c:		CA4-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM4-MNT
+mnt-routes:	CM4-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:4::/48
+netname:	NL-RIPENCC-TCA4-20120101
+org:		ORG-TCA4-TEST
+descr:		RIPE NCC Training Services Attendee 4
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA4-TEST
+tech-c:		CA4-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM4-MNT
+mnt-routes:	CM4-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS4
+as-name:	Attendee4-Asnumber
+descr:		ASN of attendee 4
+org:		ORG-TCA4-TEST
+admin-c:	CA4-TEST
+tech-c:		CA4-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM4-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee5
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA5-TEST
+mnt-by:		CM5-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM5-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 5
+admin-c:	CA5-TEST
+mnt-by:		CM5-MNT
+referral-by:	CM5-MNT
+auth:		MD5-PW $1$eNRgFFG1$9X7uk6YmYGTUEEyjEt5ZZ/
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA5-TEST
+org-name:	RIPE NCC Training Services Attendee 5 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.5.0 - 172.16.5.255
+netname:	NL-RIPENCC-TCA5-20120101
+org:		ORG-TCA5-TEST
+descr:		RIPE NCC Training Services Attendee 5
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA5-TEST
+tech-c:		CA5-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM5-MNT
+mnt-routes:	CM5-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:5::/48
+netname:	NL-RIPENCC-TCA5-20120101
+org:		ORG-TCA5-TEST
+descr:		RIPE NCC Training Services Attendee 5
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA5-TEST
+tech-c:		CA5-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM5-MNT
+mnt-routes:	CM5-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS5
+as-name:	Attendee5-Asnumber
+descr:		ASN of attendee 5
+org:		ORG-TCA5-TEST
+admin-c:	CA5-TEST
+tech-c:		CA5-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM5-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee6
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA6-TEST
+mnt-by:		CM6-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM6-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 6
+admin-c:	CA6-TEST
+mnt-by:		CM6-MNT
+referral-by:	CM6-MNT
+auth:		MD5-PW $1$lt5viqIA$VM61cekUhk.nCcnEyikBO1
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA6-TEST
+org-name:	RIPE NCC Training Services Attendee 6 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.6.0 - 172.16.6.255
+netname:	NL-RIPENCC-TCA6-20120101
+org:		ORG-TCA6-TEST
+descr:		RIPE NCC Training Services Attendee 6
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA6-TEST
+tech-c:		CA6-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM6-MNT
+mnt-routes:	CM6-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:6::/48
+netname:	NL-RIPENCC-TCA6-20120101
+org:		ORG-TCA6-TEST
+descr:		RIPE NCC Training Services Attendee 6
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA6-TEST
+tech-c:		CA6-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM6-MNT
+mnt-routes:	CM6-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS6
+as-name:	Attendee6-Asnumber
+descr:		ASN of attendee 6
+org:		ORG-TCA6-TEST
+admin-c:	CA6-TEST
+tech-c:		CA6-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM6-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee7
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA7-TEST
+mnt-by:		CM7-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM7-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 7
+admin-c:	CA7-TEST
+mnt-by:		CM7-MNT
+referral-by:	CM7-MNT
+auth:		MD5-PW $1$BoBcSQmy$OTDmkgl.6nY/5eJ71UiG/1
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA7-TEST
+org-name:	RIPE NCC Training Services Attendee 7 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.7.0 - 172.16.7.255
+netname:	NL-RIPENCC-TCA7-20120101
+org:		ORG-TCA7-TEST
+descr:		RIPE NCC Training Services Attendee 7
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA7-TEST
+tech-c:		CA7-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM7-MNT
+mnt-routes:	CM7-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:7::/48
+netname:	NL-RIPENCC-TCA7-20120101
+org:		ORG-TCA7-TEST
+descr:		RIPE NCC Training Services Attendee 7
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA7-TEST
+tech-c:		CA7-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM7-MNT
+mnt-routes:	CM7-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS7
+as-name:	Attendee7-Asnumber
+descr:		ASN of attendee 7
+org:		ORG-TCA7-TEST
+admin-c:	CA7-TEST
+tech-c:		CA7-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM7-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee8
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA8-TEST
+mnt-by:		CM8-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM8-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 8
+admin-c:	CA8-TEST
+mnt-by:		CM8-MNT
+referral-by:	CM8-MNT
+auth:		MD5-PW $1$vid76srh$ND3KX0XMfhfsMltRgehc.1
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA8-TEST
+org-name:	RIPE NCC Training Services Attendee 8 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.8.0 - 172.16.8.255
+netname:	NL-RIPENCC-TCA8-20120101
+org:		ORG-TCA8-TEST
+descr:		RIPE NCC Training Services Attendee 8
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA8-TEST
+tech-c:		CA8-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM8-MNT
+mnt-routes:	CM8-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:8::/48
+netname:	NL-RIPENCC-TCA8-20120101
+org:		ORG-TCA8-TEST
+descr:		RIPE NCC Training Services Attendee 8
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA8-TEST
+tech-c:		CA8-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM8-MNT
+mnt-routes:	CM8-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS8
+as-name:	Attendee8-Asnumber
+descr:		ASN of attendee 8
+org:		ORG-TCA8-TEST
+admin-c:	CA8-TEST
+tech-c:		CA8-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM8-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee9
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA9-TEST
+mnt-by:		CM9-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM9-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 9
+admin-c:	CA9-TEST
+mnt-by:		CM9-MNT
+referral-by:	CM9-MNT
+auth:		MD5-PW $1$7NZhJNFb$62Ca3eb60acmn8/Zj8A86.
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA9-TEST
+org-name:	RIPE NCC Training Services Attendee 9 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.9.0 - 172.16.9.255
+netname:	NL-RIPENCC-TCA9-20120101
+org:		ORG-TCA9-TEST
+descr:		RIPE NCC Training Services Attendee 9
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA9-TEST
+tech-c:		CA9-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM9-MNT
+mnt-routes:	CM9-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:9::/48
+netname:	NL-RIPENCC-TCA9-20120101
+org:		ORG-TCA9-TEST
+descr:		RIPE NCC Training Services Attendee 9
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA9-TEST
+tech-c:		CA9-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM9-MNT
+mnt-routes:	CM9-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS9
+as-name:	Attendee9-Asnumber
+descr:		ASN of attendee 9
+org:		ORG-TCA9-TEST
+admin-c:	CA9-TEST
+tech-c:		CA9-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM9-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee10
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA10-TEST
+mnt-by:		CM10-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM10-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 10
+admin-c:	CA10-TEST
+mnt-by:		CM10-MNT
+referral-by:	CM10-MNT
+auth:		MD5-PW $1$FpVRXzth$Sexp75.TW1GyDJEVD2Q/E1
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA10-TEST
+org-name:	RIPE NCC Training Services Attendee 10 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.10.0 - 172.16.10.255
+netname:	NL-RIPENCC-TCA10-20120101
+org:		ORG-TCA10-TEST
+descr:		RIPE NCC Training Services Attendee 10
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA10-TEST
+tech-c:		CA10-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM10-MNT
+mnt-routes:	CM10-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:10::/48
+netname:	NL-RIPENCC-TCA10-20120101
+org:		ORG-TCA10-TEST
+descr:		RIPE NCC Training Services Attendee 10
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA10-TEST
+tech-c:		CA10-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM10-MNT
+mnt-routes:	CM10-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS10
+as-name:	Attendee10-Asnumber
+descr:		ASN of attendee 10
+org:		ORG-TCA10-TEST
+admin-c:	CA10-TEST
+tech-c:		CA10-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM10-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee11
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA11-TEST
+mnt-by:		CM11-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM11-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 11
+admin-c:	CA11-TEST
+mnt-by:		CM11-MNT
+referral-by:	CM11-MNT
+auth:		MD5-PW $1$oUTcKCg7$IkIFeYABRdgQgChlwiK4S.
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA11-TEST
+org-name:	RIPE NCC Training Services Attendee 11 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.11.0 - 172.16.11.255
+netname:	NL-RIPENCC-TCA11-20120101
+org:		ORG-TCA11-TEST
+descr:		RIPE NCC Training Services Attendee 11
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA11-TEST
+tech-c:		CA11-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM11-MNT
+mnt-routes:	CM11-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:11::/48
+netname:	NL-RIPENCC-TCA11-20120101
+org:		ORG-TCA11-TEST
+descr:		RIPE NCC Training Services Attendee 11
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA11-TEST
+tech-c:		CA11-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM11-MNT
+mnt-routes:	CM11-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS11
+as-name:	Attendee11-Asnumber
+descr:		ASN of attendee 11
+org:		ORG-TCA11-TEST
+admin-c:	CA11-TEST
+tech-c:		CA11-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM11-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee12
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA12-TEST
+mnt-by:		CM12-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM12-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 12
+admin-c:	CA12-TEST
+mnt-by:		CM12-MNT
+referral-by:	CM12-MNT
+auth:		MD5-PW $1$kEWL8xPp$ccr6YFfASGSu6UnNjMETS0
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA12-TEST
+org-name:	RIPE NCC Training Services Attendee 12 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.12.0 - 172.16.12.255
+netname:	NL-RIPENCC-TCA12-20120101
+org:		ORG-TCA12-TEST
+descr:		RIPE NCC Training Services Attendee 12
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA12-TEST
+tech-c:		CA12-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM12-MNT
+mnt-routes:	CM12-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:12::/48
+netname:	NL-RIPENCC-TCA12-20120101
+org:		ORG-TCA12-TEST
+descr:		RIPE NCC Training Services Attendee 12
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA12-TEST
+tech-c:		CA12-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM12-MNT
+mnt-routes:	CM12-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS12
+as-name:	Attendee12-Asnumber
+descr:		ASN of attendee 12
+org:		ORG-TCA12-TEST
+admin-c:	CA12-TEST
+tech-c:		CA12-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM12-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee13
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA13-TEST
+mnt-by:		CM13-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM13-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 13
+admin-c:	CA13-TEST
+mnt-by:		CM13-MNT
+referral-by:	CM13-MNT
+auth:		MD5-PW $1$nV3LRovs$uH7UEvIDKYhLa2vDzrD28/
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA13-TEST
+org-name:	RIPE NCC Training Services Attendee 13 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.13.0 - 172.16.13.255
+netname:	NL-RIPENCC-TCA13-20120101
+org:		ORG-TCA13-TEST
+descr:		RIPE NCC Training Services Attendee 13
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA13-TEST
+tech-c:		CA13-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM13-MNT
+mnt-routes:	CM13-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:13::/48
+netname:	NL-RIPENCC-TCA13-20120101
+org:		ORG-TCA13-TEST
+descr:		RIPE NCC Training Services Attendee 13
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA13-TEST
+tech-c:		CA13-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM13-MNT
+mnt-routes:	CM13-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS13
+as-name:	Attendee13-Asnumber
+descr:		ASN of attendee 13
+org:		ORG-TCA13-TEST
+admin-c:	CA13-TEST
+tech-c:		CA13-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM13-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee14
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA14-TEST
+mnt-by:		CM14-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM14-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 14
+admin-c:	CA14-TEST
+mnt-by:		CM14-MNT
+referral-by:	CM14-MNT
+auth:		MD5-PW $1$92vrBtpP$iVnO8reiNvUUVduHbadbc/
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA14-TEST
+org-name:	RIPE NCC Training Services Attendee 14 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.14.0 - 172.16.14.255
+netname:	NL-RIPENCC-TCA14-20120101
+org:		ORG-TCA14-TEST
+descr:		RIPE NCC Training Services Attendee 14
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA14-TEST
+tech-c:		CA14-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM14-MNT
+mnt-routes:	CM14-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:14::/48
+netname:	NL-RIPENCC-TCA14-20120101
+org:		ORG-TCA14-TEST
+descr:		RIPE NCC Training Services Attendee 14
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA14-TEST
+tech-c:		CA14-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM14-MNT
+mnt-routes:	CM14-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS14
+as-name:	Attendee14-Asnumber
+descr:		ASN of attendee 14
+org:		ORG-TCA14-TEST
+admin-c:	CA14-TEST
+tech-c:		CA14-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM14-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee15
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA15-TEST
+mnt-by:		CM15-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM15-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 15
+admin-c:	CA15-TEST
+mnt-by:		CM15-MNT
+referral-by:	CM15-MNT
+auth:		MD5-PW $1$SfKfxorc$WxZ2zJeZJVdJIk2gd5uBc/
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA15-TEST
+org-name:	RIPE NCC Training Services Attendee 15 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.15.0 - 172.16.15.255
+netname:	NL-RIPENCC-TCA15-20120101
+org:		ORG-TCA15-TEST
+descr:		RIPE NCC Training Services Attendee 15
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA15-TEST
+tech-c:		CA15-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM15-MNT
+mnt-routes:	CM15-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:15::/48
+netname:	NL-RIPENCC-TCA15-20120101
+org:		ORG-TCA15-TEST
+descr:		RIPE NCC Training Services Attendee 15
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA15-TEST
+tech-c:		CA15-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM15-MNT
+mnt-routes:	CM15-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS15
+as-name:	Attendee15-Asnumber
+descr:		ASN of attendee 15
+org:		ORG-TCA15-TEST
+admin-c:	CA15-TEST
+tech-c:		CA15-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM15-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee16
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA16-TEST
+mnt-by:		CM16-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM16-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 16
+admin-c:	CA16-TEST
+mnt-by:		CM16-MNT
+referral-by:	CM16-MNT
+auth:		MD5-PW $1$PPgvpJ3C$yuU3LevqFHzj4fhlADwJh.
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA16-TEST
+org-name:	RIPE NCC Training Services Attendee 16 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.16.0 - 172.16.16.255
+netname:	NL-RIPENCC-TCA16-20120101
+org:		ORG-TCA16-TEST
+descr:		RIPE NCC Training Services Attendee 16
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA16-TEST
+tech-c:		CA16-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM16-MNT
+mnt-routes:	CM16-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:16::/48
+netname:	NL-RIPENCC-TCA16-20120101
+org:		ORG-TCA16-TEST
+descr:		RIPE NCC Training Services Attendee 16
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA16-TEST
+tech-c:		CA16-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM16-MNT
+mnt-routes:	CM16-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS16
+as-name:	Attendee16-Asnumber
+descr:		ASN of attendee 16
+org:		ORG-TCA16-TEST
+admin-c:	CA16-TEST
+tech-c:		CA16-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM16-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee17
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA17-TEST
+mnt-by:		CM17-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM17-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 17
+admin-c:	CA17-TEST
+mnt-by:		CM17-MNT
+referral-by:	CM17-MNT
+auth:		MD5-PW $1$HklibzRO$6W4wE3Rta7d5GVhZHhuPd1
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA17-TEST
+org-name:	RIPE NCC Training Services Attendee 17 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.17.0 - 172.16.17.255
+netname:	NL-RIPENCC-TCA17-20120101
+org:		ORG-TCA17-TEST
+descr:		RIPE NCC Training Services Attendee 17
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA17-TEST
+tech-c:		CA17-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM17-MNT
+mnt-routes:	CM17-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:17::/48
+netname:	NL-RIPENCC-TCA17-20120101
+org:		ORG-TCA17-TEST
+descr:		RIPE NCC Training Services Attendee 17
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA17-TEST
+tech-c:		CA17-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM17-MNT
+mnt-routes:	CM17-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS17
+as-name:	Attendee17-Asnumber
+descr:		ASN of attendee 17
+org:		ORG-TCA17-TEST
+admin-c:	CA17-TEST
+tech-c:		CA17-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM17-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee18
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA18-TEST
+mnt-by:		CM18-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM18-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 18
+admin-c:	CA18-TEST
+mnt-by:		CM18-MNT
+referral-by:	CM18-MNT
+auth:		MD5-PW $1$dQTKgRSx$peQM1JsQk3KJJjDny1hN9.
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA18-TEST
+org-name:	RIPE NCC Training Services Attendee 18 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.18.0 - 172.16.18.255
+netname:	NL-RIPENCC-TCA18-20120101
+org:		ORG-TCA18-TEST
+descr:		RIPE NCC Training Services Attendee 18
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA18-TEST
+tech-c:		CA18-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM18-MNT
+mnt-routes:	CM18-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:18::/48
+netname:	NL-RIPENCC-TCA18-20120101
+org:		ORG-TCA18-TEST
+descr:		RIPE NCC Training Services Attendee 18
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA18-TEST
+tech-c:		CA18-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM18-MNT
+mnt-routes:	CM18-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS18
+as-name:	Attendee18-Asnumber
+descr:		ASN of attendee 18
+org:		ORG-TCA18-TEST
+admin-c:	CA18-TEST
+tech-c:		CA18-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM18-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee19
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA19-TEST
+mnt-by:		CM19-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM19-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 19
+admin-c:	CA19-TEST
+mnt-by:		CM19-MNT
+referral-by:	CM19-MNT
+auth:		MD5-PW $1$pvz2lhAr$9hABRQS7Ki8piCdjjFAqf.
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA19-TEST
+org-name:	RIPE NCC Training Services Attendee 19 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.19.0 - 172.16.19.255
+netname:	NL-RIPENCC-TCA19-20120101
+org:		ORG-TCA19-TEST
+descr:		RIPE NCC Training Services Attendee 19
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA19-TEST
+tech-c:		CA19-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM19-MNT
+mnt-routes:	CM19-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:19::/48
+netname:	NL-RIPENCC-TCA19-20120101
+org:		ORG-TCA19-TEST
+descr:		RIPE NCC Training Services Attendee 19
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA19-TEST
+tech-c:		CA19-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM19-MNT
+mnt-routes:	CM19-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS19
+as-name:	Attendee19-Asnumber
+descr:		ASN of attendee 19
+org:		ORG-TCA19-TEST
+admin-c:	CA19-TEST
+tech-c:		CA19-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM19-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee20
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA20-TEST
+mnt-by:		CM20-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM20-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 20
+admin-c:	CA20-TEST
+mnt-by:		CM20-MNT
+referral-by:	CM20-MNT
+auth:		MD5-PW $1$JB4gZIOq$wiGHR2NA9QsPkF/NCnwYv1
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA20-TEST
+org-name:	RIPE NCC Training Services Attendee 20 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.20.0 - 172.16.20.255
+netname:	NL-RIPENCC-TCA20-20120101
+org:		ORG-TCA20-TEST
+descr:		RIPE NCC Training Services Attendee 20
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA20-TEST
+tech-c:		CA20-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM20-MNT
+mnt-routes:	CM20-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:20::/48
+netname:	NL-RIPENCC-TCA20-20120101
+org:		ORG-TCA20-TEST
+descr:		RIPE NCC Training Services Attendee 20
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA20-TEST
+tech-c:		CA20-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM20-MNT
+mnt-routes:	CM20-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS20
+as-name:	Attendee20-Asnumber
+descr:		ASN of attendee 20
+org:		ORG-TCA20-TEST
+admin-c:	CA20-TEST
+tech-c:		CA20-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM20-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee21
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA21-TEST
+mnt-by:		CM21-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM21-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 21
+admin-c:	CA21-TEST
+mnt-by:		CM21-MNT
+referral-by:	CM21-MNT
+auth:		MD5-PW $1$0TTg5cT9$kMUS8q1csfij.jvZRimLl.
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA21-TEST
+org-name:	RIPE NCC Training Services Attendee 21 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.21.0 - 172.16.21.255
+netname:	NL-RIPENCC-TCA21-20120101
+org:		ORG-TCA21-TEST
+descr:		RIPE NCC Training Services Attendee 21
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA21-TEST
+tech-c:		CA21-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM21-MNT
+mnt-routes:	CM21-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:21::/48
+netname:	NL-RIPENCC-TCA21-20120101
+org:		ORG-TCA21-TEST
+descr:		RIPE NCC Training Services Attendee 21
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA21-TEST
+tech-c:		CA21-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM21-MNT
+mnt-routes:	CM21-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS21
+as-name:	Attendee21-Asnumber
+descr:		ASN of attendee 21
+org:		ORG-TCA21-TEST
+admin-c:	CA21-TEST
+tech-c:		CA21-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM21-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee22
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA22-TEST
+mnt-by:		CM22-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM22-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 22
+admin-c:	CA22-TEST
+mnt-by:		CM22-MNT
+referral-by:	CM22-MNT
+auth:		MD5-PW $1$4IoxOVaB$AbkpGx7IcdPWo/yc4OyvS.
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA22-TEST
+org-name:	RIPE NCC Training Services Attendee 22 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.22.0 - 172.16.22.255
+netname:	NL-RIPENCC-TCA22-20120101
+org:		ORG-TCA22-TEST
+descr:		RIPE NCC Training Services Attendee 22
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA22-TEST
+tech-c:		CA22-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM22-MNT
+mnt-routes:	CM22-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:22::/48
+netname:	NL-RIPENCC-TCA22-20120101
+org:		ORG-TCA22-TEST
+descr:		RIPE NCC Training Services Attendee 22
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA22-TEST
+tech-c:		CA22-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM22-MNT
+mnt-routes:	CM22-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS22
+as-name:	Attendee22-Asnumber
+descr:		ASN of attendee 22
+org:		ORG-TCA22-TEST
+admin-c:	CA22-TEST
+tech-c:		CA22-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM22-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee23
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA23-TEST
+mnt-by:		CM23-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM23-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 23
+admin-c:	CA23-TEST
+mnt-by:		CM23-MNT
+referral-by:	CM23-MNT
+auth:		MD5-PW $1$tyJCeBrp$4GYg7KGxbxvGsB8wTMVKq1
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA23-TEST
+org-name:	RIPE NCC Training Services Attendee 23 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.23.0 - 172.16.23.255
+netname:	NL-RIPENCC-TCA23-20120101
+org:		ORG-TCA23-TEST
+descr:		RIPE NCC Training Services Attendee 23
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA23-TEST
+tech-c:		CA23-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM23-MNT
+mnt-routes:	CM23-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:23::/48
+netname:	NL-RIPENCC-TCA23-20120101
+org:		ORG-TCA23-TEST
+descr:		RIPE NCC Training Services Attendee 23
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA23-TEST
+tech-c:		CA23-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM23-MNT
+mnt-routes:	CM23-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS23
+as-name:	Attendee23-Asnumber
+descr:		ASN of attendee 23
+org:		ORG-TCA23-TEST
+admin-c:	CA23-TEST
+tech-c:		CA23-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM23-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee24
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA24-TEST
+mnt-by:		CM24-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM24-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 24
+admin-c:	CA24-TEST
+mnt-by:		CM24-MNT
+referral-by:	CM24-MNT
+auth:		MD5-PW $1$gRjcdCYi$aiMhOCJk4lW62Zwn2EMbs.
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA24-TEST
+org-name:	RIPE NCC Training Services Attendee 24 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.24.0 - 172.16.24.255
+netname:	NL-RIPENCC-TCA24-20120101
+org:		ORG-TCA24-TEST
+descr:		RIPE NCC Training Services Attendee 24
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA24-TEST
+tech-c:		CA24-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM24-MNT
+mnt-routes:	CM24-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:24::/48
+netname:	NL-RIPENCC-TCA24-20120101
+org:		ORG-TCA24-TEST
+descr:		RIPE NCC Training Services Attendee 24
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA24-TEST
+tech-c:		CA24-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM24-MNT
+mnt-routes:	CM24-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS24
+as-name:	Attendee24-Asnumber
+descr:		ASN of attendee 24
+org:		ORG-TCA24-TEST
+admin-c:	CA24-TEST
+tech-c:		CA24-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM24-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee25
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA25-TEST
+mnt-by:		CM25-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM25-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 25
+admin-c:	CA25-TEST
+mnt-by:		CM25-MNT
+referral-by:	CM25-MNT
+auth:		MD5-PW $1$A1EQTwyH$B3.oRwJX1Aj7pKMiAyrPl.
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA25-TEST
+org-name:	RIPE NCC Training Services Attendee 25 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.25.0 - 172.16.25.255
+netname:	NL-RIPENCC-TCA25-20120101
+org:		ORG-TCA25-TEST
+descr:		RIPE NCC Training Services Attendee 25
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA25-TEST
+tech-c:		CA25-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM25-MNT
+mnt-routes:	CM25-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:25::/48
+netname:	NL-RIPENCC-TCA25-20120101
+org:		ORG-TCA25-TEST
+descr:		RIPE NCC Training Services Attendee 25
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA25-TEST
+tech-c:		CA25-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM25-MNT
+mnt-routes:	CM25-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS25
+as-name:	Attendee25-Asnumber
+descr:		ASN of attendee 25
+org:		ORG-TCA25-TEST
+admin-c:	CA25-TEST
+tech-c:		CA25-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM25-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee26
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA26-TEST
+mnt-by:		CM26-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM26-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 26
+admin-c:	CA26-TEST
+mnt-by:		CM26-MNT
+referral-by:	CM26-MNT
+auth:		MD5-PW $1$2D2kfoGG$d3XCqy0vUnpU2abXe9Poe/
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA26-TEST
+org-name:	RIPE NCC Training Services Attendee 26 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.26.0 - 172.16.26.255
+netname:	NL-RIPENCC-TCA26-20120101
+org:		ORG-TCA26-TEST
+descr:		RIPE NCC Training Services Attendee 26
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA26-TEST
+tech-c:		CA26-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM26-MNT
+mnt-routes:	CM26-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:26::/48
+netname:	NL-RIPENCC-TCA26-20120101
+org:		ORG-TCA26-TEST
+descr:		RIPE NCC Training Services Attendee 26
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA26-TEST
+tech-c:		CA26-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM26-MNT
+mnt-routes:	CM26-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS26
+as-name:	Attendee26-Asnumber
+descr:		ASN of attendee 26
+org:		ORG-TCA26-TEST
+admin-c:	CA26-TEST
+tech-c:		CA26-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM26-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee27
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA27-TEST
+mnt-by:		CM27-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM27-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 27
+admin-c:	CA27-TEST
+mnt-by:		CM27-MNT
+referral-by:	CM27-MNT
+auth:		MD5-PW $1$sMkBNQqo$IXm1vhHFYEKrnX77aaRH9/
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA27-TEST
+org-name:	RIPE NCC Training Services Attendee 27 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.27.0 - 172.16.27.255
+netname:	NL-RIPENCC-TCA27-20120101
+org:		ORG-TCA27-TEST
+descr:		RIPE NCC Training Services Attendee 27
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA27-TEST
+tech-c:		CA27-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM27-MNT
+mnt-routes:	CM27-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:27::/48
+netname:	NL-RIPENCC-TCA27-20120101
+org:		ORG-TCA27-TEST
+descr:		RIPE NCC Training Services Attendee 27
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA27-TEST
+tech-c:		CA27-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM27-MNT
+mnt-routes:	CM27-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS27
+as-name:	Attendee27-Asnumber
+descr:		ASN of attendee 27
+org:		ORG-TCA27-TEST
+admin-c:	CA27-TEST
+tech-c:		CA27-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM27-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee28
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA28-TEST
+mnt-by:		CM28-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM28-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 28
+admin-c:	CA28-TEST
+mnt-by:		CM28-MNT
+referral-by:	CM28-MNT
+auth:		MD5-PW $1$rihOr6cf$K/U4VXZZs5dJtGSV/ThHf/
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA28-TEST
+org-name:	RIPE NCC Training Services Attendee 28 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.28.0 - 172.16.28.255
+netname:	NL-RIPENCC-TCA28-20120101
+org:		ORG-TCA28-TEST
+descr:		RIPE NCC Training Services Attendee 28
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA28-TEST
+tech-c:		CA28-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM28-MNT
+mnt-routes:	CM28-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:28::/48
+netname:	NL-RIPENCC-TCA28-20120101
+org:		ORG-TCA28-TEST
+descr:		RIPE NCC Training Services Attendee 28
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA28-TEST
+tech-c:		CA28-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM28-MNT
+mnt-routes:	CM28-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS28
+as-name:	Attendee28-Asnumber
+descr:		ASN of attendee 28
+org:		ORG-TCA28-TEST
+admin-c:	CA28-TEST
+tech-c:		CA28-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM28-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee29
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA29-TEST
+mnt-by:		CM29-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM29-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 29
+admin-c:	CA29-TEST
+mnt-by:		CM29-MNT
+referral-by:	CM29-MNT
+auth:		MD5-PW $1$Cq70ClVa$ccLu849vcMsYGG8ub585U0
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA29-TEST
+org-name:	RIPE NCC Training Services Attendee 29 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.29.0 - 172.16.29.255
+netname:	NL-RIPENCC-TCA29-20120101
+org:		ORG-TCA29-TEST
+descr:		RIPE NCC Training Services Attendee 29
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA29-TEST
+tech-c:		CA29-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM29-MNT
+mnt-routes:	CM29-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:29::/48
+netname:	NL-RIPENCC-TCA29-20120101
+org:		ORG-TCA29-TEST
+descr:		RIPE NCC Training Services Attendee 29
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA29-TEST
+tech-c:		CA29-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM29-MNT
+mnt-routes:	CM29-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS29
+as-name:	Attendee29-Asnumber
+descr:		ASN of attendee 29
+org:		ORG-TCA29-TEST
+admin-c:	CA29-TEST
+tech-c:		CA29-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM29-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+person:		Course Attendee30
+remarks:	I am attending a RIPE NCC training course
+address:	Singel 258
+address:	1016 AB Amsterdam
+phone:		+31205354444
+e-mail:		attendee@example.org
+nic-hdl:	CA30-TEST
+mnt-by:		CM30-MNT
+changed:	attendee@example.org 
+source:		TEST
+
+mntner:		CM30-MNT
+descr:		Maintainer for the RIPE NCC training course
+descr:		Managed by attendee 30
+admin-c:	CA30-TEST
+mnt-by:		CM30-MNT
+referral-by:	CM30-MNT
+auth:		MD5-PW $1$y1OeN4vi$2hYgjgi.jP9snzo0kc9s51
+changed:	attendee@example.org 20121115
+abuse-mailbox:	abuse@example.org
+source:		TEST
+
+organisation:	ORG-TCA30-TEST
+org-name:	RIPE NCC Training Services Attendee 30 Organisation
+org-type:	LIR
+address:	Singel 258, 1016 AB Amsterdam
+phone:		+31205354444
+fax-no:		+31205354444
+e-mail:		training@example.org
+admin-c:	TS1-TEST
+tech-c:		TS1-TEST
+ref-nfy:	auto@example.net
+notify:		notify@example.org
+mnt-ref:	TEST-DBM-MNT
+mnt-by:		TEST-DBM-MNT
+changed:	trainer@example.org 20121115
+source:		TEST
+
+inetnum:	172.16.30.0 - 172.16.30.255
+netname:	NL-RIPENCC-TCA30-20120101
+org:		ORG-TCA30-TEST
+descr:		RIPE NCC Training Services Attendee 30
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA30-TEST
+tech-c:		CA30-TEST
+status:		ALLOCATED PA
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM30-MNT
+mnt-routes:	CM30-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+inet6num:	2001:db8:30::/48
+netname:	NL-RIPENCC-TCA30-20120101
+org:		ORG-TCA30-TEST
+descr:		RIPE NCC Training Services Attendee 30
+remarks:	Allocation used in the training courses
+country:	EU
+admin-c:	CA30-TEST
+tech-c:		CA30-TEST
+status:		ALLOCATED-BY-RIR
+mnt-by:		TEST-DBM-MNT
+mnt-lower:	CM30-MNT
+mnt-routes:	CM30-MNT
+changed:	hostmaster@ripe.net 
+source:		TEST
+
+aut-num:	AS30
+as-name:	Attendee30-Asnumber
+descr:		ASN of attendee 30
+org:		ORG-TCA30-TEST
+admin-c:	CA30-TEST
+tech-c:		CA30-TEST
+mnt-by:		TEST-DBM-MNT
+mnt-by:		CM30-MNT
+changed:	hostmaster@ripe.net 20121115
+source:		TEST
+
+
+###
+### Objects for LIR training where attendees create assigned inetnum within allocation below
+### (from andrzej, 2012-08-28)
+###
+
+person:RIPE NCC Training Services person
+address:Singel 258
+address:1016 AB Amsterdam
+phone:+31 20 535 4444
+nic-hdl:BL123-RIPE
+mnt-by:BL123-MNT
+changed:andrzej@ripencc-ts.example.com 20120907
+source:TEST
+e-mail:noc@ripencc-ts.example.com
+
+mntner:BL123-MNT
+descr:RIPE NCC Training Services Maintainer
+admin-c:BL123-RIPE
+tech-c:BL123-RIPE
+upd-to:noc@ripencc-ts.example.com
+auth:MD5-PW $1$LKfJKnHh$y.fIUZBlKy79elGMES5PU.
+mnt-by:BL123-MNT
+referral-by:BL123-MNT
+changed:andrzej@ripencc-ts.example.com 20120907
+source:TEST
+
+inetnum:85.118.184.0 - 85.118.191.255
+netname:NL-RIPENCC-TS
+org:ORG-TT1-TEST
+descr:Used only as an educational example
+descr:by Training Services of RIPE NCC
+country:NL
+admin-c:BL123-RIPE
+tech-c:BL123-RIPE
+status:ALLOCATED PA
+mnt-by:TEST-NCC-HM-MNT
+mnt-lower:BL123-MNT
+mnt-domains:BL123-MNT
+mnt-routes:BL123-MNT
+changed:hostmaster@ripe.net 20120224
+changed:andrzej@ripencc-ts.example.com 20120907
+source:TEST
+
+person:Marc Bromski
+address:Laika BV,
+address:1016AB Amsterdam
+phone:+31 20 535 4444
+e-mail:marc@laika.example.com
+nic-hdl:MB54321-RIPE
+mnt-by:laika-mnt
+changed:marc@laika.example.com 20120308
+source:TEST
+
+mntner:laika-mnt
+descr:Laika Maintainer
+admin-c:MB54321-RIPE
+upd-to:marc@laika.example.com
+auth:MD5-PW $1$PYZL9cL7$WIJMB7UALo6zjAik5TOko0
+mnt-by:laika-mnt
+referral-by:laika-mnt
+notify:marc@laika.example.com
+changed:marc@laika.example.com 20120308
+remarks:Accepted the RIPE Database Terms and Conditions
+source:TEST
+
+
+
+###
+### Objects required for webupdates selenium tests
+###
+
+key-cert:   PGPKEY-10B066BE
+method:     PGP
+owner:      Bogdan Dumitrescu <bdumitre@ripe.net>
+fingerpr:   D4A8 4C43 8A5E 3117 6FBA 8159 2649 F26D 10B0 66BE
+certif:     -----BEGIN PGP PUBLIC KEY BLOCK-----
+certif:     Version: GnuPG/MacGPG2 v2.0.17 (Darwin)
+certif:     Comment: GPGTools - http://gpgtools.org
+certif:
+certif:     mQENBE4cRKwBCADgbzwdEZk7kn9OeLvl1aunUQ96E7Ih8XLSOE/L+iIP9TThtWlw
+certif:     UKsP6waFuY8+ULPszSTZZDr9SZ1G9R6BxaHXPTRY99rHVi4vjqLymJa+imX+jN1q
+certif:     SMcfqLGvYDGXX0R0JRlpSHuQ0vaI5Pr472VJz+AYvbW8GZWZHa42vQWe8TupIpba
+certif:     lik1i5nOp2H7vw2vatBxgJn5eWdJ64RH30+COxi2sIMPL2LRxNjYjNKTBp4qs2QZ
+certif:     wgOuEoSzbTkKfPo0cLcWTQMQjI9j9X0kmEE5BPEDON6pcbTDgfQ3su02iRHfwNLe
+certif:     0zvhMz1kMn9+Aim7aKxnJcZG8XjDBt/4oY4pABEBAAG0JUJvZ2RhbiBEdW1pdHJl
+certif:     c2N1IDxiZHVtaXRyZUByaXBlLm5ldD6JATgEEwECACIFAk4cRKwCGy8GCwkIBwMC
+certif:     BhUIAgkKCwQWAgMBAh4BAheAAAoJECZJ8m0QsGa+SToH/3HvRDcdqyKchYwg85EY
+certif:     mrtnq1FM/BezBf6tlhjY4nPjZx1RE7Ad8HfhKSEJqPXa8TDeybsW4i3z5XotC1MM
+certif:     0grvgE2J/mr2qfBNHfbiR620TqBEQbah4Z0exQNjR9QNSu8GOC49AjfzsfE5AXSe
+certif:     1TEFliGrNMa+YSmDj+Z+k0FT5jP1DUBjc1R5l/uxStzTWkejidzTAcASmsnRgL7m
+certif:     gmW8QmU3qGrUv/9Z1IyABEMa1NfjyJ4RGailjivE1SiCKVZyxxIKDDBeVPjDrRbO
+certif:     bRVNLVYmM2am7Koo/0lPpRbibH3pUOooX3pB4p35ITkCyDhBBxELxcT89j5V5T5S
+certif:     RI8=
+certif:     =YaII
+certif:     -----END PGP PUBLIC KEY BLOCK-----
+mnt-by:     RIPE-DBM-STARTUP-MNT
+changed:    test@localhost.com 20110801
+source:     TEST
+
+mntner:      TEST-NOPASS-MNT
+descr:       test mntner wihout passwords
+admin-c:     AA1-TEST
+upd-to:      bitbucket@ripe.net
+auth:        PGPKEY-10B066BE
+mnt-by:      TEST-NOPASS-MNT
+referral-by: TEST-NOPASS-MNT
+changed:     bitbucket@ripe.net 20111124
+source:      TEST
+

@@ -1,0 +1,85 @@
+From rtrswcfg@XXXintrepid.muc.nss.cw.net Mon Jun 11 07:30:10 2012
+Return-path: <rtrswcfg@XXXintrepid.muc.nss.cw.net>
+Envelope-to: dbase@XXXwhois-update.db.ripe.net
+Delivery-date: Mon, 11 Jun 2012 07:30:10 +0200
+Received: from postgirl.ipv6.ripe.net ([2001:67c:2e8:11::c100:1342] helo=postgirl.ripe.net)
+        by dbc-whois5.ripe.net with esmtps (TLSv1:AES256-SHA:256)
+        (Exim 4.72)
+        (envelope-from <rtrswcfg@XXXintrepid.muc.nss.cw.net>)
+        id 1SdxCc-0005V1-Cr
+        for dbase@XXXwhois-update.db.ripe.net; Mon, 11 Jun 2012 07:30:10 +0200
+Received: from mailrelaym1.core.cw.net ([195.92.193.221])
+        by postgirl.ripe.net with esmtp (Exim 4.72)
+        (envelope-from <rtrswcfg@XXXintrepid.muc.nss.cw.net>)
+        id 1SdxCa-0000pK-JM
+        for auto-dbm@XXXripe.net; Mon, 11 Jun 2012 07:30:10 +0200
+Received: from intrepid.muc.nss.cw.net ([141.1.116.42])
+        by mailrelaym1.core.cw.net with esmtp (Exim 4.43)
+        id 1SdxCa-0001Aa-BW; Mon, 11 Jun 2012 05:30:08 +0000
+Received: (from rtrswcfg@XXXlocalhost)
+        by intrepid.muc.nss.cw.net (8.13.8/8.13.8/Submit) id q5B5U7vT003618;
+        Mon, 11 Jun 2012 05:30:07 GMT
+        (envelope-from rtrswcfg)
+Message-Id: <201206110530.q5B5U7vT003618@XXXintrepid.muc.nss.cw.net>
+Content-Transfer-Encoding: binary
+Content-Type: multipart/mixed; boundary="_----------=_133939260735763"
+MIME-Version: 1.0
+X-Mailer: MIME::Lite 3.01 (F2.74; T1.19; A1.74; B3.07; Q3.07)
+Date: Mon, 11 Jun 2012 05:30:07 UT
+From: Intrepid@XXXintrepid.muc.nss.cw.net
+To: auto-dbm@XXXripe.net
+Cc: danny.vernals@XXXcw.com
+X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.48/RELEASE,
+         bases: 20120425 #7816575, check: 20120611 clean
+X-RIPE-Spam-Level: /
+X-RIPE-Spam-Report: Spam Total Points:   -0.8 points
+  pts rule name              description
+ ---- ---------------------- ------------------------------------
+ -0.7 RCVD_IN_DNSWL_LOW      RBL: Sender listed at http://www.dnswl.org/, low
+                             trust
+                             [195.92.193.221 listed in list.dnswl.org]
+ -0.0 T_RP_MATCHES_RCVD      Envelope sender domain matches handover relay
+                             domain
+ -1.9 BAYES_00               BODY: Bayes spam probability is 0 to 1%
+                             [score: 0.0000]
+  1.8 MISSING_SUBJECT        Missing Subject: header
+X-RIPE-Signature: d8f587edcbb8681ad048968a46e636c1427737e33057d8c39d3c34a9aeb984aa
+
+This is a multi-part message in MIME format.
+
+--_----------=_133939260735763
+Content-Disposition: inline
+Content-Length: 5285
+Content-Transfer-Encoding: binary
+Content-Type: text/plain
+
+as-set:          AS1273:AS-CWW-V6
+descr:           Cable & Wireless customers and PA IPv6 space
+descr:           New as-set object
+members:            AS197000                                
+members:            AS197874                                
+members:            AS9150                                  
+members:            AS-CPRM-V6                              
+members:            AS16131                                 
+members:            AS4773                                  
+members:            AS-SURFNET                              
+members:            AS20495                                 
+members:            AS2611                                  
+members:            AS-P2W                                  
+members:            AS-NETHINKS-V6                          
+members:            AS8472                                  
+members:            AS-FASTWEB-V6                           
+members:            AS6774                                  
+members:            AS-CAT-V6                               
+members:            AS-SPACENET-V6                          
+members:            AS15725                                 
+members:            AS12399                                 
+members:            AS8402                                  
+members:            AS-EUNETIP-V6                           
+members:            AS16086                                 
+members:            AS4788                                  
+members:            AS-UNITEDCOLO                           
+members:            AS24845                                 
+members:            AS-NORIS                                
+members:            AS-BISPING                              
+members:            AS30128                
