@@ -67,7 +67,6 @@ public class JettyBootstrap implements ApplicationService {
         context.setResourceBase("src/main/webapp");
         context.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
-        context.setInitParameter("org.mortbay.jetty.servlet.Default.aliases", "true");
 
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setBaseResource(Resource.newClassPathResource(resourceBase));
