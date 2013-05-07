@@ -3,6 +3,7 @@ package net.ripe.db.whois.scheduler.task.export;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.Dummifier;
+import net.ripe.db.whois.common.rpsl.DummifierProposed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
@@ -13,24 +14,29 @@ import java.util.List;
 
 @Component
 class ExportFileWriterFactory {
+    private static final String EXTERNAL_EXPORT_FOLDERNAME_OLD = "dbase_old";
     private static final String EXTERNAL_EXPORT_FOLDERNAME = "dbase";
     private static final String INTERNAL_EXPORT_FOLDERNAME = "internal";
     private static final String SPLITFILE_FOLDERNAME = "split";
     private static final String CURRENTSERIAL_FILENAME = "RIPE.CURRENTSERIAL";
 
     private final Dummifier dummifier;
+    private final DummifierProposed dummifierProposed;
 
     @Autowired
-    ExportFileWriterFactory(final Dummifier dummifier) {
+    ExportFileWriterFactory(final Dummifier dummifier, final DummifierProposed dummifierProposed) {
         this.dummifier = dummifier;
+        this.dummifierProposed = dummifierProposed;
     }
 
     public List<ExportFileWriter> createExportFileWriters(final File baseDir, final int lastSerial) {
+        final File fullDirOld = new File(baseDir, EXTERNAL_EXPORT_FOLDERNAME_OLD);
         final File fullDir = new File(baseDir, EXTERNAL_EXPORT_FOLDERNAME);
+        final File splitDirOld = new File(baseDir, EXTERNAL_EXPORT_FOLDERNAME_OLD + File.separator + SPLITFILE_FOLDERNAME);
         final File splitDir = new File(baseDir, EXTERNAL_EXPORT_FOLDERNAME + File.separator + SPLITFILE_FOLDERNAME);
         final File splitUnmodifiedDir = new File(baseDir, INTERNAL_EXPORT_FOLDERNAME + File.separator + SPLITFILE_FOLDERNAME);
 
-        initDirs(fullDir, splitDir, splitUnmodifiedDir);
+        initDirs(fullDir, fullDirOld, splitDir, splitDirOld, splitUnmodifiedDir);
 
         try {
             FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDir, CURRENTSERIAL_FILENAME));
@@ -39,8 +45,10 @@ class ExportFileWriterFactory {
         }
 
         return Lists.newArrayList(
-                new ExportFileWriter(fullDir, new FilenameStrategy.SingleFile(), new DecorationStrategy.Dummify(dummifier)),
-                new ExportFileWriter(splitDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.Dummify(dummifier)),
+                new ExportFileWriter(fullDirOld, new FilenameStrategy.SingleFile(), new DecorationStrategy.Dummify(dummifier)),
+                new ExportFileWriter(splitDirOld, new FilenameStrategy.SplitFile(), new DecorationStrategy.Dummify(dummifier)),
+                new ExportFileWriter(fullDir, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyProposed(dummifierProposed)),
+                new ExportFileWriter(splitDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyProposed(dummifierProposed)),
                 new ExportFileWriter(splitUnmodifiedDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.None())
         );
     }
@@ -57,7 +65,9 @@ class ExportFileWriterFactory {
             }
 
             final String fileName = file.getName();
-            if (!fileName.equals(EXTERNAL_EXPORT_FOLDERNAME) && !fileName.equals(INTERNAL_EXPORT_FOLDERNAME)) {
+            if (! (fileName.equals(EXTERNAL_EXPORT_FOLDERNAME)
+                    || fileName.equals(INTERNAL_EXPORT_FOLDERNAME)
+                    || fileName.equals(EXTERNAL_EXPORT_FOLDERNAME_OLD))) {
                 return false;
             }
         }

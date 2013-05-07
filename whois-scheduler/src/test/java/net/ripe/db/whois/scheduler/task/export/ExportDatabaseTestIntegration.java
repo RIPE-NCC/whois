@@ -91,13 +91,13 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         assertThat(exportDir.exists(), is(true));
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("dbase/split/ripe.db." + objectType.getName() + ".gz");
+            checkFile("dbase_old/split/ripe.db." + objectType.getName() + ".gz");
             checkFile("internal/split/ripe.db." + objectType.getName() + ".gz");
         }
 
         checkFile("dbase/RIPE.CURRENTSERIAL", "120");
 
-        checkFile("dbase/ripe.db.gz",
+        checkFile("dbase_old/ripe.db.gz",
                 "person:         Placeholder Person Object\n",
                 "role:           Placeholder Role Object\n",
                 "mntner:         DEV-MNT0\n",
@@ -120,10 +120,10 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         "remarks:        * http://www.ripe.net/whois\n" +
                         "remarks:        ****************************\n");
 
-        checkFile("dbase/split/ripe.db.person.gz", "person:         Placeholder Person Object");
-        checkFile("dbase/split/ripe.db.role.gz", "role:           Placeholder Role Object");
+        checkFile("dbase_old/split/ripe.db.person.gz", "person:         Placeholder Person Object");
+        checkFile("dbase_old/split/ripe.db.role.gz", "role:           Placeholder Role Object");
 
-        checkFile("dbase/split/ripe.db.mntner.gz",
+        checkFile("dbase_old/split/ripe.db.mntner.gz",
                 "mntner:         DEV-MNT0\n",
                 "mntner:         DEV-MNT1\n",
                 "mntner:         DEV-MNT2\n",
@@ -234,20 +234,20 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         assertThat(exportDir.exists(), is(true));
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("dbase/split/ripe.db." + objectType.getName() + ".gz");
+            checkFile("dbase_old/split/ripe.db." + objectType.getName() + ".gz");
             checkFile("internal/split/ripe.db." + objectType.getName() + ".gz");
         }
 
-        checkFile("dbase/split/ripe.db.person.gz", "person:         Placeholder Person Object");
-        checkFile("dbase/split/ripe.db.role.gz", "role:           Placeholder Role Object");
+        checkFile("dbase_old/split/ripe.db.person.gz", "person:         Placeholder Person Object");
+        checkFile("dbase_old/split/ripe.db.role.gz", "role:           Placeholder Role Object");
 
-        checkFile("dbase/split/ripe.db.role.gz", "" +
+        checkFile("dbase_old/split/ripe.db.role.gz", "" +
                 "role:           Abuse role\n" +
                 "nic-hdl:        AR1-RIPE\n" +
                 "abuse-mailbox:  abuse@mailbox.com\n" +
                 "source:         TEST");
 
-        checkFile("dbase/split/ripe.db.organisation.gz", "" +
+        checkFile("dbase_old/split/ripe.db.organisation.gz", "" +
                 "organisation:   ORG1\n" +
                 "abuse-c:        AR1-RIPE\n" +
                 "source:         TEST");
@@ -262,6 +262,125 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "organisation:   ORG1\n" +
                 "abuse-c:        AR1-RIPE\n" +
                 "source:         TEST");
+    }
+
+    @Test
+    public void export_proposed_dummification() throws IOException {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "inetnum: 193.0.0.0 - 193.255.255.255\n" +
+                "netname: TEST-RIPE\n" +
+                "admin-c: PN1-RIPE\n" +
+                "tech-c: PN1-RIPE\n" +
+                "notify: test@ripe.net\n" +
+                "changed: test@ripe.net 20120101"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name: Test Organisation\n" +
+                "org-type: OTHER\n" +
+                "address: Test Org\n" +
+                "         Street\n" +
+                "         1234 City\n" +
+                "         Country\n" +
+                "phone:   +12 3456 78\n" +
+                "fax-no:  +12 234 567\n" +
+                "e-mail:  test@ripe.net"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner: TEST-MNT\n" +
+                "descr: description\n" +
+                "upd-to: test@ripe.net\n" +
+                "auth: X509-1\n" +
+                "auth: PGPKEY-AA\n" +
+                "auth: MD5-PW\n" +
+                "mnt-nfy: test@test.com\n" +
+                "ref-nfy: foo@bar.com\n" +
+                "mnt-by: TEST-MNT"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "role: Test Role1\n" +
+                "address: Street\n" +
+                "address: City\n" +
+                "address: Country\n" +
+                "phone: +12 345 678\n" +
+                "fax-no: +12 345 678\n" +
+                "e-mail: test@bar.com\n" +
+                "nic-hdl: ROLE-NIC\n" +
+                "changed: foo@test.net"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "role: Test Role2\n" +
+                "address: Street\n" +
+                "address: City\n" +
+                "address: Country\n" +
+                "phone: +12 345 678\n" +
+                "fax-no: +12 345 678\n" +
+                "e-mail: test@bar.com\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "nic-hdl: AB-NIC\n" +
+                "changed: foo@test.net"));
+
+        sourceContext.removeCurrentSource();
+
+        rpslObjectsExporter.export();
+
+        for (final ObjectType objectType : ObjectType.values()) {
+            checkFile("dbase/split/ripe.db." + objectType.getName() + ".gz");
+        }
+
+        checkFile("dbase/split/ripe.db.inetnum.gz", "" +
+                "inetnum:        193.0.0.0 - 193.255.255.255\n" +
+                "netname:        TEST-RIPE\n" +
+                "admin-c:        PN1-RIPE\n" +
+                "tech-c:         PN1-RIPE\n" +
+                "notify:         * * *@ripe.net\n" +
+                "changed:        * * *@ripe.net 20120101");
+
+        checkFile("dbase/split/ripe.db.organisation.gz", "" +
+                "organisation:   ORG-TO1-TEST\n" +
+                "org-name:       Test Organisation\n" +
+                "org-type:       OTHER\n" +
+                "address:        Test Org\n" +
+                "                Street\n" +
+                "                1234 City\n" +
+                "                Country\n" +
+                "phone:          +12 34.. ....\n" +
+                "fax-no:         +12 23.. ....\n" +
+                "e-mail:         * * *@ripe.net");
+
+        checkFile("dbase/split/ripe.db.mntner.gz", "" +
+                "mntner:         TEST-MNT\n" +
+                "descr:          description\n" +
+                "upd-to:         * * *@ripe.net\n" +
+                "auth:           X509-1\n" +
+                "auth:           PGPKEY-AA\n" +
+                "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
+                "mnt-nfy:        * * *@test.com\n" +
+                "ref-nfy:        * * *@bar.com\n" +
+                "mnt-by:         TEST-MNT");
+
+        checkFile("dbase/split/ripe.db.role.gz", "" +
+                "role:           Test Role1\n" +
+                "address:        * * *\n" +
+                "address:        * * *\n" +
+                "address:        Country\n" +
+                "phone:          +12 34.. ....\n" +
+                "fax-no:         +12 34.. ....\n" +
+                "e-mail:         * * *@bar.com\n" +
+                "nic-hdl:        ROLE-NIC\n" +
+                "changed:        * * *@test.net");
+
+        checkFile("dbase/split/ripe.db.role.gz", "" +
+                "role:           Test Role2\n" +
+                "address:        Street\n" +
+                "address:        City\n" +
+                "address:        Country\n" +
+                "phone:          +12 345 678\n" +
+                "fax-no:         +12 345 678\n" +
+                "e-mail:         * * *@bar.com\n" +
+                "abuse-mailbox:  abuse@test.net\n" +
+                "nic-hdl:        AB-NIC\n" +
+                "changed:        * * *@test.net");
     }
 
     private void checkFile(final String name, final String... expectedContents) throws IOException {

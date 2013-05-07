@@ -42,10 +42,12 @@ public class ExportFileWriterFactoryTest {
 
         final File[] files = folder.getRoot().listFiles();
         assertNotNull(files);
-        assertThat(files.length, Matchers.is(2));
+        assertThat(files.length, Matchers.is(3));
 
         for (final File file : files) {
-            if (!file.getAbsolutePath().endsWith("internal") && !file.getAbsolutePath().endsWith("dbase")) {
+            if (! (file.getAbsolutePath().endsWith("internal")
+                    || file.getAbsolutePath().endsWith("dbase")
+                    || file.getAbsolutePath().endsWith("dbase_old"))) {
                 Assert.fail("Unexpected folder: " + file.getAbsolutePath());
             }
         }
