@@ -41,7 +41,7 @@ public class WhoisServletDeployer implements ServletDeployer {
 
     @Override
     public void deploy(WebAppContext context) {
-        context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(new Application() {
+        final ServletHolder servlet = new ServletHolder("Whois REST API", new ServletContainer(new Application() {
             @Override
             public Set<Object> getSingletons() {
                 final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
@@ -55,6 +55,8 @@ public class WhoisServletDeployer implements ServletDeployer {
                         defaultExceptionMapper,
                         jaxbJsonProvider));
             }
-        })), "/whois/*");
+        }));
+        servlet.setInitParameter("aliases", "true");
+        context.addServlet(servlet, "/whois/*");
     }
 }
