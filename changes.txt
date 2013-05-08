@@ -1,3 +1,14 @@
+## 1.63
+[update] End of line comment on source attribute is no longer allowed
+[rest api] Tags supported
+[rest api] Version (history) supported
+[query] Long option --filter-types renamed to --select-types
+
+## 1.62
+[query] Invalid combination of query flags only reported once
+[query] Log api in query log
+[all] Test data anonymised
+
 ## 1.61
 [all] Easy-whois phase 1
 [update] Disallow too large route and route6 object creations
