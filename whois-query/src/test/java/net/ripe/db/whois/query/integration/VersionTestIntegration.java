@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.domain.VersionDateTime;
 import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -72,6 +73,10 @@ public class VersionTestIntegration extends AbstractWhoisIntegrationTest {
         }
     }
 
+    protected String historyTimestampToString(long timestamp) {
+        return new VersionDateTime(timestamp).toString();
+    }
+
     @Before
     public void startup() {
         loadScripts(databaseHelper.getWhoisTemplate(), "broken.sql");
@@ -95,21 +100,21 @@ public class VersionTestIntegration extends AbstractWhoisIntegrationTest {
     @Test
     public void noHistory() {
         final String response = stripHeader(DummyWhoisClient.query(QueryServer.port, "--list-versions AS-TEST"));
-        assertThat(response, matchesPattern("1\\s+2002-09-1[78] \\d\\d:\\d\\d\\s+ADD/UPD"));
+        assertThat(response, matchesPattern("1\\s+" + historyTimestampToString(1032338056) + "\\s+ADD/UPD"));
     }
 
     @Test
     public void noHistoryOnDeletedObject() {
         final String response = stripHeader(DummyWhoisClient.query(QueryServer.port, "--list-versions test.sk"));
-        assertThat(response, matchesPattern("This object was deleted on 2003-08-1[23] \\d\\d:\\d\\d"));
+        assertThat(response, matchesPattern("This object was deleted on " + historyTimestampToString(1060699626)));
     }
 
     @Test
     public void simpleHistory() {
         final String response = stripHeader(DummyWhoisClient.query(QueryServer.port, "--list-versions AS20507"));
-        assertThat(response, matchesPattern("1\\s+2002-09-1[78] \\d\\d:\\d\\d\\s+ADD/UPD"));
-        assertThat(response, matchesPattern("2\\s+2002-09-2[34] \\d\\d:\\d\\d\\s+ADD/UPD"));
-        assertThat(response, matchesPattern("4\\s+2002-10-1[56] \\d\\d:\\d\\d\\s+ADD/UPD\n\n"));
+        assertThat(response, matchesPattern("1\\s+" + historyTimestampToString(1032341936) + "\\s+ADD/UPD"));
+        assertThat(response, matchesPattern("2\\s+" + historyTimestampToString(1032857323) + "\\s+ADD/UPD"));
+        assertThat(response, matchesPattern("4\\s+" + historyTimestampToString(1034685022) + "\\s+ADD/UPD\n\n"));
     }
 
     @Test
@@ -117,10 +122,10 @@ public class VersionTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = stripHeader(DummyWhoisClient.query(QueryServer.port, "--list-versions AS20507"));
 
         String[] lines = new String[]{
-                "1\\s+2002-09-1[78] \\d\\d:\\d\\d\\s+ADD/UPD",
-                "2\\s+2002-09-2[34] \\d\\d:\\d\\d\\s+ADD/UPD",
-                "3\\s+2002-10-1[45] \\d\\d:\\d\\d\\s+ADD/UPD",
-                "4\\s+2002-10-1[56] \\d\\d:\\d\\d\\s+ADD/UPD"
+                "1\\s+" + historyTimestampToString(1032341936) + "\\s+ADD/UPD",
+                "2\\s+" + historyTimestampToString(1032857323) + "\\s+ADD/UPD",
+                "3\\s+" + historyTimestampToString(1034602217) + "\\s+ADD/UPD",
+                "4\\s+" + historyTimestampToString(1034685022) + "\\s+ADD/UPD"
         };
 
         for (String check : lines) {
