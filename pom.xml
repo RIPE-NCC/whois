@@ -12,6 +12,14 @@
         <url>http://www.ripe.net/</url>
     </organization>
 
+    <licenses>
+        <license>
+            <name>BSD</name>
+            <url>https://raw.github.com/RIPE-NCC/whois/master/LICENSE.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
