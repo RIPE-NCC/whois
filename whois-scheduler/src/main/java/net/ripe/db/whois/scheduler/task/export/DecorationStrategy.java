@@ -1,8 +1,8 @@
 package net.ripe.db.whois.scheduler.task.export;
 
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.rpsl.Dummifier;
-import net.ripe.db.whois.common.rpsl.DummifierProposed;
+import net.ripe.db.whois.common.rpsl.DummifierLegacy;
+import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
@@ -17,12 +17,12 @@ interface DecorationStrategy {
         }
     }
 
-    static class Dummify implements DecorationStrategy {
+    static class DummifyLegacy implements DecorationStrategy {
         private static final int VERSION = 3;
-        private final Dummifier dummifier;
+        private final DummifierLegacy dummifier;
         private final Set<ObjectType> writtenPlaceHolders = Sets.newHashSet();
 
-        public Dummify(final Dummifier dummifier) {
+        public DummifyLegacy(final DummifierLegacy dummifier) {
             this.dummifier = dummifier;
         }
 
@@ -35,9 +35,9 @@ interface DecorationStrategy {
             final ObjectType objectType = object.getType();
             if (writtenPlaceHolders.add(objectType)) {
                 if (objectType.equals(ObjectType.ROLE)) {
-                    return Dummifier.PLACEHOLDER_ROLE_OBJECT;
+                    return DummifierLegacy.PLACEHOLDER_ROLE_OBJECT;
                 } else {
-                    return Dummifier.PLACEHOLDER_PERSON_OBJECT;
+                    return DummifierLegacy.PLACEHOLDER_PERSON_OBJECT;
                 }
             }
 
@@ -45,17 +45,17 @@ interface DecorationStrategy {
         }
     }
 
-    static class DummifyProposed implements DecorationStrategy {
+    static class DummifyCurrent implements DecorationStrategy {
         private static final int VERSION = 3;
-        private final DummifierProposed dummifier;
+        private final DummifierCurrent dummifier;
 
-        public DummifyProposed(final DummifierProposed dummifier) {
+        public DummifyCurrent(final DummifierCurrent dummifier) {
             this.dummifier = dummifier;
         }
 
         @Override
         public RpslObject decorate(final RpslObject object) {
-            if (dummifier.isAllowed(VERSION)) {
+            if (dummifier.isAllowed(VERSION, object)) {
                 return dummifier.dummify(VERSION, object);
             }
             return null;

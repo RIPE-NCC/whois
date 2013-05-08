@@ -14,9 +14,9 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DummifierTest {
+public class DummifierLegacyTest {
 
-    @InjectMocks Dummifier subject;
+    @InjectMocks DummifierLegacy subject;
 
     private static RpslObject makeObject(ObjectType type, String pkey, RpslAttribute... rpslAttributes) {
         final List<RpslAttribute> attributeList = Lists.newArrayList();
@@ -46,25 +46,25 @@ public class DummifierTest {
 
     @Test
     public void skip_objects_version_1_2() {
-        for (ObjectType objectType : Dummifier.SKIPPED_OBJECT_TYPES) {
+        for (ObjectType objectType : DummifierLegacy.SKIPPED_OBJECT_TYPES) {
             RpslObject object = makeObject(objectType, "YAY", new RpslAttribute(AttributeType.REMARKS, "Remark!"));
 
             assertTrue(subject.isAllowed(1, object));
             assertTrue(subject.isAllowed(2, object));
 
             if (objectType.equals(ObjectType.ROLE)) {
-                assertEquals(subject.dummify(1, object), Dummifier.PLACEHOLDER_ROLE_OBJECT);
-                assertEquals(subject.dummify(2, object), Dummifier.PLACEHOLDER_ROLE_OBJECT);
+                assertEquals(subject.dummify(1, object), DummifierLegacy.PLACEHOLDER_ROLE_OBJECT);
+                assertEquals(subject.dummify(2, object), DummifierLegacy.PLACEHOLDER_ROLE_OBJECT);
             } else {
-                assertEquals(subject.dummify(1, object), Dummifier.PLACEHOLDER_PERSON_OBJECT);
-                assertEquals(subject.dummify(2, object), Dummifier.PLACEHOLDER_PERSON_OBJECT);
+                assertEquals(subject.dummify(1, object), DummifierLegacy.PLACEHOLDER_PERSON_OBJECT);
+                assertEquals(subject.dummify(2, object), DummifierLegacy.PLACEHOLDER_PERSON_OBJECT);
             }
         }
     }
 
     @Test
     public void skip_objects_version_3() {
-        for (ObjectType objectType : Dummifier.SKIPPED_OBJECT_TYPES) {
+        for (ObjectType objectType : DummifierLegacy.SKIPPED_OBJECT_TYPES) {
             RpslObject object = makeObject(objectType, "YAY", new RpslAttribute(AttributeType.REMARKS, "Remark!"));
 
             assertFalse(subject.isAllowed(3, object));
@@ -79,7 +79,7 @@ public class DummifierTest {
     @Test
     public void allow_objects_version_3() {
         for (ObjectType objectType : ObjectType.values()) {
-            if (Dummifier.SKIPPED_OBJECT_TYPES.contains(objectType)) {
+            if (DummifierLegacy.SKIPPED_OBJECT_TYPES.contains(objectType)) {
                 continue;
             }
 
@@ -92,19 +92,19 @@ public class DummifierTest {
         final ArrayList<RpslAttribute> attributes = Lists.newArrayList(makeObject(ObjectType.INETNUM, "10.0.0.0").getAttributes());
 
         final String tempValue = "VALUE";
-        for (AttributeType personRoleReference : Dummifier.PERSON_ROLE_REFERENCES) {
+        for (AttributeType personRoleReference : DummifierLegacy.PERSON_ROLE_REFERENCES) {
             final RpslAttribute attribute = new RpslAttribute(personRoleReference.getName(), tempValue);
 
             attributes.add(attribute);
             attributes.add(attribute);
         }
 
-        assertThat(attributes, hasSize(1 + 2 * Dummifier.PERSON_ROLE_REFERENCES.size()));
+        assertThat(attributes, hasSize(1 + 2 * DummifierLegacy.PERSON_ROLE_REFERENCES.size()));
 
         final RpslObject rpslObject = new RpslObject(0, attributes);
         final RpslObject dummifiedObject = subject.dummify(3, rpslObject);
 
-        for (AttributeType personRoleReference : Dummifier.PERSON_ROLE_REFERENCES) {
+        for (AttributeType personRoleReference : DummifierLegacy.PERSON_ROLE_REFERENCES) {
             final List<RpslAttribute> rpslAttributes = dummifiedObject.findAttributes(personRoleReference);
             assertThat(personRoleReference.toString(), rpslAttributes, hasSize(1));
             assertThat(rpslAttributes.get(0).getValue(), is(not(tempValue)));
@@ -115,12 +115,12 @@ public class DummifierTest {
     public void dummify_adds_remarks() {
         RpslObject dummifiedObject = subject.dummify(3, makeObject(ObjectType.ROUTE, "10/8"));
 
-        assertThat(dummifiedObject.findAttributes(AttributeType.REMARKS), hasSize(Dummifier.DUMMIFICATION_REMARKS.size()));
+        assertThat(dummifiedObject.findAttributes(AttributeType.REMARKS), hasSize(DummifierLegacy.DUMMIFICATION_REMARKS.size()));
     }
 
     @Test
     public void strip_optional_from_org_and_mntner() {
-        for (ObjectType objectType : Dummifier.STRIPPED_OBJECT_TYPES) {
+        for (ObjectType objectType : DummifierLegacy.STRIPPED_OBJECT_TYPES) {
             // Make a list of RpslAttributes that do not match my ObjectType
             AttributeType objectAttributeType = AttributeType.getByName(objectType.getName());
 
@@ -135,7 +135,7 @@ public class DummifierTest {
             final RpslObject rpslObject = makeObject(objectType, "FOO", optionalAttributes.toArray(new RpslAttribute[optionalAttributes.size()]));
             final RpslObject dummifiedObject = subject.dummify(3, rpslObject);
 
-            assertThat(dummifiedObject.getAttributes(), hasSize(ObjectTemplate.getTemplate(objectType).getMandatoryAttributes().size() + Dummifier.DUMMIFICATION_REMARKS.size() + 1));
+            assertThat(dummifiedObject.getAttributes(), hasSize(ObjectTemplate.getTemplate(objectType).getMandatoryAttributes().size() + DummifierLegacy.DUMMIFICATION_REMARKS.size() + 1));
             assertThat(dummifiedObject.findAttributes(AttributeType.ABUSE_C), hasSize(1));
         }
     }
@@ -144,12 +144,12 @@ public class DummifierTest {
     public void trip_optional_from_org_and_mntner() {
         final String tempValue = "REPLACEME";
 
-        for (ObjectType objectType : Dummifier.STRIPPED_OBJECT_TYPES) {
+        for (ObjectType objectType : DummifierLegacy.STRIPPED_OBJECT_TYPES) {
             // Make a list of RpslAttributes that do not match my ObjectType
             AttributeType objectAttributeType = AttributeType.getByName(objectType.getName());
 
             List<RpslAttribute> optionalAttributes = Lists.newArrayList();
-            for (AttributeType attributeType : Dummifier.DUMMIFICATION_REPLACEMENTS.keySet()) {
+            for (AttributeType attributeType : DummifierLegacy.DUMMIFICATION_REPLACEMENTS.keySet()) {
                 if (!attributeType.equals(objectAttributeType)) {
                     final RpslAttribute rpslAttribute = new RpslAttribute(attributeType, tempValue);
                     optionalAttributes.add(rpslAttribute);
@@ -161,7 +161,7 @@ public class DummifierTest {
             final RpslObject dummifiedObject = subject.dummify(3, rpslObject);
 
             for (RpslAttribute attribute : dummifiedObject.getAttributes()) {
-                if (Dummifier.DUMMIFICATION_REPLACEMENTS.containsKey(attribute.getType())) {
+                if (DummifierLegacy.DUMMIFICATION_REPLACEMENTS.containsKey(attribute.getType())) {
                     assertThat(attribute.getValue(), is(not(tempValue)));
                 }
             }

@@ -10,7 +10,6 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.util.concurrent.ScheduledFuture;
@@ -41,7 +40,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             "% The RIPE Database is subject to Terms and Conditions.\n" +
             "% See http://www.ripe.net/db/support/db-terms-conditions.pdf";
 
-    public NrtmQueryHandler(final SerialDao serialDao, final Dummifier dummifier, @Qualifier("clientSynchronisationScheduler") final TaskScheduler clientSynchronisationScheduler, final NrtmLog nrtmLog, final String applicationVersion, final String source, final long updateInterval) {
+    public NrtmQueryHandler(final SerialDao serialDao, final Dummifier dummifier, final TaskScheduler clientSynchronisationScheduler, final NrtmLog nrtmLog, final String applicationVersion, final String source, final long updateInterval) {
         this.serialDao = serialDao;
         this.dummifier = dummifier;
         this.clientSynchronisationScheduler = clientSynchronisationScheduler;

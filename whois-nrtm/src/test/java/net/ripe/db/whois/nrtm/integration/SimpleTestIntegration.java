@@ -109,8 +109,8 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
         assertThat(response, containsString("ADD 1"));
         assertThat(response, containsString("AS4294967207"));
-        assertThat(response, not(containsString("ADD 2")));
-        assertThat(response, not(containsString("DW-RIPE")));
+        assertThat(response, containsString("ADD 2"));
+        assertThat(response, containsString("DW-RIPE"));
         assertThat(response, containsString("ADD 3"));
         assertThat(response, containsString("DEV-MNT"));
     }
@@ -134,5 +134,27 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
         assertThat(response, containsString("ADD 3"));
         assertThat(response, containsString("DEV-MNT"));
+    }
+
+    @Test
+    public void mirrorQueryLegacyStillAvailable() throws Exception {
+        databaseHelper.addObject("" +
+                "role: Denis Walker\n" +
+                "nic-hdl: DW-RIPE\n" +
+                "abuse-mailbox: abuse@ripe.net\n" +
+                "e-mail: test@ripe.net");
+
+        final String legacyResponse = DummyWhoisClient.query(NrtmServer.legacyPort, "-g TEST:3:1-LAST");
+
+        assertThat(legacyResponse, containsString("remarks:        * THIS OBJECT IS MODIFIED"));
+
+        final String response = DummyWhoisClient.query(NrtmServer.port, "-g TEST:3:1-LAST");
+
+        assertThat(response, not(containsString("remarks:        * THIS OBJECT IS MODIFIED")));
+        assertThat(response, containsString("" +
+                "role:           Denis Walker\n" +
+                "nic-hdl:        DW-RIPE\n" +
+                "abuse-mailbox:  abuse@ripe.net\n" +
+                "e-mail:         * * *@ripe.net"));
     }
 }

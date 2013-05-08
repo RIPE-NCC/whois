@@ -16,8 +16,8 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
-public class NrtmServerPipelineFactoryTest extends AbstractNrtmIntegrationBase {
-    @Autowired private NrtmServerPipelineFactory nrtmServerPipelineFactory;
+public class BaseNrtmServerPipelineFactoryTest extends AbstractNrtmIntegrationBase {
+    @Autowired private BaseNrtmServerPipelineFactory nrtmServerPipelineFactory;
     @Autowired private List<ChannelHandler> channelHandlers;
 
     @Test

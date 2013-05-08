@@ -1,7 +1,8 @@
 package net.ripe.db.whois.scheduler.task.export;
 
 import com.google.common.base.Charsets;
-import net.ripe.db.whois.common.rpsl.Dummifier;
+import net.ripe.db.whois.common.rpsl.DummifierCurrent;
+import net.ripe.db.whois.common.rpsl.DummifierLegacy;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -26,7 +27,8 @@ public class ExportFileWriterFactoryTest {
 
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
-    @Mock Dummifier dummifier;
+    @Mock DummifierLegacy dummifierLegacy;
+    @Mock DummifierCurrent dummifierCurrent;
     @InjectMocks ExportFileWriterFactory subject;
 
     @Test(expected = IllegalStateException.class)

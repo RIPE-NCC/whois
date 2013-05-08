@@ -12,7 +12,7 @@ import java.util.Set;
 import static net.ripe.db.whois.common.rpsl.AttributeType.*;
 
 @Component
-public class DummifierProposed {
+public class DummifierCurrent implements Dummifier {
     private static final String EMAIL_AT = "@";
     private static final String STAR_REPLACEMENT = "* * *";
     private static final String PHONEFAX_REPLACEMENT = ".. ....";
@@ -25,7 +25,7 @@ public class DummifierProposed {
 
     public RpslObject dummify(final int version, final RpslObject rpslObject) {
         final ObjectType objectType = rpslObject.getType();
-        Validate.isTrue(isAllowed(version), "The version is not supported by this dummifier", version);
+        Validate.isTrue(isAllowed(version, rpslObject), "The version is not supported by this dummifier", version);
 
         final List<RpslAttribute> attributes = Lists.newArrayList(rpslObject.getAttributes());
 
@@ -96,7 +96,7 @@ public class DummifierProposed {
         return attribute;
     }
 
-    public boolean isAllowed(final int version) {
+    public boolean isAllowed(final int version, final RpslObject object) {
         return version >= 3;
     }
 }

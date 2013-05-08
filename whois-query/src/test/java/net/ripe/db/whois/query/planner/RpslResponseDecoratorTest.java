@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.Dummifier;
+import net.ripe.db.whois.common.rpsl.DummifierLegacy;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
@@ -419,7 +419,7 @@ public class RpslResponseDecoratorTest {
     public void dummify_response() {
         when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("GRS1", "GRS2"));
         when(sourceContext.isDummificationRequired()).thenReturn(true);
-        when(dummifyFunction.apply(any(ResponseObject.class))).thenReturn(Dummifier.PLACEHOLDER_PERSON_OBJECT);
+        when(dummifyFunction.apply(any(ResponseObject.class))).thenReturn(DummifierLegacy.PLACEHOLDER_PERSON_OBJECT);
 
         final String response = execute("-s TEST-GRS -T person test", RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST"));
         assertThat(response, is("" +

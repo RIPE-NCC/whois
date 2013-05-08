@@ -3,12 +3,10 @@ package net.ripe.db.whois.query.planner;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.Dummifier;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -22,7 +20,7 @@ class DummifyFunction implements Function<ResponseObject, ResponseObject> {
     private final Dummifier dummifier;
 
     @Autowired
-    public DummifyFunction(final SourceContext sourceContext, final Dummifier dummifier) {
+    public DummifyFunction(final SourceContext sourceContext, @Qualifier("dummifierLegacy") final Dummifier dummifier) {
         this.sourceContext = sourceContext;
         this.dummifier = dummifier;
     }

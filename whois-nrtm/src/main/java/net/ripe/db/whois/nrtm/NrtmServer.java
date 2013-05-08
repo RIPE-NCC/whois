@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.ApplicationService;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
+import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,15 +25,20 @@ public class NrtmServer implements ApplicationService {
 
     @Value("${nrtm.enabled}") private boolean nrtmEnabled;
     @Value("${port.nrtm}") private int nrtmPort;
+    @Value("${port.nrtm.legacy}") private int nrtmPortLegacy;
 
     private final NrtmServerPipelineFactory nrtmServerPipelineFactory;
+    private final LegacyNrtmServerPipelineFactory legacyNrtmServerPipelineFactory;
+    private Channel serverChannelLegacy;
     private Channel serverChannel;
 
     public static int port;
+    public static int legacyPort;
 
     @Autowired
-    public NrtmServer(final NrtmServerPipelineFactory whoisServerPipelineFactory) {
+    public NrtmServer(final NrtmServerPipelineFactory whoisServerPipelineFactory, final LegacyNrtmServerPipelineFactory legacyNrtmServerPipelineFactory) {
         this.nrtmServerPipelineFactory = whoisServerPipelineFactory;
+        this.legacyNrtmServerPipelineFactory = legacyNrtmServerPipelineFactory;
     }
 
     @Override
@@ -43,24 +49,35 @@ public class NrtmServer implements ApplicationService {
         }
 
         port = getActualPort(nrtmPort);
+        legacyPort = getActualPort(nrtmPortLegacy);
 
+        serverChannelLegacy = bootstrapChannel(legacyNrtmServerPipelineFactory, legacyPort);
+        serverChannel = bootstrapChannel(nrtmServerPipelineFactory, port);
+    }
+
+    private Channel bootstrapChannel(final ChannelPipelineFactory serverPipelineFactory, final int port) {
         final ChannelFactory channelFactory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
 
         ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
 
-        bootstrap.setPipelineFactory(nrtmServerPipelineFactory);
+        bootstrap.setPipelineFactory(serverPipelineFactory);
 
         bootstrap.setOption("backlog", 200);
         bootstrap.setOption("child.keepAlive", true);
 
-        serverChannel = bootstrap.bind(new InetSocketAddress(port));
         LOGGER.info("NRTM server listening on port {}", port);
+        return bootstrap.bind(new InetSocketAddress(port));
     }
 
     @Override
     public void stop() {
         if (nrtmEnabled) {
             LOGGER.info("Shutting down");
+
+            if (serverChannelLegacy != null) {
+                serverChannelLegacy.close();
+                serverChannelLegacy = null;
+            }
 
             if (serverChannel != null) {
                 serverChannel.close();

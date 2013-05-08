@@ -2,26 +2,32 @@ package net.ripe.db.whois.common.rpsl;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 
-public class DummifierProposedTest {
-    private DummifierProposed subject;
+@RunWith(MockitoJUnitRunner.class)
+public class DummifierCurrentTest {
+    @Mock RpslObject object;
+
+    private DummifierCurrent subject;
 
     @Before
     public void setup() {
-        subject = new DummifierProposed();
+        subject = new DummifierCurrent();
     }
 
     @Test
     public void allowed() {
-        assertThat(subject.isAllowed(3), is(true));
+        assertThat(subject.isAllowed(3, object), is(true));
 
-        assertThat(subject.isAllowed(2), is(false));
-        assertThat(subject.isAllowed(1), is(false));
+        assertThat(subject.isAllowed(2, object), is(false));
+        assertThat(subject.isAllowed(1, object), is(false));
     }
 
     @Test
