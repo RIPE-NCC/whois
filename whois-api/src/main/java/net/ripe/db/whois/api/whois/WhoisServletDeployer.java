@@ -56,8 +56,6 @@ public class WhoisServletDeployer implements ServletDeployer {
                         jaxbJsonProvider));
             }
         }));
-        servlet.setInitParameter("org.mortbay.jetty.servlet.Default.aliases", "true");
-        servlet.setInitParameter("aliases", "true");
         context.addServlet(servlet, "/whois/*");
     }
 }
