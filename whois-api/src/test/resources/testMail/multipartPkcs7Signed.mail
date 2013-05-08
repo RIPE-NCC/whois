@@ -2,40 +2,6 @@ From bitbucket@ripe.net Thu May 10 17:02:27 2012
 Return-path: <bitbucket@ripe.net>
 Envelope-to: dbase@whois-update.db.ripe.net
 Delivery-date: Thu, 10 May 2012 17:02:27 +0200
-Received: from postgirl.ipv6.ripe.net ([2001:67c:2e8:11::c100:1342] helo=postgirl.ripe.net)
-        by dbc-whois5.ripe.net with esmtps (TLSv1:AES256-SHA:256)
-        (Exim 4.72)
-        (envelope-from <agoston@ripe.net>)
-        id 1SSUst-00080r-Iq
-        for dbase@whois-update.db.ripe.net; Thu, 10 May 2012 17:02:27 +0200
-Received: from beaver.ripe.net ([193.0.19.29])
-        by postgirl.ripe.net with esmtp (Exim 4.72)
-        (envelope-from <agoston@ripe.net>)
-        id 1SSUsq-00050F-PC
-        for auto-dbm@ripe.net; Thu, 10 May 2012 17:02:27 +0200
-Received: from [2001:67c:2e8:16::c100:5b0] (helo=dbc-whois5.ripe.net)
-        by beaver.ripe.net with esmtp (Exim 4.63)
-        (envelope-from <agoston@ripe.net>)
-        id 1SSUsq-0002fN-Ct
-        for auto-dbm@ripe.net; Thu, 10 May 2012 17:02:24 +0200
-Received: from agoston (helo=localhost)
-        by dbc-whois5.ripe.net with local-esmtp (Exim 4.72)
-        (envelope-from <agoston@ripe.net>)
-        id 1SSUsq-0007xN-7K
-        for auto-dbm@ripe.net; Thu, 10 May 2012 17:02:24 +0200
-X-Return-Path: <Registration.Ripe@company.com>
-X-Original-To: dbase@whois-update.db.ripe.net
-X-Delivered-To: dbase@whois-update.db.ripe.net
-X-Received: from postgirl.ripe.net (postgirl.ipv6.ripe.net [IPv6:2001:67c:2e8:11::c100:1342])
-        by db-whois5.ripe.net (Postfix) with ESMTP id 86CF91224F2
-        for <dbase@whois-update.db.ripe.net>; Thu, 10 May 2012 16:24:52 +0200 (CEST)
-X-Received: from company.com ([193.222.81.110] helo=mail.company.com)
-        by postgirl.ripe.net with esmtps (TLSv1:AES256-SHA:256)
-        (Exim 4.72)
-        (envelope-from <Registration.Ripe@company.com>)
-        id 1SSUIV-0003aj-4X
-        for auto-dbm@ripe.net; Thu, 10 May 2012 16:24:52 +0200
-X-Received: by mail.company.com; Thu, 10 May 2012 16:24:50 +0200
 From: <Registration.Ripe@company.com>
 To: <auto-dbm@ripe.net>
 Subject: Bogus
@@ -47,7 +13,6 @@ Accept-Language: de-CH, en-US
 Content-Language: de-DE
 X-MS-Has-Attach:
 X-MS-TNEF-Correlator:
-x-originating-ip: [10.58.161.202]
 Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha1;
         boundary="----=_Part_33477_26926975.1336659890335"
 MIME-Version: 1.0
@@ -63,19 +28,11 @@ X-RIPE-Spam-Report: Spam Total Points:   -4.2 points
  ---- ---------------------- ------------------------------------
  -2.3 RCVD_IN_DNSWL_MED      RBL: Sender listed at http://www.dnswl.org/, medium
                               trust
-                             [193.222.81.110 listed in list.dnswl.org]
  -0.0 T_RP_MATCHES_RCVD      Envelope sender domain matches handover relay
                              domain
  -1.9 BAYES_00               BODY: Bayes spam probability is 0 to 1%
                              [score: 0.0000]
 X-RIPE-Signature: 06431c6b196ca7c87b50ce476fb4816187edd523abdacf391232ac244d807c75
-ReSent-Date: Thu, 10 May 2012 17:02:24 +0200 (CEST)
-ReSent-From: Agoston Horvath <agoston@dbc-whois5.ripe.net>
-ReSent-To: auto-dbm@ripe.net
-ReSent-Subject: HolidayCheck AG
-ReSent-Message-ID: <alpine.LRH.2.02.1205101702241.29929@dbc-whois5.ripe.net>
-ReSent-User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
-Resent-Sender: Agoston Horvath <agoston@ripe.net>
 X-RIPE-Spam-Level: -
 X-RIPE-Spam-Report: Spam Total Points:   -1.1 points
   pts rule name              description

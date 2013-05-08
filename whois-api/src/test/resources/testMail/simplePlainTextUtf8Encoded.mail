@@ -1,21 +1,6 @@
 Return-path: <test@foo.com>
 Envelope-to: test-dbm@ripe.net
 Delivery-date: Fri, 24 Aug 2012 17:53:12 +0200
-Received: from postgirl.ripe.net ([193.0.19.66])
-	by ayeaye.ripe.net with esmtps (TLSv1:AES256-SHA:256)
-	(Exim 4.72)
-	(envelope-from <test@foo.com>)
-	id 1T4wC8-0000IW-Br
-	for test-dbm@ripe.net; Fri, 24 Aug 2012 17:53:12 +0200
-Received: from mx2.bogus.com ([205.234.19.214])
-	by postgirl.ripe.net with esmtp (Exim 4.72)
-	(envelope-from <test@foo.com>)
-	id 1T4wC6-0002dA-Np
-	for test-dbm@ripe.net; Fri, 24 Aug 2012 17:53:12 +0200
-X-ASG-Debug-ID: 1345823573-03ebbc1f0540b640001-wT0HVA
-Received: from bogus.localdomain (fw1-nat-qts.bogus.com [205.234.19.3]) by mx2.bogus.com with SMTP id ffZXEdCkRxqTxMET for <test-dbm@ripe.net>; Fri, 24 Aug 2012 08:52:53 -0700 (PDT)
-X-Barracuda-Envelope-From: test@foo.com
-X-Barracuda-Apparent-Source-IP: 205.234.19.3
 Received: by bogus.localdomain (sSMTP sendmail emulation); Fri, 24 Aug 2012 11:52:53 -0400
 Date: Fri, 24 Aug 2012 11:52:53 -0400
 From: test@foo.com
@@ -24,19 +9,6 @@ Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: UTF-8
 Subject: MODIFY KEYWORDS:
-X-Barracuda-Connect: fw1-nat-qts.bogus.com[205.234.19.3]
-X-Barracuda-Start-Time: 1345823573
-X-Barracuda-URL: http://205.234.19.214:8000/cgi-mod/mark.cgi
-X-ASG-Orig-Subj: MODIFY KEYWORDS:
-X-Virus-Scanned: by bsmtpd at bogus.com
-X-Barracuda-Spam-Score: 0.14
-X-Barracuda-Spam-Status: No, SCORE=0.14 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=9.0 tests=MISSING_MID, NO_REAL_NAME
-X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.2.106589
-	Rule breakdown below
-	 pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.14 MISSING_MID            Missing Message-Id: header
-	0.00 NO_REAL_NAME           From: does not include a real name
 Message-Id: <20120824155310.258DB8F65CA@mx2.bogus.com>
 X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.48/RELEASE,
 	 bases: 20120425 #7816575, check: 20120824 clean
@@ -52,7 +24,7 @@ X-RIPE-Spam-Report: Spam Total Points:   2.1 points
 X-RIPE-Signature: 78b3c1f13947bc125289ddcf7afb6c0446f09f32db35b6266ec831ca38ba9a0c
 Delivered-To: test-dbm@ripe.net
 
-inetnum: 86.57.255.0 - 86.57.255.255
+inetnum: 10.0.0.0 - 10.0.0.255
 status:ASSIGNED PI
 mnt-by:T2-MNT
 mnt-by:TEST-DBM-MNT

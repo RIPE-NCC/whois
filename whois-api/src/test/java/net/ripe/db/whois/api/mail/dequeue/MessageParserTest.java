@@ -223,7 +223,7 @@ public class MessageParserTest {
         assertThat(message.getReplyTo(), is("test@foo.com"));
         assertThat(message.getKeyword(), is(Keyword.NONE));
         final String expectedValue = "" +
-                "inetnum: 86.57.255.0 - 86.57.255.255\n" +
+                "inetnum: 10.0.0.0 - 10.0.0.255\n" +
                 "status:ASSIGNED PI\n" +
                 "mnt-by:T2-MNT\n" +
                 "mnt-by:TEST-DBM-MNT\n" +
@@ -245,7 +245,7 @@ public class MessageParserTest {
 
         assertThat(message.getContentWithCredentials(), hasSize(1));
         final ContentWithCredentials contentWithCredentials = message.getContentWithCredentials().get(0);
-        assertThat(contentWithCredentials.getContent(), containsString("inetnum: 86.57.255.0 - 86.57.255.255"));
+        assertThat(contentWithCredentials.getContent(), containsString("inetnum: 10.0.0.0 - 10.0.0.255"));
         assertThat(contentWithCredentials.getCredentials(), hasSize(0));
     }
 
@@ -291,7 +291,7 @@ public class MessageParserTest {
         final MailMessage message = subject.parse(MimeMessageProvider.getMessageMultipartPgpSigned(), updateContext);
 
         assertThat(message.getId(), is("<0C4C4196-55E6-4E8B-BE54-F8A92DEBD1A0@ripe.net>"));
-        assertThat(message.getReplyTo(), is("Edward Shryane <eshryane@ripe.net>"));
+        assertThat(message.getReplyTo(), is("User <user@ripe.net>"));
         assertThat(message.getKeyword(), is(Keyword.NEW));
 
         final String expectedValue = "" +

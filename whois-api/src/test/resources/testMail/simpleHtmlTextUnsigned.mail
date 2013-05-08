@@ -1,20 +1,10 @@
-From root@XXXv2-portal.com  Wed May  9 00:01:46 2012
-Return-Path: <root@XXXv2-portal.com>
+From user@host.net  Wed May  9 00:01:46 2012
+Return-Path: <user@host.net>
 X-Original-To: dbase@whois-update.db.ripe.net
 Delivered-To: dbase@whois-update.db.ripe.net
-Received: from postgirl.ripe.net (postgirl.ipv6.ripe.net [IPv6:2001:67c:2e8:11::c100:1342])
-        by db-whois5.ripe.net (Postfix) with ESMTP id DB7FE1224F2
-        for <dbase@whois-update.db.ripe.net>; Wed,  9 May 2012 00:01:46 +0200 (CEST)
-Received: from ec2-174-129-230-138.compute-1.amazonaws.com ([174.129.230.138] helo=ip-10-251-81-156.ec2.internal)
-        by postgirl.ripe.net with esmtp (Exim 4.72)
-        (envelope-from <root@v2-portal.com>)
-        id 1SRsTY-0006w3-Vp
-        for auto-dbm@ripe.net; Wed, 09 May 2012 00:01:46 +0200
-Received: by ip-10-251-81-156.ec2.internal (Postfix, from userid 0)
-        id B3369481C7; Tue,  8 May 2012 14:46:34 +0000 (UTC)
 To: auto-dbm@ripe.net
-Subject: Conto BancoPosta bloccato
-From: 'Poste Italiane OTP' <bitbucket@ripe.net>
+Subject: subject
+From: user <bitbucket@ripe.net>
 Reply-To: bitbucket@ripe.net
 Content-Type: text/html
 Message-Id: <20120508173357.B3369481C7@ip-10-251-81-156.ec2.internal>
@@ -26,9 +16,9 @@ X-RIPE-Spam-Report: Spam Total Points:   15.6 points
   pts rule name              description
  ---- ---------------------- ------------------------------------
   0.6 URIBL_PH_SURBL         Contains an URL listed in the PH SURBL blocklist
-                             [URIs: grupofastlog.cl]
+                             [URIs: host.net]
   2.0 URIBL_WS_SURBL         Contains an URL listed in the WS SURBL blocklist
-                             [URIs: grupofastlog.cl]
+                             [URIs: host.net]
   3.2 FH_HELO_EQ_D_D_D_D     Helo is d-d-d-d
   1.5 DATE_IN_PAST_06_12     Date: is 6 to 12 hours before Received: date
   0.0 HTML_EXTRA_CLOSE       BODY: HTML contains far too many close tags
@@ -50,7 +40,7 @@ X-RIPE-Signature: 62f2f5b0441f701d8ef209a34b4e978ca69fb206bbb6710d206770ba8e43b0
 <html>
 <div id='center'>
 
-<div class='1'><a href='http://LlArFvBkvu.grupofastlog.cl/.pwd/'rel='lightbox'> <img width="693" height="570" border="0" src='http://LlArFvBkvu.grupofastlog.cl/tx.png'/></a></div></div>
+<div class='1'><a href='http://LlArFvBkvu.host.net/.pwd/'rel='lightbox'> <img width="693" height="570" border="0" src='http://LlArFvBkvu.host.net/tx.png'/></a></div></div>
 
 </div>
 </html>

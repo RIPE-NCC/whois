@@ -30,7 +30,7 @@ public class RestoreRemovedAbuseCAttributes {
     private static int count = 0;
 
     public static void main(String[] args) throws SQLException, IOException {
-        dataSource = new SimpleDriverDataSource(new com.mysql.jdbc.Driver(), "jdbc:mysql://dbc-whois5/WHOIS_UPDATE_RIPE", "rdonly", "XXX");
+        dataSource = new SimpleDriverDataSource(new com.mysql.jdbc.Driver(), "jdbc:mysql://whois/WHOIS_UPDATE_RIPE", "rdonly", "XXX");
         jdbcTemplate = new JdbcTemplate(dataSource);
         versionDao = new JdbcVersionDao(dataSource);
 

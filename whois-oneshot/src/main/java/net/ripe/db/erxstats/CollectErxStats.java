@@ -22,10 +22,7 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
-
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 /* Snippet from confluence (aka specs)
 
@@ -78,7 +75,7 @@ public class CollectErxStats {
     private static final List<String> ERX_MERGE_REMARKS_LINES = ImmutableList.of("**** INFORMATION FROM ARIN OBJECT ****", "**** INFORMATION FROM RIPE OBJECT ****");
 
     public static void main(String[] args) throws Exception {
-        dataSource = new SimpleDriverDataSource(new com.mysql.jdbc.Driver(), "jdbc:mysql://dbc-whois5.ripe.net/WHOIS_UPDATE_RIPE", "rdonly", "s8f,4U");
+        dataSource = new SimpleDriverDataSource(new com.mysql.jdbc.Driver(), "jdbc:mysql://whois/WHOIS_UPDATE_RIPE", "rdonly", "XXX");
         jdbcTemplate = new JdbcTemplate(dataSource);
 
         for (State state: State.values()) {

@@ -8,38 +8,7 @@ Received: from postgirl.ipv6.ripe.net ([2001:67c:2e8:11::c100:1342] helo=postgir
         (envelope-from <john@doe.com>)
         id 1SZrLj-0000db-9B
         for dbase@XXXwhois-update.db.ripe.net; Thu, 31 May 2012 00:26:40 +0200
-Received: from mail-yw0-f51.google.com ([209.85.213.51])
-        by postgirl.ripe.net with esmtps (TLSv1:RC4-SHA:128)
-        (Exim 4.72)
-        (envelope-from <john@doe.com>)
-        id 1SZrLg-0006XL-K4
-        for auto-dbm@XXXripe.net; Thu, 31 May 2012 00:26:39 +0200
-Received: by yhnn12 with SMTP id n12so218475yhn.38
-        for <auto-dbm@XXXripe.net>; Wed, 30 May 2012 15:26:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=lebris.me; s=google;
-        h=mime-version:x-originating-ip:from:date:message-id:subject:to
-         :content-type;
-        bh=IgWhbkP3NHHcKmC4hKFm356ZpbBeyjYQmY7myyg8tVc=;
-        b=HHkX1EO0BwxJGk5UUR6sZAGx1wUAWaQd7PihE721vkFEmd38yqw0EZjQwtyUNGG/YE
-         vGpNzY6UHbToCAUbKklVXXKmRwO94CSlTmKqutJHD5SOyNvKc7vyzJ38ENq/GClJpXtM
-         OcZkkrfofzgw/3uP/+pr1K6AoEcj0TKsp9bVs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20120113;
-        h=mime-version:x-originating-ip:from:date:message-id:subject:to
-         :content-type:x-gm-message-state;
-        bh=IgWhbkP3NHHcKmC4hKFm356ZpbBeyjYQmY7myyg8tVc=;
-        b=OHeLsM+H+wajcP+mmnjJDXTxDupX2XgBGFZITM1O1QE79Vc4ndMrT8TjYKZo8vMkR3
-         yhit7eycv8jX0iFwhNa5T3yMiGb5X7iSlHkBys1vY18HJPMTR4pTkgQruhrsPL0qvD/r
-         n36vpFs1HUWNGnQxEaquXf1vZFTuf+YrHFZr314nLI2cliksVZ4PP8xhrEgsJy81PEl2
-         88rOJU6re7ZBiDgjXs/Mo/g+tbrUClhDat4tNM2C+E7/VWEGISZf/QPhvuyadhRNKDqO
-         8UvrnFspzJfo0zwN7zE/isAE56iRXh2rXGDJTGdO2ExEwUxQe1OIXrhd8/50qj0ewRzA
-         GEGA==
-Received: by 10.50.158.130 with SMTP id wu2mr12164344igb.32.1338416795104;
- Wed, 30 May 2012 15:26:35 -0700 (PDT)
 MIME-Version: 1.0
-Received: by 10.231.64.134 with HTTP; Wed, 30 May 2012 15:26:14 -0700 (PDT)
-X-Originating-IP: [78.225.158.15]
 From: John Doe <john@doe.com>
 Date: Thu, 31 May 2012 00:26:14 +0200
 Message-ID: <CACt+-2p6YfJAgtZLYSf=stuVV7M+6gBvbDLKWdBzXVC+vmxkbg@XXXmail.gmail.com>
@@ -55,7 +24,6 @@ X-RIPE-Spam-Report: Spam Total Points:   -2.7 points
  ---- ---------------------- ------------------------------------
  -0.7 RCVD_IN_DNSWL_LOW      RBL: Sender listed at http://www.dnswl.org/, low
                              trust
-                             [209.85.213.51 listed in list.dnswl.org]
   0.0 NO_DNS_FOR_FROM        RBL: Envelope sender has no MX or A DNS records
  -1.9 BAYES_00               BODY: Bayes spam probability is 0 to 1%
                              [score: 0.0000]

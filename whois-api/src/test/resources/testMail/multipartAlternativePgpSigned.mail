@@ -8,14 +8,6 @@ Received: from postgirl.ipv6.ripe.net ([2001:67c:2e8:11::c100:1342] helo=postgir
         (envelope-from <john@doe.net>)
         id 1SZrtI-0005AY-Vx
         for dbase@XXXwhois-update.db.ripe.net; Thu, 31 May 2012 01:01:21 +0200
-Received: from tobago.network-i.net ([212.21.96.30] helo=post1.inband.network-i.net)
-        by postgirl.ripe.net with smtp (Exim 4.72)
-        (envelope-from <john@doe.net>)
-        id 1SZrtH-0007P5-Ch
-        for auto-dbm@XXXripe.net; Thu, 31 May 2012 01:01:20 +0200
-Received: (qmail 13719 invoked from network); 30 May 2012 22:54:19 -0000
-Received: from unknown (HELO RaysOfficePC) (212.21.99.52)
-  by post2.inband.network-i.net with SMTP; 30 May 2012 22:54:19 -0000
 Message-ID: <D8447F003C9F4CA891CFA626760EBE8E@XXXRaysOfficePC>
 From: "John Doe" <john@doe.net>
 To: <auto-dbm@XXXripe.net>
