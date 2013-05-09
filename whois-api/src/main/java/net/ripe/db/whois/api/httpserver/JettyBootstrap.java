@@ -33,6 +33,7 @@ public class JettyBootstrap implements ApplicationService {
     private final List<Server> servers = Lists.newArrayList();
     private int internalPort;
     private int publicPort;
+    private int rdapPort;
 
     @Value("${port.api.internal:-1}")
     public void setInternalPort(final int internalPort) {
@@ -42,6 +43,11 @@ public class JettyBootstrap implements ApplicationService {
     @Value("${port.api.public:-1}")
     public void setPublicPort(final int publicPort) {
         this.publicPort = publicPort;
+    }
+
+    @Value("${port.api.public:-1}")
+    public void setRDAPPort(final int rdapPort) {
+        this.rdapPort = rdapPort;
     }
 
     @Autowired
@@ -59,6 +65,7 @@ public class JettyBootstrap implements ApplicationService {
     public void start() {
         servers.add(createAndStartServer(Audience.INTERNAL, internalPort, "/int-doc/"));
         servers.add(createAndStartServer(Audience.PUBLIC, publicPort, "/ext-doc/"));
+        servers.add(createAndStartServer(Audience.RDAP, rdapPort, "/rdap-doc/"));
     }
 
     Server createAndStartServer(final Audience audience, final int port, final String resourceBase) {

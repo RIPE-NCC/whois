@@ -48,4 +48,5 @@ public class RemoteAddressTestIntegration extends AbstractRestClientTest {
 
         assertThat(index, containsString("From-Host: 74.125.136.99"));
     }
+
 }
