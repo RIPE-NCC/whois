@@ -48,9 +48,4 @@ public class RemoteAddressTestIntegration extends AbstractRestClientTest {
 
         assertThat(index, containsString("From-Host: 74.125.136.99"));
     }
-
-    @Test
-    public void rdapServerTest() throws Exception {
-        Thread.sleep(1500);
-    }
 }
