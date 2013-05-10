@@ -1,8 +1,14 @@
+## upcoming release
+[all] added property port.nrtm.legacy
+[nrtm] implemented new dummification alongside the legacy one
+
+
 ## 1.63
 [update] End of line comment on source attribute is no longer allowed
 [rest api] Tags supported
 [rest api] Version (history) supported
 [query] Long option --filter-types renamed to --select-types
+[grs] data is now dummified on-the-fly (existing databases will need to be regenerated)
 
 ## 1.62
 [query] Invalid combination of query flags only reported once
