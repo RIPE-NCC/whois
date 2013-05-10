@@ -5,11 +5,11 @@ import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.DummifierLegacy;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.util.FileCopyUtils;
@@ -29,7 +29,12 @@ public class ExportFileWriterFactoryTest {
 
     @Mock DummifierLegacy dummifierLegacy;
     @Mock DummifierCurrent dummifierCurrent;
-    @InjectMocks ExportFileWriterFactory subject;
+    ExportFileWriterFactory subject;
+
+    @Before
+    public void setup() {
+        subject = new ExportFileWriterFactory(dummifierLegacy, dummifierCurrent, "internal", "dbase_new", "dbase");
+    }
 
     @Test(expected = IllegalStateException.class)
     public void createExportFileWriters_existing_dir() throws IOException {
@@ -49,7 +54,7 @@ public class ExportFileWriterFactoryTest {
         for (final File file : files) {
             if (! (file.getAbsolutePath().endsWith("internal")
                     || file.getAbsolutePath().endsWith("dbase")
-                    || file.getAbsolutePath().endsWith("dbase_old"))) {
+                    || file.getAbsolutePath().endsWith("dbase_new"))) {
                 Assert.fail("Unexpected folder: " + file.getAbsolutePath());
             }
         }
@@ -85,5 +90,11 @@ public class ExportFileWriterFactoryTest {
 
         final String savedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), Charsets.ISO_8859_1);
         assertThat(savedSerial, Matchers.is(String.valueOf(LAST_SERIAL)));
+
+        final File newSerialFile = new File(folder.getRoot(), "dbase_new/RIPE.CURRENTSERIAL");
+        assertThat(newSerialFile.exists(), Matchers.is(true));
+
+        final String newSavedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), Charsets.ISO_8859_1);
+        assertThat(newSavedSerial, Matchers.is(String.valueOf(LAST_SERIAL)));
     }
 }

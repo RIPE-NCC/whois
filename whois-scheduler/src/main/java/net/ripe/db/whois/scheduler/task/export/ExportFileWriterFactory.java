@@ -21,29 +21,20 @@ class ExportFileWriterFactory {
     private final DummifierLegacy dummifierLegacy;
     private final DummifierCurrent dummifierCurrent;
 
-    private String legacyExternalExportDir;
-    private String externalExportDir;
-    private String internalExportDir;
-
-    @Value("${dir.rpsl.export.internal:internal}")
-    public void setInternalExportDir(String internalExportDir) {
-        this.internalExportDir = internalExportDir;
-    }
-
-    @Value("${dir.rpsl.export.external:dbase_new}")
-    public void setExternalExportDir(String externalExportDir) {
-        this.externalExportDir = externalExportDir;
-    }
-
-    @Value("${dir.rpsl.export.internal:dbase}")
-    public void setLegacyExternalExportDir(String legacyExternalExportDir) {
-        this.legacyExternalExportDir = legacyExternalExportDir;
-    }
+    private final String legacyExternalExportDir;
+    private final String externalExportDir;
+    private final String internalExportDir;
 
     @Autowired
-    ExportFileWriterFactory(final DummifierLegacy dummifierLegacy, final DummifierCurrent dummifierCurrent) {
+    ExportFileWriterFactory(final DummifierLegacy dummifierLegacy, final DummifierCurrent dummifierCurrent,
+                            @Value("${dir.rpsl.export.internal}") String internalExportDir,
+                            @Value("${dir.rpsl.export.external}") String externalExportDir,
+                            @Value("${dir.rpsl.export.external.legacy}") String legacyExternalExportDir) {
         this.dummifierLegacy = dummifierLegacy;
         this.dummifierCurrent = dummifierCurrent;
+        this.internalExportDir = internalExportDir;
+        this.externalExportDir = externalExportDir;
+        this.legacyExternalExportDir = legacyExternalExportDir;
     }
 
     public List<ExportFileWriter> createExportFileWriters(final File baseDir, final int lastSerial) {
@@ -57,6 +48,7 @@ class ExportFileWriterFactory {
 
         try {
             FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDir, CURRENTSERIAL_FILENAME));
+            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDirOld, CURRENTSERIAL_FILENAME));
         } catch (IOException e) {
             throw new RuntimeException("Writing current serial", e);
         }
