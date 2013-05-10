@@ -36,6 +36,7 @@ import java.util.Set;
  */
 @Component
 public class RpslResponseDecorator {
+    // TODO: [AH] refactor this class; there are 3 different ways to write a decorator ATM!
     private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
 

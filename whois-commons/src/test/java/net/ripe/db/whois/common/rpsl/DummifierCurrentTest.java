@@ -51,17 +51,17 @@ public class DummifierCurrentTest {
 
         assertThat(dummified.getAttributes(), contains(
                 new RpslAttribute("person", "Name Removed"),
-                new RpslAttribute("address", "* * *"),
-                new RpslAttribute("address", "* * *"),
-                new RpslAttribute("address", "* * *"),
+                new RpslAttribute("address", "***"),
+                new RpslAttribute("address", "***"),
+                new RpslAttribute("address", "***"),
                 new RpslAttribute("address", "The Netherlands"),
-                new RpslAttribute("phone", "+31 20 5.. ...."),
-                new RpslAttribute("fax-no", "+31 20 5.. ...."),
-                new RpslAttribute("e-mail", "* * *@ripe.net"),
+                new RpslAttribute("phone", "+31 20 ... ...."),
+                new RpslAttribute("fax-no", "+31 20 ... ...."),
+                new RpslAttribute("e-mail", "***@ripe.net"),
                 new RpslAttribute("nic-hdl", "FB99999-RIPE"),
                 new RpslAttribute("mnt-by", "AARDVARK-MNT"),
-                new RpslAttribute("notify", "* * *@ripe.net"),
-                new RpslAttribute("changed", "* * *@ripe.net 20040225"),
+                new RpslAttribute("notify", "***@ripe.net"),
+                new RpslAttribute("changed", "***@ripe.net 20040225"),
                 new RpslAttribute("source", "RIPE")));
     }
 
@@ -96,12 +96,12 @@ public class DummifierCurrentTest {
                 new RpslAttribute("admin-c", "JDR-RIPE"),
                 new RpslAttribute("admin-c", "BRD-RIPE"),
                 new RpslAttribute("tech-c", "OPS4-RIPE"),
-                new RpslAttribute("notify", "* * *@ripe.net"),
+                new RpslAttribute("notify", "***@ripe.net"),
                 new RpslAttribute("status", "ASSIGNED PI"),
                 new RpslAttribute("source", "RIPE"),
                 new RpslAttribute("mnt-by", "RIPE-NCC-MNT"),
                 new RpslAttribute("mnt-lower", "RIPE-NCC-MNT"),
-                new RpslAttribute("changed", "* * *@ripe.net 20110217")
+                new RpslAttribute("changed", "***@ripe.net 20110217")
         ));
     }
 
@@ -139,18 +139,18 @@ public class DummifierCurrentTest {
                         "        Singel 258\n" +
                         "        1016 AB Amsterdam\n" +
                         "        Netherlands"),
-                new RpslAttribute("e-mail", "* * *@ripe.net"),
+                new RpslAttribute("e-mail", "***@ripe.net"),
                 new RpslAttribute("mnt-ref", "RIPE-NCC-RIS-MNT"),
                 new RpslAttribute("mnt-ref", "RIPE-NCC-HM-MNT"),
                 new RpslAttribute("mnt-by", "RIPE-NCC-HM-MNT"),
-                new RpslAttribute("changed", "* * *@ripe.net 20121217"),
-                new RpslAttribute("phone", "+31 20 5.. ...."),
-                new RpslAttribute("fax-no", "+31 20 5.. ...."),
+                new RpslAttribute("changed", "***@ripe.net 20121217"),
+                new RpslAttribute("phone", "+31 20 ... ...."),
+                new RpslAttribute("fax-no", "+31 20 ... ...."),
                 new RpslAttribute("admin-c", "AP110-RIPE"),
                 new RpslAttribute("admin-c", "CREW-RIPE"),
                 new RpslAttribute("tech-c", "CREW-RIPE"),
-                new RpslAttribute("ref-nfy", "* * *@ripe.net"),
-                new RpslAttribute("notify", "* * *@ripe.net"),
+                new RpslAttribute("ref-nfy", "***@ripe.net"),
+                new RpslAttribute("notify", "***@ripe.net"),
                 new RpslAttribute("source", "RIPE")
         ));
     }
@@ -179,14 +179,14 @@ public class DummifierCurrentTest {
                 new RpslAttribute("descr", "Mntner for guy's objects"),
                 new RpslAttribute("admin-c", "FB99999-RIPE"),
                 new RpslAttribute("tech-c", "FB99999-RIPE"),
-                new RpslAttribute("upd-to", "* * *@ripe.net"),
+                new RpslAttribute("upd-to", "***@ripe.net"),
                 new RpslAttribute("auth", "X509-1"),
                 new RpslAttribute("auth", "X509-1689"),
-                new RpslAttribute("auth", "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security"),
-                new RpslAttribute("notify", "* * *@ripe.net"),
+                new RpslAttribute("auth", "MD5-PW # Filtered"),
+                new RpslAttribute("notify", "***@ripe.net"),
                 new RpslAttribute("mnt-by", "AARDVARK-MNT"),
                 new RpslAttribute("referral-by", "AARDVARK-MNT"),
-                new RpslAttribute("changed", "* * *@ripe.net 20120510"),
+                new RpslAttribute("changed", "***@ripe.net 20120510"),
                 new RpslAttribute("source", "RIPE")
         ));
     }
@@ -212,17 +212,17 @@ public class DummifierCurrentTest {
 
         assertThat(dummified.getAttributes(), contains(
                 new RpslAttribute("role", "RIPE NCC tech contact"),
-                new RpslAttribute("address", "* * *"),
-                new RpslAttribute("address", "* * *"),
-                new RpslAttribute("address", "* * *"),
+                new RpslAttribute("address", "***"),
+                new RpslAttribute("address", "***"),
+                new RpslAttribute("address", "***"),
                 new RpslAttribute("address", "The Netherlands"),
-                new RpslAttribute("phone", "+31 20 5.. ...."),
-                new RpslAttribute("fax-no", "+31 20 5.. ...."),
-                new RpslAttribute("e-mail", "* * *@ripe.net"),
+                new RpslAttribute("phone", "+31 20 ... ...."),
+                new RpslAttribute("fax-no", "+31 20 ... ...."),
+                new RpslAttribute("e-mail", "***@ripe.net"),
                 new RpslAttribute("nic-hdl", "RNTC-RIPE"),
                 new RpslAttribute("mnt-by", "RIPE-DBM-MNT"),
-                new RpslAttribute("notify", "* * *@ripe.net"),
-                new RpslAttribute("changed", "* * *@ripe.net 20040225"),
+                new RpslAttribute("notify", "***@ripe.net"),
+                new RpslAttribute("changed", "***@ripe.net 20040225"),
                 new RpslAttribute("source", "RIPE")
         ));
     }
@@ -255,12 +255,12 @@ public class DummifierCurrentTest {
                 new RpslAttribute("address", "The Netherlands"),
                 new RpslAttribute("phone", "+31 20 535 4444"),
                 new RpslAttribute("fax-no", "+31 20 535 4445"),
-                new RpslAttribute("e-mail", "* * *@ripe.net"),
+                new RpslAttribute("e-mail", "***@ripe.net"),
                 new RpslAttribute("abuse-mailbox", "abuse@ripe.net"),
                 new RpslAttribute("nic-hdl", "RNTC-RIPE"),
                 new RpslAttribute("mnt-by", "RIPE-DBM-MNT"),
-                new RpslAttribute("notify", "* * *@ripe.net"),
-                new RpslAttribute("changed", "* * *@ripe.net 20040225"),
+                new RpslAttribute("notify", "***@ripe.net"),
+                new RpslAttribute("changed", "***@ripe.net 20040225"),
                 new RpslAttribute("source", "RIPE")
         ));
     }

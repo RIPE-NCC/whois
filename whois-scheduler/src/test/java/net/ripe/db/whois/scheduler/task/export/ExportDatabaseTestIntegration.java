@@ -333,8 +333,8 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "netname:        TEST-RIPE\n" +
                 "admin-c:        PN1-RIPE\n" +
                 "tech-c:         PN1-RIPE\n" +
-                "notify:         * * *@ripe.net\n" +
-                "changed:        * * *@ripe.net 20120101");
+                "notify:         ***@ripe.net\n" +
+                "changed:        ***@ripe.net 20120101");
 
         checkFile("dbase/split/ripe.db.organisation.gz", "" +
                 "organisation:   ORG-TO1-TEST\n" +
@@ -344,31 +344,31 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "                Street\n" +
                 "                1234 City\n" +
                 "                Country\n" +
-                "phone:          +12 34.. ....\n" +
-                "fax-no:         +12 23.. ....\n" +
-                "e-mail:         * * *@ripe.net");
+                "phone:          +12 3... ..\n" +
+                "fax-no:         +12 2.. ...\n" +
+                "e-mail:         ***@ripe.net");
 
         checkFile("dbase/split/ripe.db.mntner.gz", "" +
                 "mntner:         TEST-MNT\n" +
                 "descr:          description\n" +
-                "upd-to:         * * *@ripe.net\n" +
+                "upd-to:         ***@ripe.net\n" +
                 "auth:           X509-1\n" +
                 "auth:           PGPKEY-AA\n" +
-                "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
-                "mnt-nfy:        * * *@test.com\n" +
-                "ref-nfy:        * * *@bar.com\n" +
+                "auth:           MD5-PW # Filtered\n" +
+                "mnt-nfy:        ***@test.com\n" +
+                "ref-nfy:        ***@bar.com\n" +
                 "mnt-by:         TEST-MNT");
 
         checkFile("dbase/split/ripe.db.role.gz", "" +
                 "role:           Test Role1\n" +
-                "address:        * * *\n" +
-                "address:        * * *\n" +
+                "address:        ***\n" +
+                "address:        ***\n" +
                 "address:        Country\n" +
-                "phone:          +12 34.. ....\n" +
-                "fax-no:         +12 34.. ....\n" +
-                "e-mail:         * * *@bar.com\n" +
+                "phone:          +12 3.. ...\n" +
+                "fax-no:         +12 3.. ...\n" +
+                "e-mail:         ***@bar.com\n" +
                 "nic-hdl:        ROLE-NIC\n" +
-                "changed:        * * *@test.net");
+                "changed:        ***@test.net");
 
         checkFile("dbase/split/ripe.db.role.gz", "" +
                 "role:           Test Role2\n" +
@@ -377,10 +377,10 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "address:        Country\n" +
                 "phone:          +12 345 678\n" +
                 "fax-no:         +12 345 678\n" +
-                "e-mail:         * * *@bar.com\n" +
+                "e-mail:         ***@bar.com\n" +
                 "abuse-mailbox:  abuse@test.net\n" +
                 "nic-hdl:        AB-NIC\n" +
-                "changed:        * * *@test.net");
+                "changed:        ***@test.net");
     }
 
     private void checkFile(final String name, final String... expectedContents) throws IOException {

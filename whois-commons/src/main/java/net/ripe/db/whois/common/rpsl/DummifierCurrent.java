@@ -1,11 +1,12 @@
 package net.ripe.db.whois.common.rpsl;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.lang.Validate;
 import org.springframework.stereotype.Component;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -13,11 +14,10 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.*;
 
 @Component
 public class DummifierCurrent implements Dummifier {
-    private static final String EMAIL_AT = "@";
-    private static final String STAR_REPLACEMENT = "* * *";
-    private static final String PHONEFAX_REPLACEMENT = ".. ....";
     private static final String PERSON_REPLACEMENT = "Name Removed";
-    private static final String MD5_REPLACEMENT = "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security";
+    private static final String FILTERED_APPENDIX = " # Filtered";
+    private static final Splitter EMAIL_SPLITTER = Splitter.on('@');
+    private static final Splitter SPACE_SPLITTER = Splitter.on(' ');
 
     private static final Set<AttributeType> EMAIL_ATTRIBUTES = Sets.immutableEnumSet(E_MAIL, NOTIFY, CHANGED, REF_NFY, IRT_NFY, MNT_NFY, UPD_TO);
     private static final Set<AttributeType> PHONE_FAX_ATTRIBUTES = Sets.immutableEnumSet(PHONE, FAX_NO);
@@ -29,12 +29,6 @@ public class DummifierCurrent implements Dummifier {
 
         final List<RpslAttribute> attributes = Lists.newArrayList(rpslObject.getAttributes());
 
-        dummify(attributes, (objectType == ObjectType.ROLE && rpslObject.containsAttribute(ABUSE_MAILBOX)));
-
-        return new RpslObject(rpslObject.getObjectId(), attributes);
-    }
-
-    private void dummify(final List<RpslAttribute> attributes, final boolean isRoleWithAbuseMailbox) {
         RpslAttribute lastAddressLine = null;
         int lastAddressLineIndex = 0;
 
@@ -42,7 +36,7 @@ public class DummifierCurrent implements Dummifier {
             RpslAttribute replacement = attributes.get(i);
             final AttributeType attributeType = replacement.getType();
 
-            if (!isRoleWithAbuseMailbox) {
+            if (!(objectType == ObjectType.ROLE && rpslObject.containsAttribute(ABUSE_MAILBOX))) {
                 replacement = replacePerson(attributeType, replacement);
                 replacement = replaceAuth(attributeType, replacement);
                 replacement = replacePhoneFax(attributeType, replacement);
@@ -50,7 +44,7 @@ public class DummifierCurrent implements Dummifier {
                 if (attributeType == ADDRESS) {
                     lastAddressLine = replacement;
                     lastAddressLineIndex = i;
-                    replacement = new RpslAttribute(ADDRESS, STAR_REPLACEMENT);
+                    replacement = new RpslAttribute(ADDRESS, "***");
                 }
             }
             replacement = replaceEmail(attributeType, replacement);
@@ -61,31 +55,45 @@ public class DummifierCurrent implements Dummifier {
         if (lastAddressLine != null) {
             attributes.set(lastAddressLineIndex, lastAddressLine);
         }
+
+        return new RpslObject(rpslObject.getObjectId(), attributes);
     }
 
     private RpslAttribute replacePhoneFax(final AttributeType attributeType, final RpslAttribute attribute) {
         if (PHONE_FAX_ATTRIBUTES.contains(attributeType)) {
-            int length = attribute.getCleanValue().toString().length();
-            if (length % 2 != 0) {
-                length += 1;
+            char[] phone = attribute.getCleanValue().toString().toCharArray();
+
+            for (int i = phone.length/2; i < phone.length; i++) {
+                if (!Character.isWhitespace(phone[i])) {
+                    phone[i] = '.';
+                }
             }
-            return new RpslAttribute(attributeType, attribute.getCleanValue().subSequence(0, (length / 2)).toString() + PHONEFAX_REPLACEMENT);
+
+            return new RpslAttribute(attributeType, new String(phone));
         }
         return attribute;
     }
 
     private RpslAttribute replaceEmail(final AttributeType attributeType, final RpslAttribute attribute) {
         if (EMAIL_ATTRIBUTES.contains(attributeType)) {
-            final String[] email = attribute.getCleanValue().toString().split(EMAIL_AT);
-            return new RpslAttribute(attributeType, STAR_REPLACEMENT + EMAIL_AT + email[1]);
+            Iterator it = EMAIL_SPLITTER.split(attribute.getCleanValue().toString()).iterator();
+            it.next();
+            return new RpslAttribute(attributeType, "***@" + it.next());
         }
         return attribute;
     }
 
+    // TODO: [AH] use the FilterAuthFunction from RpslResponseDecorator
     private RpslAttribute replaceAuth(final AttributeType attributeType, final RpslAttribute attribute) {
-        if (attributeType == AUTH && attribute.getCleanValue().contains(CIString.ciString("MD5"))) {
-            return new RpslAttribute(attributeType, MD5_REPLACEMENT);
+        if (attributeType != AUTH) {
+            return attribute;
         }
+
+        String passwordType = SPACE_SPLITTER.split(attribute.getCleanValue().toUpperCase()).iterator().next();
+        if (passwordType.endsWith("-PW")) {     // history table has CRYPT-PW, has to be able to dummify that too!
+            return new RpslAttribute(attribute.getKey(), passwordType + FILTERED_APPENDIX);
+        }
+
         return attribute;
     }
 

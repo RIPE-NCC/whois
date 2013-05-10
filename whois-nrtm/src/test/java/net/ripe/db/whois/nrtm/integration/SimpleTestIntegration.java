@@ -155,6 +155,6 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
                 "role:           Denis Walker\n" +
                 "nic-hdl:        DW-RIPE\n" +
                 "abuse-mailbox:  abuse@ripe.net\n" +
-                "e-mail:         * * *@ripe.net"));
+                "e-mail:         ***@ripe.net"));
     }
 }

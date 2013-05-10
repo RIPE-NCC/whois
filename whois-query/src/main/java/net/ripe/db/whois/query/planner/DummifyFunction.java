@@ -36,7 +36,6 @@ class DummifyFunction implements Function<ResponseObject, ResponseObject> {
         if (dummifier.isAllowed(DUMMIFIER_VERSION, rpslObject)) {
             rpslObject = dummifier.dummify(DUMMIFIER_VERSION, rpslObject);
 
-
             // TODO [AK] Setting the source to the proper value should be part of the dummifier
             final String source = sourceContext.getCurrentSource().getName().toString();
             final RpslAttribute sourceAttribute = rpslObject.findAttribute(AttributeType.SOURCE);
