@@ -1,7 +1,7 @@
 ## upcoming release
 [all] added property port.nrtm.legacy
 [nrtm] implemented new dummification alongside the legacy one
-
+[scheduler] Use new dummification rules, old dummification dump in different directory
 
 ## 1.63
 [update] End of line comment on source attribute is no longer allowed
