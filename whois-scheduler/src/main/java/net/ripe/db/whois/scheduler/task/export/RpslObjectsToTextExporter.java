@@ -90,6 +90,7 @@ class RpslObjectsToTextExporter implements RpslObjectsExporter {
     }
 
     private void exportToFiles() {
+        // TODO: [AH] this should be in a single transaction, or the max. serial could have changed while exporting data
         final int maxSerial = exportDao.getMaxSerial();
         LOGGER.info("Max serial: {}", maxSerial);
 

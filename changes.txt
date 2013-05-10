@@ -1,7 +1,8 @@
-## upcoming release
-[all] added property port.nrtm.legacy
+## 1.64
+[nrtm] added property port.nrtm.legacy
 [nrtm] implemented new dummification alongside the legacy one
-[scheduler] Use new dummification rules, old dummification dump in different directory
+[dump] added new-style export in dbase_new directory
+[dump] added properties dir.rpsl.export.* to control export directories
 
 ## 1.63
 [update] End of line comment on source attribute is no longer allowed
