@@ -38,27 +38,27 @@ class ExportFileWriterFactory {
     }
 
     public List<ExportFileWriter> createExportFileWriters(final File baseDir, final int lastSerial) {
-        final File fullDirOld = new File(baseDir, legacyExternalExportDir);
-        final File fullDir = new File(baseDir, externalExportDir);
-        final File splitDirOld = new File(baseDir, legacyExternalExportDir + File.separator + SPLITFILE_FOLDERNAME);
-        final File splitDir = new File(baseDir, externalExportDir + File.separator + SPLITFILE_FOLDERNAME);
-        final File splitUnmodifiedDir = new File(baseDir, internalExportDir + File.separator + SPLITFILE_FOLDERNAME);
+        final File fullDir = new File(baseDir, legacyExternalExportDir);
+        final File fullDirNew = new File(baseDir, externalExportDir);
+        final File splitDir = new File(baseDir, legacyExternalExportDir + File.separator + SPLITFILE_FOLDERNAME);
+        final File splitDirNew = new File(baseDir, externalExportDir + File.separator + SPLITFILE_FOLDERNAME);
+        final File internalDir = new File(baseDir, internalExportDir + File.separator + SPLITFILE_FOLDERNAME);
 
-        initDirs(fullDir, fullDirOld, splitDir, splitDirOld, splitUnmodifiedDir);
+        initDirs(fullDirNew, fullDir, splitDirNew, splitDir, internalDir);
 
         try {
+            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDirNew, CURRENTSERIAL_FILENAME));
             FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDir, CURRENTSERIAL_FILENAME));
-            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDirOld, CURRENTSERIAL_FILENAME));
         } catch (IOException e) {
             throw new RuntimeException("Writing current serial", e);
         }
 
         return Lists.newArrayList(
-                new ExportFileWriter(fullDirOld, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyLegacy(dummifierLegacy)),
-                new ExportFileWriter(splitDirOld, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyLegacy(dummifierLegacy)),
-                new ExportFileWriter(fullDir, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent)),
-                new ExportFileWriter(splitDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent)),
-                new ExportFileWriter(splitUnmodifiedDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.None())
+                new ExportFileWriter(fullDir, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyLegacy(dummifierLegacy)),
+                new ExportFileWriter(splitDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyLegacy(dummifierLegacy)),
+                new ExportFileWriter(fullDirNew, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent)),
+                new ExportFileWriter(splitDirNew, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent)),
+                new ExportFileWriter(internalDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.None())
         );
     }
 

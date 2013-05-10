@@ -91,13 +91,13 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         assertThat(exportDir.exists(), is(true));
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("dbase_old/split/ripe.db." + objectType.getName() + ".gz");
+            checkFile("dbase/split/ripe.db." + objectType.getName() + ".gz");
             checkFile("internal/split/ripe.db." + objectType.getName() + ".gz");
         }
 
         checkFile("dbase/RIPE.CURRENTSERIAL", "120");
 
-        checkFile("dbase_old/ripe.db.gz",
+        checkFile("dbase/ripe.db.gz",
                 "person:         Placeholder Person Object\n",
                 "role:           Placeholder Role Object\n",
                 "mntner:         DEV-MNT0\n",
@@ -120,10 +120,10 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         "remarks:        * http://www.ripe.net/whois\n" +
                         "remarks:        ****************************\n");
 
-        checkFile("dbase_old/split/ripe.db.person.gz", "person:         Placeholder Person Object");
-        checkFile("dbase_old/split/ripe.db.role.gz", "role:           Placeholder Role Object");
+        checkFile("dbase/split/ripe.db.person.gz", "person:         Placeholder Person Object");
+        checkFile("dbase/split/ripe.db.role.gz", "role:           Placeholder Role Object");
 
-        checkFile("dbase_old/split/ripe.db.mntner.gz",
+        checkFile("dbase/split/ripe.db.mntner.gz",
                 "mntner:         DEV-MNT0\n",
                 "mntner:         DEV-MNT1\n",
                 "mntner:         DEV-MNT2\n",
@@ -234,20 +234,20 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         assertThat(exportDir.exists(), is(true));
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("dbase_old/split/ripe.db." + objectType.getName() + ".gz");
+            checkFile("dbase/split/ripe.db." + objectType.getName() + ".gz");
             checkFile("internal/split/ripe.db." + objectType.getName() + ".gz");
         }
 
-        checkFile("dbase_old/split/ripe.db.person.gz", "person:         Placeholder Person Object");
-        checkFile("dbase_old/split/ripe.db.role.gz", "role:           Placeholder Role Object");
+        checkFile("dbase/split/ripe.db.person.gz", "person:         Placeholder Person Object");
+        checkFile("dbase/split/ripe.db.role.gz", "role:           Placeholder Role Object");
 
-        checkFile("dbase_old/split/ripe.db.role.gz", "" +
+        checkFile("dbase/split/ripe.db.role.gz", "" +
                 "role:           Abuse role\n" +
                 "nic-hdl:        AR1-RIPE\n" +
                 "abuse-mailbox:  abuse@mailbox.com\n" +
                 "source:         TEST");
 
-        checkFile("dbase_old/split/ripe.db.organisation.gz", "" +
+        checkFile("dbase/split/ripe.db.organisation.gz", "" +
                 "organisation:   ORG1\n" +
                 "abuse-c:        AR1-RIPE\n" +
                 "source:         TEST");
@@ -325,10 +325,10 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         rpslObjectsExporter.export();
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("dbase/split/ripe.db." + objectType.getName() + ".gz");
+            checkFile("dbase_new/split/ripe.db." + objectType.getName() + ".gz");
         }
 
-        checkFile("dbase/split/ripe.db.inetnum.gz", "" +
+        checkFile("dbase_new/split/ripe.db.inetnum.gz", "" +
                 "inetnum:        193.0.0.0 - 193.255.255.255\n" +
                 "netname:        TEST-RIPE\n" +
                 "admin-c:        PN1-RIPE\n" +
@@ -336,7 +336,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "notify:         ***@ripe.net\n" +
                 "changed:        ***@ripe.net 20120101");
 
-        checkFile("dbase/split/ripe.db.organisation.gz", "" +
+        checkFile("dbase_new/split/ripe.db.organisation.gz", "" +
                 "organisation:   ORG-TO1-TEST\n" +
                 "org-name:       Test Organisation\n" +
                 "org-type:       OTHER\n" +
@@ -348,7 +348,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "fax-no:         +12 2.. ...\n" +
                 "e-mail:         ***@ripe.net");
 
-        checkFile("dbase/split/ripe.db.mntner.gz", "" +
+        checkFile("dbase_new/split/ripe.db.mntner.gz", "" +
                 "mntner:         TEST-MNT\n" +
                 "descr:          description\n" +
                 "upd-to:         ***@ripe.net\n" +
@@ -359,7 +359,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "ref-nfy:        ***@bar.com\n" +
                 "mnt-by:         TEST-MNT");
 
-        checkFile("dbase/split/ripe.db.role.gz", "" +
+        checkFile("dbase_new/split/ripe.db.role.gz", "" +
                 "role:           Test Role1\n" +
                 "address:        ***\n" +
                 "address:        ***\n" +
@@ -370,7 +370,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "nic-hdl:        ROLE-NIC\n" +
                 "changed:        ***@test.net");
 
-        checkFile("dbase/split/ripe.db.role.gz", "" +
+        checkFile("dbase_new/split/ripe.db.role.gz", "" +
                 "role:           Test Role2\n" +
                 "address:        Street\n" +
                 "address:        City\n" +
