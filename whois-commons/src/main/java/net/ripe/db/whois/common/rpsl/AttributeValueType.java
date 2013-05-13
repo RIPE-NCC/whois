@@ -10,14 +10,14 @@ interface AttributeValueType {
 
     Iterable<String> getValues(String value);
 
-    final static class SingleValueType implements AttributeValueType {
+    final class SingleValueType implements AttributeValueType {
         @Override
         public Iterable<String> getValues(final String value) {
             return Collections.singletonList(value);
         }
     }
 
-    final static class ListValueType implements AttributeValueType {
+    final class ListValueType implements AttributeValueType {
         private static final Splitter LIST_VALUE_SPLITTER = Splitter.on(',').trimResults();
 
         @Override

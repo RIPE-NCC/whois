@@ -10,14 +10,14 @@ import javax.annotation.CheckForNull;
 import java.util.Set;
 
 interface DecorationStrategy {
-    static class None implements DecorationStrategy {
+    class None implements DecorationStrategy {
         @Override
         public RpslObject decorate(final RpslObject object) {
             return object;
         }
     }
 
-    static class DummifyLegacy implements DecorationStrategy {
+    class DummifyLegacy implements DecorationStrategy {
         private static final int VERSION = 3;
         private final DummifierLegacy dummifier;
         private final Set<ObjectType> writtenPlaceHolders = Sets.newHashSet();
@@ -45,7 +45,7 @@ interface DecorationStrategy {
         }
     }
 
-    static class DummifyCurrent implements DecorationStrategy {
+    class DummifyCurrent implements DecorationStrategy {
         private static final int VERSION = 3;
         private final DummifierCurrent dummifier;
 

@@ -7,7 +7,7 @@ import java.util.Map;
 interface Documented {
     String getDescription(ObjectType objectType);
 
-    static class Single implements Documented {
+    class Single implements Documented {
         private final String description;
 
         public Single(final String description) {
@@ -20,7 +20,7 @@ interface Documented {
         }
     }
 
-    static class Multiple implements Documented {
+    class Multiple implements Documented {
         private final Map<ObjectType, String> descriptionMap = Maps.newEnumMap(ObjectType.class);
 
         public Multiple(final Map<ObjectType, String> descriptionMap) {
