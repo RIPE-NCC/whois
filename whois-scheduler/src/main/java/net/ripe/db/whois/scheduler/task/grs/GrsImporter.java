@@ -60,15 +60,15 @@ public class GrsImporter implements DailyScheduledTask {
 
     @Override
     public void run() {
+        if (!grsImportEnabled) {
+            LOGGER.info("GRS import is not enabled");
+            return;
+        }
+
         grsImport(defaultSources, false);
     }
 
-    public List<Future<?>> grsImport(final String sources, final boolean rebuild) {
-        if (!grsImportEnabled) {
-            LOGGER.info("GRS import is not enabled");
-            return Collections.emptyList();
-        }
-
+    public List<Future<?>> grsImport(String sources, final boolean rebuild) {
         final Set<CIString> sourcesToImport = Sets.newLinkedHashSet();
         for (final String source : SOURCES_SPLITTER.split(sources)) {
             sourcesToImport.add(ciString(source));

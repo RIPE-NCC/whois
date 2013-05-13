@@ -52,7 +52,7 @@ public class GrsImporterJmx extends JmxBase {
 
     @ManagedOperation(description = "Download new dumps and rebuild GRS sources")
     @ManagedOperationParameters({
-            @ManagedOperationParameter(name = "sources", description = "Comma separated list of GRS sources to import"),
+            @ManagedOperationParameter(name = "sources", description = "Comma separated list of GRS sources to import (* for all)"),
             @ManagedOperationParameter(name = "passphrase", description = "The passphrase to prevent accidental invocation"),
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation")
     })
@@ -71,7 +71,7 @@ public class GrsImporterJmx extends JmxBase {
                             "passphrase: %s", validPassphrase);
                 }
 
-                grsImporter.grsImport(sources, true);
+                grsImporter.grsImport("*".equals(sources) ? grsDefaultSources : sources, true);
                 return "GRS rebuild started";
             }
         });
