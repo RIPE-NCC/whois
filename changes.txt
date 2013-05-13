@@ -1,0 +1,274 @@
+## 1.64
+[nrtm] added property port.nrtm.legacy
+[nrtm] implemented new dummification alongside the legacy one
+[dump] added new-style export in dbase_new directory
+[dump] added properties dir.rpsl.export.* to control export directories
+
+## 1.63
+[update] End of line comment on source attribute is no longer allowed
+[rest api] Tags supported
+[rest api] Version (history) supported
+[query] Long option --filter-types renamed to --select-types
+[grs] data is now dummified on-the-fly (existing databases will need to be regenerated)
+
+## 1.62
+[query] Invalid combination of query flags only reported once
+[query] Log api in query log
+[all] Test data anonymised
+
+## 1.61
+[all] Easy-whois phase 1
+[update] Disallow too large route and route6 object creations
+
+## 1.60.2
+[update] Log exceptions when verifying PGP-signed messages
+[update] Fixed issue verifying signed message with DSA key and RIPEMD160 hash
+[query] Also filter CRYPT-PW auth: lines in the historical objects
+[query] Blocked users can still perform non-search queries like help
+[all] Merged into single jar
+
+## 1.59.5
+[query] Store IPv4 ACL entries in standard format (including prefix length)
+[update] More verbose error messages for abuse-c attributes.
+
+## 1.59.4
+[all] JMX callable operations should not throw Exceptions.
+
+## 1.59.3
+[query] Fixed grs base url in whois.properties
+[all] Fixed startup locking slowness
+
+## 1.59.2
+[all] Added rpsl.export.enabled option
+
+## 1.59.1
+[all] delegate java.util.logging to SLF4J
+
+## 1.59
+[all] Allow running query, nrtm and updates in a single JVM
+[update] Filter override password in logfile search
+[query] Enable long option spec
+[update] Simplified update re-attempt logic
+[update] Use more verbose error messages for abuse-c attributes
+
+## 1.58.1
+[all] Run all whois services in a single JVM
+[all] Tagging of objects
+[all] Do not use Hazelcast for scheduling
+[all] Less verbose logging for known issues
+[query] Show message
+[query] Support --types query
+[query] Only allow --long options with double dashes
+[update] Do not check order for changed attributes
+[search] Fix exception on some queries
+[wsearch] Fix indexing problem due to different file ordering on production systems
+[wsearch] Filter override password
+
+## 1.58.1
+[all] Improved logging
+
+## 1.58
+[update] No longer forward to legacy
+[update] No longer use redirect.prefixes, but rely on IpRange (redirect.prefixes can be dropped)
+
+## 1.57.2
+[query] Generate help message based on actual query options
+[query] Support long query --options
+[query] Fixes for --version-list
+[query] Do not display abuse-c comment for query with brief output flag
+
+## 1.57.1
+[query] Do not show "no abuse contacts found" message when querying
+
+## 1.57
+[update] WSearch indexes all update folders after daily log rollover
+[update] Only show warning when abuse-mailbox is added
+[update] Allow removal of abuse-c on all organisations
+[update] Role attributes admin-c and tech-c are optional
+[update] Role attributes admin-c and tech-c can no longer be self references
+[update] Option to load addition text dumps in test database
+[query] Roles with abuse-mailbox are excluded from ACL
+[all] Abuse roles are not excluded in dummify process
+
+## 1.56.2
+[update] Properly index tarred logs
+
+## 1.56.1
+[query] Disable Latest versions of objects shown message
+
+## 1.56
+[query] Version info in queries
+[query] Abuse-c and abuse-mailbox documentation
+[query] Change output for abuse-c contact info
+[query] When encountering an object maintained by rs, show abuse contacts for that one if available and stop looking in hierarchy
+[query] Look only for referenced organisations that have the abuse-c attribute
+[query] Do not show warning if inetnum range is entered which can be written in CIDR notation
+[update] Creating or modifying organisation, role adding abuse-c or abuse-mailbox renders warnings
+[update] Free-text search does not return duplicates
+[update] Free-text search uses AND logic for multiple search terms
+[update] Added WSearch
+
+## 1.55.5
+[update] Free-text search: Also index the object-type field (required for filtering by object-type).
+[update] Removed redundant Free Text Search integration test, added tests for facet search and subwords.
+[update] Don't return a stack trace on an invalid parameter value when calling the REST API.
+
+## 1.55.4
+[update] Free-text search
+
+## 1.55.3
+[update] Only validate adding/deleting/updating an inetnum mnt-lower attribute with an 'ASSIGNED ANYCAST' status.
+
+## 1.55.2
+[update] Perform update database operation based on objectId, rather than type and pkey
+[update] Don't support octet-streams for now
+
+## 1.55.1
+[update] Also sanitize object when override id is used, fixes comparison object with override options.
+
+## 1.55
+[update] For now allow all first description changes because current implementation breaks compatibility
+[update] Allow override options to allow fixing some corrupted objects in the database
+
+## 1.54.2
+[update] Index with mntRoutes writes in mnt_routes table only
+
+## 1.54.1
+[update] Fail on circular AUTO-nnn references
+[update] Fallback to index lookup if pkey cannot be found fixes duplicate inet6num issue
+[update] Fix logging of sync updates
+[update] Verify PGP signed message using subkeys (check the subkey has been signed by the master key, and that the subkey is a signing key).
+[query] RIPE-GRS uses RIPE datasource and radix trees and is dummified on the fly
+
+## 1.54
+[all] Warn about unapplied database patched on startup
+[query] Generate verbose RPSL documentation
+[update] Warn on invalid existing key-cert objects used for authentication
+[update] Convert multipart pgp-signed data into canonical (CRLF) format, according to RFC2015
+[update] AUTO-nnnABC placeholders are considered to refer the same object when nnn is equal
+[update] Internal software errors on individual object update does not cause entire update to fail
+
+## 1.53
+[update] ACL REST API for CS
+[update] Deploy route 6
+[query] Cleanup ACL events after 3 months
+
+## 1.52.11
+[query] Only show abuse-c message when abuse contact found
+
+## 1.52.10
+[update] Concurrently perform DNS check for all updates
+[query] Other sources than ripe or test will not show abuse-c information + no abuse-c information for root objects
+
+## 1.52.9
+[query] JmxSupport bugfix.
+
+## 1.52.8
+[update] Business rules for abuse-c
+[query] Brief output shows abuse-c information
+[query] Queries for autnums and inet(6)num shows abuse-c information
+
+## 1.52.7
+[update] When sending raw update to legacy, remove LGC keyword
+
+## 1.52.6
+[update] Abort unref cleanup when there are too many errors
+[update] Pass update to legacy when LGC appears in mail subject
+
+## 1.52.5
+[update] INETNUM SUB-ALLOCATED PA status, object cannot be smaller than /24
+
+## 1.52.4
+[update] Wrap up aut-num and enable in production
+
+## 1.52.3
+[update] GRS import performs syntax checks on type attribute when importing
+
+## 1.52.2
+[update] Wrap up inet6num and enable in production
+[update] Resolve ASSIGNED_PA validation issues for inetnum
+
+## 1.52.1
+[update] Fail update when keyword DIFF is used
+[update] Fail update when no updates are found in request
+[update] Unreferenced object cleanup for irt, keycert, maintainer, organisation, person, role
+
+## 1.52
+[update] Inetnum fixes and enabling on production
+
+## 1.51
+[update] GRS import
+
+## 1.50.9
+[update] Unreferenced object cleanup for person, role
+
+## 1.50.2
+[update] Fix exception when checking PGP credential with a X09 key-cert
+[update] Update log with authentication info
+
+## 1.50.1
+[update] Update log
+
+## 1.50
+[update] Handle multipart, including X509 and PGP support
+
+## 1.49
+[update] Filter auth lines when sending notifications
+[query] Filter auth lines even when no filtering behaviour option (-B) is specified
+
+## 1.48
+[update] JMX command to load text dumps ("split files")
+
+## 1.47.3
+[update] send updates with dangling overrides to legacy
+
+## 1.47.2
+[update] handle spaces and tabs following PGP header lines
+
+## 1.47.1
+[update] disabled signed message support
+
+## 1.47
+[nrtm] placeholder for dummy role, used to be person
+[query] database dump / split files
+[update] handle multiple updates
+[update] override support
+[update] allow no more than 20 passwords in an update message
+[update] added support for domain, irt, poem, poetic-form object types
+[update] added support for all set object types
+[update] The nserver attribute is now a mandatory field in the domain object type
+[update] address space holder authentication using RS maintainter
+[update] added more specific syntax error message
+[update] allow spaces and tabs in separator line between objects
+
+## 1.44
+[update] added support for inetnum, inet6num, route, route6, inet-rtr and key-cert object types
+[update] Create inetnum with status EARLY REGISTRATION is not allowed
+[update] Address prefix range n cannot be lower than prefix length (e.g. 192.168.0.0/16^8 is invalid)
+[update] Messages in the update response are formatted consistently
+[update] Report country code errors at the attribute level
+
+## 1.43.1
+[update] properly handle Windows new lines
+[update] prevent radix tree update error on corrupt IP object
+
+## 1.43
+[update] MD5-PW token on auth line is case insensitive
+[update] fix occasional deadlock when handling mailupdates
+[update] handle corrupt data (due to incorrectly deleted objects in 2004)
+[update] allow nic-handles without suffix
+[update] when logging address ranges remove trailing '/'
+[update] set RIPE ipv4 range to 193/19
+
+## 1.42
+[update] proper handling of '+' in continuation lines
+
+## 1.41
+[update] key attributes are always transformed to lower case
+[update] pretty print RPSL output
+[update] migrate person, role, organisation and maintainer handling to new system
+[update] don't process messages without valid reply-to address
+[update] changed attribute can not be too far in the future
+[update] override attribute affects entire update
+[query] pretty print RPSL output
+[query] update hazelcast to 2.4

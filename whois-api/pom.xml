@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>net.ripe.db</groupId>
+        <artifactId>whois</artifactId>
+        <version>1.65-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>net.ripe.db</groupId>
+    <artifactId>whois-api</artifactId>
+    <version>1.65-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-oxm</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-query</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-update</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-nrtm</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-bundle</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.enunciate</groupId>
+            <artifactId>enunciate-core-annotations</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.enunciate</groupId>
+            <artifactId>enunciate-jersey-rt</artifactId>
+        </dependency>
+
+        <!-- Lucene free text search -->
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queries</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queryparser</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-highlighter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-facet</artifactId>
+        </dependency>
+
+        <!-- Solr -->
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!-- testing -->
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-commons</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-query</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-update</artifactId>
+            <type>test-jar</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>target/generated-sources/enunciate</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.enunciate</groupId>
+                <artifactId>maven-enunciate-plugin</artifactId>
+                <version>1.26.2</version>
+                <executions>
+                    <!-- dirs are set all different so that the 2 executions do not collide -->
+                    <execution>
+                        <id>external</id>
+                        <goals>
+                            <goal>docs</goal>
+                        </goals>
+                        <configuration>
+                            <configFile>enunciate-ext.xml</configFile>
+                            <docsDir>${project.build.directory}/generated-sources/enunciate/ext-docs</docsDir>
+                            <buildDir>${project.build.directory}/enunciate/build-ext</buildDir>
+                            <compileDir>${project.build.directory}/enunciate/compile-ext</compileDir>
+                            <scratchDir>${project.build.directory}/enunciate-scratch-ext</scratchDir>
+                            <generateDir>${project.build.directory}/enunciate/generate-ext</generateDir>
+                            <packageDir>${project.build.directory}/enunciate/package-ext</packageDir>
+                            <excludes>
+                                <exclude>net.ripe.db.whois.api.acl.**</exclude>
+                                <exclude>net.ripe.db.whois.api.freetext.**</exclude>
+                                <exclude>net.ripe.db.whois.api.wsearch.**</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>internal</id>
+                        <goals>
+                            <goal>docs</goal>
+                        </goals>
+                        <configuration>
+                            <configFile>enunciate-int.xml</configFile>
+                            <docsDir>${project.build.directory}/generated-sources/enunciate/int-docs</docsDir>
+                            <buildDir>${project.build.directory}/enunciate/build-int</buildDir>
+                            <compileDir>${project.build.directory}/enunciate/compile-int</compileDir>
+                            <scratchDir>${project.build.directory}/enunciate-scratch-int</scratchDir>
+                            <generateDir>${project.build.directory}/enunciate/generate-int</generateDir>
+                            <packageDir>${project.build.directory}/enunciate/package-int</packageDir>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

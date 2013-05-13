@@ -1,0 +1,30 @@
+key-cert:        AUTO-1
+method:          X509
+owner:           /CN=4a96eecf-9d1c-4e12-8add-5ea5522976d8
+fingerpr:        82:7C:C5:40:D1:DB:AE:6A:FA:F8:40:3E:3C:9C:27:7C
+certif:          -----BEGIN CERTIFICATE-----
+certif:          MIIDjjCCAnagAwIBAgIIL6SpWNLhypwwDQYJKoZIhvcNAQEFBQAwXjELMAkGA1UE
+certif:          BhMCTkwxETAPBgNVBAoMCFJJUEUgTkNDMR0wGwYDVQQLDBRSSVBFIE5DQyBMSVIg
+certif:          TmV0d29yazEdMBsGA1UEAwwUUklQRSBOQ0MgTElSIFJvb3QgQ0EwHhcNMTIxMDI1
+certif:          MDgwNjQ5WhcNMTQxMDI1MDgwNjQ5WjAvMS0wKwYDVQQDDCQ0YTk2ZWVjZi05ZDFj
+certif:          LTRlMTItOGFkZC01ZWE1NTIyOTc2ZDgwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw
+certif:          ggEKAoIBAQDJrhi5iDxCxtqFCMWSKkJ36gUp3SGuL26Kb4GMX0QI6/9M4GMqWOPL
+certif:          lztJBzBQX04nOMkZ4ayXxB9C6F6P2TN4KtMvH+K5Lcnf2pfRInE9TEjptkjHI1Pi
+certif:          BIgDqhWlSd31LqvER37OhKmHtmep6Wt2u1lYbRNFE/DWrZ0ATH56yRimRxkTPniW
+certif:          R5DHnYFmbyFUmt/Pj/u3o+mTSenFqsWyGgRZ4C/0NXUqnI2kVOz+UCDfJA3Zg+Ur
+certif:          WNavLlJ/5qYvAKJVB5KXmdNOgBd1gfFeQkTKg5SEiR+WRKu6zwYUcSsYxcW763V8
+certif:          ey65UUA83yGMD1SjRMHFy73aFmnmTqw9AgMBAAGjfzB9MB0GA1UdDgQWBBSwoueg
+certif:          pJSRZINXQOtHytX37Nmg9zAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFEkT+tYV
+certif:          4RUo849V6Tk2vPtam1lAMA4GA1UdDwEB/wQEAwIF4DAdBgNVHSUEFjAUBggrBgEF
+certif:          BQcDAgYIKwYBBQUHAwQwDQYJKoZIhvcNAQEFBQADggEBACYtmXxBLvosiYOD8m2G
+certif:          KOHay4F/2agzZES4ix9ndIfKj26MoaUGamP1rSQUni3bNUYKNpRx0SRw+hg/tpI0
+certif:          m/r7KVLN7GRNKpUsmAXAzgAwc3dbp1jXQ4RscLyQzPsrjdv/+6R6dE8r/0ssqF0r
+certif:          d1808kervulYvXTRFvsUpy4dXY8BNc8D9RM/nYV+dBoKVb/euCTTTrMSnP2KPyl6
+certif:          W4OWwGVKuwaEQfPwoi6ROD7vbP7YBtANwlIZUdlrIBg5ssv/UjsS6U9m7yGo4hvI
+certif:          yzYYLT/sLpHsaVIxU0xWEJVYabWVVWnnM30PIsq58IiqZj4lTEAHoBCDyOE/izvM
+certif:          t8Q=
+certif:          -----END CERTIFICATE-----
+mnt-by:          UPD-MNT
+remarks:         Gabriel Barazer
+changed:         gabriel@oxeva.fr 20121025
+source:          TEST

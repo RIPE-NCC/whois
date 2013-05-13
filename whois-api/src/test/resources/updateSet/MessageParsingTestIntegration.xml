@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <entry key="max">0</entry>
+    <entry key="skip">0</entry>
+    <entry key="entries"></entry>
+    <entry key="ignores">
+        ignore1,
+        ignore2
+    </entry>
+</properties>

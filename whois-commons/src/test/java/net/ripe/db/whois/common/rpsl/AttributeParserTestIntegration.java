@@ -1,0 +1,171 @@
+package net.ripe.db.whois.common.rpsl;
+
+import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.domain.CIString;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.util.zip.GZIPInputStream;
+
+@Category(IntegrationTest.class)
+public class AttributeParserTestIntegration {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AttributeParserTestIntegration.class);
+
+    @Test
+    public void parseAutnumAttributes() throws Exception {
+        parseAttributes("/export/opt/db.aut-num.gz",
+                new AttributeType[]{
+                        AttributeType.EXPORT,
+                        AttributeType.IMPORT,
+                        AttributeType.DEFAULT,
+                        AttributeType.MP_EXPORT,
+                        AttributeType.MP_IMPORT,
+                        AttributeType.MP_DEFAULT
+                }
+        );
+    }
+
+    @Test
+    public void parseInetRtrAttributes() throws Exception {
+        parseAttributes("/export/opt/db.inet-rtr.gz",
+                new AttributeType[]{
+                        AttributeType.ALIAS,
+                        AttributeType.IFADDR,
+                        AttributeType.INTERFACE,
+                        AttributeType.PEER,
+                        AttributeType.MP_PEER
+                }
+        );
+    }
+
+    @Test
+    public void parseAsSetAttributes() throws Exception {
+        parseAttributes("/export/opt/db.as-set.gz",
+                new AttributeType[]{
+                        AttributeType.MEMBERS
+                }
+        );
+    }
+
+    @Test
+    public void parseRouteSetAttributes() throws Exception {
+        parseAttributes("/export/opt/db.route-set.gz",
+                new AttributeType[]{
+                        AttributeType.MEMBERS,
+                        AttributeType.MP_MEMBERS
+                }
+        );
+    }
+
+    @Test
+    public void parseRtrSetAttributes() throws Exception {
+        parseAttributes("/export/opt/db.rtr-set.gz",
+                new AttributeType[]{
+                        AttributeType.MEMBERS,
+                        AttributeType.MP_MEMBERS
+                }
+        );
+    }
+
+    @Test
+    public void parseFilterSetAttributes() throws Exception {
+        parseAttributes("/export/opt/db.filter-set.gz",
+                new AttributeType[]{
+                        AttributeType.FILTER,
+                        AttributeType.MP_FILTER
+                }
+        );
+    }
+
+    @Test
+    public void parsePeeringSetAttributes() throws Exception {
+        parseAttributes("/export/opt/db.peering-set.gz",
+                new AttributeType[]{
+                        AttributeType.PEERING,
+                        AttributeType.MP_PEERING
+                }
+        );
+    }
+
+    @Test
+    public void parseRouteAttributes() throws Exception {
+        parseAttributes("/export/opt/db.route.gz",
+                new AttributeType[]{
+                        AttributeType.INJECT,
+                        AttributeType.AGGR_MTD,
+                        AttributeType.AGGR_BNDRY,
+                        AttributeType.COMPONENTS,
+                        AttributeType.EXPORT_COMPS
+                }
+        );
+    }
+
+    @Test
+    public void parseRoute6Attributes() throws Exception {
+        parseAttributes("/export/opt/db.route6.gz",
+                new AttributeType[]{
+                        AttributeType.INJECT,
+                        AttributeType.AGGR_MTD,
+                        AttributeType.AGGR_BNDRY,
+                        AttributeType.COMPONENTS,
+                        AttributeType.EXPORT_COMPS
+                }
+        );
+    }
+
+    private void parseAttributes(final String file, final AttributeType[] types) throws IOException {
+        try {
+            InputStream inputStream = new GZIPInputStream((new FileInputStream(file)));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            StringBuilder builder = new StringBuilder();
+            boolean debug = false;
+
+            try {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.length() == 0) {
+                        if (builder.length() > 0) {
+                            RpslObject rpslObject;
+                            try {
+                                rpslObject = RpslObject.parse(builder.toString().trim());
+                            } catch (IllegalArgumentException e) {
+                                LOGGER.info("RpslObject {} could not be parsed", builder.toString());
+                                builder.setLength(0);
+                                continue;
+                            }
+
+                            parseAttributes(rpslObject, types);
+                            builder.setLength(0);
+                        }
+                    } else {
+                        if (!line.startsWith("#")) {
+                            builder.append(line);
+                        }
+                        builder.append('\n');
+                    }
+                }
+            } finally {
+                reader.close();
+            }
+        } catch (FileNotFoundException e) {
+            // ignore
+        }
+    }
+
+    private void parseAttributes(final RpslObject rpslObject, final AttributeType[] types) {
+        for (AttributeType type : types) {
+            for (RpslAttribute attribute : rpslObject.findAttributes(type)) {
+                for (CIString cleanValue : attribute.getCleanValues()) {
+                    if (!type.isValidValue(rpslObject.getType(), cleanValue)) {
+                        LOGGER.info("FAIL: type={} value={}", rpslObject.getType().getName() + "." + type, cleanValue);
+                    }
+                }
+            }
+        }
+    }
+}

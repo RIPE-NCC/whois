@@ -1,0 +1,10 @@
+#set ($globalWarnings = $globalMessages.warnings)
+#set ($globalErrors = $globalMessages.errors)
+>>>>>
+#foreach( $warning in $globalWarnings )
+$warning
+#end
+#foreach( $error in $globalErrors )
+$error
+#end
+<<<<<

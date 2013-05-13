@@ -1,0 +1,106 @@
+From john@doe.net Thu May 31 01:01:21 2012
+Return-path: <john@doe.net>
+Envelope-to: dbase@XXXwhois-update.db.ripe.net
+Delivery-date: Thu, 31 May 2012 01:01:21 +0200
+Received: from postgirl.ipv6.ripe.net ([2001:67c:2e8:11::c100:1342] helo=postgirl.ripe.net)
+        by dbc-whois5.ripe.net with esmtps (TLSv1:AES256-SHA:256)
+        (Exim 4.72)
+        (envelope-from <john@doe.net>)
+        id 1SZrtI-0005AY-Vx
+        for dbase@XXXwhois-update.db.ripe.net; Thu, 31 May 2012 01:01:21 +0200
+Message-ID: <D8447F003C9F4CA891CFA626760EBE8E@XXXRaysOfficePC>
+From: "John Doe" <john@doe.net>
+To: <auto-dbm@XXXripe.net>
+Subject: RIPE UPDATE
+Date: Thu, 31 May 2012 00:01:19 +0100
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_00A9_01CD3EC0.81D734E0"
+X-Priority: 3
+X-MSMail-Priority: Normal
+Importance: Normal
+X-Mailer: Microsoft Windows Live Mail 15.4.3555.308
+X-MimeOLE: Produced By Microsoft MimeOLE V15.4.3555.308
+X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.48/RELEASE,
+         bases: 20120425 #7816575, check: 20120530 clean
+X-RIPE-Spam-Level: +
+X-RIPE-Spam-Report: Spam Total Points:   1.6 points
+  pts rule name              description
+ ---- ---------------------- ------------------------------------
+ -0.7 RCVD_IN_DNSWL_LOW      RBL: Sender listed at http://www.dnswl.org/, low
+                             trust
+                             [212.21.96.30 listed in list.dnswl.org]
+ -0.0 T_RP_MATCHES_RCVD      Envelope sender domain matches handover relay
+                             domain
+  1.5 SUBJ_ALL_CAPS          Subject is all capitals
+  0.0 HTML_MESSAGE           BODY: HTML included in message
+  0.8 BAYES_50               BODY: Bayes spam probability is 40 to 60%
+                             [score: 0.4788]
+X-RIPE-Signature: 7750e8800cc34d698cab15f5fefbad01c7083093a15dc452feff36e38b954dbf
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_00A9_01CD3EC0.81D734E0
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+-----BEGIN PGP SIGNED MESSAGE-----
+
+route:          165.251.168.0/22
+descr:          Description
+origin:         AS1
+notify:         ripe-admin@foo.net
+mnt-by:         TEST-MNT
+changed:        john@doe.net 20120530
+source:         RIPE
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.8
+
+iQCVAwUBT8amRPVKpQwG/7ZlAQFM0gP+N3d2N2IivRzte0o6bvU3nqN84yGC4l3r
+zeZKi7dvU3R2betF8IElvL4x/bpBPAHXQWO+QaYMg3Yz6HCBKLJwMFgyWbmcJtD0
+zL1HUOJmGyNv/eFjNSMgfpeZEsPZ3R+Pz9gSjEAW5aAj1wLdpXvVK9rYOQPc3TVc
+z2xhfX4BqpQ=3D
+=3DODtr
+-----END PGP SIGNATURE-----
+------=_NextPart_000_00A9_01CD3EC0.81D734E0
+Content-Type: text/html;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<HTML><HEAD></HEAD>
+<BODY dir=3Dltr>
+<DIV dir=3Dltr>
+<DIV style=3D"FONT-FAMILY: 'Calibri'; COLOR: #000000; FONT-SIZE: 12pt">
+<DIV>-----BEGIN PGP SIGNED MESSAGE-----</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>route:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+165.251.168.0/22</DIV>
+<DIV>descr:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+Easylinks via=20
+Network-i</DIV>
+<DIV>origin:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+AS1</DIV>
+<DIV>notify:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+ripe-admin@foo.net</DIV>
+<DIV>mnt-by:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+TEST-MNT</DIV>
+<DIV>changed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+john@doe.net 20120530</DIV>
+<DIV>source:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RIPE</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>-----BEGIN PGP SIGNATURE-----</DIV>
+<DIV>Version: PGP 6.5.8</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>iQCVAwUBT8amRPVKpQwG/7ZlAQFM0gP+N3d2N2IivRzte0o6bvU3nqN84yGC4l3r</DI=
+V>
+<DIV>zeZKi7dvU3R2betF8IElvL4x/bpBPAHXQWO+QaYMg3Yz6HCBKLJwMFgyWbmcJtD0</DI=
+V>
+<DIV>zL1HUOJmGyNv/eFjNSMgfpeZEsPZ3R+Pz9gSjEAW5aAj1wLdpXvVK9rYOQPc3TVc</DI=
+V>
+<DIV>z2xhfX4BqpQ=3D</DIV>
+<DIV>=3DODtr</DIV>
+<DIV>-----END PGP SIGNATURE-----</DIV></DIV></DIV></BODY></HTML>
+
+------=_NextPart_000_00A9_01CD3EC0.81D734E0--

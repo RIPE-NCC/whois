@@ -1,0 +1,246 @@
+#!/bin/bash
+# Init script for RIPE Database
+
+# Email address of operator
+OPEREMAIL=unread@ripe.net
+
+# user to run whois.jar (non-root!)
+ROLE_USER=dbase
+
+### JVM to use to start whois
+JAVA="java"
+
+### Port number to listen on
+JMXPORT="1099"
+
+# Default memory
+MEM="-Xms1024m -Xmx8g"
+
+### SNMP (if needed)
+if [[ -e snmp.acl ]]; then
+	SNMP="-Dcom.sun.management.snmp.port=1666 -Dcom.sun.management.snmp.acl.file=snmp.acl -Dcom.sun.management.snmp.interface=0.0.0.0"
+fi
+
+### JMX
+JMX="-Dcom.sun.management.jmxremote -Dhazelcast.jmx=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=${JMXPORT}"
+
+### Final assembled command line
+COMMAND="$JAVA -D${SERVICE} $JMX $SNMP $MEM -Dwhois.config=properties -Dhazelcast.config=hazelcast.xml -Dlog4j.configuration=file:log4j.xml -jar whois.jar"
+COMMAND_REGEXP="$JAVA -D${SERVICE}"'.*'" -jar whois.jar"
+
+# location of console.log
+LOG=var/console.log
+SERVICE=whois
+
+##############################################################################################
+# become role user (drop root)
+if [[ $UID -eq 0 ]]; then
+	exec su - $ROLE_USER -c "$0 $1"
+fi
+
+if [[ $USER != $ROLE_USER ]]; then
+        echo "You must run this service as user $ROLE_USER"
+        exit 1
+fi
+
+##############################################################################################
+# set COLUMNS
+if ! [[ $COLUMNS ]] || [[ $COLUMNS -lt 160 ]]; then
+	COLUMNS=160
+fi
+export COLUMNS
+
+# print server status
+function print_status() {
+	echo -en "\033[2K\rStatus: $(tail -1 $LOG | cut -c-$((COLUMNS-10)) )"
+}
+
+##############################################################################################
+# get server status
+function server_up() {
+	QUERY_PORT=$(perl -ne '/^port\.query\s*=\s*(\d+)/ && print $1' <properties)
+	echo -e "-r -L -T inetnum 193.0.0.1" | socat -,ignoreeof tcp:localhost:${QUERY_PORT},connect-timeout=1 2>/dev/null | grep -q '^inetnum:'
+	return $?
+}
+
+##############################################################################################
+# fatal error notifier
+my_log() {
+        echo "$@"
+        #echo "`date +'%y%m%d %H:%M:%S'` $@" >>$ERRLOG
+}
+
+function my_panic() {
+        SUBJECT=$1 ; shift
+        my_log "$@"
+        echo -e "$@" | mail -s "$SUBJECT" "$NOTIFY"
+        my_log "Email sent to $NOTIFY"
+}
+
+##############################################################################################
+# after the server is started, this function checks if it has come up, and screams if not.
+# it also handles the switch to dynamic mode.
+function check_server() {
+        # give server a chance
+        my_log 'Waiting for the server to come up... (If you know what you are doing, hit ESC to skip waiting)'
+        NUM=0
+        key=""; escape=$'\x1b';
+        
+        while ! server_up; do
+        	print_status
+
+                read -t1 -s -n1 key || ([[ $? == 1 ]] && sleep 1)       # gracefully handle lack of terminal
+                if [[ "$key" == "$escape" ]]; then
+                	my_log
+                        my_log " *** User cancelled wait at $NUM seconds"
+                        break
+                fi
+                NUM=$[NUM+1]
+                if [ $NUM -gt 300 ]; then
+                        # bail out
+                        my_log
+                        my_log "Server does not seem to be up after 240 seconds, giving up. Here is the end of ${LOG}:"
+                        echo '-------------------------------------------------------------------------------------'
+			tail -15 $LOG
+                        echo '-------------------------------------------------------------------------------------'
+                        return
+                fi
+        done
+	
+	my_log
+        my_log "$SERVICE started successfully."
+        
+        # record size of console log file
+        LOGPOS=$(stat -c %s $LOG)
+}
+
+##############################################################################################
+# check console log for updates; email differences
+function check_log() {
+	# kill child sleep process on exit to avoid them stacking up
+	trap "pkill -P $BASHPID; exit 0" TERM HUP
+	WHOIS_PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
+	
+	# let whois finish startup
+	sleep 3
+	
+	while true; do
+		sleep 4h &
+		wait	# so bash responds to signals, like the one above
+		
+		# exit if server already exited
+		PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
+		if [[ $PID -ne $WHOIS_PID ]]; then
+			exit 1
+		fi
+		
+		NEWLOGPOS=$(stat -c %s $LOG)
+		DIFF=$[NEWLOGPOS-LOGPOS]
+		
+		if [[ $DIFF -gt 0 ]]; then
+			# we rely on sendmail for sending mail in raw format, as mailx was trying to be smart and
+			# switch to base64 encoding randomly, without adding a MIME header - agoston, 2012-03-29
+			if [[ $DIFF -gt 40960 ]]; then
+				/usr/lib/sendmail -t <<-__EOF__
+				To: $OPEREMAIL
+				Subject: $HOSTNAME  $SERVICE
+				
+				*** SIZE OF NEW ENTRIES SURPASSES 40K, LISTING LAST 200 LINES ONLY
+				
+				$(tail -200 $LOG)
+				__EOF__
+			else
+				/usr/lib/sendmail -t <<-__EOF__
+				To: $OPEREMAIL
+				Subject: $HOSTNAME  $SERVICE
+				
+				$(dd if=$LOG bs=1 skip=$LOGPOS count=$[NEWLOGPOS-LOGPOS])
+				__EOF__
+			fi
+		fi
+		LOGPOS=$NEWLOGPOS
+	done
+}
+
+##############################################################################################
+# MAIN
+case "$1" in
+	start)
+		PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
+		if [[ $PID ]]; then
+			echo "$SERVICE is already running"
+			exit 1
+		fi
+		
+		echo "Starting $SERVICE..."
+		# rotate console.log
+		/usr/sbin/logrotate -f -s `mktemp` logrotate.conf
+		# start server
+		$COMMAND >>var/console.log 2>&1 </dev/null &
+		# check if server startup successful
+		check_server
+		check_log </dev/null &>/dev/null &
+		;;
+	stop)
+		# kill log checker process (if running)
+		PID=$(pgrep -f -u dbase "$SERVICE start")
+		if [[ $PID ]]; then
+			kill $PID	# also kills sleep
+		fi
+		
+		# kill jvm
+		PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
+		if [[ $PID ]]; then
+			echo " *** If there is a long update running, $SERVICE can take up to 2 hours to exit gracefully!"
+			echo -n "Stopping $SERVICE"
+			kill $PID
+			while true; do
+				sleep 1
+				echo -n "."
+				PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
+				if ! [[ $PID ]]; then
+					echo
+					break
+				fi
+			done
+		else
+			echo "$SERVICE does not seem to be running"
+			echo "Running java processes:"
+			ps uxww | grep [j]ava
+			exit 1
+		fi
+		;;
+        jmx)
+                # drop into JMX console
+                PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
+                if [[ $PID ]]; then
+                    # only-digits URL is handled specially, as a process id of a JVM to connect to
+                    java -jar jmxterm-1.0-alpha-4-uber.jar --url $PID
+                    exit 0
+                else
+                    echo "$SERVICE does not seem to be running"
+                    exit 1
+                    fi
+                ;;
+        threaddump)
+                # dump thread state to the console
+                PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
+                if [[ $PID ]]; then
+                        echo "Sending signal to $SERVICE to dump thread state to console."
+                        kill -3 $PID
+                else
+                        echo "$SERVICE does not seem to be running"
+                        exit 1
+                fi
+                ;;
+	restart)
+		$0 stop
+		$0 start
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart|threaddump}"
+		exit 1
+		;;
+esac
+
+exit 0

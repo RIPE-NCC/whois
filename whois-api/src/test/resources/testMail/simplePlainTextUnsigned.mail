@@ -1,0 +1,49 @@
+From root@test.de Mon May 28 00:04:45 2012
+Return-path: <root@test.de>
+Envelope-to: dbase@whois-update.db.ripe.net
+Delivery-date: Mon, 28 May 2012 00:04:45 +0200
+Date: Mon, 28 May 2012 00:04:44 +0200
+From: "foo@test.de" <bitbucket@ripe.net>
+To: auto-dbm@XXXripe.net
+Message-ID: <20120527220444.GA6565@XXXsource.test.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.17+20080114 (2008-01-14)
+X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.48/RELEASE,
+         bases: 20120425 #7816575, check: 20120527 clean
+X-RIPE-Spam-Level: /
+X-RIPE-Spam-Report: Spam Total Points:   -0.1 points
+  pts rule name              description
+ ---- ---------------------- ------------------------------------
+ -0.0 T_RP_MATCHES_RCVD      Envelope sender domain matches handover relay
+                             domain
+ -1.9 BAYES_00               BODY: Bayes spam probability is 0 to 1%
+                             [score: 0.0000]
+  1.8 MISSING_SUBJECT        Missing Subject: header
+X-RIPE-Signature: 40b13f0ba793ebc40e8a27f942b04bbbe5c7af17113f755c19e8c78c99bae556
+
+inetnum: 109.69.68.0 - 109.69.68.7
+netname: delete
+descr: Description
+country: DE
+admin-c: T1-RIPE
+tech-c: T1-RIPE
+status: ASSIGNED PA
+mnt-by: TEST-MNT
+password: password
+changed: changed@ripe.net 20120528
+source: RIPE
+
+inetnum: 109.69.68.0 - 109.69.68.7
+netname: delete
+descr: Description
+country: DE
+admin-c: T1-RIPE
+tech-c: T1-RIPE
+status: ASSIGNED PA
+mnt-by: TEST-MNT
+password: password
+changed: changed@ripe.net 20120528
+source: RIPE
+delete: new subnet size

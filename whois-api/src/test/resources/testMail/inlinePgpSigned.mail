@@ -1,0 +1,66 @@
+From doe@XXXbar.com Wed May 30 02:43:21 2012
+Return-path: <doe@XXXbar.com>
+Envelope-to: dbase@XXXwhois-update.db.ripe.net
+Delivery-date: Wed, 30 May 2012 02:43:21 +0200
+Received: from postgirl.ipv6.ripe.net ([2001:67c:2e8:11::c100:1342] helo=postgirl.ripe.net)
+        by dbc-whois5.ripe.net with esmtps (TLSv1:AES256-SHA:256)
+        (Exim 4.72)
+        (envelope-from <doe@XXXbar.com>)
+        id 1SZX0T-0000oW-PT
+        for dbase@XXXwhois-update.db.ripe.net; Wed, 30 May 2012 02:43:21 +0200
+Received: from smtpdeorg.de ([155.56.68.140])
+        by postgirl.ripe.net with esmtps (TLSv1:AES256-SHA:256)
+        (Exim 4.72)
+        (envelope-from <doe@XXXbar.com>)
+        id 1SZX0R-0004MX-PE
+        for auto-dbm@XXXripe.net; Wed, 30 May 2012 02:43:21 +0200
+Received: from mail.org.corp
+        by smtpde02.org.de (26) with ESMTP id q4U0hJT1004257
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=FAIL)
+        for <auto-dbm@XXXripe.net>; Wed, 30 May 2012 02:43:19 +0200 (MEST)
+Date: Wed, 30 May 2012 10:43:15 +1000
+From: John Doe <bitbucket@ripe.net>
+To: auto-dbm@XXXripe.net
+Subject: delete route 194.39.132.0/24
+Message-ID: <ABC593474ADCF6EC3E43BC80@XXX[10.41.147.77]>
+X-Mailer: Mulberry/4.0.8 (SunOS/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-SAP: out
+X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.48/RELEASE,
+         bases: 20120425 #7816575, check: 20120530 clean
+X-RIPE-Spam-Level: ------
+X-RIPE-Spam-Report: Spam Total Points:   -6.9 points
+  pts rule name              description
+ ---- ---------------------- ------------------------------------
+ -5.0 RCVD_IN_DNSWL_HI       RBL: Sender listed at http://www.dnswl.org/, high
+                             trust
+                             [155.56.68.140 listed in list.dnswl.org]
+ -0.0 SPF_HELO_PASS          SPF: HELO matches SPF record
+ -0.0 SPF_PASS               SPF: sender matches SPF record
+ -1.9 BAYES_00               BODY: Bayes spam probability is 0 to 1%
+                             [score: 0.0000]
+X-RIPE-Signature: c1fd93f532921d1072cc649857a29cdeea74373c9cf6711aa0258820de741e70
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+route:        194.39.132.0/24
+descr:        Description
+origin:       AS12510
+notify:       foo@bar.com
+mnt-by:       BOGUS-MNT
+mnt-by:       T8-MNT
+changed:      nm@bogus.com 20120504
+changed:      nm@bogus.com 20120529
+source:       RIPE
+delete:       no longer required for AS12510
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (SunOS)
+
+iEYEARECAAYFAk/FbSMACgkQsAWoDcAb7KJmJgCfe2PjxUFIeHycZ85jteosU1ez
+kL0An3ypg8F75jlPyTYIUuiCQEcP/9sz
+=j7tD
+-----END PGP SIGNATURE-----

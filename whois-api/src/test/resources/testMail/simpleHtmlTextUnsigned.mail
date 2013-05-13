@@ -1,0 +1,46 @@
+From user@host.net  Wed May  9 00:01:46 2012
+Return-Path: <user@host.net>
+X-Original-To: dbase@whois-update.db.ripe.net
+Delivered-To: dbase@whois-update.db.ripe.net
+To: auto-dbm@ripe.net
+Subject: subject
+From: user <bitbucket@ripe.net>
+Reply-To: bitbucket@ripe.net
+Content-Type: text/html
+Message-Id: <20120508173357.B3369481C7@ip-10-251-81-156.ec2.internal>
+Date: Tue,  8 May 2012 14:46:34 +0000 (UTC)
+X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.48/RELEASE,
+         bases: 20120425 #7816575, check: 20120508 clean
+X-RIPE-Spam-Level: +++++++++++++++
+X-RIPE-Spam-Report: Spam Total Points:   15.6 points
+  pts rule name              description
+ ---- ---------------------- ------------------------------------
+  0.6 URIBL_PH_SURBL         Contains an URL listed in the PH SURBL blocklist
+                             [URIs: host.net]
+  2.0 URIBL_WS_SURBL         Contains an URL listed in the WS SURBL blocklist
+                             [URIs: host.net]
+  3.2 FH_HELO_EQ_D_D_D_D     Helo is d-d-d-d
+  1.5 DATE_IN_PAST_06_12     Date: is 6 to 12 hours before Received: date
+  0.0 HTML_EXTRA_CLOSE       BODY: HTML contains far too many close tags
+  0.0 HTML_MESSAGE           BODY: HTML included in message
+  3.0 BAYES_95               BODY: Bayes spam probability is 95 to 99%
+                             [score: 0.9553]
+  0.7 MIME_HTML_ONLY         BODY: Message only has text/html MIME parts
+  1.2 HTML_IMAGE_ONLY_04     BODY: HTML: images with 0-400 bytes of words
+  1.7 SARE_HTML_IMG_ONLY     FULL: Short HTML msg, IMG and A HREF, maybe naught
+                              else
+  0.7 MIME_HEADER_CTYPE_ONLY 'Content-Type' found without required MIME
+                             headers
+  0.0 HTML_SHORT_LINK_IMG_1  HTML is very short with a linked image
+  1.0 RDNS_DYNAMIC           Delivered to internal network by host with
+                             dynamic-looking rDNS
+  0.0 TVD_SPACE_RATIO        TVD_SPACE_RATIO
+X-RIPE-Signature: 62f2f5b0441f701d8ef209a34b4e978ca69fb206bbb6710d206770ba8e43b04a
+
+<html>
+<div id='center'>
+
+<div class='1'><a href='http://LlArFvBkvu.host.net/.pwd/'rel='lightbox'> <img width="693" height="570" border="0" src='http://LlArFvBkvu.host.net/tx.png'/></a></div></div>
+
+</div>
+</html>

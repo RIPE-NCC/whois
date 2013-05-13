@@ -1,0 +1,20 @@
+$origin.responseHeader
+
+You have requested Help information from the RIPE NCC Database,
+therefore the body of your message has been ignored.
+
+RIPE Database documentation is available at
+
+http://www.ripe.net/data-tools/support/documentation
+
+RIPE Database FAQ is available at
+
+http://www.ripe.net/data-tools/db/faq
+
+RPSL RFCs are available at
+
+ftp://ftp.ripe.net/rfc/rfc2622.txt
+ftp://ftp.ripe.net/rfc/rfc2725.txt
+ftp://ftp.ripe.net/rfc/rfc4012.txt
+#parse("/templates/include/terms-and-conditions.vm")
+#parse("/templates/include/version.vm")

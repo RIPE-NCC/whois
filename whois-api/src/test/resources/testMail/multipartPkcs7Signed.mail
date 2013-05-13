@@ -1,0 +1,61 @@
+From bitbucket@ripe.net Thu May 10 17:02:27 2012
+Return-path: <bitbucket@ripe.net>
+Envelope-to: dbase@whois-update.db.ripe.net
+Delivery-date: Thu, 10 May 2012 17:02:27 +0200
+From: <Registration.Ripe@company.com>
+To: <auto-dbm@ripe.net>
+Subject: Bogus
+Thread-Topic: Bogus
+Thread-Index: Ac0uuKUCBZKC7jAjSP2dIXXwE/trxg==
+Date: Thu, 10 May 2012 14:24:44 +0000
+Message-ID: <13046752.33478.1336659890335.JavaMail.trustmail@ss000808>
+Accept-Language: de-CH, en-US
+Content-Language: de-DE
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha1;
+        boundary="----=_Part_33477_26926975.1336659890335"
+MIME-Version: 1.0
+X-Mailer: Totemo_TrustMail_(Notification)
+X-Trustmail: processed
+X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.48/RELEASE,
+         bases: 20120425 #7816575, check: 20120510 clean
+X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.48/RELEASE,
+         bases: 20120425 #7816575, check: 20120510 clean
+X-RIPE-Spam-Level: ----
+X-RIPE-Spam-Report: Spam Total Points:   -4.2 points
+  pts rule name              description
+ ---- ---------------------- ------------------------------------
+ -2.3 RCVD_IN_DNSWL_MED      RBL: Sender listed at http://www.dnswl.org/, medium
+                              trust
+ -0.0 T_RP_MATCHES_RCVD      Envelope sender domain matches handover relay
+                             domain
+ -1.9 BAYES_00               BODY: Bayes spam probability is 0 to 1%
+                             [score: 0.0000]
+X-RIPE-Signature: 06431c6b196ca7c87b50ce476fb4816187edd523abdacf391232ac244d807c75
+X-RIPE-Spam-Level: -
+X-RIPE-Spam-Report: Spam Total Points:   -1.1 points
+  pts rule name              description
+ ---- ---------------------- ------------------------------------
+ -1.9 BAYES_00               BODY: Bayes spam probability is 0 to 1%
+                             [score: 0.0000]
+  0.8 RDNS_NONE              Delivered to internal network by a host with no rDNS
+  0.0 HELO_NO_DOMAIN         Relay reports its domain incorrectly
+X-RIPE-Signature: d3887c3fc37f9b47e6a966435095369487edd523abdacf391232ac244d807c75
+
+------=_Part_33477_26926975.1336659890335
+
+first line
+second line
+third line
+
+------=_Part_33477_26926975.1336659890335
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+
+Th9IdQ0qw3fd9o6AAG6/Kv+UWnYki+JvWQVa8Y0hH8pRbuRIzimqG57JIWb4YLKO
+oRw8UtOhgPpZ05Fy149yq+1yd+Y0gwyIWS9g7sUT1HnF0yHB8aUjrLNErLCsx/4Y
+XkPXziL6cjd0+VZms4DznKFfs7+TlZkPdmhs70II6IM=
+
+------=_Part_33477_26926975.1336659890335--

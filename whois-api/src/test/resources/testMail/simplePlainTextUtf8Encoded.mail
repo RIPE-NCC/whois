@@ -1,0 +1,44 @@
+Return-path: <test@foo.com>
+Envelope-to: test-dbm@ripe.net
+Delivery-date: Fri, 24 Aug 2012 17:53:12 +0200
+Received: by bogus.localdomain (sSMTP sendmail emulation); Fri, 24 Aug 2012 11:52:53 -0400
+Date: Fri, 24 Aug 2012 11:52:53 -0400
+From: test@foo.com
+To: test-dbm@ripe.net
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: UTF-8
+Subject: MODIFY KEYWORDS:
+Message-Id: <20120824155310.258DB8F65CA@mx2.bogus.com>
+X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.48/RELEASE,
+	 bases: 20120425 #7816575, check: 20120824 clean
+X-RIPE-Spam-Level: ++
+X-RIPE-Spam-Report: Spam Total Points:   2.1 points
+  pts rule name              description
+ ---- ---------------------- ------------------------------------
+  1.5 SUBJ_ALL_CAPS          Subject is all capitals
+ -0.0 SPF_PASS               SPF: sender matches SPF record
+ -0.2 RP_MATCHES_RCVD        Envelope sender domain matches handover relay domain
+  0.8 BAYES_50               BODY: Bayes spam probability is 40 to 60%
+                             [score: 0.4907]
+X-RIPE-Signature: 78b3c1f13947bc125289ddcf7afb6c0446f09f32db35b6266ec831ca38ba9a0c
+Delivered-To: test-dbm@ripe.net
+
+inetnum: 10.0.0.0 - 10.0.0.255
+status:ASSIGNED PI
+mnt-by:T2-MNT
+mnt-by:TEST-DBM-MNT
+tech-c:VB1-TEST
+tech-c:AA1-TEST
+notify:test@foo.com
+netname:TEST-NETWORK
+org:ORG-VBO1-TEST
+admin-c:VB1-TEST
+admin-c:AA2-TEST
+password:password
+descr:Юникодное описание
+country:US
+country:BY
+country:RU
+changed:test@foo.com 20120824
+source:TEST

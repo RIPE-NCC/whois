@@ -1,0 +1,66 @@
+key-cert:     PGPKEY-12345678
+method:       PGP
+owner:        DFN-CERT (2003), ENCRYPTION Key
+fingerpr:     EDDF 375A B830 D1BB 26E5  ED3B 76CA 91EF 81CC F97D
+remarks:      this public key block contains multiple public keys
+certif:       x
+certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+certif:       Version: GnuPG v1.4.12 (Darwin)
+certif:       Comment: GPGTools - http://gpgtools.org
+certif:
+certif:       mQENBFC0yfkBCAC/zYZw2vDpNF2Q7bfoTeTmhEPERzUX3y1y0jJhGEdbp3re4v0i
+certif:       XWDth4lp9Rr8RimoqQFN2JNFuUWvohiDAT91J+vAG/A67xuTWXACyAPhRtRIFhxS
+certif:       tBu8h/qEv8yhudhjYfVHu8rUbm59BXzO80KQA4UP5fQeDVwGFbvB+73nF1Pwbg3n
+certif:       RzgLvKZlxdgV2RdU+DvxabkHgiN0ybcJx3nntL3Do2uZEdkkDDKkN6hkUJY0cFbQ
+certif:       Oge3AK84huZKnIFq8+NA/vsE3dg3XhbCYUlS4yMe0cvnZrH23lnu4Ubp1KBILHVW
+certif:       K4vWnMEXcx/T2k4/vpXogZNUH6E3OjtlyjX5ABEBAAG0GVVua25vd24gPHVucmVh
+certif:       ZEByaXBlLm5ldD6JATgEEwECACIFAlC0yfkCGwMGCwkIBwMCBhUIAgkKCwQWAgMB
+certif:       Ah4BAheAAAoJEHbKke+BzPl9UasH/1Tc2YZiJHw3yaKvZ8jSXDmZKmO69C7YvgsX
+certif:       B72w4K6d92vy8dLLreqEpzXKtWB1+K6bLZv6MEdNbvQReG3rw1i2Io7kdsKFn9QC
+certif:       OeY4OwpzBMZIJGWWXxOLz9Auo9a43xU+wL92/oCqFJrLuuppgOIVkL0pBWRDQYqp
+certif:       3MqyHdsUOEdd7pwUlGJlfLqa7wmO+r04EG1OBRLBg5p4gVARqDrVMA3ym9KF750T
+certif:       78Il1eWrceLglI5F0h4RYEmQ3amF/ukbPyzf26+J6MnWeDSO3Q8P/aDO3L7ccNoC
+certif:       VwyHxUumWgfQVEnt6IaKLSjxVPhhAFO0wLd2tgaUH1y/ug1RgJe5AQ0EULTJ+QEI
+certif:       APgAjb0YCTRvIdlYFfKQfLCcIbifwFkBjaH9fN8A9ZbeXSWtO7RXEvWF70/ZX69s
+certif:       1SfQyL4cnIUN7hEd7/Qgx63IXUfNijolbXOUkh+S41tht+4IgJ7iZsELuugvbDEb
+certif:       VynMXFEtqCXm1zLfd0g2AsWPFRczkj7hWE0gNs7iKvEiGrjFy0eSd/q07oWLxJfq
+certif:       n4GBBPMGkfKxWhy5AXAkPZp1mc7mlYuNP9xrn76bl69T0E69kDPS3JetSaVWj0Uh
+certif:       NSJSjP1Zc8g+rvkeum3HKLoW0svRo2XsldjNMlSuWb/oxeaTdGZV6SxTJ+T1oHAi
+certif:       tovyQHusvGu3D9dfvTcW3QsAEQEAAYkBHwQYAQIACQUCULTJ+QIbDAAKCRB2ypHv
+certif:       gcz5fe7cB/9PrDR7ybLLmNAuoafsVQRevKG8DfVzDrgThgJz0jJhb1t74qy5xXn+
+certif:       zW8d/f/JZ8jr7roWA64HKvdvo8ZXuGEf6H20p1+HbjYpT52zteNU/8ljaqIzJBes
+certif:       tl8ecFB7qg3qUSDQseNaA1uHkZdxGybzgI69QlOyh8fRfOCh/ln9vAiL0tW+Kzjg
+certif:       8VMY0N3HzBcAPSB7U8wDf1qMzS5Lb1yNunD0Ut5qxCq3fxcdLBk/ZagHmtXoelhH
+certif:       Bng8TRND/cDUWWH7Rhv64NxUiaKsrM/EmrHFOpJlXuMRRx4FtRPZeXTOln7zTmIL
+certif:       qqHWqaQHNMKDq0pf24NFrIMLc2iXCSh+mQENBFC0yvUBCACn2JKwa5e8Sj3QknEn
+certif:       D5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+yO68swuow09jsrh2DAl2nKQ7YaODEipi
+certif:       s0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+
+certif:       LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBNE+VPeLOAi+D97s+Da/UZWkZxFJHdV+cA
+certif:       zQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+LA9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTg
+certif:       A5eyKMnTKAdwhIY5/VDxUd1YprnK+EbdYNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IU
+certif:       RaXNABEBAAG0I25vcmVwbHlAcmlwZS5uZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4
+certif:       BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRC7zLst
+certif:       V2OVDdjSCACYAyyWr83Df/zzOWGP+qMFVukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ
+certif:       8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB0owcacoaxUd0i+gVEn7CBHPVUfNIuNem
+certif:       crf1N7aqBkpBLf+NINZ2+3c3t14k1BGexCInxEqHnq4zbUmunCNYjHoKbUj6Aq7j
+certif:       anyC7W1MIIAcOY9/PvWQyf3VnERQImgt0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDv
+certif:       b5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5ZxrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olx
+certif:       p7/z++mADXPprmLaK8vjQmiC2q/KOTVAuQENBFC0yvUBCADTYI6i4baHAkeY2lR2
+certif:       rebpTu1nRHbIET20II8/ZmZDK8E2LwyveWold6pAWDq9E23J9xAWL4QUQRQ4V+28
+certif:       +lknMySXbU3uFLXGAs6W9PrZXGcmy/12pZ+82hHckh+jN9xUTtF89NK/wHh09SAx
+certif:       Da/ST/z/Dj0k3pQWzgBdi36jwEFtHhckxFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh
+certif:       /6JqMUb+hY71Dr7oxlIFLdsREsFVzVecYHsKINlZKh60dA/Br+CC7fClBycEsR4Z
+certif:       7akw9cPLWIGnjvw2+nq9miE005QLqRy4dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5
+certif:       UhmZABEBAAGJAR8EGAECAAkFAlC0yvUCGwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3
+certif:       mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4HNaR0NIV/GAt/uca11DtIdj3kBAj69QS
+certif:       PqNVRqaZja3NyhNWQM4OPDWKIUZfolF3eY2q58kEhxhz3JKJt4z45TnFY2GFGqYw
+certif:       FPQ94z1S9FOJCifL/dLpwPBSKucCac9y6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL
+certif:       /xnU4NgZ90GHmmQFfdUiX36jWK99LBqCRNW8V2MV+rElPVRHev+nw7vgCM0ewXZw
+certif:       QB/bBLbBrayx8LzGtMvAo4kDJ1kpQpipa/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3
+certif:       OQ4Mh8yiI+AjiQ==
+certif:       =MR9s
+certif:       -----END PGP PUBLIC KEY BLOCK-----
+mnt-by:       UPD-MNT
+notify:       noreply@ripe.net
+changed:      noreply@ripe.net 20120213
+source:       TEST

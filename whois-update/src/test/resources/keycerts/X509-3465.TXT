@@ -1,0 +1,19 @@
+key-cert:        X509-3465
+method:          X509
+owner:           /C=NL/ST=Some-State/O=BOGUS
+fingerpr:        07:AC:10:C0:22:64:84:E7:00:18:5A:29:F0:54:2C:F3
+certif:          -----BEGIN CERTIFICATE-----
+certif:          MIIB2zCCAUQCCQCawUbZqWvWuzANBgkqhkiG9w0BAQUFADAyMQswCQYDVQQGEwJO
+certif:          TDETMBEGA1UECBMKU29tZS1TdGF0ZTEOMAwGA1UEChMFQk9HVVMwHhcNMTMwNDE4
+certif:          MTU0MjIwWhcNMTQwNDE4MTU0MjIwWjAyMQswCQYDVQQGEwJOTDETMBEGA1UECBMK
+certif:          U29tZS1TdGF0ZTEOMAwGA1UEChMFQk9HVVMwgZ8wDQYJKoZIhvcNAQEBBQADgY0A
+certif:          MIGJAoGBAKfXtOd5+eArsGTY2NG4LJQUA0Uozfn9sGfLrdF7eWo940aY4VlVBeIr
+certif:          FM6jJt9BNBx3r9ZngzlkCIM8oZ6gyRf/lFI8yga2eOzr6QUf/VtVmBCOMW1BxAXf
+certif:          CyMT7jK2PPpe8SXD8NQ9VvzDbP8LHFA0zAV+t/6qvlpGXJft9YnbAgMBAAEwDQYJ
+certif:          KoZIhvcNAQEFBQADgYEARyzeqtZT00UOvlSz3NHSuX0AGhiOQvXei2G9XwJ9L7dX
+certif:          gbeh5wCvh9j19fcmmgpiLRIeijzc19bk/bgYddrAH3+OyjBsH7RmVHMO3FXbpTNq
+certif:          q91Ey/fALhdTtl20RNnbRE/iFlwoI56iiA9dTTQs5LH4BGnrK6XZK0xawfpx77k=
+certif:          -----END CERTIFICATE-----
+mnt-by:          UPD-MNT
+changed:         noreply@ripe.net 20111128
+source:          TEST

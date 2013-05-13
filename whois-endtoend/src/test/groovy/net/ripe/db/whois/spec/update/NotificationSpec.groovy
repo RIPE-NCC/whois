@@ -1,0 +1,1162 @@
+package net.ripe.db.whois.spec.update
+
+import net.ripe.db.whois.spec.BaseSpec
+import spec.domain.Message
+
+class NotificationSpec extends BaseSpec {
+
+    @Override
+    Map<String, String> getTransients() {
+        [
+            "MOD-MNT": """\
+                mntner:      MOD-MNT
+                descr:       MNTNER for test
+                admin-c:     TP1-TEST
+                upd-to:      updto_test@ripe.net
+                auth:        MD5-PW \$1\$Bsso7xK2\$u1I7XvRIJyMQlF2rYWbYx.  #modify
+                mnt-by:      MOD-MNT
+                referral-by: MOD-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
+            "MOD2-MNT": """\
+                mntner:      MOD-MNT
+                descr:       MNTNER for test
+                admin-c:     TP1-TEST
+                upd-to:      updto_test@ripe.net
+                notify:      notify_test@ripe.net
+                auth:        MD5-PW \$1\$Bsso7xK2\$u1I7XvRIJyMQlF2rYWbYx.  #modify
+                mnt-by:      MOD-MNT
+                referral-by: MOD-MNT
+                changed:     dbtest@ripe.net 20120901
+                source:      TEST
+                """,
+            "MOD3-MNT": """\
+                mntner:      MOD-MNT
+                descr:       MNTNER for test
+                admin-c:     TP1-TEST
+                upd-to:      updto_test@ripe.net
+                notify:      new_notify_test@ripe.net
+                auth:        MD5-PW \$1\$Bsso7xK2\$u1I7XvRIJyMQlF2rYWbYx.  #modify
+                mnt-by:      MOD-MNT
+                referral-by: MOD-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
+            "DEL2-MNT": """\
+                mntner:      DEL2-MNT
+                descr:       MNTNER for test
+                admin-c:     TP1-TEST
+                upd-to:      updto_test@ripe.net
+                auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
+                mnt-by:      OWNER-MNT
+                referral-by: DEL2-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
+            "TST2-MNT": """\
+                mntner:      TST-MNT
+                descr:       MNTNER for test
+                admin-c:     TP1-TEST
+                upd-to:      dbtest@ripe.net
+                auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
+                mnt-by:      OWNER2-MNT
+                referral-by: TST-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
+            "TST3-MNT": """\
+                mntner:      TST-MNT3
+                descr:       MNTNER for test
+                admin-c:     TP1-TEST
+                upd-to:      dbtest@ripe.net
+                auth:        MD5-PW \$1\$p4syt8vq\$AOwjgBvR4MA3o4ccMSMvh0  #test3
+                mnt-by:      OWNER2-MNT
+                referral-by: TST-MNT3
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
+            "TST5-MNT": """\
+                mntner:      TST-MNT5
+                descr:       MNTNER for test
+                admin-c:     TP1-TEST
+                upd-to:      updto_tst5@ripe.net
+                notify:      notify_tst5@ripe.net
+                notify:      notify2_tst5@ripe.net
+                auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
+                mnt-by:      OWNER-MNT
+                mnt-by:      OWNER4-MNT
+                referral-by: TST-MNT5
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
+            "TST6-MNT": """\
+                mntner:      TST-MNT6
+                descr:       MNTNER for test
+                admin-c:     TP1-TEST
+                upd-to:      updto_tst6@ripe.net
+                notify:      notify_tst6@ripe.net
+                notify:      notify2_tst6@ripe.net
+                auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
+                mnt-by:      OWNER3-MNT
+                mnt-by:      OWNER4-MNT
+                referral-by: TST-MNT6
+                changed:     dbtest@ripe.net 20120101
+                changed:     dbtest@ripe.net 20120901
+                source:      TEST
+                """,
+            "CREATE-MNT": """\
+                mntner:      CREATE-MNT
+                descr:       to be created
+                admin-c:     TP1-TEST
+                upd-to:      updto_create@ripe.net
+                mnt-nfy:     mntnfy_create@ripe.net
+                notify:      notify_create@ripe.net
+                auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
+                mnt-by:      OWNER-MNT
+                referral-by: CREATE-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
+            "PN": """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  owner-mnt
+                changed: denis@ripe.net 20121016
+                source:  TEST
+                """,
+            "PN-ORG": """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                org:     ORG-OTO1-TEST
+                nic-hdl: FP1-TEST
+                mnt-by:  owner-mnt
+                changed: denis@ripe.net 20121016
+                source:  TEST
+                """,
+            "INETNUM": """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       TST-MNT3
+                mnt-irt:      irt-test-notify
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+            """,
+            "IRT_TEST_NOTIFY": """\
+                irt:          irt-test-notify
+                address:      RIPE NCC
+                e-mail:       irt-dbtest@ripe.net
+                signature:    PGPKEY-D83C3FBD
+                encryption:   PGPKEY-D83C3FBD
+                auth:         PGPKEY-D83C3FBD
+                auth:         MD5-PW \$1\$qxm985sj\$3OOxndKKw/fgUeQO7baeF/  #irt
+                irt-nfy:      dbtest-irt@ripe.net
+                notify:       dbtest-notify@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       TST-MNT3
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+            "IRT_TEST_NOTIFY2": """\
+                irt:          irt-test-notify2
+                address:      RIPE NCC
+                e-mail:       irt-dbtest@ripe.net
+                signature:    PGPKEY-D83C3FBD
+                encryption:   PGPKEY-D83C3FBD
+                auth:         PGPKEY-D83C3FBD
+                auth:         MD5-PW \$1\$qxm985sj\$3OOxndKKw/fgUeQO7baeF/  #irt
+                irt-nfy:      dbtest-irt2@ripe.net
+                notify:       dbtest-notify@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       TST-MNT3
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """
+    ]}
+
+    def "add notify to object"() {
+      given:
+        dbfixture(getTransient("MOD-MNT"))
+        def mnt = object(getTransient("MOD2-MNT"))
+
+      expect:
+        def qry = query("-r -BG -T mntner MOD-MNT")
+        qry =~ "mntner:\\s*MOD-MNT"
+        !(qry =~ "notify:\\s*notify_test@ripe.net")
+
+      when:
+        def message = send new Message(
+                subject: "add notify",
+                body: mnt + "password: modify"
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any {it.operation == "Modify" && it.key == "[mntner] MOD-MNT"}
+        ack.countErrorWarnInfo(0, 2, 0)
+
+        noMoreMessages()
+
+        query("-r -B -G -T mntner MOD-MNT") =~ "notify:\\s*notify_test@ripe.net"
+    }
+
+    def "change notify in object"() {
+      given:
+        dbfixture(getTransient("MOD2-MNT"))
+        def mnt = object(getTransient("MOD3-MNT"))
+
+      expect:
+        query_object_matches("-r -BG -T mntner MOD-MNT", "mntner", "MOD-MNT", "notify:\\s*notify_test@ripe.net")
+
+      when:
+        def message = send new Message(
+                subject: "add notify",
+                body: mnt + "password: modify"
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any {it.operation == "Modify" && it.key == "[mntner] MOD-MNT"}
+        ack.countErrorWarnInfo(0, 2, 0)
+
+        def notif = notificationFor "notify_test@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.changed("mntner", "MOD-MNT", "notify:\\s*notify_test@ripe.net", "notify:\\s*new_notify_test@ripe.net")
+
+        noMoreMessages()
+
+        query_object_matches("-r -BG -T mntner MOD-MNT", "mntner", "MOD-MNT", "notify:\\s*new_notify_test@ripe.net")
+        query_object_not_matches("-r -BG -T mntner MOD-MNT", "mntner", "MOD-MNT", "notify:\\s*notify_test@ripe.net")
+    }
+
+    def "create MNTNER with notify"() {
+      given:
+        def mnt = object(getTransient("MOD2-MNT"))
+
+      expect:
+        queryNothing("-rBGT mntner MOD-MNT")
+
+      when:
+        def message = send new Message(
+                subject: "create with notify",
+                body: mnt + "password: modify"
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
+
+        ack.successes.any { it.operation == "Create" && it.key == "[mntner] MOD-MNT" }
+        query_object_matches("-rGBT mntner MOD-MNT", "mntner", "MOD-MNT", "notify:\\s*notify_test@ripe.net")
+
+        def notif = notificationFor "notify_test@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.created.any { it.type == "mntner" && it.key == "MOD-MNT" }
+
+        noMoreMessages()
+    }
+
+    def "delete MNTNER with notify"() {
+      given:
+        dbfixture(getTransient("MOD2-MNT"))
+        def mnt = object(getTransient("MOD2-MNT"))
+
+      expect:
+        query_object_matches("-rBGT mntner MOD-MNT", "mntner", "MOD-MNT", "notify:\\s*notify_test@ripe.net")
+
+      when:
+        def message = send new Message(
+                subject: "delete with notify",
+                body: mnt + "delete: del reason\npassword: modify"
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
+
+        ack.successes.any {it.operation == "Delete" && it.key == "[mntner] MOD-MNT"}
+        queryNothing("-rGBT mntner MOD-MNT")
+
+        def notif = notificationFor "notify_test@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.deleted.any { it.type == "mntner" && it.key == "MOD-MNT" }
+
+        noMoreMessages()
+    }
+
+    def "change mnt-by of object"() {
+      given:
+        def mnt = object(getTransient("TST2-MNT"))
+
+      expect:
+        query_object_matches("-rBGT mntner TST-MNT", "mntner", "TST-MNT", "mnt-by:\\s*OWNER-MNT")
+
+      when:
+        def message = send new Message(
+                subject: "change mnt-by",
+                body: mnt + "password: owner"
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT"}
+        ack.countErrorWarnInfo(0, 2, 0)
+
+        def notif = notificationFor "mntnfy_owner@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.changed("mntner", "TST-MNT", "mnt-by:\\s*OWNER-MNT", "mnt-by:\\s*OWNER2-MNT")
+
+        noMoreMessages()
+
+        query_object_matches("-rBGT mntner TST-MNT", "mntner", "TST-MNT", "mnt-by:\\s*OWNER2-MNT")
+    }
+
+    def "change mnt-by of object no mnt-nfy"() {
+      given:
+        def mnt = object(getTransient("TST3-MNT"))
+
+      expect:
+        query_object_matches("-rBGT mntner TST-MNT3", "mntner", "TST-MNT3", "mnt-by:\\s*OWNER3-MNT")
+
+      when:
+        def message = send new Message(
+                subject: "change mnt-by",
+                body: mnt + "password: owner3"
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT3"}
+        ack.countErrorWarnInfo(0, 2, 0)
+
+        noMoreMessages()
+
+        query_object_matches("-rBGT mntner TST-MNT3", "mntner", "TST-MNT3", "mnt-by:\\s*OWNER2-MNT")
+    }
+
+    def "auth fail modify object"() {
+      given:
+        def mnt = object(getTransient("TST2-MNT"))
+
+      expect:
+        query_object_matches("-rBGT mntner TST-MNT", "mntner", "TST-MNT", "mnt-by:\\s*OWNER-MNT")
+
+      when:
+        def message = send new Message(
+                subject: "change mnt-by",
+                body: mnt + "password: null"
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.failed
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.errors.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT"}
+        ack.countErrorWarnInfo(1, 2, 0)
+        ack.errorMessagesFor("Modify", "[mntner] TST-MNT") ==
+                ["Authorisation for [mntner] TST-MNT failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
+
+        def notif = notificationFor "updto_owner@ripe.net"
+        notif.subject =~ "RIPE Database updates, auth error notification"
+        notif.authFailed("UPDATE", "mntner", "TST-MNT")
+
+        noMoreMessages()
+
+        query_object_matches("-rBGT mntner TST-MNT", "mntner", "TST-MNT", "mnt-by:\\s*OWNER-MNT")
+    }
+
+    def "create object mnt-by has mnt-nfy"() {
+      given:
+        def mnt = object(getTransient("CREATE-MNT"))
+
+      expect:
+        queryNothing("-rBGT mntner CREATE-MNT")
+
+      when:
+        def message = send new Message(
+                subject: "create mntner",
+                body: mnt + "password: owner"
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any {it.operation == "Create" && it.key == "[mntner] CREATE-MNT"}
+        ack.countErrorWarnInfo(0, 2, 0)
+
+        def notif = notificationFor "mntnfy_owner@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.created.any { it.type == "mntner" && it.key == "CREATE-MNT" }
+
+        def notif2 = notificationFor "notify_create@ripe.net"
+        notif2.subject =~ "Notification of RIPE Database changes"
+        notif2.created.any { it.type == "mntner" && it.key == "CREATE-MNT" }
+
+        noMoreMessages()
+
+        query_object_matches("-rBGT mntner CREATE-MNT", "mntner", "CREATE-MNT", "mnt-by:\\s*OWNER-MNT")
+    }
+
+    def "create object fail auth error"() {
+      given:
+        def mnt = object(getTransient("CREATE-MNT"))
+
+      expect:
+        queryNothing("-rBGT mntner CREATE-MNT")
+
+      when:
+        def message = send new Message(
+                subject: "create mntner",
+                body: mnt + "password: null"
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.failed
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.errors.any {it.operation == "Create" && it.key == "[mntner] CREATE-MNT"}
+        ack.countErrorWarnInfo(1, 2, 0)
+        ack.errorMessagesFor("Create", "[mntner] CREATE-MNT") ==
+                ["Authorisation for [mntner] CREATE-MNT failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
+
+        def notif = notificationFor "updto_owner@ripe.net"
+        notif.subject =~ "RIPE Database updates, auth error notification"
+        notif.authFailed("CREATE", "mntner", "CREATE-MNT")
+
+        noMoreMessages()
+
+        queryNothing("-rBGT mntner CREATE-MNT")
+    }
+
+    def "delete object mnt-by has mnt-nfy updto obj has notify"() {
+      given:
+        def mnt = oneBasicFixture("TST-MNT4")
+
+      expect:
+        query_object_matches("-rBGT mntner TST-MNT4", "mntner", "TST-MNT4", "mnt-by:\\s*OWNER-MNT")
+
+      when:
+        def message = send new Message(
+                subject: "delete mntner",
+                body: mnt + "password: owner\ndelete: not required\n"
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any {it.operation == "Delete" && it.key == "[mntner] TST-MNT4"}
+        ack.countErrorWarnInfo(0, 2, 0)
+
+        def notif = notificationFor "mntnfy_owner@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.deleted.any { it.type == "mntner" && it.key == "TST-MNT4" }
+
+        def notif2 = notificationFor "notify_tst4@ripe.net"
+        notif2.subject =~ "Notification of RIPE Database changes"
+        notif.deleted.any { it.type == "mntner" && it.key == "TST-MNT4" }
+
+        noMoreMessages()
+
+        queryNothing("-rBGT mntner TST-MNT4")
+    }
+
+    def "fail to delete object with auth error mnt-by has mnt-nfy updto obj has notify"() {
+      given:
+        def mnt = oneBasicFixture("TST-MNT4")
+
+      expect:
+        query_object_matches("-rBGT mntner TST-MNT4", "mntner", "TST-MNT4", "mnt-by:\\s*OWNER-MNT")
+
+      when:
+        def message = send new Message(
+                subject: "delete mntner",
+                body: mnt + "password: null\ndelete: not required\n"
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.failed
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 0, 1)
+
+        ack.errors.any {it.operation == "Delete" && it.key == "[mntner] TST-MNT4"}
+        ack.countErrorWarnInfo(1, 2, 0)
+        ack.errorMessagesFor("Delete", "[mntner] TST-MNT4") ==
+                ["Authorisation for [mntner] TST-MNT4 failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
+
+        def notif = notificationFor "updto_owner@ripe.net"
+        notif.subject =~ "RIPE Database updates, auth error notification"
+        notif.failedDeleted.any { it.type == "mntner" && it.key == "TST-MNT4" }
+
+        noMoreMessages()
+
+        query_object_matches("-rBGT mntner TST-MNT4", "mntner", "TST-MNT4", "mnt-by:\\s*OWNER-MNT")
+    }
+
+    def "modify object 2xmnt-by one has 2xmnt-nfy updto obj has 2xnotify"() {
+      given:
+        def mnt = object(getTransient("TST5-MNT"))
+
+      expect:
+        query_object_matches("-rBGT mntner TST-MNT5", "mntner", "TST-MNT5", "notify:\\s*notify_tst5@ripe.net")
+        query_object_matches("-rBGT mntner TST-MNT5", "mntner", "TST-MNT5", "notify:\\s*notify2_tst5@ripe.net")
+
+      when:
+        def message = send new Message(
+                subject: "delete mntner",
+                body: mnt + "password: owner4"
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT5"}
+        ack.countErrorWarnInfo(0, 2, 0)
+
+        def notif = notificationFor "mntnfy_owner4@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
+        notif.added("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120901")
+
+        def notif2 = notificationFor "mntnfy2_owner4@ripe.net"
+        notif2.subject =~ "Notification of RIPE Database changes"
+        notif2.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
+        notif2.added("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120901")
+
+        def notif3 = notificationFor "notify_tst5@ripe.net"
+        notif3.subject =~ "Notification of RIPE Database changes"
+        notif3.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
+        notif3.added("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120901")
+
+        def notif4 = notificationFor "notify2_tst5@ripe.net"
+        notif4.subject =~ "Notification of RIPE Database changes"
+        notif4.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
+        notif4.added("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120901")
+
+        def notif5 = notificationFor "mntnfy_owner@ripe.net"
+        notif5.subject =~ "Notification of RIPE Database changes"
+        notif5.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
+        notif5.added("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120901")
+
+        noMoreMessages()
+
+        query_object_matches("-rBGT mntner TST-MNT5", "mntner", "TST-MNT5", "notify:\\s*notify_tst5@ripe.net")
+        query_object_matches("-rBGT mntner TST-MNT5", "mntner", "TST-MNT5", "notify:\\s*notify2_tst5@ripe.net")
+    }
+
+    def "fail modify object 2xmnt-by has mnt-nfy 2xupdto obj has 2xnotify"() {
+      given:
+        def mnt = object(getTransient("TST6-MNT"))
+
+      expect:
+        query_object_matches("-rBGT mntner TST-MNT6", "mntner", "TST-MNT6", "mnt-by:\\s*owner3")
+        query_object_matches("-rBGT mntner TST-MNT6", "mntner", "TST-MNT6", "mnt-by:\\s*owner4")
+
+      when:
+        def message = send new Message(
+                subject: "modify mntner",
+                body: mnt + "password: null"
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.failed
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.errors.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT6"}
+        ack.countErrorWarnInfo(1, 2, 0)
+        ack.errorMessagesFor("Modify", "[mntner] TST-MNT6") ==
+                ["Authorisation for [mntner] TST-MNT6 failed using \"mnt-by:\" not authenticated by: OWNER3-MNT, OWNER4-MNT"]
+
+        def notif = notificationFor "updto_owner3@ripe.net"
+        notif.subject =~ "RIPE Database updates, auth error notification"
+        notif.failedModified.any { it.type == "mntner" && it.key == "TST-MNT6" }
+        notif.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
+
+        def notif2 = notificationFor "updto2_owner3@ripe.net"
+        notif2.subject =~ "RIPE Database updates, auth error notification"
+        notif2.failedModified.any { it.type == "mntner" && it.key == "TST-MNT6" }
+        notif2.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
+
+        def notif3 = notificationFor "updto_owner4@ripe.net"
+        notif3.subject =~ "RIPE Database updates, auth error notification"
+        notif3.failedModified.any { it.type == "mntner" && it.key == "TST-MNT6" }
+        notif3.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
+
+        def notif4 = notificationFor "updto2_owner4@ripe.net"
+        notif4.subject =~ "RIPE Database updates, auth error notification"
+        notif4.failedModified.any { it.type == "mntner" && it.key == "TST-MNT6" }
+        notif4.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
+
+        noMoreMessages()
+
+        query_object_matches("-rBGT mntner TST-MNT6", "mntner", "TST-MNT6", "mnt-by:\\s*owner3")
+        query_object_matches("-rBGT mntner TST-MNT6", "mntner", "TST-MNT6", "mnt-by:\\s*owner4")
+    }
+
+    def "create person with reference to ORGANISATION with ref-nfy"() {
+      expect:
+        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
+
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                org:     ORG-OTO1-TEST
+                nic-hdl: FP1-TEST
+                mnt-by:  owner-mnt
+                changed: denis@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                password: owner3
+                """.stripIndent()
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any {it.operation == "Create" && it.key == "[person] FP1-TEST   First Person"}
+
+        def notif = notificationFor "dbtest-org@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.created.any { it.type == "person" && it.key == "First Person" }
+
+        def notif2 = notificationFor "mntnfy_owner@ripe.net"
+        notif2.subject =~ "Notification of RIPE Database changes"
+        notif2.created.any { it.type == "person" && it.key == "First Person" }
+
+        noMoreMessages()
+
+        queryObject("-rBT person FP1-TEST", "person", "First Person")
+    }
+
+    def "modify person add reference to ORGANISATION with ref-nfy"() {
+      given:
+        syncUpdate(getTransient("PN") + "password: owner")
+
+      expect:
+        query_object_not_matches("-r -T person FP1-TEST", "person", "First Person", "org:\\s*ORG-OTO1-TEST")
+
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                org:     ORG-OTO1-TEST
+                nic-hdl: FP1-TEST
+                mnt-by:  owner-mnt
+                changed: denis@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                password: owner3
+                """.stripIndent()
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
+
+        def notif = notificationFor "dbtest-org@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.modified.any { it.type == "person" && it.key == "First Person" }
+
+        def notif2 = notificationFor "mntnfy_owner@ripe.net"
+        notif2.subject =~ "Notification of RIPE Database changes"
+        notif2.modified.any { it.type == "person" && it.key == "First Person" }
+
+        noMoreMessages()
+
+        query_object_matches("-r -T person FP1-TEST", "person", "First Person", "org:\\s*ORG-OTO1-TEST")
+    }
+
+    def "modify person remove reference to ORGANISATION with ref-nfy"() {
+      given:
+        dbfixture(getTransient("PN-ORG"))
+
+      expect:
+        query_object_matches("-r -T person FP1-TEST", "person", "First Person", "org:\\s*ORG-OTO1-TEST")
+
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  owner-mnt
+                changed: denis@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
+
+        def notif = notificationFor "mntnfy_owner@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.modified.any { it.type == "person" && it.key == "First Person" }
+
+        def notif2 = notificationFor "dbtest-org@ripe.net"
+        notif2.subject =~ "Notification of RIPE Database changes"
+        notif2.modified.any { it.type == "person" && it.key == "First Person" }
+
+        noMoreMessages()
+
+        query_object_not_matches("-r -T person FP1-TEST", "person", "First Person", "org:\\s*ORG-OTO1-TEST")
+    }
+
+    def "modify person no change to reference to ORGANISATION with ref-nfy"() {
+      given:
+        dbfixture(getTransient("PN-ORG"))
+
+      expect:
+        query_object_matches("-r -T person FP1-TEST", "person", "First Person", "org:\\s*ORG-OTO1-TEST")
+
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                org:     ORG-OTO1-TEST
+                nic-hdl: FP1-TEST
+                mnt-by:  owner-mnt
+                changed: denis@ripe.net
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
+
+        def notif = notificationFor "mntnfy_owner@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.modified.any { it.type == "person" && it.key == "First Person" }
+
+        noMoreMessages()
+
+        query_object_matches("-r -T person FP1-TEST", "person", "First Person", "org:\\s*ORG-OTO1-TEST")
+    }
+
+    def "delete person referencing an ORGANISATION with ref-nfy"() {
+      given:
+        dbfixture(getTransient("PN-ORG"))
+
+      expect:
+        query_object_matches("-r -T person FP1-TEST", "person", "First Person", "org:\\s*ORG-OTO1-TEST")
+
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                org:     ORG-OTO1-TEST
+                nic-hdl: FP1-TEST
+                mnt-by:  owner-mnt
+                changed: denis@ripe.net 20121016
+                source:  TEST
+                delete: get rid
+
+                password: owner
+                """.stripIndent()
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any {it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person"}
+
+        def notif = notificationFor "mntnfy_owner@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.deleted.any { it.type == "person" && it.key == "First Person" }
+
+        def notif2 = notificationFor "dbtest-org@ripe.net"
+        notif2.subject =~ "Notification of RIPE Database changes"
+        notif2.deleted.any { it.type == "person" && it.key == "First Person" }
+
+        noMoreMessages()
+
+        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
+    }
+
+    def "delete an inetnum referencing an IRT with irt-nfy"() {
+        given:
+            syncUpdate(getTransient("IRT_TEST_NOTIFY") + "password: test3")
+            queryObject("-r -T irt irt-test-notify", "irt", "irt-test-notify")
+            syncUpdate(getTransient("INETNUM") + "password: test3\npassword: hm\npassword: irt")
+            queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
+            def message = send new Message(
+                    subject: "",
+                    body: """\
+                    inetnum:      192.168.200.0 - 192.168.200.255
+                    netname:      RIPE-NET
+                    descr:        /24 assigned
+                    country:      NL
+                    admin-c:      TP1-TEST
+                    tech-c:       TP1-TEST
+                    status:       ASSIGNED PA
+                    mnt-by:       TST-MNT3
+                    mnt-irt:      irt-test-notify
+                    changed:      dbtest@ripe.net 20020101
+                    source:       TEST
+                    delete: get rid
+
+                    password: test3
+                    """.stripIndent()
+            )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any {it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
+
+        def notif = notificationFor "dbtest-irt@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.deleted.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+
+        noMoreMessages()
+
+        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "modify an inetnum referencing an IRT with irt-nfy, changing the mnt-irt"() {
+        given:
+            syncUpdate(getTransient("IRT_TEST_NOTIFY") + "password: test3\npassword: irt")
+            queryObject("-r -T irt irt-test-notify", "irt", "irt-test-notify")
+
+            syncUpdate(getTransient("INETNUM") + "password: test3\npassword: hm\npassword: irt")
+            queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+            syncUpdate(getTransient("IRT_TEST_NOTIFY2") + "password: test3")
+            queryObject("-r -T irt irt-test-notify2", "irt", "irt-test-notify2")
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                    inetnum:      192.168.200.0 - 192.168.200.255
+                    netname:      RIPE-NET
+                    descr:        /24 assigned
+                    country:      NL
+                    admin-c:      TP1-TEST
+                    tech-c:       TP1-TEST
+                    status:       ASSIGNED PA
+                    mnt-by:       TST-MNT3
+                    mnt-irt:      irt-test-notify2
+                    changed:      dbtest@ripe.net 20020101
+                    source:       TEST
+
+
+                    password: test3
+                    password: irt
+                    """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
+
+        def notif2 = notificationFor "dbtest-irt2@ripe.net"
+        notif2.subject =~ "Notification of RIPE Database changes"
+        notif2.modified.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+
+        def notif = notificationFor "dbtest-irt@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.modified.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+
+        noMoreMessages()
+
+        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255","mnt-irt:\\s*irt-test-notify2")
+    }
+
+    def "modify an inetnum referencing an IRT with irt-nfy, removing the mnt-irt"() {
+        given:
+            syncUpdate(getTransient("IRT_TEST_NOTIFY") + "password: test3\npassword: irt")
+            queryObject("-r -T irt irt-test-notify", "irt", "irt-test-notify")
+
+            syncUpdate(getTransient("INETNUM") + "password: test3\npassword: hm\npassword: irt")
+            queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                    inetnum:      192.168.200.0 - 192.168.200.255
+                    netname:      RIPE-NET
+                    descr:        /24 assigned
+                    country:      NL
+                    admin-c:      TP1-TEST
+                    tech-c:       TP1-TEST
+                    status:       ASSIGNED PA
+                    mnt-by:       TST-MNT3
+                    changed:      dbtest@ripe.net 20020101
+                    source:       TEST
+
+                    password: test3
+                    """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
+
+        def notif = notificationFor "dbtest-irt@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.modified.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+
+        noMoreMessages()
+
+        query_object_not_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255","mnt-irt:        irt-test-notify")
+    }
+
+    def "modify an inetnum referencing an IRT with irt-nfy, modifying admin-c, should not notify"() {
+        given:
+            syncUpdate(getTransient("IRT_TEST_NOTIFY") + "password: test3\npassword: irt")
+            queryObject("-r -T irt irt-test-notify", "irt", "irt-test-notify")
+
+            syncUpdate(getTransient("INETNUM") + "password: test3\npassword: hm\npassword: irt")
+            queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                    inetnum:      192.168.200.0 - 192.168.200.255
+                    netname:      RIPE-NET
+                    descr:        /24 assigned
+                    country:      NL
+                    admin-c:      TP2-TEST
+                    tech-c:       TP2-TEST
+                    status:       ASSIGNED PA
+                    mnt-by:       TST-MNT3
+                    mnt-irt:      irt-test-notify
+                    changed:      dbtest@ripe.net 20020101
+                    source:       TEST
+
+                    password: test3
+                    """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
+
+        noMoreMessages()
+
+        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255","mnt-irt:        irt-test-notify")
+    }
+
+    def "create an inetnum referencing an IRT with irt-nfy"() {
+        given:
+        syncUpdate(getTransient("IRT_TEST_NOTIFY") + "password: test3\npassword: irt")
+        queryObject("-r -T irt irt-test-notify", "irt", "irt-test-notify")
+
+        queryObjectNotFound("-r -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                    inetnum:      192.168.201.0 - 192.168.201.255
+                    netname:      RIPE-NET
+                    descr:        /24 assigned
+                    country:      NL
+                    admin-c:      TP1-TEST
+                    tech-c:       TP1-TEST
+                    status:       ASSIGNED PA
+                    mnt-by:       TST-MNT3
+                    mnt-irt:      irt-test-notify
+                    changed:      dbtest@ripe.net 20020101
+                    source:       TEST
+
+                    password: test3
+                    password: irt
+                    password: hm
+                    """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any {it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255"}
+
+        def notif = notificationFor "dbtest-irt@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.created.any { it.type == "inetnum" && it.key == "192.168.201.0 - 192.168.201.255" }
+
+        noMoreMessages()
+
+        query_object_matches("-r -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255","mnt-irt:        irt-test-notify")
+    }
+
+}

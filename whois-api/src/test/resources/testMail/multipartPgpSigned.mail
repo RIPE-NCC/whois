@@ -1,0 +1,50 @@
+From: User <user@ripe.net>
+Content-Type: multipart/signed;
+	boundary="Apple-Mail=_9CDFE7D2-22AE-464F-ABDA-BF5CACC56A4C";
+	protocol="application/pgp-signature";
+	micalg=pgp-sha1
+X-Smtp-Server: mailhost.ripe.net
+Subject: NEW
+X-Universally-Unique-Identifier: d6f7f9a4-2dff-4962-84fe-6ca2fb621d90
+Date: Mon, 10 Dec 2012 12:37:59 +0100
+Message-Id: <0C4C4196-55E6-4E8B-BE54-F8A92DEBD1A0@ripe.net>
+To: test-dbm@ripe.net
+Mime-Version: 1.0 (Apple Message framework v1283)
+
+
+--Apple-Mail=_9CDFE7D2-22AE-464F-ABDA-BF5CACC56A4C
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=us-ascii
+
+key-cert:        AUTO-1
+method:          X509
+owner:           /CN=4a96eecf-9d1c-4e12-8add-5ea5522976d8
+fingerpr:        82:7C:C5:40:D1:DB:AE:6A:FA:F8:40:3E:3C:9C:27:7C
+certif:          -----BEGIN CERTIFICATE-----
+certif:          -----END CERTIFICATE-----
+mnt-by:          TEST-DBM-MNT
+remarks:         remark
+changed:         noreply@ripe.net 20121001
+source:          TEST
+--Apple-Mail=_9CDFE7D2-22AE-464F-ABDA-BF5CACC56A4C
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename=signature.asc
+Content-Type: application/pgp-signature;
+	name=signature.asc
+Content-Description: Message signed with OpenPGP using GPGMail
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (Darwin)
+
+iQEcBAEBAgAGBQJQxcmXAAoJEO6ZHuIo9s1sHaQH/1OaQvFu9UBKCm9xwaVAsV+4
+jD//LmrFWJS1ddyhc5VqrClVrEjZdDFltiESofCbNUh6Q3jLcw/QdkjV5B/Vx3XG
+iO3BmqHhzvrmkZ4M+2kajeLsFtO0I7s7sK/GAjGuD6XzljXAym+PnMHpEAHs+Dl1
+F0Kvnww//eqV0dEmedF/Pmm8WAcg1PJso4ZtK+vMumZs/21//CmxiPo/N4jBsbxE
+QTkjxG9BMAiD6+ssmN04uf98T8lXqbrlmZkdiI0Kjgk6bFaGPTAAG/GX+ynq9NQL
+gcJBGslVNe4vcBxgVFePSC4YnpgjaVQ/DGivYoOdX9xaxYhCiOpBynTlf8EiN3Y=
+=t2Xd
+-----END PGP SIGNATURE-----
+
+--Apple-Mail=_9CDFE7D2-22AE-464F-ABDA-BF5CACC56A4C--

@@ -1,0 +1,17 @@
+.DS_Store
+/target
+/*/target/
+/bin/
+.classpath
+.project
+.settings
+.*.swp
+*~
+/src/main/resources/application-dev.properties
+/.checkstyle
+var/
+/.idea
+pom.xml.*Backup
+*.iml
+*qrylog*
+logs

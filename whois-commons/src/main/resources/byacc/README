@@ -1,0 +1,19 @@
+download the byacc commandline program from http://byaccj.sourceforge.net/
+
+generate the parserfile from a particular yacc file:
+yacc -Jclass=<classname> -Jnoconstruct -Jimplements=AttributeParser<Void> -Jpackage=net.ripe.db.whois.generated -J <yaccfile>
+
+where 'yacc' is the downloaded program, 'classname' is the name of the class you want to generate (be sure to give it
+the same name in your added java methods (bottom of yacc file here)) and 'yaccfile' one of the files in this directory.
+The naming should be fairly intuitive. Example, to generate MpImportParser from mp_import.y:
+
+yacc -Jclass=MpImportParser -Jnoconstruct -Jimplements=AttributeParser\<Void\> -Jpackage=net.ripe.db.whois.generated-J mp_import.y
+
+You're pretty much done now, below what was used the last time:
+
+yacc -Jclass=MpImportParser -Jnoconstruct -Jimplements=AttributeParser\<Void\> -Jpackage=net.ripe.db.whois.generated -J mp_import.y
+yacc -Jclass=DefaultParser -Jnoconstruct -Jimplements=AttributeParser\<Void\> -Jpackage=net.ripe.db.whois.generated -J default.y
+yacc -Jclass=ExportParser -Jnoconstruct -Jimplements=AttributeParser\<Void\> -Jpackage=net.ripe.db.whois.generated -J export.y
+yacc -Jclass=ImportParser -Jnoconstruct -Jimplements=AttributeParser\<Void\> -Jpackage=net.ripe.db.whois.generated -J import.y
+yacc -Jclass=MpExportParser -Jnoconstruct -Jimplements=AttributeParser\<Void\> -Jpackage=net.ripe.db.whois.generated -J mp_export.y
+yacc -Jclass=MpDefaultParser -Jnoconstruct -Jimplements=AttributeParser\<Void\> -Jpackage=net.ripe.db.whois.generated -J mp_default.y

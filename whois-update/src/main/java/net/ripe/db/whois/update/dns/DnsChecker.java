@@ -1,0 +1,105 @@
+package net.ripe.db.whois.update.dns;
+
+import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.domain.Operation;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+import java.util.Set;
+
+@Component
+public class DnsChecker {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DnsChecker.class);
+
+    private final DnsGateway dnsGateway;
+
+    @Autowired
+    public DnsChecker(final DnsGateway dnsGateway) {
+        this.dnsGateway = dnsGateway;
+    }
+
+    public void checkAll(final UpdateRequest updateRequest, final UpdateContext updateContext) {
+        Set<DnsCheckRequest> dnsCheckRequestSet = Sets.newLinkedHashSet();
+        for (Update update : updateRequest.getUpdates()) {
+            if (isDnsCheckRequired(update)) {
+                dnsCheckRequestSet.add(createDnsCheckRequest(update));
+            }
+        }
+
+        final Map<DnsCheckRequest, DnsCheckResponse> dnsCheckResponseMap = dnsGateway.performDnsChecks(dnsCheckRequestSet);
+        for (Map.Entry<DnsCheckRequest, DnsCheckResponse> entry : dnsCheckResponseMap.entrySet()) {
+            updateContext.addDnsCheckResponse(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private boolean isDnsCheckRequired(final Update update) {
+        if (Operation.DELETE.equals(update.getOperation())) {
+            return false;
+        }
+
+        if (!ObjectType.DOMAIN.equals(update.getType())) {
+            return false;
+        }
+
+        if (update.isOverride()) {
+            return false;
+        }
+
+        LOGGER.debug("DNS check required for update: {}", update);
+        return true;
+    }
+
+    public void check(final Update update, final UpdateContext updateContext) {
+        if (!isDnsCheckRequired(update)) {
+            return;
+        }
+
+        final DnsCheckRequest dnsCheckRequest = createDnsCheckRequest(update);
+        DnsCheckResponse dnsCheckResponse = updateContext.getCachedDnsCheckResponse(dnsCheckRequest);
+        if (dnsCheckResponse == null) {
+            dnsCheckResponse = dnsGateway.performDnsCheck(dnsCheckRequest);
+            updateContext.addDnsCheckResponse(dnsCheckRequest, dnsCheckResponse);
+        }
+
+        for (final Message message : dnsCheckResponse.getMessages()) {
+            updateContext.addMessage(update, message);
+        }
+    }
+
+    private DnsCheckRequest createDnsCheckRequest(final Update update) {
+        final RpslObject rpslObject = update.getSubmittedObject();
+        final String domain = rpslObject.getKey().toString();
+        final String glue = createGlue(rpslObject);
+        return new DnsCheckRequest(domain, glue);
+    }
+
+    private String createGlue(final RpslObject rpslObject) {
+        final StringBuilder glue = new StringBuilder();
+
+        for (final CIString nserver : rpslObject.getValuesForAttribute(AttributeType.NSERVER)) {
+            if (glue.length() > 0) {
+                glue.append(' ');
+            }
+
+            glue.append(nserver.toString().replaceAll(" ", "/"));
+        }
+
+        final CIString domain = rpslObject.getKey();
+        for (final CIString rdata : rpslObject.getValuesForAttribute(AttributeType.DS_RDATA)) {
+            glue.append(" ds:/").append(domain).append("_DS_").append(rdata.toString().replaceAll(" ", "_"));
+        }
+
+        return glue.toString();
+    }
+}

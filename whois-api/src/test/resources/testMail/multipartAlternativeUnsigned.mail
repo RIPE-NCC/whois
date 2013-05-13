@@ -1,0 +1,72 @@
+From john@doe.com Thu May 31 00:26:40 2012
+Return-path: <john@doe.com>
+Envelope-to: dbase@XXXwhois-update.db.ripe.net
+Delivery-date: Thu, 31 May 2012 00:26:40 +0200
+Received: from postgirl.ipv6.ripe.net ([2001:67c:2e8:11::c100:1342] helo=postgirl.ripe.net)
+        by dbc-whois5.ripe.net with esmtps (TLSv1:AES256-SHA:256)
+        (Exim 4.72)
+        (envelope-from <john@doe.com>)
+        id 1SZrLj-0000db-9B
+        for dbase@XXXwhois-update.db.ripe.net; Thu, 31 May 2012 00:26:40 +0200
+MIME-Version: 1.0
+From: John Doe <john@doe.com>
+Date: Thu, 31 May 2012 00:26:14 +0200
+Message-ID: <CACt+-2p6YfJAgtZLYSf=stuVV7M+6gBvbDLKWdBzXVC+vmxkbg@XXXmail.gmail.com>
+Subject:
+To: auto-dbm <auto-dbm@XXXripe.net>
+Content-Type: multipart/alternative; boundary=14dae9340989a2357404c1487137
+X-Gm-Message-State: ALoCoQn3si8qH0GxqYa8kl339X/9ixzRUq9E61/5AkTOjyscMkwfsvViGnAqwBCpSaWhCqK/JSyZ
+X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.48/RELEASE,
+         bases: 20120425 #7816575, check: 20120530 clean
+X-RIPE-Spam-Level: --
+X-RIPE-Spam-Report: Spam Total Points:   -2.7 points
+  pts rule name              description
+ ---- ---------------------- ------------------------------------
+ -0.7 RCVD_IN_DNSWL_LOW      RBL: Sender listed at http://www.dnswl.org/, low
+                             trust
+  0.0 NO_DNS_FOR_FROM        RBL: Envelope sender has no MX or A DNS records
+ -1.9 BAYES_00               BODY: Bayes spam probability is 0 to 1%
+                             [score: 0.0000]
+  0.0 HTML_MESSAGE           BODY: HTML included in message
+ -0.1 DKIM_VALID_AU          Message has a valid DKIM or DK signature from author's
+                             domain
+ -0.1 DKIM_VALID             Message has at least one valid DKIM or DK signature
+  0.1 DKIM_SIGNED            Message has a DKIM or DK signature, not necessarily valid
+X-RIPE-Signature: 4bf39126ebeef661a54bad417f63d01ba7a09a39f78ee94bdae75136fe7b14a7
+
+--14dae9340989a2357404c1487137
+Content-Type: text/plain; charset=ISO-8859-1
+
+password: password
+password: password
+
+as-set:      AS198792:AS-TEST
+descr:       Description
+tech-c:      P1-RIPE
+admin-c:     P1-RIPE
+mnt-by:      TEST-MNT
+mnt-by:      TEST-MNT
+changed:     test@bogus.fr 20120531
+source:      RIPE
+
+
+as-set:      AS1:AS-FOO-BOGUS
+descr:       Description
+tech-c:      P1-RIPE
+admin-c:     P1-RIPE
+mnt-by:      TEST-MNT
+mnt-by:      TEST-MNT
+changed:     test@bogus.fr 20120531
+source:      RIPE
+
+--14dae9340989a2357404c1487137
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div>password: password</div><div>password: password</div><div><br></div><div>as-set: =A0 =A0 =A0AS198792:AS-TEST</di=
+v>
+
+changed: =A0 =A0 <a href=3D"mailto:test@bogus.fr">test@bogus.fr=
+</a> 20120531</div><div>source: =A0 =A0 =A0RIPE</div>
+
+--14dae9340989a2357404c1487137--

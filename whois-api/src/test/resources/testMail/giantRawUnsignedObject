@@ -1,0 +1,2610 @@
+aut-num:         AS1
+AS-TEST:         ASTEST
+descr:           Description
+org:             ORG-T1-RIPE
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST AS-TEST-T1 AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1-IX
+import:          from AS1 action pref=100; accept AS-TEST-T1-IX
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1-IX
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1:AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1 AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1 AS1 AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1 AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1 AS-TEST-T1-V6
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST-T1-IX
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1-NET
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST AS-TEST AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS1
+import:          from AS1 action pref=100; accept AS-TEST-T1
+import:          from AS1 action pref=100; accept AS1
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+export:          to AS1 announce AS-TEST
+admin-c:         RA-ORG
+tech-c:          RN1863-RIPE
+mnt-by:          RIPE-NCC-END-MNT
+mnt-by:          RUIX-MNT
+remarks:         * -------------------------------------------------------------
+remarks:         Test
+remarks:         Remark
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:
+remarks:         * -------------------------------------------------------------
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST AS-TEST-T1 AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1-IX
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1-IX
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1-IX
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1:AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1 AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1 AS1 AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1 AS-TEST-T1-V6
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1-IX
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1-NET
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST AS-TEST AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1-K
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1 AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+import:          from AS1
+                 action pref=100;
+                 accept AS-TEST-T1
+import:          from AS1
+                 action pref=100;
+                 accept AS1
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+export:          to AS1
+                 announce AS-TEST
+changed:         changed@test.net 20120813
+source:          RIPE
+

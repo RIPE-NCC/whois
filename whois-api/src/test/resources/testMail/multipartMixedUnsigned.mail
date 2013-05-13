@@ -1,0 +1,65 @@
+From user@host.org Mon Jun 11 07:30:10 2012
+Return-path: <rtrswcfg@XXXintrepid.muc.nss.cw.net>
+Envelope-to: dbase@whois-update.db.ripe.net
+Delivery-date: Mon, 11 Jun 2012 07:30:10 +0200
+Message-Id: <201206110530.q5B5U7vT003618@host.net>
+Content-Transfer-Encoding: binary
+Content-Type: multipart/mixed; boundary="_----------=_133939260735763"
+MIME-Version: 1.0
+X-Mailer: MIME::Lite 3.01 (F2.74; T1.19; A1.74; B3.07; Q3.07)
+Date: Mon, 11 Jun 2012 05:30:07 UT
+From: user@host.net
+To: auto-dbm@ripe.net
+X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.48/RELEASE,
+         bases: 20120425 #7816575, check: 20120611 clean
+X-RIPE-Spam-Level: /
+X-RIPE-Spam-Report: Spam Total Points:   -0.8 points
+  pts rule name              description
+ ---- ---------------------- ------------------------------------
+ -0.7 RCVD_IN_DNSWL_LOW      RBL: Sender listed at http://www.dnswl.org/, low
+                             trust
+ -0.0 T_RP_MATCHES_RCVD      Envelope sender domain matches handover relay
+                             domain
+ -1.9 BAYES_00               BODY: Bayes spam probability is 0 to 1%
+                             [score: 0.0000]
+  1.8 MISSING_SUBJECT        Missing Subject: header
+X-RIPE-Signature: d8f587edcbb8681ad048968a46e636c1427737e33057d8c39d3c34a9aeb984aa
+
+This is a multi-part message in MIME format.
+
+--_----------=_133939260735763
+Content-Disposition: inline
+Content-Length: 5285
+Content-Transfer-Encoding: binary
+Content-Type: text/plain
+
+as-set:          AS1273:AS-CWW-V6
+descr:           Cable & Wireless customers and PA IPv6 space
+descr:           New as-set object
+members:            AS197000
+members:            AS197874
+members:            AS9150
+members:            AS-CPRM-V6
+members:            AS16131
+members:            AS4773
+members:            AS-SURFNET
+members:            AS20495
+members:            AS2611
+members:            AS-P2W
+members:            AS-NETHINKS-V6
+members:            AS8472
+members:            AS-FASTWEB-V6
+members:            AS6774
+members:            AS-CAT-V6
+members:            AS-SPACENET-V6
+members:            AS15725
+members:            AS12399
+members:            AS8402
+members:            AS-EUNETIP-V6
+members:            AS16086
+members:            AS4788
+members:            AS-UNITEDCOLO
+members:            AS24845
+members:            AS-NORIS
+members:            AS-BISPING
+members:            AS30128

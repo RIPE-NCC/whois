@@ -1,0 +1,75 @@
+$origin.responseHeader
+
+>>>>>
+SUMMARY OF UPDATE:
+
+Number of objects found:                   $ack.nrFound
+Number of objects processed successfully:  $ack.nrProcessedsuccessfully
+  Create:         $ack.nrCreate
+  Modify:         $ack.nrUpdate
+  Delete:         $ack.nrDelete
+  No Operation:   $ack.nrNoop
+Number of objects processed with errors:   $ack.nrProcessedErrrors
+  Create:         $ack.nrCreateErrors
+  Modify:         $ack.nrUpdateErrors
+  Delete:         $ack.nrDeleteErrors
+<<<<<
+
+
+DETAILED EXPLANATION:
+
+
+#parse("/templates/include/globalMessages.vm")
+
+#set ($failedUpdates = $ack.failedUpdates)
+#if( $failedUpdates.size() > 0)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The following object(s) were found to have ERRORS:
+
+    #foreach( $updateResult in $failedUpdates )
+    ---
+        $updateResult.action.description FAILED: $updateResult.key
+
+>>>>>
+$updateResult
+<<<<<
+    #end
+#end
+
+
+
+#set ($succeededUpdates = $ack.succeededUpdates)
+#if ($succeededUpdates.size() > 0)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The following object(s) were processed SUCCESSFULLY:
+
+    #foreach( $updateResult in $succeededUpdates )
+    ---
+        #if ($updateResult.noop)
+        No operation: $updateResult.key
+        #else
+            $updateResult.action.description SUCCEEDED: $updateResult.key
+        #end
+
+>>>>>
+$updateResult
+<<<<<
+    #end
+#end
+
+#set ($ignoredParagraphs = $ack.ignoredParagraphs)
+#if( $ignoredParagraphs.size() > 0)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The following paragraph(s) do not look like objects
+and were NOT PROCESSED:
+
+#foreach( $paragraph in $ignoredParagraphs )
+>>>>>
+$paragraph.content
+
+<<<<<
+#end
+#end
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#parse("/templates/include/terms-and-conditions.vm")
+#parse("/templates/include/version.vm")
