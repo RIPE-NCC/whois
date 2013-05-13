@@ -113,7 +113,7 @@ public class IndexTemplateTest {
 
     @Test
     public void search_concurrent() throws Exception {
-        final int nrDocs = 10000;
+        final int nrDocs = 1000;
         final int nrThreads = 100;
 
         subject.write(new IndexTemplate.WriteCallback() {
@@ -241,13 +241,14 @@ public class IndexTemplateTest {
     public void refresh() throws IOException {
         assertThat(numDocs(), is(0));
 
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 10; i++) {
             subject.write(new IndexTemplate.WriteCallback() {
                 @Override
                 public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
                     addDoc(indexWriter, "title", String.valueOf("isbn"));
                 }
             });
+
             assertThat(numDocs(), is(i));
         }
     }
