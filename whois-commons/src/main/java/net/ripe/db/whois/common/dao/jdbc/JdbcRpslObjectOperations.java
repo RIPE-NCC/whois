@@ -271,11 +271,9 @@ public class JdbcRpslObjectOperations {
             throw new IllegalStateException(String.format("%s has no 'test' or 'grs' in the name, exiting", dbName));
         }
 
-        if (jdbcTemplate.queryForList("SHOW TABLES", String.class).contains("last")) {
-            for (String tableName: new String[] {"last", "history", "serials"}) {
-                if (jdbcTemplate.queryForInt("SELECT count(*) FROM " + tableName) > 200000) {
-                    throw new IllegalStateException(String.format("%s has more than 200K rows in table %s, exiting", dbName, tableName));
-                }
+        if (jdbcTemplate.queryForList("SHOW TABLES", String.class).contains("serials")) {
+            if (jdbcTemplate.queryForInt("SELECT count(*) FROM serials") > 20000000) {
+                throw new IllegalStateException(String.format("%s has more than 20M serials, exiting", dbName));
             }
         }
     }
