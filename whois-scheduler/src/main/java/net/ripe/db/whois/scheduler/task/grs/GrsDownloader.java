@@ -12,7 +12,7 @@ class GrsDownloader {
         try {
             acquireFile(file, acquireHandler);
         } catch (IOException e) {
-            throw new RuntimeException(String.format("Unable to acquire file for source: %s", grsSource));
+            throw new RuntimeException(String.format("Unable to acquire file for source: %s", grsSource), e);
         }
     }
 
