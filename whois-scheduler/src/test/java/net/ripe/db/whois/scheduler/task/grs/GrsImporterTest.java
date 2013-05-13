@@ -12,13 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -61,16 +59,14 @@ public class GrsImporterTest {
     public void run() {
         subject = spy(subject);
         subject.setGrsImportEnabled(false);
-        when(subject.grsImport(any(String.class), anyBoolean())).thenReturn(Collections.<Future<?>>emptyList());
-
         subject.run();
-        verify(subject, timeout(1000)).grsImport(defaultSources, false);
+        verify(subject, times(0)).grsImport(anyString(), anyBoolean());
     }
 
     @Test
     public void grsImport_not_enabled() throws Exception {
         subject.setGrsImportEnabled(false);
-        await(subject.grsImport(defaultSources, false));
+        subject.run();
 
         verifyZeroInteractions(grsSourceImporter);
         verify(grsSourceRipe, never()).acquireDump(any(File.class));
