@@ -22,6 +22,8 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JpirrGrsSourceTest {
+    private static final String download = "http://127.0.0.1/";
+
     @Mock SourceContext sourceContext;
     @Mock DateTimeProvider dateTimeProvider;
 
@@ -31,13 +33,11 @@ public class JpirrGrsSourceTest {
     @Before
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new JpirrGrsSource("JPIRR-GRS", "", "http://127.0.0.1/", sourceContext, dateTimeProvider);
+        subject = new JpirrGrsSource("JPIRR-GRS", "", download, sourceContext, dateTimeProvider);
     }
 
     @Test
     public void acquire() throws IOException {
-        final String download = "http://dump.test";
-
         subject = spy(subject);
 
         doNothing().when(subject).downloadToFile(any(URL.class), any(File.class));
