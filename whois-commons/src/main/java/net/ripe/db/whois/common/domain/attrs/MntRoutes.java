@@ -14,7 +14,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
 public class MntRoutes {
-    private static final Pattern MNT_ROUTES_PATTERN = Pattern.compile("(?i)^([A-Z](?:[A-Z0-9_-]){1,80})(?:$|[ ]+\\{(.*)\\}[ ]*$)");
+    private static final Pattern MNT_ROUTES_PATTERN = Pattern.compile("(?i)^([A-Z](?:[A-Z0-9_-]){1,80})(?:[ ]+(\\{.*\\}|ANY))?$");
     private static final Splitter ADDRESS_PREFIX_RANGES_SPLITTER = Splitter.onPattern(",| ").trimResults().omitEmptyStrings();
 
     private final CIString maintainer;
@@ -52,24 +52,21 @@ public class MntRoutes {
         final String maintainer = matcher.group(1);
 
         final List<AddressPrefixRange> addressPrefixRanges = Lists.newArrayList();
-        int anyRangeCount = 0;
+        boolean anyRange = false;
 
         final String addressPrefixRangesString = matcher.group(2);
         if (addressPrefixRangesString != null) {
-            final Iterable<String> rangeStrings = ADDRESS_PREFIX_RANGES_SPLITTER.split(addressPrefixRangesString);
-            for (final String rangeString : rangeStrings) {
-                if (rangeString.equalsIgnoreCase("any")) {
-                    anyRangeCount++;
-                } else {
+            if (addressPrefixRangesString.equalsIgnoreCase("ANY")) {
+                anyRange = true;
+            } else {
+                final String noBrackets = addressPrefixRangesString.substring(1, addressPrefixRangesString.length() - 1);
+                final Iterable<String> rangeStrings = ADDRESS_PREFIX_RANGES_SPLITTER.split(noBrackets);
+                for (final String rangeString : rangeStrings) {
                     addressPrefixRanges.add(AddressPrefixRange.parse(rangeString));
                 }
             }
         }
 
-        if (anyRangeCount > 1 || (anyRangeCount == 1 && addressPrefixRanges.size() > 0)) {
-            throw new AttributeParseException("ANY can only occur as a single value", value);
-        }
-
-        return new MntRoutes(maintainer, anyRangeCount > 0, addressPrefixRanges);
+        return new MntRoutes(maintainer, anyRange, addressPrefixRanges);
     }
 }

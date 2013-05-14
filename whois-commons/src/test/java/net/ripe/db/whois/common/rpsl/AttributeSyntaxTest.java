@@ -760,8 +760,8 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.ROUTE, AttributeType.MNT_ROUTES, "RP");
         verifySuccess(ObjectType.ROUTE, AttributeType.MNT_ROUTES, "ANY");
         verifySuccess(ObjectType.ROUTE, AttributeType.MNT_ROUTES, "RIPE-NCC-RPSL-MNT");
-        verifySuccess(ObjectType.ROUTE, AttributeType.MNT_ROUTES, "AS8867-MNT  {ANY}");
-        verifySuccess(ObjectType.ROUTE, AttributeType.MNT_ROUTES, "AS8867-MNT  { any }");
+        verifySuccess(ObjectType.ROUTE, AttributeType.MNT_ROUTES, "AS8867-MNT  ANY");
+        verifySuccess(ObjectType.ROUTE, AttributeType.MNT_ROUTES, "AS8867-MNT  any  ");
         verifySuccess(ObjectType.ROUTE, AttributeType.MNT_ROUTES, "MNTNER_NAME1");
         verifyFailure(ObjectType.ROUTE, AttributeType.MNT_ROUTES, "SOME-MNT {0/0}");
         verifyFailure(ObjectType.ROUTE, AttributeType.MNT_ROUTES, "SOME-MNT {128.9/16}");
