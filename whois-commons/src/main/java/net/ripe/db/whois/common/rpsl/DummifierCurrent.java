@@ -4,6 +4,8 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
@@ -14,6 +16,8 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.*;
 
 @Component
 public class DummifierCurrent implements Dummifier {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummifierCurrent.class);
+
     private static final String PERSON_REPLACEMENT = "Name Removed";
     private static final String FILTERED_APPENDIX = " # Filtered";
     private static final Splitter EMAIL_SPLITTER = Splitter.on('@');
@@ -36,20 +40,25 @@ public class DummifierCurrent implements Dummifier {
             RpslAttribute replacement = attributes.get(i);
             final AttributeType attributeType = replacement.getType();
 
-            if (!(objectType == ObjectType.ROLE && rpslObject.containsAttribute(ABUSE_MAILBOX))) {
-                replacement = replacePerson(attributeType, replacement);
-                replacement = replaceAuth(attributeType, replacement);
-                replacement = replacePhoneFax(attributeType, replacement);
+            try {
+                if (!(objectType == ObjectType.ROLE && rpslObject.containsAttribute(ABUSE_MAILBOX))) {
+                    replacement = replacePerson(attributeType, replacement);
+                    replacement = replaceAuth(attributeType, replacement);
+                    replacement = replacePhoneFax(attributeType, replacement);
 
-                if (attributeType == ADDRESS) {
-                    lastAddressLine = replacement;
-                    lastAddressLineIndex = i;
-                    replacement = new RpslAttribute(ADDRESS, "***");
+                    if (attributeType == ADDRESS) {
+                        lastAddressLine = replacement;
+                        lastAddressLineIndex = i;
+                        replacement = new RpslAttribute(ADDRESS, "***");
+                    }
                 }
-            }
-            replacement = replaceEmail(attributeType, replacement);
+                replacement = replaceEmail(attributeType, replacement);
 
-            attributes.set(i, replacement);
+                attributes.set(i, replacement);
+            } catch (RuntimeException e) {
+                LOGGER.warn("Dummifier failed on [" + attributes.get(i) + "]", e);
+                return null;
+            }
         }
 
         if (lastAddressLine != null) {
@@ -63,7 +72,7 @@ public class DummifierCurrent implements Dummifier {
         if (PHONE_FAX_ATTRIBUTES.contains(attributeType)) {
             char[] phone = attribute.getCleanValue().toString().toCharArray();
 
-            for (int i = phone.length/2; i < phone.length; i++) {
+            for (int i = phone.length / 2; i < phone.length; i++) {
                 if (!Character.isWhitespace(phone[i])) {
                     phone[i] = '.';
                 }
