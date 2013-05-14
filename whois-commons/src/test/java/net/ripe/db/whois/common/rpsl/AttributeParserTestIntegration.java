@@ -150,18 +150,19 @@ public class AttributeParserTestIntegration {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (line.length() == 0) {
-                        if (builder.length() > 0) {
+                        final String rpslString = builder.toString().trim();
+                        builder.setLength(0);
+
+                        if (rpslString.length() > 0) {
                             RpslObject rpslObject;
                             try {
-                                rpslObject = RpslObject.parse(builder.toString().trim());
+                                rpslObject = RpslObject.parse(rpslString);
                             } catch (IllegalArgumentException e) {
-                                LOGGER.info("RpslObject {} could not be parsed", builder.toString());
-                                builder.setLength(0);
+                                LOGGER.info("RpslObject {} could not be parsed", rpslString);
                                 continue;
                             }
 
                             parseAttributes(rpslObject, types);
-                            builder.setLength(0);
                         }
                     } else {
                         if (!line.startsWith("#")) {
