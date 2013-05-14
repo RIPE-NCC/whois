@@ -29,6 +29,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -135,7 +136,11 @@ public class LogSearchService {
                 continue;
             }
 
-            final String url = String.format("http://%s:%s/api/logs/current?search=%s&date=%s&apiKey=%s", clusterMember.getHostName(), jettyConfig.getPort(Audience.INTERNAL), search, date, apiKey);
+            final String url = String.format("http://%s:%s/api/logs/current?search=%s&date=%s&apiKey=%s",
+                    clusterMember.getHostName(),
+                    jettyConfig.getPort(Audience.INTERNAL),
+                    URLEncoder.encode(search, "ISO-8859-1"),
+                    date, apiKey);
             final Future<List<Update>> future = client.asyncResource(url)
                     .accept(MediaType.APPLICATION_JSON_TYPE)
                     .get(new GenericType<List<Update>>() {
