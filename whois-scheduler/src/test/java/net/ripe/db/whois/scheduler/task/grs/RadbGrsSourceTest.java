@@ -31,7 +31,7 @@ public class RadbGrsSourceTest {
     @Before
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new RadbGrsSource("RADB-GRS", "", sourceContext, dateTimeProvider);
+        subject = new RadbGrsSource("RADB-GRS", "", "http://127.0.0.1/", sourceContext, dateTimeProvider);
     }
 
     @Test
@@ -39,7 +39,6 @@ public class RadbGrsSourceTest {
         final String download = "http://dump.test";
 
         subject = spy(subject);
-        subject.setDownload(download);
 
         doNothing().when(subject).downloadToFile(any(URL.class), any(File.class));
 

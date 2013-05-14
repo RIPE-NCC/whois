@@ -15,20 +15,17 @@ import java.util.zip.GZIPInputStream;
 
 @Component
 class JpirrGrsSource extends GrsSource {
-    private String download;
-
-    @Value("${grs.import.jpirr.download}")
-    public void setDownload(final String download) {
-        this.download = download;
-    }
+    private final String download;
 
     @Autowired
     JpirrGrsSource(
             @Value("${grs.import.jpirr.source}") final String source,
             @Value("${grs.import.jpirr.resourceDataUrl:}") final String resourceDataUrl,
+            @Value("${grs.import.jpirr.download}") final String download,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider) {
         super(source, resourceDataUrl, sourceContext, dateTimeProvider);
+        this.download = download;
     }
 
     @Override
