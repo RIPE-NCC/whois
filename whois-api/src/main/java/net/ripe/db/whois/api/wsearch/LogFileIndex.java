@@ -212,7 +212,7 @@ public class LogFileIndex extends RebuildableIndex {
             queryBuilder.append("date:").append(DATE_FORMATTER.print(date)).append(' ');
         }
 
-        queryBuilder.append("contents:").append(queryString);
+        queryBuilder.append("contents:").append(QueryParser.escape(queryString));
 
         final Query query = queryParser.parse(queryBuilder.toString());
 

@@ -69,6 +69,14 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(wsearch, containsString("192.0.0.0 - 193.0.0.0"));
     }
 
+    @Test
+    public void curly_brace_in_search_term() throws Exception {
+        createLogFile("mnt-routes: ROUTES-MNT {2001::/48}");
+
+        final String response = doWSearch("{2001::/48}");
+        assertThat(response, containsString("ROUTES-MNT {2001::/48}"));
+    }
+
     private String doWSearch(final String searchTerm) throws IOException {
         return client
                 .resource(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=DB-RIPE-ZwBAFuR5JuBxQCnQ", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1")))
