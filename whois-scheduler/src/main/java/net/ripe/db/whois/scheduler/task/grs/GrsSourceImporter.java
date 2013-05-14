@@ -163,7 +163,7 @@ class GrsSourceImporter {
                             final RpslAttribute typeAttribute = rpslObject.getTypeAttribute();
                             typeAttribute.validateSyntax(rpslObject.getType(), messages);
                             if (messages.hasErrors()) {
-                                logger.warn("Errors for object with key {}: {}", typeAttribute, messages);
+                                logger.debug("Errors for object with key {}: {}", typeAttribute, messages);
                                 nrIgnored++;
                             } else if (resourceData.isMaintainedInRirSpace(rpslObject)) {
                                 createOrUpdate(rpslObject);
