@@ -317,7 +317,7 @@ public class UnrefCleanupTest {
         final RpslObject rpslObject = RpslObject.parse("" +
                 "route: 10/8\n" +
                 "origin: AS1\n" +
-                StringUtils.repeat("mnt-routes: DEV-MNT ANY\n", 1000));
+                StringUtils.repeat("mnt-routes: DEV-MNT {ANY}\n", 1000));
         rpslObjectsInLast.add(rpslObject);
 
         when(objectDao.getById(1)).thenReturn(rpslObject);
