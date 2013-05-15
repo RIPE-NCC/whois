@@ -1668,8 +1668,9 @@ class RouteAuthIPSpec extends BaseSpec {
         ack.countErrorWarnInfo(3, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.errorMessagesFor("Modify", "[route] 20.13.0.0/16AS3000") ==
-                ["Syntax error in EXACT-MR-MNT {20.13.0.0/16^+} (ANY can only occur as a single value)",
-                        "Syntax error in EXACT-MR-MNT { aNY} (ANY can only occur as a single value)",
+                [
+                        "Syntax error in EXACT-MR-MNT {20.13.0.0/16^+} (ANY can only occur as a single value)",
+                        "Syntax error in EXACT-MR-MNT aNY (ANY can only occur as a single value)",
                         "Syntax error in EXACT-MR-MNT (ANY can only occur as a single value)"
                 ]
 

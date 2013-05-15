@@ -1975,51 +1975,6 @@ class Inet6numSpec extends BaseSpec {
         queryObject("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
     }
 
-    def "create /64 assignment with mnt-routes op data ANY, bareword"() {
-      given:
-        syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
-        queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
-        syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
-        queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
-
-      expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inet6num:     2001:600::/64
-                netname:      EU-ZZ-2001-0600
-                descr:        European Regional Registry
-                country:      EU
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                mnt-by:       lir-MNT
-                mnt-routes:   routes-mnt ANY
-                status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
-                source:       TEST
-
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
-        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
-                ["Syntax error in routes-mnt ANY"]
-
-        queryObjectNotFound("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
-    }
-
     def "create /64 assignment with mnt-routes op data exact match"() {
       given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")

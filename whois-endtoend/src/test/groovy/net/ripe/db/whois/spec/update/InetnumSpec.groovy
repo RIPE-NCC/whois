@@ -2124,7 +2124,7 @@ class InetnumSpec extends BaseSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                mnt-routes:   routes-mnt ANY
+                mnt-routes:   routes-mnt any
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
@@ -2145,51 +2145,6 @@ class InetnumSpec extends BaseSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-    }
-
-    def "create assignment, mnt-routes op data ANY, bareword"() {
-      given:
-        syncUpdate(getTransient("P-LOW") + "password: hm\npassword: owner3")
-
-      expect:
-        queryObject("-GBr -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
-        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.168.200.0 - 192.168.200.255
-                netname:      RIPE-NET1
-                descr:        /24 assigned
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PA
-                mnt-by:       END-USER-MNT
-                mnt-routes:   routes-mnt ANY
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: lir
-                password: end
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-        ack.errors
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["Syntax error in routes-mnt ANY"]
-
-        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
     def "create assignment, mnt-routes op data exact match"() {
