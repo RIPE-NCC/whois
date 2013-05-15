@@ -134,7 +134,7 @@ public class WhoisRestService {
 
                 if (!inMemoryResultHandler.getTagObjects().isEmpty()) {
                     final List<TagResponseObject> tagObjects = inMemoryResultHandler.getTagObjects();
-                    whoisResources.setTags(WhoisObjectMapper.mapTags(tagObjects));
+//                    whoisResources.setTags(WhoisObjectMapper.mapTags(tagObjects)); // TODO [AK] Handle tags
                 }
                 return whoisResources;
             }

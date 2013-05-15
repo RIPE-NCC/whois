@@ -6,17 +6,17 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import javax.xml.bind.annotation.*;
 import java.util.List;
 
+@SuppressWarnings("UnusedDeclaration")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "service",
-    "link",
-    "parameters",
-    "objects",
-    "sources",
-    "grsSources",
-    "geolocationAttributes",
-    "versions",
-    "tags"
+        "service",
+        "link",
+        "parameters",
+        "objects",
+        "sources",
+        "grsSources",
+        "geolocationAttributes",
+        "versions"
 })
 @JsonIgnoreProperties({"noNamespaceSchemaLocation"})
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
@@ -41,11 +41,9 @@ public class WhoisResources {
     @XmlElement
     private Link link;
     @XmlElement(name = "geolocation-attributes")
-    private GeolocationAttributes geolocationAttributes;
+    private GeolocationAttributes geolocationAttributes; // TODO [AK] What about this one? are we using getters or field access?
     @XmlElement(name = "versions")
     protected WhoisVersions versions;
-    @XmlElement(name = "tags")
-    protected WhoisTags tags;
 
     public Link getLink() {
         return link;
@@ -112,15 +110,6 @@ public class WhoisResources {
 
     public WhoisResources setVersions(WhoisVersions versions) {
         this.versions = versions;
-        return this;
-    }
-
-    public WhoisTags getTags() {
-        return tags;
-    }
-
-    public WhoisResources setTags(WhoisTags tags) {
-        this.tags = tags;
         return this;
     }
 }
