@@ -10,6 +10,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.util.NamedList;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -306,12 +307,6 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
     }
 
-    private final String query(final String queryString) {
-        return client
-                .resource(String.format("http://localhost:%s/search?%s", getPort(AUDIENCE), queryString))
-                .get(String.class);
-    }
-
     @Test
     public void search_for_deleted_object() {
         final RpslObject object = RpslObject.parse("" +
@@ -349,5 +344,177 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
     public void nullpointerbug() {
         final String response = query("q=%28http%5C%3A%2F%2Fvv.uka.ru%29");
         assertThat(response, containsString("numFound=\"0\""));
+    }
+
+    @Test
+    public void search_partial_inetnum() throws Exception {
+        databaseHelper.addObject(
+               "inetnum:        193.0.0.0 - 193.0.0.255\n" +
+               "netname:        RIPE-NCC\n" +
+               "source:         RIPE");
+
+        freeTextIndex.rebuild();
+
+        assertThat(query("q=193.0.0.0"), containsString("numFound=\"1\""));
+        assertThat(query("q=193.0.0.255"), containsString("numFound=\"1\""));
+        assertThat(query("q=193"), containsString("numFound=\"1\""));
+        assertThat(query("q=193.0"), containsString("numFound=\"1\""));
+        assertThat(query("q=193.0.0"), containsString("numFound=\"1\""));
+        assertThat(query("q=ripe-ncc"), containsString("numFound=\"1\""));
+        assertThat(query("q=ripe"), containsString("numFound=\"1\""));
+        assertThat(query("q=ncc"), containsString("numFound=\"1\""));
+        assertThat(query("q=ripencc"), containsString("numFound=\"1\""));
+    }
+
+    @Test
+    public void search_partial_inetnum_multiple_matches() throws Exception {
+        databaseHelper.addObject(
+               "inetnum:        193.0.0.0 - 193.0.0.255\n" +
+               "netname:        RIPE-NCC\n" +
+               "source:         RIPE");
+        databaseHelper.addObject(
+               "inetnum:        193.1.0.0 - 193.1.0.255\n" +
+               "netname:        RIPE-NCC\n" +
+               "source:         RIPE");
+
+        freeTextIndex.rebuild();
+
+        assertThat(query("q=193.0.0.0"), containsString("numFound=\"1\""));
+        assertThat(query("q=193.1.0.0"), containsString("numFound=\"1\""));
+        assertThat(query("q=193"), containsString("numFound=\"2\""));
+    }
+
+    @Test
+    public void search_partial_inet6num() throws Exception {
+        databaseHelper.addObject(
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                "netname: RIPE-NCC\n" +
+                "source: RIPE\n");
+
+        freeTextIndex.rebuild();
+
+        assertThat(query("q=2a00"), containsString("numFound=\"1\""));
+//        assertThat(query("q=2a00:1f78"), containsString("numFound=\"1\""));           // TODO [ES] no results
+        assertThat(query("q=2a00:1f78::fffe/48"), containsString("numFound=\"1\""));
+    }
+
+    @Test
+    public void search_partial_inet6num_multiple_matches() throws Exception {
+        databaseHelper.addObject(
+                "inet6num: 2a00:1f78:7a2b:2001::/64\n" +
+                "netname: RIPE-NCC\n" +
+                "source: RIPE\n");
+        databaseHelper.addObject(
+                "inet6num: 2a00:1f11:7777:2a98::/64\n" +
+                        "netname: RIPE-NCC\n" +
+                        "source: RIPE\n");
+
+        freeTextIndex.rebuild();
+
+        assertThat(query("q=2a00"), containsString("numFound=\"2\""));
+    }
+
+    @Ignore("TODO: [ES] no results (hyphen splits word into two tokens)")
+    @Test
+    public void search_remove_punctuation_from_index_token() throws Exception {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                "org-name:     Test-Organisation, Somewhere, Ltd\n" +
+                "org-type:     OTHER\n" +
+                "descr:        test org\n" +
+                "address:      street 1\n" +
+                "e-mail:       org1@test.com\n" +
+                "mnt-ref:      OWNER-MNT\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "changed:      dbtest@ripe.net 20120505\n" +
+                "source:       RIPE\n"));
+        freeTextIndex.rebuild();
+
+        final String response = query("q=Test-Organisation");
+
+        System.out.println(response);
+        assertThat(response, containsString("numFound=\"1\""));
+    }
+
+    @Ignore("TODO: [ES] no results")
+    @Test
+    public void search_remove_punctuation_from_search_term() throws Exception {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                "org-name:     Test-Organisation Ltd\n" +
+                "org-type:     OTHER\n" +
+                "descr:        test org\n" +
+                "address:      street 1\n" +
+                "e-mail:       org1@test.com\n" +
+                "mnt-ref:      OWNER-MNT\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "changed:      dbtest@ripe.net 20120505\n" +
+                "source:       RIPE\n"));
+        freeTextIndex.rebuild();
+
+        final String response = query("q=Test-Organisation,");
+
+        System.out.println(response);
+        assertThat(response, containsString("numFound=\"1\""));
+    }
+
+    @Ignore("TODO: [ES] no results")
+    @Test
+    public void search_remove_quotes_from_index_token() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                "org-name:     \"'Test-Organisation'\" Ltd\n" +
+                "org-type:     OTHER\n" +
+                "descr:        test org\n" +
+                "address:      street 1\n" +
+                "e-mail:       org1@test.com\n" +
+                "mnt-ref:      OWNER-MNT\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "changed:      dbtest@ripe.net 20120505\n" +
+                "source:       RIPE\n"));
+        freeTextIndex.rebuild();
+
+        final String response = query("q=Test-Organisation");
+
+        System.out.println(response);
+        assertThat(response, containsString("numFound=\"1\""));
+    }
+
+    @Test
+    public void search_multiple_matches_but_only_one_result() throws Exception {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                "org-name:     ORG-TOS1-TEST\n" +
+                "org-type:     OTHER\n" +
+                "descr:        ORG-TOS1-TEST\n" +
+                "address:      street 1\n" +
+                "e-mail:       org1@test.com\n" +
+                "mnt-ref:      OWNER-MNT\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "changed:      dbtest@ripe.net 20120505\n" +
+                "source:       RIPE\n"));
+        freeTextIndex.rebuild();
+
+        final String response = query("q=ORG-TOS1-TEST");
+
+        assertThat(response, containsString("numFound=\"1\""));
+    }
+
+    private final String query(final String queryString) {
+        return client
+                .resource(String.format("http://localhost:%s/search?%s", getPort(AUDIENCE), queryString))
+                .get(String.class);
     }
 }
