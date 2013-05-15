@@ -97,7 +97,7 @@ public class JettyBootstrap implements ApplicationService {
                     LOGGER.info("Jetty started on port {} ({})", tryPort, audience);
                     return server;
                 }
-            }, 3, 1000, Exception.class);
+            }, 5, 1000, Exception.class);
         } catch (Exception e) {
             throw new RuntimeException("Unable to start server", e);
         }

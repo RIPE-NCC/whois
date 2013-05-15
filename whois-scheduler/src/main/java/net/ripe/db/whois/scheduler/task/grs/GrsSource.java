@@ -54,7 +54,7 @@ abstract class GrsSource implements InitializingBean {
     }
 
     void acquireResourceData(final File file) throws IOException {
-        if (resourceDataUrl == null) {
+        if (StringUtils.isBlank(resourceDataUrl)) {
             logger.warn("No resource data for {}", source);
             return;
         }
@@ -72,8 +72,6 @@ abstract class GrsSource implements InitializingBean {
             IOUtils.closeQuietly(resourceDataStream);
             IOUtils.closeQuietly(md5Stream);
         }
-
-        new FileInputStream(file);
     }
 
     void checkMD5(final InputStream resourceDataStream, final InputStream md5Stream) throws IOException {
