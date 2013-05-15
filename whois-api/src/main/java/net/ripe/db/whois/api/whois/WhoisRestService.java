@@ -270,7 +270,7 @@ public class WhoisRestService {
     }
 
     // TODO: [AH] hierarchical lookups return the encompassing range if no direct hit
-    private Response lookupObject(
+    protected Response lookupObject(
             final HttpServletRequest request,
             final String source,
             final String objectTypeString,
