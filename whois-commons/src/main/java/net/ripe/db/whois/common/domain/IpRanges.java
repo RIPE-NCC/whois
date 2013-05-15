@@ -33,6 +33,8 @@ public class IpRanges {
             }
         }
 
+        LOGGER.info("{} is not in RIPE range", ipResource.toString());
+
         return false;
     }
 }
