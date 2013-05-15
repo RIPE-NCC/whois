@@ -383,6 +383,35 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "changed:        ***@test.net");
     }
 
+    @Test
+    public void export_tags_in_all_dumps() throws IOException {
+        final RpslObject org = databaseHelper.addObject(RpslObject.parse("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name: Test Organisation\n" +
+                "org-type: OTHER\n"));
+
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", org.getObjectId(), "bar", "Bar Data");
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", org.getObjectId(), "foo", "Foo Data");
+        sourceContext.removeCurrentSource();
+
+        rpslObjectsExporter.export();
+
+        checkFile("internal/split/ripe.db.organisation.gz", "" +
+                "Tags relating to 'ORG-TO1-TEST'", "bar # Bar Data", "foo # Foo Data");
+
+        checkFile("dbase_new/split/ripe.db.organisation.gz",
+                "Tags relating to 'ORG-TO1-TEST'", "bar # Bar Data", "foo # Foo Data");
+
+        checkFile("dbase/split/ripe.db.organisation.gz",
+                "Tags relating to 'ORG-TO1-TEST'", "bar # Bar Data", "foo # Foo Data");
+
+        checkFile("dbase_new/ripe.db.gz",
+                "Tags relating to 'ORG-TO1-TEST'", "bar # Bar Data", "foo # Foo Data");
+
+        checkFile("dbase/ripe.db.gz",
+                "Tags relating to 'ORG-TO1-TEST'", "bar # Bar Data", "foo # Foo Data");
+    }
+
     private void checkFile(final String name, final String... expectedContents) throws IOException {
         final File file = new File(exportDir, name);
 

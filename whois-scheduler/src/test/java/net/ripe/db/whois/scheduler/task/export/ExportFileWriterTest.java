@@ -1,6 +1,9 @@
 package net.ripe.db.whois.scheduler.task.export;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.QueryMessages;
@@ -21,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.zip.GZIPInputStream;
 
 import static org.mockito.Mockito.any;
@@ -54,14 +58,15 @@ public class ExportFileWriterTest {
         subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void write() throws IOException {
-        subject.write(RpslObject.parse("mntner: DEV-MNT1"));
-        subject.write(RpslObject.parse("mntner: DEV-MNT2"));
-        subject.write(RpslObject.parse("mntner: DEV-MNT3"));
-        subject.write(RpslObject.parse("mntner: DEV-MNT4"));
-        subject.write(RpslObject.parse("inetnum: 193.0.0.0 - 193.0.0.10"));
-        subject.write(RpslObject.parse("route: 193.0.0.0 - 193.0.0.10\norigin: AS12"));
+        subject.write(RpslObject.parse("mntner: DEV-MNT1"), Collections.EMPTY_LIST);
+        subject.write(RpslObject.parse("mntner: DEV-MNT2"), Collections.EMPTY_LIST);
+        subject.write(RpslObject.parse("mntner: DEV-MNT3"), Collections.EMPTY_LIST);
+        subject.write(RpslObject.parse("mntner: DEV-MNT4"), Collections.EMPTY_LIST);
+        subject.write(RpslObject.parse("inetnum: 193.0.0.0 - 193.0.0.10"), Collections.EMPTY_LIST);
+        subject.write(RpslObject.parse("route: 193.0.0.0 - 193.0.0.10\norigin: AS12"), Lists.newArrayList(new Tag(CIString.ciString("foo"), 3, "bar")));
         subject.close();
 
         final File[] files = folder.getRoot().listFiles();
@@ -85,7 +90,9 @@ public class ExportFileWriterTest {
             } else if (fileName.endsWith("route.gz")) {
                 checkFile(file, "" +
                         "route:          193.0.0.0 - 193.0.0.10\n" +
-                        "origin:         AS12\n");
+                        "origin:         AS12\n\n" +
+                        QueryMessages.tagInfoStart("193.0.0.0 - 193.0.0.10AS12") + "\n" +
+                        QueryMessages.tagInfo("foo", "bar") + "\n");
             }
         }
     }

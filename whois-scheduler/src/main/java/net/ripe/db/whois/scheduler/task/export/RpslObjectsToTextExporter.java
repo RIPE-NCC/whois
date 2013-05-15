@@ -1,6 +1,8 @@
 package net.ripe.db.whois.scheduler.task.export;
 
 import com.google.common.base.Stopwatch;
+import net.ripe.db.whois.common.dao.TagsDao;
+import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportCallbackHandler;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportDao;
@@ -23,6 +25,7 @@ class RpslObjectsToTextExporter implements RpslObjectsExporter {
 
     private final ExportFileWriterFactory exportFileWriterFactory;
     private final ExportDao exportDao;
+    private final TagsDao tagsDao;
     private final File exportDir;
     private final File tmpDir;
 
@@ -32,11 +35,13 @@ class RpslObjectsToTextExporter implements RpslObjectsExporter {
     @Autowired
     public RpslObjectsToTextExporter(final ExportFileWriterFactory exportFileWriterFactory,
                                      final ExportDao exportDao,
+                                     final TagsDao tagsDao,
                                      @Value("${dir.rpsl.export}") final String exportDirName,
                                      @Value("${dir.rpsl.export.tmp}") final String tmpDirName,
                                      @Value("${rpsl.export.enabled:true}") final boolean enabled) {
         this.exportFileWriterFactory = exportFileWriterFactory;
         this.exportDao = exportDao;
+        this.tagsDao = tagsDao;
         this.enabled = enabled;
 
         exportDir = new File(exportDirName);
@@ -96,7 +101,7 @@ class RpslObjectsToTextExporter implements RpslObjectsExporter {
 
         final List<ExportFileWriter> exportFileWriters = exportFileWriterFactory.createExportFileWriters(tmpDir, maxSerial);
         try {
-            final TextFileExporter textFileExporter = new TextFileExporter(exportFileWriters);
+            final TextFileExporter textFileExporter = new TextFileExporter(exportFileWriters, tagsDao);
             try {
                 exportDao.exportObjects(textFileExporter);
             } finally {
@@ -112,19 +117,22 @@ class RpslObjectsToTextExporter implements RpslObjectsExporter {
     private static class TextFileExporter implements ExportCallbackHandler {
         private static final int LOG_EVERY = 500000;
         private final Iterable<ExportFileWriter> exportFileWriters;
+        private final TagsDao tagsDao;
 
         private int lastLogged = -1;
         private int nrExported = 0;
 
-        private TextFileExporter(final Iterable<ExportFileWriter> exportFileWriters) {
+        private TextFileExporter(final Iterable<ExportFileWriter> exportFileWriters, final TagsDao tagsDao) {
             this.exportFileWriters = exportFileWriters;
+            this.tagsDao = tagsDao;
         }
 
         @Override
         public void exportObject(final RpslObject object) {
+            final List<Tag> tags = tagsDao.getTags(object.getObjectId());
             for (final ExportFileWriter exportFileWriter : exportFileWriters) {
                 try {
-                    exportFileWriter.write(object);
+                    exportFileWriter.write(object, tags);
                 } catch (IOException e) {
                     throw new RuntimeException("Exporting to " + exportFileWriter, e);
                 }
