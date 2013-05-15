@@ -49,7 +49,7 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
         final RpslObjectUpdateInfo created = subject.createObject(makeObject(ObjectType.MNTNER, "TEST"));
         Database before = new Database(whoisTemplate);
 
-        final RpslObjectUpdateInfo deleted = subject.deleteObject(created.getObjectId(), created.getKey());
+        subject.deleteObject(created.getObjectId(), created.getKey());
         final DatabaseDiff diff = Database.diff(before, new Database(whoisTemplate));
 
         // identical
@@ -92,6 +92,78 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
     }
 
     @Test
+    public void undelete_basicObject() {
+        final RpslObject mntnerObject = makeObject(ObjectType.MNTNER, "TEST");
+        final RpslObjectUpdateInfo created = subject.createObject(mntnerObject);
+        final RpslObjectUpdateInfo deleted = subject.deleteObject(created.getObjectId(), created.getKey());
+
+        final Database before = new Database(whoisTemplate);
+
+        subject.undeleteObject(deleted.getObjectId());
+
+        final Database after = new Database(whoisTemplate);
+        final DatabaseDiff diff = Database.diff(before, after);
+
+        // identical
+        assertThat(diff.getIdentical().getAll(), hasSize(4));
+        assertThat(diff.getIdentical().find("history"), hasSize(1));
+        assertThat(diff.getIdentical().find("mntner"), hasSize(1));
+
+        final Rows serialsRows = diff.getIdentical().find("serials");
+        assertThat(serialsRows, hasSize(2));
+        assertThat(serialsRows.get(with("sequence_id", 1)).getInt("operation"), is(1));
+        assertThat(serialsRows.get(with("sequence_id", 2)).getInt("operation"), is(2));
+
+        // removed
+        assertThat(diff.getRemoved().getAll(), hasSize(1));
+        final Rows removedRows = diff.getRemoved().find("last", with("object_id", created.getObjectId()), with("sequence_id", 0));
+        assertThat(removedRows, hasSize(1));
+
+        // modified
+        assertThat(diff.getModified().getAll(), hasSize(0));
+
+        // added
+        final Database added = diff.getAdded();
+        assertThat(added.getAll(), hasSize(3));
+
+        added.get("last",
+                with("object_id", created.getObjectId()),
+                with("sequence_id", 3),
+                with("object_type", ObjectTypeIds.getId(ObjectType.MNTNER)),
+                with("object", mntnerObject.toByteArray()),
+                with("pkey", "TEST"));
+
+        added.get("serials",
+                with("serial_id", greaterThan(0)),
+                with("object_id", created.getObjectId()),
+                with("sequence_id", 3),
+                with("atlast", 1),
+                with("operation", Operation.UPDATE.getCode()));
+
+        added.get("mntner",
+                with("object_id", created.getObjectId()),
+                with("mntner", "TEST"));
+    }
+
+    @Test(expected = EmptyResultDataAccessException.class)
+    public void undelete_basicObject_not_deleted() {
+        final RpslObject mntnerObject = makeObject(ObjectType.MNTNER, "TEST");
+        final RpslObjectUpdateInfo created = subject.createObject(mntnerObject);
+
+        subject.undeleteObject(created.getObjectId());
+    }
+
+    @Test(expected = EmptyResultDataAccessException.class)
+    public void undelete_basicObject_twice() {
+        final RpslObject mntnerObject = makeObject(ObjectType.MNTNER, "TEST");
+        final RpslObjectUpdateInfo created = subject.createObject(mntnerObject);
+        final RpslObjectUpdateInfo deleted = subject.deleteObject(created.getObjectId(), created.getKey());
+
+        subject.undeleteObject(deleted.getObjectId());
+        subject.undeleteObject(deleted.getObjectId());
+    }
+
+    @Test
     public void delete_updated_object() {
         final RpslObjectUpdateInfo created = subject.createObject(makeObject(ObjectType.MNTNER, "TEST"));
         final RpslObject rpslObject = makeObject(ObjectType.MNTNER, created.getKey(), new RpslAttribute(AttributeType.REMARKS, "updated"));
@@ -99,7 +171,7 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
         final RpslObjectUpdateInfo updated = subject.updateObject(created.getObjectId(), rpslObject);
         Database before = new Database(whoisTemplate);
 
-        final RpslObjectUpdateInfo deleted = subject.deleteObject(created.getObjectId(), created.getKey());
+        subject.deleteObject(created.getObjectId(), created.getKey());
         final DatabaseDiff diff = Database.diff(before, new Database(whoisTemplate));
 
         // identical
@@ -113,7 +185,7 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
         // removed
         assertThat(diff.getRemoved().getAll(), hasSize(2));
-        final Row removedRow = diff.getRemoved().get("last",
+        diff.getRemoved().get("last",
                 with("object_id", updated.getObjectId()),
                 with("sequence_id", updated.getSequenceId()));
         diff.getRemoved().get("mntner",
@@ -139,7 +211,7 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
         Database before = new Database(whoisTemplate);
 
-        final RpslObjectUpdateInfo deleted = subject.deleteObject(second.getObjectId(), second.getKey());
+        subject.deleteObject(second.getObjectId(), second.getKey());
         final DatabaseDiff diff = Database.diff(before, new Database(whoisTemplate));
 
         // identical
@@ -159,7 +231,7 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
         // removed
         assertThat(diff.getRemoved().getAll(), hasSize(2));
-        final Row removedRow = diff.getRemoved().get("last",
+        diff.getRemoved().get("last",
                 with("object_id", second.getObjectId()));
         diff.getRemoved().get("mntner",
                 with("object_id", second.getObjectId()),
@@ -397,10 +469,9 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
     private void truncateTables(Set<String> tables) {
         for (String table : tables) {
-            whoisTemplate.execute("TRUNCATE " + table);
+            whoisTemplate.execute(String.format("TRUNCATE %s", table));
         }
     }
-
 
     @Test
     public void update_addAttribute() {
@@ -863,21 +934,6 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
         }
 
         return TABLE_BY_OBJECT.get(objectType);
-    }
-
-    private final Map<ObjectType, String> COLUMN_BY_OBJECT = new HashMap<ObjectType, String>() {{
-        put(ObjectType.MNTNER, "mntner");
-        put(ObjectType.ORGANISATION, "organisation");
-        put(ObjectType.PERSON, "nic_hdl");
-        put(ObjectType.ROLE, "nic_hdl");
-    }};
-
-    private String getColumnForObjectType(ObjectType objectType) {
-        if (!COLUMN_BY_OBJECT.containsKey(objectType)) {
-            throw new IllegalArgumentException("No column for ObjectType: " + objectType);
-        }
-
-        return COLUMN_BY_OBJECT.get(objectType);
     }
 
     private static RpslObject makeObject(final ObjectType type, final String pkey, final RpslAttribute... rpslAttributes) {

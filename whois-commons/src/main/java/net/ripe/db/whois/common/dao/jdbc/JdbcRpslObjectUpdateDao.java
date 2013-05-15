@@ -7,11 +7,14 @@ import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.*;
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -31,6 +34,8 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 @Repository
 @Transactional
 public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JdbcRpslObjectUpdateDao.class);
+
     private final JdbcTemplate jdbcTemplate;
     private final DateTimeProvider dateTimeProvider;
 
@@ -152,6 +157,33 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
         deleteFromLastAndUpdateSerials(dateTimeProvider, jdbcTemplate, rpslObjectInfo);
 
         return new RpslObjectUpdateInfo(rpslObjectInfo.getObjectId(), 0, rpslObjectInfo.getObjectType(), rpslObjectInfo.getKey());
+    }
+
+    @Override
+    public RpslObjectUpdateInfo undeleteObject(final int objectId) {
+        final RpslObject rpslObject = jdbcTemplate.queryForObject("" +
+                "select h.object_id, h.object " +
+                "from last l " +
+                "left join history h on l.object_id = h.object_id " +
+                "where l.object_id = ? " +
+                "and l.sequence_id = 0 " +
+                "and h.timestamp in (select max(h2.timestamp) from history h2 where h2.object_id = ?)",
+                new RpslObjectRowMapper(),
+                objectId, objectId);
+
+        final int sequenceId = jdbcTemplate.queryForInt("select max(sequence_id) from serials where object_id = ?", objectId);
+
+        final ObjectType objectType = rpslObject.getType();
+        final String pkey = rpslObject.getKey().toString();
+        final RpslObjectUpdateInfo updateInfo = new RpslObjectUpdateInfo(objectId, sequenceId, objectType, pkey);
+
+        final Set<CIString> missingReferences = insertIntoTablesIgnoreMissing(jdbcTemplate, updateInfo, rpslObject);
+        if (!missingReferences.isEmpty()) {
+            LOGGER.warn("Missing references undeleting object {}: {}", objectId, missingReferences);
+        }
+
+        final int newSequenceId = updateLastAndUpdateSerials(dateTimeProvider, jdbcTemplate, updateInfo, rpslObject);
+        return new RpslObjectUpdateInfo(objectId, newSequenceId, objectType, pkey);
     }
 
     @Override

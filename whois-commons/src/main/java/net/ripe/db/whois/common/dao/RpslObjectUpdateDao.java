@@ -16,6 +16,8 @@ public interface RpslObjectUpdateDao {
 
     RpslObjectUpdateInfo deleteObject(int objectId, String pkey);
 
+    RpslObjectUpdateInfo undeleteObject(int objectId);
+
     RpslObjectUpdateInfo updateObject(int objectId, RpslObject object);
 
     RpslObjectUpdateInfo createObject(RpslObject object);
