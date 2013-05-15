@@ -79,7 +79,7 @@ public class WhoisRestService {
     @TypeHint(WhoisResources.class)
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/lookup/{source}/{objectType}/{key}")
-    public WhoisResources lookup(
+    public Response lookup(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
@@ -91,7 +91,7 @@ public class WhoisRestService {
     @TypeHint(WhoisResources.class)
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/grs-lookup/{source}/{objectType}/{key}")
-    public WhoisResources grslookup(
+    public Response grslookup(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
@@ -99,7 +99,7 @@ public class WhoisRestService {
         return lookupObject(request, source, objectType, key, true);
     }
 
-    private WhoisResources lookupObject(final HttpServletRequest request, final String source, final String objectTypeString, final String key, final boolean isGrsExpected) {
+    private Response lookupObject(final HttpServletRequest request, final String source, final String objectTypeString, final String key, final boolean isGrsExpected) {
         final Query query = Query.parse(String.format("%s %s %s %s %s",
                 QueryFlag.SOURCES.getLongFlag(), source,
                 QueryFlag.SELECT_TYPES.getLongFlag(), objectTypeString,
@@ -113,7 +113,7 @@ public class WhoisRestService {
     }
 
     // TODO: [ES] implement limit on response objects, with exceptions for internal addresses
-    private WhoisResources handleQuery(final Query query, final String source, final String key, final HttpServletRequest request) {
+    private Response handleQuery(final Query query, final String source, final String key, final HttpServletRequest request) {
         final InMemoryResultHandler inMemoryResultHandler = new InMemoryResultHandler();
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
         final int contextId = System.identityHashCode(Thread.currentThread());
@@ -124,19 +124,13 @@ public class WhoisRestService {
             if (!inMemoryResultHandler.getDeletedObjects().isEmpty() || !inMemoryResultHandler.getVersionObjects().isEmpty()) {
                 final List<DeletedVersionResponseObject> deletedVersions = inMemoryResultHandler.getDeletedObjects();
                 final List<VersionResponseObject> versions = inMemoryResultHandler.getVersionObjects();
-                return createWhoisResources(deletedVersions, versions, source, key);
+                return Response.ok(createWhoisResources(deletedVersions, versions, source, key)).build();
             } else if (inMemoryResultHandler.getVersionWithRpslResponseObject() != null) {
-                return createWhoisResources(
+                return Response.ok(createWhoisResources(
                         inMemoryResultHandler.getVersionWithRpslResponseObject().getRpslObject(),
-                        inMemoryResultHandler.getVersionWithRpslResponseObject().getVersion());
+                        inMemoryResultHandler.getVersionWithRpslResponseObject().getVersion())).build();
             } else if (!inMemoryResultHandler.getResponseObjects().isEmpty()) {
-                final WhoisResources whoisResources = WhoisObjectMapper.map(inMemoryResultHandler.getResponseObjects());
-
-                if (!inMemoryResultHandler.getTagObjects().isEmpty()) {
-                    final List<TagResponseObject> tagObjects = inMemoryResultHandler.getTagObjects();
-//                    whoisResources.setTags(WhoisObjectMapper.mapTags(tagObjects)); // TODO [AK] Handle tags
-                }
-                return whoisResources;
+                return Response.ok(WhoisObjectMapper.map(inMemoryResultHandler.getResponseObjects())).build();
             }
 
             throw new NotFoundException();
@@ -207,6 +201,8 @@ public class WhoisRestService {
             if (responseObject instanceof TagResponseObject) {
                 tagObjects.add((TagResponseObject) responseObject);
             }
+
+            // TODO [AK] Handle tags
 
             // TODO [AK] Handle related messages
         }
@@ -386,14 +382,14 @@ public class WhoisRestService {
      * Lists versions of an RPSL object
      *
      * @param source RIPE or TEST
-     * @param key sought RPSL object
+     * @param key    sought RPSL object
      * @return all updates of given RPSL object
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @TypeHint(WhoisResources.class)
     @Path("/versions/{source}/{key}")
-    public WhoisResources listVersions(
+    public Response listVersions(
             @Context HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("key") final String key) {
@@ -404,25 +400,25 @@ public class WhoisRestService {
     /**
      * Show a specific version of an RPSL object
      *
-     * @param source RIPE or TEST
+     * @param source  RIPE or TEST
      * @param version sought version
-     * @param key sought RPSL object
+     * @param key     sought RPSL object
      * @return The version of the RPSL object asked for
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @TypeHint(WhoisResources.class)
     @Path("/version/{source}/{version}/{key}")
-    public WhoisResources showVersion(
+    public Response showVersion(
             @Context HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("version") final int version,
             @PathParam("key") final String key) {
 
         final Query query = Query.parse(String.format("" +
-                    "--show-version %s %s",
-                    version,
-                    key));
+                "--show-version %s %s",
+                version,
+                key));
         return handleQuery(query, source, key, request);
     }
 
@@ -430,7 +426,7 @@ public class WhoisRestService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @TypeHint(WhoisResources.class)
     @Path("/search")
-    public WhoisResources search(
+    public Response search(
             @Context HttpServletRequest request,
             @QueryParam("source") Set<String> sources,
             @QueryParam("query-string") String queryString,
@@ -444,7 +440,7 @@ public class WhoisRestService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @TypeHint(WhoisResources.class)
     @Path("/grs-search")
-    public WhoisResources grssearch(
+    public Response grssearch(
             @Context HttpServletRequest request,
             @QueryParam("source") Set<String> sources,
             @QueryParam("query-string") String queryString,
@@ -454,7 +450,7 @@ public class WhoisRestService {
         return doSearch(request, queryString, sources, inverseAttributes, types, flags, true);
     }
 
-    private WhoisResources doSearch(final HttpServletRequest request, final String queryString, final Set<String> sources, final Set<String> inverseAttributes, final Set<String> types, final String flags, final boolean isGrsExpected) {
+    private Response doSearch(final HttpServletRequest request, final String queryString, final Set<String> sources, final Set<String> inverseAttributes, final Set<String> types, final String flags, final boolean isGrsExpected) {
         if (sources == null || sources.isEmpty()) {
             throw new IllegalArgumentException("Argument 'source' is missing, you have to specify a valid RIR source for your search request");
         }
@@ -485,19 +481,19 @@ public class WhoisRestService {
                 (flags == null) ? "" : "-" + flags,
                 (queryString == null ? "" : queryString)));
 
-        final WhoisResources response = handleQuery(query, JOINER.join(sources), queryString, request);
-        response.setParameters(createParameters(sources, queryString, inverseAttributes, types, parseFlags(flags)));
-        return response;
+        // TODO [AK] Write parameters
+
+        return handleQuery(query, JOINER.join(sources), queryString, request);
     }
 
     /**
      * Finds tags for given RPSL object
-     *
+     * <p/>
      * Example:
-     *   http://apps.db.ripe.net/whois/tags/RIPE/TEST-DBM?include=foo&include=bar&exclude=boo
+     * http://apps.db.ripe.net/whois/tags/RIPE/TEST-DBM?include=foo&include=bar&exclude=boo
      *
-     * @param source TEST or RIPE
-     * @param key sought RPSL object
+     * @param source  TEST or RIPE
+     * @param key     sought RPSL object
      * @param include only show RPSL objects that have these tags. Can be multiple.
      * @param exclude only show RPSL objects that <i>do not</i> have these tags. Can be multiple.
      * @return returns the RPSL object(s) asked for with their respective tags
@@ -506,8 +502,7 @@ public class WhoisRestService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @TypeHint(WhoisResources.class)
     @Path("/tags/{source}/{key}")
-
-    public WhoisResources tagSearch(
+    public Response tagSearch(
             @Context HttpServletRequest request,
             @PathParam("source") String source,
             @PathParam("key") String key,
@@ -518,10 +513,10 @@ public class WhoisRestService {
                 key,
                 QueryFlag.SHOW_TAGINFO.getLongFlag(),
                 (include == null || include.isEmpty()) ? "" :
-                    QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(), JOINER.join(include),
+                        QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(), JOINER.join(include),
 
                 (exclude == null || exclude.isEmpty()) ? "" :
-                    QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(), JOINER.join(exclude)));
+                        QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(), JOINER.join(exclude)));
 
         return handleQuery(query, source, key, request);
     }

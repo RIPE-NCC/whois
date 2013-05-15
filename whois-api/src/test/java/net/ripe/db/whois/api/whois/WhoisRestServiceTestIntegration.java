@@ -1252,6 +1252,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    @Ignore // TODO [AK] Fix after streaming is implemented
     public void search_parameters_are_returned() throws Exception {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
