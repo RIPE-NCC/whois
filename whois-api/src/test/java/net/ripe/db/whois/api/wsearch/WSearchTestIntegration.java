@@ -60,6 +60,10 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
 
     @AfterClass
     public static void teardown() throws Exception {
+        System.clearProperty("api.key");
+        System.clearProperty("dir.wsearch.index");
+        System.clearProperty("dir.update.audit.log");
+
         INDEX_DIR.delete();
         LOG_DIR.delete();
     }
@@ -68,33 +72,34 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
     public void single_term() throws Exception {
         createLogFile("the quick brown fox");
 
-        assertThat(doWSearch("quick"), containsString("the quick brown fox"));
+        assertThat(wsearch("quick"), containsString("the quick brown fox"));
     }
 
     @Test
     public void multiple_inetnum_terms() throws Exception {
         createLogFile("inetnum: 192.0.0.0 - 193.0.0.0");
 
-        final String wsearch = doWSearch("192.0.0.0 - 193.0.0.0");
-        assertThat(wsearch, containsString("192.0.0.0 - 193.0.0.0"));
+        final String response = wsearch("192.0.0.0 - 193.0.0.0");
+
+        assertThat(response, containsString("192.0.0.0 - 193.0.0.0"));
     }
 
     @Test
     public void curly_brace_in_search_term() throws Exception {
         createLogFile("mnt-routes: ROUTES-MNT {2001::/48}");
 
-        final String response = doWSearch("{2001::/48}");
+        final String response = wsearch("{2001::/48}");
+
         assertThat(response, containsString("ROUTES-MNT {2001::/48}"));
     }
 
-    private String doWSearch(final String searchTerm) throws IOException {
+    private String wsearch(final String searchTerm) throws IOException {
         return client
                 .resource(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), API_KEY))
                 .get(String.class);
     }
 
     private void createLogFile(final String data) throws IOException {
-
         final StringBuilder builder = new StringBuilder();
         builder.append(LOG_DIR.getAbsolutePath())
                 .append('/')
@@ -103,7 +108,6 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
                 .append(TIME_FORMAT.print(DateTime.now()))
                 .append('.')
                 .append(Math.random());
-
 
         final File fullDir = new File(builder.toString());
         fullDir.mkdirs();
