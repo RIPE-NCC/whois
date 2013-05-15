@@ -39,7 +39,7 @@ public class WhoisRDAPService extends WhoisRestService {
 
     @GET
     @TypeHint(WhoisResources.class)
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
     @Path("/rdap/{objectType}/{key}")
     public Response lookup(
             @Context final HttpServletRequest request,
