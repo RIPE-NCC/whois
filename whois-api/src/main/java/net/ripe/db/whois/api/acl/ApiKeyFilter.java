@@ -36,7 +36,7 @@ public class ApiKeyFilter implements Filter {
             LOGGER.debug("Missing API key");
             sendError(response, HttpServletResponse.SC_FORBIDDEN, "No apiKey parameter specified");
         } else if (!offeredKey.equals(apiKey)) {
-            LOGGER.warn("Invalid API key received from {}: {} is not {}", request.getRemoteAddr(), offeredKey, apiKey);
+            LOGGER.warn("Invalid API key received from {}: {}", request.getRemoteAddr(), offeredKey);
             sendError(response, HttpServletResponse.SC_FORBIDDEN, "Invalid apiKey");
         } else {
             chain.doFilter(request, response);

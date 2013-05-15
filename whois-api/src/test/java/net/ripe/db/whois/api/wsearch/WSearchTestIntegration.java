@@ -16,7 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -38,6 +37,8 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormat.forPattern("HHmmss");
 
+    private static final String API_KEY = "DB-RIPE-ZwBAFuR5JuBxQCnQ";
+
     private static final String INPUT_FILE_NAME = "001.msg-in.txt.gz";
 
     private Client client;
@@ -45,11 +46,9 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
     @Autowired
     private LogFileIndex logFileIndex;
 
-    @Value("${api.key}")
-    private String apiKey;
-
     @BeforeClass
     public static void setupClass() throws IOException {
+        System.setProperty("api.key", API_KEY);
         System.setProperty("dir.wsearch.index", INDEX_DIR.getAbsolutePath() + "index");
         System.setProperty("dir.update.audit.log", LOG_DIR.getAbsolutePath());
     }
@@ -90,7 +89,7 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
 
     private String doWSearch(final String searchTerm) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), apiKey))
+                .resource(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), API_KEY))
                 .get(String.class);
     }
 
