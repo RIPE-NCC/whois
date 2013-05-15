@@ -2696,7 +2696,7 @@ class InetnumSpec extends BaseSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                mnt-routes:   routes-mnt { any }
+                mnt-routes:   routes-mnt any
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
