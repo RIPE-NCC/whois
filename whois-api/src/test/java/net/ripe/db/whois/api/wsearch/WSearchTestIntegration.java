@@ -16,8 +16,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
 import java.util.zip.GZIPOutputStream;
 
@@ -26,19 +31,25 @@ import static org.hamcrest.Matchers.containsString;
 
 @Category(IntegrationTest.class)
 public class WSearchTestIntegration extends AbstractIntegrationTest {
+
     private static final File INDEX_DIR = Files.createTempDir();
     private static final File LOG_DIR = Files.createTempDir();
+
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormat.forPattern("HHmmss");
+
     private static final String INPUT_FILE_NAME = "001.msg-in.txt.gz";
+
     private Client client;
 
     @Autowired
     private LogFileIndex logFileIndex;
 
+    @Value("${api.key}")
+    private String apiKey;
+
     @BeforeClass
     public static void setupClass() throws IOException {
-        System.setProperty("api.key", "DB-RIPE-ZwBAFuR5JuBxQCnQ");
         System.setProperty("dir.wsearch.index", INDEX_DIR.getAbsolutePath() + "index");
         System.setProperty("dir.update.audit.log", LOG_DIR.getAbsolutePath());
     }
@@ -79,7 +90,7 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
 
     private String doWSearch(final String searchTerm) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=DB-RIPE-ZwBAFuR5JuBxQCnQ", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1")))
+                .resource(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), apiKey))
                 .get(String.class);
     }
 
