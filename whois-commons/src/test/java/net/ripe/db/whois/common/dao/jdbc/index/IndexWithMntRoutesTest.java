@@ -29,7 +29,7 @@ public class IndexWithMntRoutesTest extends IndexTestBase {
         final RpslObject rpslObject = RpslObject.parse("" +
                 "inetnum:10.0.0.129 - 10.0.0.0\n" +
                 "netname:netname\n" +
-                "mnt-routes: DEV-MNT {ANY}\n");
+                "mnt-routes: DEV-MNT ANY\n");
 
         final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(2, rpslObject.getType(), rpslObject.getKey());
         subject.addToIndex(whoisTemplate, rpslObjectInfo, rpslObject, rpslObject.getValueForAttribute(AttributeType.MNT_ROUTES));
@@ -55,7 +55,7 @@ public class IndexWithMntRoutesTest extends IndexTestBase {
         final RpslObject rpslObject = RpslObject.parse("" +
                 "inetnum:10.0.0.0 - 10.0.0.255\n" +
                 "netname:netname\n" +
-                "mnt-routes: UNKNOWN-MNT {ANY}\n");
+                "mnt-routes: UNKNOWN-MNT ANY\n");
 
         final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(2, rpslObject.getType(), rpslObject.getKey());
         subject.addToIndex(whoisTemplate, rpslObjectInfo, rpslObject, rpslObject.getValueForAttribute(AttributeType.MNT_ROUTES));

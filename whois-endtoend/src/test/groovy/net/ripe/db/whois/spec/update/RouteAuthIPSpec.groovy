@@ -1466,7 +1466,7 @@ class RouteAuthIPSpec extends BaseSpec {
                 descr:       exact match route object
                 origin:      AS3000
                 mnt-by:      EXACT-MB-MNT
-                mnt-routes:  EXACT-MR-MNT {aNy  }
+                mnt-routes:  EXACT-MR-MNT   aNy
                 changed:     dbtest@ripe.net
                 source:      TEST
 
@@ -1648,7 +1648,7 @@ class RouteAuthIPSpec extends BaseSpec {
                 origin:      AS3000
                 mnt-by:      EXACT-MB-MNT
                 mnt-routes:  EXACT-MR-MNT {20.13.0.0/16^+}
-                mnt-routes:  EXACT-MR-MNT { aNY}
+                mnt-routes:  EXACT-MR-MNT  aNY
                 mnt-routes:  EXACT-MR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST

@@ -629,7 +629,7 @@ class RouteSpec extends BaseSpec {
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
                 mnt-routes:     LIR-MNT {99.13.0.0/16^+, 99.13.0.0/16^-, 99.13.0.0/16^16-32, 99.13.0.0/16^24, 99.13.0.0/24}
-                mnt-routes:     LIR2-MNT {     anY    }
+                mnt-routes:     LIR2-MNT      anY
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
 
@@ -677,7 +677,7 @@ class RouteSpec extends BaseSpec {
                 export-comps:   { 2001:600::/48 }
                 holes:          2001:600::/48, 2001:600::/56, 2001:600::/64
                 mnt-routes:     LIR-MNT {2001:600::/36^+, 2001:600::/36^-, 2001:600::/16^36-48, 2001:600::/16^42, 2001:600::/56}
-                mnt-routes:     LIR2-MNT {     anY    }
+                mnt-routes:     LIR2-MNT      anY
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
 
@@ -725,7 +725,7 @@ class RouteSpec extends BaseSpec {
                 export-comps:   { 2001:600::/48 }
                 holes:          2001::/30
                 mnt-routes:     LIR-MNT {2001:600::/36^+, 2001:600::/36^-, 2001:600::/16^36-48, 2001:600::/16^42, 2001:600::/56}
-                mnt-routes:     LIR2-MNT {     anY    }
+                mnt-routes:     LIR2-MNT      anY
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
 
@@ -777,7 +777,7 @@ class RouteSpec extends BaseSpec {
                 export-comps:   { 2001:600::/48 }
                 holes:          2001:600::/48, 2001:600::/56, 2001:600::/64
                 mnt-routes:     LIR-MNT {2001:600::/36^+, 2001:600::/36^-, 2001:600::/16^36-48, 2001:600::/16^42, 2001:600::/56}
-                mnt-routes:     LIR2-MNT {     anY    }
+                mnt-routes:     LIR2-MNT      anY
                 remarks:        just added
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
@@ -828,7 +828,7 @@ class RouteSpec extends BaseSpec {
                 export-comps:   { 2001:600::/48 }
                 holes:          2001:600::/48, 2001:600::/56, 2001:600::/64
                 mnt-routes:     LIR-MNT {2001:600::/36^+, 2001:600::/36^-, 2001:600::/16^36-48, 2001:600::/16^42, 2001:600::/56}
-                mnt-routes:     LIR2-MNT {     anY    }
+                mnt-routes:     LIR2-MNT      anY
                 remarks:        just added
                 changed:        noreply@ripe.net 20120101
                 source:         TEST

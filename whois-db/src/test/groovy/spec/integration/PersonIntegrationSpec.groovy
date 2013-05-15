@@ -246,7 +246,7 @@ class PersonIntegrationSpec extends BaseSpec {
         response =~ /Create SUCCEEDED: \[person\] TP3-TEST/
     }
 
-    @Ignore   //TODO these characters are being stored incorrectly in the database.
+    @Ignore   //TODO these characters are being stored incorrectly in the database (also őúŐÚ are stored incorrectly)
     def "create person keeps special chars with syncupdate GET request"() {
       given:
         def person = new SyncUpdate(data: """\

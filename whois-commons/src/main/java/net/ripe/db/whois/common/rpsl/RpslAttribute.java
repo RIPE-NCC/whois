@@ -190,6 +190,7 @@ public final class RpslAttribute {
         for (final CIString cleanValue : getCleanValues()) {
             final boolean syntaxCheckResult = type.getSyntax().matches(objectType, cleanValue.toString());
             if (syntaxCheckResult) {
+                // TODO: [AH] move this into a business rule
                 final Matcher matcher = INVALID_EMAIL_PATTERN.matcher(value);
                 if (matcher.find()) {
                     objectMessages.addMessage(this, ValidationMessages.emailAddressNotAllowed(matcher.group(1)));

@@ -117,9 +117,9 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "mntner: DEV-MNT\n" +
-                "mnt-routes: RS-MNT {ANY}\n"));
+                "mnt-routes: RS-MNT ANY\n"));
 
-        when(update.getDifferences(AttributeType.MNT_ROUTES)).thenReturn(ciSet("RS-MNT {ANY}"));
+        when(update.getDifferences(AttributeType.MNT_ROUTES)).thenReturn(ciSet("RS-MNT ANY"));
 
         subject.validate(update, updateContext);
 
@@ -184,7 +184,7 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
         when(update.isOverride()).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "mntner: DEV-MNT\n" +
-                "mnt-routes: RS-MNT {ANY}\n"));
+                "mnt-routes: RS-MNT ANY\n"));
 
         when(update.getDifferences(AttributeType.MNT_ROUTES)).thenReturn(ciSet("RS-MNT"));
 

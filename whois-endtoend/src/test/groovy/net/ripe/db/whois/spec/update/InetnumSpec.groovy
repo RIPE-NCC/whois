@@ -2124,7 +2124,7 @@ class InetnumSpec extends BaseSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                mnt-routes:   routes-mnt { ANY }
+                mnt-routes:   routes-mnt ANY
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
@@ -2653,7 +2653,7 @@ class InetnumSpec extends BaseSpec {
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
                 mnt-routes:   routes-mnt { 192.168.200.0/24 }
-                mnt-routes:   routes-mnt { ANY }
+                mnt-routes:   routes-mnt ANY
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
@@ -2673,7 +2673,7 @@ class InetnumSpec extends BaseSpec {
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
                 "Syntax error in routes-mnt { 192.168.200.0/24 } (ANY can only occur as a single value)",
-                "Syntax error in routes-mnt { ANY } (ANY can only occur as a single value)"
+                "Syntax error in routes-mnt ANY (ANY can only occur as a single value)"
         ]
 
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -3713,7 +3713,7 @@ class InetnumSpec extends BaseSpec {
                 language:      EN
                 admin-c:      TP1-TEST
                 country:      SG
-                mnt-routes:    owner-mnt {ANY}
+                mnt-routes:    owner-mnt ANY
                 mnt-by:       owner2-mnt
                 notify:       test2-dbtest@ripe.net
                 mnt-irt:      irt-test
@@ -5106,7 +5106,7 @@ class InetnumSpec extends BaseSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
-                mnt-routes:   LIR2-MNT {ANY}
+                mnt-routes:   LIR2-MNT ANY
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 

@@ -52,7 +52,7 @@ public class RouteIpAddressAuthenticationTest {
         routeObject = RpslObject.parse("" +
                 "route: 192.91.244.0/23\n" +
                 "origin: AS513\n" +
-                "mnt-routes: ROUTE-MNT {ANY}");
+                "mnt-routes: ROUTE-MNT ANY");
 
         routeResource = Ipv4Resource.parse(routeObject.getTypeAttribute().getCleanValue());
 

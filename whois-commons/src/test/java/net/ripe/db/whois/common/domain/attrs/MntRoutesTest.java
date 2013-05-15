@@ -24,16 +24,11 @@ public class MntRoutesTest {
 
     @Test
     public void maintainer_with_any() {
-        final MntRoutes subject = MntRoutes.parse("RIPE-NCC-RPSL-MNT { ANY }");
+        final MntRoutes subject = MntRoutes.parse("RIPE-NCC-RPSL-MNT ANY");
 
         assertThat(subject.getMaintainer().toString(), is("RIPE-NCC-RPSL-MNT"));
         assertThat(subject.isAnyRange(), is(true));
         assertThat(subject.getAddressPrefixRanges(), hasSize(0));
-    }
-
-    @Test(expected = AttributeParseException.class)
-    public void maintainer_with_more_than_one_any() {
-        MntRoutes.parse("RIPE-NCC-RPSL-MNT { ANY,ANY }");
     }
 
     @Test(expected = AttributeParseException.class)

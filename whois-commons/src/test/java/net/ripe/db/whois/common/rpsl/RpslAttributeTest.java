@@ -185,7 +185,7 @@ public class RpslAttributeTest {
 
     @Test
     public void reference_value_mnt_routes() {
-        subject = new RpslAttribute("mnt-routes", "DEV-MNT {ANY}");
+        subject = new RpslAttribute("mnt-routes", "DEV-MNT ANY");
         assertThat(subject.getReferenceValue().toString(), is("DEV-MNT"));
     }
 }

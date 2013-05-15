@@ -101,8 +101,6 @@ public class CollectErxStats {
                 continue;
             }
 
-            // TODO: has ERX-MNT, but changed by user since, currently filed under unmaintained
-            // TODO: has ERX remarks lines, but changed by user since, currently filed under rest
             if (hasLockedMnt(erxObjects)) {
                 results.get(State.HAS_LOCKED_MNT).add(range);
                 results.get(State.UNMAINTAINED_TOTAL).add(range);

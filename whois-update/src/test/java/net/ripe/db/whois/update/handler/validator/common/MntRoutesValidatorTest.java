@@ -42,7 +42,7 @@ public class MntRoutesValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "route:       20.13.0.0/16\n" +
                 "origin:      AS3000\n" +
-                "mnt-routes:  EXACT-MR-MNT {any}\n" +
+                "mnt-routes:  EXACT-MR-MNT any\n" +
                 "source:      TEST\n"));
 
         subject.validate(update, updateContext);
@@ -82,8 +82,8 @@ public class MntRoutesValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "route:       20.13.0.0/16\n" +
                 "origin:      AS3000\n" +
-                "mnt-routes:  EXACT-MR-MNT {any}\n" +
-                "mnt-routes:  EXACT-MR-MNT {any}\n" +
+                "mnt-routes:  EXACT-MR-MNT any\n" +
+                "mnt-routes:  EXACT-MR-MNT any\n" +
                 "source:      TEST\n"));
 
         subject.validate(update, updateContext);
@@ -96,10 +96,10 @@ public class MntRoutesValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "route:       20.13.0.0/16\n" +
                 "origin:      AS3000\n" +
-                "mnt-routes:  EXACT-MR-MNT {any}\n" +
-                "mnt-routes:  EXACT-MR-MNT {any}\n" +
-                "mnt-routes:  EXACT-MR-MNT {any}\n" +
-                "mnt-routes:  EXACT-MR-MNT {any}\n" +
+                "mnt-routes:  EXACT-MR-MNT any\n" +
+                "mnt-routes:  EXACT-MR-MNT any\n" +
+                "mnt-routes:  EXACT-MR-MNT any\n" +
+                "mnt-routes:  EXACT-MR-MNT any\n" +
                 "source:      TEST\n"));
 
         subject.validate(update, updateContext);
@@ -127,7 +127,7 @@ public class MntRoutesValidatorTest {
                 "route:       20.13.0.0/16\n" +
                 "origin:      AS3000\n" +
                 "mnt-routes:  EXACT-MR-MNT {20.13.0.0/16^+}\n" +
-                "mnt-routes:  EXACT-MR-MNT {any}\n" +
+                "mnt-routes:  EXACT-MR-MNT any\n" +
                 "source:      TEST\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
@@ -135,7 +135,7 @@ public class MntRoutesValidatorTest {
 
         final List<RpslAttribute> attributes = rpslObject.findAttributes(AttributeType.MNT_ROUTES);
         verify(updateContext).addMessage(update, attributes.get(0), new Message(Messages.Type.ERROR, "Syntax error in EXACT-MR-MNT {20.13.0.0/16^+} (ANY can only occur as a single value)"));
-        verify(updateContext).addMessage(update, attributes.get(1), new Message(Messages.Type.ERROR, "Syntax error in EXACT-MR-MNT {any} (ANY can only occur as a single value)"));
+        verify(updateContext).addMessage(update, attributes.get(1), new Message(Messages.Type.ERROR, "Syntax error in EXACT-MR-MNT any (ANY can only occur as a single value)"));
     }
 
     @Test
@@ -144,7 +144,7 @@ public class MntRoutesValidatorTest {
                 "route:       20.13.0.0/16\n" +
                 "origin:      AS3000\n" +
                 "mnt-routes:  EXACT-MR-MNT1 {20.13.0.0/16^+}\n" +
-                "mnt-routes:  EXACT-MR-MNT2 {any}\n" +
+                "mnt-routes:  EXACT-MR-MNT2 any\n" +
                 "source:      TEST\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 

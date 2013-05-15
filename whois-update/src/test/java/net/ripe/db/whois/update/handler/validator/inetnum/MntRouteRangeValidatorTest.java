@@ -85,7 +85,7 @@ public class MntRouteRangeValidatorTest {
     public void any_range() {
         final RpslObject rpslObject = RpslObject.parse("" +
                 "inetnum:192.0.0.0 - 192.0.255.255\n" +
-                "mnt-routes: DEV-MNT {ANY}");
+                "mnt-routes: DEV-MNT ANY");
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
@@ -98,7 +98,7 @@ public class MntRouteRangeValidatorTest {
     public void any_range_ipv6() {
         final RpslObject rpslObject = RpslObject.parse("" +
                 "inetnum:2a00:c00::/32\n" +
-                "mnt-routes: DEV-MNT {ANY}");
+                "mnt-routes: DEV-MNT ANY");
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 

@@ -1953,7 +1953,7 @@ class Inet6numSpec extends BaseSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
-                mnt-routes:   routes-mnt { ANY }
+                mnt-routes:   routes-mnt ANY
                 status:       ASSIGNED
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
@@ -2373,7 +2373,7 @@ class Inet6numSpec extends BaseSpec {
                 notify:       test-dbtest@ripe.net
                 mnt-by:       END-USER-MNT, owner-mnt
                 language:      EN
-                mnt-routes:    owner-mnt {ANY}
+                mnt-routes:    owner-mnt ANY
                 mnt-by:       owner2-mnt
                 notify:       test2-dbtest@ripe.net
                 mnt-irt:      irt-test
