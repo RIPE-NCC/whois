@@ -1,11 +1,9 @@
 package net.ripe.db.whois.api.whois;
 
-import com.sun.jersey.api.NotFoundException;
 import net.ripe.db.whois.api.whois.domain.WhoisResources;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
@@ -23,7 +21,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Set;
 
 @ExternallyManagedLifecycle
 @Component
@@ -46,19 +43,8 @@ public class WhoisRDAPService extends WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key) {
 
-        Set<CIString> sources = getSources();
 
-        for (CIString source : sources) {
-            try {
-                return lookupObject(request, source.toString(), objectType, key, false);
-            } catch (NotFoundException e) {}
-        }
-
-        throw new NotFoundException("Nothing found");
-    }
-
-    private Set<CIString> getSources() {
-        return sourceContext.getAllSourceNames();
+        return lookupObject(request, sourceContext.getWhoisSlaveSource().getName().toString(), objectType, key, false);
     }
 
 }
