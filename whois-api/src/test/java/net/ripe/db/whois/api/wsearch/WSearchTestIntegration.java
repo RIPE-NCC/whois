@@ -15,7 +15,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -31,14 +34,10 @@ import static org.hamcrest.Matchers.containsString;
 @Category(IntegrationTest.class)
 public class WSearchTestIntegration extends AbstractIntegrationTest {
 
-    private static final File INDEX_DIR = Files.createTempDir();
+    private static final Logger LOGGER = LoggerFactory.getLogger(WSearchTestIntegration.class);
     private static final File LOG_DIR = Files.createTempDir();
-
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormat.forPattern("HHmmss");
-
-    private static final String API_KEY = "DB-RIPE-ZwBAFuR5JuBxQCnQ";
-
     private static final String INPUT_FILE_NAME = "001.msg-in.txt.gz";
 
     private Client client;
@@ -46,10 +45,14 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
     @Autowired
     private LogFileIndex logFileIndex;
 
+    @Value("${dir.update.audit.log}")
+    private String logDir;
+
+    @Value("${api.key}")
+    private String apiKey;
+
     @BeforeClass
     public static void setupClass() throws IOException {
-        System.setProperty("api.key", API_KEY);
-        System.setProperty("dir.wsearch.index", INDEX_DIR.getAbsolutePath() + "index");
         System.setProperty("dir.update.audit.log", LOG_DIR.getAbsolutePath());
     }
 
@@ -60,16 +63,14 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
 
     @AfterClass
     public static void teardown() throws Exception {
-        System.clearProperty("api.key");
-        System.clearProperty("dir.wsearch.index");
         System.clearProperty("dir.update.audit.log");
-
-        INDEX_DIR.delete();
         LOG_DIR.delete();
     }
 
     @Test
     public void single_term() throws Exception {
+        LOGGER.info("log directory = {}", logDir);
+
         createLogFile("the quick brown fox");
 
         assertThat(wsearch("quick"), containsString("the quick brown fox"));
@@ -95,7 +96,7 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
 
     private String wsearch(final String searchTerm) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), API_KEY))
+                .resource(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), apiKey))
                 .get(String.class);
     }
 
