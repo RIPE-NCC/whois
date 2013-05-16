@@ -13,10 +13,13 @@ public class TagWriter {
 
     public void writeTags(final Writer writer, final RpslObject object, final List<Tag> tags) throws IOException {
         if (!tags.isEmpty()) {
-            writer.write("\n" + QueryMessages.tagInfoStart(object.getKey()).toString() + "\n");
+            writer.write("\n");
+            writer.write(QueryMessages.tagInfoStart(object.getKey()).toString());
+            writer.write("\n");
 
             for (final Tag tag : tags) {
-                writer.write(QueryMessages.tagInfo(tag.getType(), tag.getValue()).toString() + "\n");
+                writer.write(QueryMessages.tagInfo(tag.getType(), tag.getValue()).toString());
+                writer.write("\n");
             }
         }
     }

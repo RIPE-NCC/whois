@@ -101,7 +101,7 @@ class RpslObjectsToTextExporter implements RpslObjectsExporter {
 
         final List<ExportFileWriter> exportFileWriters = exportFileWriterFactory.createExportFileWriters(tmpDir, maxSerial);
         try {
-            final TextFileExporter textFileExporter = new TextFileExporter(exportFileWriters, tagsDao);
+            final TextFileExporter textFileExporter = new TextFileExporter(exportFileWriters);
             try {
                 exportDao.exportObjects(textFileExporter);
             } finally {
@@ -114,17 +114,15 @@ class RpslObjectsToTextExporter implements RpslObjectsExporter {
         }
     }
 
-    private static class TextFileExporter implements ExportCallbackHandler {
+    private class TextFileExporter implements ExportCallbackHandler {
         private static final int LOG_EVERY = 500000;
         private final Iterable<ExportFileWriter> exportFileWriters;
-        private final TagsDao tagsDao;
 
         private int lastLogged = -1;
         private int nrExported = 0;
 
-        private TextFileExporter(final Iterable<ExportFileWriter> exportFileWriters, final TagsDao tagsDao) {
+        private TextFileExporter(final Iterable<ExportFileWriter> exportFileWriters) {
             this.exportFileWriters = exportFileWriters;
-            this.tagsDao = tagsDao;
         }
 
         @Override

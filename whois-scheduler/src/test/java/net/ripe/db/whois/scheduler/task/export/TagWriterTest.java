@@ -40,8 +40,8 @@ public class TagWriterTest {
                         new Tag(CIString.ciString("foo"), 3, "FOO Value\n"))
                 );
 
-        verify(writer).write("\n% Tags relating to 'TEST-NIC'\n");
-        verify(writer).write("% bar # Bar Value\n\n");
-        verify(writer).write("% foo # FOO Value\n\n");
+        verify(writer).write("% Tags relating to 'TEST-NIC'");
+        verify(writer).write("% bar # Bar Value\n");
+        verify(writer).write("% foo # FOO Value\n");
     }
 }
