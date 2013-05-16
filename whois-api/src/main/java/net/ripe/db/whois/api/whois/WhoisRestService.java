@@ -28,6 +28,7 @@ import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
@@ -111,10 +112,10 @@ public class WhoisRestService {
             throw new IllegalArgumentException(String.format("The given grs source id: '%s' is not valid", source));
         }
 
-        return handleQuery(query, source, key, request);
+        return handleQuery(query, source, key, request, null);
     }
 
-    private Response handleQuery(final Query query, final String source, final String key, final HttpServletRequest request) {
+    private Response handleQuery(final Query query, final String source, final String key, final HttpServletRequest request, @Nullable final Parameters parameters) {
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
         final int contextId = System.identityHashCode(Thread.currentThread());
 
@@ -122,7 +123,7 @@ public class WhoisRestService {
             return handleVersionQuery(query, source, key, remoteAddress, contextId);
         }
 
-        return handleQueryAndStreamResponse(query, request, remoteAddress, contextId);
+        return handleQueryAndStreamResponse(query, request, remoteAddress, contextId, parameters);
     }
 
     private Response handleVersionQuery(final Query query, final String source, final String key, final InetAddress remoteAddress, final int contextId) {
@@ -152,15 +153,22 @@ public class WhoisRestService {
         return Response.ok(whoisResources).build();
     }
 
-    private Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId) {
+    private Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
         final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
 
         return Response.ok(new StreamingOutput() {
             private boolean found;
 
             @Override
-            public void write(final OutputStream output) throws IOException, WebApplicationException {
-                streamingMarshal.open(output, "whois-resources", "objects");
+            public void write(final OutputStream output) throws IOException {
+                streamingMarshal.open(output);
+                streamingMarshal.start("whois-resources");
+
+                if (parameters != null) {
+                    streamingMarshal.write("parameters", parameters);
+                }
+
+                streamingMarshal.start("objects");
 
                 try {
                     queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
@@ -168,6 +176,7 @@ public class WhoisRestService {
                         public void handle(final ResponseObject responseObject) {
                             if (responseObject instanceof RpslObject) {
                                 found = true;
+
                                 streamingMarshal.write("object", WhoisObjectMapper.map((RpslObject) responseObject));
                             }
 
@@ -397,7 +406,7 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("key") final String key) {
         final Query query = Query.parse(String.format("--list-versions %s", key));
-        return handleQuery(query, source, key, request);
+        return handleQuery(query, source, key, request, null);
     }
 
     /**
@@ -422,7 +431,7 @@ public class WhoisRestService {
                 "--show-version %s %s",
                 version,
                 key));
-        return handleQuery(query, source, key, request);
+        return handleQuery(query, source, key, request, null);
     }
 
     @GET
@@ -484,9 +493,14 @@ public class WhoisRestService {
                 (flags == null) ? "" : "-" + flags,
                 (queryString == null ? "" : queryString)));
 
-        // TODO [AK] Write parameters
+        final Parameters parameters = new Parameters();
+        parameters.setSources(sources);
+        parameters.setQueryStrings(queryString);
+        parameters.setInverseLookup(inverseAttributes);
+        parameters.setTypeFilters(types);
+        parameters.setFlags(flags == null ? Collections.<String>emptySet() : Sets.newHashSet(flags.split("(?!^)")));
 
-        return handleQuery(query, JOINER.join(sources), queryString, request);
+        return handleQuery(query, JOINER.join(sources), queryString, request, parameters);
     }
 
     /**
@@ -521,7 +535,7 @@ public class WhoisRestService {
                 (exclude == null || exclude.isEmpty()) ? "" :
                         QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(), JOINER.join(exclude)));
 
-        return handleQuery(query, source, key, request);
+        return handleQuery(query, source, key, request, null);
     }
 
     private UpdateResponse performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword, final String source) {
@@ -604,26 +618,6 @@ public class WhoisRestService {
         whoisResources.setWhoisObjects(Lists.newArrayList(WhoisObjectMapper.map(rpslObject)));
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
         return whoisResources;
-    }
-
-    private Parameters createParameters(final Set<String> sources, final String queryString, final Set<String> inverseAttributes, final Set<String> types, final Set<String> flags) {
-        final Parameters parameters = new Parameters();
-        parameters.setSources(sources);
-        parameters.setQueryStrings(queryString);
-        parameters.setInverseLookup(inverseAttributes);
-        parameters.setTypeFilters(types);
-        parameters.setFlags(flags);
-        return parameters;
-    }
-
-    private Set<String> parseFlags(final String flags) {
-        final Set<String> parsed = Sets.newHashSet();
-        if (flags != null) {
-            for (String flag : flags.split("(?!^)")) {
-                parsed.add(flag);
-            }
-        }
-        return parsed;
     }
 
     private RpslObject getSubmittedObject(final WhoisResources whoisResources) {

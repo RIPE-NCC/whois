@@ -828,7 +828,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .get(String.class));
 
 
-
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/version/TEST/1/AS102")
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
@@ -903,15 +902,15 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     // schema
 
-    @Ignore("TODO")
     @Test
+    @Ignore
     public void schema_int() throws Exception {
         final String response = doGetRequest(getUrl("xsd/int-docs/whois-resources.xsd"), HttpURLConnection.HTTP_OK);
         assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
     }
 
-    @Ignore("TODO")
     @Test
+    @Ignore
     public void schema_ext() throws Exception {
         final String response = doGetRequest(getUrl("xsd/ext-docs/whois-resources.xsd"), HttpURLConnection.HTTP_OK);
         assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
@@ -1272,7 +1271,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    @Ignore // TODO [AK] Fix after streaming is implemented
     public void search_parameters_are_returned() throws Exception {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +

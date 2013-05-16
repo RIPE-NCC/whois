@@ -24,34 +24,49 @@ class StreamingMarshalXml implements StreamingMarshal {
 
             xmlOutputFactory = XMLOutputFactory.newFactory();
         } catch (JAXBException e) {
-            throw new IllegalStateException("Initializing", e);
+            throw new IllegalStateException(e);
         }
     }
 
     private XMLStreamWriter xmlOut;
 
     @Override
-    public void open(final OutputStream outputStream, final String... parentElementNames) {
+    public void open(final OutputStream outputStream) {
         try {
             xmlOut = xmlOutputFactory.createXMLStreamWriter(outputStream);
             xmlOut.writeStartDocument();
-
-            for (final String parentElementName : parentElementNames) {
-                xmlOut.writeStartElement(parentElementName);
-            }
         } catch (XMLStreamException e) {
-            throw new RuntimeException("Open", e);
+            throw new StreamingException(e);
+        }
+    }
+
+    @Override
+    public void start(final String name) {
+        try {
+            xmlOut.writeStartElement(name);
+        } catch (XMLStreamException e) {
+            throw new StreamingException(e);
+        }
+    }
+
+    @Override
+    public void end() {
+        try {
+            xmlOut.writeEndElement();
+        } catch (XMLStreamException e) {
+            throw new StreamingException(e);
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> void write(final String name, final T t) {
+        JAXBElement<T> element = new JAXBElement<T>(QName.valueOf(name), (Class<T>) t.getClass(), t);
+
         try {
-            JAXBElement<T> element = new JAXBElement<T>(QName.valueOf(name), (Class<T>) t.getClass(), t);
             marshaller.marshal(element, xmlOut);
         } catch (JAXBException e) {
-            throw new RuntimeException("Write", e);
+            throw new StreamingException(e);
         }
     }
 
@@ -61,7 +76,7 @@ class StreamingMarshalXml implements StreamingMarshal {
             xmlOut.writeEndDocument();
             xmlOut.close();
         } catch (XMLStreamException e) {
-            throw new RuntimeException("Close", e);
+            throw new StreamingException(e);
         }
     }
 }

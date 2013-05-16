@@ -26,16 +26,30 @@ class StreamingMarshalJson implements StreamingMarshal {
     private JsonGenerator generator;
 
     @Override
-    public void open(final OutputStream outputStream, final String... parentElementNames) {
+    public void open(final OutputStream outputStream) {
         try {
             generator = jsonFactory.createJsonGenerator(outputStream);
             generator.writeStartObject();
-
-            for (final String parentElementName : parentElementNames) {
-                generator.writeObjectFieldStart(parentElementName);
-            }
         } catch (IOException e) {
-            throw new RuntimeException("Open", e);
+            throw new StreamingException(e);
+        }
+    }
+
+    @Override
+    public void start(final String name) {
+        try {
+            generator.writeObjectFieldStart(name);
+        } catch (IOException e) {
+            throw new StreamingException(e);
+        }
+    }
+
+    @Override
+    public void end() {
+        try {
+            generator.writeEndObject();
+        } catch (IOException e) {
+            throw new StreamingException(e);
         }
     }
 
@@ -44,7 +58,7 @@ class StreamingMarshalJson implements StreamingMarshal {
         try {
             generator.writeObjectField(name, t);
         } catch (IOException e) {
-            throw new RuntimeException("Write", e);
+            throw new StreamingException(e);
         }
     }
 
@@ -53,7 +67,7 @@ class StreamingMarshalJson implements StreamingMarshal {
         try {
             generator.close();
         } catch (IOException e) {
-            throw new RuntimeException("Close", e);
+            throw new StreamingException(e);
         }
     }
 }
