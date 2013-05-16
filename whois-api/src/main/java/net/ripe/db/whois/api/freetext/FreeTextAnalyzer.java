@@ -54,7 +54,7 @@ class FreeTextAnalyzer extends Analyzer {
         tok = new LowerCaseFilter(matchVersion, tok);
 
         if (operation.equals(Operation.INDEX)) {
-            tok = new PartialAddressFilter(tok);
+            tok = new PatternFilter(tok);
         }
 
         return new TokenStreamComponents(tokenizer, tok);

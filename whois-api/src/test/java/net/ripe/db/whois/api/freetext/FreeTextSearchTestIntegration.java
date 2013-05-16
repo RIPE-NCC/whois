@@ -518,6 +518,27 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
         assertThat(query("q=ORG-TOS1-TEST"), containsString("numFound=\"1\""));
     }
 
+    @Test
+    public void search_match_partial_email_address() throws Exception {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                "org-name:     ORG-TOS1-TEST\n" +
+                "org-type:     OTHER\n" +
+                "descr:        ORG-TOS1-TEST\n" +
+                "address:      street 1\n" +
+                "e-mail:       org1@test.com\n" +
+                "mnt-ref:      OWNER-MNT\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "changed:      dbtest@ripe.net 20120505\n" +
+                "source:       RIPE\n"));
+        freeTextIndex.rebuild();
+
+        assertThat(query("q=test.com"), containsString("numFound=\"1\""));
+    }
+
     private final String query(final String queryString) {
         return client
                 .resource(String.format("http://localhost:%s/search?%s", getPort(AUDIENCE), queryString))

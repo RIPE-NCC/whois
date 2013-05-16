@@ -13,7 +13,7 @@ import java.util.List;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 
-public class PartialAddressFilterTest {
+public class PatternFilterTest {
 
     @Test
     public void tokenize_ipv4() throws Exception {
@@ -40,6 +40,14 @@ public class PartialAddressFilterTest {
     }
 
     @Test
+    public void tokenize_email_addresses() throws Exception {
+        tokenize("USER@HOST.ORG", "USER@HOST.ORG", "HOST.ORG");
+        tokenize("noreply@ripe.net", "noreply@ripe.net", "ripe.net");
+        tokenize("user@host.com.au", "user@host.com.au", "host.com.au");
+        tokenize("a@b", "a@b");
+    }
+
+    @Test
     public void tokenize_words() throws Exception {
         tokenize("aaaa", "aaaa");
         tokenize("something", "something");
@@ -54,7 +62,7 @@ public class PartialAddressFilterTest {
         final List<String> tokens = Lists.newArrayList();
 
         final WhitespaceTokenizer whitespaceTokenizer = new WhitespaceTokenizer(Version.LUCENE_41, new StringReader(input));
-        final PartialAddressFilter subject = new PartialAddressFilter(whitespaceTokenizer);
+        final PatternFilter subject = new PatternFilter(whitespaceTokenizer);
 
         try {
             subject.reset();
