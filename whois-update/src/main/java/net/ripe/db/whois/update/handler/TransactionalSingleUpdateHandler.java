@@ -60,17 +60,6 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
     }
 
     @Override
-    public boolean supportAll(final List<Update> updates) {
-        for (final Update update : updates) {
-            if (!updateObjectHandler.getSupportedTypes().contains(update.getType())) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void handle(final Origin origin, final Keyword keyword, final Update update, final UpdateContext updateContext) {
         updateLockDao.setUpdateLock();

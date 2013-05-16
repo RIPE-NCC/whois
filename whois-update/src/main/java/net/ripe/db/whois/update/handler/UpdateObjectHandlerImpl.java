@@ -2,7 +2,6 @@ package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.attrs.Changed;
@@ -20,33 +19,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Component
 class UpdateObjectHandlerImpl implements UpdateObjectHandler {
-    private static final HashSet<ObjectType> SUPPORTED_TYPES = Sets.newHashSet(
-            ObjectType.AS_SET,
-            ObjectType.AS_BLOCK,
-            ObjectType.AUT_NUM,
-            ObjectType.DOMAIN,
-            ObjectType.FILTER_SET,
-            ObjectType.INETNUM,
-            ObjectType.INET6NUM,
-            ObjectType.KEY_CERT,
-            ObjectType.INET_RTR,
-            ObjectType.IRT,
-            ObjectType.MNTNER,
-            ObjectType.ORGANISATION,
-            ObjectType.PEERING_SET,
-            ObjectType.PERSON,
-            ObjectType.POEM,
-            ObjectType.POETIC_FORM,
-            ObjectType.ROLE,
-            ObjectType.ROUTE,
-            ObjectType.ROUTE6,
-            ObjectType.ROUTE_SET,
-            ObjectType.RTR_SET);
-
     private final DateTimeProvider dateTimeProvider;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final Map<Action, Map<ObjectType, List<BusinessRuleValidator>>> validatorsByActionAndType;
@@ -136,10 +114,5 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
         }
 
         return !updateContext.hasErrors(update);
-    }
-
-    @Override
-    public Set<ObjectType> getSupportedTypes() {
-        return SUPPORTED_TYPES;
     }
 }

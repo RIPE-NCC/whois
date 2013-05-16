@@ -43,8 +43,6 @@ public class UpdateRequestHandler {
     }
 
     public UpdateResponse handle(final UpdateRequest updateRequest, final UpdateContext updateContext) {
-        final Stopwatch stopwatch = new Stopwatch().start();
-
         UpdateResponse updateResponse;
         try {
             updateResponse = handleUpdateRequest(updateRequest, updateContext);
@@ -60,15 +58,13 @@ public class UpdateRequestHandler {
         final Keyword keyword = updateRequest.getKeyword();
         if (Keyword.HELP.equals(keyword) || Keyword.HOWTO.equals(keyword)) {
             return new UpdateResponse(UpdateStatus.SUCCESS, responseFactory.createHelpResponse(updateContext, updateRequest.getOrigin()));
-        } else if (singleUpdateHandler.supportAll(updateRequest.getUpdates())) {
+        } else {
             try {
                 sourceContext.setCurrentSourceToWhoisMaster();
                 return handleUpdates(updateRequest, updateContext);
             } finally {
                 sourceContext.removeCurrentSource();
             }
-        } else {
-            throw new IllegalArgumentException(String.format("Unsupported update request: %s", updateRequest.getOrigin()));
         }
     }
 
