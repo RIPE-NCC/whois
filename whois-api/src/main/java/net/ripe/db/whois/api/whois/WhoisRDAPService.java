@@ -43,6 +43,9 @@ public class WhoisRDAPService extends WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key) {
 
+        // Here we will need to eventually do a switch or whatever to
+        // turn rdap objectTypes into whois ones for passing off to the
+        // lookupObject method. But let's cross that bridge when we get to it
 
         return lookupObject(request, sourceContext.getWhoisSlaveSource().getName().toString(), objectType, key, false);
     }
