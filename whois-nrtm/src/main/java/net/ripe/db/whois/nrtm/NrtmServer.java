@@ -51,11 +51,11 @@ public class NrtmServer implements ApplicationService {
         port = getActualPort(nrtmPort);
         legacyPort = getActualPort(nrtmPortLegacy);
 
-        serverChannelLegacy = bootstrapChannel(legacyNrtmServerPipelineFactory, legacyPort);
-        serverChannel = bootstrapChannel(nrtmServerPipelineFactory, port);
+        serverChannelLegacy = bootstrapChannel(legacyNrtmServerPipelineFactory, legacyPort, "OLD DUMMIFER");
+        serverChannel = bootstrapChannel(nrtmServerPipelineFactory, port, "NEW DUMMIFER");
     }
 
-    private Channel bootstrapChannel(final ChannelPipelineFactory serverPipelineFactory, final int port) {
+    private Channel bootstrapChannel(final ChannelPipelineFactory serverPipelineFactory, final int port, final String instanceName) {
         final ChannelFactory channelFactory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
 
         ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
@@ -65,7 +65,7 @@ public class NrtmServer implements ApplicationService {
         bootstrap.setOption("backlog", 200);
         bootstrap.setOption("child.keepAlive", true);
 
-        LOGGER.info("NRTM server listening on port {}", port);
+        LOGGER.info("NRTM server listening on port {} ({})", port, instanceName);
         return bootstrap.bind(new InetSocketAddress(port));
     }
 

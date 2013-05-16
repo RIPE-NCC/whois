@@ -11,9 +11,9 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
         "source",
-        "versions",
         "type",
-        "key"
+        "key",
+        "versions"
 })
 @XmlRootElement(name = "versions")
 public class WhoisVersions {

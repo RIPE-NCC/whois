@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.whois;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
@@ -30,12 +31,13 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -112,104 +114,105 @@ public class WhoisRestService {
         return handleQuery(query, source, key, request);
     }
 
-    // TODO: [ES] implement limit on response objects, with exceptions for internal addresses
     private Response handleQuery(final Query query, final String source, final String key, final HttpServletRequest request) {
-        final InMemoryResultHandler inMemoryResultHandler = new InMemoryResultHandler();
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
         final int contextId = System.identityHashCode(Thread.currentThread());
 
-        try {
-            queryHandler.streamResults(query, remoteAddress, contextId, inMemoryResultHandler);
-
-            if (!inMemoryResultHandler.getDeletedObjects().isEmpty() || !inMemoryResultHandler.getVersionObjects().isEmpty()) {
-                final List<DeletedVersionResponseObject> deletedVersions = inMemoryResultHandler.getDeletedObjects();
-                final List<VersionResponseObject> versions = inMemoryResultHandler.getVersionObjects();
-                return Response.ok(createWhoisResources(deletedVersions, versions, source, key)).build();
-            } else if (inMemoryResultHandler.getVersionWithRpslResponseObject() != null) {
-                return Response.ok(createWhoisResources(
-                        inMemoryResultHandler.getVersionWithRpslResponseObject().getRpslObject(),
-                        inMemoryResultHandler.getVersionWithRpslResponseObject().getVersion())).build();
-            } else if (!inMemoryResultHandler.getResponseObjects().isEmpty()) {
-                return Response.ok(WhoisObjectMapper.map(inMemoryResultHandler.getResponseObjects())).build();
-            }
-
-            throw new NotFoundException();
-
-        } catch (QueryException e) {
-            if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                throw new WebApplicationException(
-                        Response.status(STATUS_TOO_MANY_REQUESTS)
-                                .entity(WhoisObjectMapper.map(inMemoryResultHandler.getResponseObjects()))
-                                .build());
-            } else {
-                throw new RuntimeException("Unexpected result", e);
-            }
+        if (query.isVersionList() || query.isObjectVersion()) {
+            return handleVersionQuery(query, source, key, remoteAddress, contextId);
         }
+
+        return handleQueryAndStreamResponse(query, request, remoteAddress, contextId);
     }
 
-    // TODO [AK] Stream, rather than cache complete result
-    static class InMemoryResultHandler implements ResponseHandler {
-        final List<RpslObject> responseObjects = Lists.newArrayList();
-        final List<TagResponseObject> tagObjects = Lists.newArrayList();
-        final List<VersionResponseObject> versionObjects = Lists.newArrayList();
-        final List<DeletedVersionResponseObject> deletedObjects = Lists.newArrayList();
-        VersionWithRpslResponseObject versionWithRpslResponseObject = null;
+    private Response handleVersionQuery(final Query query, final String source, final String key, final InetAddress remoteAddress, final int contextId) {
+        final ApiResponseHandlerVersions apiResponseHandlerVersions = new ApiResponseHandlerVersions();
+        queryHandler.streamResults(query, remoteAddress, contextId, apiResponseHandlerVersions);
 
-        public List<RpslObject> getResponseObjects() {
-            return responseObjects;
+        final VersionWithRpslResponseObject versionResponseObject = apiResponseHandlerVersions.getVersionWithRpslResponseObject();
+        final List<DeletedVersionResponseObject> deleted = apiResponseHandlerVersions.getDeletedObjects();
+        final List<VersionResponseObject> versions = apiResponseHandlerVersions.getVersionObjects();
+
+        if (versionResponseObject == null && deleted.isEmpty() && versions.isEmpty()) {
+            throw new NotFoundException();
         }
 
-        public List<VersionResponseObject> getVersionObjects() {
-            return versionObjects;
+        final WhoisResources whoisResources = new WhoisResources();
+
+        if (versionResponseObject != null) {
+            final WhoisObject whoisObject = WhoisObjectMapper.map(versionResponseObject.getRpslObject());
+            whoisObject.setVersion(versionResponseObject.getVersion());
+            whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
+        } else {
+            final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
+            final WhoisVersions whoisVersions = new WhoisVersions(source, type, key, WhoisObjectMapper.mapVersions(deleted, versions));
+            whoisResources.setVersions(whoisVersions);
         }
 
-        public List<DeletedVersionResponseObject> getDeletedObjects() {
-            return deletedObjects;
-        }
+        return Response.ok(whoisResources).build();
+    }
 
-        public VersionWithRpslResponseObject getVersionWithRpslResponseObject() {
-            return versionWithRpslResponseObject;
-        }
+    private Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId) {
+        final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
 
-        public List<TagResponseObject> getTagObjects() {
-            return tagObjects;
-        }
+        return Response.ok(new StreamingOutput() {
+            private boolean found;
 
-        @Override
-        public String getApi() {
-            return "API";
-        }
+            @Override
+            public void write(final OutputStream output) throws IOException, WebApplicationException {
+                streamingMarshal.open(output, "whois-resources", "objects");
 
-        @Override
-        public void handle(final ResponseObject responseObject) {
-            if (responseObject instanceof RpslObject) {
-                responseObjects.add((RpslObject) responseObject);
+                try {
+                    queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
+                        @Override
+                        public void handle(final ResponseObject responseObject) {
+                            if (responseObject instanceof RpslObject) {
+                                found = true;
+                                streamingMarshal.write("object", WhoisObjectMapper.map((RpslObject) responseObject));
+                            }
+
+                            // TODO [AK] Handle tags
+
+                            // TODO [AK] Handle related messages
+                        }
+                    });
+
+                    if (!found) {
+                        throw new NotFoundException();
+                    }
+                } catch (QueryException e) {
+                    if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
+                        throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
+                    } else {
+                        throw new RuntimeException("Unexpected result", e);
+                    }
+                }
+
+                streamingMarshal.close();
             }
+        }).build();
+    }
 
-            if (responseObject instanceof VersionWithRpslResponseObject) {
-                versionWithRpslResponseObject = (VersionWithRpslResponseObject) responseObject;
+    private StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
+        final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
+        for (final String accept : Splitter.on(',').split(acceptHeader)) {
+            try {
+                final MediaType mediaType = MediaType.valueOf(accept);
+                final String subtype = mediaType.getSubtype().toLowerCase();
+                if (subtype.equals("json") || subtype.endsWith("+json")) {
+                    return new StreamingMarshalJson();
+                } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
+                    return new StreamingMarshalXml();
+                }
+            } catch (IllegalArgumentException ignored) {
             }
-
-            if (responseObject instanceof VersionResponseObject) {
-                versionObjects.add((VersionResponseObject) responseObject);
-            }
-
-            if (responseObject instanceof DeletedVersionResponseObject) {
-                deletedObjects.add((DeletedVersionResponseObject) responseObject);
-            }
-
-            if (responseObject instanceof TagResponseObject) {
-                tagObjects.add((TagResponseObject) responseObject);
-            }
-
-            // TODO [AK] Handle tags
-
-            // TODO [AK] Handle related messages
         }
 
+        return new StreamingMarshalXml();
     }
 
     @POST
+    // TODO [AK] Does text/json actually result in a json response and text/xml in xml?
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Path("/create/{source}")
     public Response create(
@@ -600,22 +603,6 @@ public class WhoisRestService {
         whoisResources.setService("lookup");
         whoisResources.setWhoisObjects(Lists.newArrayList(WhoisObjectMapper.map(rpslObject)));
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
-        return whoisResources;
-    }
-
-    private WhoisResources createWhoisResources(final RpslObject rpslObject, final int version) {
-        final WhoisResources whoisResources = new WhoisResources();
-        final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject);
-        whoisObject.setVersion(version);
-        whoisResources.setWhoisObjects(Lists.newArrayList(whoisObject));
-        return whoisResources;
-    }
-
-    private WhoisResources createWhoisResources(final List<DeletedVersionResponseObject> deleted, final List<VersionResponseObject> versions, final String source, final String key) {
-        final WhoisResources whoisResources = new WhoisResources();
-        final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
-        final WhoisVersions whoisVersions = new WhoisVersions(source, type, key, WhoisObjectMapper.mapVersions(deleted, versions));
-        whoisResources.setVersions(whoisVersions);
         return whoisResources;
     }
 

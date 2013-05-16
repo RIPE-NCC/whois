@@ -53,6 +53,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             "changed: noreply@ripe.net 20120101\n" +
             "remarks: remark\n" +
             "source:  TEST\n");
+
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
             "descr:       Owner Maintainer\n" +
@@ -63,6 +64,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             "referral-by: OWNER-MNT\n" +
             "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
+
     private static final RpslObject TEST_PERSON = RpslObject.parse("" +
             "person:  Test Person\n" +
             "address: Singel 258\n" +
@@ -821,6 +823,12 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
 
+        System.out.println(createResource(AUDIENCE, "whois/version/TEST/1/AS102")
+                .accept(MediaType.APPLICATION_XML)
+                .get(String.class));
+
+
+
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/version/TEST/1/AS102")
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
@@ -848,6 +856,11 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
+
+        System.out.println(createResource(AUDIENCE, "whois/version/TEST/1/AS102")
+                .accept(MediaType.APPLICATION_JSON)
+                .get(String.class));
+
 
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/version/TEST/1/AS102")
                 .accept(MediaType.APPLICATION_JSON)
@@ -1010,6 +1023,13 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "tech-c:         TP1-TEST\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
+
+        final String s = createResource(AUDIENCE, "whois/search?query-string=AS102&source=TEST")
+                .accept(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        System.out.println(s);
+
 
         final WhoisResources whoisResources2 = createResource(AUDIENCE, "whois/search?query-string=AS102&source=TEST")
                 .accept(MediaType.APPLICATION_XML)
