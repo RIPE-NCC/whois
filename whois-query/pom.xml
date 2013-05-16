@@ -54,22 +54,4 @@
             <type>test-jar</type>
         </dependency>
     </dependencies>
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/query.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>**/query.properties</exclude>
-                </excludes>
-            </resource>
-        </resources>
-    </build>
 </project>
