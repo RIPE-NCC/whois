@@ -1,7 +1,5 @@
 package net.ripe.db.whois.update.handler;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -24,8 +22,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -51,7 +47,6 @@ public class TransactionalSingleUpdateHandlerTest {
 
     @Before
     public void setUp() throws Exception {
-        when(updateObjectHandler.getSupportedTypes()).thenReturn(Sets.newHashSet(ObjectType.values()));
         when(update.getOperation()).thenReturn(Operation.DELETE);
         final RpslObject mntner = RpslObject.parse("mntner: DEV-ROOT-MNT");
 
@@ -85,57 +80,6 @@ public class TransactionalSingleUpdateHandlerTest {
 
         subject = new TransactionalSingleUpdateHandler(autoKeyResolver, attributeGenerator, attributeSanitizer, updateLockDao, loggerContext, authenticator, updateObjectHandler, rpslObjectDao, rpslObjectUpdateDao, ipTreeUpdater);
         subject.setSource("RIPE");
-    }
-
-    @Test
-    public void supportAll_empty() throws Exception {
-        assertThat(subject.supportAll(Lists.<Update>newArrayList()), is(true));
-    }
-
-    @Test
-    public void supportAll_supported() throws Exception {
-        when(updateObjectHandler.getSupportedTypes()).thenReturn(Sets.newHashSet(ObjectType.MNTNER));
-        when(update.getType()).thenReturn(ObjectType.MNTNER);
-
-        assertThat(subject.supportAll(Lists.newArrayList(update)), is(true));
-    }
-
-    @Test
-    public void supportAll_supported_multiple() throws Exception {
-        final Update update1 = mock(Update.class);
-        when(update1.getType()).thenReturn(ObjectType.MNTNER);
-
-        final Update update2 = mock(Update.class);
-        when(update2.getType()).thenReturn(ObjectType.PERSON);
-
-        final Update update3 = mock(Update.class);
-        when(update3.getType()).thenReturn(ObjectType.ROLE);
-
-        assertThat(subject.supportAll(Lists.newArrayList(update1, update2, update3)), is(true));
-    }
-
-    @Test
-    public void supportAll_unsupported() throws Exception {
-        when(updateObjectHandler.getSupportedTypes()).thenReturn(Sets.newHashSet(ObjectType.PERSON));
-        when(update.getType()).thenReturn(ObjectType.MNTNER);
-
-        assertThat(subject.supportAll(Lists.newArrayList(update)), is(false));
-    }
-
-    @Test
-    public void supportAll_unsupported_multiple() throws Exception {
-        when(updateObjectHandler.getSupportedTypes()).thenReturn(Sets.newHashSet(ObjectType.PERSON, ObjectType.MNTNER));
-
-        final Update update1 = mock(Update.class);
-        when(update1.getType()).thenReturn(ObjectType.MNTNER);
-
-        final Update update2 = mock(Update.class);
-        when(update2.getType()).thenReturn(ObjectType.PERSON);
-
-        final Update update3 = mock(Update.class);
-        when(update3.getType()).thenReturn(ObjectType.ROLE);
-
-        assertThat(subject.supportAll(Lists.newArrayList(update1, update2, update3)), is(false));
     }
 
     @Test

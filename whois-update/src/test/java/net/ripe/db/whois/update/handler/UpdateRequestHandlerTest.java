@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
-import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -54,8 +53,6 @@ public class UpdateRequestHandlerTest {
         when(updateRequest.getKeyword()).thenReturn(Keyword.NONE);
         when(updateRequest.isNotificationsEnabled()).thenReturn(false);
         when(updateContext.createAck()).thenReturn(ack);
-
-        when(singleUpdateHandler.supportAll(any(List.class))).thenReturn(true);
     }
 
     @Test
