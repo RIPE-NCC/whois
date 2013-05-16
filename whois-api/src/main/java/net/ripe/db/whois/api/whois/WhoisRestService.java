@@ -38,9 +38,7 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -170,21 +168,28 @@ public class WhoisRestService {
 
                 streamingMarshal.start("objects");
 
+                // TODO [AK] Crude way to handle tags, but working
+                final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<RpslObject>(1);
+                final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
+
                 try {
                     queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
+
                         @Override
                         public void handle(final ResponseObject responseObject) {
-                            if (responseObject instanceof RpslObject) {
+                            if (responseObject instanceof TagResponseObject) {
+                                tagResponseObjects.add((TagResponseObject) responseObject);
+                            } else if (responseObject instanceof RpslObject) {
                                 found = true;
-
-                                streamingMarshal.write("object", WhoisObjectMapper.map((RpslObject) responseObject));
+                                streamObject(rpslObjectQueue.poll(), tagResponseObjects);
+                                rpslObjectQueue.add((RpslObject) responseObject);
                             }
-
-                            // TODO [AK] Handle tags
 
                             // TODO [AK] Handle related messages
                         }
                     });
+
+                    streamObject(rpslObjectQueue.poll(), tagResponseObjects);
 
                     if (!found) {
                         throw new NotFoundException();
@@ -198,6 +203,21 @@ public class WhoisRestService {
                 }
 
                 streamingMarshal.close();
+            }
+
+            private void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
+                if (rpslObject == null) {
+                    return;
+                }
+
+                final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject);
+
+                // TODO [AK] Fix mapper API
+                final List<WhoisTag> tags = WhoisObjectMapper.mapTags(tagResponseObjects).getTags();
+                whoisObject.setTags(tags);
+
+                streamingMarshal.write("object", whoisObject);
+                tagResponseObjects.clear();
             }
         }).build();
     }

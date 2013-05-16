@@ -202,7 +202,7 @@ public class WhoisObjectMapper {
     }
 
     public static WhoisTags mapTags(final List<TagResponseObject> tags) {
-        final List<WhoisTag> whoisTags = new ArrayList<WhoisTag>(tags.size());
+        final List<WhoisTag> whoisTags = Lists.newArrayListWithExpectedSize(tags.size());
         for (final TagResponseObject tag : tags) {
             final WhoisTag whoisTag = new WhoisTag();
             whoisTag.setData(tag.getValue());

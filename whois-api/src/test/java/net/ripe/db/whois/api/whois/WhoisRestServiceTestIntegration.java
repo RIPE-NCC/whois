@@ -1325,25 +1325,26 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        // TODO [AK] Add later, should be on object level
-//        final List<WhoisTag> tags = whoisResources.getTags().getTags();
-//        assertThat(tags, hasSize(3));
-//        assertThat(tags.get(0).getId(), is("foobar"));
-//        assertThat(tags.get(0).getData(), is("description"));
-//        assertThat(tags.get(1).getId(), is("other"));
-//        assertThat(tags.get(1).getData(), is("other stuff"));
-//        assertThat(tags.get(2).getId(), is("unref"));
-//        assertThat(tags.get(2).getData(), is("28"));
-//
-//        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), contains(
-//                new Attribute("aut-num", "AS102"),
-//                new Attribute("as-name", "End-User-2"),
-//                new Attribute("descr", "description"),
-//                new Attribute("admin-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST")),
-//                new Attribute("tech-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST")),
-//                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT")),
-//                new Attribute("source", "TEST")
-//        ));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+
+        final List<WhoisTag> tags = whoisObject.getTags();
+        assertThat(tags, hasSize(3));
+        assertThat(tags.get(0).getId(), is("foobar"));
+        assertThat(tags.get(0).getData(), is("description"));
+        assertThat(tags.get(1).getId(), is("other"));
+        assertThat(tags.get(1).getData(), is("other stuff"));
+        assertThat(tags.get(2).getId(), is("unref"));
+        assertThat(tags.get(2).getData(), is("28"));
+
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("aut-num", "AS102"),
+                new Attribute("as-name", "End-User-2"),
+                new Attribute("descr", "description"),
+                new Attribute("admin-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST")),
+                new Attribute("tech-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST")),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST")
+        ));
     }
 
     @Test
@@ -1381,7 +1382,11 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), contains(
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(whoisObject.getTags(), nullValue());
+
+        assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("person", "Test Person"),
                 new Attribute("address", "Singel 258"),
                 new Attribute("phone", "+31 6 12345678"),
@@ -1389,9 +1394,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)
         ));
-
-        // TODO [AK] Add later, should be on object level
-//        assertThat(whoisResources.getTags(), nullValue());
     }
 
     @Test
@@ -1440,15 +1442,16 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        // TODO [AK] Add later, should be on object level
-//        final List<WhoisTag> tags = whoisResources.getTags().getTags();
-//        assertThat(tags, hasSize(2));
-//        assertThat(tags.get(0).getId(), is("foobar"));
-//        assertThat(tags.get(0).getData(), is("foobar"));
-//        assertThat(tags.get(1).getId(), is("unref"));
-//        assertThat(tags.get(1).getData(), is("28"));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
 
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), contains(
+        final List<WhoisTag> tags = whoisObject.getTags();
+        assertThat(tags, hasSize(2));
+        assertThat(tags.get(0).getId(), is("foobar"));
+        assertThat(tags.get(0).getData(), is("foobar"));
+        assertThat(tags.get(1).getId(), is("unref"));
+        assertThat(tags.get(1).getData(), is("28"));
+
+        assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("aut-num", "AS102"),
                 new Attribute("as-name", "End-User-2"),
                 new Attribute("descr", "description"),
