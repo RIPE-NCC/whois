@@ -1,11 +1,10 @@
 package net.ripe.db.whois.update.dns;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -15,12 +14,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Component
 public class DnsChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(DnsChecker.class);
+    private static final List<AttributeType> DNSCHECKER_ATTRIBUTES = ImmutableList.of(AttributeType.DOMAIN, AttributeType.NSERVER, AttributeType.DS_RDATA);
 
     private final DnsGateway dnsGateway;
 
@@ -56,7 +57,27 @@ public class DnsChecker {
             return false;
         }
 
+        if (!hasValidSyntax(update)) {
+            return false;
+        }
+
         LOGGER.debug("DNS check required for update: {}", update);
+        return true;
+    }
+
+    private boolean hasValidSyntax(Update update) {
+        ObjectMessages objectMessages = new ObjectMessages();
+        RpslObject rpslObject = update.getSubmittedObject();
+
+        for (AttributeType attributeType: DNSCHECKER_ATTRIBUTES) {
+            for (RpslAttribute rpslAttribute: rpslObject.findAttributes(attributeType)) {
+                rpslAttribute.validateSyntax(ObjectType.DOMAIN, objectMessages);
+                if (objectMessages.hasErrors()) {
+                    return false;
+                }
+            }
+        }
+
         return true;
     }
 
