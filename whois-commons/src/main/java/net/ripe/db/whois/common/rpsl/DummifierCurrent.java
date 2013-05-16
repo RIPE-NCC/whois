@@ -56,8 +56,8 @@ public class DummifierCurrent implements Dummifier {
 
                 attributes.set(i, replacement);
             } catch (RuntimeException e) {
-                LOGGER.warn("Dummifier failed on [" + attributes.get(i) + "]", e);
-                return null;
+                // leaving attribute as it is if dummification failed
+                LOGGER.debug("Dummifier failed on [" + attributes.get(i).toString().trim() + "]", e);
             }
         }
 
