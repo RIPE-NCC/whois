@@ -56,7 +56,6 @@ import static org.junit.Assert.assertThat;
 // TODO [AK] Integrate in BaseSpec
 public class WhoisFixture {
     private static final Pattern CHARSET_PATTERN = Pattern.compile(".*;charset=(.*)");
-    private static final String UPDATE_API_KEY = "DB-RIPE-ZwBAFuR5JuBxQCnQ";
 
     private ClassPathXmlApplicationContext applicationContext;
 
@@ -78,6 +77,7 @@ public class WhoisFixture {
     protected IpTreeUpdater ipTreeUpdater;
     protected SourceContext sourceContext;
     protected UnrefCleanup unrefCleanup;
+    protected String apiKey;
 
     private static final String SYNCUPDATES_INSTANCE = "TEST";
 
@@ -97,7 +97,6 @@ public class WhoisFixture {
         System.setProperty("unrefcleanup.enabled", "true");
         System.setProperty("unrefcleanup.deletes", "true");
         System.setProperty("nrtm.enabled", "false");
-        System.setProperty("api.key", UPDATE_API_KEY);
     }
 
 
@@ -122,6 +121,7 @@ public class WhoisFixture {
         ipTreeUpdater = applicationContext.getBean(IpTreeUpdater.class);
         sourceContext = applicationContext.getBean(SourceContext.class);
         unrefCleanup = applicationContext.getBean(UnrefCleanup.class);
+        apiKey = applicationContext.getBeanFactory().resolveEmbeddedValue("${api.key}");
 
         databaseHelper.setup();
         applicationContext.getBean(WhoisServer.class).start();
@@ -240,7 +240,7 @@ public class WhoisFixture {
         builder.append("/api/acl/");
         builder.append(path);
         builder.append("?apiKey=");
-        builder.append(UPDATE_API_KEY);
+        builder.append(apiKey);
         return builder.toString();
     }
 

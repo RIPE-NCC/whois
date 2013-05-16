@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.acl;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,11 +33,11 @@ public class ApiKeyFilter implements Filter {
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
         final String offeredKey = request.getParameter("apiKey");
-        if (offeredKey == null) {
+        if (StringUtils.isBlank(offeredKey)) {
             LOGGER.debug("Missing API key");
             sendError(response, HttpServletResponse.SC_FORBIDDEN, "No apiKey parameter specified");
         } else if (!offeredKey.equals(apiKey)) {
-            LOGGER.warn("Invalid API key received from {}: {}", request.getRemoteAddr(), offeredKey);
+            LOGGER.warn("Invalid API key received from {}: {} (should be {})", request.getRemoteAddr(), offeredKey, apiKey);
             sendError(response, HttpServletResponse.SC_FORBIDDEN, "Invalid apiKey");
         } else {
             chain.doFilter(request, response);

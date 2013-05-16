@@ -32,8 +32,6 @@ import spock.lang.Specification
 import static net.ripe.db.whois.common.domain.CIString.ciString
 
 abstract class BaseSpec extends Specification {
-    private static final String UPDATE_API_KEY = "DB-RIPE-ZwBAFuR5JuBxQCnQ"
-
     private static ClassPathXmlApplicationContext applicationContext
     private static DatabaseHelper databaseHelper
 
@@ -61,7 +59,6 @@ abstract class BaseSpec extends Specification {
         System.setProperty("unrefcleanup.enabled", "true");
         System.setProperty("unrefcleanup.deletes", "true");
         System.setProperty("nrtm.enabled", "false")
-        System.setProperty("update.api.key", UPDATE_API_KEY)
 
         WhoisProfile.setActive(WhoisProfile.ENDTOEND)
 
