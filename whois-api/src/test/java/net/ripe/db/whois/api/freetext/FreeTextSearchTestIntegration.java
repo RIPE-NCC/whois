@@ -10,7 +10,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.util.NamedList;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,7 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void search_single() throws Exception {
+    public void search_single_result() throws Exception {
         databaseHelper.addObject(RpslObject.parse("" +
                 "mntner: DEV-MNT\n" +
                 "source: RIPE"));
@@ -61,7 +60,7 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void search_multiple_with_highlighting() throws Exception {
+    public void search_multiple_results_with_highlighting() throws Exception {
         databaseHelper.addObject(RpslObject.parse("" +
                 "mntner: DEV1-MNT\n" +
                 "remarks: Some remark\n" +
@@ -98,7 +97,7 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void search_multiple_with_facet() throws Exception {
+    public void search_multiple_results_with_facet() throws Exception {
         databaseHelper.addObject(RpslObject.parse("" +
                 "mntner: DEV1-MNT\n" +
                 "remarks: Some remark\n" +
@@ -267,7 +266,7 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void search_word_term_is_not_tokenised() throws Exception {
+    public void search_hyphenated_complete_word() throws Exception {
         databaseHelper.addObject(RpslObject.parse("" +
                 "mntner:  TESTUA-MNT\n" +
                 "source: RIPE"));
@@ -277,6 +276,25 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
         freeTextIndex.rebuild();
 
         final String searchResult = query("q=NINJA-MNT");
+
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+    }
+
+    @Test
+    public void search_hyphenated_partial_word() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:  TESTUA-MNT\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:  NINJA-MNT\n" +
+                "source: RIPE"));
+        freeTextIndex.rebuild();
+
+        final String searchResult = query("q=NINJA");
 
         final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
         final QueryResponse queryResponse = new QueryResponse();
@@ -333,17 +351,13 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
                         "source: TEST"));
         freeTextIndex.rebuild();
 
-        final String response = query("q=2a00:1f78::fffe/48");
-        assertThat(response, containsString("numFound=\"1\""));
-
-        final String other = query("q=212.166.64.0/19");
-        assertThat(other, containsString("numFound=\"0\""));
+        assertThat(query("q=2a00:1f78::fffe/48"), containsString("numFound=\"1\""));
+        assertThat(query("q=212.166.64.0/19"), containsString("numFound=\"0\""));
     }
 
     @Test
     public void nullpointerbug() {
-        final String response = query("q=%28http%5C%3A%2F%2Fvv.uka.ru%29");
-        assertThat(response, containsString("numFound=\"0\""));
+        assertThat(query("q=%28http%5C%3A%2F%2Fvv.uka.ru%29"), containsString("numFound=\"0\""));
     }
 
     @Test
@@ -394,7 +408,7 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
         freeTextIndex.rebuild();
 
         assertThat(query("q=2a00"), containsString("numFound=\"1\""));
-//        assertThat(query("q=2a00:1f78"), containsString("numFound=\"1\""));           // TODO [ES] no results
+        assertThat(query("q=2a00%5C:1f78"), containsString("numFound=\"1\""));       // need to escape single colon (used as separator by lucene)
         assertThat(query("q=2a00:1f78::fffe/48"), containsString("numFound=\"1\""));
     }
 
@@ -406,23 +420,22 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
                 "source: RIPE\n");
         databaseHelper.addObject(
                 "inet6num: 2a00:1f11:7777:2a98::/64\n" +
-                        "netname: RIPE-NCC\n" +
-                        "source: RIPE\n");
+                "netname: RIPE-NCC\n" +
+                "source: RIPE\n");
 
         freeTextIndex.rebuild();
 
         assertThat(query("q=2a00"), containsString("numFound=\"2\""));
     }
 
-    @Ignore("TODO: [ES] no results (hyphen splits word into two tokens)")
     @Test
-    public void search_remove_punctuation_from_index_token() throws Exception {
+    public void search_filter_comma_when_indexing() throws Exception {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "organisation: ORG-TOS1-TEST\n" +
-                "org-name:     Test-Organisation, Somewhere, Ltd\n" +
+                "org-name:     Company, Ltd\n" +
                 "org-type:     OTHER\n" +
                 "descr:        test org\n" +
                 "address:      street 1\n" +
@@ -433,21 +446,20 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
                 "source:       RIPE\n"));
         freeTextIndex.rebuild();
 
-        final String response = query("q=Test-Organisation");
+        final String response = query("q=Company");
 
         System.out.println(response);
         assertThat(response, containsString("numFound=\"1\""));
     }
 
-    @Ignore("TODO: [ES] no results")
     @Test
-    public void search_remove_punctuation_from_search_term() throws Exception {
+    public void search_filter_comma_on_query_term() throws Exception {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "organisation: ORG-TOS1-TEST\n" +
-                "org-name:     Test-Organisation Ltd\n" +
+                "org-name:     Company Ltd\n" +
                 "org-type:     OTHER\n" +
                 "descr:        test org\n" +
                 "address:      street 1\n" +
@@ -458,21 +470,20 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
                 "source:       RIPE\n"));
         freeTextIndex.rebuild();
 
-        final String response = query("q=Test-Organisation,");
+        final String response = query("q=company,");
 
         System.out.println(response);
         assertThat(response, containsString("numFound=\"1\""));
     }
 
-    @Ignore("TODO: [ES] no results")
     @Test
-    public void search_remove_quotes_from_index_token() {
+    public void search_filter_quotes_when_indexing() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "organisation: ORG-TOS1-TEST\n" +
-                "org-name:     \"'Test-Organisation'\" Ltd\n" +
+                "org-name:     \"Company\" Ltd\n" +
                 "org-type:     OTHER\n" +
                 "descr:        test org\n" +
                 "address:      street 1\n" +
@@ -483,10 +494,7 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
                 "source:       RIPE\n"));
         freeTextIndex.rebuild();
 
-        final String response = query("q=Test-Organisation");
-
-        System.out.println(response);
-        assertThat(response, containsString("numFound=\"1\""));
+        assertThat(query("q=company"), containsString("numFound=\"1\""));
     }
 
     @Test
@@ -507,9 +515,7 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
                 "source:       RIPE\n"));
         freeTextIndex.rebuild();
 
-        final String response = query("q=ORG-TOS1-TEST");
-
-        assertThat(response, containsString("numFound=\"1\""));
+        assertThat(query("q=ORG-TOS1-TEST"), containsString("numFound=\"1\""));
     }
 
     private final String query(final String queryString) {
