@@ -37,14 +37,14 @@ public class GrsImporterJmx extends JmxBase {
 
     @ManagedOperation(description = "Download new dumps and update GRS sources")
     @ManagedOperationParameters({
-            @ManagedOperationParameter(name = "sources", description = "Comma separated list of GRS sources to import"),
+            @ManagedOperationParameter(name = "sources", description = "Comma separated list of GRS sources to import (or 'all')"),
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation")
     })
     public String grsImport(final String sources, final String comment) {
         return invokeOperation("GRS import sources", comment, new Callable<String>() {
             @Override
             public String call() {
-                grsImporter.grsImport(sources, false);
+                grsImporter.grsImport("all".equals(sources) ? grsDefaultSources : sources, false);
                 return "GRS import started";
             }
         });
