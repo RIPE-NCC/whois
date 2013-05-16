@@ -386,6 +386,7 @@ fax-no:		+31205354444
 e-mail:		training@example.org
 admin-c:	TS1-TEST
 tech-c:		TS1-TEST
+abuse-c:        AA2-TEST
 ref-nfy:	auto@example.net
 notify:		xnotify@example.org
 mnt-ref:	TEST-DBM-MNT
