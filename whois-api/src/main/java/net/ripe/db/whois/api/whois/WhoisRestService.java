@@ -79,7 +79,7 @@ public class WhoisRestService {
     @GET
     @TypeHint(WhoisResources.class)
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @Path("/lookup/{source}/{objectType}/{key}")
+    @Path("/lookup/{source}/{objectType}/{key:.*}")
     public Response lookup(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
@@ -91,7 +91,7 @@ public class WhoisRestService {
     @GET
     @TypeHint(WhoisResources.class)
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @Path("/grs-lookup/{source}/{objectType}/{key}")
+    @Path("/grs-lookup/{source}/{objectType}/{key:.*}")
     public Response grslookup(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
@@ -276,7 +276,7 @@ public class WhoisRestService {
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @TypeHint(WhoisResources.class)
-    @Path("/update/{source}/{objectType}/{key}")
+    @Path("/update/{source}/{objectType}/{key:.*}")
     public Response update(
             final WhoisResources resource,
             @Context final HttpServletRequest request,
@@ -306,7 +306,7 @@ public class WhoisRestService {
     @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
-    @Path("/modify/{source}/{objectType}/{key}")
+    @Path("/modify/{source}/{objectType}/{key:.*}")
     public Response modify(
             final WhoisModify whoisModify,
             @Context final HttpServletRequest request,
@@ -389,7 +389,7 @@ public class WhoisRestService {
     }
 
     @DELETE
-    @Path("/delete/{source}/{objectType}/{key}")
+    @Path("/delete/{source}/{objectType}/{key:.*}")
     public Response delete(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
@@ -420,7 +420,7 @@ public class WhoisRestService {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @TypeHint(WhoisResources.class)
-    @Path("/versions/{source}/{key}")
+    @Path("/versions/{source}/{key:.*}")
     public Response listVersions(
             @Context HttpServletRequest request,
             @PathParam("source") final String source,
@@ -440,7 +440,7 @@ public class WhoisRestService {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @TypeHint(WhoisResources.class)
-    @Path("/version/{source}/{version}/{key}")
+    @Path("/version/{source}/{version}/{key:.*}")
     public Response showVersion(
             @Context HttpServletRequest request,
             @PathParam("source") final String source,
@@ -538,7 +538,7 @@ public class WhoisRestService {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @TypeHint(WhoisResources.class)
-    @Path("/tags/{source}/{key}")
+    @Path("/tags/{source}/{key:.*}")
     public Response tagSearch(
             @Context HttpServletRequest request,
             @PathParam("source") String source,

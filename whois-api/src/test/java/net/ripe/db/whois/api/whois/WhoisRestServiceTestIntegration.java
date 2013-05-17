@@ -90,6 +90,50 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void lookup_inet6num_without_prefix_length() throws Exception {
+        databaseHelper.addObject(
+               "inet6num:       2001:2002:2003::/48\n" +
+               "netname:        RIPE-NCC\n" +
+               "descr:          Private Network\n" +
+               "country:        NL\n" +
+               "tech-c:         TP1-TEST\n" +
+               "status:         ASSIGNED PA\n" +
+               "mnt-by:         OWNER-MNT\n" +
+               "mnt-lower:      OWNER-MNT\n" +
+               "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/lookup/test/inet6num/2001:2002:2003::").get(WhoisResources.class);
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        final RpslObject inet6num = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+        assertThat(inet6num.getKey(), is(ciString("2001:2002:2003::/48")));
+        final RpslObject person = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(1));
+        assertThat(person.getKey(), is(ciString("TP1-TEST")));
+    }
+
+    @Test
+    public void lookup_inet6num_with_prefix_length() throws Exception {
+        databaseHelper.addObject(
+               "inet6num:       2001:2002:2003::/48\n" +
+               "netname:        RIPE-NCC\n" +
+               "descr:          Private Network\n" +
+               "country:        NL\n" +
+               "tech-c:         TP1-TEST\n" +
+               "status:         ASSIGNED PA\n" +
+               "mnt-by:         OWNER-MNT\n" +
+               "mnt-lower:      OWNER-MNT\n" +
+               "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/lookup/test/inet6num/2001:2002:2003::/48").get(WhoisResources.class);
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        final RpslObject inet6num = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+        assertThat(inet6num.getKey(), is(ciString("2001:2002:2003::/48")));
+        final RpslObject person = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(1));
+        assertThat(person.getKey(), is(ciString("TP1-TEST")));
+    }
+
+    @Test
     public void lookup_object() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
