@@ -34,4 +34,10 @@ public class SearchRequestTest {
         assertThat(subject.getRows(), is(10));
         assertThat(subject.getStart(), is(60));
     }
+
+    @Test
+    public void escape_forward_slash() {
+        SearchRequest subject = SearchRequest.parse("q=%282001%5C%3A0638%5C%3A0501%5C%3A%5C%3A%2F48%29");
+        assertThat(subject.getQuery(), is("(2001\\:0638\\:0501\\:\\:\\/48)"));
+    }
 }

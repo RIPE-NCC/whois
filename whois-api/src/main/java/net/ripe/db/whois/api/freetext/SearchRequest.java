@@ -39,9 +39,7 @@ class SearchRequest {
                 if (keyValueIterator.hasNext()) {
                     try {
                         String value = URLDecoder.decode(keyValueIterator.next(), Charset.defaultCharset().name());
-                        if (value.contains("/")) {
-                            value = "\"" + value + "\"";
-                        }
+                        value = value.replaceAll("[/]", "\\\\/");
                         params.put(key, value);
                     } catch (UnsupportedEncodingException e) {
                         throw new IllegalArgumentException(String.format("Unsupported encoding: %s", Charset.defaultCharset().name()));

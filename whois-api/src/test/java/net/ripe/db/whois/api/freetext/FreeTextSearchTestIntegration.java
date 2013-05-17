@@ -343,7 +343,7 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void search_with_forwardslash() {
+    public void search_with_forward_slash() {
         databaseHelper.addObject(RpslObject.parse(
                 "inet6num: 2a00:1f78::fffe/48\n" +
                         "netname: RIPE-NCC\n" +
@@ -351,8 +351,8 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
                         "source: TEST"));
         freeTextIndex.rebuild();
 
-        assertThat(query("q=2a00:1f78::fffe/48"), containsString("numFound=\"1\""));
-        assertThat(query("q=212.166.64.0/19"), containsString("numFound=\"0\""));
+        assertThat(query("q=2a00%5C%3A1f78%5C%3A%5C%3Afffe%2F48"), containsString("numFound=\"1\""));
+        assertThat(query("q=212.166.64.0%2F19"), containsString("numFound=\"0\""));
     }
 
     @Test
@@ -361,7 +361,7 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void search_partial_inetnum() throws Exception {
+    public void search_inetnum() throws Exception {
         databaseHelper.addObject(
                "inetnum:        193.0.0.0 - 193.0.0.255\n" +
                "netname:        RIPE-NCC\n" +
@@ -371,6 +371,8 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
 
         assertThat(query("q=193.0.0.0"), containsString("numFound=\"1\""));
         assertThat(query("q=193.0.0.255"), containsString("numFound=\"1\""));
+        assertThat(query("q=193%2E0%2E0%2E255"), containsString("numFound=\"1\""));
+        assertThat(query("q=%28193%2E0%2E0%2E255%29"), containsString("numFound=\"1\""));
         assertThat(query("q=193"), containsString("numFound=\"1\""));
         assertThat(query("q=193.0"), containsString("numFound=\"1\""));
         assertThat(query("q=193.0.0"), containsString("numFound=\"1\""));
@@ -381,15 +383,15 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void search_partial_inetnum_multiple_matches() throws Exception {
+    public void search_inetnum_multiple_matches() throws Exception {
         databaseHelper.addObject(
                "inetnum:        193.0.0.0 - 193.0.0.255\n" +
                "netname:        RIPE-NCC\n" +
                "source:         RIPE");
         databaseHelper.addObject(
-               "inetnum:        193.1.0.0 - 193.1.0.255\n" +
-               "netname:        RIPE-NCC\n" +
-               "source:         RIPE");
+                "inetnum:        193.1.0.0 - 193.1.0.255\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "source:         RIPE");
 
         freeTextIndex.rebuild();
 
@@ -399,7 +401,26 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void search_partial_inet6num() throws Exception {
+    public void search_inet6num() throws Exception {
+        databaseHelper.addObject(
+                "inet6num: 2001:0638:0501::/48\n" +
+                "netname: RIPE-NCC\n" +
+                "source: RIPE\n");
+
+        freeTextIndex.rebuild();
+
+        assertThat(query("q=%282001%29"), containsString("numFound=\"1\""));
+        assertThat(query("q=%282001%5C%3A0638%29"), containsString("numFound=\"1\""));
+        assertThat(query("q=%282001%5C%3A0638%5C%3A0501%29"), containsString("numFound=\"1\""));
+        assertThat(query("q=%282001%5C%3A0638%5C%3A0501%5C%3A%5C%3A%2F48%29"), containsString("numFound=\"1\""));
+        assertThat(query("q=2001"), containsString("numFound=\"1\""));
+        assertThat(query("q=2001%5C%3A0638"), containsString("numFound=\"1\""));
+        assertThat(query("q=2001%5C%3A0638%5C%3A0501"), containsString("numFound=\"1\""));
+        assertThat(query("q=2001%5C%3A0638%5C%3A0501%5C%3A%5C%3A%2F48"), containsString("numFound=\"1\""));
+    }
+
+    @Test
+    public void search_inet6num_double_colons() throws Exception {
         databaseHelper.addObject(
                 "inet6num: 2a00:1f78::fffe/48\n" +
                 "netname: RIPE-NCC\n" +
@@ -408,20 +429,21 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
         freeTextIndex.rebuild();
 
         assertThat(query("q=2a00"), containsString("numFound=\"1\""));
-        assertThat(query("q=2a00%5C:1f78"), containsString("numFound=\"1\""));       // need to escape single colon (used as separator by lucene)
-        assertThat(query("q=2a00:1f78::fffe/48"), containsString("numFound=\"1\""));
+        assertThat(query("q=2a00%5C%3A1f78"), containsString("numFound=\"1\""));       // need to escape single colon (used as separator by lucene)
+        assertThat(query("q=2a00%5C%3A1f78%5C%3A%5C%3Afffe%2F48"), containsString("numFound=\"1\""));
+
     }
 
     @Test
-    public void search_partial_inet6num_multiple_matches() throws Exception {
+    public void search_inet6num_multiple_matches() throws Exception {
         databaseHelper.addObject(
                 "inet6num: 2a00:1f78:7a2b:2001::/64\n" +
                 "netname: RIPE-NCC\n" +
                 "source: RIPE\n");
         databaseHelper.addObject(
                 "inet6num: 2a00:1f11:7777:2a98::/64\n" +
-                "netname: RIPE-NCC\n" +
-                "source: RIPE\n");
+                        "netname: RIPE-NCC\n" +
+                        "source: RIPE\n");
 
         freeTextIndex.rebuild();
 
