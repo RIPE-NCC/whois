@@ -1233,13 +1233,8 @@ class DomainAuthSpec extends BaseSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] .193.in-addr.arpa" }
-//        ack.errorMessagesFor("Create", "[domain] .193.in-addr.arpa") == [ TODO Does not match
-//                "Syntax error in .193.in-addr.arpa",
-//                "Host name .193.in-addr.arpa is illegal (syntax error at ) The hostname is not syntactially correct according to RFC 952.  A common error is to begin the hostname with a non-letter (a-z) or use invalid characters (only a-z, 0-9 and - are allowed).",
-//                ".193.in-addr.arpa is not a valid name for a zone."
-//        ]
 
         queryObjectNotFound("-rGBT domain .193.in-addr.arpa", "domain", ".193.in-addr.arpa")
     }
@@ -2651,12 +2646,10 @@ class DomainAuthSpec extends BaseSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] mydomain.net" }
         ack.errorMessagesFor("Create", "[domain] mydomain.net") == [
-                "Syntax error in mydomain.net",
-                "No name servers found at child. No name servers could be found at the child. This usually means that the child is not configured to answer queries about the zone.",
-                "Fatal error in delegation for zone mydomain.net. No name servers found at child or at parent. No further testing can be performed."
+                "Syntax error in mydomain.net"
         ]
 
         queryObjectNotFound("-rGBT domain mydomain.net", "domain", "mydomain.net")
