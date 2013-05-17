@@ -823,11 +823,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
 
-        System.out.println(createResource(AUDIENCE, "whois/version/TEST/1/AS102")
-                .accept(MediaType.APPLICATION_XML)
-                .get(String.class));
-
-
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/version/TEST/1/AS102")
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
@@ -855,11 +850,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
-
-        System.out.println(createResource(AUDIENCE, "whois/version/TEST/1/AS102")
-                .accept(MediaType.APPLICATION_JSON)
-                .get(String.class));
-
 
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/version/TEST/1/AS102")
                 .accept(MediaType.APPLICATION_JSON)
@@ -1026,9 +1016,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         final String s = createResource(AUDIENCE, "whois/search?query-string=AS102&source=TEST")
                 .accept(MediaType.APPLICATION_XML)
                 .get(String.class);
-
-        System.out.println(s);
-
 
         final WhoisResources whoisResources2 = createResource(AUDIENCE, "whois/search?query-string=AS102&source=TEST")
                 .accept(MediaType.APPLICATION_XML)

@@ -446,10 +446,7 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
                 "source:       RIPE\n"));
         freeTextIndex.rebuild();
 
-        final String response = query("q=Company");
-
-        System.out.println(response);
-        assertThat(response, containsString("numFound=\"1\""));
+        assertThat(query("q=Company"), containsString("numFound=\"1\""));
     }
 
     @Test
@@ -470,10 +467,7 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
                 "source:       RIPE\n"));
         freeTextIndex.rebuild();
 
-        final String response = query("q=company,");
-
-        System.out.println(response);
-        assertThat(response, containsString("numFound=\"1\""));
+        assertThat(query("q=company,"), containsString("numFound=\"1\""));
     }
 
     @Test

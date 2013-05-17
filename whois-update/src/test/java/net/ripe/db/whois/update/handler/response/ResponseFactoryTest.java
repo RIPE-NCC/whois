@@ -97,7 +97,7 @@ public class ResponseFactoryTest {
     @Test
     public void getException() {
         final String response = subject.createExceptionResponse(updateContext, origin);
-        System.out.println(response);
+
         assertThat(response, containsString("" +
                 ">  From:       Andre Kampert <cac37ak@ripe.net>\n" +
                 ">  Subject:    delete route 194.39.132.0/24\n" +

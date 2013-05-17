@@ -114,7 +114,7 @@ public class TagsTestIntegration extends AbstractWhoisIntegrationTest {
     @Test
     public void filterTag_include_applies() {
         final String response = DummyWhoisClient.query(QueryServer.port, "-B --filter-tag-include unref UNUSED-MNT");
-        System.out.println(response);
+
         assertThat(response, containsString("mntner:         UNUSED-MNT"));
         assertThat(response, not(containsString("person:         Test Person")));
         assertThat(response, containsString("" +
