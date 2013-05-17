@@ -92,7 +92,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
             for (Message message : messages) {
                 try {
                     Address[] to = message.getRecipients(Message.RecipientType.TO);
-                    LOGGER.warn("Found message to: " + Arrays.deepToString(to) + ", subject:" + message.getSubject());
+                    LOGGER.warn("Found message to: {}, subject: {}",Arrays.deepToString(to), message.getSubject());
                 } catch (MessagingException e) {
                     throw new IllegalStateException(e);
                 }

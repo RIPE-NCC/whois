@@ -184,7 +184,7 @@ public class AttributeParserTestIntegration {
             for (RpslAttribute attribute : rpslObject.findAttributes(type)) {
                 for (CIString cleanValue : attribute.getCleanValues()) {
                     if (!type.isValidValue(rpslObject.getType(), cleanValue)) {
-                        LOGGER.info("FAIL: type={} value={}", rpslObject.getType().getName() + "." + type, cleanValue);
+                        LOGGER.info("FAIL: type={}.{} value={}", rpslObject.getType().getName(), type, cleanValue);
                     }
                 }
             }

@@ -175,6 +175,6 @@ public class CompareQueryResults {
         if (!matcher.find()) {
             throw new RuntimeException("version string not found in whois query response of "+configuration.getIdentifier());
         }
-        LOGGER.warn(" ***** Server "+configuration.getIdentifier()+" is running version "+matcher.group(1));
+        LOGGER.warn(" ***** Server {} is running version {} ***** ", configuration.getIdentifier(), matcher.group(1));
     }
 }

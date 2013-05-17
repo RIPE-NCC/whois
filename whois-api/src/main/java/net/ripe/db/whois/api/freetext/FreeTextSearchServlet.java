@@ -47,7 +47,7 @@ public class FreeTextSearchServlet extends HttpServlet implements ServletDeploye
         } catch (IllegalArgumentException e) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
-            LOGGER.error("Unexpected exception on query: " + request.getQueryString(), e);
+            LOGGER.error("Unexpected exception on query: {}", request.getQueryString(), e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unexpected error");
         }
     }

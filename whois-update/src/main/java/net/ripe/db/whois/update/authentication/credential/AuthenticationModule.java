@@ -50,7 +50,7 @@ public class AuthenticationModule {
         for (final CIString auth : authenticationCandidate.getValuesForAttribute(AttributeType.AUTH)) {
             final Credential credential = getCredential(auth);
             if (credential == null) {
-                LOGGER.warn("Skipping unknown credential: " + auth);
+                LOGGER.warn("Skipping unknown credential: {}", auth);
                 continue;
             }
 

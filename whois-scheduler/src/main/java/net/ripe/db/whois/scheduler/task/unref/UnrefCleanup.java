@@ -267,7 +267,7 @@ public class UnrefCleanup implements DailyScheduledTask {
                     updateLog.logUpdateResult(updateRequest, updateContext, update, stopwatch.stop());
 
                     if (--remainingDeletes <= 0) {
-                        LOGGER.info("Reached delete limit of " + MAX_DELETE_OBJECTS + ", exiting");
+                        LOGGER.info("Reached delete limit of {}, exiting", MAX_DELETE_OBJECTS);
                         break;
                     }
                 } else {
