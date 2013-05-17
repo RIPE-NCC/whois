@@ -76,6 +76,9 @@ public class WhoisMetadata {
         }
     }
 
+    /**
+     * <p>List available sources</p>
+     */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/sources")
@@ -88,6 +91,12 @@ public class WhoisMetadata {
         return Response.ok(result).build();
     }
 
+    /**
+     * <p>The RPSL template for given object type.</p>
+     *
+     * <p><div>Example:</div>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/templates/person</span></p>
+     */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/templates/{objectType}")

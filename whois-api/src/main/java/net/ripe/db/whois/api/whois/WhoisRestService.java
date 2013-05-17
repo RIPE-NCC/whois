@@ -76,6 +76,12 @@ public class WhoisRestService {
         this.queryHandler = queryHandler;
     }
 
+    /**
+     * <p><div>The lookup interface returns the single object that satisfy the key conditions specified as path parameters via the source and the primary-key arguments</div>
+     *
+     *  <p><div>Example query:</div>
+     *  http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT</p>
+     */
     @GET
     @TypeHint(WhoisResources.class)
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -88,6 +94,12 @@ public class WhoisRestService {
         return lookupObject(request, source, objectType, key, false);
     }
 
+    /**
+     * <p>The grs-lookup interface returns the single object that satisfy the key conditions specified as path parameters via the grs-source and the primary-key arguments</p>
+     *
+     * <p><div>Example query:</div>
+     * http://apps.db.ripe.net/whois/grs-lookup/apnic-grs/mntner/MAINT-APNIC-AP</p>
+     */
     @GET
     @TypeHint(WhoisResources.class)
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -262,6 +274,56 @@ public class WhoisRestService {
         return getResponse(response);
     }
 
+    /**
+     * <p>A successful create request creates an object in the RIPE Database or in the RIPE Test Database, depending on the source that you specify in the source element of your request XML. Source can be "ripe" or "test".</p>
+     * <p>One or more password values can be specified as HTTP parameters.</p>
+     * <p>The create interface is accessible using the HTTP POST method. The request must include a 'content-type: application/xml' header because your request body will contain an XML document describing the new object and the target source.</p>
+     * <p>An example of XML object:
+     * <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
+     * &lt;whois-resources&gt;
+     * &lt;objects&gt;
+     * &lt;object type="person"&gt;
+     * &lt;source id="test"/&gt;
+     * &lt;attributes&gt;
+     * &lt;attribute name="person" value="Pauleth Palthen"/&gt;
+     * &lt;attribute name="address" value="Singel 258"/&gt;
+     * &lt;attribute name="phone" value="+31-1234567890"/&gt;
+     * &lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
+     * &lt;attribute name="mnt-by" value="PP-MNT" /&gt;
+     * &lt;attribute name="nic-hdl" value="AUTO-1" /&gt;
+     * &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;
+     * &lt;attribute name="source" value="TEST"/&gt;
+     * &lt;/attributes&gt;
+     * &lt;/object&gt;
+     * &lt;/objects&gt;
+     * &lt;/whois-resources&gt;</pre></p>
+     *
+     * <p>Example<div>Create request using the CURL command:</div>
+     * <pre>curl -X POST -H 'Content-Type: application/xml' -d
+     * '&lt;whois-resources&gt;&lt;objects&gt;
+     * &lt;object-type="person"&gt;
+     * &lt;source-id="test"/&gt;
+     * &lt;attributes&gt;
+     * &lt;attribute name="person" value="Pauleth Palthen"/&gt;&lt;attribute name="address" value="Singel 258"/&gt;
+     * &lt;attribute name="phone" value="+31-1234567890"/&gt;&lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
+     * &lt;attribute name="mnt-by" value="PP-MNT" /&gt;&lt;attribute name="nic-hdl" value="AUTO-1" /&gt;
+     * &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;&lt;attribute name="source" value="TEST"/&gt;
+     * &lt;/attributes&gt;
+     * &lt;/object&gt;&lt;/objects&gt;&lt;/whois-resources&gt;'
+     * https://apps.db.ripe.net/whois/create?password=123 -D headers.txt</pre></p>
+     * The HTTP headers for a success response:
+     * <pre>
+     * HTTP/1.1 201 Created
+     * Date: Tue, 28 Dec 2010 14:17:28 GMT
+     * Server: Apache/2.2.3 (CentOS)
+     * X-Powered-By: Servlet 2.5; JBoss-5.0/JBossWeb-2.1
+     * Location: http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST
+     * Content-Length: 0
+     * Connection: close
+     * Content-Type: text/plain; charset=UTF-8</pre>
+     * The response body will be empty.
+     *
+     */
     @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Path("/create")
@@ -272,6 +334,84 @@ public class WhoisRestService {
         throw new IllegalArgumentException("Source must be specified in URL");
     }
 
+    /**
+     * <p>A successful update request replaces all of an object attributes with the new set of attributes described in the request. The target database can be ripe or test and is specified with the source element in the XML document sent with the request.</p>
+     * <p>The update interface is accessible using the HTTP PUT method. The request must include a 'content-type: application/xml' header because your request body will contain an XML document describing the object update and the target source.</p>
+     *
+     * <p>An example of XML object:
+     * <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
+     * &lt;whois-resources&gt;
+     * &lt;objects&gt;
+     * &lt;object type="person"&gt;
+     * &lt;source id="test"/&gt;
+     * &lt;attributes&gt;
+     * &lt;attribute name="person" value="Pauleth Palthen"/&gt;
+     * &lt;attribute name="address" value="Singel 123"/&gt;
+     * &lt;attribute name="phone" value="+31-0987654321"/&gt;
+     * &lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
+     * &lt;attribute name="mnt-by" value="PP-MNT" /&gt;
+     * &lt;attribute name="nic-hdl" value="PP16-TEST" /&gt;
+     * &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;
+     * &lt;attribute name="source" value="TEST"/&gt;
+     * &lt;/attributes&gt;
+     * &lt;/object&gt;
+     * &lt;/objects&gt;
+     * &lt;/whois-resources&gt;</pre>
+     * </p>
+     *
+     * <p>An example of update request using the CURL command:
+     * <pre>curl -X PUT -H 'Content-Type: application/xml' -d '&lt;whois-resources&gt;&lt;objects&gt;
+     * &lt;object-type="person"&gt;&lt;source-id="test"/&gt;&lt;attributes&gt;
+     * &lt;attribute name="person" value="Pauleth Palthen"/&gt;
+     * &lt;attribute name="address" value="Singel 123"/&gt;
+     * &lt;attribute name="phone" value="+31-0987654321"/&gt;
+     * &lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
+     * &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;
+     * &lt;attribute name="mnt-by" value="PP-MNT" /&gt;
+     * &lt;attribute name="nic-hdl" value="PP16-TEST" /&gt;
+     * &lt;attribute name="source" value="TEST"/&gt;&lt;/attributes&gt;&lt;/object&gt;&lt;/objects&gt;&lt;/whois-resources&gt;'
+     * https://apps.db.ripe.net/whois/update/test/person/pp16-test?password=123 -D headers.txt</pre></p>
+     *
+     * <p>The HTTP headers for a success response:
+     *
+     * <pre>HTTP/1.1 200 OK
+     * Date: Tue, 28 Dec 2010 15:24:35 GMT
+     * Server: Apache/2.2.3 (CentOS)
+     * X-Powered-By: Servlet 2.5; JBoss-5.0/JBossWeb-2.1
+     * Connection: close
+     * Transfer-Encoding: chunked
+     * Content-Type: application/xml</pre></p>
+     *
+     * The response body for a success response:
+     * <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
+     * &lt;whois-resources service="lookup" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP3-TEST"/&gt;
+     * &lt;objects&gt;
+     * &lt;object type="person"&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST"/&gt;
+     * &lt;source id="test"/&gt;
+     * &lt;primary-key&gt;
+     * &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
+     * &lt;/primary-key&gt;
+     * &lt;attributes&gt;
+     * &lt;attribute name="person" value="Pauleth Palthen"/&gt;
+     * &lt;attribute name="address" value="Singel 123"/&gt;
+     * &lt;attribute name="phone" value="+31-0987654321"/&gt;
+     * &lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
+     * &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;
+     * &lt;attribute name="mnt-by" value="PP-MNT" referenced-type="mntner"&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/mntner/PP-MNT"/&gt;
+     * &lt;/attribute&gt;
+     * &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
+     * &lt;attribute name="source" value="TEST"/&gt;
+     * &lt;/attributes&gt;
+     * &lt;/object&gt;
+     * &lt;/objects&gt;</pre>
+     * @param source Source.
+     * @param objectType Object type for given object.
+     * @param key Primary key of the given object.
+     * @param passwords One or more password values.
+     */
     @PUT
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
@@ -303,6 +443,105 @@ public class WhoisRestService {
         return getResponse(response);
     }
 
+    /**
+     * <p>The modify interface implements complex object manipulations that would otherwise require multiple client side operations, like:</p>
+     * <ul>
+     *  <li>querying the Whois Database</li>
+     *  <li>filtering from the query response the only object that need to be modified</li>
+     *  <li>parsing the object RPSL (handling all the intricacies of RPSL)</li>
+     *  <li>modifying specific attributes</li>
+     *  <li>submitting the edited object</li>
+     * </ul>
+     *
+     * <p>With the modify interface this error prone processing of objects can be replaced with just one simple request.
+     * A client just needs to specify the type of operation to be applied, the primary key of an object and eventually a set of attributes.</p>
+     *
+     * <p>The HTTP request must include a "content-type: application/xml" header.</p>
+     *
+     * <p>Important, a modify request succeeds only if the final modified object satisfies the RPSL specification. For example a modify request that generate an object missing mandatory attributes will obviously fail because such an object would be invalid.</p>
+     *
+     * <p>Different actions that can be executed by specifying one of 'add', 'remove' or 'replace':
+     *
+     * <ul>
+     *   <li>replace attributes</li>
+     *   <li>append new attributes</li>
+     *   <li>add new attributes starting from the line at index N</li>
+     *   <li>remove all attributes of a given type</li>
+     *   <li>remove the Nth attribute</li>
+     * </ul></p>
+     *
+     * <p><div>Examples</div>
+     *
+     * <ul>
+     *  <li><div>Add attributes request</div>
+     *  <pre>
+     *  &lt;whois-modify&gt;
+     *      &lt;add&gt;
+     *          &lt;attributes&gt;
+     *              &lt;attribute name="phone" value="+31 20 535 4444"/&gt;
+     *              &lt;attribute name="fax-no" value="+31 20 535 4445"/&gt;
+     *          &lt;/attributes&gt;
+     *      &lt;/add&gt;
+     *  &lt;/whois-modify&gt;
+     *  </pre></li>
+     *
+     *  <li><div>Add attributes using CURL</div>
+     *  <pre>curl -X POST -H 'Content-Type: application/xml' -d
+     * '&lt;whois-modify&gt;&lt;add&gt;&lt;attributes&gt;&lt;attribute name="phone" value="+31 20 535 4444"/&gt;
+     * &lt;attribute name="fax-no" value="+31 20 535 4445"/&gt;&lt;/attributes&gt;&lt;/add&gt;&lt;/whois-modify&gt;'
+     * https://apps.db.ripe.net/whois/modify/test/person/pp16-test?password=123 -D headers.txt</pre>
+     *  </li>
+     * </ul></p>
+     *
+     *
+     * The response headers may be:
+     * <pre>
+     * HTTP/1.1 200 OK
+     * Date: Wed, 29 Dec 2010 11:06:43 GMT
+     * Server: Apache/2.2.3 (CentOS)
+     * X-Powered-By: Servlet 2.5; JBoss-5.0/JBossWeb-2.1
+     * Connection: close
+     * Transfer-Encoding: chunked
+     * Content-Type: application/xml</pre>
+     *
+     * <p>The response body may be:</p>
+     * <pre>
+     *     &lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
+     *      &lt;whois-resources service="lookup" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST"/&gt;
+     *      &lt;objects&gt;
+     *      &lt;object type="person"&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST"/&gt;
+     *      &lt;source id="test"/&gt;
+     *      &lt;primary-key&gt;
+     *      &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
+     *      &lt;/primary-key&gt;
+     *      &lt;attributes&gt;
+     *      &lt;attribute name="person" value="Pauleth Palthen"/&gt;
+     *      &lt;attribute name="address" value="RIPE Network Coordination Centre (NCC)"/&gt;
+     *      &lt;attribute name="address" value="P.O. Box 10096"/&gt;
+     *      &lt;attribute name="address" value="1001 EB Amsterdam"/&gt;
+     *      &lt;attribute name="address" value="The Netherlands"/&gt;
+     *      &lt;attribute name="remarks" value="This is our new address!"/&gt;
+     *      &lt;attribute name="phone" value="+31-0987654321"/&gt;
+     *      &lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
+     *      &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;
+     *      &lt;attribute name="mnt-by" value="PP-MNT" referenced-type="mntner"&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/mntner/PP-MNT"/&gt;
+     *      &lt;/attribute&gt;
+     *      &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
+     *      &lt;attribute name="source" value="TEST"/&gt;
+     *      &lt;/attributes&gt;
+     *      &lt;/object&gt;
+     *      &lt;/objects&gt;
+     *      &lt;/whois-resources&gt;
+     * </pre>
+     *
+     * @param source RIPE or TEST.
+     * @param objectType Object type of given object.
+     * @param key Primary key of given object.
+     * @param passwords One or more password values.
+     */
     @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
@@ -388,6 +627,30 @@ public class WhoisRestService {
         }
     }
 
+    /**
+     * <p>A successful delete request deletes an object from the RIPE Database or the RIPE Test Database. The target database for the delete service is specified directly as a URL parameter as well as the primary key and the object type of the object to be deleted.</p>
+     *
+     * <p>The HTTP Request body must be empty.</p>
+     *
+     * <p><div>Example using CURL:</div>
+     * <span style="font-style:italic;">curl -X DELETE https://apps.db.ripe.net/whois/delete/test/person/pp16-test?password=123 -D headers.txt</span></p>
+     *
+     * <p>The HTTP headers for a success response:
+     *
+     * <pre>HTTP/1.1 204 No Content
+     * Date: Wed, 29 Dec 2010 09:43:17 GMT
+     * Server: Apache/2.2.3 (CentOS)
+     * X-Powered-By: Servlet 2.5; JBoss-5.0/JBossWeb-2.1
+     * Content-Length: 0
+     * Connection: close
+     * Content-Type: text/plain; charset=UTF-8</pre></p>
+     *
+     * @param source Source.
+     * @param objectType Object type of given object.
+     * @param key Primary key for given object.
+     * @param reason Reason for deleting given object. Optional.
+     * @param passwords One or more password values.
+     */
     @DELETE
     @Path("/delete/{source}/{objectType}/{key:.*}")
     public Response delete(
@@ -454,6 +717,39 @@ public class WhoisRestService {
         return handleQuery(query, source, key, request, null);
     }
 
+    /**
+     * <p>The search interface resembles a standard Whois client query with the extra features of multi-registry client, multiple response styles that can be selected via content negotiation and with an extensible URL parameters schema.</p>
+     *
+     * <p>Query using multiple sources: It is possible to specify multiple sources for the same request. This will execute the request on all the specified sources. Queries are executed on the online Whois servers, not on mirrored data, so they return live objects directly from the trusted sources.
+     * In case of system exception on any of the sources the client will get an appropriate error code in response.</p>
+     *
+     * <p><div>Examples:</div>
+     *  <ul>
+     *      <li><div>Valid inverse lookup query on an org value, filtering by inetnum:</div>
+     *      <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?inverse-attribute=org&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
+     *      </li>
+     *      <li><div>Search for objects of type organisation on the same query-string and specifying a preference for non recursion:</div>
+     *      <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?inverse-attribute=org&flags=r&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
+     *      </li>
+     *      <li><div>A search on multiple sources:</div>
+     *      <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&flags=rC&query-string=MAINT-APNIC-AP</span>
+     *      </li>
+     *      <li><div>A search on multiple sources and multiple type-filters:</div>
+     *      <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&query-string=google&type-filter=person&type-filter=organisation</span>
+     *      </li>
+     *  </ul>
+     * Further documentation on the standard Whois Database Query flags can be found on the RIPE Whois Database Query Reference Manual.</p>
+     *
+     * <p><div>The service URL must be:</div>
+     * <div>'http://apps.db.ripe.net/whois/search'</div>
+     * and the following parameters can be specified as HTTP GET parameters:</p>
+     *
+     * @param sources Mandatory. It's possible to specify multiple sources.
+     * @param queryString Mandatory.
+     * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
+     * @param types If specified the results will be filtered by object-type, multiple type-filters can be specified.
+     * @param flags Specifies an optional sequence of query-flags.
+     */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @TypeHint(WhoisResources.class)
@@ -468,6 +764,24 @@ public class WhoisRestService {
         return doSearch(request, queryString, sources, inverseAttributes, types, flags, false);
     }
 
+    /**
+     * <p>The grs-search interface has exactly the same features of the search, with the only difference that in the source parameter you will be specifying one or more GRS sources.
+     * The query will therefore be executed on the GRS sources that you specify and will return data from the respective mirrors maintained in the RIPE Database platform.</p>
+     *
+     * <p><div>The service URL is:</div>
+     * 'http://apps.db.ripe.net/whois/grs-search'</p>
+     *
+     * <p><div>Example:</div>
+     * <ul>
+     * <li><div>Search for 193/8 on the ripe, apnic, arin, lacnic, radb GRS mirrors:</div>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/grs-search?flags=&source=apnic-grs&source=arin-grs&source=lacnic-grs&source=radb-grs&query-string=193%2F8</span></li>
+     * </ul></p>
+     * @param sources Mandatory. It's possible to specify multiple sources.
+     * @param queryString  Mandatory.
+     * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
+     * @param types If specified the results will be filtered by object-type, multiple type-filters can be specified.
+     * @param flags Specifies an optional sequence of query-flags.
+     */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @TypeHint(WhoisResources.class)
@@ -526,8 +840,8 @@ public class WhoisRestService {
     /**
      * Finds tags for given RPSL object
      * <p/>
-     * Example:
-     * http://apps.db.ripe.net/whois/tags/RIPE/TEST-DBM?include=foo&include=bar&exclude=boo
+     * <p><div>Example:</div>
+     * http://apps.db.ripe.net/whois/tags/RIPE/TEST-DBM?include=foo&include=bar&exclude=boo</p>
      *
      * @param source  TEST or RIPE
      * @param key     sought RPSL object

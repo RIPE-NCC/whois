@@ -5,7 +5,7 @@
         <namespace id="whois" uri="http://www.ripe.net/whois"/>
     </namespaces>
     <services>
-        <rest defaultRestSubcontext="/api"/>
+        <rest defaultRestSubcontext="/"/>
     </services>
     <webapp disabled="true"/>
     <modules>
