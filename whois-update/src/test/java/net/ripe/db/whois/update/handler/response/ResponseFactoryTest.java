@@ -50,7 +50,7 @@ public class ResponseFactoryTest {
             }
 
             @Override
-            public boolean allowRipeOperations() {
+            public boolean allowAdminOperations() {
                 return false;
             }
 

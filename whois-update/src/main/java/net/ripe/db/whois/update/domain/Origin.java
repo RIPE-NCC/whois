@@ -3,7 +3,7 @@ package net.ripe.db.whois.update.domain;
 public interface Origin {
     boolean isDefaultOverride();
 
-    boolean allowRipeOperations();
+    boolean allowAdminOperations();
 
     String getId();
 

@@ -78,7 +78,7 @@ public class Authenticator {
         final Set<OverrideCredential> overrideCredentials = update.getCredentials().ofType(OverrideCredential.class);
         final Set<Message> authenticationMessages = Sets.newLinkedHashSet();
 
-        if (!origin.allowRipeOperations()) {
+        if (!origin.allowAdminOperations()) {
             authenticationMessages.add(UpdateMessages.overrideNotAllowedForOrigin(origin));
         } else if (!ipRanges.isInRipeRange(IpInterval.parse(origin.getFrom()))) {
             authenticationMessages.add(UpdateMessages.overrideOnlyAllowedByDbAdmins());

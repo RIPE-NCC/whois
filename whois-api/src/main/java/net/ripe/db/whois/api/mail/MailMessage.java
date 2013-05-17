@@ -32,7 +32,7 @@ public class MailMessage implements Origin {
     }
 
     @Override
-    public boolean allowRipeOperations() {
+    public boolean allowAdminOperations() {
         return false;
     }
 

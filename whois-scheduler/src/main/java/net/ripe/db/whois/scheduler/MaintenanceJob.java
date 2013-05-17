@@ -15,7 +15,7 @@ public class MaintenanceJob implements Origin {
     }
 
     @Override
-    public boolean allowRipeOperations() {
+    public boolean allowAdminOperations() {
         return true;
     }
 
