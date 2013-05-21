@@ -1,6 +1,8 @@
 package net.ripe.db.whois.query.integration;
 
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
@@ -16,6 +18,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static net.ripe.db.whois.query.integration.VersionTestIntegration.VersionMatcher.containsFilteredVersion;
@@ -23,6 +26,7 @@ import static net.ripe.db.whois.query.integration.VersionTestIntegration.Version
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 @Category(IntegrationTest.class)
@@ -231,5 +235,27 @@ public class VersionTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = stripHeader(DummyWhoisClient.query(QueryServer.port, "--list-versions 192.168.0.0-192.168.255.255"));
         assertThat(response, containsString("Version history for INETNUM object \"192.168.0.0 - 192.168.255.255\""));
         assertThat(response, containsString("ADD/UPD"));
+    }
+
+    @Test
+    public void listVersions_undeleted() {
+        final RpslObjectUpdateInfo createdObjectInfo = rpslObjectUpdateDao.createObject(RpslObject.parse("mntner: TEST-DBM"));
+        rpslObjectUpdateDao.deleteObject(createdObjectInfo.getObjectId(), createdObjectInfo.getKey());
+        rpslObjectUpdateDao.undeleteObject(createdObjectInfo.getObjectId());
+
+        final String response = stripHeader(DummyWhoisClient.query(QueryServer.port, "--list-versions TEST-DBM"));
+        assertThat(response, containsString("This object was deleted on"));
+        assertThat(response, containsString("ADD/UPD"));
+    }
+
+    @Test
+    public void showVersion_undeleted() {
+        final RpslObjectUpdateInfo createdObjectInfo = rpslObjectUpdateDao.createObject(RpslObject.parse("mntner: TEST-DBM"));
+        rpslObjectUpdateDao.deleteObject(createdObjectInfo.getObjectId(), createdObjectInfo.getKey());
+        rpslObjectUpdateDao.undeleteObject(createdObjectInfo.getObjectId());
+
+        final String response = stripHeader(DummyWhoisClient.query(QueryServer.port, "--show-version 1 TEST-DBM"));
+        assertThat(response, not(containsString("This object was deleted on")));
+        assertThat(response, containsString("mntner:         TEST-DBM"));
     }
 }
