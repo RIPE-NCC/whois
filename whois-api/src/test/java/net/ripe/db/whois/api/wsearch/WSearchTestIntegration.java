@@ -82,6 +82,52 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("ROUTES-MNT {2001::/48}"));
     }
 
+    @Test
+    public void search_failed_update_multiple_terms() throws Exception {
+        createLogFile(
+            "SUMMARY OF UPDATE:\n"+
+            "\n"+
+            "Number of objects found:                   1\n"+
+            "Number of objects processed successfully:  0\n"+
+            " Create:         0\n"+
+            " Modify:         0\n"+
+            " Delete:         0\n"+
+            " No Operation:   0\n"+
+            "Number of objects processed with errors:   1\n"+
+            " Create:         1\n"+
+            " Modify:         0\n"+
+            " Delete:         0\n"+
+            "\n"+
+            "DETAILED EXPLANATION:\n"+
+            "\n"+
+            "\n"+
+            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"+
+            "The following object(s) were found to have ERRORS:\n"+
+            "\n"+
+            "---\n"+
+            "Create FAILED: [person] FP1-TEST   First Person\n"+
+            "\n"+
+            "person:         First Person\n"+
+            "address:        St James Street\n"+
+            "address:        Burnley\n"+
+            "address:        UK\n"+
+            "phone:          +44 282 420469\n"+
+            "nic-hdl:        FP1-TEST\n"+
+            "mnt-by:         OWNER-MNT\n"+
+            "changed:        user@ripe.net\n"+
+            "source:         TEST\n"+
+            "\n"+
+            "***Error:   Authorisation for [person] FP1-TEST failed\n"+
+            "           using \"mnt-by:\"\n"+
+            "           not authenticated by: OWNER-MNT\n"+
+            "\n\n\n"+
+            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+
+        final String response = wsearch("FAILED: mnt-by: OWNER-MNT");
+
+        assertThat(response, containsString("First Person"));
+    }
+
     private String wsearch(final String searchTerm) throws IOException {
         return client
                 .resource(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), apiKey))
