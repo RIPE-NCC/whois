@@ -1,3 +1,13 @@
+## Next version
+
+## 1.65
+[update] Add syntax check before calling dnscheck
+[wsearch] Separate domain part of email addresses to make it searchable
+[wsearch] Handle ipv6 addresses with prefix length correctly
+[rest api] Report tags at object level (rather than global)
+[rest api] Stream search query results
+[rest api] Update documentation to replace labs article
+
 ## 1.64
 [nrtm] added property port.nrtm.legacy
 [nrtm] implemented new dummification alongside the legacy one
