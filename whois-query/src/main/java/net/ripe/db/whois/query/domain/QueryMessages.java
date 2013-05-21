@@ -60,8 +60,8 @@ public final class QueryMessages {
     public static Message primaryKeysOnlyNotice() {
         return new Message(Type.INFO, ""
                 + "% Note: this output has been filtered.\n"
-                + "% Only primary keys will be visible.\n"
-                + "% Contact information will not be shown.\n");
+                + "% Only primary keys and abuse contacts will be visible.\n"
+                + "% No other contact information will be shown.\n");
     }
 
     public static Message servedByNotice(final CharSequence version) {
