@@ -35,7 +35,7 @@ public class WhoisServer {
         Slf4JLogConfiguration.init();
 
         final Stopwatch stopwatch = new Stopwatch().start();
-        WhoisProfile.setActive(WhoisProfile.DEPLOYED);
+        WhoisProfile.setDeployed();
 
         final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("applicationContext-whois.xml");
 

@@ -19,7 +19,7 @@ abstract class BaseSpec extends Specification {
     def setupSpec() {
         DatabaseHelper.setupDatabase()
 
-        WhoisProfile.setActive(WhoisProfile.ENDTOEND);
+        WhoisProfile.setEndtoend();
         whoisFixture = new WhoisFixture()
         whoisFixture.start()
 

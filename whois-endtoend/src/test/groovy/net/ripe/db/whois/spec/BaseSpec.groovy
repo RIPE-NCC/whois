@@ -60,7 +60,7 @@ abstract class BaseSpec extends Specification {
         System.setProperty("unrefcleanup.deletes", "true");
         System.setProperty("nrtm.enabled", "false")
 
-        WhoisProfile.setActive(WhoisProfile.ENDTOEND)
+        WhoisProfile.setEndtoend()
 
         DatabaseHelper.setupDatabase()
 
