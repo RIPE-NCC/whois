@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.*;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
@@ -67,7 +68,7 @@ public class Authenticator {
         } else if (update.isOverride()) {
             principals = performOverrideAuthentication(origin, update, updateContext);
         } else {
-            principals = performAuthentication(update, updateContext);
+            principals = performAuthentication(origin, update, updateContext);
         }
 
         final Subject subject = new Subject(principals);
@@ -112,7 +113,7 @@ public class Authenticator {
         return Collections.emptySet();
     }
 
-    private Set<Principal> performAuthentication(final PreparedUpdate update, final UpdateContext updateContext) {
+    private Set<Principal> performAuthentication(Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {
         final Set<Message> authenticationMessages = Sets.newLinkedHashSet();
         final Set<RpslObject> authenticatedObjects = Sets.newLinkedHashSet();
 
@@ -130,13 +131,20 @@ public class Authenticator {
             }
         }
 
-        if (!authenticationMessages.isEmpty()) {
-            authenticationFailed(update, updateContext, authenticationMessages);
-        }
-
         final Set<Principal> principals = Sets.newLinkedHashSet();
         for (final RpslObject authenticatedObject : authenticatedObjects) {
             principals.addAll(getPrincipals(authenticatedObject));
+        }
+
+        // TODO: [AH] remove the isDeployed() when we are done migrating power-maintainer tests to syncupdates
+        if (!principals.isEmpty() && !origin.isDefaultOverride() && WhoisProfile.isDeployed()) {
+            if (!origin.allowAdminOperations() || !ipRanges.isInRipeRange(IpInterval.parse(origin.getFrom()))) {
+                authenticationMessages.add(UpdateMessages.ripeMntnerUpdatesOnlyAllowedFromWithinNetwork());
+            }
+        }
+
+        if (!authenticationMessages.isEmpty()) {
+            authenticationFailed(update, updateContext, authenticationMessages);
         }
 
         return principals;
