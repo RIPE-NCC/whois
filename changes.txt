@@ -1,5 +1,8 @@
 ## Next version
 
+## 1.65.1
+[query] Fix response object type order
+
 ## 1.65
 [update] Add syntax check before calling dnscheck
 [wsearch] Separate domain part of email addresses to make it searchable
