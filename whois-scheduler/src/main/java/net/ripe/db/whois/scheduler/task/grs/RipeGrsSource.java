@@ -13,7 +13,7 @@ import java.io.IOException;
 public class RipeGrsSource extends GrsSource {
     @Autowired
     RipeGrsSource(
-            @Value("${grs.import.ripe.source}") final String source,
+            @Value("${grs.import.ripe.source:}") final String source,
             @Value("${grs.import.ripe.resourceDataUrl:}") final String resourceDataUrl,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider) {

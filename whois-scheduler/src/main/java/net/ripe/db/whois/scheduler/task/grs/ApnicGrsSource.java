@@ -17,14 +17,14 @@ import java.util.zip.GZIPInputStream;
 class ApnicGrsSource extends GrsSource {
     private String download;
 
-    @Value("${grs.import.apnic.download}")
+    @Value("${grs.import.apnic.download:}")
     public void setDownload(final String download) {
         this.download = download;
     }
 
     @Autowired
     ApnicGrsSource(
-            @Value("${grs.import.apnic.source}") final String source,
+            @Value("${grs.import.apnic.source:}") final String source,
             @Value("${grs.import.apnic.resourceDataUrl:}") final String resourceDataUrl,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider) {

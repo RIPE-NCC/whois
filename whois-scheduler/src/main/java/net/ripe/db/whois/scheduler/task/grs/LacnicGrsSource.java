@@ -33,21 +33,21 @@ class LacnicGrsSource extends GrsSource {
 
     private String userId;
 
-    @Value("${grs.import.lacnic.userId}")
+    @Value("${grs.import.lacnic.userId:}")
     public void setUserId(final String userId) {
         this.userId = userId;
     }
 
     private String password;
 
-    @Value("${grs.import.lacnic.password}")
+    @Value("${grs.import.lacnic.password:}")
     public void setPassword(final String password) {
         this.password = password;
     }
 
     @Autowired
     LacnicGrsSource(
-            @Value("${grs.import.lacnic.source}") final String source,
+            @Value("${grs.import.lacnic.source:}") final String source,
             @Value("${grs.import.lacnic.resourceDataUrl:}") final String resourceDataUrl,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider) {

@@ -19,9 +19,9 @@ class JpirrGrsSource extends GrsSource {
 
     @Autowired
     JpirrGrsSource(
-            @Value("${grs.import.jpirr.source}") final String source,
+            @Value("${grs.import.jpirr.source:}") final String source,
             @Value("${grs.import.jpirr.resourceDataUrl:}") final String resourceDataUrl,
-            @Value("${grs.import.jpirr.download}") final String download,
+            @Value("${grs.import.jpirr.download:}") final String download,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider) {
         super(source, resourceDataUrl, sourceContext, dateTimeProvider);

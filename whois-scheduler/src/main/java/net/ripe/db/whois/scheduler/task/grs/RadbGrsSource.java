@@ -19,9 +19,9 @@ class RadbGrsSource extends GrsSource {
 
     @Autowired
     RadbGrsSource(
-            @Value("${grs.import.radb.source}") final String source,
+            @Value("${grs.import.radb.source:}") final String source,
             @Value("${grs.import.radb.resourceDataUrl:}") final String resourceDataUrl,
-            @Value("${grs.import.radb.download}") final String download,
+            @Value("${grs.import.radb.download:}") final String download,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider) {
         super(source, resourceDataUrl, sourceContext, dateTimeProvider);

@@ -20,14 +20,14 @@ import java.util.List;
 class AfrinicGrsSource extends GrsSource {
     private String download;
 
-    @Value("${grs.import.afrinic.download}")
+    @Value("${grs.import.afrinic.download:}")
     public void setDownload(final String download) {
         this.download = download;
     }
 
     @Autowired
     AfrinicGrsSource(
-            @Value("${grs.import.afrinic.source}") final String source,
+            @Value("${grs.import.afrinic.source:}") final String source,
             @Value("${grs.import.afrinic.resourceDataUrl:}") final String resourceDataUrl,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider) {

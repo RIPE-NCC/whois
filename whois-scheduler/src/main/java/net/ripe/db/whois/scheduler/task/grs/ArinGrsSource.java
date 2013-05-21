@@ -35,27 +35,29 @@ import java.util.zip.ZipFile;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
+// TODO: [AH] mechanism to not even instantiate these beans if grs is not enabled (e.g. "GRS" profile?)
+
 @Component
 class ArinGrsSource extends GrsSource {
     private static final Pattern IPV6_SPLIT_PATTERN = Pattern.compile("(?i)([0-9a-f:]*)\\s*-\\s*([0-9a-f:]*)\\s*");
 
     private String download;
 
-    @Value("${grs.import.arin.download}")
+    @Value("${grs.import.arin.download:}")
     public void setDownload(final String download) {
         this.download = download;
     }
 
     private String zipEntryName;
 
-    @Value("${grs.import.arin.zipEntryName}")
+    @Value("${grs.import.arin.zipEntryName:}")
     public void setZipEntryName(final String zipEntryName) {
         this.zipEntryName = zipEntryName;
     }
 
     @Autowired
     ArinGrsSource(
-            @Value("${grs.import.arin.source}") final String source,
+            @Value("${grs.import.arin.source:}") final String source,
             @Value("${grs.import.arin.resourceDataUrl:}") final String resourceDataUrl,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider) {
