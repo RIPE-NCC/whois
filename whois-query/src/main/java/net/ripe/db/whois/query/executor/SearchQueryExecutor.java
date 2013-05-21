@@ -70,7 +70,7 @@ public class SearchQueryExecutor implements QueryExecutor {
                 sourceContext.setCurrent(source);
                 final Iterable<? extends ResponseObject> searchResults = rpslObjectSearcher.search(query);
                 for (final ResponseObject responseObject : rpslResponseDecorator.getResponse(query, searchResults)) {
-                    // TODO: [AH] make sure responseHandler implementation can handle executionHandler workder threads pushing data (think of suspend-on-write, buffer overflow, slow connections, etc...)
+                    // TODO: [AH] make sure responseHandler implementation can handle executionHandler worker threads pushing data (think of suspend-on-write, buffer overflow, slow connections, etc...)
                     responseHandler.handle(responseObject);
                 }
             } catch (SourceNotConfiguredException e) {
