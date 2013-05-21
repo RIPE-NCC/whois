@@ -19,7 +19,6 @@ public class Maintainers {
     private final Set<CIString> rsMaintainers;
     private final Set<CIString> enumMaintainers;
     private final Set<CIString> dbmMaintainers;
-    private final Set<CIString> ripeMaintainers;
 
     @Autowired
     public Maintainers(
@@ -36,7 +35,6 @@ public class Maintainers {
         this.dbmMaintainers = createMaintainerSet(dbmMaintainers);
 
         this.rsMaintainers = Sets.newLinkedHashSet(Iterables.concat(this.powerMaintainers, this.enduserMaintainers, this.allocMaintainers));
-        this.ripeMaintainers = Sets.newLinkedHashSet(Iterables.concat(this.powerMaintainers, this.enduserMaintainers, this.allocMaintainers, this.enumMaintainers, this.dbmMaintainers));
     }
 
     private static Set<CIString> createMaintainerSet(final String[] maintainers) {
@@ -70,9 +68,5 @@ public class Maintainers {
 
     public Set<CIString> getDbmMaintainers() {
         return dbmMaintainers;
-    }
-
-    public Set<CIString> getRipeMaintainers() {
-        return ripeMaintainers;
     }
 }
