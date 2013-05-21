@@ -37,17 +37,8 @@ public final class Query {
 
     public static final int MAX_QUERY_ELEMENTS = 60;
 
-    private static final Set<ObjectType> DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS = Sets.newTreeSet(ObjectType.COMPARATOR);
-
-    static {
-        Collections.addAll(DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS, ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
-    }
-
-    private static final Set<ObjectType> DEFAULT_TYPES_ALL = Sets.newTreeSet(ObjectType.COMPARATOR);
-
-    static {
-        Collections.addAll(DEFAULT_TYPES_ALL, ObjectType.values());
-    }
+    private static final Set<ObjectType> DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS = Sets.newHashSet(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
+    private static final Set<ObjectType> DEFAULT_TYPES_ALL = Sets.newHashSet(ObjectType.values());
 
     private static final List<QueryValidator> QUERY_VALIDATORS = Lists.newArrayList(
             new MatchOperationValidator(),
@@ -339,7 +330,7 @@ public final class Query {
     public String getCleanSearchValue() {
         final IpInterval<?> ipKeyOrNull = getIpKeyOrNull();
         if (ipKeyOrNull != null) {
-            return ipKeyOrNull instanceof Ipv4Resource ? ((Ipv4Resource)ipKeyOrNull).toRangeString() : ipKeyOrNull.toString();
+            return ipKeyOrNull instanceof Ipv4Resource ? ((Ipv4Resource) ipKeyOrNull).toRangeString() : ipKeyOrNull.toString();
         }
 
         return WHITESPACE_PATTERN.matcher(searchKey.getValue().trim()).replaceAll(" ");
@@ -457,19 +448,18 @@ public final class Query {
 
     private Set<ObjectType> parseObjectTypes() {
         final Set<String> objectTypes = getOptionValues(QueryFlag.SELECT_TYPES);
-        final TreeSet<ObjectType> ret;
+        final Set<ObjectType> response = Sets.newTreeSet(ObjectType.COMPARATOR);
 
         if (objectTypes.isEmpty()) {
             if (isLookupInBothDirections()) {
-                ret = new TreeSet<ObjectType>(DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS);
+                response.addAll(DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS);
             } else {
-                ret = new TreeSet<ObjectType>(DEFAULT_TYPES_ALL);
+                response.addAll(DEFAULT_TYPES_ALL);
             }
         } else {
-            ret = new TreeSet<ObjectType>(ObjectType.COMPARATOR);
             for (final String objectType : objectTypes) {
                 try {
-                    ret.add(ObjectType.getByName(objectType));
+                    response.add(ObjectType.getByName(objectType));
                 } catch (IllegalArgumentException e) {
                     throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidObjectType(objectType));
                 }
@@ -477,11 +467,11 @@ public final class Query {
         }
 
         if (hasOption(QueryFlag.NO_PERSONAL)) {
-            ret.remove(ObjectType.PERSON);
-            ret.remove(ObjectType.ROLE);
+            response.remove(ObjectType.PERSON);
+            response.remove(ObjectType.ROLE);
         }
 
-        return Collections.unmodifiableSet(ret);
+        return Collections.unmodifiableSet(response);
     }
 
     private Set<String> parseSources() {
