@@ -266,6 +266,25 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void search_by_attribute_and_object_type() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person: John McDonald\n" +
+                "nic-hdl: AA1-RIPE\n" +
+                "source: RIPE"));
+
+        freeTextIndex.rebuild();
+
+        final String searchResult = query("q=(nic-hdl:(AA1-RIPE))+AND+(object-type:person)");
+
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(searchResult));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+    }
+
+
+    @Test
     public void search_hyphenated_complete_word() throws Exception {
         databaseHelper.addObject(RpslObject.parse("" +
                 "mntner:  TESTUA-MNT\n" +
