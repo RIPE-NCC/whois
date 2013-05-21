@@ -206,10 +206,10 @@ class AsBlockSpec extends BaseSpec {
         ack.countErrorWarnInfo(3, 0, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
-        ack.errorMessagesFor("Create", "[as-block] AS222 - AS333") ==
+        ack.errorMessagesFor("Create", "[as-block] AS222 - AS333").sort() ==
                 ["Authorisation for [as-block] AS222 - AS333 failed using \"mnt-by:\" not authenticated by: RIPE-DBM-MNT",
                         "As-block object are maintained by RIPE NCC",
-                        "Adding or removing a RIPE NCC maintainer requires administrative authorisation"]
+                        "Adding or removing a RIPE NCC maintainer requires administrative authorisation"].sort()
         queryObjectNotFound("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
     }
@@ -375,9 +375,9 @@ class AsBlockSpec extends BaseSpec {
         ack.countErrorWarnInfo(2, 0, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
-        ack.errorMessagesFor("Create", "[as-block] AS222 - AS333") ==
+        ack.errorMessagesFor("Create", "[as-block] AS222 - AS333").sort() ==
                 ["As-block object are maintained by RIPE NCC",
-                        "Adding or removing a RIPE NCC maintainer requires administrative authorisation"]
+                        "Adding or removing a RIPE NCC maintainer requires administrative authorisation"].sort()
         queryObjectNotFound("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
     }
