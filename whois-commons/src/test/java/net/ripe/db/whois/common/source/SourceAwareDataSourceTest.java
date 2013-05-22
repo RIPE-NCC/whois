@@ -20,7 +20,7 @@ public class SourceAwareDataSourceTest {
 
     @Before
     public void setUp() throws Exception {
-        when(sourceContext.getCurrentConfiguration()).thenReturn(sourceConfiguration);
+        when(sourceContext.getCurrentSourceConfiguration()).thenReturn(sourceConfiguration);
         when(sourceConfiguration.getDataSource()).thenReturn(dataSource);
     }
 

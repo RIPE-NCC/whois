@@ -1,4 +1,5 @@
 ## Next version
+[query] Make sources to dummify configurable
 
 ## 1.65.1
 [query] Fix response object type order

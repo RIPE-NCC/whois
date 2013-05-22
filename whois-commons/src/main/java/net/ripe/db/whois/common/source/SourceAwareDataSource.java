@@ -28,6 +28,6 @@ public class SourceAwareDataSource extends AbstractDataSource {
     }
 
     private DataSource getActualDataSource() {
-        return sourceContext.getCurrentConfiguration().getDataSource();
+        return sourceContext.getCurrentSourceConfiguration().getDataSource();
     }
 }

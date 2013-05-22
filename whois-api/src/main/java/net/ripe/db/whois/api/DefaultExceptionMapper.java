@@ -2,7 +2,7 @@ package net.ripe.db.whois.api;
 
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.ClientHandlerException;
-import net.ripe.db.whois.common.source.SourceNotConfiguredException;
+import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.query.domain.QueryException;
 import org.codehaus.jackson.JsonProcessingException;
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
             return Response.status(HttpServletResponse.SC_NOT_FOUND).build();
         }
 
-        if (exception instanceof SourceNotConfiguredException) {
+        if (exception instanceof IllegalSourceException) {
             return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(exception.getMessage()).build();
         }
 

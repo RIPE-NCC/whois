@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
@@ -37,6 +38,7 @@ public class SourceContext {
     private final Map<Source, SourceConfiguration> sourceConfigurations = Maps.newLinkedHashMap();
 
     private final Set<CIString> grsSourceNames;
+    private final Set<CIString> grsSourceNamesForDummification;
     private final Set<CIString> allSourceNames;
     private final Map<CIString, CIString> aliases;
 
@@ -46,6 +48,7 @@ public class SourceContext {
     public SourceContext(
             @Value("${whois.source}") final String mainSourceNameString,
             @Value("${grs.sources}") final String grsSourceNames,
+            @Value("${grs.sources.dummify}") final String grsSourceNamesForDummification,
             @Value("${whois.db.grs.master.baseurl}") final String grsMasterBaseUrl,
             @Value("${whois.db.master.username}") final String whoisMasterUsername,
             @Value("${whois.db.master.password}") final String whoisMasterPassword,
@@ -102,6 +105,7 @@ public class SourceContext {
         }
 
         this.grsSourceNames = Collections.unmodifiableSet(grsSources);
+        this.grsSourceNamesForDummification = ciSet(grsSourceNamesForDummification);
         this.aliases = Collections.unmodifiableMap(aliases);
         this.allSourceNames = Collections.unmodifiableSet(Sets.newLinkedHashSet(Iterables.transform(sourceConfigurations.keySet(), new Function<Source, CIString>() {
             @Nullable
@@ -119,7 +123,12 @@ public class SourceContext {
     }
 
     public SourceConfiguration getCurrentSourceConfiguration() {
-        return getCurrentConfiguration();
+        final SourceConfiguration sourceConfiguration = current.get();
+        if (sourceConfiguration == null) {
+            return sourceConfigurations.get(masterSource);
+        }
+
+        return sourceConfiguration;
     }
 
     public Collection<SourceConfiguration> getAllSourceConfigurations() {
@@ -129,7 +138,7 @@ public class SourceContext {
     public SourceConfiguration getSourceConfiguration(final Source source) {
         final SourceConfiguration sourceConfiguration = sourceConfigurations.get(source);
         if (sourceConfiguration == null) {
-            throw new SourceNotConfiguredException(source.toString());
+            throw new IllegalSourceException(source.toString());
         }
 
         return sourceConfiguration;
@@ -166,7 +175,7 @@ public class SourceContext {
     public void setCurrent(final Source source) {
         final SourceConfiguration sourceConfiguration = sourceConfigurations.get(source);
         if (sourceConfiguration == null) {
-            throw new SourceNotConfiguredException(source.getName().toString());
+            throw new IllegalSourceException(source.getName().toString());
         }
 
         current.set(sourceConfiguration);
@@ -177,20 +186,11 @@ public class SourceContext {
     }
 
     public Source getCurrentSource() {
-        return getCurrentConfiguration().getSource();
+        return getCurrentSourceConfiguration().getSource();
     }
 
     public void removeCurrentSource() {
         current.remove();
-    }
-
-    SourceConfiguration getCurrentConfiguration() {
-        final SourceConfiguration sourceConfiguration = current.get();
-        if (sourceConfiguration == null) {
-            return sourceConfigurations.get(masterSource);
-        }
-
-        return sourceConfiguration;
     }
 
     public boolean isAcl() {
@@ -199,6 +199,6 @@ public class SourceContext {
 
     public boolean isDummificationRequired() {
         final CIString sourceName = getCurrentSource().getName();
-        return grsSourceNames.contains(sourceName);
+        return grsSourceNamesForDummification.contains(sourceName);
     }
 }
