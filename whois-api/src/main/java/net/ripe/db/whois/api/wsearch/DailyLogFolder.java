@@ -59,6 +59,8 @@ class DailyLogFolder {
                         }
                     }
                 }
+            } catch (IOException e) {
+                throw new IllegalStateException("Error in file " + folder.getCanonicalPath(), e);
             } finally {
                 IOUtils.close(is);
             }
@@ -95,6 +97,8 @@ class DailyLogFolder {
                     try {
                         is = new FileInputStream(file);
                         loggedFilesProcessor.process(loggedUpdateInfo, getContents(new BufferedInputStream(is), file.length()));
+                    } catch (IOException e) {
+                        throw new IllegalStateException("Error in file " + file.getCanonicalPath(), e);
                     } finally {
                         IOUtils.close(is);
                     }
