@@ -305,6 +305,34 @@ public class GrsSourceImporterTest {
     }
 
     @Test
+    public void try_inserting_role_and_person_with_same_nichdl() throws Exception {
+        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(resourceData.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                final ObjectHandler objectHandler = (ObjectHandler) invocation.getArguments()[1];
+
+                objectHandler.handle(RpslObjectBase.parse("" +
+                        "person: Ninja Person\n" +
+                        "nic-hdl: NI124-RIPE\n"));
+
+                return null;
+            }
+        }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
+
+        final GrsObjectInfo grsObjectInfo1 = new GrsObjectInfo(1, 1, RpslObject.parse("role: Ninja Role\nnic-hdl: NI124-RIPE\n"));
+        when(grsDao.find("NI124-RIPE", ObjectType.PERSON)).thenReturn(null);
+        when(grsDao.find("NI124-RIPE", ObjectType.ROLE)).thenReturn(grsObjectInfo1);
+
+        subject.grsImport(grsSource, false);
+
+        verify(grsDao, times(0)).createObject(any(RpslObject.class));
+        verify(grsDao, times(0)).updateObject(any(GrsObjectInfo.class), any(RpslObject.class));
+    }
+
+    @Test
     public void run_create_update_delete() throws IOException {
         when(grsSource.getSource()).thenReturn("APNIC-GRS");
         when(grsDao.getCurrentObjectIds()).thenReturn(Lists.newArrayList(1, 2, 3));

@@ -209,8 +209,19 @@ class GrsSourceImporter {
                     }
 
                     private void createOrUpdate(final RpslObject importedObject) {
-                        final GrsObjectInfo grsObjectInfo = grsSource.getDao().find(importedObject.getKey().toString(), importedObject.getType());
+                        final String pkey = importedObject.getKey().toString();
+                        final ObjectType type = importedObject.getType();
+                        final GrsObjectInfo grsObjectInfo = grsSource.getDao().find(pkey, type);
+
                         if (grsObjectInfo == null) {
+                            if (type == ObjectType.PERSON && grsSource.getDao().find(pkey, ObjectType.ROLE) != null) {
+                                return;
+                            }
+
+                            if (type == ObjectType.ROLE && grsSource.getDao().find(pkey, ObjectType.PERSON) != null) {
+                                return;
+                            }
+
                             create(importedObject);
                         } else {
                             currentObjectIds.remove(grsObjectInfo.getObjectId());
