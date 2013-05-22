@@ -580,7 +580,7 @@
                 <version>2.14.1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx1024m</argLine>
+                    <argLine>-Xmx1024m -Dsurefire.forkNumber=${surefire.forkNumber}</argLine>
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
@@ -638,7 +638,7 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
-                <test.forkCount.integration>2</test.forkCount.integration>
+                <test.forkCount.integration>3</test.forkCount.integration>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>**/*TestIntegration*.class,**/*Spec*.class</test.files.integration>
             </properties>
@@ -658,8 +658,7 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups />
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/whois/spec/query/*Spec*.java,**/whois/spec/update/*Spec*.java,
-                </test.files.integration>
+                <test.files.integration>**/whois/spec/query/*Spec*.java,**/whois/spec/update/*Spec*.java</test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
