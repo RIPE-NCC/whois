@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-public class RpslObjectSearcher {
+class RpslObjectSearcher {
     private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES;
 
     static {

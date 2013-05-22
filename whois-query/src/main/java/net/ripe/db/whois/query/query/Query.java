@@ -37,6 +37,7 @@ public final class Query {
 
     public static final int MAX_QUERY_ELEMENTS = 60;
 
+    private static final Set<ObjectType> GRS_LIMIT_TYPES = Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
     private static final Set<ObjectType> DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS = Sets.newHashSet(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
     private static final Set<ObjectType> DEFAULT_TYPES_ALL = Sets.newHashSet(ObjectType.values());
 
@@ -188,7 +189,7 @@ public final class Query {
     }
 
     public boolean isAllSources() {
-        return hasOption(QueryFlag.ALL_SOURCES);
+        return hasOption(QueryFlag.ALL_SOURCES) || hasOption(QueryFlag.GRS);
     }
 
     public boolean isLookupInBothDirections() {
@@ -469,6 +470,10 @@ public final class Query {
         if (hasOption(QueryFlag.NO_PERSONAL)) {
             response.remove(ObjectType.PERSON);
             response.remove(ObjectType.ROLE);
+        }
+
+        if (hasOption(QueryFlag.GRS)) {
+            response.retainAll(GRS_LIMIT_TYPES);
         }
 
         return Collections.unmodifiableSet(response);
