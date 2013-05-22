@@ -31,6 +31,15 @@ public enum Operation {
         return BY_ID.get(code);
     }
 
+    public static Operation getByName(String name) {
+        for (Operation operation : Operation.values()) {
+            if (operation.name.equals(name)) {
+                return operation;
+            }
+        }
+        throw new IllegalArgumentException("No operation for " + name);
+    }
+
     @Override
     public String toString() {
         return name;
