@@ -1,6 +1,7 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.grs.AfrinicResourceData;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,19 +10,15 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AfrinicGrsSourceTest {
     @Mock SourceContext sourceContext;
     @Mock DateTimeProvider dateTimeProvider;
+    @Mock AfrinicResourceData afrinicResourceData;
 
     CaptureInputObjectHandler objectHandler;
     AfrinicGrsSource subject;
@@ -29,22 +26,7 @@ public class AfrinicGrsSourceTest {
     @Before
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new AfrinicGrsSource("AFRINIC-GRS", "", sourceContext, dateTimeProvider);
-    }
-
-    @Test
-    public void acquire() throws IOException {
-        final String download = "http://dump.test";
-
-        subject = spy(subject);
-        subject.setDownload(download);
-
-        doNothing().when(subject).downloadToFile(any(URL.class), any(File.class));
-
-        final File file = File.createTempFile("grs", "test");
-        subject.acquireDump(file);
-
-        verify(subject).downloadToFile(new URL(download), file);
+        subject = new AfrinicGrsSource("AFRINIC-GRS", sourceContext, dateTimeProvider, afrinicResourceData);
     }
 
     @Test

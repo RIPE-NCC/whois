@@ -1,44 +1,36 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.grs.AuthoritativeResource;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.source.SourceContext;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.FileCopyUtils;
 
-import java.io.*;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 abstract class GrsSource implements InitializingBean {
-    private static final Pattern MD5_CAPTURE_PATTERN = Pattern.compile("([a-fA-F0-9]{32})");
-
     final String source;
-    final String resourceDataUrl;
     final SourceContext sourceContext;
     final DateTimeProvider dateTimeProvider;
     final Logger logger;
+    final AuthoritativeResource authoritativeResource;
 
-    GrsSource(final String source, final String resourceDataUrl, final SourceContext sourceContext, final DateTimeProvider dateTimeProvider) {
+    private GrsDao grsDao;
+
+    GrsSource(final String source, final SourceContext sourceContext, final DateTimeProvider dateTimeProvider, final AuthoritativeResourceData authoritativeResourceData) {
         this.source = source;
-        this.resourceDataUrl = resourceDataUrl;
         this.sourceContext = sourceContext;
         this.dateTimeProvider = dateTimeProvider;
         this.logger = LoggerFactory.getLogger(String.format("%s.%s", GrsSource.class.getName(), source));
+        this.authoritativeResource = authoritativeResourceData.getAuthoritativeResource();
     }
-
-    private GrsDao grsDao;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -51,41 +43,6 @@ abstract class GrsSource implements InitializingBean {
 
     GrsDao getDao() {
         return grsDao;
-    }
-
-    void acquireResourceData(final File file) throws IOException {
-        if (StringUtils.isBlank(resourceDataUrl)) {
-            logger.warn("No resource data for {}", source);
-            return;
-        }
-
-        downloadToFile(new URL(resourceDataUrl), file);
-
-        InputStream resourceDataStream = null;
-        InputStream md5Stream = null;
-
-        try {
-            resourceDataStream = new BufferedInputStream(new FileInputStream(file));
-            md5Stream = new URL(String.format("%s.md5", resourceDataUrl)).openStream();
-            checkMD5(resourceDataStream, md5Stream);
-        } finally {
-            IOUtils.closeQuietly(resourceDataStream);
-            IOUtils.closeQuietly(md5Stream);
-        }
-    }
-
-    void checkMD5(final InputStream resourceDataStream, final InputStream md5Stream) throws IOException {
-        final String md5Line = FileCopyUtils.copyToString(new InputStreamReader(md5Stream, Charsets.UTF_8));
-        final Matcher matcher = MD5_CAPTURE_PATTERN.matcher(md5Line);
-        if (!matcher.find()) {
-            throw new IllegalArgumentException(String.format("Unexpected md5 line: %s", md5Line));
-        }
-
-        final String expectedMd5 = matcher.group(1);
-        final String md5 = DigestUtils.md5Hex(resourceDataStream);
-        if (!md5.equalsIgnoreCase(expectedMd5)) {
-            throw new IllegalArgumentException(String.format("MD5 error - expected: %s; actual: %s", expectedMd5, md5));
-        }
     }
 
     abstract void acquireDump(File file) throws IOException;
@@ -105,50 +62,8 @@ abstract class GrsSource implements InitializingBean {
         return source;
     }
 
-    void downloadToFile(final URL url, final File file) throws IOException {
-        logger.info("Downloading {} from {}", file, url);
-        InputStream is = null;
-
-        try {
-            is = url.openStream();
-            downloadToFile(is, file);
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
-    }
-
-    void downloadToFile(final InputStream is, final File file) throws IOException {
-        if (file.mkdirs()) {
-            logger.info("Created dirs for {}", file);
-        }
-
-        if (file.exists()) {
-            if (file.delete()) {
-                logger.debug("Delete existing {}", file);
-            } else {
-                throw new IllegalStateException("Unable to delete " + file);
-            }
-        }
-
-        final Stopwatch stopwatch = new Stopwatch().start();
-
-        ReadableByteChannel rbc = null;
-        FileOutputStream fos = null;
-
-        try {
-            rbc = Channels.newChannel(is);
-            fos = new FileOutputStream(file);
-            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-        } finally {
-            IOUtils.closeQuietly(rbc);
-            IOUtils.closeQuietly(fos);
-        }
-
-        if (file.length() == 0) {
-            throw new IllegalStateException(String.format("Empty file: %s", file));
-        }
-
-        logger.info("Downloaded {} in {}", file, stopwatch.stop());
+    AuthoritativeResource getAuthoritativeResource() {
+        return authoritativeResource;
     }
 
     void handleLines(final BufferedReader reader, final LineHandler lineHandler) throws IOException {

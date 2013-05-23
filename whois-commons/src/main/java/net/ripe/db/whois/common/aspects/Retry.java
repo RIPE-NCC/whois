@@ -6,6 +6,18 @@ import org.slf4j.LoggerFactory;
 public class Retry {
     private static final Logger LOGGER = LoggerFactory.getLogger(Retry.class);
 
+    public static <T, E extends Exception> T forException(final Retryable<T> retryable, final int maxAttempts, final long sleepMsBetweenRetries, final Class<E> exceptionClass) throws E {
+        try {
+            return forExceptions(retryable, maxAttempts, sleepMsBetweenRetries, exceptionClass);
+        } catch (Exception e) {
+            if (exceptionClass.isAssignableFrom(e.getClass())) {
+                throw (E)e;
+            } else {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     public static <T> T forExceptions(final Retryable<T> retryable, final int maxAttempts, final long sleepMsBetweenRetries, final Class<? extends Exception>... exceptionClasses) throws Exception {
         int attempt = 0;
         Exception originalException = null;

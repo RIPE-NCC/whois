@@ -10,6 +10,8 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.grs.ArinResourceData;
+import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObjectBase;
@@ -58,15 +60,15 @@ class ArinGrsSource extends GrsSource {
     @Autowired
     ArinGrsSource(
             @Value("${grs.import.arin.source:}") final String source,
-            @Value("${grs.import.arin.resourceDataUrl:}") final String resourceDataUrl,
             final SourceContext sourceContext,
-            final DateTimeProvider dateTimeProvider) {
-        super(source, resourceDataUrl, sourceContext, dateTimeProvider);
+            final DateTimeProvider dateTimeProvider,
+            final ArinResourceData arinResourceData) {
+        super(source, sourceContext, dateTimeProvider, arinResourceData);
     }
 
     @Override
     public void acquireDump(final File file) throws IOException {
-        downloadToFile(new URL(download), file);
+        Downloader.downloadToFile(logger, new URL(download), file);
     }
 
     @Override

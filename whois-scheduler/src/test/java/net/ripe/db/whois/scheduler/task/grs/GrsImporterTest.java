@@ -1,6 +1,7 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,6 +54,13 @@ public class GrsImporterTest {
         subject = new GrsImporter(grsSourceImporter, new GrsSource[]{grsSourceRipe, grsSourceOther});
         subject.setDefaultSources(defaultSources);
         subject.setGrsImportEnabled(true);
+
+        subject.startImportThreads();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        subject.shutdownImportThreads();
     }
 
     @Test

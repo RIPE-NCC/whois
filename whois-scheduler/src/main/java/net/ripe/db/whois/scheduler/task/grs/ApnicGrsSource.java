@@ -2,6 +2,8 @@ package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.grs.ApnicResourceData;
+import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +27,15 @@ class ApnicGrsSource extends GrsSource {
     @Autowired
     ApnicGrsSource(
             @Value("${grs.import.apnic.source:}") final String source,
-            @Value("${grs.import.apnic.resourceDataUrl:}") final String resourceDataUrl,
             final SourceContext sourceContext,
-            final DateTimeProvider dateTimeProvider) {
-        super(source, resourceDataUrl, sourceContext, dateTimeProvider);
+            final DateTimeProvider dateTimeProvider,
+            final ApnicResourceData apnicResourceData) {
+        super(source, sourceContext, dateTimeProvider, apnicResourceData);
     }
 
     @Override
     public void acquireDump(final File file) throws IOException {
-        downloadToFile(new URL(download), file);
+        Downloader.downloadToFile(logger, new URL(download), file);
     }
 
     @Override

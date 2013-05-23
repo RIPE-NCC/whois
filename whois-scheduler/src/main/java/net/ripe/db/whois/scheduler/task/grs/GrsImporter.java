@@ -1,6 +1,7 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
@@ -11,9 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -28,6 +36,8 @@ public class GrsImporter implements DailyScheduledTask {
     private final AtomicInteger threadNum = new AtomicInteger();
     private final Set<CIString> currentlyImporting = Collections.synchronizedSet(Sets.<CIString>newHashSet());
     private final ThreadGroup threadGroup = new ThreadGroup("grs-import");
+
+    private ExecutorService executorService;
 
     private boolean grsImportEnabled;
 
@@ -53,6 +63,23 @@ public class GrsImporter implements DailyScheduledTask {
         }
     }
 
+    @PostConstruct
+    void startImportThreads() {
+        executorService = Executors.newFixedThreadPool(grsSources.size(), new ThreadFactory() {
+            @Override
+            public Thread newThread(final Runnable runnable) {
+                final Thread thread = new Thread(threadGroup, runnable, String.format("grs-import-%s", threadNum.incrementAndGet()));
+                thread.setDaemon(true);
+                return thread;
+            }
+        });
+    }
+
+    @PreDestroy
+    void shutdownImportThreads() {
+        executorService.shutdownNow();
+    }
+
     @Override
     public void run() {
         if (!grsImportEnabled) {
@@ -63,20 +90,17 @@ public class GrsImporter implements DailyScheduledTask {
         grsImport(defaultSources, false);
     }
 
-    public void grsImport(String sources, final boolean rebuild) {
-        final Set<CIString> sourcesToImport = Sets.newLinkedHashSet();
-        for (final String source : SOURCES_SPLITTER.split(sources)) {
-            sourcesToImport.add(ciString(source));
-        }
-
+    public List<Future<?>> grsImport(String sources, final boolean rebuild) {
+        final Set<CIString> sourcesToImport = splitSources(sources);
         LOGGER.info("GRS import sources: {}", sourcesToImport);
 
+        final List<Future<?>> futures = Lists.newArrayListWithCapacity(sourcesToImport.size());
         for (final CIString enabledSource : sourcesToImport) {
             final GrsSource grsSource = grsSources.get(enabledSource);
             if (grsSource == null) {
                 LOGGER.warn("Unknown source: {}", enabledSource);
             } else {
-                Thread grsImportThread = new Thread(threadGroup, new Runnable() {
+                futures.add(executorService.submit(new Runnable() {
                     @Override
                     public void run() {
                         if (currentlyImporting.add(enabledSource)) {
@@ -92,11 +116,18 @@ public class GrsImporter implements DailyScheduledTask {
                             grsSource.getLogger().warn("Skipped, already running");
                         }
                     }
-                }, String.format("grs-import-%s", threadNum.incrementAndGet()));
-
-                grsImportThread.setDaemon(true);
-                grsImportThread.start();
+                }));
             }
         }
+
+        return futures;
+    }
+
+    private Set<CIString> splitSources(final String sources) {
+        final Set<CIString> sourcesToImport = Sets.newLinkedHashSet();
+        for (final String source : SOURCES_SPLITTER.split(sources)) {
+            sourcesToImport.add(ciString(source));
+        }
+        return sourcesToImport;
     }
 }

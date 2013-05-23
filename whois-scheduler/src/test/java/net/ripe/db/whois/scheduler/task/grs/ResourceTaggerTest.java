@@ -2,6 +2,7 @@ package net.ripe.db.whois.scheduler.task.grs;
 
 import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceConfiguration;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -29,7 +30,7 @@ public class ResourceTaggerTest {
     @Mock ResultSet resultSet;
 
     @Mock GrsSource grsSource;
-    @Mock ResourceData resourceData;
+    @Mock AuthoritativeResource authoritativeResource;
 
     @Mock SourceContext sourceContext;
     @Mock TagsDao tagsDao;
@@ -45,7 +46,7 @@ public class ResourceTaggerTest {
 
     @Test
     public void tagObjects() {
-        subject.tagObjects(grsSource, resourceData);
+        subject.tagObjects(grsSource, authoritativeResource);
 
         verify(sourceContext).setCurrent(any(Source.class));
         verify(sourceContext).removeCurrentSource();
@@ -57,7 +58,7 @@ public class ResourceTaggerTest {
         doThrow(SQLException.class).when(tagsDao).updateTags(any(CIString.class), any(List.class), any(List.class));
 
         try {
-            subject.tagObjects(grsSource, resourceData);
+            subject.tagObjects(grsSource, authoritativeResource);
             fail("Expected exception");
         } catch (Exception ignored) {
         }

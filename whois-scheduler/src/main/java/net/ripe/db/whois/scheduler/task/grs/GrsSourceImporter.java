@@ -5,6 +5,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.rpsl.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,6 @@ class GrsSourceImporter {
     private static final int LOG_EVERY_NR_HANDLED = 50000;
 
     private final CIString mainSource;
-    private final GrsDownloader grsDownloader;
     private final AttributeSanitizer sanitizer;
     private final ResourceTagger resourceTagger;
 
@@ -38,12 +38,10 @@ class GrsSourceImporter {
     public GrsSourceImporter(
             @Value("${whois.source}") final String mainSourceName,
             @Value("${dir.grs.import.download}") final String downloadDir,
-            final GrsDownloader grsDownloader,
             final AttributeSanitizer sanitizer,
             final ResourceTagger resourceTagger) {
         this.mainSource = ciString(mainSourceName);
         this.downloadDir = new File(downloadDir);
-        this.grsDownloader = grsDownloader;
         this.sanitizer = sanitizer;
         this.resourceTagger = resourceTagger;
 
@@ -57,38 +55,19 @@ class GrsSourceImporter {
         }
     }
 
-    public void grsImport(final GrsSource grsSource, final boolean rebuild) {
-        grsImport(grsSource, rebuild, getResourceData(grsSource));
-    }
+    void grsImport(final GrsSource grsSource, final boolean rebuild) {
+        final AuthoritativeResource authoritativeResource = grsSource.getAuthoritativeResource();
 
-    private ResourceData getResourceData(final GrsSource grsSource) {
-        final File resourceDataFile = new File(downloadDir, String.format("%s-RES", grsSource.getSource()));
-
-        grsDownloader.acquire(grsSource, resourceDataFile, new GrsDownloader.AcquireHandler() {
-            @Override
-            public void acquire(final File file) throws IOException {
-                grsSource.acquireResourceData(file);
-            }
-        });
-
-        if (resourceDataFile.exists()) {
-            return ResourceData.loadFromFile(grsSource, resourceDataFile);
-        } else {
-            return ResourceData.unknown(grsSource);
-        }
-    }
-
-    void grsImport(final GrsSource grsSource, final boolean rebuild, final ResourceData resourceData) {
         if (ciString(grsSource.getSource()).contains(mainSource)) {
             grsSource.getLogger().info("Not updating GRS data");
         } else {
-            acquireAndUpdateGrsData(grsSource, rebuild, resourceData);
+            acquireAndUpdateGrsData(grsSource, rebuild, authoritativeResource);
         }
 
-        resourceTagger.tagObjects(grsSource, resourceData);
+        resourceTagger.tagObjects(grsSource, authoritativeResource);
     }
 
-    private void acquireAndUpdateGrsData(final GrsSource grsSource, final boolean rebuild, final ResourceData resourceData) {
+    private void acquireAndUpdateGrsData(final GrsSource grsSource, final boolean rebuild, final AuthoritativeResource authoritativeData) {
         final Logger logger = grsSource.getLogger();
 
         new Runnable() {
@@ -104,12 +83,12 @@ class GrsSourceImporter {
             @Override
             public void run() {
                 final File dumpFile = new File(downloadDir, String.format("%s-DMP", grsSource.getSource()));
-                grsDownloader.acquire(grsSource, dumpFile, new GrsDownloader.AcquireHandler() {
-                    @Override
-                    public void acquire(final File file) throws IOException {
-                        grsSource.acquireDump(file);
-                    }
-                });
+
+                try {
+                    grsSource.acquireDump(dumpFile);
+                } catch (IOException e) {
+                    throw new RuntimeException("Unable to acquire dump", e);
+                }
 
                 final Stopwatch stopwatch = new Stopwatch().start();
 
@@ -165,7 +144,7 @@ class GrsSourceImporter {
                             if (messages.hasErrors()) {
                                 logger.debug("Errors for object with key {}: {}", typeAttribute, messages);
                                 nrIgnored++;
-                            } else if (resourceData.isMaintainedInRirSpace(rpslObject)) {
+                            } else if (authoritativeData.isMaintainedInRirSpace(rpslObject)) {
                                 createOrUpdate(rpslObject);
                             }
                         }

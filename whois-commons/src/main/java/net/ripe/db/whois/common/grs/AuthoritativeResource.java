@@ -1,4 +1,4 @@
-package net.ripe.db.whois.scheduler.task.grs;
+package net.ripe.db.whois.common.grs;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
-class ResourceData {
+public class AuthoritativeResource {
     private static final Object PRESENT = new Object();
 
     private static final Set<ObjectType> RESOURCE_TYPES = Sets.newEnumSet(Lists.newArrayList(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM), ObjectType.class);
@@ -35,49 +35,47 @@ class ResourceData {
     private final IntervalMap<Ipv6Resource, Object> inet6Ranges;
     private final int nrInet6Ranges;
 
-
-    static ResourceData unknown(final GrsSource grsSource) {
-        return new ResourceData(grsSource, Collections.<CIString>emptySet(), new NestedIntervalMap<Ipv4Resource, Object>(), new NestedIntervalMap<Ipv6Resource, Object>());
+    public static AuthoritativeResource unknown(final Logger logger) {
+        return new AuthoritativeResource(logger, Collections.<CIString>emptySet(), new NestedIntervalMap<Ipv4Resource, Object>(), new NestedIntervalMap<Ipv6Resource, Object>());
     }
 
-    static ResourceData loadFromFile(final GrsSource grsSource, final File file) {
+    public static AuthoritativeResource loadFromFile(final Logger logger, final String name, final File file) {
         try {
-            return loadFromScanner(grsSource, new Scanner(file));
+            return loadFromScanner(logger, name, new Scanner(file));
         } catch (FileNotFoundException e) {
             throw new IllegalArgumentException("File not found", e);
         }
     }
 
-    static ResourceData loadFromScanner(final GrsSource grsSource, final Scanner scanner) {
+    static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner) {
         try {
-            return load(grsSource, scanner);
+            return load(logger, name, scanner);
         } finally {
             scanner.close();
         }
     }
 
-    private static ResourceData load(final GrsSource grsSource, final Scanner scanner) {
+    private static AuthoritativeResource load(final Logger logger, final String name, final Scanner scanner) {
         scanner.useDelimiter("\n");
 
-        final Logger logger = grsSource.getLogger();
         final Set<String> allowedStatusses = Sets.newHashSet("allocated", "assigned");
         final Pattern linePattern = Pattern.compile("^([a-zA-Z]+)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)(?:\\|.*|$)");
 
-        return new Callable<ResourceData>() {
+        return new Callable<AuthoritativeResource>() {
             final Set<CIString> autNums = Sets.newHashSet();
             final IntervalMap<Ipv4Resource, Object> inetnums = new NestedIntervalMap<Ipv4Resource, Object>();
             final IntervalMap<Ipv6Resource, Object> inet6nums = new NestedIntervalMap<Ipv6Resource, Object>();
 
             @Override
-            public ResourceData call() {
-                final String expectedSource = grsSource.getSource().replace("-GRS", "").toLowerCase();
+            public AuthoritativeResource call() {
+                final String expectedSource = name.replace("-GRS", "").toLowerCase();
 
                 while (scanner.hasNext()) {
                     final String line = scanner.next();
                     handleLine(expectedSource, line);
                 }
 
-                return new ResourceData(grsSource, autNums, inetnums, inet6nums);
+                return new AuthoritativeResource(logger, autNums, inetnums, inet6nums);
             }
 
             private void handleLine(final String expectedSource, final String line) {
@@ -146,14 +144,14 @@ class ResourceData {
         }.call();
     }
 
-    private ResourceData(final GrsSource grsSource, final Set<CIString> autNums, final IntervalMap<Ipv4Resource, Object> inetRanges, final IntervalMap<Ipv6Resource, Object> inet6Ranges) {
+    private AuthoritativeResource(final Logger logger, final Set<CIString> autNums, final IntervalMap<Ipv4Resource, Object> inetRanges, final IntervalMap<Ipv6Resource, Object> inet6Ranges) {
         this.autNums = autNums;
         this.inetRanges = inetRanges;
         this.inet6Ranges = inet6Ranges;
         this.nrInetRanges = inetRanges.findExactAndAllMoreSpecific(Ipv4Resource.parse("0/0")).size();
         this.nrInet6Ranges = inet6Ranges.findExactAndAllMoreSpecific(Ipv6Resource.parse("::0/0")).size();
 
-        grsSource.getLogger().info("Resources: {}", String.format("asn: %5d; ipv4: %5d; ipv6: %5d", getNrAutNums(), getNrInetnums(), getNrInet6nums()));
+        logger.info("Resources: {}", String.format("asn: %5d; ipv4: %5d; ipv6: %5d", getNrAutNums(), getNrInetnums(), getNrInet6nums()));
     }
 
     int getNrAutNums() {
@@ -172,7 +170,7 @@ class ResourceData {
         return getNrAutNums() == 0 && getNrInetnums() == 0 && getNrInet6nums() == 0;
     }
 
-    boolean isMaintainedByRir(final ObjectType objectType, final CIString pkey) {
+    public boolean isMaintainedByRir(final ObjectType objectType, final CIString pkey) {
         try {
             switch (objectType) {
                 case AUT_NUM:
@@ -189,11 +187,11 @@ class ResourceData {
         }
     }
 
-    boolean isMaintainedInRirSpace(final RpslObject rpslObject) {
+    public boolean isMaintainedInRirSpace(final RpslObject rpslObject) {
         return isMaintainedInRirSpace(rpslObject.getType(), rpslObject.getKey());
     }
 
-    boolean isMaintainedInRirSpace(final ObjectType objectType, final CIString pkey) {
+    public boolean isMaintainedInRirSpace(final ObjectType objectType, final CIString pkey) {
         try {
             switch (objectType) {
                 case AUT_NUM:
@@ -210,7 +208,7 @@ class ResourceData {
         }
     }
 
-    Set<ObjectType> getResourceTypes() {
+    public Set<ObjectType> getResourceTypes() {
         return RESOURCE_TYPES;
     }
 }
