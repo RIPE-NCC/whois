@@ -3,6 +3,7 @@ package net.ripe.db.whois.nrtm;
 
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.dao.jdbc.JdbcSerialDao;
 import net.ripe.db.whois.common.domain.serials.Operation;
@@ -15,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import sun.net.ConnectionResetException;
 
@@ -35,21 +35,28 @@ public class NrtmClient {
     private static final Pattern OPERATION_AND_SERIAL_PATTERN = Pattern.compile("^(ADD|DEL)[ ](\\d+)$");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmClient.class);
+    private static final int MAX_RETRY = 3;
+    private static final int RETRY_WAIT = 50000;
 
     private final SourceContext sourceContext;
     private final SerialDao serialDao;
     private final RpslObjectDao rpslObjectDao;
-    private String nrtmHost;
-    private int nrtmPort;
-    private static final int MAX_RETRY = 3;
+    private final RpslObjectUpdateDao rpslObjectUpdateDao;
+    private final String nrtmHost;
+    private final int nrtmPort;
 
     private NrtmClientThread clientThread = null;
 
     @Autowired
-    public NrtmClient(final SourceContext sourceContext, @Qualifier("whoisMasterNrtmClientDataSource") final DataSource datasource,
-                      final DateTimeProvider dateTimeProvider, final RpslObjectDao objectDao,
-                      @Value("${nrtm.client.host:}") final String nrtmHost, @Value("${nrtm.client.port:-1}") final int nrtmPort) {
+    public NrtmClient(final SourceContext sourceContext,
+                      @Qualifier("whoisMasterNrtmClientDataSource") final DataSource datasource,
+                      final DateTimeProvider dateTimeProvider,
+                      final RpslObjectDao objectDao,
+                      final RpslObjectUpdateDao rpslObjectUpdateDao,
+                      @Value("${nrtm.client.host:}") final String nrtmHost,
+                      @Value("${nrtm.client.port:-1}") final int nrtmPort) {
         this.sourceContext = sourceContext;
+        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.serialDao = new JdbcSerialDao(datasource, dateTimeProvider);
         this.rpslObjectDao = objectDao;
         this.nrtmHost = nrtmHost;
@@ -65,12 +72,10 @@ public class NrtmClient {
 
     public void start(final String nrtmHost, final int nrtmPort) {
         Validate.notNull(nrtmHost);
-        this.nrtmHost = nrtmHost;
-        this.nrtmPort = nrtmPort;
         Validate.isTrue(nrtmPort > 0);
         Validate.isTrue(clientThread == null);
 
-        clientThread = new NrtmClientThread();
+        clientThread = new NrtmClientThread(nrtmHost, nrtmPort);
         new Thread(clientThread).start();
     }
 
@@ -78,14 +83,18 @@ public class NrtmClient {
         private Socket socket;
         private boolean running;
         private int retried = 0;
+        private String host;
+        private int port;
 
-        public NrtmClientThread() {
+        public NrtmClientThread(final String nrtmHost, final int nrtmPort) {
+            this.host = nrtmHost;
+            this.port = nrtmPort;
             init();
         }
 
         private void init() {
             try {
-                socket = new Socket(nrtmHost, nrtmPort);
+                socket = new Socket(host, port);
                 running = true;
             } catch (Exception e) {
                 throw new IllegalStateException(e);
@@ -96,11 +105,11 @@ public class NrtmClient {
         public void run() {
             try {
                 while (retried <= MAX_RETRY) {
-                    try {
-                        if (!running) {
-                            init();
-                        }
+                    if (!running) {
+                        init();
+                    }
 
+                    try {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
@@ -111,13 +120,13 @@ public class NrtmClient {
                         retried = MAX_RETRY;
                     } catch (ConnectException e) {
                         retried++;
-                        Thread.sleep(50000);
+                        Thread.sleep(RETRY_WAIT);
                     } catch (BindException e) {
                         retried++;
-                        Thread.sleep(50000);
+                        Thread.sleep(RETRY_WAIT);
                     } catch (ConnectionResetException e) {
                         retried++;
-                        Thread.sleep(50000);
+                        Thread.sleep(RETRY_WAIT);
                     } finally {
                         stop();
                     }
@@ -195,7 +204,7 @@ public class NrtmClient {
             }
         }
 
-        private void readOperationAndSerial(final BufferedReader reader) throws IOException {
+        private OperationSerial readOperationAndSerial(final BufferedReader reader) throws IOException {
             final String line = readLine(reader, " ");
             final Matcher matcher = OPERATION_AND_SERIAL_PATTERN.matcher(line);
             if (!matcher.find()) {
@@ -205,6 +214,7 @@ public class NrtmClient {
             final String serial = matcher.group(2);
             LOGGER.info("Operation:{} Serial:{}", operation, serial);
             readEmptyLine(reader);
+            return new OperationSerial(operation, serial);
         }
 
         /*
@@ -218,18 +228,31 @@ public class NrtmClient {
             StringBuilder builder = new StringBuilder();
             String line;
 
-            while (((line = reader.readLine()) != null) && (!line.isEmpty())) {     // TODO: readLine() is a blocking operation
+            while (!reader.ready()) {
+            } // TODO: due to readLine being blocking - let this try forever? sleep between tries?
+
+            while (((line = reader.readLine()) != null) && (!line.isEmpty())) {
                 builder.append(line);
                 builder.append('\n');
             }
             return RpslObject.parse(builder.toString());
         }
 
-        private RpslObject findStoredObject(final RpslObject rpslObject) {
-            try {
-                return rpslObjectDao.getByKey(rpslObject.getType(), rpslObject.getKey().toString());
-            } catch (final EmptyResultDataAccessException ignored) {
-                return rpslObject;
+        private class OperationSerial {
+            private final Operation operation;
+            private final String serial;
+
+            private OperationSerial(final Operation operation, final String serial) {
+                this.operation = operation;
+                this.serial = serial;
+            }
+
+            private Operation getOperation() {
+                return operation;
+            }
+
+            private String getSerial() {
+                return serial;
             }
         }
     }
