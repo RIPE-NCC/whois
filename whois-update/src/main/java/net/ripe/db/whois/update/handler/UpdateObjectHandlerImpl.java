@@ -32,6 +32,7 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
     @Autowired
     public UpdateObjectHandlerImpl(final RpslObjectUpdateDao rpslObjectUpdateDao, final List<BusinessRuleValidator> businessRuleValidators,
                                    final DateTimeProvider dateTimeProvider) {
+
         // Sort the business rules in some predictable order so they are processed for end-to-end error checking
        Collections.sort(businessRuleValidators, new Comparator<BusinessRuleValidator>(){
             public int compare(BusinessRuleValidator b1, BusinessRuleValidator b2) {
