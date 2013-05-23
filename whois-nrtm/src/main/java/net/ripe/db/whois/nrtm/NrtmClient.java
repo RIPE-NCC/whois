@@ -1,24 +1,30 @@
 package net.ripe.db.whois.nrtm;
 
 
+import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.SerialDao;
+import net.ripe.db.whois.common.dao.jdbc.JdbcSerialDao;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
+import sun.net.ConnectionResetException;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import javax.sql.DataSource;
+import java.io.*;
+import java.net.BindException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.regex.Matcher;
@@ -32,41 +38,54 @@ public class NrtmClient {
 
     private final SourceContext sourceContext;
     private final SerialDao serialDao;
+    private final RpslObjectDao rpslObjectDao;
     private String nrtmHost;
     private int nrtmPort;
+    private static final int MAX_RETRY = 3;
 
     private NrtmClientThread clientThread = null;
 
     @Autowired
-    public NrtmClient(final SourceContext sourceContext, final SerialDao serialDao, @Value("${nrtm.client.host:}") final String nrtmHost, @Value("${nrtm.client.port:-1}") final int nrtmPort) {
+    public NrtmClient(final SourceContext sourceContext, @Qualifier("whoisMasterNrtmClientDataSource") final DataSource datasource,
+                      final DateTimeProvider dateTimeProvider, final RpslObjectDao objectDao,
+                      @Value("${nrtm.client.host:}") final String nrtmHost, @Value("${nrtm.client.port:-1}") final int nrtmPort) {
         this.sourceContext = sourceContext;
-        this.serialDao = serialDao;
+        this.serialDao = new JdbcSerialDao(datasource, dateTimeProvider);
+        this.rpslObjectDao = objectDao;
         this.nrtmHost = nrtmHost;
         this.nrtmPort = nrtmPort;
     }
 
     @PostConstruct
     public void init() {
-        // TODO: check if host & port have been initialised
-        // start(nrtmHost, nrtmPort);
+        if (StringUtils.isNotBlank(nrtmHost) && nrtmPort > 0) {
+            start(nrtmHost, nrtmPort);
+        }
     }
 
     public void start(final String nrtmHost, final int nrtmPort) {
         Validate.notNull(nrtmHost);
+        this.nrtmHost = nrtmHost;
+        this.nrtmPort = nrtmPort;
         Validate.isTrue(nrtmPort > 0);
         Validate.isTrue(clientThread == null);
 
-        clientThread = new NrtmClientThread(nrtmHost, nrtmPort);
+        clientThread = new NrtmClientThread();
         new Thread(clientThread).start();
     }
 
     private final class NrtmClientThread implements Runnable {
-        private final Socket socket;
+        private Socket socket;
         private boolean running;
+        private int retried = 0;
 
-        public NrtmClientThread(final String host, final int port) {
+        public NrtmClientThread() {
+            init();
+        }
+
+        private void init() {
             try {
-                socket = new Socket(host, port);
+                socket = new Socket(nrtmHost, nrtmPort);
                 running = true;
             } catch (Exception e) {
                 throw new IllegalStateException(e);
@@ -76,24 +95,38 @@ public class NrtmClient {
         @Override
         public void run() {
             try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                while (retried <= MAX_RETRY) {
+                    try {
+                        if (!running) {
+                            init();
+                        }
 
-                readHeader(reader);
-                writeMirrorCommand(writer);
-                readMirrorResult(reader);
-                readUpdates(reader);
-            }
-            catch (SocketException e) {
-                if (running) {
-                    // TODO: retry connection on network outage
-                    LOGGER.error("Unexpected network error", e);
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+                        readHeader(reader);
+                        writeMirrorCommand(writer);
+                        readMirrorResult(reader);
+                        readUpdates(reader);
+                        retried = MAX_RETRY;
+                    } catch (ConnectException e) {
+                        retried++;
+                        Thread.sleep(50000);
+                    } catch (BindException e) {
+                        retried++;
+                        Thread.sleep(50000);
+                    } catch (ConnectionResetException e) {
+                        retried++;
+                        Thread.sleep(50000);
+                    } finally {
+                        stop();
+                    }
                 }
-            }
-            catch (IllegalStateException e) {
+            } catch (SocketException e) {
+                LOGGER.error("Unexpected network error", e);
+            } catch (IllegalStateException e) {
                 LOGGER.error("Unexpected response from NRTM server", e);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LOGGER.error("Error in NRTM server connection", e);
             } finally {
                 stop();
@@ -154,7 +187,7 @@ public class NrtmClient {
         }
 
         private void readUpdates(final BufferedReader reader) throws IOException {
-            for (;;) {
+            for (; ; ) {
                 // TODO: first object read from NTRM will be the latest object already in the database
                 readOperationAndSerial(reader);
                 final RpslObject rpslObject = readObject(reader);
@@ -174,14 +207,30 @@ public class NrtmClient {
             readEmptyLine(reader);
         }
 
+        /*
+        Reader.ready() returns true when data can be read without blocking. Period.
+        InputStreams and Readers are blocking. Period.
+        Everything here is working as designed.
+        If you want more concurrency with these APIs you will have to use multiple threads.
+        Or Socket.setSoTimeout() and its near relation in HttpURLConnection.
+         */
         private RpslObject readObject(final BufferedReader reader) throws IOException {
             StringBuilder builder = new StringBuilder();
             String line;
+
             while (((line = reader.readLine()) != null) && (!line.isEmpty())) {     // TODO: readLine() is a blocking operation
                 builder.append(line);
                 builder.append('\n');
             }
             return RpslObject.parse(builder.toString());
+        }
+
+        private RpslObject findStoredObject(final RpslObject rpslObject) {
+            try {
+                return rpslObjectDao.getByKey(rpslObject.getType(), rpslObject.getKey().toString());
+            } catch (final EmptyResultDataAccessException ignored) {
+                return rpslObject;
+            }
         }
     }
 

@@ -6,6 +6,7 @@ import net.ripe.db.whois.nrtm.NrtmClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
 import org.slf4j.Logger;
@@ -38,6 +39,10 @@ public class NrtmClientIntegration extends AbstractNrtmIntegrationBase {
         subject.cleanup();
     }
 
+    @Test
+    public void safd() {
+
+    }
     // %ERROR:402: not authorised to mirror the database from IP address 193.0.20.232
 
     // %ERROR:403: unknown source INVALID
