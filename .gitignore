@@ -9,7 +9,7 @@
 *~
 /src/main/resources/application-dev.properties
 /.checkstyle
-var/
+var*/
 /.idea
 pom.xml.*Backup
 *.iml
