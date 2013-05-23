@@ -17,6 +17,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +32,12 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
     @Autowired
     public UpdateObjectHandlerImpl(final RpslObjectUpdateDao rpslObjectUpdateDao, final List<BusinessRuleValidator> businessRuleValidators,
                                    final DateTimeProvider dateTimeProvider) {
+        // Sort the business rules in some predictable order so they are processed for end-to-end error checking
+       Collections.sort(businessRuleValidators, new Comparator<BusinessRuleValidator>(){
+            public int compare(BusinessRuleValidator b1, BusinessRuleValidator b2) {
+                return b1.getClass().getName().compareToIgnoreCase(b2.getClass().getName());
+            }
+        });
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.dateTimeProvider = dateTimeProvider;
 
