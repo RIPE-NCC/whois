@@ -563,7 +563,7 @@
                 <version>2.14.1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx512m</argLine>
+                    <argLine>-Xmx512m -Ddir.var=var${surefire.forkNumber}</argLine>
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
