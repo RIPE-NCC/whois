@@ -210,6 +210,11 @@ class GrsSourceImporter {
                                 update(importedObject, grsObjectInfo);
                             }
                         }
+
+                        final int nrImported = nrCreated + nrUpdated;
+                        if ((nrImported % 100000 == 0) && (nrImported > 0)) {
+                            logger.info("Imported {} objects", nrImported);
+                        }
                     }
 
                     private void create(final RpslObject importedObject) {
