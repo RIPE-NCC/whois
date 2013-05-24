@@ -17,7 +17,6 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
-import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
@@ -66,7 +65,6 @@ public class WhoisFixture {
     protected MailGateway mailGateway;
     protected MessageDequeue messageDequeue;
     protected DataSource whoisDataSource;
-    protected AttributeSanitizer attributeSanitizer;
     protected DnsGateway dnsGateway;
     protected IpRanges ipRanges;
     protected TestDateTimeProvider testDateTimeProvider;
@@ -110,7 +108,6 @@ public class WhoisFixture {
         mailGateway = applicationContext.getBean(MailGateway.class);
         dnsGateway = applicationContext.getBean(DnsGateway.class);
         messageDequeue = applicationContext.getBean(MessageDequeue.class);
-        attributeSanitizer = applicationContext.getBean(AttributeSanitizer.class);
         whoisDataSource = applicationContext.getBean(SourceAwareDataSource.class);
         ipRanges = applicationContext.getBean(IpRanges.class);
         testDateTimeProvider = applicationContext.getBean(TestDateTimeProvider.class);

@@ -38,18 +38,19 @@ class ResourceTagger {
         this.tagsDao = tagsDao;
     }
 
-    void tagObjects(final GrsSource grsSource, final AuthoritativeResource authoritativeResource) {
+    void tagObjects(final GrsSource grsSource) {
         final Stopwatch stopwatch = new Stopwatch().start();
         try {
             sourceContext.setCurrent(Source.master(grsSource.getSource()));
-            tagObjectsInContext(grsSource, authoritativeResource);
+            tagObjectsInContext(grsSource);
         } finally {
             sourceContext.removeCurrentSource();
             grsSource.getLogger().info("Tagging objects complete in {}", stopwatch.stop());
         }
     }
 
-    private void tagObjectsInContext(final GrsSource grsSource, final AuthoritativeResource authoritativeResource) {
+    private void tagObjectsInContext(final GrsSource grsSource) {
+        final AuthoritativeResource authoritativeResource = grsSource.getAuthoritativeResource();
         final CIString tagType = ciString(String.format("%s_RESOURCE", grsSource.getSource().toUpperCase().replace("-GRS", "")));
         final List<Integer> deletes = Lists.newArrayList();
         final List<Tag> creates = Lists.newArrayList();

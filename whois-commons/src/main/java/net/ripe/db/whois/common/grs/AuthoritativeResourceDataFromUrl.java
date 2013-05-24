@@ -19,7 +19,6 @@ abstract class AuthoritativeResourceDataFromUrl implements AuthoritativeResource
 
     private AuthoritativeResource authoritativeResource;
 
-
     AuthoritativeResourceDataFromUrl(final String resourceDataUrl, final String source, final String downloadDir) {
         this.resourceDataUrl = resourceDataUrl;
         this.source = source;

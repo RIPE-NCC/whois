@@ -40,13 +40,14 @@ public class ResourceTaggerTest {
     public void setUp() throws Exception {
         when(grsSource.getSource()).thenReturn("RIPE-GRS");
         when(grsSource.getLogger()).thenReturn(LoggerFactory.getLogger(ResourceTaggerTest.class));
+        when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
         when(sourceContext.getCurrentSourceConfiguration()).thenReturn(sourceConfiguration);
         when(sourceConfiguration.getJdbcTemplate()).thenReturn(jdbcTemplate);
     }
 
     @Test
     public void tagObjects() {
-        subject.tagObjects(grsSource, authoritativeResource);
+        subject.tagObjects(grsSource);
 
         verify(sourceContext).setCurrent(any(Source.class));
         verify(sourceContext).removeCurrentSource();
@@ -58,7 +59,7 @@ public class ResourceTaggerTest {
         doThrow(SQLException.class).when(tagsDao).updateTags(any(CIString.class), any(List.class), any(List.class));
 
         try {
-            subject.tagObjects(grsSource, authoritativeResource);
+            subject.tagObjects(grsSource);
             fail("Expected exception");
         } catch (Exception ignored) {
         }

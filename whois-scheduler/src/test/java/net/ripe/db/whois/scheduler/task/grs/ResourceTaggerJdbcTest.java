@@ -90,7 +90,7 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
         when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2a01:4f8:191:34f1::/64"))).thenReturn(true);
         when(authoritativeResource.isMaintainedInRirSpace(ObjectType.PERSON, ciString("TP1-TEST"))).thenReturn(true);
 
-        subject.tagObjects(grsSource, authoritativeResource);
+        subject.tagObjects(grsSource);
 
         final List<Tag> tags = tagsDao.getTagsOfType(ciString("TEST_RESOURCE"));
         assertThat(tags, hasSize(3));

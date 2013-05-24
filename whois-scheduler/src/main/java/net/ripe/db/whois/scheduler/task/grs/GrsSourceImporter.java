@@ -65,7 +65,7 @@ class GrsSourceImporter {
             acquireAndUpdateGrsData(grsSource, rebuild, authoritativeResource);
         }
 
-        resourceTagger.tagObjects(grsSource, authoritativeResource);
+        resourceTagger.tagObjects(grsSource);
     }
 
     private void acquireAndUpdateGrsData(final GrsSource grsSource, final boolean rebuild, final AuthoritativeResource authoritativeData) {
