@@ -2,13 +2,14 @@ package net.ripe.db.whois.nrtm;
 
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.dao.jdbc.JdbcSerialDao;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.nrtm.dao.NrtmClientDao;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
@@ -16,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import sun.net.ConnectionResetException;
 
@@ -40,25 +43,27 @@ public class NrtmClient {
 
     private final SourceContext sourceContext;
     private final SerialDao serialDao;
-    private final RpslObjectDao rpslObjectDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
+    private final NrtmClientDao nrtmClientDao;
     private final String nrtmHost;
     private final int nrtmPort;
 
     private NrtmClientThread clientThread = null;
 
+    //TODO make sure this is not run at the same time as "normal" updates
+
     @Autowired
     public NrtmClient(final SourceContext sourceContext,
                       @Qualifier("whoisMasterNrtmClientDataSource") final DataSource datasource,
                       final DateTimeProvider dateTimeProvider,
-                      final RpslObjectDao objectDao,
                       final RpslObjectUpdateDao rpslObjectUpdateDao,
+                      final NrtmClientDao nrtmClientDao,
                       @Value("${nrtm.client.host:}") final String nrtmHost,
                       @Value("${nrtm.client.port:-1}") final int nrtmPort) {
         this.sourceContext = sourceContext;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
+        this.nrtmClientDao = nrtmClientDao;
         this.serialDao = new JdbcSerialDao(datasource, dateTimeProvider);
-        this.rpslObjectDao = objectDao;
         this.nrtmHost = nrtmHost;
         this.nrtmPort = nrtmPort;
     }
@@ -102,7 +107,7 @@ public class NrtmClient {
         }
 
         @Override
-        public void run() {
+        public void run() {  //TODO see intellij warning for this method
             try {
                 while (retried <= MAX_RETRY) {
                     if (!running) {
@@ -132,7 +137,9 @@ public class NrtmClient {
                     }
                 }
             } catch (SocketException e) {
-                LOGGER.error("Unexpected network error", e);
+                if (running) {
+                    LOGGER.error("Unexpected network error", e);
+                }
             } catch (IllegalStateException e) {
                 LOGGER.error("Unexpected response from NRTM server", e);
             } catch (Exception e) {
@@ -149,6 +156,8 @@ public class NrtmClient {
                         try {
                             socket.close();
                         } catch (IOException ignored) {
+                        } finally {
+                            socket = null;
                         }
                     }
                 }
@@ -197,11 +206,37 @@ public class NrtmClient {
 
         private void readUpdates(final BufferedReader reader) throws IOException {
             for (; ; ) {
-                // TODO: first object read from NTRM will be the latest object already in the database
-                readOperationAndSerial(reader);
-                final RpslObject rpslObject = readObject(reader);
-                LOGGER.info("Object: {}", rpslObject.getKey());
+                final OperationSerial operationSerial = readOperationAndSerial(reader);
+                final RpslObject object = readObject(reader);
+                RpslObjectUpdateInfo updateInfo;
+
+                try {
+                    updateInfo = rpslObjectUpdateDao.lookupObject(object.getType(), object.getKey().toString());
+                    LOGGER.info("Object: {}", updateInfo);
+                    if (nrtmClientDao.objectExistsWithSerial(operationSerial.getSerial(), updateInfo.getObjectId())) {
+                        continue;
+                    }
+                } catch (EmptyResultDataAccessException e) {
+                    if (operationSerial.getOperation() == Operation.DELETE) {
+                        break;
+                    }
+                    nrtmClientDao.createObject(object, operationSerial.getSerial());
+                    continue;
+                } catch (DataAccessException e) {
+                    //TODO fatal error - need to recover
+                    throw e;
+                }
+
+                if (operationSerial.getOperation() == Operation.DELETE) {
+                    nrtmClientDao.deleteObject(updateInfo, operationSerial.getSerial());
+                } else {
+                    nrtmClientDao.updateObject(object,
+                            new RpslObjectUpdateInfo(updateInfo.getObjectId(), operationSerial.getSerial(), object.getType(), object.getKey().toString()),
+                            operationSerial.getSerial());
+                }
             }
+
+            stop();
         }
 
         private OperationSerial readOperationAndSerial(final BufferedReader reader) throws IOException {
@@ -217,19 +252,9 @@ public class NrtmClient {
             return new OperationSerial(operation, serial);
         }
 
-        /*
-        Reader.ready() returns true when data can be read without blocking. Period.
-        InputStreams and Readers are blocking. Period.
-        Everything here is working as designed.
-        If you want more concurrency with these APIs you will have to use multiple threads.
-        Or Socket.setSoTimeout() and its near relation in HttpURLConnection.
-         */
         private RpslObject readObject(final BufferedReader reader) throws IOException {
             StringBuilder builder = new StringBuilder();
             String line;
-
-            while (!reader.ready()) {
-            } // TODO: due to readLine being blocking - let this try forever? sleep between tries?
 
             while (((line = reader.readLine()) != null) && (!line.isEmpty())) {
                 builder.append(line);
@@ -240,21 +265,22 @@ public class NrtmClient {
 
         private class OperationSerial {
             private final Operation operation;
-            private final String serial;
+            private final int serial;
 
             private OperationSerial(final Operation operation, final String serial) {
                 this.operation = operation;
-                this.serial = serial;
+                this.serial = Integer.parseInt(serial);
             }
 
             private Operation getOperation() {
                 return operation;
             }
 
-            private String getSerial() {
+            private int getSerial() {
                 return serial;
             }
         }
+
     }
 
     @PreDestroy

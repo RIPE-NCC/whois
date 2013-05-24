@@ -153,15 +153,8 @@ public class JdbcRpslObjectOperations {
     }
 
     public static void deleteFromLastAndUpdateSerials(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final RpslObjectUpdateInfo rpslObjectInfo) {
+        deleteFromLast(dateTimeProvider, jdbcTemplate, rpslObjectInfo);
         int rows = jdbcTemplate.update("" +
-                "UPDATE last SET object = '', timestamp = ?, sequence_id = 0 " +
-                "WHERE object_id = ? AND sequence_id > 0",
-                now(dateTimeProvider), rpslObjectInfo.getObjectId());
-        if (rows != 1) {
-            throw new DataIntegrityViolationException("Rows affected by UPDATE last table is: " + rows);
-        }
-
-        rows = jdbcTemplate.update("" +
                 "INSERT INTO serials (object_id, sequence_id, atlast, operation) " +
                 "VALUES (?, ?, 0, ?)",
                 rpslObjectInfo.getObjectId(), rpslObjectInfo.getSequenceId() + 1, Operation.DELETE.getCode());
@@ -170,7 +163,56 @@ public class JdbcRpslObjectOperations {
         }
     }
 
-    public static int updateLastAndUpdateSerials(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final RpslObjectUpdateInfo rpslObjectInfo, RpslObject object) {
+    public static void deleteFromLastAndSetSerials(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final RpslObjectUpdateInfo rpslObjectInfo, final int serialId) {
+        deleteFromLast(dateTimeProvider, jdbcTemplate, rpslObjectInfo);
+
+        int rows = jdbcTemplate.update("" +
+                "INSERT INTO serials (serial_id, object_id, sequence_id, atlast, operation) " +
+                "VALUES (?, ?, ?, 0, ?)",
+                serialId, rpslObjectInfo.getObjectId(), rpslObjectInfo.getSequenceId() + 1, Operation.DELETE.getCode());
+        if (rows != 1) {
+            throw new DataIntegrityViolationException("Rows affected by INSERT INTO serials table: " + rows);
+        }
+    }
+
+    private static void deleteFromLast(DateTimeProvider dateTimeProvider, JdbcTemplate jdbcTemplate, RpslObjectUpdateInfo rpslObjectInfo) {
+        int rows = jdbcTemplate.update("" +
+                "UPDATE last SET object = '', timestamp = ?, sequence_id = 0 " +
+                "WHERE object_id = ? AND sequence_id > 0",
+                now(dateTimeProvider), rpslObjectInfo.getObjectId());
+        if (rows != 1) {
+            throw new DataIntegrityViolationException("Rows affected by UPDATE last table is: " + rows);
+        }
+    }
+
+    public static int updateLastAndUpdateSerials(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final RpslObjectUpdateInfo rpslObjectInfo, final RpslObject object) {
+        final int newSequenceId = updateLast(dateTimeProvider, jdbcTemplate, rpslObjectInfo, object);
+        int rows = jdbcTemplate.update("INSERT INTO serials "
+                + " (object_id, sequence_id, atlast, operation) "
+                + " VALUES "
+                + " (?, ?, 1, ?)",
+                rpslObjectInfo.getObjectId(), newSequenceId, Operation.UPDATE.getCode());
+
+        if (rows != 1) {
+            throw new DataIntegrityViolationException("Rows affected by INSERT INTO serials table: " + rows);
+        }
+
+        return newSequenceId;
+    }
+
+    public static int updateLastAndSetSerials(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate,
+                                              final RpslObjectUpdateInfo rpslObjectInfo, final RpslObject object, final int serialId) {
+        final int newSequenceId = updateLast(dateTimeProvider, jdbcTemplate, rpslObjectInfo, object);
+        int rows = updateSetSerials(jdbcTemplate, serialId, rpslObjectInfo.getObjectId(), Operation.UPDATE, newSequenceId);
+
+        if (rows != 1) {
+            throw new DataIntegrityViolationException("Rows affected by INSERT INTO serials table: " + rows);
+        }
+
+        return newSequenceId;
+    }
+
+    private static int updateLast(DateTimeProvider dateTimeProvider, JdbcTemplate jdbcTemplate, RpslObjectUpdateInfo rpslObjectInfo, RpslObject object) {
         final int newSequenceId = rpslObjectInfo.getSequenceId() + 1;
         int rows = jdbcTemplate.update("" +
                 "UPDATE last " +
@@ -180,16 +222,6 @@ public class JdbcRpslObjectOperations {
         if (rows != 1) {
             throw new DataIntegrityViolationException("Rows affected by UPDATE last table is: " + rows);
         }
-
-        rows = jdbcTemplate.update("INSERT INTO serials "
-                + " (object_id, sequence_id, atlast, operation) "
-                + " VALUES "
-                + " (?, ?, 1, ?)",
-                rpslObjectInfo.getObjectId(), newSequenceId, Operation.UPDATE.getCode());
-        if (rows != 1) {
-            throw new DataIntegrityViolationException("Rows affected by INSERT INTO serials table: " + rows);
-        }
-
         return newSequenceId;
     }
 
@@ -197,6 +229,36 @@ public class JdbcRpslObjectOperations {
         final Integer objectTypeId = ObjectTypeIds.getId(object.getType());
         final String pkey = object.getKey().toString();
 
+        final int objectId = insertIntoLast(dateTimeProvider, jdbcTemplate, object, objectTypeId, pkey);
+        final int rows = jdbcTemplate.update("INSERT INTO serials "
+                + " (object_id, sequence_id, atlast, operation) "
+                + " VALUES "
+                + " (?, ?, 1, ?)",
+                objectId, 1, Operation.UPDATE.getCode());
+
+        if (rows != 1) {
+            throw new DataIntegrityViolationException("Rows affected by INSERT INTO serials table: " + rows);
+        }
+
+        return new RpslObjectUpdateInfo(objectId, 1, object.getType(), pkey);
+    }
+
+    public static RpslObjectUpdateInfo insertIntoLastAndSetSerials(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final RpslObject object, final int serialId) {
+        final Integer objectTypeId = ObjectTypeIds.getId(object.getType());
+        final String pkey = object.getKey().toString();
+
+        final int objectId = insertIntoLast(dateTimeProvider, jdbcTemplate, object, objectTypeId, pkey);
+
+        int rows = updateSetSerials(jdbcTemplate, serialId, objectId, Operation.UPDATE, 1);
+
+        if (rows != 1) {
+            throw new DataIntegrityViolationException("Rows affected by INSERT INTO serials table: " + rows);
+        }
+
+        return new RpslObjectUpdateInfo(objectId, 1, object.getType(), pkey);
+    }
+
+    private static int insertIntoLast(final DateTimeProvider dateTimeProvider, JdbcTemplate jdbcTemplate, final RpslObject object, final Integer objectTypeId, final String pkey) {
         final int count = jdbcTemplate.queryForInt("" +
                 "SELECT COUNT(*)\n" +
                 "    FROM last\n" +
@@ -210,7 +272,7 @@ public class JdbcRpslObjectOperations {
             throw new IllegalStateException("Object with type: " + objectTypeId + " and pkey: " + pkey + " already exists");
         }
 
-        final int objectId = new SimpleJdbcInsert(jdbcTemplate)
+        return new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("last")
                 .usingColumns("object", "timestamp", "sequence_id", "object_type", "pkey")
                 .usingGeneratedKeyColumns("object_id")
@@ -221,17 +283,14 @@ public class JdbcRpslObjectOperations {
                     put("object_type", objectTypeId);
                     put("pkey", pkey);
                 }}).intValue();
+    }
 
-        int rows = jdbcTemplate.update("INSERT INTO serials "
-                + " (object_id, sequence_id, atlast, operation) "
+    private static int updateSetSerials(final JdbcTemplate jdbcTemplate, final int serialId, final int objectId, final Operation operation, final int sequenceId) {
+        return jdbcTemplate.update("INSERT INTO serials "
+                + " (serial_id, object_id, sequence_id, atlast, operation) "
                 + " VALUES "
-                + " (?, 1, 1, ?)",
-                objectId, Operation.UPDATE.getCode());
-        if (rows != 1) {
-            throw new DataIntegrityViolationException("Rows affected by INSERT INTO serials table: " + rows);
-        }
-
-        return new RpslObjectUpdateInfo(objectId, 1, object.getType(), pkey);
+                + " (?, ?, ?, 1, ?)",
+                serialId, objectId, sequenceId, operation.getCode());
     }
 
     public static int now(final DateTimeProvider dateTimeProvider) {
