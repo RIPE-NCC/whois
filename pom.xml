@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
@@ -34,7 +35,7 @@
         <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
         <sonar.jdbc.driver>com.mysql.jdbc.Driver</sonar.jdbc.driver>
         <sonar.jdbc.username>dbint</sonar.jdbc.username>
-        <sonar.jdbc.password />
+        <sonar.jdbc.password/>
     </properties>
 
     <scm>
@@ -487,6 +488,21 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${basedir}</directory>
+                            <includes>
+                                <include>var*/**</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
@@ -541,7 +557,7 @@
                 <artifactId>gmaven-plugin</artifactId>
                 <version>1.4</version>
                 <configuration>
-                    <source />
+                    <source/>
                     <providerSelection>1.8</providerSelection>
                     <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
                 </configuration>
@@ -703,7 +719,7 @@
             <id>endtoend</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups />
+                <test.groups/>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>**/whois/spec/query/*Spec*.java,**/whois/spec/update/*Spec*.java</test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>
