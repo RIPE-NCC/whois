@@ -19,7 +19,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmQueryHandler.class);
 
-    static final int SECONDS_PER_DAY = 86400;
+    static final int SECONDS_PER_DAY = 60 * 60 * 24;
     static final int HISTORY_AGE_LIMIT = 14 * SECONDS_PER_DAY;
     static final int MAX_PENDING_WRITES = 16;
 
@@ -36,7 +36,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
     private volatile ScheduledFuture<?> scheduledFuture;
 
-    public static final String TERMS_AND_CONDITIONS = "" +
+    static final String TERMS_AND_CONDITIONS = "" +
             "% The RIPE Database is subject to Terms and Conditions.\n" +
             "% See http://www.ripe.net/db/support/db-terms-conditions.pdf";
 

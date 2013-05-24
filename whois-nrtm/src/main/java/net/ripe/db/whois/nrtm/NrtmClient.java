@@ -110,8 +110,8 @@ public class NrtmClient {
                     }
 
                     try {
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                        final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
                         readHeader(reader);
                         writeMirrorCommand(writer);
@@ -157,8 +157,8 @@ public class NrtmClient {
         }
 
         private void readHeader(final BufferedReader reader) throws IOException {
-            readLine(reader, "% The RIPE Database is subject to Terms and Conditions.");
-            readLine(reader, "% See http://www.ripe.net/db/support/db-terms-conditions.pdf");
+            readLine(reader, "%");
+            readLine(reader, "%");
             readEmptyLine(reader);
         }
 
@@ -258,7 +258,7 @@ public class NrtmClient {
     }
 
     @PreDestroy
-    public void cleanup() {
+    public void stop() {
         if (clientThread != null) {
             clientThread.stop();
         }

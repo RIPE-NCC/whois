@@ -271,6 +271,10 @@ public class DatabaseHelper {
         return rpslObjectUpdateDao.deleteObject(objectInfo.getObjectId(), objectInfo.getKey());
     }
 
+    public RpslObject lookupObject(final ObjectType type, final String pkey) {
+        return rpslObjectDao.getByKey(type, pkey);
+    }
+
     public void unban(final String prefix) throws InterruptedException {
         aclTemplate.update("INSERT INTO acl_event (prefix, event_time, daily_limit, event_type) VALUES (?, ?, ?, ?)",
                 prefix,
