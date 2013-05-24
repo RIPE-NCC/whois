@@ -41,17 +41,7 @@ public class NrtmClientIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void safd() {
-
-    }
-    // %ERROR:402: not authorised to mirror the database from IP address 193.0.20.232
-
-    // %ERROR:403: unknown source INVALID
-
-    // %ERROR:401: (Requesting serials older than 14 days will be rejected)
-
-    @Test
-    public void add_person_object() throws Exception {
+    public void add_person() throws Exception {
         final RpslObject mntner = RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: TEST");
@@ -61,20 +51,90 @@ public class NrtmClientIntegration extends AbstractNrtmIntegrationBase {
                 "mnt-by: OWNER-MNT\n" +
                 "source: TEST");
         databaseHelper.addObject(mntner);
+        dummyNrtmServer.addObject(1, mntner);
+        dummyNrtmServer.addObject(2, person);
+        nrtmClient.start("localhost", dummyNrtmServer.getPort());
 
-        dummyNrtmServer.when("-g TEST:3:1-LAST -k",
-                "%START Version: 3 TEST 1-2\n\n" +
-                "ADD 1\n\n" +
-                mntner.toString() + "\n" +
-                "ADD 2\n\n" +
-                person.toString() + "\n");
+        objectExists(ObjectType.PERSON, "OP1-TEST", true);
+    }
+
+    @Test
+    public void add_person_gap_in_serials() throws Exception {
+        final RpslObject mntner = RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                "source: TEST");
+        final RpslObject person = RpslObject.parse(
+                "person: One Person\n" +
+                "nic-hdl: OP1-TEST\n" +
+                "source: TEST");
+        databaseHelper.addObject(mntner);
+        dummyNrtmServer.addObject(1, mntner);
+        dummyNrtmServer.addObject(5, person);
+        nrtmClient.start("localhost", dummyNrtmServer.getPort());
+
+        objectExists(ObjectType.PERSON, "OP1-TEST", true);
+    }
+
+    @Test
+    public void delete_person() throws Exception {
+        final RpslObject mntner = RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                "source: TEST");
+        databaseHelper.addObject(mntner);
+        dummyNrtmServer.addObject(1, mntner);
+        dummyNrtmServer.deleteObject(2, mntner);
+        nrtmClient.start("localhost", dummyNrtmServer.getPort());
+
+        objectExists(ObjectType.PERSON, "OP1-TEST", false);
+    }
+
+    @Test
+    public void update_person() throws Exception {
+        final RpslObject person = RpslObject.parse(
+                "person: One Person\n" +
+                "nic-hdl: OP1-TEST\n" +
+                "source: TEST");
+        databaseHelper.addObject(person);
+        dummyNrtmServer.addObject(1, person);
 
         nrtmClient.start("localhost", dummyNrtmServer.getPort());
 
-        lookupObject(ObjectType.PERSON, "OP1-TEST");
+        final RpslObject update = RpslObject.parse(
+                "person: One Person\n" +
+                "nic-hdl: OP1-TEST\n" +
+                "remarks: updated\n" +
+                "source: TEST");
+        dummyNrtmServer.addObject(2, update);
+
+        objectMatches(update);
     }
 
-    private void lookupObject(final ObjectType type, final String key) {
+    @Test
+    public void unexpected_server_disconnect() throws Exception {
+        final RpslObject mntner = RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                "source: TEST");
+        databaseHelper.addObject(mntner);
+        dummyNrtmServer.addObject(1, mntner);
+
+        nrtmClient.start("localhost", dummyNrtmServer.getPort());
+
+        Thread.sleep(1000);
+        dummyNrtmServer.stop();
+        Thread.sleep(1000);
+
+        final RpslObject person = RpslObject.parse(
+                "person: One Person\n" +
+                "nic-hdl: OP1-TEST\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: TEST");
+        dummyNrtmServer.addObject(2, person);
+        dummyNrtmServer.start();
+
+        objectExists(ObjectType.PERSON, "OP1-TEST", true);
+    }
+
+    private void objectExists(final ObjectType type, final String key, final boolean exists) {
         Awaitility.waitAtMost(Duration.ONE_SECOND).until(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
@@ -85,7 +145,19 @@ public class NrtmClientIntegration extends AbstractNrtmIntegrationBase {
                     return Boolean.FALSE;
                 }
             }
-        }, is(Boolean.TRUE));
+        }, is(exists));
     }
 
+    private void objectMatches(final RpslObject rpslObject) {
+        Awaitility.waitAtMost(Duration.ONE_SECOND).until(new Callable<RpslObject>() {
+            @Override
+            public RpslObject call() throws Exception {
+                try {
+                    return databaseHelper.lookupObject(rpslObject.getType(), rpslObject.getKey().toString());
+                } catch (EmptyResultDataAccessException e) {
+                    return null;
+                }
+            }
+        }, is(rpslObject));
+    }
 }
