@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
@@ -187,6 +188,7 @@ class GrsSourceImporter {
                         return new RpslObjectBase(newAttributes);
                     }
 
+                    @Transactional
                     private void createOrUpdate(final RpslObject importedObject) {
                         final String pkey = importedObject.getKey().toString();
                         final ObjectType type = importedObject.getType();
