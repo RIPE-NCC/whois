@@ -20,6 +20,9 @@ public class RDAPServerTest extends AbstractRestClientTest {
         URL url = new URL("http://localhost:" + rdapPort + "/index.html");
         HttpURLConnection httpConnect = (HttpURLConnection)url.openConnection();
         httpConnect.connect();
+
+        Thread.sleep(150000);
+
         assertEquals(httpConnect.getResponseCode(), 200);
         httpConnect.disconnect();
     }

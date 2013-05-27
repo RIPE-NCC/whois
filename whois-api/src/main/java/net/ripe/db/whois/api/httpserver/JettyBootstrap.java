@@ -45,7 +45,7 @@ public class JettyBootstrap implements ApplicationService {
         this.publicPort = publicPort;
     }
 
-    @Value("${port.api.public:-1}")
+    @Value("${port.api.rdap:-1}")
     public void setRDAPPort(final int rdapPort) {
         this.rdapPort = rdapPort;
     }
