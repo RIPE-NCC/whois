@@ -925,7 +925,7 @@ public class QueryTest {
 
     @Test
     public void grs_search_types_specified_none() {
-        final Query query = Query.parse("--grs 10.0.0.0");
+        final Query query = Query.parse("--resource 10.0.0.0");
         assertThat(query.getObjectTypes(), contains(
                 ObjectType.INETNUM,
                 ObjectType.INET6NUM,
@@ -937,19 +937,19 @@ public class QueryTest {
 
     @Test
     public void grs_search_types_specified_single() {
-        final Query query = Query.parse("--grs -Tinetnum 10.0.0.0");
+        final Query query = Query.parse("--resource -Tinetnum 10.0.0.0");
         assertThat(query.getObjectTypes(), contains(ObjectType.INETNUM));
     }
 
     @Test
     public void grs_search_types_specified_non_resource() {
-        final Query query = Query.parse("--grs -Tinetnum,mntner 10.0.0.0");
+        final Query query = Query.parse("--resource -Tinetnum,mntner 10.0.0.0");
         assertThat(query.getObjectTypes(), contains(ObjectType.INETNUM));
     }
 
     @Test
     public void grs_enables_all_sources() {
-        final Query query = Query.parse("--grs 10.0.0.0");
+        final Query query = Query.parse("--resource 10.0.0.0");
         assertThat(query.isAllSources(), is(true));
     }
 }

@@ -121,7 +121,7 @@ public enum QueryFlag {
                     "Specifies which sources and in which order are to be looked up when performing a query.")
             .requiresArgument(String.class)),
 
-    GRS(new Builder("grs")
+    RESOURCE(new Builder("resource")
             .describedAs("Search all sources for resources and returns the authoritative one. Placeholders are omitted.")),
 
     /* -------------------------------------------------------------------------------------------------------------- */

@@ -189,7 +189,7 @@ public final class Query {
     }
 
     public boolean isAllSources() {
-        return hasOption(QueryFlag.ALL_SOURCES) || hasOption(QueryFlag.GRS);
+        return hasOption(QueryFlag.ALL_SOURCES) || hasOption(QueryFlag.RESOURCE);
     }
 
     public boolean isLookupInBothDirections() {
@@ -472,7 +472,7 @@ public final class Query {
             response.remove(ObjectType.ROLE);
         }
 
-        if (hasOption(QueryFlag.GRS)) {
+        if (hasOption(QueryFlag.RESOURCE)) {
             response.retainAll(GRS_LIMIT_TYPES);
         }
 
