@@ -39,7 +39,6 @@ public class WhoisServer {
 
         final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("applicationContext-whois.xml");
 
-
         final WhoisServer whoisServer = applicationContext.getBean(WhoisServer.class);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

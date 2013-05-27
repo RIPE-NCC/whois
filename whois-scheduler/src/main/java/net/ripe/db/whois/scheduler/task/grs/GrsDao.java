@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.CheckForNull;
 import java.sql.ResultSet;
@@ -131,6 +132,7 @@ class GrsDao {
         return new UpdateResult(rpslObjectInfo, missingReferences);
     }
 
+    @Transactional
     Set<CIString> updateIndexes(final int objectId) {
         ensureInitialized();
         final GrsObjectInfo grsObjectInfo = get(objectId);
