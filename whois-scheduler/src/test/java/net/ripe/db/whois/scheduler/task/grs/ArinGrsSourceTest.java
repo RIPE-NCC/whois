@@ -1,7 +1,7 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.grs.ArinResourceData;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.jdbc.DataSourceFactory;
 import net.ripe.db.whois.common.rpsl.RpslObjectBase;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -22,7 +22,8 @@ public class ArinGrsSourceTest {
     @Mock SourceContext sourceContext;
     @Mock DataSourceFactory dataSourceFactory;
     @Mock DateTimeProvider dateTimeProvider;
-    @Mock ArinResourceData arinResourceData;
+    @Mock AuthoritativeResourceData authoritativeResourceData;
+
 
     ArinGrsSource subject;
     CaptureInputObjectHandler objectHandler;
@@ -30,7 +31,7 @@ public class ArinGrsSourceTest {
     @Before
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new ArinGrsSource("ARIN-GRS", sourceContext, dateTimeProvider, arinResourceData);
+        subject = new ArinGrsSource("ARIN-GRS", sourceContext, dateTimeProvider, authoritativeResourceData);
         subject.setZipEntryName("arin_db.txt");
     }
 

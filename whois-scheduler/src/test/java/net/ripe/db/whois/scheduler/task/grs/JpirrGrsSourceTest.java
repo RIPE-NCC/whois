@@ -2,7 +2,7 @@ package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.grs.JpirrResourceData;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertThat;
 public class JpirrGrsSourceTest {
     @Mock SourceContext sourceContext;
     @Mock DateTimeProvider dateTimeProvider;
-    @Mock JpirrResourceData jpirrResourceData;
+    @Mock AuthoritativeResourceData authoritativeResourceData;
 
     JpirrGrsSource subject;
     CaptureInputObjectHandler objectHandler;
@@ -29,7 +29,7 @@ public class JpirrGrsSourceTest {
     @Before
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new JpirrGrsSource("JPIRR-GRS", sourceContext, dateTimeProvider, jpirrResourceData);
+        subject = new JpirrGrsSource("JPIRR-GRS", sourceContext, dateTimeProvider, authoritativeResourceData);
     }
 
     @Test

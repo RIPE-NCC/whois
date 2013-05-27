@@ -15,12 +15,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
+
 abstract class GrsSource implements InitializingBean {
     final String source;
     final SourceContext sourceContext;
     final DateTimeProvider dateTimeProvider;
     final Logger logger;
-    final AuthoritativeResource authoritativeResource;
+    final AuthoritativeResourceData authoritativeResourceData;
 
     private GrsDao grsDao;
 
@@ -29,7 +31,7 @@ abstract class GrsSource implements InitializingBean {
         this.sourceContext = sourceContext;
         this.dateTimeProvider = dateTimeProvider;
         this.logger = LoggerFactory.getLogger(String.format("%s.%s", GrsSource.class.getName(), source));
-        this.authoritativeResource = authoritativeResourceData.getAuthoritativeResource();
+        this.authoritativeResourceData = authoritativeResourceData;
     }
 
     @Override
@@ -63,7 +65,7 @@ abstract class GrsSource implements InitializingBean {
     }
 
     AuthoritativeResource getAuthoritativeResource() {
-        return authoritativeResource;
+        return authoritativeResourceData.getAuthoritativeResource(ciString(source));
     }
 
     void handleLines(final BufferedReader reader, final LineHandler lineHandler) throws IOException {

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.grs.RipeResourceData;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +17,8 @@ public class RipeGrsSource extends GrsSource {
             @Value("${grs.import.ripe.source:}") final String source,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider,
-            final RipeResourceData ripeResourceData) {
-        super(source, sourceContext, dateTimeProvider, ripeResourceData);
+            final AuthoritativeResourceData authoritativeResourceData) {
+        super(source, sourceContext, dateTimeProvider, authoritativeResourceData);
     }
 
     @Override

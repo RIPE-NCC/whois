@@ -10,7 +10,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Ipv6Resource;
-import net.ripe.db.whois.common.grs.LacnicResourceData;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -52,8 +52,8 @@ class LacnicGrsSource extends GrsSource {
             @Value("${grs.import.lacnic.source:}") final String source,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider,
-            final LacnicResourceData lacnicResourceData) {
-        super(source, sourceContext, dateTimeProvider, lacnicResourceData);
+            final AuthoritativeResourceData authoritativeResourceData) {
+        super(source, sourceContext, dateTimeProvider, authoritativeResourceData);
     }
 
     @Override

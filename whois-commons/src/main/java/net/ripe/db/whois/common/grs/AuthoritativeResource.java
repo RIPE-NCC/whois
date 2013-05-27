@@ -43,7 +43,7 @@ public class AuthoritativeResource {
         try {
             return loadFromScanner(logger, name, new Scanner(file));
         } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException("File not found", e);
+            throw new IllegalArgumentException(String.format("File not found: %s", file.getAbsolutePath()), e);
         }
     }
 

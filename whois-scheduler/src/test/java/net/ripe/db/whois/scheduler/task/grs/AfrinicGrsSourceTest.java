@@ -1,7 +1,7 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.grs.AfrinicResourceData;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
 public class AfrinicGrsSourceTest {
     @Mock SourceContext sourceContext;
     @Mock DateTimeProvider dateTimeProvider;
-    @Mock AfrinicResourceData afrinicResourceData;
+    @Mock AuthoritativeResourceData authoritativeResourceData;
 
     CaptureInputObjectHandler objectHandler;
     AfrinicGrsSource subject;
@@ -26,7 +26,7 @@ public class AfrinicGrsSourceTest {
     @Before
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new AfrinicGrsSource("AFRINIC-GRS", sourceContext, dateTimeProvider, afrinicResourceData);
+        subject = new AfrinicGrsSource("AFRINIC-GRS", sourceContext, dateTimeProvider, authoritativeResourceData);
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.TagsDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
@@ -25,6 +26,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,7 +47,7 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
         when(authoritativeResource.getResourceTypes()).thenReturn(Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM));
 
         authoritativeResourceData = mock(AuthoritativeResourceData.class);
-        when(authoritativeResourceData.getAuthoritativeResource()).thenReturn(authoritativeResource);
+        when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
 
         grsSource = new GrsSource("TEST-GRS", sourceContext, dateTimeProvider, authoritativeResourceData) {
             @Override

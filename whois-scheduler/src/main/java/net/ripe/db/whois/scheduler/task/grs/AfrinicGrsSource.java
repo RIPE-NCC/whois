@@ -4,7 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.grs.AfrinicResourceData;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.io.IOUtils;
@@ -32,8 +32,8 @@ class AfrinicGrsSource extends GrsSource {
             @Value("${grs.import.afrinic.source:}") final String source,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider,
-            final AfrinicResourceData afrinicResourceData) {
-        super(source, sourceContext, dateTimeProvider, afrinicResourceData);
+            final AuthoritativeResourceData authoritativeResourceData) {
+        super(source, sourceContext, dateTimeProvider, authoritativeResourceData);
     }
 
     @Override

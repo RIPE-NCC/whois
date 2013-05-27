@@ -1,5 +1,7 @@
 package net.ripe.db.whois.common.domain;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 import javax.annotation.concurrent.Immutable;
@@ -25,6 +27,15 @@ public class CIString implements Comparable<CIString>, CharSequence {
         }
 
         return result;
+    }
+
+    public static Set<CIString> ciSet(final Iterable<String> values) {
+        return Sets.newHashSet(Iterables.transform(values, new Function<String, CIString>() {
+            @Override
+            public CIString apply(final String input) {
+                return CIString.ciString(input);
+            }
+        }));
     }
 
     private CIString(final String value) {
@@ -82,6 +93,7 @@ public class CIString implements Comparable<CIString>, CharSequence {
     public boolean startsWith(final CIString value) {
         return lcValue.startsWith(value.lcValue);
     }
+
     public boolean contains(final CIString value) {
         return lcValue.contains(value.lcValue);
     }

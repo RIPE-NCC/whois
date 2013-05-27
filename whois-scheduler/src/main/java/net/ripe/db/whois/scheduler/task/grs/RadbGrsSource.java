@@ -2,7 +2,7 @@ package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.grs.RadbResourceData;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.io.IOUtils;
@@ -29,8 +29,8 @@ class RadbGrsSource extends GrsSource {
             @Value("${grs.import.radb.source:}") final String source,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider,
-            final RadbResourceData radbResourceData) {
-        super(source, sourceContext, dateTimeProvider, radbResourceData);
+            final AuthoritativeResourceData authoritativeResourceData) {
+        super(source, sourceContext, dateTimeProvider, authoritativeResourceData);
     }
 
     @Override
