@@ -30,7 +30,7 @@ public class CIString implements Comparable<CIString>, CharSequence {
     }
 
     public static Set<CIString> ciSet(final Iterable<String> values) {
-        return Sets.newHashSet(Iterables.transform(values, new Function<String, CIString>() {
+        return Sets.newLinkedHashSet(Iterables.transform(values, new Function<String, CIString>() {
             @Override
             public CIString apply(final String input) {
                 return CIString.ciString(input);

@@ -25,18 +25,16 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
 public class AuthoritativeResource {
-    private static final Object PRESENT = new Object();
-
     private static final Set<ObjectType> RESOURCE_TYPES = Sets.newEnumSet(Lists.newArrayList(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM), ObjectType.class);
 
     private final Set<CIString> autNums;
-    private final IntervalMap<Ipv4Resource, Object> inetRanges;
+    private final IntervalMap<Ipv4Resource, Ipv4Resource> inetRanges;
     private final int nrInetRanges;
-    private final IntervalMap<Ipv6Resource, Object> inet6Ranges;
+    private final IntervalMap<Ipv6Resource, Ipv6Resource> inet6Ranges;
     private final int nrInet6Ranges;
 
     public static AuthoritativeResource unknown(final Logger logger) {
-        return new AuthoritativeResource(logger, Collections.<CIString>emptySet(), new NestedIntervalMap<Ipv4Resource, Object>(), new NestedIntervalMap<Ipv6Resource, Object>());
+        return new AuthoritativeResource(logger, Collections.<CIString>emptySet(), new NestedIntervalMap<Ipv4Resource, Ipv4Resource>(), new NestedIntervalMap<Ipv6Resource, Ipv6Resource>());
     }
 
     public static AuthoritativeResource loadFromFile(final Logger logger, final String name, final File file) {
@@ -63,8 +61,8 @@ public class AuthoritativeResource {
 
         return new Callable<AuthoritativeResource>() {
             final Set<CIString> autNums = Sets.newHashSet();
-            final IntervalMap<Ipv4Resource, Object> inetnums = new NestedIntervalMap<Ipv4Resource, Object>();
-            final IntervalMap<Ipv6Resource, Object> inet6nums = new NestedIntervalMap<Ipv6Resource, Object>();
+            final IntervalMap<Ipv4Resource, Ipv4Resource> inetnums = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>();
+            final IntervalMap<Ipv6Resource, Ipv6Resource> inet6nums = new NestedIntervalMap<Ipv6Resource, Ipv6Resource>();
 
             @Override
             public AuthoritativeResource call() {
@@ -134,17 +132,17 @@ public class AuthoritativeResource {
                 final long begin = Ipv4Resource.parse(start).begin();
                 final long end = begin + (Long.parseLong(value) - 1);
                 final Ipv4Resource ipv4Resource = new Ipv4Resource(begin, end);
-                inetnums.put(ipv4Resource, PRESENT);
+                inetnums.put(ipv4Resource, ipv4Resource);
             }
 
             private void createIpv6Resource(final String start, final String value) {
                 final Ipv6Resource ipv6Resource = Ipv6Resource.parse(String.format("%s/%s", start, value));
-                inet6nums.put(ipv6Resource, PRESENT);
+                inet6nums.put(ipv6Resource, ipv6Resource);
             }
         }.call();
     }
 
-    private AuthoritativeResource(final Logger logger, final Set<CIString> autNums, final IntervalMap<Ipv4Resource, Object> inetRanges, final IntervalMap<Ipv6Resource, Object> inet6Ranges) {
+    private AuthoritativeResource(final Logger logger, final Set<CIString> autNums, final IntervalMap<Ipv4Resource, Ipv4Resource> inetRanges, final IntervalMap<Ipv6Resource, Ipv6Resource> inet6Ranges) {
         this.autNums = autNums;
         this.inetRanges = inetRanges;
         this.inet6Ranges = inet6Ranges;
@@ -210,5 +208,17 @@ public class AuthoritativeResource {
 
     public Set<ObjectType> getResourceTypes() {
         return RESOURCE_TYPES;
+    }
+
+    Set<CIString> getAutNums() {
+        return autNums;
+    }
+
+    IntervalMap<Ipv4Resource, Ipv4Resource> getInetRanges() {
+        return inetRanges;
+    }
+
+    IntervalMap<Ipv6Resource, Ipv6Resource> getInet6Ranges() {
+        return inet6Ranges;
     }
 }
