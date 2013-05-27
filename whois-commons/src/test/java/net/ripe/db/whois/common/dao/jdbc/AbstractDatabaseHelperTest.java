@@ -45,11 +45,6 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
         System.setProperty("mail.dequeue.interval", "10");
         System.setProperty("application.version", "0.1-TEST");
         System.setProperty("grs.sources.dummify", "TEST-GRS");
-
-        // sanity check
-        if (System.getProperty("dir.var") == null) {
-            throw new IllegalStateException("System property 'dir.var' not set -- surefire/failsafe error!");
-        }
     }
 
     @Before
