@@ -650,7 +650,7 @@
                     <target>${compiler.version}</target>
                     <Xlint>ignore</Xlint>
                     <complianceLevel>${compiler.version}</complianceLevel>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                     <verbose>false</verbose>
                     <aspectLibraries>
                         <aspectLibrary>
