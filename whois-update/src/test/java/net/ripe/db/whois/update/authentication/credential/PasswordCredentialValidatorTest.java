@@ -37,6 +37,14 @@ public class PasswordCredentialValidatorTest {
         assertThat(authenticate("C'était", "MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0"), is(false));
         assertThat(authenticate("password", "MD5-PW $1$ID$LseZOi4AIPMb6gXOp5QpQ0"), is(true));
 
+        assertThat(authenticate("password", "CRYPT-PW apGl30xzHaZxE"), is(false));
+        subject.setCryptAuthenticationEnabled(true);
+        assertThat(authenticate("password", "CRYPT-PW apGl30xzHaZxE"), is(true));
+        assertThat(authenticate("Password", "CRYPT-PW apGl30xzHaZxE"), is(false));
+        assertThat(authenticate("password", "CRYPT-PW bpGl30xzHaZxE"), is(false));
+        assertThat(authenticate("C'était", "CRYPT-PW apGl30xzHaZxE"), is(false));
+        assertThat(authenticate("", "CRYPT-PW apGl30xzHaZxE"), is(false));
+
         assertThat(authenticate("", ""), is(false));
     }
 
