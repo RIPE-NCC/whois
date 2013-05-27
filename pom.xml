@@ -403,6 +403,12 @@
             <version>${spring.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>persistence-api</artifactId>
+            <version>1.0.2</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- common test dependencies -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
@@ -627,7 +633,8 @@
                 <configuration>
                     <finalName>${project.artifactId}-${project.version}</finalName>
                     <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <mainClass>${whois.main}</mainClass>
                         </transformer>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
@@ -720,7 +727,8 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups />
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/whois/spec/query/*Spec*.java,**/whois/spec/update/*Spec*.java</test.files.integration>
+                <test.files.integration>**/whois/spec/query/*Spec*.java,**/whois/spec/update/*Spec*.java
+                </test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
