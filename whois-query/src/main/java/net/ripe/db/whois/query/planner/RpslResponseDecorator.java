@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
+import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,7 @@ public class RpslResponseDecorator {
     private final ToBriefFunction toBriefFunction;
     private final DummifyFunction dummifyFunction;
     private final FilterTagsDecorator filterTagsDecorator;
+    private final FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
     private final String source;
 
@@ -56,7 +58,8 @@ public class RpslResponseDecorator {
                                  final SourceContext sourceContext,
                                  final AbuseCFinder abuseCFinder,
                                  final DummifyFunction dummifyFunction,
-                                 FilterTagsDecorator filterTagsDecorator,
+                                 final FilterTagsDecorator filterTagsDecorator,
+                                 final FilterPlaceholdersDecorator filterPlaceholdersDecorator,
                                  final @Value("${whois.source}") String source,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
@@ -64,6 +67,7 @@ public class RpslResponseDecorator {
         this.sourceContext = sourceContext;
         this.dummifyFunction = dummifyFunction;
         this.filterTagsDecorator = filterTagsDecorator;
+        this.filterPlaceholdersDecorator = filterPlaceholdersDecorator;
         this.abuseCFunction = new AbuseCFunction(abuseCFinder);
         this.toBriefFunction = new ToBriefFunction(abuseCFinder);
         this.decorators = Sets.newHashSet(decorators);
@@ -71,6 +75,7 @@ public class RpslResponseDecorator {
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
+        result = filterPlaceholdersDecorator.decorate(query, result);
         result = dummify(result);
 
         result = groupRelatedObjects(query, result);
@@ -81,6 +86,7 @@ public class RpslResponseDecorator {
         result = filterEmail(query, result);
         result = filterAuth(result);
 
+        // TODO: [AH] do this when pushing response to the wire
         final boolean noResults = !Iterables.any(result, new Predicate<ResponseObject>() {
             @Override
             public boolean apply(final ResponseObject input) {

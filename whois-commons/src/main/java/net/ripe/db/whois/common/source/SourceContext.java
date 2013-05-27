@@ -32,8 +32,8 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 public class SourceContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(SourceContext.class);
 
-    private final Source masterSource;
-    private final Source slaveSource;
+    private final Source mainMasterSource;
+    private final Source mainSlaveSource;
 
     private final Map<Source, SourceConfiguration> sourceConfigurations = Maps.newLinkedHashMap();
 
@@ -60,14 +60,14 @@ public class SourceContext {
             final DataSourceFactory dataSourceFactory) {
 
         final CIString mainSourceName = ciString(mainSourceNameString);
-        this.masterSource = Source.master(mainSourceName);
-        this.slaveSource = Source.slave(mainSourceName);
+        this.mainMasterSource = Source.master(mainSourceName);
+        this.mainSlaveSource = Source.slave(mainSourceName);
 
         final Set<CIString> grsSources = Sets.newLinkedHashSet();
         final Map<CIString, CIString> aliases = Maps.newLinkedHashMap();
 
-        sourceConfigurations.put(masterSource, new SourceConfiguration(masterSource, whoisMasterDataSource));
-        sourceConfigurations.put(slaveSource, new SourceConfiguration(slaveSource, whoisSlaveDataSource));
+        sourceConfigurations.put(mainMasterSource, new SourceConfiguration(mainMasterSource, whoisMasterDataSource));
+        sourceConfigurations.put(mainSlaveSource, new SourceConfiguration(mainSlaveSource, whoisSlaveDataSource));
 
         final Iterable<CIString> grsSourceNameIterable = Iterables.transform(Splitter.on(',').split(grsSourceNames), new Function<String, CIString>() {
             @Nullable
@@ -90,7 +90,7 @@ public class SourceContext {
 
             if (grsSourceName.contains(mainSourceName)) {
                 LOGGER.info("Delegating source {} to {}", grsSourceName, mainSourceName);
-                aliases.put(grsSourceName, slaveSource.getName());
+                aliases.put(grsSourceName, mainSlaveSource.getName());
                 sourceConfigurations.put(grsMasterSource, new SourceConfiguration(grsMasterSource, whoisMasterDataSource));
                 sourceConfigurations.put(grsSlaveSource, new SourceConfiguration(grsSlaveSource, whoisSlaveDataSource));
             } else {
@@ -125,7 +125,7 @@ public class SourceContext {
     public SourceConfiguration getCurrentSourceConfiguration() {
         final SourceConfiguration sourceConfiguration = current.get();
         if (sourceConfiguration == null) {
-            return sourceConfigurations.get(masterSource);
+            return sourceConfigurations.get(mainMasterSource);
         }
 
         return sourceConfiguration;
@@ -169,7 +169,7 @@ public class SourceContext {
     }
 
     public void setCurrentSourceToWhoisMaster() {
-        setCurrent(masterSource);
+        setCurrent(mainMasterSource);
     }
 
     public void setCurrent(final Source source) {
@@ -182,7 +182,7 @@ public class SourceContext {
     }
 
     public Source getWhoisSlaveSource() {
-        return slaveSource;
+        return mainSlaveSource;
     }
 
     public Source getCurrentSource() {
@@ -195,6 +195,10 @@ public class SourceContext {
 
     public boolean isAcl() {
         return !grsSourceNames.contains(getCurrentSource().getName());
+    }
+
+    public boolean isVirtual() {
+        return aliases.containsKey(getCurrentSource().getName());
     }
 
     public boolean isDummificationRequired() {
