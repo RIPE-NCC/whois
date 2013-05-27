@@ -27,7 +27,7 @@ class GrsSourceImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GrsSourceImporter.class);
 
     private static final Joiner LINE_JOINER = Joiner.on("");
-    private static final int LOG_EVERY_NR_HANDLED = 50000;
+    private static final int LOG_EVERY_NR_HANDLED = 100000;
 
     private final CIString mainSource;
     private final AttributeSanitizer sanitizer;
@@ -76,7 +76,6 @@ class GrsSourceImporter {
             private int nrUpdated;
             private int nrDeleted;
             private int nrIgnored;
-            private int nrHandled;
 
             private Set<Integer> currentObjectIds;
             private Set<Integer> incompletelyIndexedObjectIds = Sets.newHashSet();
@@ -149,11 +148,6 @@ class GrsSourceImporter {
                                 createOrUpdate(rpslObject);
                             }
                         }
-
-                        nrHandled++;
-                        if (nrHandled % LOG_EVERY_NR_HANDLED == 0) {
-                            logger.debug("Handled {} objects", nrHandled);
-                        }
                     }
 
                     private RpslObjectBase filterObject(final RpslObjectBase rpslObject) {
@@ -212,7 +206,7 @@ class GrsSourceImporter {
                         }
 
                         final int nrImported = nrCreated + nrUpdated;
-                        if ((nrImported % 100000 == 0) && (nrImported > 0)) {
+                        if ((nrImported % LOG_EVERY_NR_HANDLED == 0) && (nrImported > 0)) {
                             logger.info("Imported {} objects", nrImported);
                         }
                     }
