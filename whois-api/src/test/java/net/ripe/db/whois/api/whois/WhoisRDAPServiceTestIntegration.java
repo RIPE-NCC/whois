@@ -111,8 +111,4 @@ public class WhoisRDAPServiceTestIntegration extends AbstractRestClientTest {
     protected WebResource createResource(final Audience audience, final String path) {
         return client.resource(String.format("http://localhost:%s/%s", getPort(audience), path));
     }
-
-    private String getUrl(final String command) {
-        return "http://localhost:" + getPort(AUDIENCE) + "/whois/" + command;
-    }
 }

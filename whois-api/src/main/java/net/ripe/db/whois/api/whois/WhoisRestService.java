@@ -13,14 +13,26 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.domain.*;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Credentials;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.Operation;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.Paragraph;
+import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateRequest;
+import net.ripe.db.whois.update.domain.UpdateResponse;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
@@ -30,17 +42,26 @@ import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetAddress;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,33 +71,14 @@ import static net.ripe.db.whois.query.query.QueryFlag.*;
 @ExternallyManagedLifecycle
 @Component
 @Path("/")
-public class WhoisRestService {
-    private static final int STATUS_TOO_MANY_REQUESTS = 429;
-
-    private static final String TEXT_JSON = "text/json";
-    private static final String TEXT_XML = "text/xml";
-
-    private final DateTimeProvider dateTimeProvider;
-    private final UpdateRequestHandler updateRequestHandler;
-    private final LoggerContext loggerContext;
-    private final RpslObjectDao rpslObjectDao;
-    private final RpslObjectUpdateDao rpslObjectUpdateDao;
-    private final SourceContext sourceContext;
-    private final QueryHandler queryHandler;
-
+public class WhoisRestService  extends WhoisService {
     private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
     private static final Joiner JOINER = Joiner.on(",");
     private static final Set<QueryFlag> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(TEMPLATE, VERBOSE, CLIENT, NO_GROUPING, SOURCES, NO_TAG_INFO, SHOW_TAG_INFO, ALL_SOURCES, LIST_SOURCES_OR_VERSION, LIST_SOURCES, DIFF_VERSIONS, LIST_VERSIONS, SHOW_VERSION, PERSISTENT_CONNECTION);
 
     @Autowired
     public WhoisRestService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final RpslObjectUpdateDao rpslObjectUpdateDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
-        this.dateTimeProvider = dateTimeProvider;
-        this.updateRequestHandler = updateRequestHandler;
-        this.loggerContext = loggerContext;
-        this.rpslObjectDao = rpslObjectDao;
-        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
-        this.sourceContext = sourceContext;
-        this.queryHandler = queryHandler;
+        super(dateTimeProvider, updateRequestHandler,loggerContext, rpslObjectDao, rpslObjectUpdateDao, sourceContext, queryHandler);
     }
 
     /**
@@ -267,158 +269,6 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key) {
         return lookupObject(request, source, objectType, key, true);
-    }
-
-    // TODO: [AH] hierarchical lookups return the encompassing range if no direct hit
-    protected Response lookupObject(
-            final HttpServletRequest request,
-            final String source,
-            final String objectTypeString,
-            final String key,
-            final boolean isGrs) {
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s",
-                QueryFlag.NO_GROUPING.getLongFlag(),
-                QueryFlag.NO_REFERENCED.getLongFlag(),
-                QueryFlag.SOURCES.getLongFlag(),
-                source,
-                QueryFlag.SELECT_TYPES.getLongFlag(),
-                objectTypeString,
-                QueryFlag.SHOW_TAG_INFO.getLongFlag(),
-                key));
-
-        checkForInvalidSource(source, isGrs);
-
-        return handleQuery(query, source, key, request, null);
-    }
-
-    private Response handleQuery(final Query query, final String source, final String key, final HttpServletRequest request, @Nullable final Parameters parameters) {
-        final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
-        final int contextId = System.identityHashCode(Thread.currentThread());
-
-        if (query.isVersionList() || query.isObjectVersion()) {
-            return handleVersionQuery(query, source, key, remoteAddress, contextId);
-        }
-
-        return handleQueryAndStreamResponse(query, request, remoteAddress, contextId, parameters);
-    }
-
-    // TODO: [AH] refactor this spaghetti
-    private Response handleVersionQuery(final Query query, final String source, final String key, final InetAddress remoteAddress, final int contextId) {
-        final ApiResponseHandlerVersions apiResponseHandlerVersions = new ApiResponseHandlerVersions();
-        queryHandler.streamResults(query, remoteAddress, contextId, apiResponseHandlerVersions);
-
-        final VersionWithRpslResponseObject versionResponseObject = apiResponseHandlerVersions.getVersionWithRpslResponseObject();
-        final List<DeletedVersionResponseObject> deleted = apiResponseHandlerVersions.getDeletedObjects();
-        final List<VersionResponseObject> versions = apiResponseHandlerVersions.getVersionObjects();
-
-        if (versionResponseObject == null && versions.isEmpty()) {
-            if (deleted.isEmpty() || query.isObjectVersion()) {
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
-            }
-        }
-
-        final WhoisResources whoisResources = new WhoisResources();
-
-        if (versionResponseObject != null) {
-            final WhoisObject whoisObject = WhoisObjectMapper.map(versionResponseObject.getRpslObject());
-            whoisObject.setVersion(versionResponseObject.getVersion());
-            whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
-        } else {
-            final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
-            final WhoisVersions whoisVersions = new WhoisVersions(source, type, key, WhoisObjectMapper.mapVersions(deleted, versions));
-            whoisResources.setVersions(whoisVersions);
-        }
-
-        return Response.ok(whoisResources).build();
-    }
-
-    private Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
-        final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
-
-        return Response.ok(new StreamingOutput() {
-            private boolean found;
-
-            @Override
-            public void write(final OutputStream output) throws IOException {
-                streamingMarshal.open(output);
-                streamingMarshal.start("whois-resources");
-
-                if (parameters != null) {
-                    streamingMarshal.write("parameters", parameters);
-                }
-
-                streamingMarshal.start("objects");
-
-                // TODO [AK] Crude way to handle tags, but working
-                final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
-                final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
-
-                try {
-                    queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
-
-                        @Override
-                        public void handle(final ResponseObject responseObject) {
-                            if (responseObject instanceof TagResponseObject) {
-                                tagResponseObjects.add((TagResponseObject) responseObject);
-                            } else if (responseObject instanceof RpslObject) {
-                                found = true;
-                                streamObject(rpslObjectQueue.poll(), tagResponseObjects);
-                                rpslObjectQueue.add((RpslObject) responseObject);
-                            }
-
-                            // TODO [AK] Handle related messages
-                        }
-                    });
-
-                    streamObject(rpslObjectQueue.poll(), tagResponseObjects);
-
-                    if (!found) {
-                        throw new WebApplicationException(Response.Status.NOT_FOUND);
-                    }
-                } catch (QueryException e) {
-                    if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                        throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
-                    } else {
-                        throw e;
-                    }
-                }
-
-                streamingMarshal.close();
-            }
-
-            private void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
-                if (rpslObject == null) {
-                    return;
-                }
-
-                final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject);
-
-                // TODO [AK] Fix mapper API
-                final List<WhoisTag> tags = WhoisObjectMapper.mapTags(tagResponseObjects).getTags();
-                whoisObject.setTags(tags);
-
-                streamingMarshal.write("object", whoisObject);
-                tagResponseObjects.clear();
-            }
-        }).build();
-    }
-
-    private StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
-        final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
-        for (final String accept : Splitter.on(',').split(acceptHeader)) {
-            try {
-                final MediaType mediaType = MediaType.valueOf(accept);
-                final String subtype = mediaType.getSubtype().toLowerCase();
-                if (subtype.equals("json") || subtype.endsWith("+json")) {
-                    return new StreamingMarshalJson();
-                } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
-                    return new StreamingMarshalXml();
-                }
-            } catch (IllegalArgumentException ignored) {
-            }
-        }
-
-        return new StreamingMarshalXml();
     }
 
     /**
