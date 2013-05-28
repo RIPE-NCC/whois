@@ -1,6 +1,8 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.rpsl.*;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,14 +28,13 @@ public class GrsSourceImporterTest {
 
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
-    @Mock GrsDownloader grsDownloader;
     @Mock AttributeSanitizer sanitizer;
     @Mock ResourceTagger resourceTagger;
     @Mock GrsSource grsSource;
     @Mock GrsDao grsDao;
     @Mock GrsDao.UpdateResult updateResultCreate;
     @Mock GrsDao.UpdateResult updateResultUpdate;
-    @Mock ResourceData resourceData;
+    @Mock AuthoritativeResource authoritativeResource;
 
     Logger logger = LoggerFactory.getLogger(GrsSourceImporter.class);
 
@@ -43,16 +44,7 @@ public class GrsSourceImporterTest {
     public void setUp() throws Exception {
         when(grsSource.getDao()).thenReturn(grsDao);
         when(grsSource.getLogger()).thenReturn(logger);
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                final File file = (File) invocationOnMock.getArguments()[1];
-                final GrsDownloader.AcquireHandler acquireHandler = (GrsDownloader.AcquireHandler) invocationOnMock.getArguments()[2];
-                acquireHandler.acquire(file);
-                return null;
-            }
-        }).when(grsDownloader).acquire(any(GrsSource.class), any(File.class), any(GrsDownloader.AcquireHandler.class));
+        when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
 
         when(sanitizer.sanitize(any(RpslObject.class), any(ObjectMessages.class))).thenAnswer(new Answer<RpslObject>() {
             @Override
@@ -64,7 +56,7 @@ public class GrsSourceImporterTest {
         when(grsDao.createObject(any(RpslObject.class))).thenReturn(updateResultCreate);
         when(grsDao.updateObject(any(GrsObjectInfo.class), any(RpslObject.class))).thenReturn(updateResultUpdate);
 
-        subject = new GrsSourceImporter("RIPE", folder.getRoot().getAbsolutePath(), grsDownloader, sanitizer, resourceTagger);
+        subject = new GrsSourceImporter("RIPE", folder.getRoot().getAbsolutePath(), sanitizer, resourceTagger);
     }
 
     @Test
@@ -111,7 +103,6 @@ public class GrsSourceImporterTest {
 
         final File resourceDataFile = new File(folder.getRoot(), "APNIC-GRS-RES");
         final File dumpFile = new File(folder.getRoot(), "APNIC-GRS-DMP");
-        verify(grsSource).acquireResourceData(resourceDataFile);
         verify(grsSource).acquireDump(dumpFile);
         verify(grsSource).handleObjects(eq(dumpFile), any(ObjectHandler.class));
     }
@@ -123,7 +114,7 @@ public class GrsSourceImporterTest {
         subject.grsImport(grsSource, false);
 
         final File resourceDataFile = new File(folder.getRoot(), "RIPE-GRS-RES");
-        verify(grsSource).acquireResourceData(resourceDataFile);
+
         verify(grsSource, never()).acquireDump(any(File.class));
         verify(grsSource, never()).handleObjects(any(File.class), any(ObjectHandler.class));
     }
@@ -154,7 +145,7 @@ public class GrsSourceImporterTest {
     @Test
     public void handle_object_create() throws IOException {
         when(grsSource.getSource()).thenReturn("APNIC-GRS");
-        when(resourceData.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override
@@ -174,7 +165,7 @@ public class GrsSourceImporterTest {
             }
         }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
 
-        subject.grsImport(grsSource, false, resourceData);
+        subject.grsImport(grsSource, false);
 
         verify(grsDao).createObject(RpslObject.parse("" +
                 "aut-num:        AS1263\n" +
@@ -239,7 +230,7 @@ public class GrsSourceImporterTest {
     @Test
     public void handle_lines_create_with_unknown_attribute() throws IOException {
         when(grsSource.getSource()).thenReturn("APNIC-GRS");
-        when(resourceData.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override
@@ -261,7 +252,7 @@ public class GrsSourceImporterTest {
             }
         }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
 
-        subject.grsImport(grsSource, false, resourceData);
+        subject.grsImport(grsSource, false);
 
         verify(grsDao).createObject(RpslObject.parse("" +
                 "aut-num:        AS1263\n" +
@@ -280,7 +271,7 @@ public class GrsSourceImporterTest {
     @Test
     public void handle_lines_no_source_managed_by_rir() throws IOException {
         when(grsSource.getSource()).thenReturn("APNIC-GRS");
-        when(resourceData.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override
@@ -294,7 +285,7 @@ public class GrsSourceImporterTest {
             }
         }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
 
-        subject.grsImport(grsSource, false, resourceData);
+        subject.grsImport(grsSource, false);
 
         verify(grsDao).createObject(RpslObject.parse("" +
                 "aut-num:        AS1263\n" +
@@ -305,9 +296,38 @@ public class GrsSourceImporterTest {
     }
 
     @Test
+    public void try_inserting_role_and_person_with_same_nichdl() throws Exception {
+        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                final ObjectHandler objectHandler = (ObjectHandler) invocation.getArguments()[1];
+
+                objectHandler.handle(RpslObjectBase.parse("" +
+                        "person: Ninja Person\n" +
+                        "nic-hdl: NI124-RIPE\n"));
+
+                return null;
+            }
+        }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
+
+        final GrsObjectInfo grsObjectInfo1 = new GrsObjectInfo(1, 1, RpslObject.parse("role: Ninja Role\nnic-hdl: NI124-RIPE\n"));
+        when(grsDao.find("NI124-RIPE", ObjectType.PERSON)).thenReturn(null);
+        when(grsDao.find("NI124-RIPE", ObjectType.ROLE)).thenReturn(grsObjectInfo1);
+
+        subject.grsImport(grsSource, false);
+
+        verify(grsDao, times(0)).createObject(any(RpslObject.class));
+        verify(grsDao, times(0)).updateObject(any(GrsObjectInfo.class), any(RpslObject.class));
+    }
+
+    @Test
     public void run_create_update_delete() throws IOException {
         when(grsSource.getSource()).thenReturn("APNIC-GRS");
         when(grsDao.getCurrentObjectIds()).thenReturn(Lists.newArrayList(1, 2, 3));
+        when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override

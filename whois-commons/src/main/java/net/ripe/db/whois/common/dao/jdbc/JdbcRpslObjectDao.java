@@ -15,9 +15,9 @@ import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.source.SourceNotConfiguredException;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +97,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
                     if (!differences.isEmpty()) {
                         LOGGER.warn("Objects in source {} not found for ids: {}", masterSource, differences);
                     }
-                } catch (SourceNotConfiguredException e) {
+                } catch (IllegalSourceException e) {
                     LOGGER.debug("Source not configured: {}", masterSource, e);
                 } finally {
                     sourceContext.setCurrent(originalSource);

@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
+import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -37,18 +38,19 @@ class ResourceTagger {
         this.tagsDao = tagsDao;
     }
 
-    void tagObjects(final GrsSource grsSource, final ResourceData resourceData) {
+    void tagObjects(final GrsSource grsSource) {
         final Stopwatch stopwatch = new Stopwatch().start();
         try {
             sourceContext.setCurrent(Source.master(grsSource.getSource()));
-            tagObjectsInContext(grsSource, resourceData);
+            tagObjectsInContext(grsSource);
         } finally {
             sourceContext.removeCurrentSource();
             grsSource.getLogger().info("Tagging objects complete in {}", stopwatch.stop());
         }
     }
 
-    private void tagObjectsInContext(final GrsSource grsSource, final ResourceData resourceData) {
+    private void tagObjectsInContext(final GrsSource grsSource) {
+        final AuthoritativeResource authoritativeResource = grsSource.getAuthoritativeResource();
         final CIString tagType = ciString(String.format("%s_RESOURCE", grsSource.getSource().toUpperCase().replace("-GRS", "")));
         final List<Integer> deletes = Lists.newArrayList();
         final List<Tag> creates = Lists.newArrayList();
@@ -60,7 +62,7 @@ class ResourceTagger {
                         "FROM last " +
                         "WHERE object_type in (%s) " +
                         "AND sequence_id != 0 ",
-                        Joiner.on(',').join(Iterables.transform(resourceData.getResourceTypes(), new Function<ObjectType, Integer>() {
+                        Joiner.on(',').join(Iterables.transform(authoritativeResource.getResourceTypes(), new Function<ObjectType, Integer>() {
                             @Nullable
                             @Override
                             public Integer apply(final ObjectType input) {
@@ -78,9 +80,9 @@ class ResourceTagger {
 
                             deletes.add(objectId);
 
-                            if (resourceData.isMaintainedByRir(objectType, pkey)) {
+                            if (authoritativeResource.isMaintainedByRir(objectType, pkey)) {
                                 creates.add(new Tag(tagType, objectId, "Registry maintained"));
-                            } else if (resourceData.isMaintainedInRirSpace(objectType, pkey)) {
+                            } else if (authoritativeResource.isMaintainedInRirSpace(objectType, pkey)) {
                                 creates.add(new Tag(tagType, objectId, "User maintained"));
                             }
 

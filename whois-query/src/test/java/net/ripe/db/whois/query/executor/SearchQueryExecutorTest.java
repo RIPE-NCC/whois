@@ -2,9 +2,9 @@ package net.ripe.db.whois.query.executor;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.source.SourceNotConfiguredException;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.QueryMessages;
@@ -86,7 +86,7 @@ public class SearchQueryExecutorTest {
     @Test
     public void unknown_source() {
         final Query query = Query.parse("-s UNKNOWN 10.0.0.0");
-        doThrow(SourceNotConfiguredException.class).when(sourceContext).setCurrent(Source.slave("UNKNOWN"));
+        doThrow(IllegalSourceException.class).when(sourceContext).setCurrent(Source.slave("UNKNOWN"));
 
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(query, responseHandler);

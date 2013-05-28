@@ -10,6 +10,8 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObjectBase;
@@ -48,10 +50,11 @@ class LacnicGrsSource extends GrsSource {
     @Autowired
     LacnicGrsSource(
             @Value("${grs.import.lacnic.source:}") final String source,
-            @Value("${grs.import.lacnic.resourceDataUrl:}") final String resourceDataUrl,
             final SourceContext sourceContext,
-            final DateTimeProvider dateTimeProvider) {
-        super(source, resourceDataUrl, sourceContext, dateTimeProvider);
+            final DateTimeProvider dateTimeProvider,
+            final AuthoritativeResourceData authoritativeResourceData,
+            final Downloader downloader) {
+        super(source, sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
     }
 
     @Override
@@ -70,7 +73,7 @@ class LacnicGrsSource extends GrsSource {
 
 
         final String downloadAction = action.replace("stini", "bulkWhoisLoader");
-        downloadToFile(new URL(downloadAction), file);
+        downloader.downloadToFile(logger, new URL(downloadAction), file);
     }
 
     @Override

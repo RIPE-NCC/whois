@@ -5,7 +5,11 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.TagsDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
+import net.ripe.db.whois.common.grs.AuthoritativeResource;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -23,6 +27,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,13 +37,21 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
     @Autowired DateTimeProvider dateTimeProvider;
     @Autowired TagsDao tagsDao;
     @Autowired RpslObjectDao objectDao;
+    @Autowired Downloader downloader;
 
     GrsSource grsSource;
-    ResourceData resourceData;
+    AuthoritativeResource authoritativeResource;
+    AuthoritativeResourceData authoritativeResourceData;
 
     @Before
     public void setUp() throws Exception {
-        grsSource = new GrsSource("TEST-GRS", "", sourceContext, dateTimeProvider) {
+        authoritativeResource = mock(AuthoritativeResource.class);
+        when(authoritativeResource.getResourceTypes()).thenReturn(Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM));
+
+        authoritativeResourceData = mock(AuthoritativeResourceData.class);
+        when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
+
+        grsSource = new GrsSource("TEST-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader) {
             @Override
             void acquireDump(final File file) throws IOException {
             }
@@ -47,9 +60,6 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
             void handleObjects(final File file, final ObjectHandler handler) throws IOException {
             }
         };
-
-        resourceData = mock(ResourceData.class);
-        when(resourceData.getResourceTypes()).thenReturn(Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM));
     }
 
     @Test
@@ -79,12 +89,12 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
                 )
         ));
 
-        when(resourceData.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS7"))).thenReturn(true);
-        when(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("193.0.0.0 - 193.0.7.255"))).thenReturn(true);
-        when(resourceData.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2a01:4f8:191:34f1::/64"))).thenReturn(true);
-        when(resourceData.isMaintainedInRirSpace(ObjectType.PERSON, ciString("TP1-TEST"))).thenReturn(true);
+        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS7"))).thenReturn(true);
+        when(authoritativeResource.isMaintainedByRir(ObjectType.INETNUM, ciString("193.0.0.0 - 193.0.7.255"))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2a01:4f8:191:34f1::/64"))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.PERSON, ciString("TP1-TEST"))).thenReturn(true);
 
-        subject.tagObjects(grsSource, resourceData);
+        subject.tagObjects(grsSource);
 
         final List<Tag> tags = tagsDao.getTagsOfType(ciString("TEST_RESOURCE"));
         assertThat(tags, hasSize(3));

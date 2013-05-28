@@ -1,4 +1,14 @@
 ## Next version
+[query] Make sources to dummify configurable
+
+## 1.65.3
+[wsearch] Improve import logging
+
+## 1.65.2
+[grs] Fix JPIRR GRS import
+
+## 1.65.1
+[query] Fix response object type order
 
 ## 1.65
 [update] Add syntax check before calling dnscheck

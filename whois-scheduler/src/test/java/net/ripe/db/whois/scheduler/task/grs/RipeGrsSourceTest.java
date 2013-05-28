@@ -1,6 +1,8 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.rpsl.RpslObjectBase;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
@@ -17,11 +19,13 @@ import java.util.List;
 public class RipeGrsSourceTest {
     @Mock SourceContext sourceContext;
     @Mock DateTimeProvider dateTimeProvider;
+    @Mock AuthoritativeResourceData authoritativeResourceData;
+    @Mock Downloader downloader;
     RipeGrsSource subject;
 
     @Before
     public void setUp() throws Exception {
-        subject = new RipeGrsSource("RIPE", "", sourceContext, dateTimeProvider);
+        subject = new RipeGrsSource("RIPE", sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
 
     }
 

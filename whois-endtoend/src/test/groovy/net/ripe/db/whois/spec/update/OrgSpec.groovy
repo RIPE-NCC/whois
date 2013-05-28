@@ -1804,4 +1804,80 @@ class OrgSpec extends BaseSpec {
         queryObject("-r -T organisation ORG-DEF1-TEST", "organisation", "ORG-DEF1-TEST")
     }
 
+    def "modify organisation, change org-type LIR to OTHER"() {
+        expect:
+        queryObject("-r -T organisation ORG-LIR1-TEST", "organisation", "ORG-LIR1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    ORG-LIR1-TEST
+                org-type:        OTHER
+                org-name:        Local Internet Registry
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                changed: denis@ripe.net 20121016
+                source:  TEST
+
+                password: owner2
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -GBT organisation ORG-LIR1-TEST", "organisation", "ORG-LIR1-TEST", "OTHER")
+    }
+
+    def "modify organisation, change org-type OTHER to LIR"() {
+        given:
+        syncUpdate(getTransient("ORG") + "password: owner2\npassword: hm")
+
+        expect:
+        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    ORG-FO1-TEST
+                org-type:        LIR
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          ripe-ncc-hm-mnt
+                changed:         denis@ripe.net 20121016
+                source:          TEST
+
+                password: owner2
+                password: hm
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -GBT organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST", "LIR")
+    }
+
 }

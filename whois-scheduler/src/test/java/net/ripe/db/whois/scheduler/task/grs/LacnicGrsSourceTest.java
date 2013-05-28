@@ -1,6 +1,8 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.rpsl.RpslObjectBase;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
@@ -19,6 +21,8 @@ import static org.junit.Assert.assertThat;
 public class LacnicGrsSourceTest {
     @Mock SourceContext sourceContext;
     @Mock DateTimeProvider dateTimeProvider;
+    @Mock AuthoritativeResourceData authoritativeResourceData;
+    @Mock Downloader downloader;
 
     LacnicGrsSource subject;
     CaptureInputObjectHandler objectHandler;
@@ -26,7 +30,7 @@ public class LacnicGrsSourceTest {
     @Before
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new LacnicGrsSource("LACNIC-GRS", "", sourceContext, dateTimeProvider);
+        subject = new LacnicGrsSource("LACNIC-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
     }
 
     @Test

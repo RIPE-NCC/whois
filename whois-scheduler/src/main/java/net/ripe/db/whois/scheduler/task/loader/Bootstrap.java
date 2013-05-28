@@ -3,6 +3,7 @@ package net.ripe.db.whois.scheduler.task.loader;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.scheduler.DailyScheduledTask;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class Bootstrap implements DailyScheduledTask {
 
     public String bootstrap() {
         if (dumpFileLocation == null || dumpFileLocation.length == 0 || dumpFileLocation[0] == null || dumpFileLocation[0].length() == 0) {
-            return null;
+            return "Bootstrap is not enabled (dump file undefined)";
         }
         try {
             sourceContext.setCurrentSourceToWhoisMaster();
@@ -63,7 +64,10 @@ public class Bootstrap implements DailyScheduledTask {
     @Override
     public void run() {
         try {
-            LOGGER.info(bootstrap());
+            final String bootstrap = bootstrap();
+            if (!StringUtils.isBlank(bootstrap)) {
+                LOGGER.info(bootstrap);
+            }
         } catch (Exception e) {
             LOGGER.error("Exception caught", e);
         }

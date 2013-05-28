@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.support;
 
-import net.ripe.db.whois.common.aspects.Retry;
+import net.ripe.db.whois.common.aspects.RetryFor;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,39 +59,29 @@ public class DummyWhoisClient {
         return sendQuery(query, charset, -1);
     }
 
+    @RetryFor(IOException.class)
     public String sendQuery(final String query, final Charset charset, final int timeout) throws IOException {
-        try {
-            return Retry.forExceptions(new Retry.Retryable<String>() {
-                @Override
-                public String attempt() throws Throwable {
-                    Socket socket = new Socket(host, port);
-                    if (timeout > 0) {
-                        socket.setSoTimeout(timeout);
-                    }
-
-                    PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);
-                    BufferedReader serverReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), charset));
-                    StringWriter responseWriter = new StringWriter();
-
-                    serverWriter.println(query);
-
-                    try {
-                        FileCopyUtils.copy(serverReader, responseWriter);
-                    } catch (SocketTimeoutException ignored) {
-                    } catch (SocketException ignored) {
-                    } finally {
-                        IOUtils.closeQuietly(serverWriter);
-                        IOUtils.closeQuietly(serverReader);
-                        IOUtils.closeQuietly(socket);
-                    }
-
-                    return responseWriter.toString();
-                }
-            }, 3, 1000, IOException.class);
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected", e);
+        final Socket socket = new Socket(host, port);
+        if (timeout > 0) {
+            socket.setSoTimeout(timeout);
         }
+
+        PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);
+        BufferedReader serverReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), charset));
+        StringWriter responseWriter = new StringWriter();
+
+        serverWriter.println(query);
+
+        try {
+            FileCopyUtils.copy(serverReader, responseWriter);
+        } catch (SocketTimeoutException ignored) {
+        } catch (SocketException ignored) {
+        } finally {
+            IOUtils.closeQuietly(serverWriter);
+            IOUtils.closeQuietly(serverReader);
+            IOUtils.closeQuietly(socket);
+        }
+
+        return responseWriter.toString();
     }
 }

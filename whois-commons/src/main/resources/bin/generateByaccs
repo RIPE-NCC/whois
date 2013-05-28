@@ -1,5 +1,9 @@
 #!/bin/bash
 
+set -e
+
+gawk --version >/dev/null || exit 1
+
 if [[ $(ps uxww | gawk "\$2 == $PPID && /sonar:sonar/" | wc -l) -gt 0 ]]; then
 	ADDPATH='clover/'
 fi

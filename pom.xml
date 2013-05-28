@@ -25,6 +25,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring.version>3.2.0.RELEASE</spring.version>
         <aspectj.version>1.7.2</aspectj.version>
+        <compiler.version>1.6</compiler.version>
         <java.version>1.6</java.version>
         <jersey.version>1.17</jersey.version>
         <lucene.version>4.1.0</lucene.version>
@@ -396,6 +397,18 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+            <version>${spring.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>persistence-api</artifactId>
+            <version>1.0.2</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- common test dependencies -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
@@ -480,6 +493,21 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${basedir}</directory>
+                            <includes>
+                                <include>var*/**</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
@@ -563,7 +591,7 @@
                 <version>2.14.1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx512m</argLine>
+                    <argLine>-Xmx512m -Ddir.var=var${surefire.forkNumber}</argLine>
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
@@ -580,7 +608,7 @@
                 <version>2.14.1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx1024m</argLine>
+                    <argLine>-Xmx1024m -Ddir.var=var${surefire.forkNumber}</argLine>
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
@@ -617,6 +645,46 @@
                     </transformers>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.4</version>
+                <configuration>
+                    <showWeaveInfo>true</showWeaveInfo>
+                    <source>${compiler.version}</source>
+                    <target>${compiler.version}</target>
+                    <Xlint>ignore</Xlint>
+                    <complianceLevel>${compiler.version}</complianceLevel>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <verbose>false</verbose>
+                    <aspectLibraries>
+                        <aspectLibrary>
+                            <groupId>org.springframework</groupId>
+                            <artifactId>spring-aspects</artifactId>
+                        </aspectLibrary>
+                    </aspectLibraries>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjrt</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjtools</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -638,7 +706,7 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
-                <test.forkCount.integration>2</test.forkCount.integration>
+                <test.forkCount.integration>3</test.forkCount.integration>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>**/*TestIntegration*.class,**/*Spec*.class</test.files.integration>
             </properties>
@@ -658,7 +726,7 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups />
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/whois/spec/query/*Spec*.java,**/whois/spec/update/*Spec*.java,
+                <test.files.integration>**/whois/spec/query/*Spec*.java,**/whois/spec/update/*Spec*.java
                 </test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
@@ -670,7 +738,7 @@
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>2</test.forkCount.integration>
+                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>

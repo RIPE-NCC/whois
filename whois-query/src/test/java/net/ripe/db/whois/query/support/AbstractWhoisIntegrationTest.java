@@ -38,7 +38,6 @@ public abstract class AbstractWhoisIntegrationTest extends AbstractDatabaseHelpe
     }
 
     public static String stripHeader(final String response) {
-
         String result = response;
 
         result = stripHeader(result, QueryMessages.termsAndConditions().toString());

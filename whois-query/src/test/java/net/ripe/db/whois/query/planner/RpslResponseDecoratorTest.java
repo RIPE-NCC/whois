@@ -14,6 +14,7 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
+import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.Fixture;
@@ -48,13 +49,14 @@ public class RpslResponseDecoratorTest {
     @Mock AbuseCFinder abuseCFinder;
     @Mock DummifyFunction dummifyFunction;
     @Mock FilterTagsDecorator filterTagsDecorator;
+    @Mock FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     final String source = "RIPE";
 
     RpslResponseDecorator subject;
 
     @Before
     public void setup() {
-        subject = new RpslResponseDecorator(rpslObjectDaoMock, filterPersonalDecorator, sourceContext, abuseCFinder, dummifyFunction, filterTagsDecorator, source, decorator);
+        subject = new RpslResponseDecorator(rpslObjectDaoMock, filterPersonalDecorator, sourceContext, abuseCFinder, dummifyFunction, filterTagsDecorator, filterPlaceholdersDecorator, source, decorator);
         when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);
@@ -68,6 +70,13 @@ public class RpslResponseDecoratorTest {
         });
 
         when(filterTagsDecorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return invocationOnMock.getArguments()[1];
+            }
+        });
+
+        when(filterPlaceholdersDecorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return invocationOnMock.getArguments()[1];

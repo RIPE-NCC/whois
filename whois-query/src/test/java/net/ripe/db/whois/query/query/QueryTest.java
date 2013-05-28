@@ -922,4 +922,34 @@ public class QueryTest {
             assertThat(e.getMessage(), containsString("The flags \"--show-taginfo\" and \"--no-taginfo\" cannot be used together."));
         }
     }
+
+    @Test
+    public void grs_search_types_specified_none() {
+        final Query query = Query.parse("--resource 10.0.0.0");
+        assertThat(query.getObjectTypes(), contains(
+                ObjectType.INETNUM,
+                ObjectType.INET6NUM,
+                ObjectType.AUT_NUM,
+                ObjectType.ROUTE,
+                ObjectType.ROUTE6,
+                ObjectType.DOMAIN));
+    }
+
+    @Test
+    public void grs_search_types_specified_single() {
+        final Query query = Query.parse("--resource -Tinetnum 10.0.0.0");
+        assertThat(query.getObjectTypes(), contains(ObjectType.INETNUM));
+    }
+
+    @Test
+    public void grs_search_types_specified_non_resource() {
+        final Query query = Query.parse("--resource -Tinetnum,mntner 10.0.0.0");
+        assertThat(query.getObjectTypes(), contains(ObjectType.INETNUM));
+    }
+
+    @Test
+    public void grs_enables_all_sources() {
+        final Query query = Query.parse("--resource 10.0.0.0");
+        assertThat(query.isAllSources(), is(true));
+    }
 }

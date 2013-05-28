@@ -2,6 +2,8 @@ package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,22 +12,18 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RadbGrsSourceTest {
-    private static final String download = "http://127.0.0.1/";
-
     @Mock SourceContext sourceContext;
     @Mock DateTimeProvider dateTimeProvider;
+    @Mock AuthoritativeResourceData authoritativeResourceData;
+    @Mock Downloader downloader;
 
     RadbGrsSource subject;
     CaptureInputObjectHandler objectHandler;
@@ -33,19 +31,7 @@ public class RadbGrsSourceTest {
     @Before
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new RadbGrsSource("RADB-GRS", "", download, sourceContext, dateTimeProvider);
-    }
-
-    @Test
-    public void acquire() throws IOException {
-        subject = spy(subject);
-
-        doNothing().when(subject).downloadToFile(any(URL.class), any(File.class));
-
-        final File file = File.createTempFile("grs", "test");
-        subject.acquireDump(file);
-
-        verify(subject).downloadToFile(new URL(download), file);
+        subject = new RadbGrsSource("RADB-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
     }
 
     @Test

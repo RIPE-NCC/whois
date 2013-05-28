@@ -1,4 +1,4 @@
-package net.ripe.db.whois.scheduler.task.grs;
+package net.ripe.db.whois.common.grs;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -24,60 +24,56 @@ import java.util.regex.Pattern;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
-class ResourceData {
-    private static final Object PRESENT = new Object();
-
+public class AuthoritativeResource {
     private static final Set<ObjectType> RESOURCE_TYPES = Sets.newEnumSet(Lists.newArrayList(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM), ObjectType.class);
 
     private final Set<CIString> autNums;
-    private final IntervalMap<Ipv4Resource, Object> inetRanges;
+    private final IntervalMap<Ipv4Resource, Ipv4Resource> inetRanges;
     private final int nrInetRanges;
-    private final IntervalMap<Ipv6Resource, Object> inet6Ranges;
+    private final IntervalMap<Ipv6Resource, Ipv6Resource> inet6Ranges;
     private final int nrInet6Ranges;
 
-
-    static ResourceData unknown(final GrsSource grsSource) {
-        return new ResourceData(grsSource, Collections.<CIString>emptySet(), new NestedIntervalMap<Ipv4Resource, Object>(), new NestedIntervalMap<Ipv6Resource, Object>());
+    public static AuthoritativeResource unknown(final Logger logger) {
+        return new AuthoritativeResource(logger, Collections.<CIString>emptySet(), new NestedIntervalMap<Ipv4Resource, Ipv4Resource>(), new NestedIntervalMap<Ipv6Resource, Ipv6Resource>());
     }
 
-    static ResourceData loadFromFile(final GrsSource grsSource, final File file) {
+    public static AuthoritativeResource loadFromFile(final Logger logger, final String name, final File file) {
         try {
-            return loadFromScanner(grsSource, new Scanner(file));
+            return loadFromScanner(logger, name, new Scanner(file));
         } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException("File not found", e);
+            throw new IllegalArgumentException(String.format("File not found: %s", file.getAbsolutePath()), e);
         }
     }
 
-    static ResourceData loadFromScanner(final GrsSource grsSource, final Scanner scanner) {
+    static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner) {
         try {
-            return load(grsSource, scanner);
+            return load(logger, name, scanner);
         } finally {
             scanner.close();
         }
     }
 
-    private static ResourceData load(final GrsSource grsSource, final Scanner scanner) {
+    private static AuthoritativeResource load(final Logger logger, final String name, final Scanner scanner) {
         scanner.useDelimiter("\n");
 
-        final Logger logger = grsSource.getLogger();
         final Set<String> allowedStatusses = Sets.newHashSet("allocated", "assigned");
         final Pattern linePattern = Pattern.compile("^([a-zA-Z]+)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)(?:\\|.*|$)");
 
-        return new Callable<ResourceData>() {
+        return new Callable<AuthoritativeResource>() {
             final Set<CIString> autNums = Sets.newHashSet();
-            final IntervalMap<Ipv4Resource, Object> inetnums = new NestedIntervalMap<Ipv4Resource, Object>();
-            final IntervalMap<Ipv6Resource, Object> inet6nums = new NestedIntervalMap<Ipv6Resource, Object>();
+            final IntervalMap<Ipv4Resource, Ipv4Resource> inetnums = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>();
+            final IntervalMap<Ipv6Resource, Ipv6Resource> inet6nums = new NestedIntervalMap<Ipv6Resource, Ipv6Resource>();
 
             @Override
-            public ResourceData call() {
-                final String expectedSource = grsSource.getSource().replace("-GRS", "").toLowerCase();
+            public AuthoritativeResource call() {
+                final String expectedSource = name.replace("-GRS", "").toLowerCase();
 
                 while (scanner.hasNext()) {
                     final String line = scanner.next();
                     handleLine(expectedSource, line);
                 }
 
-                return new ResourceData(grsSource, autNums, inetnums, inet6nums);
+                return new AuthoritativeResource(logger, autNums, inetnums, inet6nums);
             }
 
             private void handleLine(final String expectedSource, final String line) {
@@ -136,24 +132,24 @@ class ResourceData {
                 final long begin = Ipv4Resource.parse(start).begin();
                 final long end = begin + (Long.parseLong(value) - 1);
                 final Ipv4Resource ipv4Resource = new Ipv4Resource(begin, end);
-                inetnums.put(ipv4Resource, PRESENT);
+                inetnums.put(ipv4Resource, ipv4Resource);
             }
 
             private void createIpv6Resource(final String start, final String value) {
                 final Ipv6Resource ipv6Resource = Ipv6Resource.parse(String.format("%s/%s", start, value));
-                inet6nums.put(ipv6Resource, PRESENT);
+                inet6nums.put(ipv6Resource, ipv6Resource);
             }
         }.call();
     }
 
-    private ResourceData(final GrsSource grsSource, final Set<CIString> autNums, final IntervalMap<Ipv4Resource, Object> inetRanges, final IntervalMap<Ipv6Resource, Object> inet6Ranges) {
+    private AuthoritativeResource(final Logger logger, final Set<CIString> autNums, final IntervalMap<Ipv4Resource, Ipv4Resource> inetRanges, final IntervalMap<Ipv6Resource, Ipv6Resource> inet6Ranges) {
         this.autNums = autNums;
         this.inetRanges = inetRanges;
         this.inet6Ranges = inet6Ranges;
         this.nrInetRanges = inetRanges.findExactAndAllMoreSpecific(Ipv4Resource.parse("0/0")).size();
         this.nrInet6Ranges = inet6Ranges.findExactAndAllMoreSpecific(Ipv6Resource.parse("::0/0")).size();
 
-        grsSource.getLogger().info("Resources: {}", String.format("asn: %5d; ipv4: %5d; ipv6: %5d", getNrAutNums(), getNrInetnums(), getNrInet6nums()));
+        logger.info("Resources: {}", String.format("asn: %5d; ipv4: %5d; ipv6: %5d", getNrAutNums(), getNrInetnums(), getNrInet6nums()));
     }
 
     int getNrAutNums() {
@@ -172,7 +168,7 @@ class ResourceData {
         return getNrAutNums() == 0 && getNrInetnums() == 0 && getNrInet6nums() == 0;
     }
 
-    boolean isMaintainedByRir(final ObjectType objectType, final CIString pkey) {
+    public boolean isMaintainedByRir(final ObjectType objectType, final CIString pkey) {
         try {
             switch (objectType) {
                 case AUT_NUM:
@@ -189,11 +185,11 @@ class ResourceData {
         }
     }
 
-    boolean isMaintainedInRirSpace(final RpslObject rpslObject) {
+    public boolean isMaintainedInRirSpace(final RpslObject rpslObject) {
         return isMaintainedInRirSpace(rpslObject.getType(), rpslObject.getKey());
     }
 
-    boolean isMaintainedInRirSpace(final ObjectType objectType, final CIString pkey) {
+    public boolean isMaintainedInRirSpace(final ObjectType objectType, final CIString pkey) {
         try {
             switch (objectType) {
                 case AUT_NUM:
@@ -210,7 +206,19 @@ class ResourceData {
         }
     }
 
-    Set<ObjectType> getResourceTypes() {
+    public Set<ObjectType> getResourceTypes() {
         return RESOURCE_TYPES;
+    }
+
+    Set<CIString> getAutNums() {
+        return autNums;
+    }
+
+    IntervalMap<Ipv4Resource, Ipv4Resource> getInetRanges() {
+        return inetRanges;
+    }
+
+    IntervalMap<Ipv6Resource, Ipv6Resource> getInet6Ranges() {
+        return inet6Ranges;
     }
 }

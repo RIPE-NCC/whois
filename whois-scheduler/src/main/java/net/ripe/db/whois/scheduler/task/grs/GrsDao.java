@@ -9,12 +9,13 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.source.SourceNotConfiguredException;
 import org.slf4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.CheckForNull;
 import java.sql.ResultSet;
@@ -46,7 +47,7 @@ class GrsDao {
             try {
                 masterJdbcTemplate = sourceContext.getSourceConfiguration(Source.master(source)).getJdbcTemplate();
                 slaveJdbcTemplate = sourceContext.getSourceConfiguration(Source.slave(source)).getJdbcTemplate();
-            } catch (SourceNotConfiguredException e) {
+            } catch (IllegalSourceException e) {
                 throw new IllegalArgumentException(String.format("Source not configured: %s", e.getSource()));
             }
         }
@@ -131,6 +132,7 @@ class GrsDao {
         return new UpdateResult(rpslObjectInfo, missingReferences);
     }
 
+    @Transactional
     Set<CIString> updateIndexes(final int objectId) {
         ensureInitialized();
         final GrsObjectInfo grsObjectInfo = get(objectId);

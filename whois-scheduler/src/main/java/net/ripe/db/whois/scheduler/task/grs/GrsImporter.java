@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +35,9 @@ public class GrsImporter implements DailyScheduledTask {
     private final Map<CIString, GrsSource> grsSources;
     private final AtomicInteger threadNum = new AtomicInteger();
     private final Set<CIString> currentlyImporting = Collections.synchronizedSet(Sets.<CIString>newHashSet());
+    private final ThreadGroup threadGroup = new ThreadGroup("grs-import");
+
+    private ExecutorService executorService;
 
     private boolean grsImportEnabled;
 
@@ -58,6 +63,23 @@ public class GrsImporter implements DailyScheduledTask {
         }
     }
 
+    @PostConstruct
+    void startImportThreads() {
+        executorService = Executors.newFixedThreadPool(grsSources.size(), new ThreadFactory() {
+            @Override
+            public Thread newThread(final Runnable runnable) {
+                final Thread thread = new Thread(threadGroup, runnable, String.format("grs-import-%s", threadNum.incrementAndGet()));
+                thread.setDaemon(true);
+                return thread;
+            }
+        });
+    }
+
+    @PreDestroy
+    void shutdownImportThreads() {
+        executorService.shutdownNow();
+    }
+
     @Override
     public void run() {
         if (!grsImportEnabled) {
@@ -69,22 +91,8 @@ public class GrsImporter implements DailyScheduledTask {
     }
 
     public List<Future<?>> grsImport(String sources, final boolean rebuild) {
-        final Set<CIString> sourcesToImport = Sets.newLinkedHashSet();
-        for (final String source : SOURCES_SPLITTER.split(sources)) {
-            sourcesToImport.add(ciString(source));
-        }
-
+        final Set<CIString> sourcesToImport = splitSources(sources);
         LOGGER.info("GRS import sources: {}", sourcesToImport);
-
-        final ThreadGroup threadGroup = new ThreadGroup("grs-import");
-        final ExecutorService executorService = Executors.newFixedThreadPool(sourcesToImport.size(), new ThreadFactory() {
-            @Override
-            public Thread newThread(final Runnable runnable) {
-                final Thread thread = new Thread(threadGroup, runnable, String.format("grs-import-%s", threadNum.incrementAndGet()));
-                thread.setDaemon(true);
-                return thread;
-            }
-        });
 
         final List<Future<?>> futures = Lists.newArrayListWithCapacity(sourcesToImport.size());
         for (final CIString enabledSource : sourcesToImport) {
@@ -113,5 +121,13 @@ public class GrsImporter implements DailyScheduledTask {
         }
 
         return futures;
+    }
+
+    private Set<CIString> splitSources(final String sources) {
+        final Set<CIString> sourcesToImport = Sets.newLinkedHashSet();
+        for (final String source : SOURCES_SPLITTER.split(sources)) {
+            sourcesToImport.add(ciString(source));
+        }
+        return sourcesToImport;
     }
 }

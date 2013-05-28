@@ -88,6 +88,7 @@ public class FilterTagsDecorator implements ResponseDecorator {
             result.add(new TagResponseObject(object.getKey(), tag.getType(), tag.getValue()));
         }
 
+        // TODO [AH]: formatting to take place in queryhandler
         result.add(new MessageObject(""));
     }
 

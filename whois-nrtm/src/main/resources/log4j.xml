@@ -19,7 +19,7 @@
         <param name="Threshold" value="DEBUG" />
 
         <rollingPolicy name="NRTMLOG" class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
-            <param name="FileNamePattern" value="var/log/nrtm/nrtmlog.%d{yyyyMMdd}" />
+            <param name="FileNamePattern" value="./${dir.var}/log/nrtm/nrtmlog.%d{yyyyMMdd}" />
         </rollingPolicy>
 
         <layout class="org.apache.log4j.PatternLayout">

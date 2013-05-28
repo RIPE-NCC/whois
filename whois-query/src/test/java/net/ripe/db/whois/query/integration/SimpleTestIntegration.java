@@ -16,6 +16,7 @@ import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;

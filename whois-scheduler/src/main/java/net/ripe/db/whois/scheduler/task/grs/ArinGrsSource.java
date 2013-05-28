@@ -10,6 +10,8 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObjectBase;
@@ -36,7 +38,6 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 // TODO: [AH] mechanism to not even instantiate these beans if grs is not enabled (e.g. "GRS" profile?)
-
 @Component
 class ArinGrsSource extends GrsSource {
     private static final Pattern IPV6_SPLIT_PATTERN = Pattern.compile("(?i)([0-9a-f:]*)\\s*-\\s*([0-9a-f:]*)\\s*");
@@ -58,15 +59,16 @@ class ArinGrsSource extends GrsSource {
     @Autowired
     ArinGrsSource(
             @Value("${grs.import.arin.source:}") final String source,
-            @Value("${grs.import.arin.resourceDataUrl:}") final String resourceDataUrl,
             final SourceContext sourceContext,
-            final DateTimeProvider dateTimeProvider) {
-        super(source, resourceDataUrl, sourceContext, dateTimeProvider);
+            final DateTimeProvider dateTimeProvider,
+            final AuthoritativeResourceData authoritativeResourceData,
+            final Downloader downloader) {
+        super(source, sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
     }
 
     @Override
     public void acquireDump(final File file) throws IOException {
-        downloadToFile(new URL(download), file);
+        downloader.downloadToFile(logger, new URL(download), file);
     }
 
     @Override
