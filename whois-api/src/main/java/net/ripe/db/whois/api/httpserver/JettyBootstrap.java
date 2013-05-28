@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.httpserver;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.ServerHelper;
-import net.ripe.db.whois.common.aspects.Retry;
+import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -82,25 +82,25 @@ public class JettyBootstrap implements ApplicationService {
         }
 
         try {
-            return Retry.forExceptions(new Retry.Retryable<Server>() {
-                @Override
-                public Server attempt() throws Throwable {
-                    int tryPort = (port <= 0) ? ServerHelper.getAvailablePort() : port;
-                    LOGGER.debug("Trying port {}", tryPort);
-
-                    final Server server = new Server(tryPort);
-                    server.setHandler(handlers);
-                    server.setStopAtShutdown(true);
-
-                    server.start();
-                    jettyConfig.setPort(audience, tryPort);
-                    LOGGER.info("Jetty started on port {} ({})", tryPort, audience);
-                    return server;
-                }
-            }, 5, 1000, Exception.class);
+            return createAndStartServer(port, handlers, audience);
         } catch (Exception e) {
             throw new RuntimeException("Unable to start server", e);
         }
+    }
+
+    @RetryFor(value = Exception.class)
+    private Server createAndStartServer(int port, HandlerList handlers, Audience audience) throws Exception {
+        int tryPort = (port <= 0) ? ServerHelper.getAvailablePort() : port;
+        LOGGER.debug("Trying port {}", tryPort);
+
+        final Server server = new Server(tryPort);
+        server.setHandler(handlers);
+        server.setStopAtShutdown(true);
+
+        server.start();
+        jettyConfig.setPort(audience, tryPort);
+        LOGGER.info("Jetty started on port {} ({})", tryPort, audience);
+        return server;
     }
 
     @Override
