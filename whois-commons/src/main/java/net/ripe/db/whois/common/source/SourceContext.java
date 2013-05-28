@@ -198,7 +198,11 @@ public class SourceContext {
     }
 
     public boolean isVirtual() {
-        return aliases.containsKey(getCurrentSource().getName());
+        return isVirtual(getCurrentSource().getName());
+    }
+
+    public boolean isVirtual(final CIString source) {
+        return aliases.containsKey(source);
     }
 
     public boolean isDummificationRequired() {

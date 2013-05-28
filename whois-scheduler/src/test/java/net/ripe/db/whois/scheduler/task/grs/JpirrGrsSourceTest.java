@@ -31,7 +31,7 @@ public class JpirrGrsSourceTest {
     @Before
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new JpirrGrsSource("JPIRR-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
+        subject = new JpirrGrsSource("JPIRR-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader, "");
     }
 
     @Test

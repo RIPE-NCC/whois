@@ -42,19 +42,8 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 class ArinGrsSource extends GrsSource {
     private static final Pattern IPV6_SPLIT_PATTERN = Pattern.compile("(?i)([0-9a-f:]*)\\s*-\\s*([0-9a-f:]*)\\s*");
 
-    private String download;
-
-    @Value("${grs.import.arin.download:}")
-    public void setDownload(final String download) {
-        this.download = download;
-    }
-
-    private String zipEntryName;
-
-    @Value("${grs.import.arin.zipEntryName:}")
-    public void setZipEntryName(final String zipEntryName) {
-        this.zipEntryName = zipEntryName;
-    }
+    private final String download;
+    private final String zipEntryName;
 
     @Autowired
     ArinGrsSource(
@@ -62,8 +51,13 @@ class ArinGrsSource extends GrsSource {
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider,
             final AuthoritativeResourceData authoritativeResourceData,
-            final Downloader downloader) {
+            final Downloader downloader,
+            @Value("${grs.import.arin.download:}") final String download,
+            @Value("${grs.import.arin.zipEntryName:}") final String zipEntryName) {
         super(source, sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
+
+        this.download = download;
+        this.zipEntryName = zipEntryName;
     }
 
     @Override

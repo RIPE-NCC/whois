@@ -31,7 +31,7 @@ public class RadbGrsSourceTest {
     @Before
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new RadbGrsSource("RADB-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
+        subject = new RadbGrsSource("RADB-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader, "");
     }
 
     @Test

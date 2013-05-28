@@ -4,9 +4,9 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,19 +29,19 @@ class GrsSourceImporter {
     private static final Joiner LINE_JOINER = Joiner.on("");
     private static final int LOG_EVERY_NR_HANDLED = 100000;
 
-    private final CIString mainSource;
     private final AttributeSanitizer sanitizer;
     private final ResourceTagger resourceTagger;
+    private final SourceContext sourceContext;
 
     private File downloadDir;
 
     @Autowired
     public GrsSourceImporter(
-            @Value("${whois.source}") final String mainSourceName,
             @Value("${dir.grs.import.download}") final String downloadDir,
             final AttributeSanitizer sanitizer,
-            final ResourceTagger resourceTagger) {
-        this.mainSource = ciString(mainSourceName);
+            final ResourceTagger resourceTagger,
+            final SourceContext sourceContext) {
+        this.sourceContext = sourceContext;
         this.downloadDir = new File(downloadDir);
         this.sanitizer = sanitizer;
         this.resourceTagger = resourceTagger;
@@ -59,7 +59,7 @@ class GrsSourceImporter {
     void grsImport(final GrsSource grsSource, final boolean rebuild) {
         final AuthoritativeResource authoritativeResource = grsSource.getAuthoritativeResource();
 
-        if (ciString(grsSource.getSource()).contains(mainSource)) {
+        if (sourceContext.isVirtual(ciString(grsSource.getSource()))) {
             grsSource.getLogger().info("Not updating GRS data");
         } else {
             acquireAndUpdateGrsData(grsSource, rebuild, authoritativeResource);

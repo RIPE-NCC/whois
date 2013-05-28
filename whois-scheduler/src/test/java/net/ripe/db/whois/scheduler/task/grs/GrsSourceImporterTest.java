@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,6 +36,7 @@ public class GrsSourceImporterTest {
     @Mock GrsDao.UpdateResult updateResultCreate;
     @Mock GrsDao.UpdateResult updateResultUpdate;
     @Mock AuthoritativeResource authoritativeResource;
+    @Mock SourceContext sourceContext;
 
     Logger logger = LoggerFactory.getLogger(GrsSourceImporter.class);
 
@@ -56,7 +58,7 @@ public class GrsSourceImporterTest {
         when(grsDao.createObject(any(RpslObject.class))).thenReturn(updateResultCreate);
         when(grsDao.updateObject(any(GrsObjectInfo.class), any(RpslObject.class))).thenReturn(updateResultUpdate);
 
-        subject = new GrsSourceImporter("RIPE", folder.getRoot().getAbsolutePath(), sanitizer, resourceTagger);
+        subject = new GrsSourceImporter(folder.getRoot().getAbsolutePath(), sanitizer, resourceTagger, sourceContext);
     }
 
     @Test
@@ -71,6 +73,7 @@ public class GrsSourceImporterTest {
     @Test
     public void run_rebuild_ripe() {
         when(grsSource.getSource()).thenReturn("RIPE-GRS");
+        when(sourceContext.isVirtual(CIString.ciString("RIPE-GRS"))).thenReturn(true);
         subject.grsImport(grsSource, true);
 
         verify(grsDao, never()).cleanDatabase();
@@ -89,6 +92,7 @@ public class GrsSourceImporterTest {
     @Test
     public void run_without_rebuild_ripe() {
         when(grsSource.getSource()).thenReturn("RIPE-GRS");
+        when(sourceContext.isVirtual(CIString.ciString("RIPE-GRS"))).thenReturn(true);
         subject.grsImport(grsSource, false);
 
         verify(grsDao, never()).cleanDatabase();
@@ -110,6 +114,7 @@ public class GrsSourceImporterTest {
     @Test
     public void acquire_and_process_ripe() throws IOException {
         when(grsSource.getSource()).thenReturn("RIPE-GRS");
+        when(sourceContext.isVirtual(CIString.ciString("RIPE-GRS"))).thenReturn(true);
 
         subject.grsImport(grsSource, false);
 

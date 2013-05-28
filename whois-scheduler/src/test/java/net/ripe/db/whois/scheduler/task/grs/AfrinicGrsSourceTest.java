@@ -28,7 +28,7 @@ public class AfrinicGrsSourceTest {
     @Before
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new AfrinicGrsSource("AFRINIC-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
+        subject = new AfrinicGrsSource("AFRINIC-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader, "");
     }
 
     @Test
