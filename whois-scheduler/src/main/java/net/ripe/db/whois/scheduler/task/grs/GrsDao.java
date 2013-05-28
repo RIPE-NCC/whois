@@ -47,6 +47,8 @@ class GrsDao {
             try {
                 masterJdbcTemplate = sourceContext.getSourceConfiguration(Source.master(source)).getJdbcTemplate();
                 slaveJdbcTemplate = sourceContext.getSourceConfiguration(Source.slave(source)).getJdbcTemplate();
+                JdbcRpslObjectOperations.sanityCheck(masterJdbcTemplate);
+                JdbcRpslObjectOperations.sanityCheck(slaveJdbcTemplate);
             } catch (IllegalSourceException e) {
                 throw new IllegalArgumentException(String.format("Source not configured: %s", e.getSource()));
             }
