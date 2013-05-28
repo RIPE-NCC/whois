@@ -2,9 +2,9 @@
 
 set -e
 
-gawk --version >/dev/null || exit 1
+awk --version >/dev/null || exit 1
 
-if [[ $(ps uxww | gawk "\$2 == $PPID && /sonar:sonar/" | wc -l) -gt 0 ]]; then
+if [[ $(ps uxww | awk "\$2 == $PPID && /sonar:sonar/" | wc -l) -gt 0 ]]; then
 	ADDPATH='clover/'
 fi
 GENERATED_PATH=target/${ADDPATH}generated-sources/jflex/net/ripe/db/whois/common/generated
