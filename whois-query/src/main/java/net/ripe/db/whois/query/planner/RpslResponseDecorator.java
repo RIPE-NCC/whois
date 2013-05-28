@@ -1,7 +1,6 @@
 package net.ripe.db.whois.query.planner;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -86,19 +85,9 @@ public class RpslResponseDecorator {
         result = filterEmail(query, result);
         result = filterAuth(result);
 
-        // TODO: [AH] do this when pushing response to the wire
-        final boolean noResults = !Iterables.any(result, new Predicate<ResponseObject>() {
-            @Override
-            public boolean apply(final ResponseObject input) {
-                return input instanceof RpslObject;
-            }
-        });
+        result = applyOutputFilters(query, result);
 
-        if (noResults) {
-            result = Iterables.concat(result, Collections.singletonList(new MessageObject(QueryMessages.noResults(sourceContext.getCurrentSource().getName()))));
-        }
-
-        return applyOutputFilters(query, result);
+        return result;
     }
 
     private Iterable<? extends ResponseObject> applyAbuseC(final Query query, final Iterable<? extends ResponseObject> result) {

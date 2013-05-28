@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -69,10 +70,22 @@ public class SearchQueryExecutor implements QueryExecutor {
             try {
                 sourceContext.setCurrent(source);
                 final Iterable<? extends ResponseObject> searchResults = rpslObjectSearcher.search(query);
+                boolean noResults = true;
+
                 for (final ResponseObject responseObject : rpslResponseDecorator.getResponse(query, searchResults)) {
+
                     // TODO: [AH] make sure responseHandler implementation can handle executionHandler worker threads pushing data (think of suspend-on-write, buffer overflow, slow connections, etc...)
                     responseHandler.handle(responseObject);
+
+                    if (responseObject instanceof RpslObject) {
+                        noResults = false;
+                    }
                 }
+
+                if (noResults) {
+                    responseHandler.handle(new MessageObject(QueryMessages.noResults(source.getName())));
+                }
+
             } catch (IllegalSourceException e) {
                 responseHandler.handle(new MessageObject(QueryMessages.unknownSource(source.getName()) + "\n"));
             } finally {
