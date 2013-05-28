@@ -10,19 +10,27 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthoritativeResourceDataValidatorTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceDataValidatorTest.class);
+
     List<String> sources;
     @Mock AuthoritativeResourceData authoritativeResourceData;
     AuthoritativeResourceDataValidator subject;
@@ -35,19 +43,19 @@ public class AuthoritativeResourceDataValidatorTest {
         prepareAuthoritativeResourceData(
                 "GRS1",
                 Lists.newArrayList("AS1", "AS2", "as3"),
-                Lists.newArrayList("0/0"),
+                Lists.newArrayList("192.0.0.0 - 192.0.0.2", "193.0.0.10 - 193.0.0.15", "10.0.0.0"),
                 Lists.newArrayList("::0/0"));
 
         prepareAuthoritativeResourceData(
                 "GRS2",
                 Lists.newArrayList("as1", "AS10", "AS11"),
-                Lists.newArrayList("0/0"),
+                Lists.newArrayList("192.0.0.1 - 192.0.0.4", "10.0.0.0", "11/8"),
                 Lists.newArrayList("::0/0"));
 
         prepareAuthoritativeResourceData(
                 "GRS3",
                 Lists.newArrayList("AS1", "AS10", "AS12"),
-                Lists.newArrayList("0/0"),
+                Lists.newArrayList("193.0.0.0 - 193.0.0.11", "10.0.0.1"),
                 Lists.newArrayList("::0/0"));
     }
 
@@ -56,10 +64,30 @@ public class AuthoritativeResourceDataValidatorTest {
         final StringWriter writer = new StringWriter();
         subject.checkOverlaps(writer);
 
-        // TODO [AK] Finish assertions
+        final String output = writer.getBuffer().toString();
+        LOGGER.info("overlaps:\n{}", output);
 
-        System.out.println(writer.getBuffer().toString());
+        final Matcher matcher = Pattern.compile("(.*?)\\t(.*?)\\t(.*?)\\t(.*?)\\t(.*)").matcher(output);
+        final List<String> overlaps = Lists.newArrayList();
+        while (matcher.find()) {
+            overlaps.add(matcher.group(0));
+        }
+
+        assertThat(overlaps, hasSize(10));
+        assertThat(overlaps, contains(
+                "GRS1\tGRS2\taut-num     \tAS1                                     \tAS1",
+                "GRS1\tGRS2\tinetnum     \t10.0.0.0/32                             \t10.0.0.0/32",
+                "GRS1\tGRS2\tinetnum     \t192.0.0.0 - 192.0.0.2                   \t192.0.0.1/30",
+                "GRS1\tGRS2\tinet6num    \t::/0                                    \t::/0",
+                "GRS1\tGRS3\taut-num     \tAS1                                     \tAS1",
+                "GRS1\tGRS3\tinetnum     \t193.0.0.10 - 193.0.0.15                 \t193.0.0.0 - 193.0.0.11",
+                "GRS1\tGRS3\tinet6num    \t::/0                                    \t::/0",
+                "GRS2\tGRS3\taut-num     \tas1                                     \tas1",
+                "GRS2\tGRS3\taut-num     \tAS10                                    \tAS10",
+                "GRS2\tGRS3\tinet6num    \t::/0                                    \t::/0"
+        ));
     }
+
 
     private void prepareAuthoritativeResourceData(final String name, final List<String> autNums, final List<String> ipv4Resources, final List<String> ipv6Resources) {
         final AuthoritativeResource authoritativeResource = mock(AuthoritativeResource.class);

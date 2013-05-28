@@ -23,8 +23,10 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 class AuthoritativeResourceDataValidator {
+    private final static int MAX_RESOURCE_LENGTH = 40;
     private final List<String> sources;
     private final AuthoritativeResourceData authoritativeResourceData;
+    private final String reportFormat;
 
     @Autowired
     AuthoritativeResourceDataValidator(
@@ -32,6 +34,18 @@ class AuthoritativeResourceDataValidator {
             final AuthoritativeResourceData authoritativeResourceData) {
         this.sources = Lists.newArrayList(sources);
         this.authoritativeResourceData = authoritativeResourceData;
+
+        int maxSourceLength = 0;
+        for (final String source : sources) {
+            maxSourceLength = Math.max(maxSourceLength, source.length());
+        }
+
+        int maxObjectTypeLength = 0;
+        for (final ObjectType objectType : ObjectType.values()) {
+            maxObjectTypeLength = Math.max(maxObjectTypeLength, objectType.getName().length());
+        }
+
+        reportFormat = String.format("%%-%ds\t%%-%ds\t%%-%ds\t%%-%ds\t%%s\n", maxSourceLength, maxSourceLength, maxObjectTypeLength, MAX_RESOURCE_LENGTH);
     }
 
     void checkOverlaps(final Writer writer) throws IOException {
@@ -64,20 +78,19 @@ class AuthoritativeResourceDataValidator {
     }
 
     private <E extends IpInterval<E>, M extends IntervalMap<E, E>> void checkOverlapsForIntervals(final Writer writer, final String source1, final M intervalMap1, final String source2, final M intervalMap2, final ObjectType objectType, final E parent) throws IOException {
-        final List<E> intervals = intervalMap1.findExactAndAllMoreSpecific(parent);
-        for (final E interval : intervals) {
-            reportOverlapsForInterval(writer, source1, source2, interval, intervalMap2.findExactOrFirstLessSpecific(interval), objectType);
-            reportOverlapsForInterval(writer, source1, source2, interval, intervalMap2.findFirstMoreSpecific(interval), objectType);
-        }
-    }
+        final List<E> intervals1 = intervalMap1.findExactAndAllMoreSpecific(parent);
+        final List<E> intervals2 = intervalMap2.findExactAndAllMoreSpecific(parent);
 
-    private <E extends IpInterval<E>> void reportOverlapsForInterval(final Writer writer, final String source1, final String source2, final E element, final List<E> elements, final ObjectType objectType) throws IOException {
-        for (final E e : elements) {
-            reportOverlap(writer, source1, source2, objectType, element.toString(), e.toString());
+        for (final E interval1 : intervals1) {
+            for (final E interval2 : intervals2) {
+                if (interval1.intersects(interval2)) {
+                    reportOverlap(writer, source1, source2, objectType, interval1.toString(), interval2.toString());
+                }
+            }
         }
     }
 
     private void reportOverlap(final Writer writer, final String source1, final String source2, final ObjectType type, final String resource1, final String resource2) throws IOException {
-        writer.write(String.format("%-20s%-20s%-20s%-20s%s\n", source1, source2, type.getName(), resource1, resource2));
+        writer.write(String.format(reportFormat, source1, source2, type.getName(), resource1, resource2));
     }
 }
