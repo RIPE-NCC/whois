@@ -1,5 +1,6 @@
-## Next version
+## 1.65.8
 [query] Make sources to dummify configurable
+[query] --resource added for global authoritative internet resources
 
 ## 1.65.3
 [wsearch] Improve import logging
