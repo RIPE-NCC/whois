@@ -104,14 +104,12 @@ public class AuthoritativeResourceData implements EmbeddedValueResolverAware {
         try {
             downloader.downloadGrsData(logger, new URL(resourceDataUrl), resourceDataDownload);
 
-            if (resourceDataFile.exists()) {
-                if (resourceDataFile.delete()) {
-                    if (!resourceDataDownload.renameTo(resourceDataFile)) {
-                        logger.warn("Unable to rename downloaded resource data file: {}", resourceDataFile.getAbsolutePath());
-                    }
-                } else {
-                    logger.warn("Unable to delete previous resource data file: {}", resourceDataFile.getAbsolutePath());
-                }
+            if (resourceDataFile.exists() && !resourceDataFile.delete()) {
+                logger.warn("Unable to delete previous resource data file: {}", resourceDataFile.getAbsolutePath());
+            }
+
+            if (!resourceDataFile.exists() && !resourceDataDownload.renameTo(resourceDataFile)) {
+                logger.warn("Unable to rename downloaded resource data file: {}", resourceDataFile.getAbsolutePath());
             }
         } catch (IOException e) {
             logger.warn("Download {} failed: {}", source, resourceDataUrl, e);
