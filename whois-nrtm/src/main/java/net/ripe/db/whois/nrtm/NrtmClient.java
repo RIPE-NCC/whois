@@ -1,45 +1,42 @@
 package net.ripe.db.whois.nrtm;
 
 
-import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.SerialDao;
-import net.ripe.db.whois.common.dao.jdbc.JdbcSerialDao;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.dao.NrtmClientDao;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
-import sun.net.ConnectionResetException;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.sql.DataSource;
-import java.io.*;
-import java.net.BindException;
-import java.net.ConnectException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-public class NrtmClient {
+public class NrtmClient implements ApplicationService {
+
     private static final Pattern OPERATION_AND_SERIAL_PATTERN = Pattern.compile("^(ADD|DEL)[ ](\\d+)$");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmClient.class);
-    private static final int MAX_RETRY = 3;
-    private static final int RETRY_WAIT = 50000;
+
+    private static final int MAX_RETRIES = 100;
 
     private final SourceContext sourceContext;
     private final SerialDao serialDao;
@@ -54,114 +51,114 @@ public class NrtmClient {
 
     @Autowired
     public NrtmClient(final SourceContext sourceContext,
-                      @Qualifier("whoisMasterNrtmClientDataSource") final DataSource datasource,
-                      final DateTimeProvider dateTimeProvider,
+                      //@Qualifier("whoisMasterNrtmClientDataSource") final DataSource datasource,        // TODO: will transactional work with this datasource?
+                      final SerialDao serialDao,
                       final RpslObjectUpdateDao rpslObjectUpdateDao,
                       final NrtmClientDao nrtmClientDao,
                       @Value("${nrtm.client.host:}") final String nrtmHost,
                       @Value("${nrtm.client.port:-1}") final int nrtmPort) {
         this.sourceContext = sourceContext;
+        this.serialDao = serialDao;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.nrtmClientDao = nrtmClientDao;
-        this.serialDao = new JdbcSerialDao(datasource, dateTimeProvider);
         this.nrtmHost = nrtmHost;
         this.nrtmPort = nrtmPort;
     }
 
-    @PostConstruct
-    public void init() {
+    @Override
+    public void start() {
         if (StringUtils.isNotBlank(nrtmHost) && nrtmPort > 0) {
-            start(nrtmHost, nrtmPort);
+            LOGGER.info("Connecting NRTM client to {}:{}", nrtmHost, nrtmPort);
+            clientThread = new NrtmClientThread(nrtmHost, nrtmPort);
+            new Thread(clientThread).start();
+        } else {
+            LOGGER.info("Not starting NRTM client");
         }
     }
 
-    public void start(final String nrtmHost, final int nrtmPort) {
-        Validate.notNull(nrtmHost);
-        Validate.isTrue(nrtmPort > 0);
-        Validate.isTrue(clientThread == null);
-
-        clientThread = new NrtmClientThread(nrtmHost, nrtmPort);
-        new Thread(clientThread).start();
+    @Override
+    public void stop() {
+        if (clientThread != null) {
+            clientThread.stop();
+        }
     }
 
     private final class NrtmClientThread implements Runnable {
         private Socket socket;
         private boolean running;
-        private int retried = 0;
         private String host;
         private int port;
+        private Random random = new Random();
 
-        public NrtmClientThread(final String nrtmHost, final int nrtmPort) {
-            this.host = nrtmHost;
-            this.port = nrtmPort;
+        public NrtmClientThread(final String host, final int port) {
+            this.host = host;
+            this.port = port;
             init();
         }
 
         private void init() {
-            try {
-                socket = new Socket(host, port);
-                running = true;
-            } catch (Exception e) {
-                throw new IllegalStateException(e);
+            if (socket != null && socket.isConnected()) {
+                return;
+            }
+
+            for (int attempt = 0; ; attempt++) {
+                try {
+                    LOGGER.info("Connecting to {}:{}", host, port);
+                    socket = new Socket(host, port);
+                    socket.setReuseAddress(true);
+                    running = true;
+                    break;
+                } catch (Exception e) {
+                    LOGGER.info("Caught exception while connecting", e);
+
+                    if (attempt >= MAX_RETRIES) {
+                        throw new IllegalStateException(e);
+                    }
+
+                    try {
+                        Thread.sleep(100 + random.nextInt(500));
+                    } catch (InterruptedException ignored) {
+                    }
+                }
             }
         }
 
         @Override
         public void run() {  //TODO see intellij warning for this method
-            try {
-                while (retried <= MAX_RETRY) {
-                    if (!running) {
-                        init();
-                    }
+            while (running) {
+                try {
+                    init();
 
-                    try {
-                        final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                    final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-                        readHeader(reader);
-                        writeMirrorCommand(writer);
-                        readMirrorResult(reader);
-                        readUpdates(reader);
-                        retried = MAX_RETRY;
-                    } catch (ConnectException e) {
-                        retried++;
-                        Thread.sleep(RETRY_WAIT);
-                    } catch (BindException e) {
-                        retried++;
-                        Thread.sleep(RETRY_WAIT);
-                    } catch (ConnectionResetException e) {
-                        retried++;
-                        Thread.sleep(RETRY_WAIT);
-                    } finally {
-                        stop();
-                    }
+                    readHeader(reader);
+                    writeMirrorCommand(writer);
+                    readMirrorResult(reader);
+                    readUpdates(reader);
+
+                } catch (IllegalStateException e) {
+                    LOGGER.info("Encountered Illegal state, stopping.", e);
+                    running = false;
                 }
-            } catch (SocketException e) {
-                if (running) {
-                    LOGGER.error("Unexpected network error", e);
+                catch (Exception e) {
+                    LOGGER.info("Caught exception while connected", e);
+                } finally {
+                    stop();
                 }
-            } catch (IllegalStateException e) {
-                LOGGER.error("Unexpected response from NRTM server", e);
-            } catch (Exception e) {
-                LOGGER.error("Error in NRTM server connection", e);
-            } finally {
-                stop();
             }
         }
 
         public void stop() {
-            if (running) {
-                if (socket != null) {
-                    if (!socket.isClosed()) {
-                        try {
-                            socket.close();
-                        } catch (IOException ignored) {
-                        } finally {
-                            socket = null;
-                        }
+            if (socket != null) {
+                if (!socket.isClosed()) {
+                    try {
+                        socket.close();
+                    } catch (IOException ignored) {
+                    } finally {
+                        socket = null;
                     }
                 }
-                running = false;
             }
         }
 
@@ -174,7 +171,7 @@ public class NrtmClient {
         private String readLine(final BufferedReader reader, final String expected) throws IOException {
             final String line = reader.readLine();
             if (line == null) {
-                throw new IllegalStateException("Unexpected end of stream from NRTM server connection.");
+                throw new SocketException("Unexpected end of stream from NRTM server connection.");
             }
             if (!line.contains(expected)) {
                 throw new IllegalStateException("Expected to read: \"" + expected + "\", but actually read: \"" + line + "\"");
@@ -205,49 +202,60 @@ public class NrtmClient {
         }
 
         private void readUpdates(final BufferedReader reader) throws IOException {
-            for (; ; ) {
-                final OperationSerial operationSerial = readOperationAndSerial(reader);
-                final RpslObject object = readObject(reader);
-                RpslObjectUpdateInfo updateInfo;
-
-                try {
-                    updateInfo = rpslObjectUpdateDao.lookupObject(object.getType(), object.getKey().toString());
-                    LOGGER.info("Object: {}", updateInfo);
-                    if (nrtmClientDao.objectExistsWithSerial(operationSerial.getSerial(), updateInfo.getObjectId())) {
-                        continue;
-                    }
-                } catch (EmptyResultDataAccessException e) {
-                    if (operationSerial.getOperation() == Operation.DELETE) {
-                        break;
-                    }
-                    nrtmClientDao.createObject(object, operationSerial.getSerial());
-                    continue;
-                } catch (DataAccessException e) {
-                    //TODO fatal error - need to recover
-                    throw e;
+            try {
+                for (;;) {
+                    final OperationSerial operationSerial = readOperationAndSerial(reader);
+                    final RpslObject object = readObject(reader);
+                    update(operationSerial.getOperation(), operationSerial.getSerial(), object);
                 }
-
-                if (operationSerial.getOperation() == Operation.DELETE) {
-                    nrtmClientDao.deleteObject(updateInfo, operationSerial.getSerial());
-                } else {
-                    nrtmClientDao.updateObject(object,
-                            new RpslObjectUpdateInfo(updateInfo.getObjectId(), operationSerial.getSerial(), object.getType(), object.getKey().toString()),
-                            operationSerial.getSerial());
-                }
+            } finally {
+                stop();
             }
+        }
 
-            stop();
+        public void update(final Operation operation, final int serialId, final RpslObject rpslObject) {
+            try {
+                switch (operation) {
+                    case UPDATE:
+                        try {
+                            final RpslObjectUpdateInfo updateInfo = rpslObjectUpdateDao.lookupObject(rpslObject.getType(), rpslObject.getKey().toString());
+                            if (!nrtmClientDao.objectExistsWithSerial(serialId, updateInfo.getObjectId())) {
+                                LOGGER.info("UPDATE {}", serialId);
+                                nrtmClientDao.updateObject(rpslObject, updateInfo, serialId);
+                            }
+                        } catch (EmptyResultDataAccessException e) {
+                            LOGGER.info("ADD {}", serialId);
+                            nrtmClientDao.createObject(rpslObject, serialId);
+                        }
+                        break;
+
+                    case DELETE:
+                        try {
+                            final RpslObjectUpdateInfo updateInfo = rpslObjectUpdateDao.lookupObject(rpslObject.getType(), rpslObject.getKey().toString());
+                            if (!nrtmClientDao.objectExistsWithSerial(serialId, updateInfo.getObjectId())) {
+                                LOGGER.info("DELETE {}", serialId);
+                                nrtmClientDao.deleteObject(updateInfo, serialId);
+                            }
+                        } catch (EmptyResultDataAccessException e) {
+                            throw new IllegalStateException("DELETE serial:" + serialId + " but object:" + rpslObject.getKey().toString() + " doesn't exist");
+                        }
+                        break;
+                }
+            } catch (DataAccessException e) {
+                throw new IllegalStateException("Unexpected error on " + operation + " " + serialId, e);
+            }
         }
 
         private OperationSerial readOperationAndSerial(final BufferedReader reader) throws IOException {
             final String line = readLine(reader, " ");
+
             final Matcher matcher = OPERATION_AND_SERIAL_PATTERN.matcher(line);
             if (!matcher.find()) {
                 throw new IllegalStateException("Unexpected response from NRTM server: \"" + line + "\"");
             }
+
             final Operation operation = Operation.getByName(matcher.group(1));
             final String serial = matcher.group(2);
-            LOGGER.info("Operation:{} Serial:{}", operation, serial);
             readEmptyLine(reader);
             return new OperationSerial(operation, serial);
         }
@@ -279,14 +287,6 @@ public class NrtmClient {
             private int getSerial() {
                 return serial;
             }
-        }
-
-    }
-
-    @PreDestroy
-    public void stop() {
-        if (clientThread != null) {
-            clientThread.stop();
         }
     }
 }
