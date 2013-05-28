@@ -1,6 +1,5 @@
 package net.ripe.db.whois.nrtm.dao.jdbc;
 
-
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -28,18 +27,6 @@ public class JdbcNrtmClientDao implements NrtmClientDao {
         this.dateTimeProvider = dateTimeProvider;
     }
 
-
-    @Override
-    public RpslObjectUpdateInfo updateObject(final RpslObject object, final RpslObjectUpdateInfo rpslObjectInfo, final int serialId) {
-
-        deleteFromTables(jdbcTemplate, rpslObjectInfo);
-        insertIntoTables(jdbcTemplate, rpslObjectInfo, object);
-        copyToHistoryAndUpdateSerials(jdbcTemplate, rpslObjectInfo);
-        final int newSequenceId = updateLastAndSetSerials(dateTimeProvider, jdbcTemplate, rpslObjectInfo, object, serialId);
-
-        return new RpslObjectUpdateInfo(rpslObjectInfo.getObjectId(), newSequenceId, rpslObjectInfo.getObjectType(), rpslObjectInfo.getKey());
-    }
-
     @Override
     public RpslObjectUpdateInfo createObject(final RpslObject object, final int serialId) {
         final RpslObjectUpdateInfo rpslObjectInfo = insertIntoLastAndSetSerials(dateTimeProvider, jdbcTemplate, object, serialId);
@@ -49,9 +36,12 @@ public class JdbcNrtmClientDao implements NrtmClientDao {
     }
 
     @Override
-    public boolean objectExistsWithSerial(final int serialId, final int objectId) {
-        final int found = jdbcTemplate.queryForInt("SELECT count(*) FROM serials WHERE serial_id = ? AND object_id = ?", serialId, objectId);
-        return found > 0;
+    public RpslObjectUpdateInfo updateObject(final RpslObject object, final RpslObjectUpdateInfo rpslObjectInfo, final int serialId) {
+        deleteFromTables(jdbcTemplate, rpslObjectInfo);
+        insertIntoTables(jdbcTemplate, rpslObjectInfo, object);
+        copyToHistoryAndUpdateSerials(jdbcTemplate, rpslObjectInfo);
+        final int newSequenceId = updateLastAndSetSerials(dateTimeProvider, jdbcTemplate, rpslObjectInfo, object, serialId);
+        return new RpslObjectUpdateInfo(rpslObjectInfo.getObjectId(), newSequenceId, rpslObjectInfo.getObjectType(), rpslObjectInfo.getKey());
     }
 
     @Override
@@ -61,4 +51,9 @@ public class JdbcNrtmClientDao implements NrtmClientDao {
         deleteFromLastAndSetSerials(dateTimeProvider, jdbcTemplate, rpslObjectInfo, serialId);
     }
 
+    @Override
+    public boolean objectExistsWithSerial(final int serialId, final int objectId) {
+        final int found = jdbcTemplate.queryForInt("SELECT count(*) FROM serials WHERE serial_id = ? AND object_id = ?", serialId, objectId);
+        return found > 0;
+    }
 }
