@@ -1,7 +1,6 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -20,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -63,7 +63,7 @@ public class GrsSourceImporterTest {
 
     @Test
     public void run_rebuild() {
-        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
         subject.grsImport(grsSource, true);
 
         verify(grsDao).cleanDatabase();
@@ -72,8 +72,8 @@ public class GrsSourceImporterTest {
 
     @Test
     public void run_rebuild_ripe() {
-        when(grsSource.getSource()).thenReturn("RIPE-GRS");
-        when(sourceContext.isVirtual(CIString.ciString("RIPE-GRS"))).thenReturn(true);
+        when(grsSource.getName()).thenReturn(ciString("RIPE-GRS"));
+        when(sourceContext.isVirtual(ciString("RIPE-GRS"))).thenReturn(true);
         subject.grsImport(grsSource, true);
 
         verify(grsDao, never()).cleanDatabase();
@@ -82,7 +82,7 @@ public class GrsSourceImporterTest {
 
     @Test
     public void run_without_rebuild() {
-        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
         subject.grsImport(grsSource, false);
 
         verify(grsDao, never()).cleanDatabase();
@@ -91,8 +91,8 @@ public class GrsSourceImporterTest {
 
     @Test
     public void run_without_rebuild_ripe() {
-        when(grsSource.getSource()).thenReturn("RIPE-GRS");
-        when(sourceContext.isVirtual(CIString.ciString("RIPE-GRS"))).thenReturn(true);
+        when(grsSource.getName()).thenReturn(ciString("RIPE-GRS"));
+        when(sourceContext.isVirtual(ciString("RIPE-GRS"))).thenReturn(true);
         subject.grsImport(grsSource, false);
 
         verify(grsDao, never()).cleanDatabase();
@@ -101,11 +101,10 @@ public class GrsSourceImporterTest {
 
     @Test
     public void acquire_and_process() throws IOException {
-        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
 
         subject.grsImport(grsSource, false);
 
-        final File resourceDataFile = new File(folder.getRoot(), "APNIC-GRS-RES");
         final File dumpFile = new File(folder.getRoot(), "APNIC-GRS-DMP");
         verify(grsSource).acquireDump(dumpFile);
         verify(grsSource).handleObjects(eq(dumpFile), any(ObjectHandler.class));
@@ -113,12 +112,10 @@ public class GrsSourceImporterTest {
 
     @Test
     public void acquire_and_process_ripe() throws IOException {
-        when(grsSource.getSource()).thenReturn("RIPE-GRS");
-        when(sourceContext.isVirtual(CIString.ciString("RIPE-GRS"))).thenReturn(true);
+        when(grsSource.getName()).thenReturn(ciString("RIPE-GRS"));
+        when(sourceContext.isVirtual(ciString("RIPE-GRS"))).thenReturn(true);
 
         subject.grsImport(grsSource, false);
-
-        final File resourceDataFile = new File(folder.getRoot(), "RIPE-GRS-RES");
 
         verify(grsSource, never()).acquireDump(any(File.class));
         verify(grsSource, never()).handleObjects(any(File.class), any(ObjectHandler.class));
@@ -126,7 +123,7 @@ public class GrsSourceImporterTest {
 
     @Test
     public void process_nothing_does_not_delete() {
-        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
         when(grsDao.getCurrentObjectIds()).thenReturn(Lists.newArrayList(1));
 
         subject.grsImport(grsSource, false);
@@ -136,7 +133,7 @@ public class GrsSourceImporterTest {
 
     @Test
     public void process_throws_exception() throws IOException {
-        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
         doThrow(RuntimeException.class).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
 
         try {
@@ -149,7 +146,7 @@ public class GrsSourceImporterTest {
 
     @Test
     public void handle_object_create() throws IOException {
-        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
         when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
@@ -187,7 +184,7 @@ public class GrsSourceImporterTest {
 
     @Test
     public void handle_object_create_unknown_type() throws IOException {
-        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
 
         doAnswer(new Answer() {
             @Override
@@ -210,7 +207,7 @@ public class GrsSourceImporterTest {
 
     @Test
     public void handle_object_create_syntax_errors() throws IOException {
-        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
 
         doAnswer(new Answer() {
             @Override
@@ -234,7 +231,7 @@ public class GrsSourceImporterTest {
 
     @Test
     public void handle_lines_create_with_unknown_attribute() throws IOException {
-        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
         when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
@@ -275,7 +272,7 @@ public class GrsSourceImporterTest {
 
     @Test
     public void handle_lines_no_source_managed_by_rir() throws IOException {
-        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
         when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
@@ -302,7 +299,7 @@ public class GrsSourceImporterTest {
 
     @Test
     public void try_inserting_role_and_person_with_same_nichdl() throws Exception {
-        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
         when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
@@ -330,7 +327,7 @@ public class GrsSourceImporterTest {
 
     @Test
     public void run_create_update_delete() throws IOException {
-        when(grsSource.getSource()).thenReturn("APNIC-GRS");
+        when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
         when(grsDao.getCurrentObjectIds()).thenReturn(Lists.newArrayList(1, 2, 3));
         when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
 

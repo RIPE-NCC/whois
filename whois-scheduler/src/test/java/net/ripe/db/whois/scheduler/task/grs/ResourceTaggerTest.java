@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -38,7 +39,7 @@ public class ResourceTaggerTest {
 
     @Before
     public void setUp() throws Exception {
-        when(grsSource.getSource()).thenReturn("RIPE-GRS");
+        when(grsSource.getName()).thenReturn(ciString("RIPE-GRS"));
         when(grsSource.getLogger()).thenReturn(LoggerFactory.getLogger(ResourceTaggerTest.class));
         when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
         when(sourceContext.getCurrentSourceConfiguration()).thenReturn(sourceConfiguration);

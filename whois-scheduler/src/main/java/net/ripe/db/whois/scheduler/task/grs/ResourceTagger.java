@@ -41,7 +41,7 @@ class ResourceTagger {
     void tagObjects(final GrsSource grsSource) {
         final Stopwatch stopwatch = new Stopwatch().start();
         try {
-            sourceContext.setCurrent(Source.master(grsSource.getSource()));
+            sourceContext.setCurrent(Source.master(grsSource.getName()));
             tagObjectsInContext(grsSource);
         } finally {
             sourceContext.removeCurrentSource();
@@ -51,7 +51,7 @@ class ResourceTagger {
 
     private void tagObjectsInContext(final GrsSource grsSource) {
         final AuthoritativeResource authoritativeResource = grsSource.getAuthoritativeResource();
-        final CIString tagType = ciString(String.format("%s_RESOURCE", grsSource.getSource().toUpperCase().replace("-GRS", "")));
+        final CIString tagType = ciString(String.format("%s_RESOURCE", grsSource.getName().toUpperCase().replace("-GRS", "")));
         final List<Integer> deletes = Lists.newArrayList();
         final List<Tag> creates = Lists.newArrayList();
 

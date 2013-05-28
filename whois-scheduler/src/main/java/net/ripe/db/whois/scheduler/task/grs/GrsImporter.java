@@ -59,7 +59,7 @@ public class GrsImporter implements DailyScheduledTask {
         this.grsSourceImporter = grsSourceImporter;
         this.grsSources = Maps.newHashMapWithExpectedSize(grsSources.length);
         for (final GrsSource grsSource : grsSources) {
-            this.grsSources.put(ciString(grsSource.getSource()), grsSource);
+            this.grsSources.put(grsSource.getName(), grsSource);
         }
     }
 

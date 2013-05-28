@@ -20,8 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static net.ripe.db.whois.common.domain.CIString.ciString;
-
 @Component
 class GrsSourceImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GrsSourceImporter.class);
@@ -59,7 +57,7 @@ class GrsSourceImporter {
     void grsImport(final GrsSource grsSource, final boolean rebuild) {
         final AuthoritativeResource authoritativeResource = grsSource.getAuthoritativeResource();
 
-        if (sourceContext.isVirtual(ciString(grsSource.getSource()))) {
+        if (sourceContext.isVirtual(grsSource.getName())) {
             grsSource.getLogger().info("Not updating GRS data");
         } else {
             acquireAndUpdateGrsData(grsSource, rebuild, authoritativeResource);
@@ -82,7 +80,7 @@ class GrsSourceImporter {
 
             @Override
             public void run() {
-                final File dumpFile = new File(downloadDir, String.format("%s-DMP", grsSource.getSource()));
+                final File dumpFile = new File(downloadDir, String.format("%s-DMP", grsSource.getName().toUpperCase()));
 
                 try {
                     grsSource.acquireDump(dumpFile);
@@ -151,7 +149,7 @@ class GrsSourceImporter {
                     }
 
                     private RpslObjectBase filterObject(final RpslObjectBase rpslObject) {
-                        final RpslAttribute sourceAttribute = new RpslAttribute(AttributeType.SOURCE, grsSource.getSource());
+                        final RpslAttribute sourceAttribute = new RpslAttribute(AttributeType.SOURCE, grsSource.getName().toUpperCase());
 
                         final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
                         final Set<AttributeType> attributeTypes = objectTemplate.getAllAttributes();

@@ -34,13 +34,13 @@ public class GrsDaoTest extends AbstractSchedulerIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        subject = new GrsDao(logger, dateTimeProvider, "TEST-GRS", sourceContext);
+        subject = new GrsDao(logger, dateTimeProvider, ciString("TEST-GRS"), sourceContext);
         subject.cleanDatabase();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void no_grs_datasource() {
-        subject = new GrsDao(logger, dateTimeProvider, "UNKNOWN", sourceContext);
+        subject = new GrsDao(logger, dateTimeProvider, ciString("UNKNOWN"), sourceContext);
         subject.cleanDatabase();
     }
 
