@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.source.IllegalSourceException;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,9 +93,9 @@ public class AuthoritativeResourceData implements EmbeddedValueResolverAware {
     private AuthoritativeResource loadAuthoritativeResource(final CIString source) {
         final Logger logger = LoggerFactory.getLogger(String.format("%s_%s", getClass().getName(), source));
         final String sourceName = source.toLowerCase().replace("-grs", "");
-        final String propertyName = String.format("grs.import.%s.resourceDataUrl", sourceName);
+        final String propertyName = String.format("${grs.import.%s.resourceDataUrl:}", sourceName);
         final String resourceDataUrl = valueResolver.resolveStringValue(propertyName);
-        if (resourceDataUrl.equals(propertyName)) {
+        if (StringUtils.isBlank(resourceDataUrl)) {
             return AuthoritativeResource.unknown(logger);
         }
 
