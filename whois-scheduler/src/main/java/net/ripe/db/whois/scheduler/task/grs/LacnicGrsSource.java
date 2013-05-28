@@ -52,8 +52,9 @@ class LacnicGrsSource extends GrsSource {
             @Value("${grs.import.lacnic.source:}") final String source,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider,
-            final AuthoritativeResourceData authoritativeResourceData) {
-        super(source, sourceContext, dateTimeProvider, authoritativeResourceData);
+            final AuthoritativeResourceData authoritativeResourceData,
+            final Downloader downloader) {
+        super(source, sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
     }
 
     @Override
@@ -72,7 +73,7 @@ class LacnicGrsSource extends GrsSource {
 
 
         final String downloadAction = action.replace("stini", "bulkWhoisLoader");
-        Downloader.downloadToFile(logger, new URL(downloadAction), file);
+        downloader.downloadToFile(logger, new URL(downloadAction), file);
     }
 
     @Override

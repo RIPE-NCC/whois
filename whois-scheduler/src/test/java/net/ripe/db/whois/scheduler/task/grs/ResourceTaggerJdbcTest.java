@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -36,6 +37,7 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
     @Autowired DateTimeProvider dateTimeProvider;
     @Autowired TagsDao tagsDao;
     @Autowired RpslObjectDao objectDao;
+    @Autowired Downloader downloader;
 
     GrsSource grsSource;
     AuthoritativeResource authoritativeResource;
@@ -49,7 +51,7 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
         authoritativeResourceData = mock(AuthoritativeResourceData.class);
         when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
 
-        grsSource = new GrsSource("TEST-GRS", sourceContext, dateTimeProvider, authoritativeResourceData) {
+        grsSource = new GrsSource("TEST-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader) {
             @Override
             void acquireDump(final File file) throws IOException {
             }

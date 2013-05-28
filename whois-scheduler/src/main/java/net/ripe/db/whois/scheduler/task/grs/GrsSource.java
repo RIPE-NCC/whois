@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -23,15 +24,17 @@ abstract class GrsSource implements InitializingBean {
     final DateTimeProvider dateTimeProvider;
     final Logger logger;
     final AuthoritativeResourceData authoritativeResourceData;
+    final Downloader downloader;
 
     private GrsDao grsDao;
 
-    GrsSource(final String source, final SourceContext sourceContext, final DateTimeProvider dateTimeProvider, final AuthoritativeResourceData authoritativeResourceData) {
+    GrsSource(final String source, final SourceContext sourceContext, final DateTimeProvider dateTimeProvider, final AuthoritativeResourceData authoritativeResourceData, final Downloader downloader) {
         this.source = source;
         this.sourceContext = sourceContext;
         this.dateTimeProvider = dateTimeProvider;
         this.logger = LoggerFactory.getLogger(String.format("%s.%s", GrsSource.class.getName(), source));
         this.authoritativeResourceData = authoritativeResourceData;
+        this.downloader = downloader;
     }
 
     @Override

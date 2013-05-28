@@ -3,6 +3,7 @@ package net.ripe.db.whois.scheduler.task.grs;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,11 +28,12 @@ public class GrsSourceTest {
     @Mock DateTimeProvider dateTimeProvider;
     @Mock GrsDao grsDao;
     @Mock AuthoritativeResourceData authoritativeResourceData;
+    @Mock Downloader downloader;
     GrsSource subject;
 
     @Before
     public void setUp() throws Exception {
-        subject = new GrsSource("SOME-GRS", sourceContext, dateTimeProvider, authoritativeResourceData) {
+        subject = new GrsSource("SOME-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader) {
             @Override
             void acquireDump(File file) throws IOException {
             }

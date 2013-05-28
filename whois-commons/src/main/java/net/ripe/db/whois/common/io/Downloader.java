@@ -2,10 +2,11 @@ package net.ripe.db.whois.common.io;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Stopwatch;
-import net.ripe.db.whois.common.aspects.Retry;
+import net.ripe.db.whois.common.aspects.RetryFor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.*;
@@ -15,10 +16,11 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class Downloader {
     private static final Pattern MD5_CAPTURE_PATTERN = Pattern.compile("([a-fA-F0-9]{32})");
 
-    static void checkMD5(final InputStream resourceDataStream, final InputStream md5Stream) throws IOException {
+    void checkMD5(final InputStream resourceDataStream, final InputStream md5Stream) throws IOException {
         final String md5Line = FileCopyUtils.copyToString(new InputStreamReader(md5Stream, Charsets.UTF_8));
         final Matcher matcher = MD5_CAPTURE_PATTERN.matcher(md5Line);
         if (!matcher.find()) {
@@ -32,48 +34,38 @@ public class Downloader {
         }
     }
 
-    public static void downloadGrsData(final Logger logger, final URL url, final File file) throws IOException {
-        Retry.forException(new Retry.Retryable<Void>() {
-            @Override
-            public Void attempt() throws IOException {
-                InputStream is = null;
-                InputStream md5Stream = null;
-                InputStream resourceDataStream = null;
-                try {
-                    is = url.openStream();
-                    downloadToFile(logger, is, file);
-                    md5Stream = new URL(String.format("%s.md5", url)).openStream();
-                    resourceDataStream = new BufferedInputStream(new FileInputStream(file));
-                    checkMD5(resourceDataStream, md5Stream);
-                } finally {
-                    IOUtils.closeQuietly(is);
-                    IOUtils.closeQuietly(md5Stream);
-                    IOUtils.closeQuietly(resourceDataStream);
-                }
-                return null;
-            }
-        }, 10, 10000, IOException.class);
+    @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
+    public void downloadGrsData(final Logger logger, final URL url, final File file) throws IOException {
+        InputStream is = null;
+        InputStream md5Stream = null;
+        InputStream resourceDataStream = null;
+        try {
+            is = url.openStream();
+            downloadToFile(logger, is, file);
+            md5Stream = new URL(String.format("%s.md5", url)).openStream();
+            resourceDataStream = new BufferedInputStream(new FileInputStream(file));
+            checkMD5(resourceDataStream, md5Stream);
+        } finally {
+            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(md5Stream);
+            IOUtils.closeQuietly(resourceDataStream);
+        }
     }
 
-    public static void downloadToFile(final Logger logger, final URL url, final File file) throws IOException {
+    @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
+    public void downloadToFile(final Logger logger, final URL url, final File file) throws IOException {
         logger.info("Downloading {} from {}", file, url);
 
-        Retry.forException(new Retry.Retryable<Void>() {
-            @Override
-            public Void attempt() throws IOException {
-                InputStream is = null;
-                try {
-                    is = url.openStream();
-                    downloadToFile(logger, is, file);
-                } finally {
-                    IOUtils.closeQuietly(is);
-                }
-                return null;
-            }
-        }, 10, 10000, IOException.class);
+        InputStream is = null;
+        try {
+            is = url.openStream();
+            downloadToFile(logger, is, file);
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
     }
 
-    static void downloadToFile(final Logger logger, final InputStream is, final File file) throws IOException {
+    void downloadToFile(final Logger logger, final InputStream is, final File file) throws IOException {
         if (file.mkdirs()) {
             logger.info("Created dirs for {}", file);
         }
@@ -107,5 +99,3 @@ public class Downloader {
         logger.info("Downloaded {} in {}", file, stopwatch.stop());
     }
 }
-
-

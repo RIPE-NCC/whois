@@ -61,13 +61,14 @@ class ArinGrsSource extends GrsSource {
             @Value("${grs.import.arin.source:}") final String source,
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider,
-            final AuthoritativeResourceData authoritativeResourceData) {
-        super(source, sourceContext, dateTimeProvider, authoritativeResourceData);
+            final AuthoritativeResourceData authoritativeResourceData,
+            final Downloader downloader) {
+        super(source, sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
     }
 
     @Override
     public void acquireDump(final File file) throws IOException {
-        Downloader.downloadToFile(logger, new URL(download), file);
+        downloader.downloadToFile(logger, new URL(download), file);
     }
 
     @Override

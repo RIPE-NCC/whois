@@ -26,6 +26,7 @@ public class AuthoritativeResourceData implements EmbeddedValueResolverAware {
     private final static Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceData.class);
     private final static int DAILY_MS = 24 * 60 * 60 * 1000;
 
+    private final Downloader downloader;
     private final String downloadDir;
     private StringValueResolver valueResolver;
 
@@ -36,9 +37,11 @@ public class AuthoritativeResourceData implements EmbeddedValueResolverAware {
     @Autowired
     public AuthoritativeResourceData(
             @Value("${grs.sources}") final List<String> sources,
-            @Value("${dir.grs.import.download:}") final String downloadDir) {
+            @Value("${dir.grs.import.download:}") final String downloadDir,
+            final Downloader downloader) {
         this.sources = ciSet(sources);
         this.downloadDir = downloadDir;
+        this.downloader = downloader;
     }
 
     @Override
@@ -98,7 +101,7 @@ public class AuthoritativeResourceData implements EmbeddedValueResolverAware {
         final File resourceDataDownload = new File(downloadDir, source + "-RES.tmp");
         final File resourceDataFile = new File(downloadDir, source + "-RES");
         try {
-            Downloader.downloadGrsData(logger, new URL(resourceDataUrl), resourceDataDownload);
+            downloader.downloadGrsData(logger, new URL(resourceDataUrl), resourceDataDownload);
 
             if (resourceDataFile.exists()) {
                 if (resourceDataFile.delete()) {
