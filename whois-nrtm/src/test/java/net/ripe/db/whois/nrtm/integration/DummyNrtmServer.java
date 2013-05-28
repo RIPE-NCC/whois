@@ -11,6 +11,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -30,104 +31,20 @@ public class DummyNrtmServer {
             "\n";
 
     private final List<Update> updates = Collections.synchronizedList(Lists.<Update>newArrayList());
+    private final int port;
+
     private boolean running = false;
-    private int port = 0;
+
+    public DummyNrtmServer(final int port) {
+        this.port = port;
+    }
 
     public void start() {
         if (running) {
             throw new IllegalStateException();
         }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ServerSocket serverSocket = null;
-                try {
-                    serverSocket = openServerSocket();
-                    running = true;
-                    while (running) {
-                        Socket socket = null;
-                        try {
-                            socket = acceptSocket(serverSocket);
-
-                            final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-
-                            writer.write(HEADER);
-                            writer.flush();
-
-                            final String command = reader.readLine();
-
-                            final Matcher matcher = MIRROR_COMMAND_PATTERN.matcher(command);
-                            if (matcher.find()) {
-                                final int startSerial = Integer.parseInt(matcher.group(1));
-
-                                if (startSerial > updates.get(updates.size() - 1).getSerial()) {
-                                    writer.write(String.format("%%ERROR:401: invalid range: Not within %d-%d\n", updates.get(0).getSerial(), updates.get(updates.size() - 1).getSerial()));
-                                    writer.flush();
-                                    break;
-                                }
-
-                                writer.write(String.format("%%START Version: 3 RIPE %d-%d\n\n", startSerial, updates.get(updates.size() - 1).getSerial()));
-
-                                int index = 0;
-                                while (running) {
-                                    for (; index < updates.size(); index++) {
-                                        if (updates.get(index).getSerial() >= startSerial) {
-                                            writer.write(updates.get(index).toString());
-                                            writer.flush();
-                                        }
-                                    }
-                                    Thread.sleep(100);
-                                }
-                            } else {
-                                writer.write("%ERROR:405: no flags passed\n");
-                                writer.flush();
-                            }
-                        } catch (SocketException ignored) {
-                        } catch (Exception e) {
-                            LOGGER.error("Caught exception", e);
-                        } finally {
-                            closeSocket(socket);
-                        }
-                    }
-                } finally {
-                    closeServerSocket(serverSocket);
-                }
-            }
-
-            private Socket acceptSocket(final ServerSocket serverSocket) throws IOException {
-                final Socket socket = serverSocket.accept();
-                socket.setReuseAddress(true);
-                return socket;
-            }
-
-            private void closeSocket(final Socket socket) {
-                if (socket != null) {
-                    try {
-                        socket.close();
-                    } catch (IOException ignored) {
-                    }
-                }
-            }
-
-            private ServerSocket openServerSocket() {
-                try {
-                    final ServerSocket serverSocket = new ServerSocket(port);
-                    port = serverSocket.getLocalPort();
-                    return serverSocket;
-                } catch (IOException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-
-            private void closeServerSocket(final ServerSocket serverSocket) {
-                try {
-                    serverSocket.close();
-                } catch (IOException ignored) {
-                }
-            }
-
-        }).start();
+        NrtmServerThread nrtmServerThread = new NrtmServerThread();
+        new Thread(nrtmServerThread).start();
     }
 
     public void stop() {
@@ -147,6 +64,99 @@ public class DummyNrtmServer {
 
     public void deleteObject(final int serial, final RpslObject rpslObject) {
         updates.add(new Update(Operation.DELETE, serial, rpslObject));
+    }
+
+    private class NrtmServerThread implements Runnable {
+        @Override
+        public void run() {
+            ServerSocket serverSocket = null;
+            try {
+                serverSocket = openServerSocket();
+                running = true;
+                while (running) {
+                    Socket socket = null;
+                    try {
+                        socket = acceptSocket(serverSocket);
+
+                        final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+                        writer.write(HEADER);
+                        writer.flush();
+
+                        final String command = reader.readLine();
+
+                        final Matcher matcher = MIRROR_COMMAND_PATTERN.matcher(command);
+                        if (matcher.find()) {
+                            final int startSerial = Integer.parseInt(matcher.group(1));
+
+                            if (startSerial > updates.get(updates.size() - 1).getSerial()) {
+                                writer.write(String.format("%%ERROR:401: invalid range: Not within %d-%d\n", updates.get(0).getSerial(), updates.get(updates.size() - 1).getSerial()));
+                                writer.flush();
+                                break;
+                            }
+
+                            writer.write(String.format("%%START Version: 3 RIPE %d-%d\n\n", startSerial, updates.get(updates.size() - 1).getSerial()));
+
+                            int index = 0;
+                            while (running) {
+                                for (; index < updates.size(); index++) {
+                                    if (updates.get(index).getSerial() >= startSerial) {
+                                        writer.write(updates.get(index).toString());
+                                        writer.flush();
+                                    }
+                                }
+                                Thread.sleep(100);
+                            }
+                        } else {
+                            writer.write("%ERROR:405: no flags passed\n");
+                            writer.flush();
+                        }
+                    } catch (SocketException ignored) {
+                    } catch (Exception e) {
+                        LOGGER.error("Caught exception", e);
+                    } finally {
+                        closeSocket(socket);
+                    }
+                }
+            } finally {
+                closeServerSocket(serverSocket);
+            }
+        }
+
+        private Socket acceptSocket(final ServerSocket serverSocket) throws IOException {
+            serverSocket.bind(new InetSocketAddress(port));
+            final Socket socket = serverSocket.accept();
+            return socket;
+        }
+
+        private void closeSocket(final Socket socket) {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+
+        private ServerSocket openServerSocket() {
+            try {
+                final ServerSocket serverSocket = new ServerSocket();
+                serverSocket.setReuseAddress(true);
+                return serverSocket;
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        private void closeServerSocket(final ServerSocket serverSocket) {
+            if (serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
     }
 
     private class Update {

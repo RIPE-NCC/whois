@@ -3,6 +3,7 @@ package net.ripe.db.whois.nrtm.integration;
 import com.jayway.awaitility.Awaitility;
 import com.jayway.awaitility.Duration;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.nrtm.NrtmClient;
@@ -23,25 +24,25 @@ import static org.hamcrest.Matchers.is;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-nrtm-test.xml"}, inheritLocations = false)
 @Category(IntegrationTest.class)
-public class NrtmClientIntegration extends AbstractNrtmIntegrationBase {
+public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Autowired NrtmClient nrtmClient;
     private DummyNrtmServer dummyNrtmServer;
 
     @Before
     public void before() throws Exception {
-        dummyNrtmServer = new DummyNrtmServer();
+        dummyNrtmServer = new DummyNrtmServer(ServerHelper.getAvailablePort());
         dummyNrtmServer.start();
     }
 
     @After
-    public void after() {
+    public void after() throws Exception {
         dummyNrtmServer.stop();
         nrtmClient.stop();
     }
 
     @Test
-    public void add_person() throws Exception {
+    public void add_person_from_nrtm() throws Exception {
         final RpslObject mntner = RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: TEST");
@@ -50,6 +51,7 @@ public class NrtmClientIntegration extends AbstractNrtmIntegrationBase {
                 "nic-hdl: OP1-TEST\n" +
                 "mnt-by: OWNER-MNT\n" +
                 "source: TEST");
+
         databaseHelper.addObject(mntner);
         dummyNrtmServer.addObject(1, mntner);
         dummyNrtmServer.addObject(2, person);
@@ -59,7 +61,7 @@ public class NrtmClientIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void add_person_gap_in_serials() throws Exception {
+    public void add_person_from_nrtm_gap_in_serials() throws Exception {
         final RpslObject mntner = RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: TEST");
@@ -67,6 +69,7 @@ public class NrtmClientIntegration extends AbstractNrtmIntegrationBase {
                 "person: One Person\n" +
                 "nic-hdl: OP1-TEST\n" +
                 "source: TEST");
+
         databaseHelper.addObject(mntner);
         dummyNrtmServer.addObject(1, mntner);
         dummyNrtmServer.addObject(5, person);
@@ -76,10 +79,11 @@ public class NrtmClientIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void delete_person() throws Exception {
+    public void delete_person_from_nrtm() throws Exception {
         final RpslObject mntner = RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: TEST");
+
         databaseHelper.addObject(mntner);
         dummyNrtmServer.addObject(1, mntner);
         dummyNrtmServer.deleteObject(2, mntner);
@@ -89,45 +93,61 @@ public class NrtmClientIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void update_person() throws Exception {
+    public void create_and_update_person_from_nrtm() throws Exception {
         final RpslObject person = RpslObject.parse(
                 "person: One Person\n" +
                 "nic-hdl: OP1-TEST\n" +
                 "source: TEST");
-        databaseHelper.addObject(person);
-        dummyNrtmServer.addObject(1, person);
-
-        nrtmClient.start("localhost", dummyNrtmServer.getPort());
-
         final RpslObject update = RpslObject.parse(
                 "person: One Person\n" +
                 "nic-hdl: OP1-TEST\n" +
                 "remarks: updated\n" +
                 "source: TEST");
+
+        dummyNrtmServer.addObject(1, person);
         dummyNrtmServer.addObject(2, update);
+        nrtmClient.start("localhost", dummyNrtmServer.getPort());
 
         objectMatches(update);
     }
 
     @Test
-    public void unexpected_server_disconnect() throws Exception {
+    public void update_existing_person_from_nrtm() throws Exception {
+
+        final RpslObject person = RpslObject.parse(
+                "person: One Person\n" +
+                "nic-hdl: OP1-TEST\n" +
+                "source: TEST");
+        final RpslObject update = RpslObject.parse(
+                "person: One Person\n" +
+                "nic-hdl: OP1-TEST\n" +
+                "remarks: updated\n" +
+                "source: TEST");
+
+        databaseHelper.addObject(person);
+        dummyNrtmServer.addObject(1, person);
+        dummyNrtmServer.addObject(2, update);
+        nrtmClient.start("localhost", dummyNrtmServer.getPort());
+
+        objectMatches(update);
+    }
+
+    @Test
+    public void create_mntner_network_error_then_create_person() throws Exception {
         final RpslObject mntner = RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: TEST");
-        databaseHelper.addObject(mntner);
-        dummyNrtmServer.addObject(1, mntner);
-
-        nrtmClient.start("localhost", dummyNrtmServer.getPort());
-
-        Thread.sleep(1000);
-        dummyNrtmServer.stop();
-        Thread.sleep(1000);
-
         final RpslObject person = RpslObject.parse(
                 "person: One Person\n" +
                 "nic-hdl: OP1-TEST\n" +
                 "mnt-by: OWNER-MNT\n" +
                 "source: TEST");
+
+        dummyNrtmServer.addObject(1, mntner);
+        nrtmClient.start("localhost", dummyNrtmServer.getPort());
+        objectExists(ObjectType.MNTNER, "OWNER-MNT", true);
+
+        dummyNrtmServer.stop();
         dummyNrtmServer.addObject(2, person);
         dummyNrtmServer.start();
 
@@ -135,7 +155,7 @@ public class NrtmClientIntegration extends AbstractNrtmIntegrationBase {
     }
 
     private void objectExists(final ObjectType type, final String key, final boolean exists) {
-        Awaitility.waitAtMost(Duration.ONE_SECOND).until(new Callable<Boolean>() {
+        Awaitility.waitAtMost(Duration.FIVE_SECONDS).until(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 try {
@@ -149,7 +169,7 @@ public class NrtmClientIntegration extends AbstractNrtmIntegrationBase {
     }
 
     private void objectMatches(final RpslObject rpslObject) {
-        Awaitility.waitAtMost(Duration.ONE_SECOND).until(new Callable<RpslObject>() {
+        Awaitility.waitAtMost(Duration.FIVE_SECONDS).until(new Callable<RpslObject>() {
             @Override
             public RpslObject call() throws Exception {
                 try {

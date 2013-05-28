@@ -67,9 +67,13 @@ public class NrtmClient implements ApplicationService {
 
     @Override
     public void start() {
-        if (StringUtils.isNotBlank(nrtmHost) && nrtmPort > 0) {
-            LOGGER.info("Connecting NRTM client to {}:{}", nrtmHost, nrtmPort);
-            clientThread = new NrtmClientThread(nrtmHost, nrtmPort);
+        start(nrtmHost, nrtmPort);
+    }
+
+    public void start(final String host, final int port) {
+        if (StringUtils.isNotBlank(host) && port > 0) {
+            LOGGER.info("Connecting NRTM client to {}:{}", host, port);
+            clientThread = new NrtmClientThread(host, port);
             new Thread(clientThread).start();
         } else {
             LOGGER.info("Not starting NRTM client");
@@ -108,9 +112,8 @@ public class NrtmClient implements ApplicationService {
                     socket.setReuseAddress(true);
                     running = true;
                     break;
-                } catch (Exception e) {
-                    LOGGER.info("Caught exception while connecting", e);
-
+                }
+                catch (Exception e) {
                     if (attempt >= MAX_RETRIES) {
                         throw new IllegalStateException(e);
                     }
@@ -124,7 +127,7 @@ public class NrtmClient implements ApplicationService {
         }
 
         @Override
-        public void run() {  //TODO see intellij warning for this method
+        public void run() {
             while (running) {
                 try {
                     init();
@@ -140,8 +143,9 @@ public class NrtmClient implements ApplicationService {
                 } catch (IllegalStateException e) {
                     LOGGER.info("Encountered Illegal state, stopping.", e);
                     running = false;
-                }
-                catch (Exception e) {
+                } catch (SocketException e) {
+                    // expected - disconnected from server - will retry
+                } catch (Exception e) {
                     LOGGER.info("Caught exception while connected", e);
                 } finally {
                     stop();
