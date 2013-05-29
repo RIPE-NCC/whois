@@ -1,3 +1,12 @@
+## 1.65.10
+[query] Change "--no-taginfo" to "--no-tag-info" and "--show-taginfo" to "--show-tag-info"
+[grs] Tag resources for sources with {SOURCE}-REGISTRY-RESOURCE and {SOURCE}-USER-RESOURCE
+
+## 1.65.9
+[wsearch] Improve log file indexing
+[update] Do not fail unreferenced object cleanup on invalid object in history
+[grs] Interpret sources correctly when loading authoritative resource data
+
 ## 1.65.8
 [query] Make sources to dummify configurable
 [query] --resource added for global authoritative internet resources
