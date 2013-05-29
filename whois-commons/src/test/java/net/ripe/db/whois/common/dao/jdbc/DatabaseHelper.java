@@ -61,10 +61,6 @@ public class DatabaseHelper {
         this.aclTemplate = new JdbcTemplate(aclDataSource);
     }
 
-    public JdbcTemplate getAclTemplate() {
-        return this.aclTemplate;
-    }
-
     @Autowired(required = false)
     @Qualifier("schedulerDataSource")
     public void setSchedulerDataSource(DataSource schedulerDataSource) {
@@ -85,6 +81,7 @@ public class DatabaseHelper {
     }
 
     private static String namePrefix;
+    private static String dbName;
 
     public static synchronized void setupDatabase() {
         if (namePrefix != null) {
@@ -93,21 +90,9 @@ public class DatabaseHelper {
 
         final JdbcTemplate jdbcTemplate = createDefaultTemplate();
         ensureLocalhost(jdbcTemplate);
+        cleanupOldTables(jdbcTemplate);
 
-        final Pattern dbPattern = Pattern.compile("test_(\\d+)_.*");
-        for (final String db : jdbcTemplate.queryForList("SHOW DATABASES LIKE 'test_%'", String.class)) {
-            final Matcher dbMatcher = dbPattern.matcher(db);
-            if (dbMatcher.matches()) {
-                final String creationTimeString = dbMatcher.group(1);
-
-                final LocalDateTime creationTime = new LocalDateTime(Long.parseLong(creationTimeString));
-                if (creationTime.isBefore(new LocalDateTime().minusHours(1))) {
-                    jdbcTemplate.execute("DROP DATABASE IF EXISTS " + db);
-                }
-            }
-        }
-
-        String dbName = "test_" + System.currentTimeMillis() + "_" + DigestUtils.md5DigestAsHex(UUID.randomUUID().toString().getBytes());
+        dbName = "test_" + System.currentTimeMillis() + "_" + DigestUtils.md5DigestAsHex(UUID.randomUUID().toString().getBytes());
 
         setupDatabase(jdbcTemplate, "acl.database", dbName, "ACL", "acl_schema.sql");
         setupDatabase(jdbcTemplate, "dnscheck.database", dbName, "DNSCHECK", "dnscheck_schema.sql");
@@ -116,7 +101,9 @@ public class DatabaseHelper {
         setupDatabase(jdbcTemplate, "whois.db", dbName, "WHOIS", "whois_schema.sql", "whois_data.sql");
 
         System.setProperty("whois.source", "TEST");
-        System.setProperty("grs.sources", "TEST-GRS");
+
+        // TEST-GRS is an alias for TEST
+        resetGrsSources();
 
         final String masterUrl = String.format("jdbc:log:mysql://localhost/%s_WHOIS;driver=%s;logger=%s", dbName, JDBC_DRIVER, LOGGING_HANDLER);
         System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
@@ -129,6 +116,36 @@ public class DatabaseHelper {
         System.setProperty("whois.db.grs.master.baseurl", slaveUrl);
 
         namePrefix = dbName;
+    }
+
+    private static void cleanupOldTables(final JdbcTemplate jdbcTemplate) {
+        final Pattern dbPattern = Pattern.compile("test_(\\d+)_.*");
+        for (final String db : jdbcTemplate.queryForList("SHOW DATABASES LIKE 'test_%'", String.class)) {
+            final Matcher dbMatcher = dbPattern.matcher(db);
+            if (dbMatcher.matches()) {
+                final String creationTimeString = dbMatcher.group(1);
+
+                final LocalDateTime creationTime = new LocalDateTime(Long.parseLong(creationTimeString));
+                if (creationTime.isBefore(new LocalDateTime().minusHours(1))) {
+                    jdbcTemplate.execute("DROP DATABASE IF EXISTS " + db);
+                }
+            }
+        }
+    }
+
+    public static void resetGrsSources() {
+        System.setProperty("grs.sources", "TEST-GRS");
+    }
+
+    public static void addGrsDatabases(final String... names) {
+        for (final String name : names) {
+            Validate.isTrue(name.endsWith("-GRS"), name + " must end with -GRS");
+            setupDatabase(createDefaultTemplate(), "whois.db." + name, dbName, "WHOIS_" + name.replace('-', '_'), "whois_schema.sql");
+        }
+
+        final Joiner joiner = Joiner.on(',');
+        final String grsSources = joiner.join(System.getProperty("grs.sources", ""), joiner.join(names));
+        System.setProperty("grs.sources", grsSources);
     }
 
     public static void setupDatabase(final String propertyBase, final String nameBase, final String name, final String... sql) {

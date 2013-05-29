@@ -5,7 +5,7 @@ import spec.domain.SyncUpdate
 import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class PersonIntegrationSpec extends BaseSpec {
+class PersonIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
     Map<String, String> getFixtures() {

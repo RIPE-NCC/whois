@@ -8,7 +8,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class KeycertIntegrationSpec extends BaseSpec {
+class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
     Map<String, String> getFixtures() {

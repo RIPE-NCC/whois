@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.source.Source
 import spec.domain.SyncUpdate
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class VersionQuerySpec extends BaseSpec {
+class VersionQuerySpec extends BaseWhoisSourceSpec {
     @Override
     Map<String, String> getFixtures() {
         [

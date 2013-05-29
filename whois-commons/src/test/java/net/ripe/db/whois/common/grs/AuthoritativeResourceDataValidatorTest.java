@@ -107,5 +107,4 @@ public class AuthoritativeResourceDataValidatorTest {
 
         when(authoritativeResourceData.getAuthoritativeResource(ciString(name))).thenReturn(authoritativeResource);
     }
-
 }

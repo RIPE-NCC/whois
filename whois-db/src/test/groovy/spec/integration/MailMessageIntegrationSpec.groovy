@@ -3,7 +3,7 @@ package spec.integration
 import net.ripe.db.whois.common.IntegrationTest
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class MailMessageIntegrationSpec extends BaseSpec {
+class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
     Map<String, String> getFixtures() {

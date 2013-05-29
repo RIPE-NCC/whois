@@ -1,10 +1,9 @@
 package spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.common.source.Source
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class SimpleQuerySpec extends BaseSpec {
+class SimpleQuerySpec extends BaseWhoisSourceSpec {
     @Override
     Map<String, String> getFixtures() {
         [

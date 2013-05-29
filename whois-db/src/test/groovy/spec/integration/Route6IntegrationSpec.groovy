@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.IntegrationTest
 import spec.domain.SyncUpdate
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class Route6IntegrationSpec extends BaseSpec {
+class Route6IntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
     Map<String, String> getFixtures() {

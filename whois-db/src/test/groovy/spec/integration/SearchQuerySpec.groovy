@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.source.Source
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class SearchQuerySpec extends BaseSpec {
+class SearchQuerySpec extends BaseWhoisSourceSpec {
     @Override
     Map<String, String> getFixtures() {
         return [
