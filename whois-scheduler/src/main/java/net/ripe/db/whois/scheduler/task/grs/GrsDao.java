@@ -45,10 +45,12 @@ class GrsDao {
     private void ensureInitialized() {
         if (masterJdbcTemplate == null) {
             try {
-                masterJdbcTemplate = sourceContext.getSourceConfiguration(Source.master(sourceName)).getJdbcTemplate();
-                slaveJdbcTemplate = sourceContext.getSourceConfiguration(Source.slave(sourceName)).getJdbcTemplate();
+                JdbcTemplate masterJdbcTemplate = sourceContext.getSourceConfiguration(Source.master(sourceName)).getJdbcTemplate();
+                JdbcTemplate slaveJdbcTemplate = sourceContext.getSourceConfiguration(Source.slave(sourceName)).getJdbcTemplate();
                 JdbcRpslObjectOperations.sanityCheck(masterJdbcTemplate);
                 JdbcRpslObjectOperations.sanityCheck(slaveJdbcTemplate);
+                this.masterJdbcTemplate = masterJdbcTemplate;
+                this.slaveJdbcTemplate = slaveJdbcTemplate;
             } catch (IllegalSourceException e) {
                 throw new IllegalArgumentException(String.format("Source not configured: %s", e.getSource()));
             }
