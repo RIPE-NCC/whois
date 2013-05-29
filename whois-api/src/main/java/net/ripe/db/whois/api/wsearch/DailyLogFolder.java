@@ -4,7 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.lucene.util.IOUtils;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.*;
@@ -14,6 +16,8 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 class DailyLogFolder {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DailyLogFolder.class);
+
     private static final Pattern DAILY_LOG_FOLDER_PATTERN = Pattern.compile("(\\d{8})(?:\\.tar)?");
     private static final Pattern UPDATE_LOG_FOLDER_PATTERN = Pattern.compile("(\\d{6})\\..*");
     private static final Pattern TAR_ENTRY_PATH_PATTERN = Pattern.compile("^\\./(.*)");
@@ -41,7 +45,7 @@ class DailyLogFolder {
         }
     }
 
-    public void processLoggedFiles(final LoggedFilesProcessor loggedFilesProcessor) throws IOException {
+    public void processLoggedFiles(final LoggedFilesProcessor loggedFilesProcessor) {
         if (folder.isFile()) {
             FileInputStream is = null;
 
@@ -50,19 +54,26 @@ class DailyLogFolder {
                 final TarArchiveInputStream tarInput = new TarArchiveInputStream(new BufferedInputStream(is));
 
                 for (TarArchiveEntry tarEntry = tarInput.getNextTarEntry(); tarEntry != null; tarEntry = tarInput.getNextTarEntry()) {
-                    final String entryPath = String.format("%s%s%s", folderName, File.separator, TAR_ENTRY_PATH_PATTERN.matcher(tarEntry.getName()).replaceAll("$1"));
+                    final String tarEntryName = tarEntry.getName();
 
-                    if (tarEntry.isFile() && LoggedUpdateInfo.isLoggedUpdateInfo(entryPath)) {
-                        final LoggedUpdateInfo loggedUpdateInfo = LoggedUpdateInfo.parse(entryPath);
-                        if (loggedFilesProcessor.accept(loggedUpdateInfo)) {
-                            loggedFilesProcessor.process(loggedUpdateInfo, getContents(tarInput, tarEntry.getSize()));
+                    try {
+                        final String entryPath = String.format("%s%s%s", folderName, File.separator, TAR_ENTRY_PATH_PATTERN.matcher(tarEntryName).replaceAll("$1"));
+                        if (tarEntry.isFile() && LoggedUpdateInfo.isLoggedUpdateInfo(entryPath)) {
+                            final LoggedUpdateInfo loggedUpdateInfo = LoggedUpdateInfo.parse(entryPath);
+                            if (loggedFilesProcessor.accept(loggedUpdateInfo)) {
+                                loggedFilesProcessor.process(loggedUpdateInfo, getContents(tarInput, tarEntry.getSize()));
+                            }
                         }
+                    } catch (IOException e) {
+                        LOGGER.warn("IO exception processing entry: {} in file: {}", tarEntryName, folder.getCanonicalPath(), e);
+                    } catch (RuntimeException e) {
+                        LOGGER.warn("Unexpected exception processing entry: {} in file: {}", tarEntryName, folder.getCanonicalPath(), e);
                     }
                 }
             } catch (IOException e) {
-                throw new IllegalStateException("Error in file " + folder.getCanonicalPath(), e);
+                LOGGER.warn("Exception processing folder: {}", folder.getAbsolutePath(), e);
             } finally {
-                IOUtils.close(is);
+                IOUtils.closeQuietly(is);
             }
         } else {
             final File[] updateLogFolders = folder.listFiles(new FileFilter() {
@@ -98,9 +109,11 @@ class DailyLogFolder {
                         is = new FileInputStream(file);
                         loggedFilesProcessor.process(loggedUpdateInfo, getContents(new BufferedInputStream(is), file.length()));
                     } catch (IOException e) {
-                        throw new IllegalStateException("Error in file " + file.getCanonicalPath(), e);
+                        LOGGER.warn("IO exception processing file: {}", file.getAbsolutePath(), e);
+                    } catch (RuntimeException e) {
+                        LOGGER.warn("Unexpected exception processing file: {}", file.getAbsolutePath(), e);
                     } finally {
-                        IOUtils.close(is);
+                        IOUtils.closeQuietly(is);
                     }
                 }
             }
@@ -147,7 +160,8 @@ class DailyLogFolder {
 
             return FileCopyUtils.copyToString(reader);
         } finally {
-            IOUtils.close(reader, in);
+            IOUtils.closeQuietly(reader);
+            IOUtils.closeQuietly(in);
         }
     }
 
