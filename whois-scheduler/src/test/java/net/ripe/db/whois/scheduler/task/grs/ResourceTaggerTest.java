@@ -1,7 +1,6 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import net.ripe.db.whois.common.dao.TagsDao;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceConfiguration;
@@ -52,12 +51,12 @@ public class ResourceTaggerTest {
 
         verify(sourceContext).setCurrent(any(Source.class));
         verify(sourceContext).removeCurrentSource();
-        verify(tagsDao).updateTags(any(CIString.class), any(List.class), any(List.class));
+        verify(tagsDao).updateTags(any(Iterable.class), any(List.class), any(List.class));
     }
 
     @Test
     public void tagObjects_cleans_up() {
-        doThrow(SQLException.class).when(tagsDao).updateTags(any(CIString.class), any(List.class), any(List.class));
+        doThrow(SQLException.class).when(tagsDao).updateTags(any(Iterable.class), any(List.class), any(List.class));
 
         try {
             subject.tagObjects(grsSource);

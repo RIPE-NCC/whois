@@ -96,25 +96,34 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
 
         subject.tagObjects(grsSource);
 
-        final List<Tag> tags = tagsDao.getTagsOfType(ciString("TEST_RESOURCE"));
-        assertThat(tags, hasSize(3));
-
-        for (final Tag tag : tags) {
-            assertThat(tag.getType(), is(ciString("TEST_RESOURCE")));
+        final List<Tag> registryResources = tagsDao.getTagsOfType(ciString("TEST-REGISTRY-RESOURCE"));
+        assertThat(registryResources, hasSize(2));
+        for (final Tag tag : registryResources) {
+            assertThat(tag.getType(), is(ciString("TEST-REGISTRY-RESOURCE")));
 
             final RpslObject rpslObject = objectDao.getById(tag.getObjectId());
             switch (rpslObject.getType()) {
                 case AUT_NUM:
                     assertThat(rpslObject.getKey(), is(ciString("AS7")));
-                    assertThat(tag.getValue(), is("Registry maintained"));
                     break;
                 case INETNUM:
                     assertThat(rpslObject.getKey(), is(ciString("193.0.0.0 - 193.0.7.255")));
-                    assertThat(tag.getValue(), is("Registry maintained"));
                     break;
+                default:
+                    fail("Unexpected type: " + rpslObject.getType());
+                    break;
+            }
+        }
+
+        final List<Tag> userResources = tagsDao.getTagsOfType(ciString("TEST-USER-RESOURCE"));
+        assertThat(userResources, hasSize(1));
+        for (final Tag tag : userResources) {
+            assertThat(tag.getType(), is(ciString("TEST-USER-RESOURCE")));
+
+            final RpslObject rpslObject = objectDao.getById(tag.getObjectId());
+            switch (rpslObject.getType()) {
                 case INET6NUM:
                     assertThat(rpslObject.getKey(), is(ciString("2a01:4f8:191:34f1::/64")));
-                    assertThat(tag.getValue(), is("User maintained"));
                     break;
                 default:
                     fail("Unexpected type: " + rpslObject.getType());

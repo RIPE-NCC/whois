@@ -51,9 +51,12 @@ class ResourceTagger {
 
     private void tagObjectsInContext(final GrsSource grsSource) {
         final AuthoritativeResource authoritativeResource = grsSource.getAuthoritativeResource();
-        final CIString tagType = ciString(String.format("%s_RESOURCE", grsSource.getName().toUpperCase().replace("-GRS", "")));
+        final String rirName = grsSource.getName().toUpperCase().replace("-GRS", "");
+        final CIString registryTagType = ciString(String.format("%s-REGISTRY-RESOURCE", rirName));
+        final CIString userTagType = ciString(String.format("%s-USER-RESOURCE", rirName));
         final List<Integer> deletes = Lists.newArrayList();
         final List<Tag> creates = Lists.newArrayList();
+        final List<CIString> tagTypes = Lists.newArrayList(registryTagType, userTagType);
 
         executeStreaming(
                 sourceContext.getCurrentSourceConfiguration().getJdbcTemplate(),
@@ -81,13 +84,13 @@ class ResourceTagger {
                             deletes.add(objectId);
 
                             if (authoritativeResource.isMaintainedByRir(objectType, pkey)) {
-                                creates.add(new Tag(tagType, objectId, "Registry maintained"));
+                                creates.add(new Tag(registryTagType, objectId));
                             } else if (authoritativeResource.isMaintainedInRirSpace(objectType, pkey)) {
-                                creates.add(new Tag(tagType, objectId, "User maintained"));
+                                creates.add(new Tag(userTagType, objectId));
                             }
 
                             if (creates.size() > BATCH_SIZE) {
-                                tagsDao.updateTags(tagType, deletes, creates);
+                                tagsDao.updateTags(tagTypes, deletes, creates);
                                 deletes.clear();
                                 creates.clear();
                             }
@@ -98,7 +101,7 @@ class ResourceTagger {
                     }
                 });
 
-        tagsDao.updateTags(tagType, deletes, creates);
+        tagsDao.updateTags(tagTypes, deletes, creates);
 
         // TODO [AK] Delete all tags that still exists but where no RPSL Object exists in last
     }
