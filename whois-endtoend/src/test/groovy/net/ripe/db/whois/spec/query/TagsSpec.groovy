@@ -267,7 +267,7 @@ class TagsSpec extends BaseSpec {
         ]
     }
 
-    def "query --show-taginfo, no tag info available"() {
+    def "query --show-tag-info, no tag info available"() {
       given:
         1 == 1
 
@@ -276,40 +276,40 @@ class TagsSpec extends BaseSpec {
         queryCountObjects("-rGB 192.168.0.0 - 192.169.255.255") == 1
         queryCountErrors("-rGB 192.168.0.0 - 192.169.255.255") == 0
 
-        ! queryLineMatches("-GBr --show-taginfo 192.168.0.0 - 192.169.255.255",
+        ! queryLineMatches("-GBr --show-tag-info 192.168.0.0 - 192.169.255.255",
                 "^% Tags relating to ‘192.168.0.0 - 192.169.255.255'")
     }
 
-    def "query --show-taginfo, 1 object, 1 tag"() {
+    def "query --show-tag-info, 1 object, 1 tag"() {
       when:
         addTag("192.168.0.0 - 192.169.255.255", "RIPE-REGISTERED", "Registration entered by registry")
 
       then:
-        queryObject("-rGB --show-taginfo 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryCountObjects("-GBr --show-taginfo 192.168.0.0 - 192.169.255.255") == 1
-        queryCountErrors("-GBr --show-taginfo 192.168.0.0 - 192.169.255.255") == 0
+        queryObject("-rGB --show-tag-info 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryCountObjects("-GBr --show-tag-info 192.168.0.0 - 192.169.255.255") == 1
+        queryCountErrors("-GBr --show-tag-info 192.168.0.0 - 192.169.255.255") == 0
 
-        queryCommentMatches("-GBr --show-taginfo 192.168.0.0 - 192.169.255.255",
+        queryCommentMatches("-GBr --show-tag-info 192.168.0.0 - 192.169.255.255",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% RIPE-REGISTERED # Registration entered by registry")
     }
 
-    def "query --show-taginfo, 2 objects, 1 tag each"() {
+    def "query --show-tag-info, 2 objects, 1 tag each"() {
       when:
         addTag("192.168.0.0 - 192.169.255.255", "RIPE-REGISTERED", "")
         addTag("192.168.200.0 - 192.168.200.255", "RIPE-USER-REGISTERED", "")
 
       then:
-        queryObject("-rGB -L --show-taginfo 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-        queryObject("-rGB -L --show-taginfo 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryCountErrors("-GBr -L --show-taginfo 192.168.200.0 - 192.168.200.255") == 0
+        queryObject("-rGB -L --show-tag-info 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        queryObject("-rGB -L --show-tag-info 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryCountErrors("-GBr -L --show-tag-info 192.168.200.0 - 192.168.200.255") == 0
 
-        queryCommentMatches("-GBr -L --show-taginfo 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% RIPE-REGISTERED")
-        queryCommentMatches("-GBr -L --show-taginfo 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.200.0 - 192.168.200.255", "% RIPE-USER-REGISTERED")
     }
 
-    def "query --show-taginfo, 2 objects, 2 tags each"() {
+    def "query --show-tag-info, 2 objects, 2 tags each"() {
       when:
         addTag("192.168.0.0 - 192.169.255.255", "ALLOCATED", "")
         addTag("192.168.0.0 - 192.169.255.255", "RIPE-REGISTERED", "Registration entered by registry")
@@ -317,37 +317,37 @@ class TagsSpec extends BaseSpec {
         addTag("192.168.200.0 - 192.168.200.255", "ASSIGNED", "")
 
       then:
-        queryObject("-rGB -L --show-taginfo 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-        queryObject("-GBr -L --show-taginfo 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryCountErrors("-GBr -L --show-taginfo 192.168.200.0 - 192.168.200.255") == 0
+        queryObject("-rGB -L --show-tag-info 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        queryObject("-GBr -L --show-tag-info 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryCountErrors("-GBr -L --show-tag-info 192.168.200.0 - 192.168.200.255") == 0
 
-        queryCommentMatches("-GBr -L --show-taginfo 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% RIPE-REGISTERED")
-        queryCommentMatches("-GBr -L --show-taginfo 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% ALLOCATED")
-        queryCommentMatches("-GBr -L --show-taginfo 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.200.0 - 192.168.200.255", "^% RIPE-USER-REGISTERED #")
-        queryCommentMatches("-GBr -L --show-taginfo 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.200.0 - 192.168.200.255", "^% ASSIGNED")
     }
 
-    def "query --no-taginfo, 2 objects, 1 tag each"() {
+    def "query --no-tag-info, 2 objects, 1 tag each"() {
       when:
         addTag("192.168.0.0 - 192.169.255.255", "RIPE-REGISTERED", "Registration entered by registry")
         addTag("192.168.200.0 - 192.168.200.255", "RIPE-USER-REGISTERED", "Registration entered by user")
 
       then:
-        queryObject("-rGB -L --no-taginfo 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-        queryObject("-GBr -L --no-taginfo 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryCountErrors("-GBr -L --no-taginfo 192.168.200.0 - 192.168.200.255") == 0
+        queryObject("-rGB -L --no-tag-info 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        queryObject("-GBr -L --no-tag-info 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryCountErrors("-GBr -L --no-tag-info 192.168.200.0 - 192.168.200.255") == 0
 
-        queryCommentNotMatches("-GBr -L --no-taginfo 192.168.200.0 - 192.168.200.255",
+        queryCommentNotMatches("-GBr -L --no-tag-info 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% RIPE-REGISTERED")
-        queryCommentNotMatches("-GBr -L --no-taginfo 192.168.200.0 - 192.168.200.255",
+        queryCommentNotMatches("-GBr -L --no-tag-info 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.200.0 - 192.168.200.255", "^% RIPE-USER-REGISTERED #")
     }
 
-    def "query --show-taginfo --filter-tag-include, 2 tagged objects, 2 tags each, filter on one tag"() {
+    def "query --show-tag-info --filter-tag-include, 2 tagged objects, 2 tags each, filter on one tag"() {
       when:
         addTag("192.168.0.0 - 192.169.255.255", "RIPE-REGISTERED", "")
         addTag("192.168.0.0 - 192.169.255.255", "ALLOCATED", "")
@@ -355,37 +355,37 @@ class TagsSpec extends BaseSpec {
         addTag("192.168.200.0 - 192.168.200.255", "ASSIGNED", "")
 
       then:
-        queryMatches("-GBr -L --show-taginfo --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryMatches("-GBr -L --show-tag-info --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "% Note: tag filtering is enabled,.%\\s*Only showing objects WITH tag\\(s\\): RIPE-REGISTERED")
-        ! queryMatches("-GBr -L --show-taginfo --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
+        ! queryMatches("-GBr -L --show-tag-info --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "% Note: tag filtering is enabled,.*?% Note: tag filtering is enabled,")
 
-        queryObject("-rGB -L --show-taginfo --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObjectNotFound("-rGB -L --show-taginfo --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-        queryCountObjects("-GBr -L --show-taginfo --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255") == 1
-        queryCountErrors("-GBr -L --show-taginfo --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255") == 0
+        queryObject("-rGB -L --show-tag-info --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObjectNotFound("-rGB -L --show-tag-info --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        queryCountObjects("-GBr -L --show-tag-info --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255") == 1
+        queryCountErrors("-GBr -L --show-tag-info --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255") == 0
 
-        queryCommentMatches("-GBr -L --show-taginfo --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% RIPE-REGISTERED")
-        queryCommentMatches("-GBr -L --show-taginfo --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info --filter-tag-include RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% ALLOCATED")
 
 
-        queryMatches("-GBr -L --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryMatches("-GBr -L --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "% Note: tag filtering is enabled,.%\\s*Only showing objects WITH tag\\(s\\): RIPE-USER-REGISTERED")
 
-        queryObjectNotFound("-rGB -L --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-rGB -L --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-        queryCountObjects("-GBr -L --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255") == 1
-        queryCountErrors("-GBr -L --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255") == 0
+        queryObjectNotFound("-rGB -L --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-rGB -L --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        queryCountObjects("-GBr -L --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255") == 1
+        queryCountErrors("-GBr -L --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255") == 0
 
-        queryCommentMatches("-GBr -L --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.200.0 - 192.168.200.255", "% RIPE-USER-REGISTERED")
-        queryCommentMatches("-GBr -L --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.200.0 - 192.168.200.255", "% ASSIGNED")
     }
 
-    def "query --show-taginfo --filter-tag-include --filter-tag-include, 2 tagged objects, 2 tags each"() {
+    def "query --show-tag-info --filter-tag-include --filter-tag-include, 2 tagged objects, 2 tags each"() {
       when:
         addTag("192.168.0.0 - 192.169.255.255", "RIPE-REGISTERED", "")
         addTag("192.168.0.0 - 192.169.255.255", "ALLOCATED", "")
@@ -393,25 +393,25 @@ class TagsSpec extends BaseSpec {
         addTag("192.168.200.0 - 192.168.200.255", "ASSIGNED", "")
 
       then:
-        queryMatches("-GBr -L --show-taginfo --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryMatches("-GBr -L --show-tag-info --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "% Note: tag filtering is enabled,.%\\s*Only showing objects WITH tag\\(s\\): RIPE-REGISTERED, RIPE-USER-REGISTERED")
 
-        queryObject("-rGB -L --show-taginfo --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-        queryObject("-rGB -L --show-taginfo --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryCountObjects("-GBr -L --show-taginfo --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255") == 2
-        queryCountErrors("-GBr -L --show-taginfo --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255") == 0
+        queryObject("-rGB -L --show-tag-info --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        queryObject("-rGB -L --show-tag-info --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryCountObjects("-GBr -L --show-tag-info --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255") == 2
+        queryCountErrors("-GBr -L --show-tag-info --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255") == 0
 
-        queryCommentMatches("-GBr -L --show-taginfo --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% RIPE-REGISTERED")
-        queryCommentMatches("-GBr -L --show-taginfo --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% ALLOCATED")
-        queryCommentMatches("-GBr -L --show-taginfo --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.200.0 - 192.168.200.255", "% RIPE-USER-REGISTERED")
-        queryCommentMatches("-GBr -L --show-taginfo --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info --filter-tag-include RIPE-REGISTERED --filter-tag-include RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.200.0 - 192.168.200.255", "% ASSIGNED")
     }
 
-    def "query --show-taginfo --filter-tag-exclude, 2 tagged objects, 2 tags each, filter on one tag"() {
+    def "query --show-tag-info --filter-tag-exclude, 2 tagged objects, 2 tags each, filter on one tag"() {
       when:
         addTag("192.168.0.0 - 192.169.255.255", "RIPE-REGISTERED", "")
         addTag("192.168.0.0 - 192.169.255.255", "ALLOCATED", "")
@@ -419,25 +419,25 @@ class TagsSpec extends BaseSpec {
         addTag("192.168.200.0 - 192.168.200.255", "ASSIGNED", "")
 
       then:
-        queryMatches("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryMatches("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
               "% Note: tag filtering is enabled,.%\\s*Only showing objects WITHOUT tag\\(s\\): RIPE-REGISTERED")
 
-        queryObject("-rGB -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-        queryObjectNotFound("-rGB -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryCountObjects("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255") == 5
-        queryCountErrors("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255") == 0
+        queryObject("-rGB -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        queryObjectNotFound("-rGB -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryCountObjects("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255") == 5
+        queryCountErrors("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255") == 0
 
-        queryCommentMatches("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.200.0 - 192.168.200.255", "% RIPE-USER-REGISTERED")
-        queryCommentMatches("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentMatches("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.200.0 - 192.168.200.255", "% ASSIGNED")
-        queryCommentNotMatches("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentNotMatches("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% RIPE-REGISTERED")
-        queryCommentNotMatches("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentNotMatches("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% ALLOCATED")
     }
 
-    def "query --show-taginfo --filter-tag-exclude --filter-tag-exclude, 2 tagged objects, 2 tags each"() {
+    def "query --show-tag-info --filter-tag-exclude --filter-tag-exclude, 2 tagged objects, 2 tags each"() {
       when:
         addTag("192.168.0.0 - 192.169.255.255", "RIPE-REGISTERED", "")
         addTag("192.168.0.0 - 192.169.255.255", "ALLOCATED", "")
@@ -445,25 +445,25 @@ class TagsSpec extends BaseSpec {
         addTag("192.168.200.0 - 192.168.200.255", "ASSIGNED", "")
 
       then:
-        queryMatches("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryMatches("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
               "% Note: tag filtering is enabled,.%\\s*Only showing objects WITHOUT tag\\(s\\): RIPE-REGISTERED, RIPE-USER-REGISTERED")
 
-        queryObjectNotFound("-rGB -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObjectNotFound("-rGB -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-        queryCountObjects("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255") == 4
-        queryCountErrors("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255") == 0
+        queryObjectNotFound("-rGB -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObjectNotFound("-rGB -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        queryCountObjects("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255") == 4
+        queryCountErrors("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255") == 0
 
-        queryCommentNotMatches("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentNotMatches("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.200.0 - 192.168.200.255", "% RIPE-USER-REGISTERED")
-        queryCommentNotMatches("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentNotMatches("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.200.0 - 192.168.200.255", "% ASSIGNED")
-        queryCommentNotMatches("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentNotMatches("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% RIPE-REGISTERED")
-        queryCommentNotMatches("-GBr -L --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
+        queryCommentNotMatches("-GBr -L --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-exclude RIPE-USER-REGISTERED 192.168.200.0 - 192.168.200.255",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% ALLOCATED")
     }
 
-    def "query --show-taginfo --filter-tag-include, case 1 single tag"() {
+    def "query --show-tag-info --filter-tag-include, case 1 single tag"() {
       when:
         // "ALLOC-UNS"
         addTag("192.0.0.0 - 192.250.255.255", "PLACEHOLDER", "")
@@ -507,25 +507,25 @@ class TagsSpec extends BaseSpec {
         addTag("25.0.200.0 - 25.0.200.255", "ASSIGNED", "")
 
       then:
-        queryMatches("-GBr -M --show-taginfo --filter-tag-include RIPE-REGISTERED 192/8",
+        queryMatches("-GBr -M --show-tag-info --filter-tag-include RIPE-REGISTERED 192/8",
               "% Note: tag filtering is enabled,.%\\s*Only showing objects WITH tag\\(s\\): RIPE-REGISTERED")
 
-        queryObject("-rGB -M --show-taginfo --filter-tag-include RIPE-REGISTERED 192/8", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-rGB -M --show-taginfo --filter-tag-include RIPE-REGISTERED 192/8", "inetnum", "192.56.0.0 - 192.60.255.255")
-        queryCountObjects("-rGB -M --show-taginfo --filter-tag-include RIPE-REGISTERED 192/8") == 2
-        queryCountErrors("-rGB -M --show-taginfo --filter-tag-include RIPE-REGISTERED 192/8") == 0
+        queryObject("-rGB -M --show-tag-info --filter-tag-include RIPE-REGISTERED 192/8", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-rGB -M --show-tag-info --filter-tag-include RIPE-REGISTERED 192/8", "inetnum", "192.56.0.0 - 192.60.255.255")
+        queryCountObjects("-rGB -M --show-tag-info --filter-tag-include RIPE-REGISTERED 192/8") == 2
+        queryCountErrors("-rGB -M --show-tag-info --filter-tag-include RIPE-REGISTERED 192/8") == 0
 
-        queryCommentMatches("-rGB -M --show-taginfo --filter-tag-include RIPE-REGISTERED 192/8",
+        queryCommentMatches("-rGB -M --show-tag-info --filter-tag-include RIPE-REGISTERED 192/8",
                 "^% Tags relating to", "192.56.0.0 - 192.60.255.255", "% RIPE-REGISTERED")
-        queryCommentMatches("-rGB -M --show-taginfo --filter-tag-include RIPE-REGISTERED 192/8",
+        queryCommentMatches("-rGB -M --show-tag-info --filter-tag-include RIPE-REGISTERED 192/8",
                 "^% Tags relating to", "192.56.0.0 - 192.60.255.255", "% ALLOCATED")
-        queryCommentMatches("-rGB -M --show-taginfo --filter-tag-include RIPE-REGISTERED 192/8",
+        queryCommentMatches("-rGB -M --show-tag-info --filter-tag-include RIPE-REGISTERED 192/8",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% RIPE-REGISTERED")
-        queryCommentMatches("-rGB -M --show-taginfo --filter-tag-include RIPE-REGISTERED 192/8",
+        queryCommentMatches("-rGB -M --show-tag-info --filter-tag-include RIPE-REGISTERED 192/8",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% ALLOCATED")
     }
 
-    def "query --show-taginfo --filter-tag-include, case 2 csl of tags"() {
+    def "query --show-tag-info --filter-tag-include, case 2 csl of tags"() {
       when:
         // "ALLOC-UNS"
         addTag("192.0.0.0 - 192.250.255.255", "PLACEHOLDER", "")
@@ -569,28 +569,28 @@ class TagsSpec extends BaseSpec {
         addTag("25.0.200.0 - 25.0.200.255", "ASSIGNED", "")
 
       then:
-        queryMatches("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED 192/8",
+        queryMatches("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED 192/8",
                 "% Note: tag filtering is enabled,.%\\s*Only showing objects WITH tag\\(s\\): PLACEHOLDER, ALLOCATED")
 
-        queryObject("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED 192/8", "inetnum", "192.0.0.0 - 192.250.255.255")
-        queryObject("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED 192/8", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED 192/8", "inetnum", "192.56.0.0 - 192.60.255.255")
-        queryCountObjects("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED 192/8") == 3
-        queryCountErrors("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED 192/8") == 0
+        queryObject("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED 192/8", "inetnum", "192.0.0.0 - 192.250.255.255")
+        queryObject("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED 192/8", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED 192/8", "inetnum", "192.56.0.0 - 192.60.255.255")
+        queryCountObjects("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED 192/8") == 3
+        queryCountErrors("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED 192/8") == 0
 
-        queryCommentMatches("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED 192/8",
+        queryCommentMatches("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED 192/8",
                 "^% Tags relating to", "192.0.0.0 - 192.250.255.255", "% PLACEHOLDER")
-        queryCommentMatches("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED 192/8",
+        queryCommentMatches("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED 192/8",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% ALLOCATED")
-        queryCommentMatches("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED 192/8",
+        queryCommentMatches("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED 192/8",
                 "^% Tags relating to", "192.168.0.0 - 192.169.255.255", "% RIPE-REGISTERED")
-        queryCommentMatches("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED 192/8",
+        queryCommentMatches("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED 192/8",
                 "^% Tags relating to", "192.56.0.0 - 192.60.255.255", "% ALLOCATED")
-        queryCommentMatches("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED 192/8",
+        queryCommentMatches("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED 192/8",
                 "^% Tags relating to", "192.56.0.0 - 192.60.255.255", "% RIPE-REGISTERED")
     }
 
-    def "query --show-taginfo --filter-tag-include --filter-tag-exclude, case 3 include with csl, exclude after include"() {
+    def "query --show-tag-info --filter-tag-include --filter-tag-exclude, case 3 include with csl, exclude after include"() {
       when:
         // "ALLOC-UNS"
         addTag("192.0.0.0 - 192.250.255.255", "PLACEHOLDER", "")
@@ -635,18 +635,18 @@ class TagsSpec extends BaseSpec {
 
 
       then:
-        queryMatches("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED --filter-tag-exclude RIPE-REGISTERED 192/8",
+        queryMatches("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED --filter-tag-exclude RIPE-REGISTERED 192/8",
                 "% Note: tag filtering is enabled,.%\\s*Only showing objects WITH tag\\(s\\): PLACEHOLDER, ALLOCATED.%\\s*Only showing objects WITHOUT tag\\(s\\): RIPE-REGISTERED")
 
-        queryObject("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED --filter-tag-exclude RIPE-REGISTERED 192/8", "inetnum", "192.0.0.0 - 192.250.255.255")
-        queryCountObjects("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED --filter-tag-exclude RIPE-REGISTERED 192/8") == 1
-        queryCountErrors("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED --filter-tag-exclude RIPE-REGISTERED 192/8") == 0
+        queryObject("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED --filter-tag-exclude RIPE-REGISTERED 192/8", "inetnum", "192.0.0.0 - 192.250.255.255")
+        queryCountObjects("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED --filter-tag-exclude RIPE-REGISTERED 192/8") == 1
+        queryCountErrors("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED --filter-tag-exclude RIPE-REGISTERED 192/8") == 0
 
-        queryCommentMatches("-rGB -M --show-taginfo --filter-tag-include PLACEHOLDER,ALLOCATED --filter-tag-exclude RIPE-REGISTERED 192/8",
+        queryCommentMatches("-rGB -M --show-tag-info --filter-tag-include PLACEHOLDER,ALLOCATED --filter-tag-exclude RIPE-REGISTERED 192/8",
                 "^% Tags relating to", "192.0.0.0 - 192.250.255.255", "% PLACEHOLDER")
     }
 
-    def "query --show-taginfo --filter-tag-exclude --filter-tag-include, case 4 include with csl, reverse csl, exclude before include"() {
+    def "query --show-tag-info --filter-tag-exclude --filter-tag-include, case 4 include with csl, reverse csl, exclude before include"() {
       when:
         // "ALLOC-UNS"
         addTag("192.0.0.0 - 192.250.255.255", "PLACEHOLDER", "")
@@ -690,18 +690,18 @@ class TagsSpec extends BaseSpec {
         addTag("25.0.200.0 - 25.0.200.255", "ASSIGNED", "")
 
       then:
-        queryMatches("-rGB -M --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-include ALLOCATED,PLACEHOLDER 192/8",
+        queryMatches("-rGB -M --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-include ALLOCATED,PLACEHOLDER 192/8",
                 "% Note: tag filtering is enabled,.%\\s*Only showing objects WITH tag\\(s\\): ALLOCATED, PLACEHOLDER.%\\s*Only showing objects WITHOUT tag\\(s\\): RIPE-REGISTERED")
 
-        queryObject("-rGB -M --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-include ALLOCATED,PLACEHOLDER 192/8", "inetnum", "192.0.0.0 - 192.250.255.255")
-        queryCountObjects("-rGB -M --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-include ALLOCATED,PLACEHOLDER 192/8") == 1
-        queryCountErrors("-rGB -M --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-include ALLOCATED,PLACEHOLDER 192/8") == 0
+        queryObject("-rGB -M --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-include ALLOCATED,PLACEHOLDER 192/8", "inetnum", "192.0.0.0 - 192.250.255.255")
+        queryCountObjects("-rGB -M --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-include ALLOCATED,PLACEHOLDER 192/8") == 1
+        queryCountErrors("-rGB -M --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-include ALLOCATED,PLACEHOLDER 192/8") == 0
 
-        queryCommentMatches("-rGB -M --show-taginfo --filter-tag-exclude RIPE-REGISTERED --filter-tag-include ALLOCATED,PLACEHOLDER 192/8",
+        queryCommentMatches("-rGB -M --show-tag-info --filter-tag-exclude RIPE-REGISTERED --filter-tag-include ALLOCATED,PLACEHOLDER 192/8",
                 "^% Tags relating to", "192.0.0.0 - 192.250.255.255", "% PLACEHOLDER")
     }
 
-    def "query --show-taginfo --filter-tag-exclude, single tag, untagged objects should still be shown"() {
+    def "query --show-tag-info --filter-tag-exclude, single tag, untagged objects should still be shown"() {
       when:
         // "ALLOC-UNS"
         addTag("192.0.0.0 - 192.250.255.255", "PLACEHOLDER", "")
@@ -745,18 +745,18 @@ class TagsSpec extends BaseSpec {
         addTag("25.0.200.0 - 25.0.200.255", "ASSIGNED", "")
 
       then:
-        queryMatches("-rGB -M --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192/8",
+        queryMatches("-rGB -M --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192/8",
               "% Note: tag filtering is enabled,.%\\s*Only showing objects WITHOUT tag\\(s\\): RIPE-REGISTERED")
 
-        queryObjectNotFound("-rGB -M --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192/8", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryCountObjects("-rGB -M --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192/8") == 8
-        queryCountErrors("-rGB -M --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192/8") == 0
+        queryObjectNotFound("-rGB -M --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192/8", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryCountObjects("-rGB -M --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192/8") == 8
+        queryCountErrors("-rGB -M --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192/8") == 0
 
-        queryCommentNotMatches("-rGB -M --show-taginfo --filter-tag-exclude RIPE-REGISTERED 192/8",
+        queryCommentNotMatches("-rGB -M --show-tag-info --filter-tag-exclude RIPE-REGISTERED 192/8",
                 "^% Tags relating to", ".*?", "% RIPE-REGISTERED")
     }
 
-    def "query --show-taginfo --filter-tag-include, single tag, untagged objects should NOT be shown"() {
+    def "query --show-tag-info --filter-tag-include, single tag, untagged objects should NOT be shown"() {
       when:
         // "ALLOC-UNS"
         addTag("192.0.0.0 - 192.250.255.255", "PLACEHOLDER", "")
@@ -800,17 +800,17 @@ class TagsSpec extends BaseSpec {
         addTag("25.0.200.0 - 25.0.200.255", "ASSIGNED", "")
 
       then:
-        queryMatches("-rGB -M --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192/8",
+        queryMatches("-rGB -M --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192/8",
               "% Note: tag filtering is enabled,.%\\s*Only showing objects WITH tag\\(s\\): RIPE-USER-REGISTERED")
 
-        queryObjectNotFound("-rGB -M --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192/8", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-rGB -M --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192/8", "inetnum", "192.168.128.0 - 192.168.255.255")
-        queryCountObjects("-rGB -M --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192/8") == 6
-        queryCountErrors("-rGB -M --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192/8") == 0
+        queryObjectNotFound("-rGB -M --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192/8", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-rGB -M --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192/8", "inetnum", "192.168.128.0 - 192.168.255.255")
+        queryCountObjects("-rGB -M --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192/8") == 6
+        queryCountErrors("-rGB -M --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192/8") == 0
 
-        queryCommentNotMatches("-rGB -M --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192/8",
+        queryCommentNotMatches("-rGB -M --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192/8",
                 "^% Tags relating to", ".*?", "% RIPE-REGISTERED")
-        queryCommentMatches("-rGB -M --show-taginfo --filter-tag-include RIPE-USER-REGISTERED 192/8",
+        queryCommentMatches("-rGB -M --show-tag-info --filter-tag-include RIPE-USER-REGISTERED 192/8",
                 "^% Tags relating to", ".*?", "% RIPE-USER-REGISTERED")
     }
 
@@ -868,7 +868,7 @@ class TagsSpec extends BaseSpec {
         ! queryLineMatches("-rGB -M --filter-tag-include ALLOCATED 44/8", "^% Tags relating to")
     }
 
-    def "query --show-taginfo --filter-tag-include  --filter-tag-exclude, same tag on include & exclude"() {
+    def "query --show-tag-info --filter-tag-include  --filter-tag-exclude, same tag on include & exclude"() {
       when:
         // "ALLOC-UNS"
         addTag("192.0.0.0 - 192.250.255.255", "PLACEHOLDER", "")
@@ -928,7 +928,7 @@ class TagsSpec extends BaseSpec {
                 "%ERROR:109: invalid combination of flags passed", ".*?", "% The flags \"--filter-tag-include \\(ALLOCATED\\)\" and \"--filter-tag-exclude \\(ALLOCATED\\)\" cannot be used together")
     }
 
-    def "query --show-taginfo, tag related objects"() {
+    def "query --show-tag-info, tag related objects"() {
       when:
         // "ALLOC-UNS"
         addTag("192.0.0.0 - 192.250.255.255", "PLACEHOLDER", "")
@@ -975,18 +975,18 @@ class TagsSpec extends BaseSpec {
         addTag("TP1-TEST", "personal", "")
 
       then:
-        ! queryLineMatches("-GB --show-taginfo 192.168.0.0 - 192.169.255.255",
+        ! queryLineMatches("-GB --show-tag-info 192.168.0.0 - 192.169.255.255",
               "% Note: tag filtering is enabled,")
 
-        queryObject("-GB --show-taginfo 192.168.0.0 - 192.169.255.255", "person", "Test Person")
-        queryCountObjects("-GB --show-taginfo 192.168.0.0 - 192.169.255.255") == 3
-        queryCountErrors("-GB --show-taginfo 192.168.0.0 - 192.169.255.255") == 0
+        queryObject("-GB --show-tag-info 192.168.0.0 - 192.169.255.255", "person", "Test Person")
+        queryCountObjects("-GB --show-tag-info 192.168.0.0 - 192.169.255.255") == 3
+        queryCountErrors("-GB --show-tag-info 192.168.0.0 - 192.169.255.255") == 0
 
-        queryCommentMatches("-GB --show-taginfo 192.168.0.0 - 192.169.255.255",
+        queryCommentMatches("-GB --show-tag-info 192.168.0.0 - 192.169.255.255",
                 "^% Tags relating to", "TP1-TEST", "% personal")
     }
 
-    def "query --show-taginfo --filter_tag-include, tag related objects, only include personal tag"() {
+    def "query --show-tag-info --filter_tag-include, tag related objects, only include personal tag"() {
         when:
         // "ALLOC-UNS"
         addTag("192.0.0.0 - 192.250.255.255", "PLACEHOLDER", "")
@@ -1033,18 +1033,18 @@ class TagsSpec extends BaseSpec {
         addTag("TP1-TEST", "personal", "")
 
         then:
-        queryMatches("-GB --show-taginfo --filter-tag-include Personal 192.168.0.0 - 192.169.255.255",
+        queryMatches("-GB --show-tag-info --filter-tag-include Personal 192.168.0.0 - 192.169.255.255",
                 "% Note: tag filtering is enabled,.%\\s*Only showing objects WITH tag\\(s\\): Personal")
 
-        queryObject("-GB --show-taginfo --filter-tag-include personal 192.168.0.0 - 192.169.255.255", "person", "Test Person")
-        queryCountObjects("-GB --show-taginfo --filter-tag-include personal 192.168.0.0 - 192.169.255.255") == 1
-        queryCountErrors("-GB --show-taginfo --filter-tag-include personal 192.168.0.0 - 192.169.255.255") == 0
+        queryObject("-GB --show-tag-info --filter-tag-include personal 192.168.0.0 - 192.169.255.255", "person", "Test Person")
+        queryCountObjects("-GB --show-tag-info --filter-tag-include personal 192.168.0.0 - 192.169.255.255") == 1
+        queryCountErrors("-GB --show-tag-info --filter-tag-include personal 192.168.0.0 - 192.169.255.255") == 0
 
-        queryCommentMatches("-GB --show-taginfo --filter-tag-include personal 192.168.0.0 - 192.169.255.255",
+        queryCommentMatches("-GB --show-tag-info --filter-tag-include personal 192.168.0.0 - 192.169.255.255",
                 "^% Tags relating to", "TP1-TEST", "% personal")
     }
 
-    def "query --show-taginfo --filter_tag-include, tag related objects, only include personal tag & -r"() {
+    def "query --show-tag-info --filter_tag-include, tag related objects, only include personal tag & -r"() {
         when:
         // "ALLOC-UNS"
         addTag("192.0.0.0 - 192.250.255.255", "PLACEHOLDER", "")
@@ -1091,18 +1091,18 @@ class TagsSpec extends BaseSpec {
         addTag("TP1-TEST", "personal", "")
 
         then:
-        queryMatches("-r -GB --show-taginfo --filter-tag-include Personal 192.168.0.0 - 192.169.255.255",
+        queryMatches("-r -GB --show-tag-info --filter-tag-include Personal 192.168.0.0 - 192.169.255.255",
                 "% Note: tag filtering is enabled,.%\\s*Only showing objects WITH tag\\(s\\): Personal")
 
-        queryObjectNotFound("-r -GB --show-taginfo --filter-tag-include personal 192.168.0.0 - 192.169.255.255", "person", "Test Person")
-        queryCountObjects("-r -GB --show-taginfo --filter-tag-include personal 192.168.0.0 - 192.169.255.255") == 0
-        queryCountErrors("-r -GB --show-taginfo --filter-tag-include personal 192.168.0.0 - 192.169.255.255") == 1
+        queryObjectNotFound("-r -GB --show-tag-info --filter-tag-include personal 192.168.0.0 - 192.169.255.255", "person", "Test Person")
+        queryCountObjects("-r -GB --show-tag-info --filter-tag-include personal 192.168.0.0 - 192.169.255.255") == 0
+        queryCountErrors("-r -GB --show-tag-info --filter-tag-include personal 192.168.0.0 - 192.169.255.255") == 1
 
-        queryCommentMatches("-r -GB --show-taginfo --filter-tag-include personal 192.168.0.0 - 192.169.255.255",
+        queryCommentMatches("-r -GB --show-tag-info --filter-tag-include personal 192.168.0.0 - 192.169.255.255",
                 "^%ERROR:101: no entries found", ".*?", "% No entries found in source TEST")
     }
 
-    def "query --show-taginfo --filter_tag-include, tag related objects, only include non existing tag"() {
+    def "query --show-tag-info --filter_tag-include, tag related objects, only include non existing tag"() {
         when:
         // "ALLOC-UNS"
         addTag("192.0.0.0 - 192.250.255.255", "PLACEHOLDER", "")
@@ -1149,18 +1149,18 @@ class TagsSpec extends BaseSpec {
         addTag("TP1-TEST", "personal", "")
 
         then:
-        queryMatches("-GB --show-taginfo --filter-tag-include fred 192.168.0.0 - 192.169.255.255",
+        queryMatches("-GB --show-tag-info --filter-tag-include fred 192.168.0.0 - 192.169.255.255",
                 "% Note: tag filtering is enabled,.%\\s*Only showing objects WITH tag\\(s\\): fred")
 
-        queryObjectNotFound("-GB --show-taginfo --filter-tag-include fred 192.168.0.0 - 192.169.255.255", "person", "Test Person")
-        queryCountObjects("-GB --show-taginfo --filter-tag-include fred 192.168.0.0 - 192.169.255.255") == 0
-        queryCountErrors("-GB --show-taginfo --filter-tag-include fred 192.168.0.0 - 192.169.255.255") == 1
+        queryObjectNotFound("-GB --show-tag-info --filter-tag-include fred 192.168.0.0 - 192.169.255.255", "person", "Test Person")
+        queryCountObjects("-GB --show-tag-info --filter-tag-include fred 192.168.0.0 - 192.169.255.255") == 0
+        queryCountErrors("-GB --show-tag-info --filter-tag-include fred 192.168.0.0 - 192.169.255.255") == 1
 
-        queryCommentMatches("-r -GB --show-taginfo --filter-tag-include fred 192.168.0.0 - 192.169.255.255",
+        queryCommentMatches("-r -GB --show-tag-info --filter-tag-include fred 192.168.0.0 - 192.169.255.255",
                 "^%ERROR:101: no entries found", ".*?", "% No entries found in source TEST")
     }
 
-    def "query --show-taginfo --filter_tag-include, tag related objects, include valid & non existing tag"() {
+    def "query --show-tag-info --filter_tag-include, tag related objects, include valid & non existing tag"() {
         when:
         // "ALLOC-UNS"
         addTag("192.0.0.0 - 192.250.255.255", "PLACEHOLDER", "")
@@ -1207,18 +1207,18 @@ class TagsSpec extends BaseSpec {
         addTag("TP1-TEST", "personal", "")
 
         then:
-        queryMatches("-GB --show-taginfo --filter-tag-include fred,personal 192.168.0.0 - 192.169.255.255",
+        queryMatches("-GB --show-tag-info --filter-tag-include fred,personal 192.168.0.0 - 192.169.255.255",
                 "% Note: tag filtering is enabled,.%\\s*Only showing objects WITH tag\\(s\\): fred, personal")
 
-        queryObject("-GB --show-taginfo --filter-tag-include fred,personal 192.168.0.0 - 192.169.255.255", "person", "Test Person")
-        queryCountObjects("-GB --show-taginfo --filter-tag-include fred,personal 192.168.0.0 - 192.169.255.255") == 1
-        queryCountErrors("-GB --show-taginfo --filter-tag-include fred,personal 192.168.0.0 - 192.169.255.255") == 0
+        queryObject("-GB --show-tag-info --filter-tag-include fred,personal 192.168.0.0 - 192.169.255.255", "person", "Test Person")
+        queryCountObjects("-GB --show-tag-info --filter-tag-include fred,personal 192.168.0.0 - 192.169.255.255") == 1
+        queryCountErrors("-GB --show-tag-info --filter-tag-include fred,personal 192.168.0.0 - 192.169.255.255") == 0
 
-        queryCommentMatches("-GB --show-taginfo --filter-tag-include fred,personal 192.168.0.0 - 192.169.255.255",
+        queryCommentMatches("-GB --show-tag-info --filter-tag-include fred,personal 192.168.0.0 - 192.169.255.255",
                 "^% Tags relating to", "TP1-TEST", "% personal")
     }
 
-    def "query --show-taginfo --no_taginfo"() {
+    def "query --show-tag-info --no-tag-info"() {
         when:
         // "ALLOC-UNS"
         addTag("192.0.0.0 - 192.250.255.255", "PLACEHOLDER", "")
@@ -1265,17 +1265,17 @@ class TagsSpec extends BaseSpec {
         addTag("TP1-TEST", "personal", "")
 
         then:
-        ! queryMatches("-rGB  --show-taginfo --no-taginfo 192.0.0.0 - 192.250.255.255",
+        ! queryMatches("-rGB  --show-tag-info --no-tag-info 192.0.0.0 - 192.250.255.255",
                 "% Note: tag filtering is enabled,")
 
-        queryObjectNotFound("-rGB --show-taginfo --no-taginfo 192.0.0.0 - 192.250.255.255", "inetnum", "192.0.0.0 - 192.250.255.255")
-        queryCountObjects("-rGB --show-taginfo --no-taginfo 192.0.0.0 - 192.250.255.255") == 0
-        queryCountErrors("-rGB --show-taginfo --no-taginfo 192.0.0.0 - 192.250.255.255") == 1
+        queryObjectNotFound("-rGB --show-tag-info --no-tag-info 192.0.0.0 - 192.250.255.255", "inetnum", "192.0.0.0 - 192.250.255.255")
+        queryCountObjects("-rGB --show-tag-info --no-tag-info 192.0.0.0 - 192.250.255.255") == 0
+        queryCountErrors("-rGB --show-tag-info --no-tag-info 192.0.0.0 - 192.250.255.255") == 1
 
-        ! queryCommentMatches("-rGB --show-taginfo --no-taginfo 192.0.0.0 - 192.250.255.255",
+        ! queryCommentMatches("-rGB --show-tag-info --no-tag-info 192.0.0.0 - 192.250.255.255",
                 "^% Tags relating to", "192.0.0.0 - 192.250.255.255", "% PLACEHOLDER")
-        queryCommentMatches("-rGB --show-taginfo --no-taginfo 192.0.0.0 - 192.250.255.255",
-                "%ERROR:109: invalid combination of flags passed", ".*?", "% The flags \"--show-taginfo\" and \"--no-taginfo\" cannot be used together")
+        queryCommentMatches("-rGB --show-tag-info --no-tag-info 192.0.0.0 - 192.250.255.255",
+                "%ERROR:109: invalid combination of flags passed", ".*?", "% The flags \"--show-tag-info\" and \"--no-tag-info\" cannot be used together")
     }
 
 }

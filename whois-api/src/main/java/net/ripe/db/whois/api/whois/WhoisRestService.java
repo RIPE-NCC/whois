@@ -862,7 +862,7 @@ public class WhoisRestService {
 
         final Query query = Query.parse(String.format("%s %s %s %s %s %s",
                 key,
-                QueryFlag.SHOW_TAGINFO.getLongFlag(),
+                QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 (include == null || include.isEmpty()) ? "" :
                         QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(), JOINER.join(include),
 

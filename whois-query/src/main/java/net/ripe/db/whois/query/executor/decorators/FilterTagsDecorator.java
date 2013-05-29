@@ -32,7 +32,7 @@ public class FilterTagsDecorator implements ResponseDecorator {
     }
 
     public Iterable<? extends ResponseObject> decorate(final Query query, final Iterable<? extends ResponseObject> input) {
-        final boolean showTagInfo = query.hasOption(QueryFlag.SHOW_TAGINFO);
+        final boolean showTagInfo = query.hasOption(QueryFlag.SHOW_TAG_INFO);
         final boolean hasInclude = query.hasOption(QueryFlag.FILTER_TAG_INCLUDE);
         final boolean hasExclude = query.hasOption(QueryFlag.FILTER_TAG_EXCLUDE);
 

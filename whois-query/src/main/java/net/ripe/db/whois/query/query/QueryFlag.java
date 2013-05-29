@@ -81,10 +81,10 @@ public enum QueryFlag {
 
     /* -------------------------------------------------------------------------------------------------------------- */
 
-    NO_TAGINFO(new Builder("no-taginfo")
+    NO_TAG_INFO(new Builder("no-tag-info")
             .describedAs("Switches off tagging information.")),
 
-    SHOW_TAGINFO(new Builder("show-taginfo")
+    SHOW_TAG_INFO(new Builder("show-tag-info")
             .describedAs("Switches on tagging information.")),
 
     FILTER_TAG_INCLUDE(new Builder("filter-tag-include")

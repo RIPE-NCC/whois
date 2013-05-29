@@ -53,19 +53,19 @@ public class TagsTestIntegration extends AbstractWhoisIntegrationTest {
     }
 
     @Test
-    public void notaginfo_displays_no_info() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--no-taginfo UNUSED-MNT");
+    public void no_tag_info_displays_no_info() {
+        final String response = DummyWhoisClient.query(QueryServer.port, "--no-tag-info UNUSED-MNT");
         assertThat(response, not(containsString("Unreferenced")));
     }
 
     @Test
-    public void single_dash_notaginfo_works_too() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-no-taginfo UNUSED-MNT");
+    public void single_dash_no_tag_info_works_too() {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-no-tag-info UNUSED-MNT");
         assertThat(response, not(containsString("Unreferenced")));
     }
 
     @Test
-    public void taginfo_is_off_per_default() {
+    public void tag_info_is_off_per_default() {
         final String response = DummyWhoisClient.query(QueryServer.port, "UNUSED-MNT");
         assertThat(response, not(containsString("Unreferenced")));
     }
@@ -77,36 +77,36 @@ public class TagsTestIntegration extends AbstractWhoisIntegrationTest {
     }
 
     @Test
-    public void show_taginfo_for_unreferenced_object() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--show-taginfo UNUSED-MNT");
+    public void show_tag_info_for_unreferenced_object() {
+        final String response = DummyWhoisClient.query(QueryServer.port, "--show-tag-info UNUSED-MNT");
         assertThat(response, containsString("Unreferenced"));
     }
 
     @Test
-    public void show_taginfo_for_referenced_object() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--show-taginfo RIPE-NCC-HM-MNT");
+    public void show_tag_info_for_referenced_object() {
+        final String response = DummyWhoisClient.query(QueryServer.port, "--show-tag-info RIPE-NCC-HM-MNT");
         assertThat(response, not(containsString("Unreferenced# 'RIPE-NCC-HM-MNT'")));
     }
 
     @Test
-    public void no_taginfo_help() {
+    public void no_tag_info_help() {
         final String response = DummyWhoisClient.query(QueryServer.port, "help");
         assertThat(response, not(containsString("" +
-                "%     --no-taginfo\n" +
+                "%     --no-tag-info\n" +
                 "%           Switches off tagging information.\n")));
     }
 
     @Test
-    public void show_taginfo_help() {
+    public void show_tag_info_help() {
         final String response = DummyWhoisClient.query(QueryServer.port, "help");
         assertThat(response, not(containsString("" +
-                "%     --show-taginfo\n" +
+                "%     --show-tag-info\n" +
                 "%           Switches on tagging information.\n")));
     }
 
     @Test
-    public void show_taginfo_and_no_taginfo_shows_default_behaviour() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--no-taginfo --show-taginfo UNUSED-MNT");
+    public void show_taginfo_and_no_tag_info_shows_default_behaviour() {
+        final String response = DummyWhoisClient.query(QueryServer.port, "--no-tag-info --show-tag-info UNUSED-MNT");
         assertThat(response, containsString("ERROR:109: invalid combination of flags passed"));
     }
 

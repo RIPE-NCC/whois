@@ -16,7 +16,7 @@ class CombinationValidator implements QueryValidator {
 
     static {
         INVALID_COMBINATIONS.put(QueryFlag.ABUSE_CONTACT, Lists.newArrayList(QueryFlag.BRIEF, QueryFlag.NO_FILTERING, QueryFlag.NO_REFERENCED, QueryFlag.PRIMARY_KEYS));
-        INVALID_COMBINATIONS.put(QueryFlag.SHOW_TAGINFO, Lists.newArrayList(QueryFlag.NO_TAGINFO));
+        INVALID_COMBINATIONS.put(QueryFlag.SHOW_TAG_INFO, Lists.newArrayList(QueryFlag.NO_TAG_INFO));
 
         final Map<QueryFlag, List<QueryFlag>> limitedCombinations = Maps.newHashMap();
         limitedCombinations.put(QueryFlag.LIST_VERSIONS, Lists.newArrayList(QueryFlag.PERSISTENT_CONNECTION, QueryFlag.CLIENT));
