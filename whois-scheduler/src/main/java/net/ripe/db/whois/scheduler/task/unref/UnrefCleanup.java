@@ -48,6 +48,7 @@ Algorithm:
  */
 
 // TODO: [AH] hard to follow code, should be refactored
+// TODO: [AH] does not handle circles of unreferenced objects (e.g. person referenced from key-cert, key-cert referenced from mntner, mntner referenced from person), need a different approach to support this
 @Component
 public class UnrefCleanup implements DailyScheduledTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnrefCleanup.class);
