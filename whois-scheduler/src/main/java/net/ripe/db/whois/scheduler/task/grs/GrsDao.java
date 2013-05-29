@@ -9,7 +9,6 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
@@ -44,16 +43,12 @@ class GrsDao {
 
     private void ensureInitialized() {
         if (masterJdbcTemplate == null) {
-            try {
-                JdbcTemplate masterJdbcTemplate = sourceContext.getSourceConfiguration(Source.master(sourceName)).getJdbcTemplate();
-                JdbcTemplate slaveJdbcTemplate = sourceContext.getSourceConfiguration(Source.slave(sourceName)).getJdbcTemplate();
-                JdbcRpslObjectOperations.sanityCheck(masterJdbcTemplate);
-                JdbcRpslObjectOperations.sanityCheck(slaveJdbcTemplate);
-                this.masterJdbcTemplate = masterJdbcTemplate;
-                this.slaveJdbcTemplate = slaveJdbcTemplate;
-            } catch (IllegalSourceException e) {
-                throw new IllegalArgumentException(String.format("Source not configured: %s", e.getSource()));
-            }
+            final JdbcTemplate masterJdbcTemplate = sourceContext.getSourceConfiguration(Source.master(sourceName)).getJdbcTemplate();
+            final JdbcTemplate slaveJdbcTemplate = sourceContext.getSourceConfiguration(Source.slave(sourceName)).getJdbcTemplate();
+            JdbcRpslObjectOperations.sanityCheck(masterJdbcTemplate);
+            JdbcRpslObjectOperations.sanityCheck(slaveJdbcTemplate);
+            this.masterJdbcTemplate = masterJdbcTemplate;
+            this.slaveJdbcTemplate = slaveJdbcTemplate;
         }
     }
 
