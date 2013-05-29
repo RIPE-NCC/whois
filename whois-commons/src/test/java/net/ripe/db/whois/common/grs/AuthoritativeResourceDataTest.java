@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.grs;
 
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import org.junit.Before;
@@ -18,10 +17,10 @@ import org.springframework.util.StringValueResolver;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -30,15 +29,13 @@ import static org.mockito.Mockito.*;
 public class AuthoritativeResourceDataTest {
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
-    List<String> sources = Lists.newArrayList("TEST");
-
     @Mock Downloader downloader;
     @Mock StringValueResolver valueResolver;
     AuthoritativeResourceData subject;
 
     @Before
     public void setUp() {
-        subject = new AuthoritativeResourceData(sources, folder.getRoot().getAbsolutePath(), downloader);
+        subject = new AuthoritativeResourceData("TEST", folder.getRoot().getAbsolutePath(), downloader);
         subject.setEmbeddedValueResolver(valueResolver);
     }
 
@@ -76,7 +73,9 @@ public class AuthoritativeResourceDataTest {
             @Override
             public Void answer(final InvocationOnMock invocation) throws Throwable {
                 final File file = (File) invocation.getArguments()[2];
-                file.createNewFile();
+                if (!file.createNewFile()) {
+                    fail("Unable to create new file?");
+                }
                 return null;
             }
         }).when(downloader).downloadGrsData(any(Logger.class), any(URL.class), any(File.class));

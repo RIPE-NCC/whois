@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.grs;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.io.Downloader;
@@ -18,7 +19,10 @@ import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 
@@ -37,10 +41,10 @@ public class AuthoritativeResourceData implements EmbeddedValueResolverAware {
 
     @Autowired
     public AuthoritativeResourceData(
-            @Value("${grs.sources}") final List<String> sources,
+            @Value("${grs.sources}") String grsSourceNames,
             @Value("${dir.grs.import.download:}") final String downloadDir,
             final Downloader downloader) {
-        this.sources = ciSet(sources);
+        this.sources = ciSet(Splitter.on(',').split(grsSourceNames));
         this.downloadDir = downloadDir;
         this.downloader = downloader;
     }
