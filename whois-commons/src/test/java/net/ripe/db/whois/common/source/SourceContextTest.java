@@ -20,6 +20,7 @@ import static org.mockito.Mockito.when;
 public class SourceContextTest {
     final String mainSourceNameString = "RIPE";
     final String grsSourceNames = "RIPE-GRS,APNIC-GRS,MISCONFIGURED";
+    final String nrtmSourceNames = "NRTM-GRS";
     final String grsSourceNamesForDummification = "RIPE-GRS";
     final String grsMasterBaseUrl = "jdbc://localhost/master";
     final String whoisMasterUsername = "masterUser";
@@ -40,6 +41,7 @@ public class SourceContextTest {
         subject = new SourceContext(
                 mainSourceNameString,
                 grsSourceNames,
+                nrtmSourceNames,
                 grsSourceNamesForDummification,
                 grsMasterBaseUrl,
                 whoisMasterUsername,
@@ -80,5 +82,11 @@ public class SourceContextTest {
     public void isDummificationRequired_APNIC_GRS() {
         subject.setCurrent(Source.slave("APNIC-GRS"));
         assertThat(subject.isDummificationRequired(), is(false));
+    }
+
+    @Test
+    public void getNrtmSource() {
+        subject.setCurrent(Source.master("NRTM-GRS"));
+        assertThat(subject.getCurrentSource().isGrs(), is(true));
     }
 }

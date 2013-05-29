@@ -8,10 +8,4 @@
 
     <task:scheduler id="clientSynchronisationScheduler" pool-size="10"/>
 
-    <bean id="whoisMasterNrtmClientDataSource" parent="abstractDataSource">
-        <property name="driverClass" value="${whois.db.nrtmclient.driver}"/>
-        <property name="jdbcUrl" value="${whois.db.nrtmclient.url}"/>
-        <property name="user" value="${whois.db.nrtmclient.username}"/>
-        <property name="password" value="${whois.db.nrtmclient.password}"/>
-    </bean>
 </beans>

@@ -48,6 +48,7 @@ public class SourceContext {
     public SourceContext(
             @Value("${whois.source}") final String mainSourceNameString,
             @Value("${grs.sources}") final String grsSourceNames,
+            @Value("${nrtm.import.sources}") final String nrtmSourceNames,
             @Value("${grs.sources.dummify}") final String grsSourceNamesForDummification,
             @Value("${whois.db.grs.master.baseurl}") final String grsMasterBaseUrl,
             @Value("${whois.db.master.username}") final String whoisMasterUsername,
@@ -77,7 +78,17 @@ public class SourceContext {
             }
         });
 
-        for (final CIString grsSourceName : grsSourceNameIterable) {
+        // TODO: validate that NRTM source does not match master or GRS source
+
+        final Iterable<CIString> nrtmSourceNameIterable = Iterables.transform(Splitter.on(',').omitEmptyStrings().split(nrtmSourceNames), new Function<String, CIString>() {
+            @Nullable
+            @Override
+            public CIString apply(final String input) {
+                return ciString(input);
+            }
+        });
+
+        for (final CIString grsSourceName : Iterables.concat(grsSourceNameIterable, nrtmSourceNameIterable)) {
             if (!grsSourceName.endsWith(ciString("-GRS"))) {
                 LOGGER.warn("Skipped non-GRS source: {}", grsSourceName);
                 continue;

@@ -1,13 +1,12 @@
 package net.ripe.db.whois.nrtm.integration;
 
 import com.google.common.collect.Lists;
+import com.jayway.awaitility.Awaitility;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -17,8 +16,11 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.hamcrest.Matchers.is;
 
 public class DummyNrtmServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(DummyNrtmServer.class);
@@ -33,6 +35,7 @@ public class DummyNrtmServer {
     private final List<Update> updates = Collections.synchronizedList(Lists.<Update>newArrayList());
     private final int port;
 
+    private Thread thread = null;
     private boolean running = false;
 
     public DummyNrtmServer(final int port) {
@@ -44,7 +47,8 @@ public class DummyNrtmServer {
             throw new IllegalStateException();
         }
         NrtmServerThread nrtmServerThread = new NrtmServerThread();
-        new Thread(nrtmServerThread).start();
+        thread = new Thread(nrtmServerThread);
+        thread.start();
     }
 
     public void stop() {
@@ -52,6 +56,12 @@ public class DummyNrtmServer {
             throw new IllegalStateException();
         }
         running = false;
+        Awaitility.await().until(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return thread.isAlive();
+            }
+        }, is(false));
     }
 
     public int getPort() {
@@ -78,13 +88,13 @@ public class DummyNrtmServer {
                     try {
                         socket = acceptSocket(serverSocket);
 
-                        final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                        final InputStreamReader reader = new InputStreamReader(socket.getInputStream());
+                        final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
 
                         writer.write(HEADER);
                         writer.flush();
 
-                        final String command = reader.readLine();
+                        final String command = readLine(reader);
 
                         final Matcher matcher = MIRROR_COMMAND_PATTERN.matcher(command);
                         if (matcher.find()) {
@@ -124,10 +134,32 @@ public class DummyNrtmServer {
             }
         }
 
+        private String readLine(final InputStreamReader reader) throws IOException {
+            final StringBuilder builder = new StringBuilder();
+
+            for (;;) {
+                while (!reader.ready()) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new IllegalStateException("Thread was interrupted");
+                    }
+                }
+
+                final int c = reader.read();
+
+                switch (c) {
+                    case -1: throw new SocketException("Unexpected end of stream from NRTM server connection.");
+                    case '\n': return builder.toString();
+                    default: builder.append((char)c);
+                }
+            }
+        }
+
+
         private Socket acceptSocket(final ServerSocket serverSocket) throws IOException {
             serverSocket.bind(new InetSocketAddress(port));
-            final Socket socket = serverSocket.accept();
-            return socket;
+            return serverSocket.accept();
         }
 
         private void closeSocket(final Socket socket) {
