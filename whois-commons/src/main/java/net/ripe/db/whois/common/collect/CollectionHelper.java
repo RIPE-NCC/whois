@@ -41,4 +41,16 @@ public final class CollectionHelper {
         final ProxyIterable<Integer, ? extends ResponseObject> rpslObjects = new ProxyIterable<Integer, RpslObject>(ids, rpslObjectLoader, 100);
         return (Iterable<ResponseObject>) Iterables.filter(rpslObjects, Predicates.notNull());
     }
+
+    public static<T> boolean containsType(T[] array, Class type) {
+        if (array == null) return false;
+
+        for (int i = 0; i < array.length; i++) {
+            if (type.isAssignableFrom(array[i].getClass())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

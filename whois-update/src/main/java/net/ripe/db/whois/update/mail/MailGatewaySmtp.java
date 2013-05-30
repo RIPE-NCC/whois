@@ -1,8 +1,10 @@
 package net.ripe.db.whois.update.mail;
 
+import com.sun.mail.smtp.SMTPAddressFailedException;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.aspects.RetryFor;
+import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
@@ -70,7 +72,10 @@ public class MailGatewaySmtp implements MailGateway {
             sendEmailAttempt(to, subject, text);
         } catch (MailSendException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail message to {} with subject {}", to, subject), e);
-            throw e;
+            if (!CollectionHelper.containsType(e.getMessageExceptions(), SMTPAddressFailedException.class)) {
+                // don't retry on irrecoverable errors (e.g. malformed email address)
+                throw e;
+            }
         } catch (MailParseException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Unable to parse mail to {} with subject {}", to, subject), e);
         } catch (MailException e) {
