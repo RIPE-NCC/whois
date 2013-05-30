@@ -594,6 +594,7 @@
                         <include>${test.files.unit}</include>
                     </includes>
                     <runOrder>random</runOrder>
+                    <threadCount>1</threadCount>
                     <excludedGroups>
                         net.ripe.db.whois.common.IntegrationTest,
                         net.ripe.db.whois.common.ManualTest
@@ -613,6 +614,7 @@
                     <groups>${test.groups}</groups>
                     <forkCount>${test.forkCount.integration}</forkCount>
                     <reuseForks>true</reuseForks>
+                    <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
                 </configuration>
                 <executions>
