@@ -46,11 +46,6 @@ public class MessageDequeueTestIntegration extends AbstractIntegrationTest {
         System.setProperty("mail.dequeue.threads", String.valueOf(CLIENTS));
     }
 
-    @AfterClass
-    public static void resetNumberOfThreads() {
-        System.clearProperty("mail.dequeue.threads");
-    }
-
     @Test
     public void concurrent_handling_test() throws Exception {
         final AtomicInteger processed = new AtomicInteger();

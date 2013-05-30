@@ -15,7 +15,6 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @Category(IntegrationTest.class)
 public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrationTest {
     @Autowired

@@ -8,19 +8,23 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 import java.util.List;
+import java.util.Set;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles("TEST")
 @TestExecutionListeners(listeners = {SetupDatabaseTestExecutionListener.class, TransactionalTestExecutionListener.class})
 public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringContextTests {
@@ -39,12 +43,25 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
     protected JdbcTemplate mailUpdatesTemplate;
     protected DatabaseHelper databaseHelper;
 
+    private static Set<String> properties;
+
     @BeforeClass
     public static void setupProperties() {
+        properties = System.getProperties().stringPropertyNames();
+
         Slf4JLogConfiguration.init();
         System.setProperty("mail.dequeue.interval", "10");
         System.setProperty("application.version", "0.1-TEST");
         System.setProperty("grs.sources.dummify", "TEST-GRS");
+    }
+
+    @AfterClass
+    public static void resetProperties() {
+        for (final String propertyName : System.getProperties().stringPropertyNames()) {
+            if (!properties.contains(propertyName)) {
+                System.clearProperty(propertyName);
+            }
+        }
     }
 
     @Before
