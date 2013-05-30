@@ -88,7 +88,8 @@ public class SourceContext {
 
         for (final CIString grsSourceName : Iterables.concat(grsSourceNameIterable, nrtmSourceNameIterable)) {
             if (!grsSourceName.endsWith(ciString("-GRS"))) {
-                throw new IllegalArgumentException(String.format("Invalid GRS source name: %s", grsSourceName));
+                LOGGER.warn("Invalid GRS source name: {}", grsSourceName);
+                continue;
             }
 
             if (!grsSources.add(grsSourceName)) {

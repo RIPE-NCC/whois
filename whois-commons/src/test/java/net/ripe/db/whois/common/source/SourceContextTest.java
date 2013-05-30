@@ -60,25 +60,6 @@ public class SourceContextTest {
         subject.removeCurrentSource();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void set_invalid_grs_source_name() {
-        subject = new SourceContext(
-                mainSourceNameString,
-                "INVALID_GRS_NAME",
-                nrtmSourceNames,
-                grsSourceNamesForDummification,
-                grsMasterBaseUrl,
-                whoisMasterUsername,
-                whoisMasterPassword,
-                grsSlaveBaseUrl,
-                whoisSlaveUsername,
-                whoisSlavePassword,
-                whoisMasterDataSource,
-                whoisSlaveDataSource,
-                dataSourceFactory
-        );
-    }
-
     @Test(expected = IllegalSourceException.class)
     public void setCurrent_unknown_source() {
         subject.setCurrent(Source.slave("UNKNOWN-GRS"));
