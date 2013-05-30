@@ -51,20 +51,20 @@ public class WhoisServerPipelineFactory implements ChannelPipelineFactory {
     }));
 
     private final ConnectionPerIpLimitHandler connectionPerIpLimitHandler;
-    private final OpenChannelsRegistry openChannelsRegistry;
+    private final QueryChannelsRegistry queryChannelsRegistry;
     private final TermsAndConditionsHandler termsAndConditionsHandler;
     private final WhoisEncoder whoisEncoder;
     private final QueryDecoder queryDecoder;
     private final QueryHandler queryHandler;
 
     @Autowired
-    public WhoisServerPipelineFactory(final OpenChannelsRegistry openChannelsRegistry,
+    public WhoisServerPipelineFactory(final QueryChannelsRegistry queryChannelsRegistry,
                                       final TermsAndConditionsHandler termsAndConditionsHandler,
                                       final QueryDecoder queryDecoder,
                                       final WhoisEncoder whoisEncoder,
                                       final ConnectionPerIpLimitHandler connectionPerIpLimitHandler,
                                       final QueryHandler queryHandler) {
-        this.openChannelsRegistry = openChannelsRegistry;
+        this.queryChannelsRegistry = queryChannelsRegistry;
         this.termsAndConditionsHandler = termsAndConditionsHandler;
         this.queryDecoder = queryDecoder;
         this.whoisEncoder = whoisEncoder;
@@ -83,7 +83,7 @@ public class WhoisServerPipelineFactory implements ChannelPipelineFactory {
 
         pipeline.addLast("connectionPerIpLimit", connectionPerIpLimitHandler);
 
-        pipeline.addLast("open-channels", openChannelsRegistry);
+        pipeline.addLast("query-channels", queryChannelsRegistry);
         pipeline.addLast("read-timeout", readTimeoutHandler);
         pipeline.addLast("write-timeout", writeTimeoutHandler);
 

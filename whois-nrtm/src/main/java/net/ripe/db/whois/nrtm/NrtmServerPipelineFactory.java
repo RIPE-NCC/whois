@@ -12,13 +12,14 @@ import org.springframework.stereotype.Component;
 public class NrtmServerPipelineFactory extends BaseNrtmServerPipelineFactory {
 
     @Autowired
-    public NrtmServerPipelineFactory(final NrtmExceptionHandler exceptionHandler, final AccessControlHandler aclHandler,
+    public NrtmServerPipelineFactory(final NrtmChannelsRegistry nrtmChannelsRegistry,
+                                     final NrtmExceptionHandler exceptionHandler, final AccessControlHandler aclHandler,
                                      final SerialDao serialDao, final NrtmLog nrtmLog, final @Qualifier("dummifierCurrent") Dummifier dummifier,
                                      @Qualifier("clientSynchronisationScheduler") final TaskScheduler clientSynchronisationScheduler,
                                      @Value("${application.version}") final String version,
                                      @Value("${whois.source}") final String source,
                                      @Value("${nrtm.update.interval:60}") final long updateInterval) {
 
-        super(exceptionHandler, aclHandler, serialDao, nrtmLog, dummifier, clientSynchronisationScheduler, version, source, updateInterval);
+        super(nrtmChannelsRegistry, exceptionHandler, aclHandler, serialDao, nrtmLog, dummifier, clientSynchronisationScheduler, version, source, updateInterval);
     }
 }

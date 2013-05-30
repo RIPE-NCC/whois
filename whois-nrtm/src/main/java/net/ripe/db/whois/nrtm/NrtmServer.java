@@ -27,6 +27,7 @@ public class NrtmServer implements ApplicationService {
     @Value("${port.nrtm}") private int nrtmPort;
     @Value("${port.nrtm.legacy}") private int nrtmPortLegacy;
 
+    private final NrtmChannelsRegistry nrtmChannelsRegistry;
     private final NrtmServerPipelineFactory nrtmServerPipelineFactory;
     private final LegacyNrtmServerPipelineFactory legacyNrtmServerPipelineFactory;
     private Channel serverChannelLegacy;
@@ -36,7 +37,8 @@ public class NrtmServer implements ApplicationService {
     public static int legacyPort;
 
     @Autowired
-    public NrtmServer(final NrtmServerPipelineFactory whoisServerPipelineFactory, final LegacyNrtmServerPipelineFactory legacyNrtmServerPipelineFactory) {
+    public NrtmServer(final NrtmChannelsRegistry nrtmChannelsRegistry, final NrtmServerPipelineFactory whoisServerPipelineFactory, final LegacyNrtmServerPipelineFactory legacyNrtmServerPipelineFactory) {
+        this.nrtmChannelsRegistry = nrtmChannelsRegistry;
         this.nrtmServerPipelineFactory = whoisServerPipelineFactory;
         this.legacyNrtmServerPipelineFactory = legacyNrtmServerPipelineFactory;
     }
@@ -51,6 +53,10 @@ public class NrtmServer implements ApplicationService {
         port = getActualPort(nrtmPort);
         legacyPort = getActualPort(nrtmPortLegacy);
 
+        resume();
+    }
+
+    public void resume() {
         serverChannelLegacy = bootstrapChannel(legacyNrtmServerPipelineFactory, legacyPort, "OLD DUMMIFER");
         serverChannel = bootstrapChannel(nrtmServerPipelineFactory, port, "NEW DUMMIFER");
     }
@@ -83,6 +89,8 @@ public class NrtmServer implements ApplicationService {
                 serverChannel.close();
                 serverChannel = null;
             }
+
+            nrtmChannelsRegistry.closeChannels();
         }
     }
 }

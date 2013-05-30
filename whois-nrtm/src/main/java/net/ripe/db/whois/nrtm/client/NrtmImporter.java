@@ -2,6 +2,7 @@ package net.ripe.db.whois.nrtm.client;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.domain.CIString;
@@ -24,6 +25,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationService {
@@ -37,6 +39,7 @@ public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationServ
 
     private StringValueResolver valueResolver;
     private ExecutorService executorService;
+    private Set<NrtmClientFactory.NrtmClient> clients = Sets.newHashSet();
 
     @Autowired
     public NrtmImporter(final NrtmClientFactory nrtmClientFactory,
@@ -87,15 +90,21 @@ public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationServ
             });
 
             for (NrtmSource nrtmSource : nrtmSources) {
-                executorService.submit(nrtmClientFactory.createNrtmClient(nrtmSource.getName(), nrtmSource.getHost(), nrtmSource.getPort()));
+                final NrtmClientFactory.NrtmClient nrtmClient = nrtmClientFactory.createNrtmClient(nrtmSource);
+                clients.add(nrtmClient);
+                executorService.submit(nrtmClient);
             }
         }
     }
 
     @Override
     public void stop() {
+        for (final NrtmClientFactory.NrtmClient client : clients) {
+            client.stop();
+        }
+
         if (executorService != null) {
-            executorService.shutdownNow();
+            executorService.shutdown();
         }
     }
 
@@ -103,10 +112,11 @@ public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationServ
         final List<NrtmSource> nrtmSources = Lists.newArrayList();
 
         for (final CIString source : sources) {
+            final String originSource = readProperty(String.format("nrtm.import.%s.source", source));
             final String host = readProperty(String.format("nrtm.import.%s.host", source));
             final String port = readProperty(String.format("nrtm.import.%s.port", source));
             try {
-                nrtmSources.add(new NrtmSource(source, host, Integer.parseInt(port)));
+                nrtmSources.add(new NrtmSource(source, ciString(originSource), host, Integer.parseInt(port)));
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Invalid NRTM server port: " + port + " for source: " + source);
             }
@@ -124,27 +134,4 @@ public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationServ
         return value;
     }
 
-    public class NrtmSource {
-        private final CIString name;
-        private final String host;
-        private final int port;
-
-        public NrtmSource(final CIString name, final String host, final int port) {
-            this.name = name;
-            this.host = host;
-            this.port = port;
-        }
-
-        public CIString getName() {
-            return name;
-        }
-
-        public String getHost() {
-            return host;
-        }
-
-        public int getPort() {
-            return port;
-        }
-    }
 }

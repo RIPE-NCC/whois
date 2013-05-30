@@ -1,8 +1,10 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
@@ -11,12 +13,7 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.jdbc.driver.LoggingDriver;
-import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
-import net.ripe.db.whois.common.rpsl.ObjectMessages;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -34,17 +31,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collection;
+import java.sql.*;
+import java.util.*;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -98,6 +87,7 @@ public class DatabaseHelper {
 
     private static String namePrefix;
     private static String dbName;
+    private static Set<String> grsDatabaseNames = Sets.newLinkedHashSet();
 
     public static synchronized void setupDatabase() {
         if (namePrefix != null) {
@@ -154,9 +144,12 @@ public class DatabaseHelper {
     }
 
     public static void addGrsDatabases(final String... names) {
+        // TODO [AK] Properly keep track of GRS names
         for (final String name : names) {
-            Validate.isTrue(name.endsWith("-GRS"), name + " must end with -GRS");
-            setupDatabase(createDefaultTemplate(), "whois.db." + name, dbName, "WHOIS_" + name.replace('-', '_'), "whois_schema.sql");
+            if (grsDatabaseNames.add(name)) {
+                Validate.isTrue(name.endsWith("-GRS"), name + " must end with -GRS");
+                setupDatabase(createDefaultTemplate(), "whois.db." + name, dbName, "WHOIS_" + name.replace('-', '_'), "whois_schema.sql");
+            }
         }
 
         final Joiner joiner = Joiner.on(',');
@@ -215,9 +208,12 @@ public class DatabaseHelper {
     }
 
     public void setup() {
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(sourceAwareDataSource);
-        truncateTables(jdbcTemplate);
-        loadScripts(jdbcTemplate, "whois_data.sql");
+        // Setup main whois + GRS sources
+        for (final String sourceName : Iterables.concat(Collections.singletonList(System.getProperty("whois.source")), grsDatabaseNames)) {
+            final JdbcTemplate jdbcTemplate = sourceContext.getSourceConfiguration(Source.master(sourceName)).getJdbcTemplate();
+            truncateTables(jdbcTemplate);
+            loadScripts(jdbcTemplate, "whois_data.sql");
+        }
 
         if (aclTemplate != null) {
             truncateTables(aclTemplate);
@@ -259,6 +255,19 @@ public class DatabaseHelper {
     public RpslObject addObject(final RpslObject rpslObject) {
         final RpslObjectUpdateInfo objectUpdateInfo = rpslObjectUpdateDao.createObject(rpslObject);
         return RpslObject.parse(objectUpdateInfo.getObjectId(), rpslObject.toByteArray());
+    }
+
+    public RpslObject addObjectToSource(final String source, final String rpslString) {
+        return addObjectToSource(source, RpslObject.parse(rpslString));
+    }
+
+    public RpslObject addObjectToSource(final String source, final RpslObject rpslObject) {
+        try {
+            sourceContext.setCurrent(Source.master(source));
+            return addObject(rpslObject);
+        } finally {
+            sourceContext.removeCurrentSource();
+        }
     }
 
     // TODO: [AH] this is very similar to loader, should merge (also, claiming of IDs is missing from here)

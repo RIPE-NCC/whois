@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query;
 
 import net.ripe.db.whois.common.ApplicationService;
-import net.ripe.db.whois.query.pipeline.OpenChannelsRegistry;
+import net.ripe.db.whois.query.pipeline.QueryChannelsRegistry;
 import net.ripe.db.whois.query.pipeline.WhoisServerPipelineFactory;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -36,13 +36,13 @@ public final class QueryServer implements ApplicationService {
     private Channel serverChannel;
 
     private final WhoisServerPipelineFactory whoisServerPipelineFactory;
-    private final OpenChannelsRegistry openChannelsRegistry;
+    private final QueryChannelsRegistry queryChannelsRegistry;
     private final ChannelFactory channelFactory;
 
     @Autowired
-    public QueryServer(final WhoisServerPipelineFactory whoisServerPipelineFactory, final OpenChannelsRegistry openChannelsRegistry) {
+    public QueryServer(final WhoisServerPipelineFactory whoisServerPipelineFactory, final QueryChannelsRegistry queryChannelsRegistry) {
         this.whoisServerPipelineFactory = whoisServerPipelineFactory;
-        this.openChannelsRegistry = openChannelsRegistry;
+        this.queryChannelsRegistry = queryChannelsRegistry;
         this.channelFactory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
     }
 
@@ -64,6 +64,8 @@ public final class QueryServer implements ApplicationService {
         if (serverChannel != null) {
             serverChannel.close();
             serverChannel = null;
+
+            queryChannelsRegistry.closeChannels();
         }
     }
 }

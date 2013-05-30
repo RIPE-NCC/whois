@@ -2,7 +2,7 @@ package net.ripe.db.whois.query.integration;
 
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.query.QueryServer;
-import net.ripe.db.whois.query.pipeline.OpenChannelsRegistry;
+import net.ripe.db.whois.query.pipeline.QueryChannelsRegistry;
 import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-query-test.xml"}, inheritLocations = false)
 @Category(IntegrationTest.class)
 public class WhoisShutdownTestIntegration extends AbstractWhoisIntegrationTest {
-    @Autowired @WrapWithSpy private OpenChannelsRegistry openChannelsRegistry;
+    @Autowired @WrapWithSpy private QueryChannelsRegistry queryChannelsRegistry;
 
     @Before
     public void setUp() throws Exception {
@@ -43,7 +43,7 @@ public class WhoisShutdownTestIntegration extends AbstractWhoisIntegrationTest {
             assertTrue("server connection", socket.isConnected());
             assertTrue("header from server", socket.getInputStream().read() != -1);
 
-            assertEquals("single client connection", 1, openChannelsRegistry.size());
+            assertEquals("single client connection", 1, queryChannelsRegistry.size());
 
             final CountDownLatch latch = new CountDownLatch(1);
             new Thread() {

@@ -16,13 +16,13 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OpenChannelsRegistryTest {
+public class QueryChannelsRegistryTest {
 
     @Mock private ChannelHandlerContext contextMock;
     @Mock private ChannelStateEvent eventMock;
     @Mock private Channel channelMock;
     @Mock private ChannelFuture futureMock;
-    @InjectMocks private OpenChannelsRegistry subject;
+    @InjectMocks private QueryChannelsRegistry subject;
 
     @Before
     public void setup() {
@@ -43,7 +43,7 @@ public class OpenChannelsRegistryTest {
     public void service_stop_closes_channels() {
         subject.channelOpen(contextMock, eventMock);
 
-        subject.stopService();
+        subject.closeChannels();
 
         verify(channelMock, times(1)).close();
     }

@@ -27,6 +27,7 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
     private final StringDecoder stringDecoder = new StringDecoder(Charsets.UTF_8);
     private final StringEncoder stringEncoder = new StringEncoder(Charsets.UTF_8);
     private final ExecutionHandler executionHandler = new ExecutionHandler(new OrderedMemoryAwareThreadPoolExecutor(POOL_SIZE, EXECUTOR_PER_CHANNEL_MEMORY_LIMIT, EXECUTOR_TOTAL_MEMORY_LIMIT));
+    private final NrtmChannelsRegistry nrtmChannelsRegistry;
     private final NrtmExceptionHandler exceptionHandler;
     private final AccessControlHandler aclHandler;
     private final SerialDao serialDao;
@@ -38,10 +39,12 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
     private final String source;
     private final long updateInterval;
 
-    protected BaseNrtmServerPipelineFactory(final NrtmExceptionHandler exceptionHandler, final AccessControlHandler aclHandler,
+    protected BaseNrtmServerPipelineFactory(final NrtmChannelsRegistry nrtmChannelsRegistry,
+                                            final NrtmExceptionHandler exceptionHandler, final AccessControlHandler aclHandler,
                                             final SerialDao serialDao, final NrtmLog nrtmLog, final Dummifier dummifier,
                                             final TaskScheduler clientSynchronisationScheduler, final String version,
                                             final String source, final long updateInterval) {
+        this.nrtmChannelsRegistry = nrtmChannelsRegistry;
         this.exceptionHandler = exceptionHandler;
         this.aclHandler = aclHandler;
         this.serialDao = serialDao;
@@ -58,6 +61,7 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
     public ChannelPipeline getPipeline() {
         ChannelPipeline pipeline = Channels.pipeline();
 
+        pipeline.addLast("U-channels", nrtmChannelsRegistry);
         pipeline.addLast("U-acl", aclHandler);
 
         pipeline.addLast("U-delimiter", new DelimiterBasedFrameDecoder(128, true, LINE_DELIMITER));

@@ -46,7 +46,7 @@ import static org.mockito.Mockito.*;
 public class WhoisConnectionTestIntegration extends AbstractWhoisIntegrationTest {
     @Autowired @ReplaceWithMock WhoisServerPipelineFactory whoisServerPipelineFactory;
     @Autowired @ReplaceWithMock QueryHandler queryHandler;
-    @Autowired @WrapWithSpy OpenChannelsRegistry openChannelsRegistry;
+    @Autowired @WrapWithSpy QueryChannelsRegistry queryChannelsRegistry;
 
     private String queryString = "-rBGxTinetnum 10.0.0.0";
     private String queryResult = "inetnum: 127.0.0.1";
@@ -58,7 +58,7 @@ public class WhoisConnectionTestIntegration extends AbstractWhoisIntegrationTest
         upstreamMock = Mockito.mock(SimpleChannelUpstreamHandler.class, Answers.CALLS_REAL_METHODS.get());
 
         ChannelPipeline pipeline = Channels.pipeline();
-        pipeline.addLast("open-channels", openChannelsRegistry);
+        pipeline.addLast("open-channels", queryChannelsRegistry);
         pipeline.addLast("delimiter", new DelimiterBasedFrameDecoder(1024, true, ChannelBuffers.wrappedBuffer(new byte[]{'\n'})));
         pipeline.addLast("string-decoder", new StringDecoder(Charsets.UTF_8));
         pipeline.addLast("whois-encoder", applicationContext.getBean(WhoisEncoder.class));

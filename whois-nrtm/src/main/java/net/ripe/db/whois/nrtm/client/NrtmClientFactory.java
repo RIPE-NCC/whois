@@ -5,14 +5,13 @@ import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.SerialDao;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.dao.NrtmClientDao;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +19,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -51,43 +48,46 @@ class NrtmClientFactory {
         this.nrtmClientDao = nrtmClientDao;
     }
 
-    public NrtmClient createNrtmClient(final CIString source, final String host, final int port) {
-        return new NrtmClient(source, host, port);
+    public NrtmClient createNrtmClient(final NrtmSource nrtmSource) {
+        return new NrtmClient(nrtmSource);
     }
 
     public class NrtmClient implements Runnable {
-        private final CIString source;
-        private final String host;
-        private final int port;
+        private final NrtmSource nrtmSource;
 
-        public NrtmClient(final CIString source, final String host, final int port) {
-            this.source = source;
-            this.host = host;
-            this.port = port;
+        private volatile boolean running = true;
+        private volatile Socket socket;
+        private BufferedReader reader;
+        private BufferedWriter writer;
+
+        public NrtmClient(final NrtmSource nrtmSource) {
+            this.nrtmSource = nrtmSource;
+        }
+
+        public void stop() {
+            running = false;
+            IOUtils.closeQuietly(socket);
         }
 
         @Override
         public void run() {
             try {
-                sourceContext.setCurrent(Source.master(source));
+                sourceContext.setCurrent(Source.master(nrtmSource.getName()));
 
-                while (true) {
-                    Socket socket = null;
+                while (running) {
                     try {
-                        socket = connect();
-                        final InputStreamReader reader = new InputStreamReader(socket.getInputStream());
-                        final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
-                        readHeader(reader);
-                        writeMirrorCommand(writer);
-                        readMirrorResult(reader);
-                        readUpdates(reader);
+                        connect();
+                        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+                        readHeader();
+                        writeMirrorCommand();
+                        readMirrorResult();
+                        readUpdates();
                     } catch (IllegalStateException e) {
                         LOGGER.error(e.getMessage());
-                        break;
-                    } catch (SocketException ignored) {
-                        // try to reconnect
                     } catch (IOException e) {
-                        LOGGER.info("Caught exception while connected, ignoring", e);
+                        throw new RuntimeException(e);
                     } catch (RuntimeException e) {
                         LOGGER.info("Caught exception while connected, ignoring", e);
                     } finally {
@@ -100,83 +100,63 @@ class NrtmClientFactory {
         }
 
         @RetryFor(value = IOException.class, attempts = 100, intervalMs = 10 * 1000)
-        private Socket connect() throws IOException {
+        private void connect() throws IOException {
             try {
-                final Socket socket = new Socket(host, port);
-                LOGGER.info("Connected to {}:{}", host, port);
-                return socket;
+                socket = new Socket(nrtmSource.getHost(), nrtmSource.getPort());
+                LOGGER.info("Connected to {}:{}", nrtmSource.getHost(), nrtmSource.getPort());
             } catch (UnknownHostException e) {
                 throw new IllegalStateException(e);
             }
         }
 
-        private void readHeader(final InputStreamReader reader) throws IOException {
+        private void readHeader() throws IOException {
             // TODO [AK] Read comments until empty line occurs
-            readLine(reader, "%");
-            readLine(reader, "%");
-            readEmptyLine(reader);
+            readLineWithExpected("%");
+            readLineWithExpected("%");
+            readEmptyLine();
         }
 
-        private String readLine(final InputStreamReader reader, final String expected) throws IOException {
-            final String line = readLine(reader);
-
+        private String readLineWithExpected(final String expected) throws IOException {
+            final String line = reader.readLine();
             if (!line.contains(expected)) {
                 throw new IllegalStateException("Expected to read: \"" + expected + "\", but actually read: \"" + line + "\"");
             }
             return line;
         }
 
-        private String readEmptyLine(final InputStreamReader reader) throws IOException {
-            return readLine(reader, "");
-        }
-
-        private String readLine(final InputStreamReader reader) throws IOException {
-            final StringBuilder builder = new StringBuilder();
-
-            while (true) {
-                while (!reader.ready()) {
-                    try {
-                        Thread.sleep(100);  // TODO: make sleep configurable
-                    } catch (InterruptedException e) {
-                        throw new IllegalStateException("Thread was interrupted");
-                    }
-                }
-
-                final int c = reader.read();
-
-                switch (c) {
-                    case -1:
-                        throw new SocketException("Unexpected end of stream from NRTM server connection.");
-                    case '\n':
-                        return builder.toString();
-                    default:
-                        builder.append((char) c);
-                }
+        private String readEmptyLine() throws IOException {
+            final String line = reader.readLine();
+            if (!StringUtils.isBlank(line)) {
+                throw new IllegalStateException("Expected to read empty line, but actually read: \"" + line + "\"");
             }
+
+            return line;
         }
 
-        private void writeMirrorCommand(final OutputStreamWriter writer) throws IOException {
-            writeLine(writer, String.format("-g %s:3:%d-LAST -k",
-                    sourceContext.getCurrentSource().getName(),
-                    serialDao.getSerials().getEnd()));
+        private void writeMirrorCommand() throws IOException {
+            final String mirrorCommand = String.format("-g %s:3:%d-LAST -k",
+                    nrtmSource.getOriginSource(),
+                    serialDao.getSerials().getEnd());
+
+            writeLine(mirrorCommand);
         }
 
-        private void readMirrorResult(final InputStreamReader reader) throws IOException {
-            final String result = readLine(reader, "%START");
-            readEmptyLine(reader);
+        private void readMirrorResult() throws IOException {
+            final String result = readLineWithExpected("%START");
+            readEmptyLine();
             LOGGER.info(result);
         }
 
-        private void writeLine(final OutputStreamWriter writer, final String line) throws IOException {
+        private void writeLine(final String line) throws IOException {
             writer.write(line);
             writer.write('\n');
             writer.flush();
         }
 
-        private void readUpdates(final InputStreamReader reader) throws IOException {
+        private void readUpdates() throws IOException {
             while (true) {
-                final OperationSerial operationSerial = readOperationAndSerial(reader);
-                final RpslObject object = readObject(reader);
+                final OperationSerial operationSerial = readOperationAndSerial();
+                final RpslObject object = readObject();
                 update(operationSerial.getOperation(), operationSerial.getSerial(), object);
             }
         }
@@ -214,8 +194,8 @@ class NrtmClientFactory {
             }
         }
 
-        private OperationSerial readOperationAndSerial(final InputStreamReader reader) throws IOException {
-            final String line = readLine(reader, " ");
+        private OperationSerial readOperationAndSerial() throws IOException {
+            final String line = readLineWithExpected(" ");
 
             final Matcher matcher = OPERATION_AND_SERIAL_PATTERN.matcher(line);
             if (!matcher.find()) {
@@ -224,14 +204,14 @@ class NrtmClientFactory {
 
             final Operation operation = Operation.getByName(matcher.group(1));
             final String serial = matcher.group(2);
-            readEmptyLine(reader);
+            readEmptyLine();
             return new OperationSerial(operation, serial);
         }
 
-        private RpslObject readObject(final InputStreamReader reader) throws IOException {
+        private RpslObject readObject() throws IOException {
             StringBuilder builder = new StringBuilder();
             String line;
-            while (!(line = readLine(reader)).isEmpty()) {
+            while (!(line = reader.readLine()).isEmpty()) {
                 builder.append(line);
                 builder.append('\n');
             }

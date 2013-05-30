@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.pipeline;
+package net.ripe.db.whois.nrtm;
 
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -12,16 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
-
 /**
  * Keeps track of all open channel and allows shutting down all currently open
  * channels cleanly.
  */
 @Component
 @ChannelHandler.Sharable
-public class OpenChannelsRegistry extends SimpleChannelUpstreamHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenChannelsRegistry.class);
+public class NrtmChannelsRegistry extends SimpleChannelUpstreamHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmChannelsRegistry.class);
 
     private final ChannelGroup channels = new DefaultChannelGroup();
 
@@ -37,8 +35,7 @@ public class OpenChannelsRegistry extends SimpleChannelUpstreamHandler {
         return channels.size();
     }
 
-    @PreDestroy
-    public void stopService() {
+    public void closeChannels() {
         LOGGER.info("Closing {} open channels.", size());
         channels.close().addListener(new ChannelGroupFutureListener() {
             @Override
