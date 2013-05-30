@@ -92,7 +92,8 @@ public class SourceContext {
             }
 
             if (!grsSources.add(grsSourceName)) {
-                throw new IllegalArgumentException(String.format("GRS Source already configured: %s", grsSourceName));
+                LOGGER.warn("GRS Source already configured: {}", grsSourceName);
+                continue;
             }
 
             final Source grsMasterSource = Source.master(grsSourceName);
