@@ -1,11 +1,13 @@
 package net.ripe.db.whois.query.executor;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -65,19 +67,38 @@ public class SearchQueryExecutor implements QueryExecutor {
 
     @Override
     public void execute(final Query query, final ResponseHandler responseHandler) {
-        for (final Source source : getSources(query)) {
+        boolean noResults = true;
+
+        final Set<Source> sources = getSources(query);
+        for (final Source source : sources) {
             try {
                 sourceContext.setCurrent(source);
                 final Iterable<? extends ResponseObject> searchResults = rpslObjectSearcher.search(query);
+
                 for (final ResponseObject responseObject : rpslResponseDecorator.getResponse(query, searchResults)) {
+
                     // TODO: [AH] make sure responseHandler implementation can handle executionHandler worker threads pushing data (think of suspend-on-write, buffer overflow, slow connections, etc...)
                     responseHandler.handle(responseObject);
+
+                    if (responseObject instanceof RpslObject) {
+                        noResults = false;
+                    }
                 }
             } catch (IllegalSourceException e) {
                 responseHandler.handle(new MessageObject(QueryMessages.unknownSource(source.getName()) + "\n"));
+                noResults = false;
             } finally {
                 sourceContext.removeCurrentSource();
             }
+        }
+
+        if (noResults) {
+            responseHandler.handle(new MessageObject(QueryMessages.noResults(Joiner.on(',').join(Iterables.transform(sources, new Function<Source, String>() {
+                @Override
+                public String apply(final Source input) {
+                    return input.getName().toUpperCase();
+                }
+            })))));
         }
     }
 

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -8,7 +9,11 @@ public class Tag {
     private final int objectId;
     private final String value;
 
-    public Tag(final CIString type, final int objectId, final String value) {
+    public Tag(final CIString type, final int objectId) {
+        this(type, objectId, null);
+    }
+
+    public Tag(final CIString type, final int objectId, @Nullable final String value) {
         this.type = type;
         this.objectId = objectId;
         this.value = value;

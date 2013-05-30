@@ -24,5 +24,5 @@ public interface TagsDao {
 
     void deleteTags(CIString type, List<Integer> objectIds);
 
-    void updateTags(CIString tagType, List<Integer> deletes, List<Tag> creates);
+    void updateTags(Iterable<CIString> tagType, List<Integer> deletes, List<Tag> creates);
 }

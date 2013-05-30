@@ -36,7 +36,7 @@ public class FilterTagsDecoratorTest {
     public void unrefInfo_for_unreferenced_role() {
         when(tagsDao.getTags(1)).thenReturn(Lists.newArrayList(new Tag(CIString.ciString("unref"), 1, "34")));
         final RpslObject role = RpslObject.parse(1, "role: Test Role\nnic-hdl: TR1-TEST");
-        final Query query = Query.parse("--show-taginfo TR1-TEST");
+        final Query query = Query.parse("--show-tag-info TR1-TEST");
 
         final Iterable<? extends ResponseObject> result = subject.decorate(query, ImmutableList.of(role));
 
@@ -49,7 +49,7 @@ public class FilterTagsDecoratorTest {
     @Test
     public void no_unrefInfo_for_referenced_mntner() {
         when(tagsDao.getTags(1)).thenReturn(Lists.<Tag>newArrayList());
-        final Query query = Query.parse("--show-taginfo TEST-MNT");
+        final Query query = Query.parse("--show-tag-info TEST-MNT");
 
         final RpslObject mntner = RpslObject.parse(1, "mntner: TEST-MNT");
         final Iterable<? extends ResponseObject> result = subject.decorate(query, ImmutableList.of(mntner));

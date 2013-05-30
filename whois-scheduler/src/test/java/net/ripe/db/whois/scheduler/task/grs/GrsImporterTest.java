@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -40,11 +41,11 @@ public class GrsImporterTest {
 
     @Before
     public void setUp() throws Exception {
-        when(grsSourceRipe.getSource()).thenReturn("RIPE-GRS");
+        when(grsSourceRipe.getName()).thenReturn(ciString("RIPE-GRS"));
         when(grsSourceRipe.getLogger()).thenReturn(logger);
         when(grsSourceRipe.getDao()).thenReturn(grsDao);
 
-        when(grsSourceOther.getSource()).thenReturn("OTHER-GRS");
+        when(grsSourceOther.getName()).thenReturn(ciString("OTHER-GRS"));
         when(grsSourceOther.getLogger()).thenReturn(logger);
         when(grsSourceOther.getDao()).thenReturn(grsDao);
 

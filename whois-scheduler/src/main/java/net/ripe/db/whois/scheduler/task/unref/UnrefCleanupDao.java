@@ -10,6 +10,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.ObjectKey;
 import org.joda.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
@@ -31,6 +33,8 @@ import static net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper.executeStrea
 
 @Repository
 class UnrefCleanupDao {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UnrefCleanupDao.class);
+
     private final JdbcTemplate jdbcTemplate;
     private final DateTimeProvider dateTimeProvider;
 
@@ -100,8 +104,13 @@ class UnrefCleanupDao {
                 },
                 new RowCallbackHandler() {
                     @Override
-                    public void processRow(ResultSet rs) throws SQLException {
-                        deleteCandidatesFilter.filter(RpslObject.parse(rs.getInt(1), rs.getBytes(2)), new LocalDate(rs.getLong(3) * 1000));
+                    public void processRow(final ResultSet rs) throws SQLException {
+                        final int objectId = rs.getInt(1);
+                        try {
+                            deleteCandidatesFilter.filter(RpslObject.parse(objectId, rs.getBytes(2)), new LocalDate(rs.getLong(3) * 1000));
+                        } catch (RuntimeException e) {
+                            LOGGER.warn("Handling object in history with id: {}", objectId, e);
+                        }
                     }
                 }
         );

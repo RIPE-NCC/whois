@@ -88,9 +88,7 @@ public class RpslResponseDecoratorTest {
     public void shouldReturnNoSearchKeySpecifiedWhenSearchKeyIsNotSpecified() {
         final String response = execute("-B -G -r -T inetnum -x asd");
 
-        assertThat(response, is("" +
-                QueryMessages.noResults("RIPE")
-                + "\n"));
+        assertThat(response, is(""));
     }
 
     @Test
@@ -136,19 +134,13 @@ public class RpslResponseDecoratorTest {
     @Test
     public void keys_no_results() {
         final String response = execute("-K 193.0.0.0/21");
-        assertThat(response, is(QueryMessages.primaryKeysOnlyNotice() + "\n" + QueryMessages.noResults("RIPE") + "\n"));
+        assertThat(response, is(QueryMessages.primaryKeysOnlyNotice() + "\n"));
     }
 
     @Test
     public void shouldSuppressGroupingHeader() {
         final String response = execute("-r -G -B -T mntner FOO-MNT", RpslObject.parse(1, "mntner: FOO-MNT\n"));
         assertThat(response, is("mntner:         FOO-MNT\n\n"));
-    }
-
-    @Test
-    public void shouldSuppressFilterNoticeWhenNoMatchingObjectsAreFound() {
-        final String response = execute("-r -G -T mntner FOO-MNT");
-        assertThat(response, containsString(QueryMessages.noResults("RIPE") + "\n"));
     }
 
     @Test
@@ -201,12 +193,6 @@ public class RpslResponseDecoratorTest {
                 "organisation:   BAR-ORG\n" +
                 "source:         APNIC-GRS\n" +
                 "\n", response);
-    }
-
-    @Test
-    public void returnMessageWhenNoResultsFound() {
-        final String response = execute("-B -G -r -T inetnum -x 11.0.0.0 - 11.255.255.255");
-        assertEquals(QueryMessages.noResults("RIPE") + "\n", response);
     }
 
     @Test
@@ -466,7 +452,7 @@ public class RpslResponseDecoratorTest {
         final RpslObject inetnum = RpslObject.parse(1, "inetnum: 10.0.0.0\norg:ORG1-TEST");
 
         final String response = execute("-G -B -T inetnum 10.0.0.0", inetnum);
-        assertThat(response, is("%ERROR:101: no entries found\n%\n% No entries found in source RIPE.\n\n"));
+        assertThat(response, is(""));
 
         verify(dummifyFunction, atLeastOnce()).apply(any(ResponseObject.class));
     }

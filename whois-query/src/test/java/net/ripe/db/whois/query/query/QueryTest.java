@@ -847,7 +847,7 @@ public class QueryTest {
             Query.parse("--show-version 1 AS12 -B");
             Query.parse("--show-version 1 AS12 -T aut-num");
             Query.parse("--list-versions AS12 -G");
-            Query.parse("--list-versions AS12 -V fred --no-taginfo");
+            Query.parse("--list-versions AS12 -V fred --no-tag-info");
             Query.parse("--list-versions AS12 -k --show-version 1 AS12");
             fail("should not succeed");
         } catch (final QueryException e) {
@@ -902,24 +902,24 @@ public class QueryTest {
 
 
     @Test
-    public void show_taginfo() {
-        final Query query = Query.parse("--show-taginfo TEST-MNT");
-        assertThat(query.hasOption(QueryFlag.SHOW_TAGINFO), is(true));
+    public void show_tag_info() {
+        final Query query = Query.parse("--show-tag-info TEST-MNT");
+        assertThat(query.hasOption(QueryFlag.SHOW_TAG_INFO), is(true));
     }
 
     @Test
-    public void no_taginfo() {
-        final Query query = Query.parse("--no-taginfo TEST-MNT");
-        assertThat(query.hasOption(QueryFlag.NO_TAGINFO), is(true));
+    public void no_tag_info() {
+        final Query query = Query.parse("--no-tag-info TEST-MNT");
+        assertThat(query.hasOption(QueryFlag.NO_TAG_INFO), is(true));
     }
 
     @Test
-    public void no_taginfo_and_show_taginfo_in_the_same_query() {
+    public void no_tag_info_and_show_tag_info_in_the_same_query() {
         try {
-            Query.parse("--no-taginfo --show-taginfo TEST-MNT");
+            Query.parse("--no-tag-info --show-tag-info TEST-MNT");
             fail();
         } catch (QueryException e) {
-            assertThat(e.getMessage(), containsString("The flags \"--show-taginfo\" and \"--no-taginfo\" cannot be used together."));
+            assertThat(e.getMessage(), containsString("The flags \"--show-tag-info\" and \"--no-tag-info\" cannot be used together."));
         }
     }
 

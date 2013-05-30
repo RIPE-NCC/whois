@@ -8,7 +8,7 @@ import org.joda.time.LocalDateTime
 import spec.domain.SyncUpdate
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class UnrefCleanupIntegrationSpec extends BaseSpec {
+class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
     Map<String, String> getFixtures() {

@@ -9,7 +9,6 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
@@ -29,27 +28,27 @@ import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.*;
 class GrsDao {
     private final Logger logger;
     private final DateTimeProvider dateTimeProvider;
-    private final String source;
+    private final CIString sourceName;
     private final SourceContext sourceContext;
 
     private JdbcTemplate masterJdbcTemplate;
     private JdbcTemplate slaveJdbcTemplate;
 
-    GrsDao(final Logger logger, final DateTimeProvider dateTimeProvider, final String source, final SourceContext sourceContext) {
+    GrsDao(final Logger logger, final DateTimeProvider dateTimeProvider, final CIString sourceName, final SourceContext sourceContext) {
         this.logger = logger;
         this.dateTimeProvider = dateTimeProvider;
-        this.source = source;
+        this.sourceName = sourceName;
         this.sourceContext = sourceContext;
     }
 
     private void ensureInitialized() {
         if (masterJdbcTemplate == null) {
-            try {
-                masterJdbcTemplate = sourceContext.getSourceConfiguration(Source.master(source)).getJdbcTemplate();
-                slaveJdbcTemplate = sourceContext.getSourceConfiguration(Source.slave(source)).getJdbcTemplate();
-            } catch (IllegalSourceException e) {
-                throw new IllegalArgumentException(String.format("Source not configured: %s", e.getSource()));
-            }
+            final JdbcTemplate masterJdbcTemplate = sourceContext.getSourceConfiguration(Source.master(sourceName)).getJdbcTemplate();
+            final JdbcTemplate slaveJdbcTemplate = sourceContext.getSourceConfiguration(Source.slave(sourceName)).getJdbcTemplate();
+            JdbcRpslObjectOperations.sanityCheck(masterJdbcTemplate);
+            JdbcRpslObjectOperations.sanityCheck(slaveJdbcTemplate);
+            this.masterJdbcTemplate = masterJdbcTemplate;
+            this.slaveJdbcTemplate = slaveJdbcTemplate;
         }
     }
 

@@ -31,14 +31,12 @@ import static org.mockito.Mockito.when;
 public class AuthoritativeResourceDataValidatorTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceDataValidatorTest.class);
 
-    List<String> sources;
     @Mock AuthoritativeResourceData authoritativeResourceData;
     AuthoritativeResourceDataValidator subject;
 
     @Before
     public void setUp() throws Exception {
-        sources = Lists.newArrayList("GRS1", "GRS2", "GRS3");
-        subject = new AuthoritativeResourceDataValidator(sources, authoritativeResourceData);
+        subject = new AuthoritativeResourceDataValidator("GRS1,GRS2,GRS3", authoritativeResourceData);
 
         prepareAuthoritativeResourceData(
                 "GRS1",
@@ -109,5 +107,4 @@ public class AuthoritativeResourceDataValidatorTest {
 
         when(authoritativeResourceData.getAuthoritativeResource(ciString(name))).thenReturn(authoritativeResource);
     }
-
 }

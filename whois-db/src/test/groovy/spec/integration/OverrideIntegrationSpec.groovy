@@ -5,7 +5,7 @@ import spec.domain.Message
 import spec.domain.SyncUpdate
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class OverrideIntegrationSpec extends BaseSpec {
+class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
     Map<String, String> getFixtures() {

@@ -4,7 +4,7 @@ import com.google.common.collect.Maps
 import net.ripe.db.whois.common.IntegrationTest
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class AclIntegrationSpec extends BaseSpec {
+class AclIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
     Map<String, String> getFixtures() {

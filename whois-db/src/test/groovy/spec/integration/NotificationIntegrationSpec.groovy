@@ -5,7 +5,7 @@ import spec.domain.Message
 import spec.domain.SyncUpdate
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class NotificationIntegrationSpec extends BaseSpec {
+class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
     @Override
     Map<String, String> getFixtures() {
         return ["TEST-MNT": """\

@@ -1,6 +1,8 @@
 package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.spec.BaseSpec
+import net.ripe.db.whois.update.domain.Ack
+import spec.domain.AckResponse
 import spec.domain.Message
 
 class OrgSpec extends BaseSpec {
@@ -8,7 +10,7 @@ class OrgSpec extends BaseSpec {
     @Override
     Map<String, String> getTransients() {
         [
-            "RL": """\
+                "RL": """\
                 role:    First Role
                 address: St James Street
                 address: Burnley
@@ -21,7 +23,7 @@ class OrgSpec extends BaseSpec {
                 changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
-            "ORG": """\
+                "ORG": """\
                 organisation:    auto-1
                 org-type:        other
                 org-name:        First Org
@@ -35,7 +37,7 @@ class OrgSpec extends BaseSpec {
                 changed:         denis@ripe.net 20121016
                 source:          TEST
                 """,
-            "ORG-NAME": """\
+                "ORG-NAME": """\
                 organisation:    ORG-FO1-TEST
                 org-type:        other
                 org-name:        First Org
@@ -50,7 +52,8 @@ class OrgSpec extends BaseSpec {
                 changed:         denis@ripe.net 20121016
                 source:          TEST
                 """
-    ]}
+        ]
+    }
 
     def "delete non-existent org"() {
       expect:
@@ -1805,10 +1808,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "modify organisation, change org-type LIR to OTHER"() {
-        expect:
+      expect:
         queryObject("-r -T organisation ORG-LIR1-TEST", "organisation", "ORG-LIR1-TEST")
 
-        when:
+      when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1827,7 +1830,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-        then:
+      then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1840,16 +1843,14 @@ class OrgSpec extends BaseSpec {
     }
 
     def "modify organisation, change org-type OTHER to LIR"() {
-        given:
+      given:
         syncUpdate(getTransient("ORG") + "password: owner2\npassword: hm")
 
-        expect:
+      expect:
         queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      when:
+        def message = syncUpdate("""\
                 organisation:    ORG-FO1-TEST
                 org-type:        LIR
                 org-name:        First Org
@@ -1862,20 +1863,18 @@ class OrgSpec extends BaseSpec {
                 mnt-by:          ripe-ncc-hm-mnt
                 changed:         denis@ripe.net 20121016
                 source:          TEST
-
-                password: owner2
-                password: hm
+                override:        override1
                 """.stripIndent()
         )
 
-        then:
-        def ack = ackFor message
+      then:
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
 
         query_object_matches("-r -GBT organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST", "LIR")
     }

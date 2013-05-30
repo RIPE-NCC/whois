@@ -32,20 +32,8 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 class LacnicGrsSource extends GrsSource {
-
-    private String userId;
-
-    @Value("${grs.import.lacnic.userId:}")
-    public void setUserId(final String userId) {
-        this.userId = userId;
-    }
-
-    private String password;
-
-    @Value("${grs.import.lacnic.password:}")
-    public void setPassword(final String password) {
-        this.password = password;
-    }
+    private final String userId;
+    private final String password;
 
     @Autowired
     LacnicGrsSource(
@@ -53,8 +41,13 @@ class LacnicGrsSource extends GrsSource {
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider,
             final AuthoritativeResourceData authoritativeResourceData,
-            final Downloader downloader) {
+            final Downloader downloader,
+            @Value("${grs.import.lacnic.userId:}") final String userId,
+            @Value("${grs.import.lacnic.password:}") final String password) {
         super(source, sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
+
+        this.userId = userId;
+        this.password = password;
     }
 
     @Override

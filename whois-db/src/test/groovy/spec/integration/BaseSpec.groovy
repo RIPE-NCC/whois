@@ -12,37 +12,18 @@ import spec.domain.NotificationResponse
 import spec.domain.SyncUpdate
 import spock.lang.Specification
 
-// TODO [AK] Now that we also have access to query here, we can expand our tests
 abstract class BaseSpec extends Specification {
     static WhoisFixture whoisFixture
 
     def setupSpec() {
-        DatabaseHelper.setupDatabase()
-
         WhoisProfile.setEndtoend();
+        DatabaseHelper.setupDatabase()
         whoisFixture = new WhoisFixture()
-        whoisFixture.start()
-
     }
 
     def setup() {
         whoisFixture.reset()
-
-        setupObjects(fixtures.values().collect { RpslObject.parse(it.stripIndent()) })
     }
-
-    def cleanupSpec() {
-        if (whoisFixture != null) {
-            try {
-                whoisFixture.stop()
-            } catch (Exception e) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-
-    abstract Map<String, String> getFixtures()
 
     def send(String message) {
         whoisFixture.send(message)
@@ -200,5 +181,4 @@ ${result}
     def removeObject(String string) {
         whoisFixture.getDatabaseHelper().removeObject(RpslObject.parse(string))
     }
-
 }

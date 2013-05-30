@@ -149,4 +149,16 @@ public class SearchQueryExecutorTest {
         verify(sourceContext).removeCurrentSource();
         verify(rpslObjectSearcher).search(query);
     }
+
+    @Test
+    public void no_results_found_gives_message() {
+        final Query query = Query.parse("-s RIPE 10.0.0.0");
+
+        final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
+        subject.execute(query, responseHandler);
+        verify(rpslObjectSearcher).search(query);
+        verify(rpslResponseDecorator).getResponse(eq(query), any(Iterable.class));
+
+        assertThat(responseHandler.getResponseObjects(), contains((ResponseObject) new MessageObject(QueryMessages.noResults("RIPE").toString())));
+    }
 }

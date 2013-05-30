@@ -31,7 +31,7 @@ public class ApnicGrsSourceTest {
     @Before
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new ApnicGrsSource("APNIC-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
+        subject = new ApnicGrsSource("APNIC-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader, "");
     }
 
     @Test

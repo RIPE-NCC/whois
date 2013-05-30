@@ -23,7 +23,7 @@ public class IpRanges {
         }
 
         this.ripeRanges = ipResources;
-        LOGGER.info("Using ripe ranges: {}", ripeRanges);
+        LOGGER.info("Trusted ranges: {}", this.ripeRanges);
     }
 
     public boolean isInRipeRange(final Interval ipResource) {

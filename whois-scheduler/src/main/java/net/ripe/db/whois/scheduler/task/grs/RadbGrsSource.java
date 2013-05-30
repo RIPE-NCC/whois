@@ -17,12 +17,7 @@ import java.util.zip.GZIPInputStream;
 
 @Component
 class RadbGrsSource extends GrsSource {
-    private String download;
-
-    @Value("${grs.import.radb.download:}")
-    public void setDownload(final String download) {
-        this.download = download;
-    }
+    private final String download;
 
     @Autowired
     RadbGrsSource(
@@ -30,8 +25,11 @@ class RadbGrsSource extends GrsSource {
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider,
             final AuthoritativeResourceData authoritativeResourceData,
-            final Downloader downloader) {
+            final Downloader downloader,
+            @Value("${grs.import.radb.download:}") final String download) {
         super(source, sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
+
+        this.download = download;
     }
 
     @Override

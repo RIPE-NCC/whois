@@ -30,7 +30,7 @@ public class LacnicGrsSourceTest {
     @Before
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new LacnicGrsSource("LACNIC-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
+        subject = new LacnicGrsSource("LACNIC-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader, "", "");
     }
 
     @Test

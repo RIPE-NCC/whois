@@ -110,8 +110,11 @@ public class JdbcTagsDao implements TagsDao {
 
     @Override
     @Transactional
-    public void updateTags(final CIString tagType, final List<Integer> deletes, final List<Tag> creates) {
-        deleteTags(tagType, deletes);
+    public void updateTags(final Iterable<CIString> tagTypes, final List<Integer> deletes, final List<Tag> creates) {
+        for (final CIString tagType : tagTypes) {
+            deleteTags(tagType, deletes);
+        }
+
         createTags(creates);
     }
 
