@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
-import net.ripe.db.whois.nrtm.client.NrtmClient;
+import net.ripe.db.whois.nrtm.client.NrtmClientFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -30,7 +30,7 @@ import static org.hamcrest.Matchers.is;
 public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Autowired
-    NrtmClient nrtmClient;
+    NrtmClientFactory nrtmClient;
     private DummyNrtmServer dummyNrtmServer;
 
     private static int port = ServerHelper.getAvailablePort();

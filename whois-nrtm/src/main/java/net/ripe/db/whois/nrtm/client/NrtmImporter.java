@@ -2,6 +2,7 @@ package net.ripe.db.whois.nrtm.client;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.ApplicationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,6 @@ import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,7 +18,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
-public class NrtmImporter implements EmbeddedValueResolverAware {
+public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmImporter.class);
 
@@ -27,13 +26,13 @@ public class NrtmImporter implements EmbeddedValueResolverAware {
 
     private final boolean enabled;
     private final String sources;
-    private final NrtmClient nrtmClient;
+    private final NrtmClientFactory nrtmClient;
 
     private StringValueResolver valueResolver;
     private ExecutorService executorService;
 
     @Autowired
-    public NrtmImporter(final NrtmClient nrtmClient,
+    public NrtmImporter(final NrtmClientFactory nrtmClient,
                         @Value("${nrtm.import.enabled:false}") final boolean enabled,
                         @Value("${nrtm.import.sources:}") final String sources) {
         this.nrtmClient = nrtmClient;
@@ -46,7 +45,7 @@ public class NrtmImporter implements EmbeddedValueResolverAware {
         this.valueResolver = resolver;
     }
 
-    @PostConstruct
+    @Override
     public void start() {
         if (!enabled) {
             return;
@@ -68,13 +67,13 @@ public class NrtmImporter implements EmbeddedValueResolverAware {
             });
 
             for (NrtmSource nrtmSource : nrtmSources) {
-                executorService.submit(nrtmClient.start(nrtmSource.getName(), nrtmSource.getHost(), nrtmSource.getPort()));
+                executorService.submit(nrtmClient.createNrtmClient(nrtmSource.getName(), nrtmSource.getHost(), nrtmSource.getPort()));
             }
         }
     }
 
-    @PreDestroy
-    public void shutdown() {
+    @Override
+    public void stop() {
         if (executorService != null) {
             executorService.shutdownNow();
         }

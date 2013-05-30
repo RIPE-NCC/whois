@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.dao.NrtmClientDao;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +28,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-public class NrtmClient {
-
+public class NrtmClientFactory {
     private static final Pattern OPERATION_AND_SERIAL_PATTERN = Pattern.compile("^(ADD|DEL)[ ](\\d+)$");
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmClientFactory.class);
 
     private final SourceContext sourceContext;
     private final SerialDao serialDao;
@@ -39,27 +39,26 @@ public class NrtmClient {
     private final NrtmClientDao nrtmClientDao;
 
     @Autowired
-    public NrtmClient(final SourceContext sourceContext,
-                      final SerialDao serialDao,
-                      final RpslObjectUpdateDao rpslObjectUpdateDao,
-                      final NrtmClientDao nrtmClientDao) {
+    public NrtmClientFactory(final SourceContext sourceContext,
+                             final SerialDao serialDao,
+                             final RpslObjectUpdateDao rpslObjectUpdateDao,
+                             final NrtmClientDao nrtmClientDao) {
         this.sourceContext = sourceContext;
         this.serialDao = serialDao;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.nrtmClientDao = nrtmClientDao;
     }
 
-    public NrtmClientThread start(final String source, final String host, final int port) {
-        return new NrtmClientThread(source, host, port);
+    public NrtmClient createNrtmClient(final String source, final String host, final int port) {
+        return new NrtmClient(source, host, port);
     }
 
-    public class NrtmClientThread implements Runnable {
-
+    public class NrtmClient implements Runnable {
         private final String source;
         private final String host;
         private final int port;
 
-        public NrtmClientThread(final String source, final String host, final int port) {
+        public NrtmClient(final String source, final String host, final int port) {
             this.source = source;
             this.host = host;
             this.port = port;
@@ -68,7 +67,7 @@ public class NrtmClient {
         @Override
         public void run() {
             sourceContext.getSourceConfiguration(Source.master(source));
-            for (;;) {
+            for (; ; ) {
                 Socket socket = null;
                 try {
                     socket = connect();
@@ -78,16 +77,17 @@ public class NrtmClient {
                     writeMirrorCommand(writer);
                     readMirrorResult(reader);
                     readUpdates(reader);
-                }
-                catch (IllegalStateException e) {
+                } catch (IllegalStateException e) {
                     LOGGER.error(e.getMessage());
                     break;
-                } catch (SocketException e) {
+                } catch (SocketException ignored) {
                     // try to reconnect
-                } catch (Exception e) {
+                } catch (IOException e) {
+                    LOGGER.info("Caught exception while connected, ignoring", e);
+                } catch (RuntimeException e) {
                     LOGGER.info("Caught exception while connected, ignoring", e);
                 } finally {
-                    close(socket);
+                    IOUtils.closeQuietly(socket);
                 }
             }
         }
@@ -100,15 +100,6 @@ public class NrtmClient {
                 return socket;
             } catch (UnknownHostException e) {
                 throw new IllegalStateException(e);
-            }
-        }
-
-        private void close(final Socket socket) {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException ignored) {
-                }
             }
         }
 
@@ -134,7 +125,7 @@ public class NrtmClient {
         private String readLine(final InputStreamReader reader) throws IOException {
             final StringBuilder builder = new StringBuilder();
 
-            for (;;) {
+            for (; ; ) {
                 while (!reader.ready()) {
                     try {
                         Thread.sleep(100);  // TODO: make sleep configurable
@@ -146,9 +137,12 @@ public class NrtmClient {
                 final int c = reader.read();
 
                 switch (c) {
-                    case -1: throw new SocketException("Unexpected end of stream from NRTM server connection.");
-                    case '\n': return builder.toString();
-                    default: builder.append((char) c);
+                    case -1:
+                        throw new SocketException("Unexpected end of stream from NRTM server connection.");
+                    case '\n':
+                        return builder.toString();
+                    default:
+                        builder.append((char) c);
                 }
             }
         }
@@ -172,7 +166,7 @@ public class NrtmClient {
         }
 
         private void readUpdates(final InputStreamReader reader) throws IOException {
-            for (;;) {
+            for (; ; ) {
                 final OperationSerial operationSerial = readOperationAndSerial(reader);
                 final RpslObject object = readObject(reader);
                 update(operationSerial.getOperation(), operationSerial.getSerial(), object);
