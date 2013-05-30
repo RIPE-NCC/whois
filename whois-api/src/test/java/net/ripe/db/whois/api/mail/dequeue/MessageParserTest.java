@@ -162,6 +162,16 @@ public class MessageParserTest {
     }
 
     @Test
+    public void parse_missing_reply_to() throws Exception {
+        MimeMessage messageWithoutReplyTo = new MimeMessage(null, new ByteArrayInputStream("From: minimal@mailclient.org".getBytes()));
+
+        MailMessage result = subject.parse(messageWithoutReplyTo, updateContext);
+
+        assertThat(result.getReplyTo(), is("minimal@mailclient.org"));
+        assertThat(result.getFrom(), is("minimal@mailclient.org"));
+    }
+
+    @Test
     public void parse_plain_text_unsigned_message() throws Exception {
         final MailMessage message = subject.parse(MimeMessageProvider.getMessageSimpleTextUnsigned(), updateContext);
 

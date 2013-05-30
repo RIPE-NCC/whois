@@ -104,15 +104,20 @@ public class MessageParser {
 
     private void parseReplyTo(@Nonnull final MailMessageBuilder messageBuilder, @Nonnull final MimeMessage message) throws MessagingException {
         try {
-            Address[] from = message.getReplyTo();
-            if (from == null || from.length == 0) {
-                from = message.getReplyTo();
+            boolean replyToNotSet = true;
+
+            Address[] replyTo = message.getReplyTo();
+            if (replyTo != null && replyTo.length > 0) {
+                messageBuilder.replyTo(replyTo[0].toString());
+                replyToNotSet = false;
             }
 
+            Address[] from = message.getFrom();
             if (from != null && from.length > 0) {
-                final String sender = from[0].toString();
-                messageBuilder.from(sender);
-                messageBuilder.replyTo(sender);
+                messageBuilder.from(from[0].toString());
+                if (replyToNotSet) {
+                    messageBuilder.replyTo(from[0].toString());
+                }
             }
         } catch (AddressException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Skipping message"), e);
