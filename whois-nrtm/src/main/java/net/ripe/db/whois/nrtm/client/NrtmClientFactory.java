@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-public class NrtmClientFactory {
+class NrtmClientFactory {
     private static final Pattern OPERATION_AND_SERIAL_PATTERN = Pattern.compile("^(ADD|DEL)[ ](\\d+)$");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmClientFactory.class);
@@ -66,29 +66,33 @@ public class NrtmClientFactory {
 
         @Override
         public void run() {
-            sourceContext.getSourceConfiguration(Source.master(source));
-            for (; ; ) {
-                Socket socket = null;
-                try {
-                    socket = connect();
-                    final InputStreamReader reader = new InputStreamReader(socket.getInputStream());
-                    final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
-                    readHeader(reader);
-                    writeMirrorCommand(writer);
-                    readMirrorResult(reader);
-                    readUpdates(reader);
-                } catch (IllegalStateException e) {
-                    LOGGER.error(e.getMessage());
-                    break;
-                } catch (SocketException ignored) {
-                    // try to reconnect
-                } catch (IOException e) {
-                    LOGGER.info("Caught exception while connected, ignoring", e);
-                } catch (RuntimeException e) {
-                    LOGGER.info("Caught exception while connected, ignoring", e);
-                } finally {
-                    IOUtils.closeQuietly(socket);
+            try {
+                sourceContext.setCurrent(Source.master(source));
+                while (true) {
+                    Socket socket = null;
+                    try {
+                        socket = connect();
+                        final InputStreamReader reader = new InputStreamReader(socket.getInputStream());
+                        final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
+                        readHeader(reader);
+                        writeMirrorCommand(writer);
+                        readMirrorResult(reader);
+                        readUpdates(reader);
+                    } catch (IllegalStateException e) {
+                        LOGGER.error(e.getMessage());
+                        break;
+                    } catch (SocketException ignored) {
+                        // try to reconnect
+                    } catch (IOException e) {
+                        LOGGER.info("Caught exception while connected, ignoring", e);
+                    } catch (RuntimeException e) {
+                        LOGGER.info("Caught exception while connected, ignoring", e);
+                    } finally {
+                        IOUtils.closeQuietly(socket);
+                    }
                 }
+            } finally {
+                sourceContext.removeCurrentSource();
             }
         }
 
@@ -104,6 +108,7 @@ public class NrtmClientFactory {
         }
 
         private void readHeader(final InputStreamReader reader) throws IOException {
+            // TODO [AK] Read comments until empty line occurs
             readLine(reader, "%");
             readLine(reader, "%");
             readEmptyLine(reader);
@@ -125,7 +130,7 @@ public class NrtmClientFactory {
         private String readLine(final InputStreamReader reader) throws IOException {
             final StringBuilder builder = new StringBuilder();
 
-            for (; ; ) {
+            while (true) {
                 while (!reader.ready()) {
                     try {
                         Thread.sleep(100);  // TODO: make sleep configurable

@@ -4,40 +4,29 @@ import com.jayway.awaitility.Awaitility;
 import com.jayway.awaitility.Duration;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.ServerHelper;
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
-import net.ripe.db.whois.nrtm.client.NrtmClientFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.concurrent.Callable;
 
 import static org.hamcrest.Matchers.is;
 
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-nrtm-test.xml"}, inheritLocations = false)
 @Category(IntegrationTest.class)
 public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
-    @Autowired
-    NrtmClientFactory nrtmClient;
     private DummyNrtmServer dummyNrtmServer;
 
     private static int port = ServerHelper.getAvailablePort();
 
     @BeforeClass
     public static void beforeClass() {
-        // TODO: test with multiple sources
         System.setProperty("nrtm.import.sources", "TEST-GRS");
         System.setProperty("nrtm.import.enabled", "true");
         System.setProperty("nrtm.import.TEST-GRS.host", "localhost");
@@ -61,12 +50,12 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     public void add_person_from_nrtm() throws Exception {
         final RpslObject mntner = RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
-                "source: TEST");
+                        "source: TEST");
         final RpslObject person = RpslObject.parse(
                 "person: One Person\n" +
-                "nic-hdl: OP1-TEST\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "source: TEST");
+                        "nic-hdl: OP1-TEST\n" +
+                        "mnt-by: OWNER-MNT\n" +
+                        "source: TEST");
 
         databaseHelper.addObject(mntner);
         dummyNrtmServer.addObject(1, mntner);
@@ -79,11 +68,11 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     public void add_person_from_nrtm_gap_in_serials() throws Exception {
         final RpslObject mntner = RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
-                "source: TEST");
+                        "source: TEST");
         final RpslObject person = RpslObject.parse(
                 "person: One Person\n" +
-                "nic-hdl: OP1-TEST\n" +
-                "source: TEST");
+                        "nic-hdl: OP1-TEST\n" +
+                        "source: TEST");
 
         databaseHelper.addObject(mntner);
         dummyNrtmServer.addObject(1, mntner);
@@ -96,7 +85,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     public void delete_person_from_nrtm() throws Exception {
         final RpslObject mntner = RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
-                "source: TEST");
+                        "source: TEST");
 
         databaseHelper.addObject(mntner);
         dummyNrtmServer.addObject(1, mntner);
@@ -109,13 +98,13 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     public void create_and_update_person_from_nrtm() throws Exception {
         final RpslObject person = RpslObject.parse(
                 "person: One Person\n" +
-                "nic-hdl: OP1-TEST\n" +
-                "source: TEST");
+                        "nic-hdl: OP1-TEST\n" +
+                        "source: TEST");
         final RpslObject update = RpslObject.parse(
                 "person: One Person\n" +
-                "nic-hdl: OP1-TEST\n" +
-                "remarks: updated\n" +
-                "source: TEST");
+                        "nic-hdl: OP1-TEST\n" +
+                        "remarks: updated\n" +
+                        "source: TEST");
 
         dummyNrtmServer.addObject(1, person);
         dummyNrtmServer.addObject(2, update);
@@ -128,13 +117,13 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
         final RpslObject person = RpslObject.parse(
                 "person: One Person\n" +
-                "nic-hdl: OP1-TEST\n" +
-                "source: TEST");
+                        "nic-hdl: OP1-TEST\n" +
+                        "source: TEST");
         final RpslObject update = RpslObject.parse(
                 "person: One Person\n" +
-                "nic-hdl: OP1-TEST\n" +
-                "remarks: updated\n" +
-                "source: TEST");
+                        "nic-hdl: OP1-TEST\n" +
+                        "remarks: updated\n" +
+                        "source: TEST");
 
         databaseHelper.addObject(person);
         dummyNrtmServer.addObject(1, person);
@@ -148,12 +137,12 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     public void create_mntner_network_error_then_create_person() throws Exception {
         final RpslObject mntner = RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
-                "source: TEST");
+                        "source: TEST");
         final RpslObject person = RpslObject.parse(
                 "person: One Person\n" +
-                "nic-hdl: OP1-TEST\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "source: TEST");
+                        "nic-hdl: OP1-TEST\n" +
+                        "mnt-by: OWNER-MNT\n" +
+                        "source: TEST");
 
         dummyNrtmServer.addObject(1, mntner);
         objectExists(ObjectType.MNTNER, "OWNER-MNT", true);
