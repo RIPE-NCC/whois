@@ -27,15 +27,16 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
     @BeforeClass
     public static void beforeClass() {
-        System.setProperty("nrtm.import.sources", "TEST-GRS");
+        DatabaseHelper.addGrsDatabases("1-GRS");
+        System.setProperty("nrtm.import.sources", "1-GRS");
         System.setProperty("nrtm.import.enabled", "true");
-        System.setProperty("nrtm.import.TEST-GRS.host", "localhost");
-        System.setProperty("nrtm.import.TEST-GRS.port", Integer.toString(port));
+        System.setProperty("nrtm.import.1-GRS.host", "localhost");
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(port));
     }
 
     @Before
     public void before() throws Exception {
-        databaseHelper.setCurrentSource(Source.master("TEST-GRS"));
+        databaseHelper.setCurrentSource(Source.master("1-GRS"));
 
         dummyNrtmServer = new DummyNrtmServer(port);
         dummyNrtmServer.start();

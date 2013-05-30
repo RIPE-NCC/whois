@@ -5,6 +5,8 @@ import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.SerialDao;
+import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
@@ -49,16 +51,16 @@ class NrtmClientFactory {
         this.nrtmClientDao = nrtmClientDao;
     }
 
-    public NrtmClient createNrtmClient(final String source, final String host, final int port) {
+    public NrtmClient createNrtmClient(final CIString source, final String host, final int port) {
         return new NrtmClient(source, host, port);
     }
 
     public class NrtmClient implements Runnable {
-        private final String source;
+        private final CIString source;
         private final String host;
         private final int port;
 
-        public NrtmClient(final String source, final String host, final int port) {
+        public NrtmClient(final CIString source, final String host, final int port) {
             this.source = source;
             this.host = host;
             this.port = port;
@@ -68,6 +70,7 @@ class NrtmClientFactory {
         public void run() {
             try {
                 sourceContext.setCurrent(Source.master(source));
+
                 while (true) {
                     Socket socket = null;
                     try {
@@ -171,7 +174,7 @@ class NrtmClientFactory {
         }
 
         private void readUpdates(final InputStreamReader reader) throws IOException {
-            for (; ; ) {
+            while (true) {
                 final OperationSerial operationSerial = readOperationAndSerial(reader);
                 final RpslObject object = readObject(reader);
                 update(operationSerial.getOperation(), operationSerial.getSerial(), object);
