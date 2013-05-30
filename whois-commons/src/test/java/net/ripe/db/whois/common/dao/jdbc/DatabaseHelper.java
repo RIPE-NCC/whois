@@ -33,7 +33,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.StatementCallback;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.DigestUtils;
 import org.springframework.util.StringValueResolver;
 
 import javax.sql.DataSource;
@@ -100,7 +99,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     private static String namePrefix;
-    private static String dbName;
+    private static String dbBaseName;
     private static Map<String, String> grsDatabaseNames = Maps.newHashMap();
 
     public static synchronized void setupDatabase() {
@@ -112,7 +111,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         ensureLocalhost(jdbcTemplate);
         cleanupOldTables(jdbcTemplate);
 
-        dbName = "test_" + System.currentTimeMillis() + "_" + DigestUtils.md5DigestAsHex(UUID.randomUUID().toString().getBytes());
+        dbBaseName = "test_" + System.currentTimeMillis() + "_" + System.getProperty("surefire.forkNumber");
 
         setupDatabase(jdbcTemplate, "acl.database", "ACL", "acl_schema.sql");
         setupDatabase(jdbcTemplate, "dnscheck.database", "DNSCHECK", "dnscheck_schema.sql");
@@ -120,17 +119,17 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "mailupdates.database", "MAILUPDATES", "mailupdates_schema.sql");
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
 
-        final String masterUrl = String.format("jdbc:log:mysql://localhost/%s_WHOIS;driver=%s;logger=%s", dbName, JDBC_DRIVER, LOGGING_HANDLER);
+        final String masterUrl = String.format("jdbc:log:mysql://localhost/%s_WHOIS;driver=%s;logger=%s", dbBaseName, JDBC_DRIVER, LOGGING_HANDLER);
         System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
         System.setProperty("whois.db.master.url", masterUrl);
 
-        final String slaveUrl = String.format("jdbc:mysql://localhost/%s_WHOIS", dbName);
+        final String slaveUrl = String.format("jdbc:mysql://localhost/%s_WHOIS", dbBaseName);
         System.setProperty("whois.db.driver", JDBC_DRIVER);
         System.setProperty("whois.db.slave.url", slaveUrl);
         System.setProperty("whois.db.grs.slave.baseurl", slaveUrl);
         System.setProperty("whois.db.grs.master.baseurl", slaveUrl);
 
-        namePrefix = dbName;
+        namePrefix = dbBaseName;
     }
 
     private static void cleanupOldTables(final JdbcTemplate jdbcTemplate) {
@@ -170,12 +169,12 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     static void setupDatabase(final JdbcTemplate jdbcTemplate, final String propertyBase, final String name, final String... sql) {
-        final String dbName2 = dbName + "_" + name;
-        jdbcTemplate.execute("CREATE DATABASE " + dbName2);
+        final String dbName = dbBaseName + "_" + name;
+        jdbcTemplate.execute("CREATE DATABASE " + dbName);
 
-        loadScripts(new JdbcTemplate(createDataSource(dbName2)), sql);
+        loadScripts(new JdbcTemplate(createDataSource(dbName)), sql);
 
-        System.setProperty(propertyBase + ".url", "jdbc:mysql://localhost/" + dbName2);
+        System.setProperty(propertyBase + ".url", "jdbc:mysql://localhost/" + dbName);
         System.setProperty(propertyBase + ".username", "dbint");
         System.setProperty(propertyBase + ".password", "");
     }

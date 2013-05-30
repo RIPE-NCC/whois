@@ -21,11 +21,7 @@ public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest
 
     @BeforeClass
     public static void setup_database() {
-        final String nameBase = "test_" + System.currentTimeMillis();
-        DatabaseHelper.setupDatabase("RIPE-GRS", nameBase, "WHOIS_MIRROR_RIPE_GRS", "whois_schema.sql");
-        final String urlBase = System.getProperty("RIPE-GRS.url").replace("_RIPE_GRS", "");
-        System.setProperty("whois.db.grs.slave.baseurl", urlBase);
-        System.setProperty("whois.db.grs.master.baseurl", urlBase);
+        DatabaseHelper.addGrsDatabases("RIPE-GRS");
     }
 
     @Before
