@@ -1,5 +1,6 @@
-package net.ripe.db.whois.common.aspects;
+package net.ripe.db.whois;
 
+import net.ripe.db.whois.common.aspects.RetryFor;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;

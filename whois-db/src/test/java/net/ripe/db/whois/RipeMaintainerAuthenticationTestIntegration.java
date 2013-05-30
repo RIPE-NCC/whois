@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.authentication;
+package net.ripe.db.whois;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.WhoisFixture;

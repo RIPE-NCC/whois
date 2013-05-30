@@ -1,5 +1,6 @@
-package net.ripe.db.whois.common.aspects;
+package net.ripe.db.whois;
 
+import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.support.AbstractDaoTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,11 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+/**
+ * Test to ensure that the Retry aspect is properly applied from whois-commons onto whois sub-modules.
+ * <p/>
+ * This test also fails running in your IDE if AspectJ is not configured correctly.
+ */
 @ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
 public class RetryForAspectTest extends AbstractDaoTest {
     static final int ATTEMPTS = 5;
