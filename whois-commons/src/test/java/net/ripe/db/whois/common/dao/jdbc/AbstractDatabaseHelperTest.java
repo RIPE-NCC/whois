@@ -50,8 +50,11 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
         properties = System.getProperties().stringPropertyNames();
 
         Slf4JLogConfiguration.init();
+
         System.setProperty("mail.dequeue.interval", "10");
         System.setProperty("application.version", "0.1-TEST");
+        System.setProperty("whois.source", "TEST");
+        System.setProperty("grs.sources", "TEST-GRS");
         System.setProperty("grs.sources.dummify", "TEST-GRS");
     }
 

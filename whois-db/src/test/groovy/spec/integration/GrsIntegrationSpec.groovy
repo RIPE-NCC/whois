@@ -15,7 +15,6 @@ class GrsIntegrationSpec extends BaseSpec {
     }
 
     def cleanupSpec() {
-        DatabaseHelper.resetGrsSources()
         if (whoisFixture != null) {
             try {
                 whoisFixture.stop()
@@ -31,7 +30,6 @@ class GrsIntegrationSpec extends BaseSpec {
 
       then:
         response =~ "TEST"
-        response =~ "TEST-GRS"
         response =~ "1-GRS"
         response =~ "2-GRS"
         response =~ "3-GRS"
