@@ -56,6 +56,7 @@ class GeneralQuerySpec extends BaseSpec {
 
         and:
         ! queryLineMatches("-K 192.0.0.0 - 192.255.255.255", "%ERROR:101")
+        queryLineMatches("-K 192.0.0.0 - 192.255.255.255", "inetnum:\\s*192.0.0.0 - 192.255.255.255")
     }
 
 }
