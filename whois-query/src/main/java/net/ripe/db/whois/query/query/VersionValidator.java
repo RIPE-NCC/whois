@@ -16,9 +16,6 @@ class VersionValidator implements QueryValidator {
                     }
                 }
             }
-        } else if (!query.isHelp() && !query.isTemplate() && !query.isSystemInfo() && !query.isVerbose()) {
-            // TODO [AK] Not yet announced, so we cannot display this yet
-//            messages.add(QueryMessages.versionsAdvert());
         }
     }
 }

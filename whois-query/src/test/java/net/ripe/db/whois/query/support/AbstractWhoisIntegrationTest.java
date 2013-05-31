@@ -41,7 +41,6 @@ public abstract class AbstractWhoisIntegrationTest extends AbstractDatabaseHelpe
         String result = response;
 
         result = stripHeader(result, QueryMessages.termsAndConditions().toString());
-        result = stripHeader(result, QueryMessages.versionsAdvert().toString());
 
         return result;
     }

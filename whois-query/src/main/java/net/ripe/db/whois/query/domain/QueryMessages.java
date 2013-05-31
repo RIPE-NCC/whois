@@ -89,11 +89,6 @@ public final class QueryMessages {
                 QueryFlag.LIST_VERSIONS);
     }
 
-    public static Message versionsAdvert() {
-        return new Message(Type.WARNING,
-                "%% Latest versions of objects shown. You can look up older versions of single objects using the \"%s\" option.\n", QueryFlag.LIST_VERSIONS);
-    }
-
     public static Message versionDeleted(final CharSequence deletionTime) {
         return new Message(Type.INFO,
                 "%% This object was deleted on %-16s\n", deletionTime);
