@@ -23,9 +23,10 @@ import java.util.Collections;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -92,7 +93,8 @@ public class SearchQueryExecutorTest {
         subject.execute(query, responseHandler);
         verify(rpslObjectSearcher, never()).search(query);
 
-        assertThat(responseHandler.getResponseObjects(), contains((ResponseObject) new MessageObject(QueryMessages.unknownSource("UNKNOWN").toString() + "\n")));
+        assertThat(responseHandler.getResponseObjects(), hasItems((ResponseObject) new MessageObject(QueryMessages.unknownSource("UNKNOWN").toString() + "\n")));
+        assertThat(responseHandler.getResponseObjects(), hasSize(1));   // make sure that e.g. 'no results found' is not printed
     }
 
     @Test
