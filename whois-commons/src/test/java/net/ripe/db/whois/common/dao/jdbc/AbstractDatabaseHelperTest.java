@@ -21,12 +21,15 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
-import java.util.Set;
+import java.util.Properties;
+import java.util.UUID;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles("TEST")
-@TestExecutionListeners(listeners = {SetupDatabaseTestExecutionListener.class, TransactionalTestExecutionListener.class})
+@TestExecutionListeners(listeners = {TransactionalTestExecutionListener.class})
 public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringContextTests {
     @Autowired protected ApplicationContext applicationContext;
     @Autowired protected SourceContext sourceContext;
@@ -43,13 +46,18 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
     protected JdbcTemplate mailUpdatesTemplate;
     protected DatabaseHelper databaseHelper;
 
-    private static Set<String> properties;
+    private static byte[] propertyStore = null;
 
     @BeforeClass
-    public static void setupProperties() {
-        properties = System.getProperties().stringPropertyNames();
-
+    public synchronized static void setupAbstractDatabaseHelperTest() throws Exception {
+        DatabaseHelper.setupDatabase();
         Slf4JLogConfiguration.init();
+
+        if (propertyStore == null) {
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            System.getProperties().store(out, "AbstractDatabaseHelperTest");
+            propertyStore = out.toByteArray();
+        }
 
         System.setProperty("mail.dequeue.interval", "10");
         System.setProperty("application.version", "0.1-TEST");
@@ -59,16 +67,17 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
     }
 
     @AfterClass
-    public static void resetProperties() {
-        for (final String propertyName : System.getProperties().stringPropertyNames()) {
-            if (!properties.contains(propertyName)) {
-                System.clearProperty(propertyName);
-            }
-        }
+    public synchronized static void resetAbstractDatabaseHelperTest() throws Exception {
+        Properties properties = new Properties();
+        properties.load(new ByteArrayInputStream(propertyStore));
+        System.setProperties(properties);
+        propertyStore = null;
     }
 
     @Before
     public void resetStubs() throws Exception {
+        databaseHelper.setup();
+
         for (final Stub stub : stubs) {
             stub.reset();
         }

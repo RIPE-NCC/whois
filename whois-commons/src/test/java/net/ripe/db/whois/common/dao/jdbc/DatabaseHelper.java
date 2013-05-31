@@ -19,6 +19,7 @@ import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.StatementCallback;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.StringValueResolver;
 
 import javax.sql.DataSource;
@@ -98,12 +100,11 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         this.valueResolver = valueResolver;
     }
 
-    private static String namePrefix;
     private static String dbBaseName;
     private static Map<String, String> grsDatabaseNames = Maps.newHashMap();
 
     public static synchronized void setupDatabase() {
-        if (namePrefix != null) {
+        if (dbBaseName != null) {
             return;
         }
 
@@ -111,7 +112,11 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         ensureLocalhost(jdbcTemplate);
         cleanupOldTables(jdbcTemplate);
 
-        dbBaseName = "test_" + System.currentTimeMillis() + "_" + System.getProperty("surefire.forkNumber");
+        String uniqueForkId = System.getProperty("surefire.forkNumber");
+        if (StringUtils.isBlank(uniqueForkId)) {
+            uniqueForkId = DigestUtils.md5DigestAsHex(UUID.randomUUID().toString().getBytes());
+        }
+        dbBaseName = "test_" + System.currentTimeMillis() + "_" + uniqueForkId;
 
         setupDatabase(jdbcTemplate, "acl.database", "ACL", "acl_schema.sql");
         setupDatabase(jdbcTemplate, "dnscheck.database", "DNSCHECK", "dnscheck_schema.sql");
@@ -126,10 +131,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         final String slaveUrl = String.format("jdbc:mysql://localhost/%s_WHOIS", dbBaseName);
         System.setProperty("whois.db.driver", JDBC_DRIVER);
         System.setProperty("whois.db.slave.url", slaveUrl);
-        System.setProperty("whois.db.grs.slave.baseurl", slaveUrl);
-        System.setProperty("whois.db.grs.master.baseurl", slaveUrl);
 
-        namePrefix = dbBaseName;
+        final String grsSlaveUrl = String.format("jdbc:mysql://localhost/%s", dbBaseName);
+        System.setProperty("whois.db.grs.slave.baseurl", grsSlaveUrl);
+        System.setProperty("whois.db.grs.master.baseurl", grsSlaveUrl);
     }
 
     private static void cleanupOldTables(final JdbcTemplate jdbcTemplate) {
@@ -151,7 +156,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         for (final String sourceName : sourceNames) {
             Validate.isTrue(sourceName.endsWith("-GRS"), sourceName + " must end with -GRS");
             final String propertyName = "whois.db." + sourceName;
-            final String dbName = "WHOIS_" + sourceName.replace('-', '_');
+            final String dbName = sourceName.replace('-', '_');
 
             if (!grsDatabaseNames.containsKey(sourceName)) {
                 setupDatabase(createDefaultTemplate(), propertyName, dbName, "whois_schema.sql");
