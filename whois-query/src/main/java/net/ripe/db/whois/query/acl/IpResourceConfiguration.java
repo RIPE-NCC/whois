@@ -51,7 +51,7 @@ public class IpResourceConfiguration {
 
     @PostConstruct
     @Scheduled(fixedDelay = TREE_UPDATE_IN_SECONDS * 1000)
-    public void reload() {
+    public synchronized void reload() {
         denied = refreshEntries(loader.loadIpDenied());
         proxy = refreshEntries(loader.loadIpProxy());
         limit = refreshEntries(loader.loadIpLimit());
