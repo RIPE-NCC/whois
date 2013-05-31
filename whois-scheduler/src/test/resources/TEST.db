@@ -281,14 +281,14 @@ source:         TEST
 mntner:         TEST-NCC-HM-MNT
 descr:          Should have been inserted automatically
 admin-c:        AA1-TEST
-upd-to:         me@test.de
+upd-to:         me@ripe.net
 auth:           MD5-PW $1$N2zhyJ3g$hzX7XTL84DtBkCWhBZE2c/
 remarks:        **********************************************************************
 remarks:        Password is "emptypassword" without the quotes.
 remarks:        **********************************************************************
-mnt-by:         TEST-DBM-MNT
+mnt-by:         TEST-ROOT-MNT
 referral-by:    TEST-DBM-MNT
-changed:        me@test.de 20010314
+changed:        me@ripe.net 20010314
 source:         TEST
 
 person:         BA Engineer
