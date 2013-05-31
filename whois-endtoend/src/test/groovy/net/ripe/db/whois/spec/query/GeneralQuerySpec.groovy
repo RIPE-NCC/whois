@@ -46,7 +46,7 @@ class GeneralQuerySpec extends BaseSpec {
                 """,
         ]}
 
-    def "query pkey only with -K, object returned, no % ERROR:101"() {
+    def "query pkey only with -K, object returned, no %ERROR:101"() {
         given:
         syncUpdate(getTransient("ALLOC-UNS") + "override: override1")
 
@@ -55,7 +55,7 @@ class GeneralQuerySpec extends BaseSpec {
         queryObject("-rBG -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
 
         and:
-        ! queryLineMatches("-K 192.0.0.0 - 192.255.255.255", "% ERROR:101")
+        ! queryLineMatches("-K 192.0.0.0 - 192.255.255.255", "%ERROR:101")
     }
 
 }
