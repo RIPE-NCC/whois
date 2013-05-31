@@ -1,3 +1,6 @@
+## next
+[nrtm-client] added nrtm client to allow users run a local copy of the RIPE DB
+
 ## 1.65.10
 [query] Change "--no-taginfo" to "--no-tag-info" and "--show-taginfo" to "--show-tag-info"
 [grs] Tag resources for sources with {SOURCE}-REGISTRY-RESOURCE and {SOURCE}-USER-RESOURCE
