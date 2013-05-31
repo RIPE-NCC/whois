@@ -2,22 +2,17 @@
 
 set -e
 
-awk --version >/dev/null || exit 1
-
-if [[ $(ps uxww | awk "\$2 == $PPID && /sonar:sonar/" | wc -l) -gt 0 ]]; then
-	ADDPATH='clover/'
-fi
-GENERATED_PATH=target/${ADDPATH}generated-sources/jflex/net/ripe/db/whois/common/generated
+GENERATED_PATH=target/generated-sources/jflex/net/ripe/db/whois/common/generated
 
 case $OSTYPE in
 	darwin*)
 		echo 'using byacc for OSX'
-		binaryToRun='src/main/resources/bin/yacc.macosx'
+		YACC='src/main/resources/bin/yacc.macosx'
 		;;
 
 	linux*)
-		echo 'using byacc for LINUX'
-		binaryToRun='src/main/resources/bin/yacc.linux'
+		echo 'using byacc for Linux'
+		YACC='src/main/resources/bin/yacc.linux'
 		;;
 
 	*)
@@ -47,8 +42,8 @@ MpPeeringParser src/main/resources/byacc/mp_peering.y
 PeerParser src/main/resources/byacc/peer.y
 PeeringParser src/main/resources/byacc/peering.y
 V6FilterParser src/main/resources/byacc/v6_filter.y' | while read GENERATED YACCDEF; do
-    echo ${GENERATED};
-	$binaryToRun -Jclass=${GENERATED} -Jnoconstruct -Jimplements='AttributeParser<Void>' -Jpackage='net.ripe.db.whois.common.generated' -J $YACCDEF
+	echo ${GENERATED}
+	$YACC -Jclass=${GENERATED} -Jnoconstruct -Jimplements='AttributeParser<Void>' -Jpackage='net.ripe.db.whois.common.generated' -J $YACCDEF
 done
 
 mkdir -p $GENERATED_PATH
