@@ -7,8 +7,6 @@
 .settings
 .*.swp
 *~
-/src/main/resources/application-dev.properties
-/.checkstyle
 var*/
 /.idea
 pom.xml.*Backup
