@@ -53,7 +53,7 @@ PRFXV4         = {IPV4}\/{INT}
 PRFXV4RNG      = {PRFXV4}("^+"|"^-"|"^"{INT}|"^"{INT}-{INT})
 COMM_NO        = {INT}:{INT}
 PROTOCOL_NAME  = BGP4|OSPF|RIP|IGRP|IS-IS|STATIC|RIPng|DVMRP|PIM-DM|PIM-SM|CBT|MOSPF
-ALNUM          = [0-9a-zA-Z] /* TODO: defined in LC_TYPE */
+ALNUM          = [0-9a-zA-Z]
 DNAME          = [a-zA-Z]([0-9a-zA-Z-]*[0-9a-zA-Z])?
 
 %%

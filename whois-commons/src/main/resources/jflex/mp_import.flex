@@ -64,7 +64,7 @@ AFIVALUE_V4    = IPV4|IPV4\.UNICAST|IPV4\.MULTICAST
 AFIVALUE_V6    = IPV6|IPV6\.UNICAST|IPV6\.MULTICAST
 AFIVALUE_ANY   = ANY\.UNICAST|ANY\.MULTICAST
 ALNUM          = [0-9a-zA-Z]
-DNAME          = [a-zA-Z]([0-9a-zA-Z-]*[0-9a-zA-Z])?     /* TODO: alnum defined in LC_TYPE */
+DNAME          = [a-zA-Z]([0-9a-zA-Z-]*[0-9a-zA-Z])?
 ASNO           = AS([0-9]|[1-9][0-9]{1,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]|429496729[0-5])
 
 %%
