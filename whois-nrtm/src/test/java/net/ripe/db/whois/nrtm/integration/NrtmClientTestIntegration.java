@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
+import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -163,6 +164,18 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         nrtmImporter.start();
 
         objectExists(ObjectType.PERSON, "OP2-TEST", true);
+    }
+
+    @Test
+    public void create_large_object_with_long_lines() throws Exception {
+        final RpslObject mntner = RpslObject.parse("" +
+                "mntner: TEST-MNT\n" +
+                StringUtils.repeat("remarks: " + StringUtils.repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 2000), "\n", 10) +
+                "source: TEST");
+
+        databaseHelper.addObject(mntner);
+
+        objectMatches(mntner);
     }
 
     private void objectExists(final ObjectType type, final String key, final boolean exists) {
