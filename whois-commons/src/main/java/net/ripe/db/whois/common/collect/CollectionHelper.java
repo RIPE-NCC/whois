@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.collect;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.Identifiable;
@@ -10,13 +9,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import java.util.Collection;
 
 public final class CollectionHelper {
-    private static final Function<Identifiable, Integer> IDENTIFIABLE_TO_INTEGER = new Function<Identifiable, Integer>() {
-        @Override
-        public Integer apply(Identifiable input) {
-            return input.getObjectId();
-        }
-    };
-
     private CollectionHelper() {
     }
 
@@ -31,18 +23,14 @@ public final class CollectionHelper {
         }
     }
 
-    public static Iterable<Integer> identifiablesToIds(final Iterable<? extends Identifiable> identifiables) {
-        return Iterables.transform(identifiables, IDENTIFIABLE_TO_INTEGER);
-    }
-
-    // TODO: [AH] result is wrapped by 3 iterable wrappers in this method - optimize!
-    public static Iterable<ResponseObject> iterateProxy(final ProxyLoader<Integer, RpslObject> rpslObjectLoader, final Iterable<? extends Identifiable> identifiables) {
-        final Iterable<Integer> ids = identifiablesToIds(identifiables);
-        final ProxyIterable<Integer, ? extends ResponseObject> rpslObjects = new ProxyIterable<Integer, RpslObject>(ids, rpslObjectLoader, 100);
+    // TODO: [AH] result is wrapped by 2 iterable wrappers in this method - optimize!
+    // TODO: [AK] Generify this method
+    public static Iterable<ResponseObject> iterateProxy(final ProxyLoader<Identifiable, RpslObject> rpslObjectLoader, final Iterable<? extends Identifiable> identifiables) {
+        final ProxyIterable<Identifiable, ? extends ResponseObject> rpslObjects = new ProxyIterable<>((Iterable<Identifiable>) identifiables, rpslObjectLoader, 100);
         return (Iterable<ResponseObject>) Iterables.filter(rpslObjects, Predicates.notNull());
     }
 
-    public static<T> boolean containsType(T[] array, Class type) {
+    public static <T> boolean containsType(T[] array, Class type) {
         if (array == null) return false;
 
         for (int i = 0; i < array.length; i++) {

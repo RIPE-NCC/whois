@@ -14,6 +14,7 @@ import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
@@ -28,14 +29,15 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -60,31 +62,10 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     }
 
     @Override
-    // TODO [AK] Make loader smarter, sometimes proxy already has some objects of result (object already loaded)
-    public void load(final List<Integer> proxy, final List<RpslObject> result) {
-        final StringBuilder queryBuilder = new StringBuilder();
-        final Integer[] objectIds = new Integer[proxy.size()];
-        int idx = 0;
+    public void load(final List<Identifiable> proxy, final List<RpslObject> result) {
+        final Map<Integer, RpslObject> loadedObjects = Maps.newHashMapWithExpectedSize(proxy.size());
 
-        // In MySQL, UNION ALL is much faster than IN
-        for (final Integer objectId : proxy) {
-            if (idx > 0) {
-                queryBuilder.append(" UNION ALL ");
-
-            }
-            queryBuilder.append("" +
-                    "SELECT object_id, object " +
-                    "FROM last " +
-                    "WHERE object_id = ? " +
-                    "AND sequence_id != 0");
-            objectIds[idx++] = objectId;
-        }
-
-        final String loadObjectsQuery = queryBuilder.toString();
-        final RpslObjectRowMapper rowMapper = new RpslObjectRowMapper();
-
-        List<RpslObject> objects = jdbcTemplate.query(loadObjectsQuery, objectIds, rowMapper);
-        Set<Integer> differences = getDifferences(proxy, objects);
+        Set<Integer> differences = loadObjects(proxy, loadedObjects);
         if (!differences.isEmpty()) {
             final Source originalSource = sourceContext.getCurrentSource();
             LOGGER.warn("Objects in source {} not found for ids: {}", originalSource, differences);
@@ -93,8 +74,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
                 final Source masterSource = Source.master(originalSource.getName());
                 try {
                     sourceContext.setCurrent(masterSource);
-                    objects = jdbcTemplate.query(loadObjectsQuery, objectIds, rowMapper);
-                    differences = getDifferences(proxy, objects);
+                    differences = loadObjects(proxy, loadedObjects);
                     if (!differences.isEmpty()) {
                         LOGGER.warn("Objects in source {} not found for ids: {}", masterSource, differences);
                     }
@@ -106,24 +86,81 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
             }
         }
 
-        result.addAll(objects);
+        final List<RpslObject> rpslObjects = Lists.newArrayList(loadedObjects.values());
+        Collections.sort(rpslObjects, new Comparator<RpslObject>() {
+            final List<Integer> requestedIds = Lists.newArrayList(Iterables.transform(proxy, new Function<Identifiable, Integer>() {
+                @Override
+                public Integer apply(final Identifiable input) {
+                    return input.getObjectId();
+                }
+            }));
+
+            @Override
+            public int compare(final RpslObject o1, final RpslObject o2) {
+                return requestedIds.indexOf(o1.getObjectId()) - requestedIds.indexOf(o2.getObjectId());
+            }
+        });
+
+        // TODO [AK] Return result rather than adding all to the collection
+        result.addAll(rpslObjects);
     }
 
-    private Set<Integer> getDifferences(final Collection<Integer> proxy, final Collection<RpslObject> objects) {
-        if (proxy.size() == objects.size()) {
+    private Set<Integer> loadObjects(final List<Identifiable> proxy, final Map<Integer, RpslObject> loadedObjects) {
+        final StringBuilder queryBuilder = new StringBuilder();
+        final List<Integer> objectIds = Lists.newArrayListWithExpectedSize(proxy.size());
+        for (final Identifiable identifiable : proxy) {
+            final Integer objectId = identifiable.getObjectId();
+            if (loadedObjects.containsKey(objectId)) {
+                continue;
+            }
+
+            if (identifiable instanceof RpslObject) {
+                loadedObjects.put(objectId, (RpslObject) identifiable);
+            } else {
+                if (queryBuilder.length() > 0) {
+                    // In MySQL, UNION ALL is much faster than IN
+                    queryBuilder.append(" UNION ALL ");
+                }
+
+                queryBuilder.append("" +
+                        "SELECT object_id, object " +
+                        "FROM last " +
+                        "WHERE object_id = ? " +
+                        "AND sequence_id != 0");
+
+                objectIds.add(objectId);
+            }
+        }
+
+        final List<RpslObject> rpslObjects = jdbcTemplate.query(
+                queryBuilder.toString(),
+                new PreparedStatementSetter() {
+                    @Override
+                    public void setValues(final PreparedStatement ps) throws SQLException {
+                        for (int i = 0; i < objectIds.size(); i++) {
+                            ps.setInt(i + 1, objectIds.get(i));
+                        }
+                    }
+                },
+                new RpslObjectRowMapper());
+
+        for (final RpslObject rpslObject : rpslObjects) {
+            loadedObjects.put(rpslObject.getObjectId(), rpslObject);
+        }
+
+        if (proxy.size() == loadedObjects.size()) {
             return Collections.emptySet();
         }
 
-        final Set<Integer> requestedIds = Sets.newHashSet(proxy);
-        final Set<Integer> foundObjectIds = Sets.newHashSet(Iterables.transform(objects, new Function<RpslObject, Integer>() {
-            @Nullable
-            @Override
-            public Integer apply(final RpslObject input) {
-                return input.getObjectId();
+        final Set<Integer> differences = Sets.newLinkedHashSet();
+        for (final Identifiable identifiable : proxy) {
+            final Integer objectId = identifiable.getObjectId();
+            if (!loadedObjects.containsKey(objectId)) {
+                differences.add(objectId);
             }
-        }));
+        }
 
-        return Sets.difference(requestedIds, foundObjectIds);
+        return differences;
     }
 
     @Override
