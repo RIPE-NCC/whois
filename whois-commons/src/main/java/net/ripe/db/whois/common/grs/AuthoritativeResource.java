@@ -14,7 +14,9 @@ import org.slf4j.Logger;
 import javax.annotation.concurrent.Immutable;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.math.BigInteger;
 import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -168,15 +170,87 @@ public class AuthoritativeResource {
         return getNrAutNums() == 0 && getNrInetnums() == 0 && getNrInet6nums() == 0;
     }
 
+    private Ipv4Resource concatenateIpv4Resources(final List<Ipv4Resource> resources) {
+        if (resources.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
+        for (int index = 1; index < resources.size(); index++) {
+            if (resources.get(index).begin() != resources.get(index - 1).end() + 1) {
+                throw new IllegalArgumentException("found gap");
+            }
+        }
+
+        return new Ipv4Resource(resources.get(0).begin(), resources.get(resources.size() - 1).end());
+    }
+
+    private Ipv6Resource concatenateIpv6Resources(final List<Ipv6Resource> resources) {
+        if (resources.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
+        for (int index = 1; index < resources.size(); index++) {
+            if (!resources.get(index).begin().equals(resources.get(index - 1).end().add(BigInteger.ONE))) {
+                throw new IllegalArgumentException("found gap");
+            }
+        }
+
+        return new Ipv6Resource(resources.get(0).begin(), resources.get(resources.size() - 1).end());
+    }
+
     public boolean isMaintainedByRir(final ObjectType objectType, final CIString pkey) {
         try {
             switch (objectType) {
                 case AUT_NUM:
                     return autNums.contains(pkey);
                 case INETNUM:
-                    return !inetRanges.findExact(Ipv4Resource.parse(pkey)).isEmpty();
+                {
+                    final Ipv4Resource pkeyResource = Ipv4Resource.parse(pkey);
+
+                    if (!inetRanges.findExact(pkeyResource).isEmpty()) {
+                        return true;
+                    }
+
+                    List<Ipv4Resource> matches = inetRanges.findFirstMoreSpecific(pkeyResource);
+                    if (matches.isEmpty()) {
+                        return false;
+                    }
+
+                    try {
+                        Ipv4Resource concatenatedResource = concatenateIpv4Resources(matches);
+                        if (concatenatedResource.compareTo(pkeyResource) == 0) {
+                            return true;
+                        }
+                    } catch (IllegalArgumentException ignored) {
+                        // empty match or gap in range
+                    }
+
+                    return false;
+                }
                 case INET6NUM:
-                    return !inet6Ranges.findExact(Ipv6Resource.parse(pkey)).isEmpty();
+                {
+                    final Ipv6Resource pkeyResource = Ipv6Resource.parse(pkey);
+
+                    if (!inet6Ranges.findExact(pkeyResource).isEmpty()) {
+                        return true;
+                    }
+
+                    List<Ipv6Resource> matches = inet6Ranges.findFirstMoreSpecific(pkeyResource);
+                    if (matches.isEmpty()) {
+                        return false;
+                    }
+
+                    try {
+                        Ipv6Resource concatenatedResource = concatenateIpv6Resources(matches);
+                        if (concatenatedResource.compareTo(pkeyResource) == 0) {
+                            return true;
+                        }
+                    } catch (IllegalArgumentException ignored) {
+                        // empty match or gap in range
+                    }
+
+                    return false;
+                }
                 default:
                     return true;
             }

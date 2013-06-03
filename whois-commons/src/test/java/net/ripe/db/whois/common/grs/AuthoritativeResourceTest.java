@@ -228,6 +228,49 @@ public class AuthoritativeResourceTest {
         assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("2/11")), is(false));
     }
 
+    // An 8K allocation in database, mapping to two 4K allocations in the resources file
+    @Test
+    public void isMaintainedByRir_ipv4_multiple_allocations() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner(
+                "ripencc|GB|ipv4|80.253.128.0|4096|20011213|allocated\n" +
+                "ripencc|IR|ipv4|80.253.144.0|4096|20020528|allocated\n"));
+
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("80.253.128.0 - 80.253.159.255")), is(true));
+    }
+
+    // An 8K allocation in database, mapping to two 2K allocations and one 4K allocation in the resources file
+    @Test
+    public void isMaintainedByRir_ipv4_multiple_sized_allocations() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner(
+                "ripencc|GB|ipv4|80.253.128.0|2048|20011213|allocated\n" +
+                "ripencc|GB|ipv4|80.253.136.0|2048|20011213|allocated\n" +
+                "ripencc|IR|ipv4|80.253.144.0|4096|20020528|allocated\n"));
+
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("80.253.128.0 - 80.253.159.255")), is(true));
+    }
+
+    // An 8K allocation in database, mapping to two 4K allocation in the resources file, with an additional 2K sub-allocation
+    @Test
+    public void isMaintainedByRir_ipv4_multiple_sized_encompassing_allocations() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner(
+                "ripencc|GB|ipv4|80.253.128.0|4096|20011213|allocated\n" +
+                "ripencc|GB|ipv4|80.253.136.0|2048|20011213|allocated\n" +
+                "ripencc|IR|ipv4|80.253.144.0|4096|20020528|allocated\n"));
+
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("80.253.128.0 - 80.253.159.255")), is(true));
+    }
+
+    // An 8K allocation in database, but the 2K allocations in the resources file contains a gap
+    @Test
+    public void isMaintainedByRir_ipv4_multiple_allocations_with_gap() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner(
+                "ripencc|GB|ipv4|80.253.128.0|2048|20011213|allocated\n" +
+                "ripencc|IR|ipv4|80.253.136.0|2048|20020528|allocated\n" +
+                "ripencc|IR|ipv4|80.253.144.0|2048|20020528|allocated\n"));
+
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("80.253.128.0 - 80.253.159.255")), is(false));
+    }
+
     @Test
     public void isMaintainedInRirSpace_ipv6() {
         final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner("" +
@@ -252,6 +295,34 @@ public class AuthoritativeResourceTest {
         assertThat(resourceData.isMaintainedByRir(ObjectType.INET6NUM, ciString("2001:608::/32")), is(true));
         assertThat(resourceData.isMaintainedByRir(ObjectType.INET6NUM, ciString("2001:608:abcd::")), is(false));
         assertThat(resourceData.isEmpty(), is(false));
+    }
+
+    @Test
+    public void isMaintainedByRir_ipv6_multiple_allocations() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner("" +
+                "ripencc|DE|ipv6|2001:2002:2003:2004::|64|19990812|allocated\n" +
+                "ripencc|DE|ipv6|2001:2002:2003:2005::|64|19990812|allocated\n"));
+
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INET6NUM, ciString("2001:2002:2003:2004::/63")), is(true));
+    }
+
+    @Test
+    public void isMaintainedByRir_ipv6_multiple_sized_encompassing_allocations() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner("" +
+                "ripencc|DE|ipv6|2001:2002:2003:2004::|64|19990812|allocated\n" +
+                "ripencc|DE|ipv6|2001:2002:2003:2004:001::|65|19990812|allocated\n" +
+                "ripencc|DE|ipv6|2001:2002:2003:2005::|64|19990812|allocated\n"));
+
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INET6NUM, ciString("2001:2002:2003:2004::/63")), is(true));
+    }
+
+    @Test
+    public void isMaintainedByRir_ipv6_multiple_allocations_with_gap() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner("" +
+                "ripencc|DE|ipv6|2001:2002:2003:2004:001::|65|19990812|allocated\n" +
+                "ripencc|DE|ipv6|2001:2002:2003:2005::|64|19990812|allocated\n"));
+
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INET6NUM, ciString("2001:2002:2003:2004::/64")), is(false));
     }
 
     @Test
