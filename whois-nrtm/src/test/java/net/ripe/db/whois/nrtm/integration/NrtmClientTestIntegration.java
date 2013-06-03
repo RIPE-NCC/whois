@@ -9,7 +9,10 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -68,7 +71,6 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    @Ignore // TODO [AK] Occasionally freezes test
     public void add_person_from_nrtm_gap_in_serials() throws Exception {
         final RpslObject person = RpslObject.parse("" +
                 "person: One Person\n" +
@@ -133,7 +135,6 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    @Ignore // TODO [AK] Occasionally freezes test
     public void network_error() throws Exception {
         final RpslObject person = RpslObject.parse("" +
                 "person: One Person\n" +

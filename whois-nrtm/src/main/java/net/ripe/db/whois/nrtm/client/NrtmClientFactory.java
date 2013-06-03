@@ -19,10 +19,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-import java.net.Socket;
-import java.net.SocketException;
+import java.io.IOException;
 import java.net.UnknownHostException;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.SocketChannel;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,18 +55,12 @@ class NrtmClientFactory {
     public class NrtmClient implements Runnable {
         private final NrtmSource nrtmSource;
 
-        private volatile boolean running = true;
-        private volatile Socket socket;
-        private BufferedReader reader;
-        private BufferedWriter writer;
+        private SocketChannel socketChannel;
+        private SocketChannelFactory.Reader reader;
+        private SocketChannelFactory.Writer writer;
 
         public NrtmClient(final NrtmSource nrtmSource) {
             this.nrtmSource = nrtmSource;
-        }
-
-        public void stop() {
-            running = false;
-            IOUtils.closeQuietly(socket);
         }
 
         @Override
@@ -74,24 +68,28 @@ class NrtmClientFactory {
             try {
                 sourceContext.setCurrent(Source.master(nrtmSource.getName()));
 
-                while (running) {
+                while (true) {
                     try {
                         connect();
-                        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                        reader = SocketChannelFactory.createReader(socketChannel);
+                        writer = SocketChannelFactory.createWriter(socketChannel);
 
                         readHeader();
                         writeMirrorCommand();
                         readMirrorResult();
                         readUpdates();
+                    } catch (ClosedByInterruptException e) {
+                        LOGGER.info("Interrupted, closing");
+                        break;
                     } catch (IllegalStateException e) {
                         LOGGER.error(e.getMessage());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        break;
+                    } catch (IOException ignored) {
+                        // retry
                     } catch (RuntimeException e) {
                         LOGGER.info("Caught exception while connected, ignoring", e);
                     } finally {
-                        IOUtils.closeQuietly(socket);
+                        IOUtils.closeQuietly(socketChannel);
                     }
                 }
             } finally {
@@ -102,7 +100,7 @@ class NrtmClientFactory {
         @RetryFor(value = IOException.class, attempts = 100, intervalMs = 10 * 1000)
         private void connect() throws IOException {
             try {
-                socket = new Socket(nrtmSource.getHost(), nrtmSource.getPort());
+                socketChannel = SocketChannelFactory.createSocketChannel(nrtmSource.getHost(), nrtmSource.getPort());
                 LOGGER.info("Connected to {}:{}", nrtmSource.getHost(), nrtmSource.getPort());
             } catch (UnknownHostException e) {
                 throw new IllegalStateException(e);
@@ -148,9 +146,7 @@ class NrtmClientFactory {
         }
 
         private void writeLine(final String line) throws IOException {
-            writer.write(line);
-            writer.write('\n');
-            writer.flush();
+            writer.writeLine(line);
         }
 
         private void readUpdates() throws IOException {

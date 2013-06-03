@@ -99,12 +99,8 @@ public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationServ
 
     @Override
     public void stop() {
-        for (final NrtmClientFactory.NrtmClient client : clients) {
-            client.stop();
-        }
-
         if (executorService != null) {
-            executorService.shutdown();
+            executorService.shutdownNow();
         }
     }
 
