@@ -74,8 +74,8 @@ public class DummyWhoisClient {
 
         try {
             FileCopyUtils.copy(serverReader, responseWriter);
-        } catch (SocketTimeoutException ignored) {
-        } catch (SocketException ignored) {
+        } catch (SocketTimeoutException | SocketException ignored) {
+            LOGGER.warn("IO error", ignored);
         } finally {
             IOUtils.closeQuietly(serverWriter);
             IOUtils.closeQuietly(serverReader);
