@@ -51,7 +51,7 @@ public class RelatedIrtDecoratorTest {
     @Test
     public void decorate_not_supported() {
         final RpslObject rpslObject = RpslObject.parse("poem:RIPE");
-        final Collection<RpslObjectInfo> infos = subject.decorate(rpslObject);
+        final Collection<RpslObjectInfo> infos = subject.decorate(Query.parse("RIPE"), rpslObject);
 
         verify(hierarchyLookupIpv4, times(1)).supports(rpslObject);
         verify(hierarchyLookupIpv6, times(1)).supports(rpslObject);
@@ -68,7 +68,7 @@ public class RelatedIrtDecoratorTest {
         when(hierarchyLookupIpv4.supports(rpslObject)).thenReturn(true);
         when(hierarchyLookupIpv4.getReferencedIrtsInHierarchy(rpslObject)).thenReturn(result);
 
-        final Collection<RpslObjectInfo> infos = subject.decorate(rpslObject);
+        final Collection<RpslObjectInfo> infos = subject.decorate(Query.parse("0.0.0.0"), rpslObject);
 
         verify(hierarchyLookupIpv4, times(1)).supports(rpslObject);
         assertThat(infos, contains(rpslObjectInfo));
@@ -84,7 +84,7 @@ public class RelatedIrtDecoratorTest {
         when(hierarchyLookupIpv6.supports(rpslObject)).thenReturn(true);
         when(hierarchyLookupIpv6.getReferencedIrtsInHierarchy(rpslObject)).thenReturn(result);
 
-        final Collection<RpslObjectInfo> infos = subject.decorate(rpslObject);
+        final Collection<RpslObjectInfo> infos = subject.decorate(Query.parse("::0"), rpslObject);
 
         verify(hierarchyLookupIpv6, times(1)).supports(rpslObject);
         assertThat(infos, contains(rpslObjectInfo));

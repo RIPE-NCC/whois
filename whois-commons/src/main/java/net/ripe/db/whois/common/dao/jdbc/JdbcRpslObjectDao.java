@@ -205,7 +205,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     }
 
     private RpslObject getByKeyFromIndex(final ObjectType type, final CIString key) {
-        return getById(findByKeyInIndex(type, key).getObjectId());
+        return getById(findUniqueByKeyInIndex(type, key).getObjectId());
     }
 
     @Override
@@ -260,32 +260,38 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
                     ObjectTypeIds.getId(type),
                     searchKey);
         } catch (EmptyResultDataAccessException e) {
-            return findByKeyInIndex(type, ciString(searchKey));
+            return findUniqueByKeyInIndex(type, ciString(searchKey));
         }
     }
 
-    private RpslObjectInfo findByKeyInIndex(final ObjectType type, final CIString key) {
-        final Set<RpslObjectInfo> objectInfos = Sets.newHashSetWithExpectedSize(1);
-
-        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(type);
-        for (final AttributeType attributeType : objectTemplate.getKeyAttributes()) {
-            objectInfos.addAll(IndexStrategies.get(attributeType).findInIndex(jdbcTemplate, key));
-        }
+    private RpslObjectInfo findUniqueByKeyInIndex(final ObjectType type, final CIString key) {
+        final Set<RpslObjectInfo> objectInfos = findByKeyInIndex(type, key);
 
         switch (objectInfos.size()) {
             case 0:
                 throw new EmptyResultDataAccessException(1);
             case 1:
-                final RpslObjectInfo objectInfo = objectInfos.iterator().next();
-                if (objectInfo.getObjectType().equals(type)) {
-                    LOGGER.warn("Object [{}] {} exists in key index, but not found in last by pkey", type, key);
-                    return objectInfo;
-                }
-
-                throw new EmptyResultDataAccessException(1);
+                return objectInfos.iterator().next();
             default:
                 throw new IncorrectResultSizeDataAccessException(String.format("Multiple objects found in key index for object [%s] %s", type, key), 1, objectInfos.size());
         }
+    }
+
+    private Set<RpslObjectInfo> findByKeyInIndex(final ObjectType type, final CIString key) {
+        final Set<RpslObjectInfo> objectInfos = Sets.newHashSetWithExpectedSize(1);
+        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(type);
+        for (final AttributeType attributeType : objectTemplate.getKeyAttributes()) {
+            final List<RpslObjectInfo> rpslObjectInfos = IndexStrategies.get(attributeType).findInIndex(jdbcTemplate, key);
+            for (final RpslObjectInfo rpslObjectInfo : rpslObjectInfos) {
+
+                // Make sure the object type actually matches the requested type, can otherwise fail e.g. when looking up person/role
+                if (rpslObjectInfo.getObjectType().equals(type)) {
+                    objectInfos.add(rpslObjectInfo);
+                }
+            }
+        }
+
+        return objectInfos;
     }
 
     @Override
@@ -316,20 +322,20 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     }
 
     @Override
-    public List<RpslObjectInfo> relatedTo(final RpslObject identifiable) {
+    public List<RpslObjectInfo> relatedTo(final RpslObject identifiable, final Set<ObjectType> excludeObjectTypes) {
         final Set<RpslObjectInfo> result = Sets.newLinkedHashSet();
-        for (final AttributeType attributeType : RELATED_TO_ATTRIBUTES) { // TODO [AK] Pass in related-to attributes to optimise --no-personal
-            final List<RpslAttribute> attributes = identifiable.findAttributes(attributeType);
-            for (final RpslAttribute attribute : attributes) {
-                for (final CIString referenceValue : attribute.getReferenceValues()) {
-                    for (final ObjectType objectType : attributeType.getReferences(referenceValue)) {
-                        for (AttributeType keyAttributeType : ObjectTemplate.getTemplate(objectType).getKeyAttributes()) {
-                            final List<RpslObjectInfo> objectInfos = IndexStrategies.get(keyAttributeType).findInIndex(jdbcTemplate, referenceValue);
-                            for (final RpslObjectInfo objectInfo : objectInfos) {
-                                if (objectInfo.getObjectId() != identifiable.getObjectId()) {
-                                    result.add(objectInfo);
-                                }
-                            }
+
+        final List<RpslAttribute> attributes = identifiable.findAttributes(RELATED_TO_ATTRIBUTES);
+        for (final RpslAttribute attribute : attributes) {
+            for (final CIString referenceValue : attribute.getReferenceValues()) {
+                for (final ObjectType objectType : attribute.getType().getReferences(referenceValue)) {
+                    if (excludeObjectTypes.contains(objectType)) {
+                        continue;
+                    }
+
+                    for (final RpslObjectInfo objectInfo : findByKeyInIndex(objectType, referenceValue)) {
+                        if (objectInfo.getObjectId() != identifiable.getObjectId()) {
+                            result.add(objectInfo);
                         }
                     }
                 }

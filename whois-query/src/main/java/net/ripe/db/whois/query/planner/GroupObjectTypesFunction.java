@@ -30,7 +30,7 @@ public final class GroupObjectTypesFunction implements GroupFunction {
         if (input instanceof RpslObject) {
             for (PrimaryObjectDecorator decorator : decorators) {
                 if (decorator.appliesToQuery(query)) {
-                    relatedTo.addAll(decorator.decorate((RpslObject) input));
+                    relatedTo.addAll(decorator.decorate(query, (RpslObject) input));
                 }
             }
         }

@@ -26,7 +26,7 @@ class RelatedIrtDecorator implements PrimaryObjectDecorator {
     }
 
     @Override
-    public Collection<RpslObjectInfo> decorate(final RpslObject rpslObject) {
+    public Collection<RpslObjectInfo> decorate(final Query query, final RpslObject rpslObject) {
         for (final HierarchyLookup hierarchyLookup : hierarchyLookups) {
             if (hierarchyLookup.supports(rpslObject)) {
                 return hierarchyLookup.getReferencedIrtsInHierarchy(rpslObject);

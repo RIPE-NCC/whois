@@ -235,10 +235,10 @@ public class RpslObjectBase {
         return list == null ? Collections.<RpslAttribute>emptyList() : Collections.unmodifiableList(list);
     }
 
-    public List<RpslAttribute> findAttributes(final Collection<AttributeType> attributeTypes) {
+    public List<RpslAttribute> findAttributes(final Iterable<AttributeType> attributeTypes) {
         final List<RpslAttribute> result = Lists.newArrayList();
 
-        for (AttributeType attributeType : attributeTypes) {
+        for (final AttributeType attributeType : attributeTypes) {
             findCachedAttributes(result, attributeType);
         }
 

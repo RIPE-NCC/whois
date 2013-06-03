@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public interface RpslObjectDao extends ProxyLoader<Integer, RpslObject> {
     RpslObject getById(int objectId);
@@ -26,5 +27,5 @@ public interface RpslObjectDao extends ProxyLoader<Integer, RpslObject> {
 
     List<RpslObjectInfo> findMemberOfByObjectTypeWithoutMbrsByRef(ObjectType objectType, String attributeValue);
 
-    List<RpslObjectInfo> relatedTo(RpslObject identifiable);
+    List<RpslObjectInfo> relatedTo(RpslObject identifiable, Set<ObjectType> excludeObjectTypes);
 }

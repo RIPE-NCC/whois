@@ -63,7 +63,7 @@ public class GroupRelatedFunctionTest {
         final Iterable<ResponseObject> responseObjects = subject.apply(input);
         final Iterable<ResponseObject> relatedObjects = subject.getGroupedAfter();
 
-        verify(decorator, times(0)).decorate((RpslObject) input);
+        verify(decorator, times(0)).decorate(query, (RpslObject) input);
 
         assertThat(responseObjects, contains(relatedToMessage, input));
         assertThat(Lists.newArrayList(relatedObjects), hasSize(0));
@@ -82,7 +82,7 @@ public class GroupRelatedFunctionTest {
         final ResponseObject result2 = RpslObject.parse("mntner:mntner");
 
         when(decorator.appliesToQuery(query)).thenReturn(true);
-        when(decorator.decorate((RpslObject) input)).thenReturn(Arrays.asList(info1, info2));
+        when(decorator.decorate(query, (RpslObject) input)).thenReturn(Arrays.asList(info1, info2));
         when(rpslObjectDao.getById(1)).thenReturn((RpslObject) result1);
         when(rpslObjectDao.getById(2)).thenReturn((RpslObject) result2);
 

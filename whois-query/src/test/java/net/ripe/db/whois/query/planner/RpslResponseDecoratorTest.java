@@ -114,7 +114,7 @@ public class RpslResponseDecoratorTest {
 
         final String response = execute("-b 10.0.0.0", inet, inet6);
         assertThat(response, is(
-                        "inetnum:        10.0.0.0\n" +
+                "inetnum:        10.0.0.0\n" +
                         "\n" +
                         "inet6num:       ::0/0\n" +
                         "\n"));
@@ -276,7 +276,7 @@ public class RpslResponseDecoratorTest {
 
         String result = execute("-G -B -T inetnum 10.0.0.0", rpslObject);
 
-        verify(decorator, atLeastOnce()).decorate(rpslObject);
+        verify(decorator, atLeastOnce()).decorate(any(Query.class), eq(rpslObject));
         assertThat(result, is("" +
                 "% Abuse contact for '10.0.0.0' is 'abuse@ripe.net'\n\n" +
                 "inetnum:        10.0.0.0\n" +
@@ -292,7 +292,7 @@ public class RpslResponseDecoratorTest {
         final RpslObject object2 = RpslObject.parse(1, "inetnum: 10.0.0.2\ntech-c:NICHDL\nadmin-c:NICHDL\nstatus:OTHER");
 
         when(decorator.appliesToQuery(any(Query.class))).thenReturn(true);
-        when(decorator.decorate(any(RpslObject.class))).thenReturn(Arrays.asList(
+        when(decorator.decorate(any(Query.class), any(RpslObject.class))).thenReturn(Arrays.asList(
                 new RpslObjectInfo(1, ObjectType.ROUTE, "z"),
                 new RpslObjectInfo(2, ObjectType.ROUTE, "a")
         ));
@@ -313,8 +313,8 @@ public class RpslResponseDecoratorTest {
 
         String result = execute("-G -B -T inetnum 10.0.0.0", object1, object2);
 
-        verify(decorator, atLeastOnce()).decorate(object1);
-        verify(decorator, atLeastOnce()).decorate(object2);
+        verify(decorator, atLeastOnce()).decorate(any(Query.class), eq(object1));
+        verify(decorator, atLeastOnce()).decorate(any(Query.class), eq(object2));
         assertThat(result, is("" +
                 "% Abuse contact for '10.0.0.1' is 'abuse@ripe.net'\n\n" +
                 "inetnum:        10.0.0.1\n" +
@@ -341,7 +341,7 @@ public class RpslResponseDecoratorTest {
         final RpslObject object2 = RpslObject.parse(1, "inetnum: 10.0.0.2\ntech-c:NICHDL\nadmin-c:NICHDL\norg: ORG1-TEST\nstatus:OTHER");
 
         when(decorator.appliesToQuery(any(Query.class))).thenReturn(true);
-        when(decorator.decorate(any(RpslObject.class))).thenReturn(Arrays.asList(
+        when(decorator.decorate(any(Query.class), any(RpslObject.class))).thenReturn(Arrays.asList(
                 new RpslObjectInfo(1, ObjectType.ROUTE, "z"),
                 new RpslObjectInfo(2, ObjectType.ROUTE, "a")
         ));

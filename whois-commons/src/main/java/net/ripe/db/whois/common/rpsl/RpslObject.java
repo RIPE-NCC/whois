@@ -116,7 +116,7 @@ public class RpslObject implements ResponseObject, Identifiable {
         return base.findAttributes(attributeType);
     }
 
-    public List<RpslAttribute> findAttributes(final Collection<AttributeType> attributeTypes) {
+    public List<RpslAttribute> findAttributes(final Iterable<AttributeType> attributeTypes) {
         return base.findAttributes(attributeTypes);
     }
 

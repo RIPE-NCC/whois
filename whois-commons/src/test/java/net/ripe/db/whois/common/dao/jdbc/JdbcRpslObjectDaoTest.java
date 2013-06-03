@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
@@ -307,10 +308,19 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
         RpslObject person = databaseHelper.addObject(RpslObject.parse("person:Brian Riddle\nnic-hdl:BRD-RIPE"));
         RpslObject role = databaseHelper.addObject(RpslObject.parse("role:RIPE NCC Operations\nadmin-c:BRD-RIPE\nnic-hdl:OPS4-RIPE"));
 
-        List<RpslObjectInfo> result = subject.relatedTo(role);
+        List<RpslObjectInfo> result = subject.relatedTo(role, Collections.<ObjectType>emptySet());
 
         assertThat(result, hasSize(1));
         assertThat(result.get(0).getKey(), is(person.getKey().toString()));
+    }
+
+    @Test
+    public void test_adminc_related_to_role_excluded() {
+        databaseHelper.addObject(RpslObject.parse("person:Brian Riddle\nnic-hdl:BRD-RIPE"));
+        RpslObject role = databaseHelper.addObject(RpslObject.parse("role:RIPE NCC Operations\nadmin-c:BRD-RIPE\nnic-hdl:OPS4-RIPE"));
+
+        List<RpslObjectInfo> result = subject.relatedTo(role, Collections.singleton(ObjectType.PERSON));
+        assertThat(result, hasSize(0));
     }
 
     @Test

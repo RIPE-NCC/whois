@@ -9,5 +9,5 @@ import java.util.Collection;
 interface PrimaryObjectDecorator {
     boolean appliesToQuery(Query query);
 
-    Collection<RpslObjectInfo> decorate(RpslObject rpslObject);
+    Collection<RpslObjectInfo> decorate(Query query, RpslObject rpslObject);
 }
