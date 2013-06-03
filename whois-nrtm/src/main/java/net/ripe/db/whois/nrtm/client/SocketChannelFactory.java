@@ -7,7 +7,6 @@ import java.nio.channels.SocketChannel;
 
 public class SocketChannelFactory {
 
-
     public static SocketChannel createSocketChannel(final String host, final int port) throws IOException {
         final SocketChannel socketChannel = SocketChannel.open();
         socketChannel.configureBlocking(true);
