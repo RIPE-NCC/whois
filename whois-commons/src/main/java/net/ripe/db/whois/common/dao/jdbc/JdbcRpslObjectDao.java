@@ -29,6 +29,7 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -137,9 +138,8 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public RpslObject getByKey(final ObjectType type, final String key) {
-        RpslObject rpslObject;
         try {
-            rpslObject = jdbcTemplate.queryForObject("" +
+            return jdbcTemplate.queryForObject("" +
                     "SELECT object_id, object " +
                     "  FROM last " +
                     "  WHERE object_type = ? and pkey = ? and sequence_id != 0 ",
@@ -147,41 +147,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
                     ObjectTypeIds.getId(type),
                     key);
         } catch (EmptyResultDataAccessException e) {
-            rpslObject = null;
-        }
-
-        final RpslObject objectWithIndexFallback = getObjectWithIndexFallback(rpslObject, type, ciString(key));
-        if (objectWithIndexFallback == null) {
-            throw new EmptyResultDataAccessException(1);
-        }
-
-        return objectWithIndexFallback;
-    }
-
-    private RpslObject getObjectWithIndexFallback(final RpslObject object, final ObjectType type, final CIString key) {
-        if (object != null) {
-            return object;
-        }
-
-        final Set<RpslObjectInfo> objectInfos = Sets.newHashSet();
-        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(type);
-        for (final AttributeType attributeType : objectTemplate.getKeyAttributes()) {
-            objectInfos.addAll(IndexStrategies.get(attributeType).findInIndex(jdbcTemplate, key));
-        }
-
-        switch (objectInfos.size()) {
-            case 0:
-                return null;
-            case 1:
-                final RpslObjectInfo objectInfo = objectInfos.iterator().next();
-                if (objectInfo.getObjectType().equals(type)) {
-                    LOGGER.warn("Object [{}] {} exists in key index, but not found in last by pkey", type, key);
-                    return getById(objectInfo.getObjectId());
-                } else {
-                    return null;
-                }
-            default:
-                throw new IncorrectResultSizeDataAccessException(String.format("Multiple objects found in key index for object [%s] %s", type, key), 1, objectInfos.size());
+            return getByKeyFromIndex(type, ciString(key));
         }
     }
 
@@ -224,13 +190,22 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
         final Set<RpslObject> results = Sets.newLinkedHashSetWithExpectedSize(rpslObjectMap.size());
         for (final CIString searchKey : searchKeys) {
-            final RpslObject objectWithIndexFallback = getObjectWithIndexFallback(rpslObjectMap.get(searchKey), type, searchKey);
-            if (objectWithIndexFallback != null) {
-                results.add(objectWithIndexFallback);
+            final RpslObject rpslObject = rpslObjectMap.get(searchKey);
+            if (rpslObject != null) {
+                results.add(rpslObject);
+            } else {
+                try {
+                    results.add(getById(getByKeyFromIndex(type, searchKey).getObjectId()));
+                } catch (IncorrectResultSizeDataAccessException ignored) {
+                }
             }
         }
 
         return Lists.newArrayList(results);
+    }
+
+    private RpslObject getByKeyFromIndex(final ObjectType type, final CIString key) {
+        return getById(findByKeyInIndex(type, key).getObjectId());
     }
 
     @Override
@@ -269,11 +244,48 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
         );
     }
 
-    // TODO [AK] This is inefficient, loading the object only to get rid of the RPSL data, should be the other way around, don't forget about index fallback
     @Override
     public RpslObjectInfo findByKey(final ObjectType type, final String searchKey) {
-        final RpslObject rpslObject = getByKey(type, searchKey);
-        return new RpslObjectInfo(rpslObject.getObjectId(), rpslObject.getType(), rpslObject.getKey());
+        try {
+            return jdbcTemplate.queryForObject("" +
+                    "SELECT object_id, pkey " +
+                    "  FROM last " +
+                    "  WHERE object_type = ? and pkey = ? and sequence_id != 0 ",
+                    new RowMapper<RpslObjectInfo>() {
+                        @Override
+                        public RpslObjectInfo mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+                            return new RpslObjectInfo(rs.getInt(1), type, rs.getString(2));
+                        }
+                    },
+                    ObjectTypeIds.getId(type),
+                    searchKey);
+        } catch (EmptyResultDataAccessException e) {
+            return findByKeyInIndex(type, ciString(searchKey));
+        }
+    }
+
+    private RpslObjectInfo findByKeyInIndex(final ObjectType type, final CIString key) {
+        final Set<RpslObjectInfo> objectInfos = Sets.newHashSetWithExpectedSize(1);
+
+        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(type);
+        for (final AttributeType attributeType : objectTemplate.getKeyAttributes()) {
+            objectInfos.addAll(IndexStrategies.get(attributeType).findInIndex(jdbcTemplate, key));
+        }
+
+        switch (objectInfos.size()) {
+            case 0:
+                throw new EmptyResultDataAccessException(1);
+            case 1:
+                final RpslObjectInfo objectInfo = objectInfos.iterator().next();
+                if (objectInfo.getObjectType().equals(type)) {
+                    LOGGER.warn("Object [{}] {} exists in key index, but not found in last by pkey", type, key);
+                    return objectInfo;
+                }
+
+                throw new EmptyResultDataAccessException(1);
+            default:
+                throw new IncorrectResultSizeDataAccessException(String.format("Multiple objects found in key index for object [%s] %s", type, key), 1, objectInfos.size());
+        }
     }
 
     @Override
