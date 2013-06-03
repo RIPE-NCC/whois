@@ -79,7 +79,7 @@ class NrtmClientFactory {
                         readMirrorResult();
                         readUpdates();
                     } catch (ClosedByInterruptException e) {
-                        LOGGER.info("Interrupted, closing");
+                        LOGGER.info("Interrupted, stopping.");
                         break;
                     } catch (IllegalStateException e) {
                         LOGGER.error(e.getMessage());
@@ -87,7 +87,7 @@ class NrtmClientFactory {
                     } catch (IOException ignored) {
                         // retry
                     } catch (RuntimeException e) {
-                        LOGGER.info("Caught exception while connected, ignoring", e);
+                        LOGGER.info("Caught exception while connected, ignoring.", e);
                     } finally {
                         IOUtils.closeQuietly(socketChannel);
                     }
@@ -164,11 +164,9 @@ class NrtmClientFactory {
                         try {
                             final RpslObjectUpdateInfo updateInfo = rpslObjectUpdateDao.lookupObject(rpslObject.getType(), rpslObject.getKey().toString());
                             if (!nrtmClientDao.objectExistsWithSerial(serialId, updateInfo.getObjectId())) {
-                                LOGGER.info("UPDATE {}", serialId);
                                 nrtmClientDao.updateObject(rpslObject, updateInfo, serialId);
                             }
                         } catch (EmptyResultDataAccessException e) {
-                            LOGGER.info("ADD {}", serialId);
                             nrtmClientDao.createObject(rpslObject, serialId);
                         }
                         break;
@@ -177,7 +175,6 @@ class NrtmClientFactory {
                         try {
                             final RpslObjectUpdateInfo updateInfo = rpslObjectUpdateDao.lookupObject(rpslObject.getType(), rpslObject.getKey().toString());
                             if (!nrtmClientDao.objectExistsWithSerial(serialId, updateInfo.getObjectId())) {
-                                LOGGER.info("DELETE {}", serialId);
                                 nrtmClientDao.deleteObject(updateInfo, serialId);
                             }
                         } catch (EmptyResultDataAccessException e) {
