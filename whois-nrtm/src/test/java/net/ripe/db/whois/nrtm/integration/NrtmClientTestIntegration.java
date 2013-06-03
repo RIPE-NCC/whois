@@ -77,6 +77,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
                 "nic-hdl: OP1-TEST\n" +
                 "source: TEST");
 
+        nrtmImporter.stop();
         nrtmServer.stop();
 
         final RpslObject rpslObject = databaseHelper.addObject("mntner: MNT1");
@@ -84,7 +85,9 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
         databaseHelper.addObject(person);
 
-        nrtmServer.resume();
+        nrtmServer.start();
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.port));
+        nrtmImporter.start();
 
         objectExists(ObjectType.PERSON, "OP1-TEST", true);
     }
@@ -145,6 +148,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         databaseHelper.addObject(person);
         objectExists(ObjectType.PERSON, "OP1-TEST", true);
 
+        nrtmImporter.stop();
         nrtmServer.stop();
 
         final RpslObject person2 = RpslObject.parse("" +
@@ -154,7 +158,9 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
                 "source: TEST");
 
         databaseHelper.addObject(person2);
-        nrtmServer.resume();
+        nrtmServer.start();
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.port));
+        nrtmImporter.start();
 
         objectExists(ObjectType.PERSON, "OP2-TEST", true);
     }

@@ -1,8 +1,10 @@
 package net.ripe.db.whois.nrtm;
 
 import net.ripe.db.whois.common.ApplicationService;
+import net.ripe.db.whois.common.aspects.RetryFor;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelException;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
@@ -50,14 +52,19 @@ public class NrtmServer implements ApplicationService {
             return;
         }
 
-        port = getActualPort(nrtmPort);
-        legacyPort = getActualPort(nrtmPortLegacy);
-
+        resumeLegacy();
         resume();
     }
 
-    public void resume() {
+    @RetryFor(ChannelException.class)
+    public void resumeLegacy() {
+        legacyPort = getActualPort(nrtmPortLegacy);
         serverChannelLegacy = bootstrapChannel(legacyNrtmServerPipelineFactory, legacyPort, "OLD DUMMIFER");
+    }
+
+    @RetryFor(ChannelException.class)
+    public void resume() {
+        port = getActualPort(nrtmPort);
         serverChannel = bootstrapChannel(nrtmServerPipelineFactory, port, "NEW DUMMIFER");
     }
 
