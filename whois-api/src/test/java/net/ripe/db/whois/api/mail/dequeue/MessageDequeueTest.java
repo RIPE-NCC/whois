@@ -17,7 +17,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
@@ -29,6 +31,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.anyListOf;
 import static org.mockito.Mockito.*;
 
@@ -101,7 +104,7 @@ public class MessageDequeueTest {
 
         when(messageFilter.shouldProcess(any(MailMessage.class))).thenReturn(true);
         when(messageParser.parse(eq(message), any(UpdateContext.class))).thenReturn(
-                new MailMessage("", "", "", "", "", Keyword.NONE, Lists.<ContentWithCredentials>newArrayList()));
+                new MailMessage("", "", "", "", "", "", Keyword.NONE, Lists.<ContentWithCredentials>newArrayList()));
         when(updatesParser.parse(any(UpdateContext.class), anyListOf(ContentWithCredentials.class))).thenReturn(Lists.<Update>newArrayList());
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, ""));
 
@@ -125,7 +128,7 @@ public class MessageDequeueTest {
 
         when(messageFilter.shouldProcess(any(MailMessage.class))).thenReturn(true);
         when(messageParser.parse(eq(message), any(UpdateContext.class))).thenReturn(
-                new MailMessage("", "", "", "", "", Keyword.NONE, Lists.<ContentWithCredentials>newArrayList()));
+                new MailMessage("", "", "", "", "", "", Keyword.NONE, Lists.<ContentWithCredentials>newArrayList()));
         when(updatesParser.parse(any(UpdateContext.class), anyListOf(ContentWithCredentials.class))).thenReturn(Lists.<Update>newArrayList());
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenThrow(RuntimeException.class);
 
@@ -149,7 +152,7 @@ public class MessageDequeueTest {
 
         when(messageFilter.shouldProcess(any(MailMessage.class))).thenReturn(false);
         when(messageParser.parse(eq(message), any(UpdateContext.class))).thenReturn(
-                new MailMessage("", null, "", "", null, Keyword.NONE, Lists.<ContentWithCredentials>newArrayList()));
+                new MailMessage("", null, "", "", null, "", Keyword.NONE, Lists.<ContentWithCredentials>newArrayList()));
 
         when(mailMessageDao.getMessage("1")).thenReturn(message);
         when(mailMessageDao.claimMessage()).thenReturn("1").thenReturn(null);
@@ -194,4 +197,38 @@ public class MessageDequeueTest {
         assertThat(messageIdLocalPart, containsString("No-Message-Id."));
     }
 
+    @Test
+    public void malformed_from_header_is_detected() throws Exception {
+        final MimeMessage message = new MimeMessage(null, new ByteArrayInputStream(("From: <\"abrahamgv@gmail.com\">\n" +
+                "Subject: blabla\n" +
+                "To: bitbucket@ripe.net\n" +
+                "\n" +
+                "body\n").getBytes()));
+
+        when(mailMessageDao.getMessage("1")).thenReturn(message);
+        when(mailMessageDao.claimMessage()).thenReturn("1").thenReturn(null);
+
+        when(messageParser.parse(eq(message), any(UpdateContext.class))).thenAnswer(new Answer<MailMessage>() {
+            @Override
+            public MailMessage answer(InvocationOnMock invocation) throws Throwable {
+                final Object[] arguments = invocation.getArguments();
+                return new MessageParser(loggerContext).parse(((MimeMessage) arguments[0]), ((UpdateContext) arguments[1]));
+            }
+        });
+
+        when(messageFilter.shouldProcess(any(MailMessage.class))).thenAnswer(new Answer<Boolean>() {
+            @Override
+            public Boolean answer(InvocationOnMock invocation) throws Throwable {
+                final Object[] arguments = invocation.getArguments();
+                return new MessageFilter(loggerContext).shouldProcess((MailMessage)arguments[0]);
+            }
+        });
+
+        subject.start();
+
+        verify(mailMessageDao, timeout(TIMEOUT)).deleteMessage("1");
+        verify(updatesParser, never()).parse(any(UpdateContext.class), anyList());
+        verify(messageHandler, never()).handle(any(UpdateRequest.class), any(UpdateContext.class));
+        verify(loggerContext).log(any(net.ripe.db.whois.common.Message.class));
+    }
 }

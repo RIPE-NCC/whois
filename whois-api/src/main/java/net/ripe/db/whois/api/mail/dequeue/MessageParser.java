@@ -104,25 +104,23 @@ public class MessageParser {
 
     private void parseReplyTo(@Nonnull final MailMessageBuilder messageBuilder, @Nonnull final MimeMessage message) throws MessagingException {
         try {
-            boolean replyToNotSet = true;
 
             Address[] replyTo = message.getReplyTo();
             if (replyTo != null && replyTo.length > 0) {
                 messageBuilder.replyTo(replyTo[0].toString());
-                replyToNotSet = false;
+                messageBuilder.replyToEmail(((InternetAddress)replyTo[0]).getAddress());
             }
 
             Address[] from = message.getFrom();
             if (from != null && from.length > 0) {
                 messageBuilder.from(from[0].toString());
-                if (replyToNotSet) {
+                if (StringUtils.isBlank(messageBuilder.getReplyTo())) {
                     messageBuilder.replyTo(from[0].toString());
+                    messageBuilder.replyToEmail(((InternetAddress)from[0]).getAddress());
                 }
             }
         } catch (AddressException e) {
-            loggerContext.log(new Message(Messages.Type.ERROR, "Skipping message"), e);
-            messageBuilder.replyTo(null);
-            messageBuilder.from(null);
+            loggerContext.log(new Message(Messages.Type.ERROR, "Could not parse from/reply-to header"), e);
         }
     }
 

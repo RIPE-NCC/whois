@@ -17,7 +17,7 @@ public class MailMessageTest {
         contentWithCredentialsList.add(new ContentWithCredentials("password: some password\nmntner: TST-MNT"));
         contentWithCredentialsList.add(new ContentWithCredentials("password: another password\nmntner: TST2-MNT"));
 
-        final MailMessage subject = new MailMessage("id", "from", "subject", "date", "replyTo", Keyword.NONE, contentWithCredentialsList);
+        final MailMessage subject = new MailMessage("id", "from", "subject", "date", "replyTo", "replyToEmail", Keyword.NONE, contentWithCredentialsList);
 
         assertThat(subject.getUpdateMessage(), is("" +
                 "password: some password\n" +

@@ -13,6 +13,7 @@ public class MailMessageBuilder {
     private String subject = "";
     private String date = "";
     private String replyTo = "";
+    private String replyToEmail = "";
     private Keyword keyword = Keyword.NONE;
     private List<ContentWithCredentials> allContentWithCredentials = Lists.newArrayList();
 
@@ -41,6 +42,15 @@ public class MailMessageBuilder {
         return this;
     }
 
+    public MailMessageBuilder replyToEmail(final String replyToEmail) {
+        this.replyToEmail = replyToEmail;
+        return this;
+    }
+
+    public String getReplyTo() {
+        return replyTo;
+    }
+
     public MailMessageBuilder keyword(final Keyword keyword) {
         this.keyword = keyword;
         return this;
@@ -52,6 +62,6 @@ public class MailMessageBuilder {
     }
 
     public MailMessage build() {
-        return new MailMessage(id, from, subject == null ? "" : subject, date, replyTo, keyword, allContentWithCredentials);
+        return new MailMessage(id, from, subject == null ? "" : subject, date, replyTo, replyToEmail, keyword, allContentWithCredentials);
     }
 }

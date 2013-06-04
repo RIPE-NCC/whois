@@ -13,10 +13,11 @@ public class MailMessage implements Origin {
     private final String subject;
     private final String date;
     private final String replyTo;
+    private final String replyToEmail;
     private final Keyword keyword;
     private final List<ContentWithCredentials> contentWithCredentials;
 
-    public MailMessage(final String id, final String from, final String subject, final String date, final String replyTo, final Keyword keyword, List<ContentWithCredentials> contentWithCredentials) {
+    public MailMessage(final String id, final String from, final String subject, final String date, final String replyTo, String replyToEmail, final Keyword keyword, List<ContentWithCredentials> contentWithCredentials) {
         this.id = id;
         this.from = from;
         this.subject = subject;
@@ -24,6 +25,7 @@ public class MailMessage implements Origin {
         this.replyTo = replyTo;
         this.keyword = keyword;
         this.contentWithCredentials = contentWithCredentials;
+        this.replyToEmail = replyToEmail;
     }
 
     @Override
@@ -48,8 +50,14 @@ public class MailMessage implements Origin {
         return date;
     }
 
+    /** full from: header */
     public String getReplyTo() {
         return replyTo;
+    }
+
+    /** just the email address itself */
+    public String getReplyToEmail() {
+        return replyToEmail;
     }
 
     public String getUpdateMessage() {

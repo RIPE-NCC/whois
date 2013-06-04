@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
@@ -22,7 +23,6 @@ import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -158,7 +158,7 @@ public class MessageParserTest {
 
         MailMessage result = subject.parse(messageWithInvalidReplyTo, updateContext);
 
-        assertNull(result.getReplyTo());
+        assertTrue(StringUtils.isBlank(result.getReplyTo()));
     }
 
     @Test

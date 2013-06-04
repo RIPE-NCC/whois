@@ -30,10 +30,10 @@ public class MailUpdatesTestSupport {
     public String insert(final String content) {
         try {
             final InputStream is = new ByteArrayInputStream(content.getBytes());
-            final MimeMessage message = new MimeMessage((Session)null, is);
+            final MimeMessage message = new MimeMessage(null, is);
             mailMessageDao.addMessage(message);
             final Address[] from = message.getFrom();
-            return (from.length > 0) ? from[0].toString() : null;
+            return (from.length > 0) ? ((InternetAddress)from[0]).getAddress() : null;
         } catch (Exception e) {
             throw new RuntimeException("Unable to send mail", e);
         }
