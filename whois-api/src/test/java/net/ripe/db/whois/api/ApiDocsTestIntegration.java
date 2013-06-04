@@ -15,8 +15,6 @@ public class ApiDocsTestIntegration extends AbstractRestClientTest {
     public void checkInternalIndex() throws Exception {
         final String index = createStaticResource(Audience.INTERNAL, "api-doc").get(String.class);
 
-        Thread.sleep(10_000_000);
-
         assertThat(index, containsString("<html"));
         assertThat(index, containsString("<title>RIPE WHOIS API</title>"));
         assertThat(index, containsString(">/acl/bans/{prefix}<"));
