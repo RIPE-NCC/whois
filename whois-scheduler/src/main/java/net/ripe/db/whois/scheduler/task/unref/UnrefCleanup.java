@@ -271,8 +271,6 @@ public class UnrefCleanup implements DailyScheduledTask {
                         LOGGER.info("Reached delete limit of {}, exiting", MAX_DELETE_OBJECTS);
                         break;
                     }
-                } else {
-                    LOGGER.info("Unreferenced object: {}", object.getFormattedKey());
                 }
             } catch (EmptyResultDataAccessException e) {
                 LOGGER.info("Object not found: {}", objectId);
