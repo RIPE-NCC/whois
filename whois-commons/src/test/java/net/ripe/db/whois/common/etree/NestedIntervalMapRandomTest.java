@@ -24,7 +24,7 @@ public class NestedIntervalMapRandomTest {
     private NestedIntervalMap<Ipv4Resource, Ipv4Resource> subject;
 
     private List<Ipv4Resource> generateRandomSiblings(Ipv4Resource parent, int count) {
-        List<Ipv4Resource> result = new ArrayList<Ipv4Resource>();
+        List<Ipv4Resource> result = new ArrayList<>();
         if (count == 0)
             return result;
 
@@ -58,9 +58,9 @@ public class NestedIntervalMapRandomTest {
 
     @Before
     public void setup() {
-        everything = new ArrayList<Ipv4Resource>();
-        childrenByParent = new HashMap<Ipv4Resource, List<Ipv4Resource>>();
-        subject = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>();
+        everything = new ArrayList<>();
+        childrenByParent = new HashMap<>();
+        subject = new NestedIntervalMap<>();
 
         List<Ipv4Resource> roots = generateRandomSiblings(Ipv4Resource.MAX_RANGE, random.nextInt(3) + 5);
         for (Ipv4Resource root : roots) {
@@ -95,7 +95,7 @@ public class NestedIntervalMapRandomTest {
         for (int i = 0; i < 100; ++i) {
             Ipv4Resource range = randomIpv4Interval();
             List<Ipv4Resource> actual = subject.findExactAndAllMoreSpecific(range);
-            List<Ipv4Resource> expected = new ArrayList<Ipv4Resource>();
+            List<Ipv4Resource> expected = new ArrayList<>();
             for (Ipv4Resource interval : everything) {
                 if (range.contains(interval)) {
                     expected.add(interval);
@@ -110,7 +110,7 @@ public class NestedIntervalMapRandomTest {
         for (int i = 0; i < 100; ++i) {
             Ipv4Resource range = randomIpv4Interval();
             List<Ipv4Resource> actual = subject.findExactAndAllLessSpecific(range);
-            List<Ipv4Resource> expected = new ArrayList<Ipv4Resource>();
+            List<Ipv4Resource> expected = new ArrayList<>();
             for (Ipv4Resource interval : everything) {
                 if (interval.contains(range)) {
                     expected.add(interval);
@@ -131,7 +131,7 @@ public class NestedIntervalMapRandomTest {
     @Test
     public void should_promote_children_of_delete_node_to_parent() {
         for (int i = 0; i < 10; ) {
-            NestedIntervalMap<Ipv4Resource, Ipv4Resource> copy = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>(subject);
+            NestedIntervalMap<Ipv4Resource, Ipv4Resource> copy = new NestedIntervalMap<>(subject);
             Ipv4Resource interval = everything.get(random.nextInt(everything.size()));
             if (childrenByParent.containsKey(interval)) {
                 Ipv4Resource parent = CollectionHelper.uniqueResult(copy.findFirstLessSpecific(interval));

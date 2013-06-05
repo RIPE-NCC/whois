@@ -37,21 +37,21 @@ public class ProxyIterableTest {
     @Test(expected = UnsupportedOperationException.class)
     public void test_remove() throws Exception {
         ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
-        subject = new ProxyIterable<Integer, String>(Collections.<Integer>emptyList(), proxyLoader, 1);
+        subject = new ProxyIterable<>(Collections.<Integer>emptyList(), proxyLoader, 1);
         subject.iterator().remove();
     }
 
     @Test(expected = NoSuchElementException.class)
     public void test_empty_next() {
         ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
-        subject = new ProxyIterable<Integer, String>(Collections.<Integer>emptyList(), proxyLoader, 1);
+        subject = new ProxyIterable<>(Collections.<Integer>emptyList(), proxyLoader, 1);
         subject.iterator().next();
     }
 
     @Test
     public void test_load_empty() {
         ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
-        subject = new ProxyIterable<Integer, String>(Arrays.asList(1, 2, 3), proxyLoader, 1);
+        subject = new ProxyIterable<>(Arrays.asList(1, 2, 3), proxyLoader, 1);
         final Iterator<String> iterator = subject.iterator();
         assertTrue(iterator.hasNext());
         assertNull(iterator.next());
@@ -73,7 +73,7 @@ public class ProxyIterableTest {
             }
         };
 
-        subject = new ProxyIterable<Integer, String>(source, loader, prefetch);
+        subject = new ProxyIterable<>(source, loader, prefetch);
         final Iterator<String> iterator = subject.iterator();
 
         int count = 0;

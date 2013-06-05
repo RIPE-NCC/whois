@@ -63,8 +63,8 @@ public class AuthoritativeResource {
 
         return new Callable<AuthoritativeResource>() {
             final Set<CIString> autNums = Sets.newHashSet();
-            final IntervalMap<Ipv4Resource, Ipv4Resource> inetnums = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>();
-            final IntervalMap<Ipv6Resource, Ipv6Resource> inet6nums = new NestedIntervalMap<Ipv6Resource, Ipv6Resource>();
+            final IntervalMap<Ipv4Resource, Ipv4Resource> inetnums = new NestedIntervalMap<>();
+            final IntervalMap<Ipv6Resource, Ipv6Resource> inet6nums = new NestedIntervalMap<>();
 
             @Override
             public AuthoritativeResource call() {

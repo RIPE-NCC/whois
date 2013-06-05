@@ -9,11 +9,11 @@ import static org.junit.Assert.assertFalse;
 
 public class InternalNodeTest {
 
-    private InternalNode<Ipv4Resource, String> a = new InternalNode<Ipv4Resource, String>(new Ipv4Resource(1, 2), "1-2");
-    private InternalNode<Ipv4Resource, String> b = new InternalNode<Ipv4Resource, String>(new Ipv4Resource(1, 2), "1-2");
-    private InternalNode<Ipv4Resource, String> c = new InternalNode<Ipv4Resource, String>(new Ipv4Resource(1, 4), "1-4");
-    private InternalNode<Ipv4Resource, String> d = new InternalNode<Ipv4Resource, String>(new Ipv4Resource(1, 4), "1-4");
-    private InternalNode<Ipv4Resource, String> e = new InternalNode<Ipv4Resource, String>(new Ipv4Resource(2, 5), "2-5");
+    private InternalNode<Ipv4Resource, String> a = new InternalNode<>(new Ipv4Resource(1, 2), "1-2");
+    private InternalNode<Ipv4Resource, String> b = new InternalNode<>(new Ipv4Resource(1, 2), "1-2");
+    private InternalNode<Ipv4Resource, String> c = new InternalNode<>(new Ipv4Resource(1, 4), "1-4");
+    private InternalNode<Ipv4Resource, String> d = new InternalNode<>(new Ipv4Resource(1, 4), "1-4");
+    private InternalNode<Ipv4Resource, String> e = new InternalNode<>(new Ipv4Resource(2, 5), "2-5");
 
     @Before
     public void setup() {

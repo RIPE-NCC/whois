@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 
 public class NestedIntervalMapTest {
 
-    private NestedIntervalMap<Ipv4Resource, Ipv4Resource> subject = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>();
+    private NestedIntervalMap<Ipv4Resource, Ipv4Resource> subject = new NestedIntervalMap<>();
     private Ipv4Resource N1_12 = new Ipv4Resource(1, 12);
     private Ipv4Resource N1_4 = new Ipv4Resource(1, 4);
     private Ipv4Resource N5_10 = new Ipv4Resource(5, 10);
@@ -32,7 +32,7 @@ public class NestedIntervalMapTest {
     private Ipv4Resource N5_8 = new Ipv4Resource(5, 8);
     private Ipv4Resource N9_10 = new Ipv4Resource(9, 10);
     private Ipv4Resource N11_12 = new Ipv4Resource(11, 12);
-    private List<Ipv4Resource> all = new ArrayList<Ipv4Resource>();
+    private List<Ipv4Resource> all = new ArrayList<>();
 
     @Before
     public void setup() {
@@ -110,7 +110,7 @@ public class NestedIntervalMapTest {
 
     @Test
     public void test_remove_key_value_nonexistant() {
-        NestedIntervalMap<Ipv4Resource, Ipv4Resource> copy = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>(subject);
+        NestedIntervalMap<Ipv4Resource, Ipv4Resource> copy = new NestedIntervalMap<>(subject);
 
         final Ipv4Resource resource = new Ipv4Resource(0, 100);
         subject.remove(resource, resource);
@@ -119,7 +119,7 @@ public class NestedIntervalMapTest {
 
     @Test
     public void test_remove_nonexistant() {
-        NestedIntervalMap<Ipv4Resource, Ipv4Resource> copy = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>(subject);
+        NestedIntervalMap<Ipv4Resource, Ipv4Resource> copy = new NestedIntervalMap<>(subject);
 
         subject.remove(new Ipv4Resource(0, 100));
         assertEquals(copy, subject);
@@ -224,7 +224,7 @@ public class NestedIntervalMapTest {
         Ipv4Resource child3 = new Ipv4Resource(16, 25);
         Ipv4Resource intersect = new Ipv4Resource(8, 30);
 
-        NestedIntervalMap<Ipv4Resource, Ipv4Resource> test = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>();
+        NestedIntervalMap<Ipv4Resource, Ipv4Resource> test = new NestedIntervalMap<>();
         test.put(child1, child1);
         test.put(child2, child2);
         test.put(child3, child3);
@@ -246,7 +246,7 @@ public class NestedIntervalMapTest {
         Ipv4Resource child3 = new Ipv4Resource(16, 25);
         Ipv4Resource intersect = new Ipv4Resource(1, 21);
 
-        NestedIntervalMap<Ipv4Resource, Ipv4Resource> test = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>();
+        NestedIntervalMap<Ipv4Resource, Ipv4Resource> test = new NestedIntervalMap<>();
         test.put(child1, child1);
         test.put(child2, child2);
         test.put(child3, child3);
@@ -268,7 +268,7 @@ public class NestedIntervalMapTest {
         Ipv4Resource child3 = new Ipv4Resource(16, 25);
         Ipv4Resource intersect = new Ipv4Resource(4, 21);
 
-        NestedIntervalMap<Ipv4Resource, Ipv4Resource> test = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>();
+        NestedIntervalMap<Ipv4Resource, Ipv4Resource> test = new NestedIntervalMap<>();
         test.put(child1, child1);
         test.put(child2, child2);
         test.put(child3, child3);

@@ -59,7 +59,7 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
     private static class BlockEventsExtractor implements ResultSetExtractor<List<BlockEvents>> {
         @Override
         public List<BlockEvents> extractData(final ResultSet rs) throws SQLException, DataAccessException {
-            final Map<String, List<BlockEvent>> blockEventsMap = new HashMap<String, List<BlockEvent>>();
+            final Map<String, List<BlockEvent>> blockEventsMap = new HashMap<>();
             while (rs.next()) {
                 final String prefix = rs.getString("prefix");
                 final LocalDateTime time = new LocalDateTime(rs.getTimestamp("event_time"));
@@ -68,13 +68,13 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
 
                 List<BlockEvent> blockEvents = blockEventsMap.get(prefix);
                 if (blockEvents == null) {
-                    blockEvents = new ArrayList<BlockEvent>();
+                    blockEvents = new ArrayList<>();
                     blockEventsMap.put(prefix, blockEvents);
                 }
                 blockEvents.add(new BlockEvent(time, limit, type));
             }
 
-            final List<BlockEvents> result = new ArrayList<BlockEvents>(blockEventsMap.size());
+            final List<BlockEvents> result = new ArrayList<>(blockEventsMap.size());
             for (Map.Entry<String, List<BlockEvent>> blockEventEntry : blockEventsMap.entrySet()) {
                 result.add(new BlockEvents(blockEventEntry.getKey(), blockEventEntry.getValue()));
             }
@@ -136,7 +136,7 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
         public IpResourceEntry<Boolean> mapRow(ResultSet rs, int rowNum) throws SQLException {
             String prefix = rs.getString(1);
 
-            return new IpResourceEntry<Boolean>(IpInterval.parse(prefix), Boolean.TRUE);
+            return new IpResourceEntry<>(IpInterval.parse(prefix), Boolean.TRUE);
         }
     }
 
@@ -146,7 +146,7 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
             String prefix = rs.getString(1);
             int limit = rs.getInt(2);
 
-            return new IpResourceEntry<Integer>(IpInterval.parse(prefix), limit);
+            return new IpResourceEntry<>(IpInterval.parse(prefix), limit);
         }
     }
 

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
+import com.google.common.collect.Lists;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -86,7 +87,7 @@ public class BlockEventsTest {
     }
 
     private static BlockEvents createBlockEvents(final String prefix, final int count) {
-        final List<BlockEvent> blockEventList = new ArrayList<BlockEvent>(count);
+        final List<BlockEvent> blockEventList = Lists.newArrayListWithExpectedSize(count);
         for (int i = 0; i < count; i++) {
             blockEventList.add(createBlockEvent(i, BlockEvent.Type.BLOCK_TEMPORARY));
         }

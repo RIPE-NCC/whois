@@ -34,7 +34,7 @@ public class LoggerContext {
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
 
     private final DateTimeProvider dateTimeProvider;
-    private final ThreadLocal<Context> context = new ThreadLocal<Context>();
+    private final ThreadLocal<Context> context = new ThreadLocal<>();
 
     @Value("${dir.update.audit.log}") private String baseDir;
 

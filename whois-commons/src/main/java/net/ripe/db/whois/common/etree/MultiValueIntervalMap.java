@@ -11,14 +11,14 @@ public final class MultiValueIntervalMap<K extends Interval<K>, V> implements In
     private final IntervalMap<K, SortedSet<V>> wrapped;
 
     public MultiValueIntervalMap() {
-        this.wrapped = new NestedIntervalMap<K, SortedSet<V>>();
+        this.wrapped = new NestedIntervalMap<>();
     }
 
     @Override
     public void put(K key, V value) {
         SortedSet<V> set = CollectionHelper.uniqueResult(wrapped.findExact(key));
         if (set == null) {
-            set = new TreeSet<V>();
+            set = new TreeSet<>();
             wrapped.put(key, set);
         }
 
@@ -55,7 +55,7 @@ public final class MultiValueIntervalMap<K extends Interval<K>, V> implements In
             size += set.size();
         }
 
-        final List<V> result = new ArrayList<V>(size);
+        final List<V> result = new ArrayList<>(size);
         for (final SortedSet<V> set : sets) {
             result.addAll(set);
         }

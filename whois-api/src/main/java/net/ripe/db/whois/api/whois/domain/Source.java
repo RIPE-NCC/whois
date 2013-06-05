@@ -3,12 +3,11 @@ package net.ripe.db.whois.api.whois.domain;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import javax.xml.bind.annotation.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "grsMirror"
+        "grsMirror"
 })
 @XmlRootElement(name = "source")
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
@@ -25,13 +24,7 @@ public class Source {
         this.id = id;
     }
 
-    public Source() {}
-
-    public List<GrsMirror> getGrsMirror() {
-        if (grsMirror == null) {
-            grsMirror = new ArrayList<GrsMirror>();
-        }
-        return this.grsMirror;
+    public Source() {
     }
 
     public String getId() {

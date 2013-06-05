@@ -32,7 +32,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     private final String source;
     private final long updateInterval;
 
-    static final ChannelLocal<AtomicInteger> PENDING_WRITES = new ChannelLocal<AtomicInteger>();
+    static final ChannelLocal<AtomicInteger> PENDING_WRITES = new ChannelLocal<>();
 
     private volatile ScheduledFuture<?> scheduledFuture;
 

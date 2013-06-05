@@ -91,14 +91,14 @@ public class AuthoritativeResourceDataValidatorTest {
         final AuthoritativeResource authoritativeResource = mock(AuthoritativeResource.class);
         when(authoritativeResource.getAutNums()).thenReturn(ciSet(autNums));
 
-        final IntervalMap<Ipv4Resource, Ipv4Resource> ipv4Map = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>();
+        final IntervalMap<Ipv4Resource, Ipv4Resource> ipv4Map = new NestedIntervalMap<>();
         for (final String ipv4Resource : ipv4Resources) {
             final Ipv4Resource resource = Ipv4Resource.parse(ipv4Resource);
             ipv4Map.put(resource, resource);
         }
         when(authoritativeResource.getInetRanges()).thenReturn(ipv4Map);
 
-        final IntervalMap<Ipv6Resource, Ipv6Resource> ipv6Map = new NestedIntervalMap<Ipv6Resource, Ipv6Resource>();
+        final IntervalMap<Ipv6Resource, Ipv6Resource> ipv6Map = new NestedIntervalMap<>();
         for (final String ipv6Resource : ipv6Resources) {
             final Ipv6Resource resource = Ipv6Resource.parse(ipv6Resource);
             ipv6Map.put(resource, resource);

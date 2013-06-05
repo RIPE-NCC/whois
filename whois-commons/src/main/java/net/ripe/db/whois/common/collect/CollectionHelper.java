@@ -24,21 +24,8 @@ public final class CollectionHelper {
     }
 
     // TODO: [AH] result is wrapped by 2 iterable wrappers in this method - optimize!
-    // TODO: [AK] Generify this method
     public static Iterable<ResponseObject> iterateProxy(final ProxyLoader<Identifiable, RpslObject> rpslObjectLoader, final Iterable<? extends Identifiable> identifiables) {
         final ProxyIterable<Identifiable, ? extends ResponseObject> rpslObjects = new ProxyIterable<>((Iterable<Identifiable>) identifiables, rpslObjectLoader, 100);
         return (Iterable<ResponseObject>) Iterables.filter(rpslObjects, Predicates.notNull());
-    }
-
-    public static <T> boolean containsType(T[] array, Class type) {
-        if (array == null) return false;
-
-        for (int i = 0; i < array.length; i++) {
-            if (type.isAssignableFrom(array[i].getClass())) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

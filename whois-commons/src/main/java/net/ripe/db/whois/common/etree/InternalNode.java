@@ -18,7 +18,7 @@ final class InternalNode<K extends Interval<K>, V> {
     public InternalNode(InternalNode<K, V> source) {
         this.interval = source.interval;
         this.value = source.value;
-        this.children = source.children == ChildNodeTreeMap.EMPTY ? ChildNodeTreeMap.<K, V>empty() : new ChildNodeTreeMap<K, V>(source.children);
+        this.children = source.children == ChildNodeTreeMap.EMPTY ? ChildNodeTreeMap.<K, V>empty() : new ChildNodeTreeMap<>(source.children);
     }
 
     public K getInterval() {
@@ -73,7 +73,7 @@ final class InternalNode<K extends Interval<K>, V> {
             throw new IllegalArgumentException(nodeToAdd.getInterval() + " not properly contained in " + interval);
         } else {
             if (children == ChildNodeTreeMap.EMPTY) {
-                children = new ChildNodeTreeMap<K, V>();
+                children = new ChildNodeTreeMap<>();
             }
             children.addChild(nodeToAdd);
         }

@@ -59,7 +59,7 @@ public class IpResourceConfiguration {
     }
 
     private <V> IpResourceTree<V> refreshEntries(final List<IpResourceEntry<V>> entries) {
-        final IpResourceTree<V> temp = new IpResourceTree<V>();
+        final IpResourceTree<V> temp = new IpResourceTree<>();
 
         for (final IpResourceEntry<V> entry : entries) {
             temp.add(entry.getIpInterval(), entry.getValue());

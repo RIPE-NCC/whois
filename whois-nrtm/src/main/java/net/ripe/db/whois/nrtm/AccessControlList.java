@@ -45,7 +45,7 @@ public class AccessControlList {
     }
 
     private <V> IpResourceTree<V> refreshEntries(final List<IpResourceEntry<V>> entries) {
-        final IpResourceTree<V> temp = new IpResourceTree<V>();
+        final IpResourceTree<V> temp = new IpResourceTree<>();
 
         for (final IpResourceEntry<V> entry : entries) {
             temp.add(entry.getIpInterval(), entry.getValue());
@@ -57,7 +57,7 @@ public class AccessControlList {
     private static class BooleanEntryMapper implements RowMapper<IpResourceEntry<Boolean>> {
         @Override
         public IpResourceEntry<Boolean> mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new IpResourceEntry<Boolean>(IpInterval.parse(rs.getString(1)), Boolean.TRUE);
+            return new IpResourceEntry<>(IpInterval.parse(rs.getString(1)), Boolean.TRUE);
         }
     }
 }

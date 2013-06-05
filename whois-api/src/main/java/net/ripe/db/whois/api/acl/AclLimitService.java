@@ -88,7 +88,7 @@ public class AclLimitService {
     }
 
     private IpResourceTree<Limit> getLimitsTree() {
-        final IpResourceTree<Limit> ipResourceTree = new IpResourceTree<Limit>();
+        final IpResourceTree<Limit> ipResourceTree = new IpResourceTree<>();
         for (final Limit limit : aclServiceDao.getLimits()) {
             ipResourceTree.add(IpInterval.parse(limit.getPrefix()), limit);
         }

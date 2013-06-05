@@ -48,9 +48,9 @@ public abstract class IterableTransformer<T> implements Iterable<T> {
 
         IteratorTransformer(Collection<T> header) {
             if (header != null) {
-                results = new ArrayDeque<T>(header);
+                results = new ArrayDeque<>(header);
             } else {
-                results = new ArrayDeque<T>();
+                results = new ArrayDeque<>();
             }
         }
 

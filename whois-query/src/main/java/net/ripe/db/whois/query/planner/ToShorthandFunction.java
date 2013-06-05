@@ -21,7 +21,7 @@ class ToShorthandFunction implements Function<ResponseObject, ResponseObject> {
         final RpslObject rpslObject = (RpslObject) input;
         final List<RpslAttribute> attributes = rpslObject.getAttributes();
 
-        final List<RpslAttribute> newAttributes = new ArrayList<RpslAttribute>(attributes.size());
+        final List<RpslAttribute> newAttributes = new ArrayList<>(attributes.size());
         for (RpslAttribute attribute : attributes) {
             final AttributeType type = attribute.getType();
             final String key = type != null ? "*" + type.getFlag() : attribute.getKey();

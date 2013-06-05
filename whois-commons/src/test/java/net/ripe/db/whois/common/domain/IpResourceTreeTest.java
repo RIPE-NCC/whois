@@ -15,7 +15,7 @@ public class IpResourceTreeTest {
 
     @Before
     public void setUp() throws Exception {
-        subject = new IpResourceTree<Integer>();
+        subject = new IpResourceTree<>();
 
         ipv4Resource = IpInterval.parse("128/16");
         ipv4ResourceMoreSpecific = IpInterval.parse("128.0.0.1");

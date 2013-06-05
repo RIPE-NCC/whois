@@ -25,7 +25,7 @@ public class BaseNrtmServerPipelineFactoryTest extends AbstractNrtmIntegrationBa
         final ChannelPipeline pipeline1 = nrtmServerPipelineFactory.getPipeline();
         final ChannelPipeline pipeline2 = nrtmServerPipelineFactory.getPipeline();
 
-        final Set<ChannelHandler> toCheck = new HashSet<ChannelHandler>(channelHandlers);
+        final Set<ChannelHandler> toCheck = new HashSet<>(channelHandlers);
         final List<String> names = pipeline1.getNames();
         for (final String name : names) {
             final ChannelHandler channelHandler = pipeline1.get(name);

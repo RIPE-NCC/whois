@@ -75,7 +75,7 @@ public class RpslObjectInfoTest {
 
     @Test
     public void testCompareTo_different_objectType() {
-        final List<RpslObjectInfo> infoList = new ArrayList<RpslObjectInfo>();
+        final List<RpslObjectInfo> infoList = new ArrayList<>();
         for (final ObjectType objectType : values()) {
             infoList.add(new RpslObjectInfo(1, objectType, ""));
         }

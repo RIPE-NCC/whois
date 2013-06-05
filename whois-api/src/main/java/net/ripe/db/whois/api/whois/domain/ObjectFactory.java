@@ -126,7 +126,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "", name = "link")
     public JAXBElement<java.lang.Object> createLink(java.lang.Object value) {
-        return new JAXBElement<java.lang.Object>(_Link_QNAME, java.lang.Object.class, null, value);
+        return new JAXBElement<>(_Link_QNAME, java.lang.Object.class, null, value);
     }
 
 }

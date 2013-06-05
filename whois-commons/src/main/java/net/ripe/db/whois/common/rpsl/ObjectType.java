@@ -34,7 +34,7 @@ public enum ObjectType {
     private static final Set<ObjectType> SET_OBJECTS;
 
     static {
-        TYPE_NAMES = new HashMap<CIString, ObjectType>(ObjectType.values().length * 2, 1);
+        TYPE_NAMES = new HashMap<>(ObjectType.values().length * 2, 1);
         for (final ObjectType type : ObjectType.values()) {
             TYPE_NAMES.put(ciString(type.getName()), type);
             TYPE_NAMES.put(ciString(type.getShortName()), type);

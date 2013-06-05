@@ -16,7 +16,7 @@ public class IntersectingIntervalException extends IllegalArgumentException {
     public IntersectingIntervalException(Interval<?> interval, List<? extends Interval<?>> intersections) {
         super(String.format("%s intersects with existing siblings %s", interval, intersections));
         this.interval = interval;
-        this.intersections = new ArrayList<Interval<?>>(intersections);
+        this.intersections = new ArrayList<>(intersections);
     }
 
     /**

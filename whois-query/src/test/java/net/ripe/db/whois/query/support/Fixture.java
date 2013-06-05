@@ -20,7 +20,7 @@ import static org.mockito.Mockito.doAnswer;
 public class Fixture {
 
     public static BlockEvents createBlockEvents(final String prefix, final int count) {
-        final List<BlockEvent> blockEventList = new ArrayList<BlockEvent>(count);
+        final List<BlockEvent> blockEventList = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             final LocalDateTime time = new LocalDate().toLocalDateTime(new LocalTime(0, i));
             blockEventList.add(new BlockEvent(time, 5000, BlockEvent.Type.BLOCK_TEMPORARY));

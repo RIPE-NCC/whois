@@ -181,7 +181,7 @@ public class WhoisRestService {
                 streamingMarshal.start("objects");
 
                 // TODO [AK] Crude way to handle tags, but working
-                final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<RpslObject>(1);
+                final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
                 final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
 
                 try {

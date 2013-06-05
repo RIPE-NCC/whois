@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.etree;
 
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import org.apache.commons.lang.Validate;
 
@@ -28,7 +29,7 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
      * Construct an empty {@link NestedIntervalMap}.
      */
     public NestedIntervalMap() {
-        this.children = new ChildNodeTreeMap<K, V>();
+        this.children = new ChildNodeTreeMap<>();
     }
 
     /**
@@ -38,14 +39,14 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
      * @param source the source to copy.
      */
     public NestedIntervalMap(NestedIntervalMap<K, V> source) {
-        this.children = new ChildNodeTreeMap<K, V>(source.children);
+        this.children = new ChildNodeTreeMap<>(source.children);
     }
 
     @Override
     public void put(K key, V value) {
         Validate.notNull(key);
         Validate.notNull(value);
-        children.addChild(new InternalNode<K, V>(key, value));
+        children.addChild(new InternalNode<>(key, value));
     }
 
     @Override
@@ -147,7 +148,7 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
     }
 
     private List<V> mapToValues(Collection<InternalNode<K, V>> nodes) {
-        List<V> result = new ArrayList<V>(nodes.size());
+        List<V> result = Lists.newArrayListWithExpectedSize(nodes.size());
         for (InternalNode<K, V> node : nodes) {
             result.add(node.getValue());
         }
@@ -182,7 +183,7 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
     }
 
     private List<InternalNode<K, V>> internalFindExactAndAllLessSpecific(K range) {
-        List<InternalNode<K, V>> result = new ArrayList<InternalNode<K, V>>();
+        List<InternalNode<K, V>> result = new ArrayList<>();
         children.findExactAndAllLessSpecific(result, range);
         return result;
     }
@@ -200,7 +201,7 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
     }
 
     private List<InternalNode<K, V>> internalFindFirstMoreSpecific(K range) {
-        List<InternalNode<K, V>> result = new ArrayList<InternalNode<K, V>>();
+        List<InternalNode<K, V>> result = new ArrayList<>();
         InternalNode<K, V> container = internalFindExactOrFirstLessSpecific(range);
         if (container == null) {
             children.findFirstMoreSpecific(result, range);
@@ -220,7 +221,7 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
     }
 
     private List<InternalNode<K, V>> internalFindExactAndAllMoreSpecific(K range) {
-        List<InternalNode<K, V>> result = new ArrayList<InternalNode<K, V>>();
+        List<InternalNode<K, V>> result = new ArrayList<>();
         InternalNode<K, V> containing = internalFindExactOrFirstLessSpecific(range);
         if (containing == null) {
             children.findExactAndAllMoreSpecific(result, range);

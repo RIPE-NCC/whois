@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.domain.attrs;
 
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
@@ -131,7 +132,7 @@ public class Domain {
         IP6("ip6.arpa"),
         E164("e164.arpa");
 
-        private static final Map<String, Type> nameToType = new HashMap<String, Type>();
+        private static final Map<String, Type> nameToType = new HashMap<>();
 
         static {
             for (Type type : Type.values()) {

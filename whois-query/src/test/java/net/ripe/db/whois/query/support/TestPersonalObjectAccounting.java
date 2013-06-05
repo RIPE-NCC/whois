@@ -11,7 +11,7 @@ import java.util.Map;
 @TestingProfile
 @Component
 public class TestPersonalObjectAccounting implements PersonalObjectAccounting {
-    private Map<InetAddress, Integer> queriedPersonalObjects = new HashMap<InetAddress, Integer>();
+    private Map<InetAddress, Integer> queriedPersonalObjects = new HashMap<>();
 
     @Override
     public int getQueriedPersonalObjects(final InetAddress remoteAddress) {
@@ -38,6 +38,6 @@ public class TestPersonalObjectAccounting implements PersonalObjectAccounting {
 
     @Override
     public void resetAccounting() {
-        queriedPersonalObjects = new HashMap<InetAddress, Integer>();
+        queriedPersonalObjects = new HashMap<>();
     }
 }

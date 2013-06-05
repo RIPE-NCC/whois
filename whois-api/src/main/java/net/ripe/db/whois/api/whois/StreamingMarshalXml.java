@@ -61,7 +61,7 @@ class StreamingMarshalXml implements StreamingMarshal {
     @Override
     @SuppressWarnings("unchecked")
     public <T> void write(final String name, final T t) {
-        JAXBElement<T> element = new JAXBElement<T>(QName.valueOf(name), (Class<T>) t.getClass(), t);
+        JAXBElement<T> element = new JAXBElement<>(QName.valueOf(name), (Class<T>) t.getClass(), t);
 
         try {
             marshaller.marshal(element, xmlOut);

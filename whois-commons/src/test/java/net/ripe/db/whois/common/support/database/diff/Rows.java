@@ -18,7 +18,7 @@ public class Rows extends ArrayList<Row> {
 
     @SuppressWarnings("unchecked")
     public static IsMapContaining<String, Object> with(final String key, final Matcher<?> matcher) {
-        return new IsMapContaining<String, Object>(equalToIgnoringCase(key), (Matcher<? super Object>) matcher);
+        return new IsMapContaining<>(equalToIgnoringCase(key), (Matcher<? super Object>) matcher);
     }
 
     /** Find identical matching rows */

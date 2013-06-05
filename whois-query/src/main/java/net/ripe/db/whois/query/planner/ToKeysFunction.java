@@ -22,7 +22,7 @@ class ToKeysFunction implements Function<ResponseObject, ResponseObject> {
         final RpslObject rpslObject = (RpslObject) input;
 
         final List<RpslAttribute> attributes = rpslObject.getAttributes();
-        final List<RpslAttribute> newAttributes = new ArrayList<RpslAttribute>(attributes.size());
+        final List<RpslAttribute> newAttributes = new ArrayList<>(attributes.size());
 
         final ObjectTemplate template = ObjectTemplate.getTemplate(rpslObject.getType());
         final RpslAttribute typeAttribute = rpslObject.getTypeAttribute();

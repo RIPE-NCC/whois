@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 
 public class NestedIntervalMapNonLookupTest {
 
-    private static final Map<String, Ipv4Resource> cache = new HashMap<String, Ipv4Resource>();
+    private static final Map<String, Ipv4Resource> cache = new HashMap<>();
 
     private static final Ipv4Resource node(Object toStringify) {
         return node(toStringify.toString());
@@ -37,7 +37,7 @@ public class NestedIntervalMapNonLookupTest {
         }
     }
 
-    private NestedIntervalMap<Ipv4Resource, Ipv4Resource> subject = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>();
+    private NestedIntervalMap<Ipv4Resource, Ipv4Resource> subject = new NestedIntervalMap<>();
 
     private List<Ipv4Resource> allNodes() {
         return subject.findAllMoreSpecific(Ipv4Resource.MAX_RANGE);
@@ -306,7 +306,7 @@ public class NestedIntervalMapNonLookupTest {
         assertThat(allNodes(), hasSize(4));
 
         NestedIntervalMap<Ipv4Resource, Ipv4Resource> original = subject;
-        subject = new NestedIntervalMap<Ipv4Resource, Ipv4Resource>(original);
+        subject = new NestedIntervalMap<>(original);
 
         assertThat(allNodes(), hasSize(4));
         assertThat(original, is(subject));

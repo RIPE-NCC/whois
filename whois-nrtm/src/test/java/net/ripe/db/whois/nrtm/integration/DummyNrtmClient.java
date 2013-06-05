@@ -12,7 +12,7 @@ public class DummyNrtmClient {
     private final FutureTask<String> task;
 
     public DummyNrtmClient(final int port, final String query, final int timeout) {
-        task = new FutureTask<String>(new Callable<String>() {
+        task = new FutureTask<>(new Callable<String>() {
             public String call() {
                 String result = DummyWhoisClient.query(port, query, timeout * 1000);
                 return result;

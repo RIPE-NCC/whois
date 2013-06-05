@@ -50,7 +50,7 @@ class ChildNodeTreeMap<K extends Interval<K>, V> extends TreeMap<K, InternalNode
     public ChildNodeTreeMap(ChildNodeMap<K, V> source) {
         this();
         for (InternalNode<K, V> node : source.values()) {
-            this.put(node.getInterval(), new InternalNode<K, V>(node));
+            this.put(node.getInterval(), new InternalNode<>(node));
         }
     }
 
@@ -107,12 +107,12 @@ class ChildNodeTreeMap<K extends Interval<K>, V> extends TreeMap<K, InternalNode
         List<K> result = Collections.emptyList();
         K lowerCandidate = this.ceilingKey(range.singletonIntervalAtLowerBound());
         if (lowerCandidate != null && intersectsButNotContained(range, lowerCandidate)) {
-            result = new ArrayList<K>(result);
+            result = new ArrayList<>(result);
             result.add(lowerCandidate);
         }
         K upperCandidate = this.ceilingKey(range);
         if (upperCandidate != null && intersectsButNotContained(range, upperCandidate)) {
-            result = new ArrayList<K>(result);
+            result = new ArrayList<>(result);
             result.add(upperCandidate);
         }
         return result;

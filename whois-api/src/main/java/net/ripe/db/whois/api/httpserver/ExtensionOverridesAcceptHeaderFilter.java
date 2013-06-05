@@ -79,7 +79,7 @@ public class ExtensionOverridesAcceptHeaderFilter implements Filter {
         @Override
         public Enumeration<String> getHeaders(String name) {
             if (name.equalsIgnoreCase("Accept")) {
-                return new SingletonEnumeration<String>(accepts);
+                return new SingletonEnumeration<>(accepts);
             }
             return super.getHeaders(name);
         }

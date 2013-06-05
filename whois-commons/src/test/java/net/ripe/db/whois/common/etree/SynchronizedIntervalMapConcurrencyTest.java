@@ -25,7 +25,7 @@ public class SynchronizedIntervalMapConcurrencyTest {
     public void should_deal_with_concurrent_access() throws Exception {
         ExecutorService executor = Executors.newCachedThreadPool();
 
-        List<Future<Exception>> result = new ArrayList<Future<Exception>>();
+        List<Future<Exception>> result = new ArrayList<>();
         try {
             Ipv4Entry entry = new Ipv4Entry(new Ipv4Resource(5, 6), 2);
             subject.put(entry.getKey(), entry);

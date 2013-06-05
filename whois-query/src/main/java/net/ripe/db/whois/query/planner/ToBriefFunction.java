@@ -28,8 +28,8 @@ class ToBriefFunction implements Function<ResponseObject, ResponseObject> {
 
         final RpslObject rpslObject = (RpslObject) input;
         final List<RpslAttribute> attributes = rpslObject.getAttributes();
-        final List<RpslAttribute> newAttributes = new ArrayList<RpslAttribute>();
-        final List<RpslAttribute> abuseCAttributes = new ArrayList<RpslAttribute>();
+        final List<RpslAttribute> newAttributes = new ArrayList<>();
+        final List<RpslAttribute> abuseCAttributes = new ArrayList<>();
 
         if (rpslObject.getType() == ObjectType.INETNUM || rpslObject.getType() == ObjectType.INET6NUM) {
             final Map<CIString, CIString> abuseContacts = abuseCFinder.getAbuseContacts(rpslObject);

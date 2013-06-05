@@ -22,7 +22,7 @@ public class PeeringSetAttributeMustBePresent implements BusinessRuleValidator {
 
 
     public PeeringSetAttributeMustBePresent() {
-        attributeMap = new HashMap<ObjectType, List<AttributeType>>();
+        attributeMap = new HashMap<>();
         attributeMap.put(ObjectType.PEERING_SET, Lists.newArrayList(AttributeType.PEERING, AttributeType.MP_PEERING));
         attributeMap.put(ObjectType.FILTER_SET, Lists.newArrayList(AttributeType.FILTER, AttributeType.MP_FILTER));
     }

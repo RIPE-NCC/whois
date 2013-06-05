@@ -50,14 +50,14 @@ public class RpslObjectFilter {
         return attributes.get(0).getCleanValue();
     }
 
-    public static boolean isFiltered(RpslObject rpslObject) {
+    public static boolean isFiltered(final RpslObject rpslObject) {
         final List<RpslAttribute> attributes = rpslObject.findAttributes(AttributeType.SOURCE);
         return !attributes.isEmpty() && attributes.get(0).getValue().contains(FILTERED);
     }
 
-    public static RpslObject setFiltered(RpslObject rpslObject) {
+    public static RpslObject setFiltered(final RpslObject rpslObject) {
         final List<RpslAttribute> attributes = rpslObject.getAttributes();
-        List<RpslAttribute> result = new ArrayList<RpslAttribute>(attributes.size());
+        final List<RpslAttribute> result = Lists.newArrayListWithExpectedSize(attributes.size());
         for (RpslAttribute rpslAttribute : attributes) {
             if (rpslAttribute.getType() == AttributeType.SOURCE) {
                 result.add(new RpslAttribute(AttributeType.SOURCE, rpslAttribute.getCleanValue() + FILTERED));

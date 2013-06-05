@@ -46,7 +46,7 @@ public class IpResourceConfigurationTest {
     @SuppressWarnings("unchecked")
     @Test
     public void test_limit_specified() throws Exception {
-        final IpResourceEntry<Integer> entry = new IpResourceEntry<Integer>(IpInterval.asIpInterval(inetAddress), 1000);
+        final IpResourceEntry<Integer> entry = new IpResourceEntry<>(IpInterval.asIpInterval(inetAddress), 1000);
         final List<IpResourceEntry<Integer>> entries = Arrays.asList(entry);
         when(loader.loadIpLimit()).thenReturn(entries);
 
@@ -63,7 +63,7 @@ public class IpResourceConfigurationTest {
     @SuppressWarnings("unchecked")
     @Test
     public void test_proxy_specified() throws Exception {
-        final IpResourceEntry<Boolean> entry = new IpResourceEntry<Boolean>(IpInterval.asIpInterval(inetAddress), true);
+        final IpResourceEntry<Boolean> entry = new IpResourceEntry<>(IpInterval.asIpInterval(inetAddress), true);
         when(loader.loadIpProxy()).thenReturn(Arrays.asList(entry));
 
         subject.reload();
@@ -79,7 +79,7 @@ public class IpResourceConfigurationTest {
     @SuppressWarnings("unchecked")
     @Test
     public void test_denied_specified() throws Exception {
-        final IpResourceEntry<Boolean> entry = new IpResourceEntry<Boolean>(IpInterval.asIpInterval(inetAddress), true);
+        final IpResourceEntry<Boolean> entry = new IpResourceEntry<>(IpInterval.asIpInterval(inetAddress), true);
         when(loader.loadIpDenied()).thenReturn(Arrays.asList(entry));
 
         subject.reload();
@@ -95,7 +95,7 @@ public class IpResourceConfigurationTest {
     @SuppressWarnings("unchecked")
     @Test
     public void test_unlimitedConnections_specified() throws Exception {
-        final IpResourceEntry<Boolean> entry = new IpResourceEntry<Boolean>(IpInterval.asIpInterval(inetAddress), true);
+        final IpResourceEntry<Boolean> entry = new IpResourceEntry<>(IpInterval.asIpInterval(inetAddress), true);
         when(loader.loadUnlimitedConnections()).thenReturn(Arrays.asList(entry));
 
         subject.reload();

@@ -26,7 +26,7 @@ public class MultiValueIntervalMapTest {
 
     @Before
     public void setUp() throws Exception {
-        subject = new MultiValueIntervalMap<Ipv4Resource, String>();
+        subject = new MultiValueIntervalMap<>();
 
         k_11 = new Ipv4Resource(1, 1);
         k_12 = new Ipv4Resource(1, 2);

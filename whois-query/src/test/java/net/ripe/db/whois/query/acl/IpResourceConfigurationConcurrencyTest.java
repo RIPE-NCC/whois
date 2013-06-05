@@ -41,7 +41,7 @@ public class IpResourceConfigurationConcurrencyTest {
     public void test_concurrent_access() throws Exception {
         ExecutorService executor = Executors.newCachedThreadPool();
 
-        List<Future<Exception>> result = new ArrayList<Future<Exception>>();
+        List<Future<Exception>> result = new ArrayList<>();
         try {
             result.add(executor.submit(makeReader()));
             result.add(executor.submit(makeReader()));
