@@ -1,5 +1,8 @@
 ## next
 
+## 1.66.3
+[query] --all-sources now correctly returns results from RIPE + (all GRS except RIPE-GRS)
+
 ## 1.66.2
 [update] added validation for incoming email addresses
 [api] moved api doc root from / to /api-doc
