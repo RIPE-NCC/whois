@@ -87,7 +87,9 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void execute(final PreparedUpdate update, final UpdateContext updateContext) {
-        if (isValid(update, updateContext)) {
+        validate(update, updateContext);
+
+        if (!updateContext.hasErrors(update)) {
             switch (update.getAction()) {
                 case CREATE:
                     rpslObjectUpdateDao.createObject(updateLastChangedAttribute(update.getUpdatedObject()));
@@ -108,11 +110,15 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
         }
     }
 
-    private boolean isValid(final PreparedUpdate update, final UpdateContext updateContext) {
-        for (final BusinessRuleValidator businessRuleValidator : validatorsByActionAndType.get(update.getAction()).get(update.getType())) {
+    @Override
+    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+        final Action action = update.getAction();
+        final Map<ObjectType, List<BusinessRuleValidator>> validatorsByType = validatorsByActionAndType.get(action);
+
+        final ObjectType type = update.getType();
+        final List<BusinessRuleValidator> validators = validatorsByType.get(type);
+        for (final BusinessRuleValidator businessRuleValidator : validators) {
             businessRuleValidator.validate(update, updateContext);
         }
-
-        return !updateContext.hasErrors(update);
     }
 }

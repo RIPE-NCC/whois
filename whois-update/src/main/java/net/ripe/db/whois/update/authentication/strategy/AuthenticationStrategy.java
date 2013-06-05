@@ -1,10 +1,12 @@
 package net.ripe.db.whois.update.authentication.strategy;
 
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 
 import java.util.List;
+import java.util.Set;
 
 public interface AuthenticationStrategy {
     /**
@@ -14,6 +16,11 @@ public interface AuthenticationStrategy {
      * @return {@code true} if this authentication strategy should be used for the passed in update.
      */
     boolean supports(PreparedUpdate update);
+
+    /**
+     * @return Supported types for pending authentication.
+     */
+    Set<ObjectType> getPendingAuthenticationTypes();
 
     /**
      * Perform one or more authentication steps for the provided update.

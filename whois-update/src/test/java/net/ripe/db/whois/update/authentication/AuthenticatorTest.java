@@ -156,8 +156,6 @@ public class AuthenticatorTest {
         }
 
         when(update.getCredentials()).thenReturn(new Credentials(credentialSet));
-        when(updateContext.getStatus(update)).thenReturn(UpdateStatus.FAILED_AUTHENTICATION);
-
         subject.authenticate(origin, update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.tooManyPasswordsSpecified());
@@ -313,9 +311,9 @@ public class AuthenticatorTest {
         };
 
         subject.authenticate(origin, update, updateContext);
-
         verifySubject(updateContext, new Subject(Principal.OVERRIDE_MAINTAINER));
-
+        verify(authenticationStrategy1).getPendingAuthenticationTypes();
+        verify(authenticationStrategy2).getPendingAuthenticationTypes();
         verifyNoMoreInteractions(authenticationStrategy1, authenticationStrategy2, userDao, update, updateContext);
     }
 
@@ -346,6 +344,10 @@ public class AuthenticatorTest {
         assertThat(capturedSubject.getPrincipals(), containsInAnyOrder(expectedSubject.getPrincipals().toArray()));
         assertThat(capturedSubject.getPassedAuthentications(), containsInAnyOrder(expectedSubject.getPassedAuthentications().toArray()));
         assertThat(capturedSubject.getFailedAuthentications(), containsInAnyOrder(expectedSubject.getFailedAuthentications().toArray()));
+
+        if (!capturedSubject.getFailedAuthentications().isEmpty()) {
+            verify(updateContext, atLeastOnce()).status(any(Update.class), eq(UpdateStatus.FAILED_AUTHENTICATION));
+        }
     }
 }
 

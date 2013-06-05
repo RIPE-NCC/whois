@@ -17,6 +17,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -35,6 +36,11 @@ public class OrgRefAuthentication implements AuthenticationStrategy {
     @Override
     public boolean supports(final PreparedUpdate update) {
         return !update.getNewValues(AttributeType.ORG).isEmpty();
+    }
+
+    @Override
+    public Set<ObjectType> getPendingAuthenticationTypes() {
+        return Collections.emptySet();
     }
 
     @Override

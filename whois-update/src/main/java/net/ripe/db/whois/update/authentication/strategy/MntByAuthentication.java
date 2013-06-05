@@ -55,6 +55,11 @@ public class MntByAuthentication implements AuthenticationStrategy {
     }
 
     @Override
+    public Set<ObjectType> getPendingAuthenticationTypes() {
+        return Collections.emptySet();
+    }
+
+    @Override
     public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext) {
         try {
             return authenticateMntBy(update, updateContext);

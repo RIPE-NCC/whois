@@ -47,6 +47,11 @@ public class DomainAuthentication implements AuthenticationStrategy {
     }
 
     @Override
+    public Set<ObjectType> getPendingAuthenticationTypes() {
+        return Collections.emptySet();
+    }
+
+    @Override
     public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject rpslObject = update.getUpdatedObject();
         final CIString domainString = rpslObject.getKey();

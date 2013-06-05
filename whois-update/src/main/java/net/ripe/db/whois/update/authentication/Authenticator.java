@@ -27,6 +27,7 @@ public class Authenticator {
     private final LoggerContext loggerContext;
     private final List<AuthenticationStrategy> authenticationStrategies;
     private final Map<CIString, Set<Principal>> principalsMap;
+    private final Map<ObjectType, Set<AuthenticationStrategy>> pendingAuthenticationTypes;
 
     @Autowired
     public Authenticator(final IpRanges ipRanges, final UserDao userDao, final Maintainers maintainers, final LoggerContext loggerContext, final AuthenticationStrategy[] authenticationStrategies) {
@@ -43,6 +44,19 @@ public class Authenticator {
         addMaintainers(tempPrincipalsMap, maintainers.getEnumMaintainers(), Principal.ENUM_MAINTAINER);
         addMaintainers(tempPrincipalsMap, maintainers.getDbmMaintainers(), Principal.DBM_MAINTAINER);
         this.principalsMap = Collections.unmodifiableMap(tempPrincipalsMap);
+
+        pendingAuthenticationTypes = Maps.newEnumMap(ObjectType.class);
+        for (final AuthenticationStrategy authenticationStrategy : authenticationStrategies) {
+            for (final ObjectType objectType : authenticationStrategy.getPendingAuthenticationTypes()) {
+                Set<AuthenticationStrategy> strategies = pendingAuthenticationTypes.get(objectType);
+                if (strategies == null) {
+                    strategies = new HashSet<>();
+                    pendingAuthenticationTypes.put(objectType, strategies);
+                }
+
+                strategies.add(authenticationStrategy);
+            }
+        }
     }
 
     private static void addMaintainers(final Map<CIString, Set<Principal>> principalsMap, final Set<CIString> maintainers, final Principal principal) {
@@ -122,12 +136,14 @@ public class Authenticator {
         } else {
             for (final AuthenticationStrategy authenticationStrategy : authenticationStrategies) {
                 if (authenticationStrategy.supports(update)) {
+                    final String authenticationStrategyName = getStrategyName(authenticationStrategy.getClass());
+
                     try {
                         authenticatedObjects.addAll(authenticationStrategy.authenticate(update, updateContext));
-                        passedAuthentications.add(authenticationStrategy.getClass().getSimpleName());
+                        passedAuthentications.add(authenticationStrategyName);
                     } catch (AuthenticationFailedException e) {
                         authenticationMessages.addAll(e.getAuthenticationMessages());
-                        failedAuthentications.add(authenticationStrategy.getClass().getSimpleName());
+                        failedAuthentications.add(authenticationStrategyName);
                     }
                 }
             }
@@ -166,10 +182,39 @@ public class Authenticator {
     }
 
     private void authenticationFailed(final PreparedUpdate update, final UpdateContext updateContext, final Set<Message> authenticationMessages) {
+        if (isPendingAuthentication(update, updateContext)) {
+            updateContext.status(update, UpdateStatus.PENDING_AUTHENTICATION);
+        } else {
+            updateContext.status(update, UpdateStatus.FAILED_AUTHENTICATION);
+        }
+
         for (final Message message : authenticationMessages) {
             updateContext.addMessage(update, message);
         }
+    }
 
-        updateContext.status(update, UpdateStatus.FAILED_AUTHENTICATION);
+    private boolean isPendingAuthentication(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
+        if (updateContext.hasErrors(preparedUpdate)) {
+            return false;
+        }
+
+        if (!Action.CREATE.equals(preparedUpdate.getAction())) {
+            return false;
+        }
+
+        final Set<AuthenticationStrategy> strategies = pendingAuthenticationTypes.get(preparedUpdate.getType());
+        if (strategies == null) {
+            return false;
+        }
+
+        final Subject subject = updateContext.getSubject(preparedUpdate);
+        final boolean failedSupportedOnly = Sets.difference(subject.getFailedAuthentications(), strategies).isEmpty();
+        final boolean passedAtLeastOneSupported = !Sets.intersection(subject.getPassedAuthentications(), strategies).isEmpty();
+
+        return failedSupportedOnly && passedAtLeastOneSupported;
+    }
+
+    private static String getStrategyName(final Class<? extends AuthenticationStrategy> clazz) {
+        return clazz.getSimpleName();
     }
 }

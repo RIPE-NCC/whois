@@ -5,4 +5,6 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 
 public interface UpdateObjectHandler {
     void execute(PreparedUpdate update, UpdateContext updateContext);
+
+    void validate(PreparedUpdate update, UpdateContext updateContext);
 }

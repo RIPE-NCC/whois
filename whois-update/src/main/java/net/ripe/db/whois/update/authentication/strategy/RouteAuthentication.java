@@ -13,6 +13,7 @@ import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +29,11 @@ abstract class RouteAuthentication implements AuthenticationStrategy {
     @Override
     public boolean supports(final PreparedUpdate update) {
         return update.getAction().equals(Action.CREATE) && (update.getType().equals(ObjectType.ROUTE) || update.getType().equals(ObjectType.ROUTE6));
+    }
+
+    @Override
+    public Set<ObjectType> getPendingAuthenticationTypes() {
+        return Sets.newHashSet(ObjectType.ROUTE, ObjectType.ROUTE6);
     }
 
     List<RpslObject> getCandidatesForMntRoutesAuthentication(final RpslObject authenticationObject, final PreparedUpdate update) {
