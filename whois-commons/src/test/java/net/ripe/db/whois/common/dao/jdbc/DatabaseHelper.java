@@ -60,6 +60,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private JdbcTemplate aclTemplate;
     private JdbcTemplate schedulerTemplate;
     private JdbcTemplate mailupdatesTemplate;
+    private JdbcTemplate pendingUpdatesTemplate;
 
     @Autowired Environment environment;
     @Autowired DateTimeProvider dateTimeProvider;
@@ -95,6 +96,12 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         this.dnsCheckDataSource = dnsCheckDataSource;
     }
 
+    @Autowired(required = false)
+    @Qualifier("pendingDataSource")
+    public void setPendingDataSource(DataSource pendingDataSource) {
+        pendingUpdatesTemplate = new JdbcTemplate(pendingDataSource);
+    }
+
     @Override
     public void setEmbeddedValueResolver(final StringValueResolver valueResolver) {
         this.valueResolver = valueResolver;
@@ -123,6 +130,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "scheduler.database", "SCHEDULER", "scheduler_schema.sql");
         setupDatabase(jdbcTemplate, "mailupdates.database", "MAILUPDATES", "mailupdates_schema.sql");
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
+        setupDatabase(jdbcTemplate, "pending.database", "PENDING", "pending_schema.sql");
 
         final String masterUrl = String.format("jdbc:log:mysql://localhost/%s_WHOIS;driver=%s;logger=%s", dbBaseName, JDBC_DRIVER, LOGGING_HANDLER);
         System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
@@ -256,6 +264,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     public DataSource getDnsCheckDataSource() {
         return dnsCheckDataSource;
+    }
+
+    public JdbcTemplate getPendingUpdatesTemplate() {
+        return pendingUpdatesTemplate;
     }
 
     public JdbcTemplate getWhoisTemplate() {
