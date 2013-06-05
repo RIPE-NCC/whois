@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-class OrgRefAuthentication implements AuthenticationStrategy {
+public class OrgRefAuthentication implements AuthenticationStrategy {
 
     private final AuthenticationModule credentialValidators;
     private final RpslObjectDao rpslObjectDao;

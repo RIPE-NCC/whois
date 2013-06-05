@@ -19,17 +19,18 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -47,6 +48,7 @@ public class AuthenticatorTest {
     @Mock LoggerContext loggerContext;
 
     Authenticator subject;
+    private ArgumentCaptor<Subject> subjectCapture;
 
     @Before
     public void setup() {
@@ -55,6 +57,7 @@ public class AuthenticatorTest {
         when(maintainers.getAllocMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT", "AARDVARK-MNT"));
         when(update.getCredentials()).thenReturn(new Credentials());
 
+        subjectCapture = ArgumentCaptor.forClass(Subject.class);
         subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2});
     }
 
@@ -77,16 +80,19 @@ public class AuthenticatorTest {
         authenticate_maintainer(RpslObject.parse("mntner: riPe-nCC-hm-Mnt"), Principal.POWER_MAINTAINER, Principal.ALLOC_MAINTAINER);
     }
 
-    private void authenticate_maintainer(final RpslObject mntner, final Principal... expectedPrincipals) {
+    private void authenticate_maintainer(final RpslObject mntner, final Principal... excpectedPrincipals) {
         when(authenticationStrategy1.supports(update)).thenReturn(true);
         when(authenticationStrategy1.authenticate(update, updateContext)).thenReturn(Lists.newArrayList(mntner));
 
         subject.authenticate(origin, update, updateContext);
-        verifyPrincipals(updateContext, expectedPrincipals);
+        verifySubject(updateContext, new Subject(
+                Sets.newHashSet(excpectedPrincipals),
+                Collections.singleton(authenticationStrategy1.getClass().getSimpleName()),
+                Collections.<String>emptySet()));
     }
 
     @Test
-    @Ignore
+    @Ignore // [AK] For now we allow updating by power maintainers outside the RIPE range, so this test fails
     public void authenticate_by_powerMaintainer_outside_ripe() {
         when(origin.getFrom()).thenReturn("212.0.0.0");
         when(ipRanges.isInRipeRange(any(Interval.class))).thenReturn(false);
@@ -119,7 +125,6 @@ public class AuthenticatorTest {
         when(authenticationStrategy1.authenticate(update, updateContext)).thenReturn(Lists.newArrayList(RpslObject.parse("mntner: RIPE-NCC-HM-MNT")));
 
         subject.authenticate(origin, update, updateContext);
-
         verify(updateContext, times(0)).addMessage(update, UpdateMessages.ripeMntnerUpdatesOnlyAllowedFromWithinNetwork());
     }
 
@@ -134,7 +139,10 @@ public class AuthenticatorTest {
         subject.authenticate(origin, update, updateContext);
 
         verify(updateContext).addMessage(eq(update), any(Message.class));
-        verifyPrincipals(updateContext);
+        verifySubject(updateContext, new Subject(
+                Collections.<Principal>emptySet(),
+                Collections.<String>emptySet(),
+                Collections.singleton(authenticationStrategy2.getClass().getSimpleName())));
     }
 
     @Test
@@ -153,7 +161,7 @@ public class AuthenticatorTest {
         subject.authenticate(origin, update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.tooManyPasswordsSpecified());
-        verifyPrincipals(updateContext);
+        verifySubject(updateContext, new Subject());
     }
 
     @Test
@@ -168,7 +176,7 @@ public class AuthenticatorTest {
         subject.authenticate(origin, update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.overrideNotAllowedForOrigin(origin));
-        verifyPrincipals(updateContext);
+        verifySubject(updateContext, new Subject());
     }
 
     @Test
@@ -184,7 +192,7 @@ public class AuthenticatorTest {
         subject.authenticate(origin, update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.overrideOnlyAllowedByDbAdmins());
-        verifyPrincipals(updateContext);
+        verifySubject(updateContext, new Subject());
     }
 
     @Test
@@ -200,7 +208,7 @@ public class AuthenticatorTest {
         subject.authenticate(origin, update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.multipleOverridePasswords());
-        verifyPrincipals(updateContext);
+        verifySubject(updateContext, new Subject());
     }
 
     @Test
@@ -223,7 +231,7 @@ public class AuthenticatorTest {
         subject.authenticate(origin, update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.overrideAuthenticationFailed());
-        verifyPrincipals(updateContext);
+        verifySubject(updateContext, new Subject());
     }
 
     @Test
@@ -244,7 +252,7 @@ public class AuthenticatorTest {
         subject.authenticate(origin, update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.overrideAuthenticationFailed());
-        verifyPrincipals(updateContext);
+        verifySubject(updateContext, new Subject());
     }
 
     @Test
@@ -262,7 +270,7 @@ public class AuthenticatorTest {
 
         subject.authenticate(origin, update, updateContext);
 
-        verifyPrincipals(updateContext);
+        verifySubject(updateContext, new Subject());
     }
 
     @Test
@@ -306,9 +314,9 @@ public class AuthenticatorTest {
 
         subject.authenticate(origin, update, updateContext);
 
-        verifyPrincipals(updateContext, Principal.OVERRIDE_MAINTAINER);
+        verifySubject(updateContext, new Subject(Principal.OVERRIDE_MAINTAINER));
 
-        verifyZeroInteractions(authenticationStrategy1, authenticationStrategy2, userDao, update, updateContext);
+        verifyNoMoreInteractions(authenticationStrategy1, authenticationStrategy2, userDao, update, updateContext);
     }
 
     @Test
@@ -328,24 +336,16 @@ public class AuthenticatorTest {
         subject.authenticate(origin, update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.overrideAuthenticationUsed());
-        verifyPrincipals(updateContext, Principal.OVERRIDE_MAINTAINER);
+        verifySubject(updateContext, new Subject(Principal.OVERRIDE_MAINTAINER));
     }
 
-    private void verifyPrincipals(final UpdateContext updateContext, final Principal... expectedPrincipals) {
-        verify(updateContext).subject(any(UpdateContainer.class), argThat(new ArgumentMatcher<Subject>() {
-            @Override
-            public boolean matches(final Object argument) {
-                final Set<Principal> expected = Sets.newHashSet(expectedPrincipals);
+    private void verifySubject(final UpdateContext updateContext, final Subject expectedSubject) {
+        verify(updateContext).subject(any(UpdateContainer.class), subjectCapture.capture());
 
-                for (final Principal principal : Principal.values()) {
-                    if (expected.contains(principal) != ((Subject) argument).hasPrincipal(principal)) {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-        }));
+        final Subject capturedSubject = subjectCapture.getValue();
+        assertThat(capturedSubject.getPrincipals(), containsInAnyOrder(expectedSubject.getPrincipals().toArray()));
+        assertThat(capturedSubject.getPassedAuthentications(), containsInAnyOrder(expectedSubject.getPassedAuthentications().toArray()));
+        assertThat(capturedSubject.getFailedAuthentications(), containsInAnyOrder(expectedSubject.getFailedAuthentications().toArray()));
     }
 }
 

@@ -18,10 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class Authenticator {
@@ -61,21 +58,20 @@ public class Authenticator {
     }
 
     public void authenticate(final Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {
-        final Set<Principal> principals;
+        final Subject subject;
 
         if (origin.isDefaultOverride()) {
-            principals = Collections.singleton(Principal.OVERRIDE_MAINTAINER);
+            subject = new Subject(Principal.OVERRIDE_MAINTAINER);
         } else if (update.isOverride()) {
-            principals = performOverrideAuthentication(origin, update, updateContext);
+            subject = performOverrideAuthentication(origin, update, updateContext);
         } else {
-            principals = performAuthentication(origin, update, updateContext);
+            subject = performAuthentication(origin, update, updateContext);
         }
 
-        final Subject subject = new Subject(principals);
         updateContext.subject(update, subject);
     }
 
-    private Set<Principal> performOverrideAuthentication(final Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {
+    private Subject performOverrideAuthentication(final Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {
         final Set<OverrideCredential> overrideCredentials = update.getCredentials().ofType(OverrideCredential.class);
         final Set<Message> authenticationMessages = Sets.newLinkedHashSet();
 
@@ -91,7 +87,7 @@ public class Authenticator {
 
         if (!authenticationMessages.isEmpty()) {
             authenticationFailed(update, updateContext, authenticationMessages);
-            return Collections.emptySet();
+            return new Subject();
         }
 
         final OverrideCredential overrideCredential = overrideCredentials.iterator().next();
@@ -101,7 +97,7 @@ public class Authenticator {
                 final User user = userDao.getOverrideUser(username);
                 if (user.isValidPassword(possibleCredential.getPassword()) && user.getObjectTypes().contains(update.getType())) {
                     updateContext.addMessage(update, UpdateMessages.overrideAuthenticationUsed());
-                    return Collections.singleton(Principal.OVERRIDE_MAINTAINER);
+                    return new Subject(Principal.OVERRIDE_MAINTAINER);
                 }
             } catch (EmptyResultDataAccessException ignore) {
                 loggerContext.logMessage(update, new Message(Messages.Type.INFO, "Unknown override user", username));
@@ -110,12 +106,16 @@ public class Authenticator {
 
         authenticationMessages.add(UpdateMessages.overrideAuthenticationFailed());
         authenticationFailed(update, updateContext, authenticationMessages);
-        return Collections.emptySet();
+
+        return new Subject();
     }
 
-    private Set<Principal> performAuthentication(Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {
+    private Subject performAuthentication(final Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {
         final Set<Message> authenticationMessages = Sets.newLinkedHashSet();
         final Set<RpslObject> authenticatedObjects = Sets.newLinkedHashSet();
+
+        final Set<String> passedAuthentications = new HashSet<>();
+        final Set<String> failedAuthentications = new HashSet<>();
 
         if (update.getCredentials().ofType(PasswordCredential.class).size() > 20) {
             authenticationMessages.add(UpdateMessages.tooManyPasswordsSpecified());
@@ -124,8 +124,10 @@ public class Authenticator {
                 if (authenticationStrategy.supports(update)) {
                     try {
                         authenticatedObjects.addAll(authenticationStrategy.authenticate(update, updateContext));
+                        passedAuthentications.add(authenticationStrategy.getClass().getSimpleName());
                     } catch (AuthenticationFailedException e) {
                         authenticationMessages.addAll(e.getAuthenticationMessages());
+                        failedAuthentications.add(authenticationStrategy.getClass().getSimpleName());
                     }
                 }
             }
@@ -147,7 +149,7 @@ public class Authenticator {
             authenticationFailed(update, updateContext, authenticationMessages);
         }
 
-        return principals;
+        return new Subject(principals, passedAuthentications, failedAuthentications);
     }
 
     private Set<Principal> getPrincipals(final RpslObject authenticatedObject) {

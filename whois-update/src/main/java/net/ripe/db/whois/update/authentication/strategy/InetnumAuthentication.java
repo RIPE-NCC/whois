@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-class InetnumAuthentication implements AuthenticationStrategy {
+public class InetnumAuthentication implements AuthenticationStrategy {
 
     private final AuthenticationModule authenticationModule;
     private final Ipv4Tree ipv4Tree;

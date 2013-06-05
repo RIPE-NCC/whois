@@ -16,7 +16,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import java.util.List;
 import java.util.Set;
 
-public abstract class RouteAuthentication implements AuthenticationStrategy {
+abstract class RouteAuthentication implements AuthenticationStrategy {
     final AuthenticationModule authenticationModule;
     final RpslObjectDao objectDao;
 

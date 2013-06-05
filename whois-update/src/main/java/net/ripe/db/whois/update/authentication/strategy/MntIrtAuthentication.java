@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-class MntIrtAuthentication implements AuthenticationStrategy {
+public class MntIrtAuthentication implements AuthenticationStrategy {
     private final AuthenticationModule credentialValidators;
     private final RpslObjectDao rpslObjectDao;
 
