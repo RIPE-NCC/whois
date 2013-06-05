@@ -31,6 +31,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 @Component
 public class SourceContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(SourceContext.class);
+    private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings();
 
     private final Source mainMasterSource;
     private final Source mainSlaveSource;
@@ -70,7 +71,7 @@ public class SourceContext {
         sourceConfigurations.put(mainMasterSource, new SourceConfiguration(mainMasterSource, whoisMasterDataSource));
         sourceConfigurations.put(mainSlaveSource, new SourceConfiguration(mainSlaveSource, whoisSlaveDataSource));
 
-        final Iterable<CIString> grsSourceNameIterable = Iterables.transform(Splitter.on(',').split(grsSourceNames), new Function<String, CIString>() {
+        final Iterable<CIString> grsSourceNameIterable = Iterables.transform(COMMA_SPLITTER.split(grsSourceNames), new Function<String, CIString>() {
             @Nullable
             @Override
             public CIString apply(final String input) {
@@ -78,7 +79,7 @@ public class SourceContext {
             }
         });
 
-        final Iterable<CIString> nrtmSourceNameIterable = Iterables.transform(Splitter.on(',').omitEmptyStrings().split(nrtmSourceNames), new Function<String, CIString>() {
+        final Iterable<CIString> nrtmSourceNameIterable = Iterables.transform(COMMA_SPLITTER.split(nrtmSourceNames), new Function<String, CIString>() {
             @Nullable
             @Override
             public CIString apply(final String input) {
@@ -117,7 +118,7 @@ public class SourceContext {
         }
 
         this.grsSourceNames = Collections.unmodifiableSet(grsSources);
-        this.grsSourceNamesForDummification = ciSet(grsSourceNamesForDummification);
+        this.grsSourceNamesForDummification = ciSet(COMMA_SPLITTER.split(grsSourceNamesForDummification));
         this.aliases = Collections.unmodifiableMap(aliases);
         this.allSourceNames = Collections.unmodifiableSet(Sets.newLinkedHashSet(Iterables.transform(sourceConfigurations.keySet(), new Function<Source, CIString>() {
             @Nullable
