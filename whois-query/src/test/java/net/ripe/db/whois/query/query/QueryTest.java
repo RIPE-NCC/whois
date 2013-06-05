@@ -950,6 +950,7 @@ public class QueryTest {
     @Test
     public void grs_enables_all_sources() {
         final Query query = Query.parse("--resource 10.0.0.0");
-        assertThat(query.isAllSources(), is(true));
+        assertThat(query.isAllSources(), is(false));
+        assertThat(query.isResource(), is(true));
     }
 }
