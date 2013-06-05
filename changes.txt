@@ -1,5 +1,8 @@
 ## next
+
+## 1.66.2
 [update] added validation for incoming email addresses
+[api] moved api doc root from / to /api-doc
 
 ## 1.66
 [nrtm] added nrtm client to allow users run a local copy of the RIPE DB
