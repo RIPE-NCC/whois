@@ -1,5 +1,8 @@
+## next
+[update] added validation for incoming email addresses
+
 ## 1.66
-[nrtm-client] added nrtm client to allow users run a local copy of the RIPE DB
+[nrtm] added nrtm client to allow users run a local copy of the RIPE DB
 [query] fix bug that resulted in 'no results found' when -K or -b were used
 
 ## 1.65.10
