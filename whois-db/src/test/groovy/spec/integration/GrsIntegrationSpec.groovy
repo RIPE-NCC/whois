@@ -1,6 +1,7 @@
 package spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.common.Stub
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.source.Source
 
