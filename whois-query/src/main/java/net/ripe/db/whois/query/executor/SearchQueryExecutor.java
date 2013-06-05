@@ -104,22 +104,24 @@ public class SearchQueryExecutor implements QueryExecutor {
     private Set<Source> getSources(final Query query) {
         final Set<Source> sources = Sets.newLinkedHashSet();
 
+        if (query.isResource()) {
+            for (CIString source : sourceContext.getGrsSourceNames()) {
+                sources.add(Source.slave(source));
+            }
+        }
+
         if (query.isAllSources()) {
-            sources.addAll(Sets.newLinkedHashSet(Iterables.transform(sourceContext.getGrsSourceNames(), new Function<CIString, Source>() {
-                @Override
-                public Source apply(final CIString input) {
-                    return Source.slave(input);
+            for (CIString source : sourceContext.getAllSourceNames()) {
+                if (!sourceContext.isVirtual(source)) {
+                    sources.add(Source.slave(source));
                 }
-            })));
+            }
         }
 
         if (query.hasSources()) {
-            sources.addAll(Sets.newLinkedHashSet(Iterables.transform(query.getSources(), new Function<String, Source>() {
-                @Override
-                public Source apply(final String input) {
-                    return Source.slave(input);
-                }
-            })));
+            for (String source : query.getSources()) {
+                sources.add(Source.slave(source));
+            }
         }
 
         if (sources.isEmpty()) {

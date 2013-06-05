@@ -189,7 +189,11 @@ public final class Query {
     }
 
     public boolean isAllSources() {
-        return hasOption(QueryFlag.ALL_SOURCES) || hasOption(QueryFlag.RESOURCE);
+        return hasOption(QueryFlag.ALL_SOURCES);
+    }
+
+    public boolean isResource() {
+        return hasOption(QueryFlag.RESOURCE);
     }
 
     public boolean isLookupInBothDirections() {

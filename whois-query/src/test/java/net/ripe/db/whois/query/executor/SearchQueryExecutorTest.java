@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.executor;
 
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.source.IllegalSourceException;
@@ -22,6 +23,7 @@ import org.mockito.stubbing.Answer;
 import java.util.Collections;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -99,7 +101,7 @@ public class SearchQueryExecutorTest {
 
     @Test
     public void query_all_sources() {
-        when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("APNIC-GRS", "ARIN-GRS"));
+        when(sourceContext.getAllSourceNames()).thenReturn(ciSet("APNIC-GRS", "ARIN-GRS"));
 
         final Query query = Query.parse("--all-sources 10.0.0.0");
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
@@ -125,13 +127,50 @@ public class SearchQueryExecutorTest {
     }
 
     @Test
-    public void query_all_sources_and_additional() {
-        when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("APNIC-GRS", "ARIN-GRS"));
+    public void query_sources_and_additional() {
+        when(sourceContext.getAllSourceNames()).thenReturn(ciSet("APNIC-GRS", "ARIN-GRS"));
 
         final Query query = Query.parse("--all-sources --sources RIPE 10.0.0.0");
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(query, responseHandler);
 
+        verify(sourceContext).setCurrent(Source.slave("APNIC-GRS"));
+        verify(sourceContext).setCurrent(Source.slave("ARIN-GRS"));
+        verify(sourceContext).setCurrent(Source.slave("RIPE"));
+        verify(sourceContext, times(3)).removeCurrentSource();
+        verify(rpslObjectSearcher, times(3)).search(query);
+    }
+
+    @Test
+    public void query_resources() {
+        when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("APNIC-GRS", "ARIN-GRS"));
+
+        final Query query = Query.parse("--resource 10.0.0.0");
+        final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
+        subject.execute(query, responseHandler);
+
+        verify(sourceContext).setCurrent(Source.slave("APNIC-GRS"));
+        verify(sourceContext).setCurrent(Source.slave("ARIN-GRS"));
+        verify(sourceContext, times(2)).removeCurrentSource();
+        verify(rpslObjectSearcher, times(2)).search(query);
+    }
+
+    @Test
+    public void query_all_sources_filters_virtual_sources() {
+        when(sourceContext.getAllSourceNames()).thenReturn(ciSet("RIPE", "RIPE-GRS", "APNIC-GRS", "ARIN-GRS"));
+        when(sourceContext.isVirtual(any(CIString.class))).thenAnswer(new Answer<Boolean>() {
+            @Override
+            public Boolean answer(InvocationOnMock invocation) throws Throwable {
+                final Object[] arguments = invocation.getArguments();
+                return (ciString("RIPE-GRS").equals(arguments[0]));
+            }
+        });
+
+        final Query query = Query.parse("--all-sources 10.0.0.0");
+        final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
+        subject.execute(query, responseHandler);
+
+        verify(sourceContext, never()).setCurrent(Source.slave("RIPE-GRS"));
         verify(sourceContext).setCurrent(Source.slave("APNIC-GRS"));
         verify(sourceContext).setCurrent(Source.slave("ARIN-GRS"));
         verify(sourceContext).setCurrent(Source.slave("RIPE"));
