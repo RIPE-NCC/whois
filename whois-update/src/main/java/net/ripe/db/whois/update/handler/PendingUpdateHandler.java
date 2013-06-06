@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
+// TODO [AK] Should not be public
 @Component
 public class PendingUpdateHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(PendingUpdateHandler.class);
@@ -28,7 +29,7 @@ public class PendingUpdateHandler {
 
     @Autowired
     public PendingUpdateHandler(final IdenticalPendingUpdateFinder identicalFinder, final PendingUpdateDao pendingUpdateDao, final Authenticator authenticator) {
-        this.identicalFinder = identicalFinder;
+        this.identicalFinder = identicalFinder; // TODO [AK] Don't put this in a separate component, this makes it harder to test to complete logic, we try to get rid of these separate parts
         this.pendingUpdateDao = pendingUpdateDao;
         this.authenticator = authenticator;
     }
@@ -37,11 +38,13 @@ public class PendingUpdateHandler {
         final RpslObject rpslObject = preparedUpdate.getUpdatedObject();
         final PendingUpdate pendingUpdate = identicalFinder.find(rpslObject);
 
-        Set<String> currentSuccessfuls = Sets.newHashSet(pendingUpdate.getAuthenticatedBy());
+        Set<String> currentSuccessfuls = Sets.newHashSet(pendingUpdate.getAuthenticatedBy()); // TODO [AK] Use consistent naming, e.g. pendingUpdate.getPassedAuthentications()
         final Set<String> passedAuthentications = updateContext.getSubject(preparedUpdate).getPassedAuthentications();
         currentSuccessfuls.addAll(passedAuthentications);
 
+        // TODO [AK] When using if / else, there is no need to use !, just invert the condition
         if (!authenticator.isAuthenticationForTypeComplete(rpslObject.getType(), currentSuccessfuls)) {
+            // TODO [AK] How this data is stored is a database concern. The PendingUpdate should work with lists / sets
             pendingUpdateDao.store(new PendingUpdate(JOINER.join(passedAuthentications), new RpslObjectBase(rpslObject.getAttributes())));
         }
         else {
