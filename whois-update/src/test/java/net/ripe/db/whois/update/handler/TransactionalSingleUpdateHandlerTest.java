@@ -43,6 +43,7 @@ public class TransactionalSingleUpdateHandlerTest {
     @Mock AttributeSanitizer attributeSanitizer;
     @Mock AttributeGenerator attributeGenerator;
     @Mock IpTreeUpdater ipTreeUpdater;
+    @Mock PendingUpdateHandler pendingUpdateHandler;
     @InjectMocks TransactionalSingleUpdateHandler subject;
 
     @Before
@@ -78,7 +79,7 @@ public class TransactionalSingleUpdateHandlerTest {
             }
         });
 
-        subject = new TransactionalSingleUpdateHandler(autoKeyResolver, attributeGenerator, attributeSanitizer, updateLockDao, loggerContext, authenticator, updateObjectHandler, rpslObjectDao, rpslObjectUpdateDao, ipTreeUpdater);
+        subject = new TransactionalSingleUpdateHandler(autoKeyResolver, attributeGenerator, attributeSanitizer, updateLockDao, loggerContext, authenticator, updateObjectHandler, rpslObjectDao, rpslObjectUpdateDao, ipTreeUpdater, pendingUpdateHandler);
         subject.setSource("RIPE");
     }
 

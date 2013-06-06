@@ -37,6 +37,7 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
     private final Authenticator authenticator;
     private final UpdateObjectHandler updateObjectHandler;
     private final IpTreeUpdater ipTreeUpdater;
+    private final PendingUpdateHandler pendingUpdateHandler;
     private CIString source;
 
     @Value("${whois.source}")
@@ -45,7 +46,7 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
     }
 
     @Autowired
-    public TransactionalSingleUpdateHandler(final AutoKeyResolver autoKeyResolver, final AttributeGenerator attributeGenerator, final AttributeSanitizer attributeSanitizer, final UpdateLockDao updateLockDao, final LoggerContext loggerContext, final Authenticator authenticator, final UpdateObjectHandler updateObjectHandler, final RpslObjectDao rpslObjectDao, final RpslObjectUpdateDao rpslObjectUpdateDao, final IpTreeUpdater ipTreeUpdater) {
+    public TransactionalSingleUpdateHandler(final AutoKeyResolver autoKeyResolver, final AttributeGenerator attributeGenerator, final AttributeSanitizer attributeSanitizer, final UpdateLockDao updateLockDao, final LoggerContext loggerContext, final Authenticator authenticator, final UpdateObjectHandler updateObjectHandler, final RpslObjectDao rpslObjectDao, final RpslObjectUpdateDao rpslObjectUpdateDao, final IpTreeUpdater ipTreeUpdater, final PendingUpdateHandler pendingUpdateHandler) {
         this.autoKeyResolver = autoKeyResolver;
         this.attributeGenerator = attributeGenerator;
         this.attributeSanitizer = attributeSanitizer;
@@ -56,6 +57,7 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
         this.authenticator = authenticator;
         this.updateObjectHandler = updateObjectHandler;
         this.ipTreeUpdater = ipTreeUpdater;
+        this.pendingUpdateHandler = pendingUpdateHandler;
     }
 
     @Override
@@ -93,8 +95,7 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
         final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION.equals(updateContext.getStatus(preparedUpdate));
 
         if (businessRulesOk && pendingAuthentication) {
-            // TODO [AK] Enter deferred authentication process
-            throw new UpdateFailedException();
+            pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else if (updateContext.hasErrors(update)) {
             throw new UpdateFailedException();
         } else {

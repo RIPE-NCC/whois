@@ -222,4 +222,10 @@ public class Authenticator {
 
         return failedSupportedOnly && passedAtLeastOneSupported;
     }
+
+    public boolean isAuthenticationForTypeComplete(final ObjectType objectType, final Set<String> authentications) {
+        final Set<String> authenticationStrategyNames = typesWithDeferredAuthentication.get(objectType);
+
+        return authentications.containsAll(authenticationStrategyNames);
+    }
 }

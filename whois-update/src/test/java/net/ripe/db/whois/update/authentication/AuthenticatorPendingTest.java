@@ -116,4 +116,15 @@ public class AuthenticatorPendingTest {
         final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext);
         assertThat(deferredAuthenticationAllowed, is(false));
     }
+
+    @Test
+    public void isCompleteAuthentication_incomplete() {
+        assertThat(subject.isAuthenticationForTypeComplete(ObjectType.ROUTE, Sets.newHashSet("authStrategyPending1")), is(false));
+    }
+
+    @Test
+    public void isCompleteAuthentication_complete() {
+        assertThat(subject.isAuthenticationForTypeComplete(ObjectType.ROUTE, Sets.newHashSet("mnt-by", "authStrategyPending1", "authStrategyPending2")), is(true));
+    }
+
 }
