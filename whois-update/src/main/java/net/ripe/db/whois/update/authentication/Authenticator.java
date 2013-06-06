@@ -27,7 +27,7 @@ public class Authenticator {
     private final LoggerContext loggerContext;
     private final List<AuthenticationStrategy> authenticationStrategies;
     private final Map<CIString, Set<Principal>> principalsMap;
-    private final Map<ObjectType, Set<AuthenticationStrategy>> typesWithDeferredAuthentication;
+    private final Map<ObjectType, Set<String>> typesWithDeferredAuthentication;
 
     @Autowired
     public Authenticator(final IpRanges ipRanges, final UserDao userDao, final Maintainers maintainers, final LoggerContext loggerContext, final AuthenticationStrategy[] authenticationStrategies) {
@@ -48,13 +48,13 @@ public class Authenticator {
         typesWithDeferredAuthentication = Maps.newEnumMap(ObjectType.class);
         for (final AuthenticationStrategy authenticationStrategy : authenticationStrategies) {
             for (final ObjectType objectType : authenticationStrategy.getTypesWithDeferredAuthenticationSupport()) {
-                Set<AuthenticationStrategy> strategiesWithDeferredAuthentication = typesWithDeferredAuthentication.get(objectType);
+                Set<String> strategiesWithDeferredAuthentication = typesWithDeferredAuthentication.get(objectType);
                 if (strategiesWithDeferredAuthentication == null) {
                     strategiesWithDeferredAuthentication = new HashSet<>();
                     typesWithDeferredAuthentication.put(objectType, strategiesWithDeferredAuthentication);
                 }
 
-                strategiesWithDeferredAuthentication.add(authenticationStrategy);
+                strategiesWithDeferredAuthentication.add(getStrategyName(authenticationStrategy.getClass()));
             }
         }
     }
@@ -202,7 +202,7 @@ public class Authenticator {
             return false;
         }
 
-        final Set<AuthenticationStrategy> strategiesWithDeferredAuthentication = typesWithDeferredAuthentication.get(preparedUpdate.getType());
+        final Set<String> strategiesWithDeferredAuthentication = typesWithDeferredAuthentication.get(preparedUpdate.getType());
         if (strategiesWithDeferredAuthentication == null) {
             return false;
         }
