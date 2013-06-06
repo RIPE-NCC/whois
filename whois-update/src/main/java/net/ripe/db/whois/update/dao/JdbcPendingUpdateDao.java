@@ -28,7 +28,6 @@ public class JdbcPendingUpdateDao implements PendingUpdateDao {
     @Override
     public List<PendingUpdate> findByTypeAndKey(final ObjectType type, final String key) {
         return jdbcTemplate.query("SELECT * FROM pending_updates WHERE object_type = ? AND pkey = ? ORDER BY stored_date ASC",
-                new Object[]{ObjectTypeIds.getId(type), key},
                 new RowMapper<PendingUpdate>() {
             @Override
             public PendingUpdate mapRow(final ResultSet rs, final int rowNum) throws SQLException {
@@ -38,7 +37,7 @@ public class JdbcPendingUpdateDao implements PendingUpdateDao {
                         new LocalDateTime(rs.getInt("stored_date") * 1000L)
                 );
             }
-        });
+        }, ObjectTypeIds.getId(type), key);
     }
 
     @Override
