@@ -52,6 +52,9 @@ public class AuthenticatorPrincipalTest {
 
     @Before
     public void setup() {
+        when(authenticationStrategy1.getName()).thenReturn("authenticationStrategy1");
+        when(authenticationStrategy2.getName()).thenReturn("authenticationStrategy2");
+
         when(maintainers.getPowerMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT"));
         when(maintainers.getEnduserMaintainers()).thenReturn(ciSet("RIPE-NCC-END-MNT"));
         when(maintainers.getAllocMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT", "AARDVARK-MNT"));
@@ -87,7 +90,7 @@ public class AuthenticatorPrincipalTest {
         subject.authenticate(origin, update, updateContext);
         verifySubject(updateContext, new Subject(
                 Sets.newHashSet(excpectedPrincipals),
-                Collections.singleton(authenticationStrategy1.getClass().getSimpleName()),
+                Collections.singleton(authenticationStrategy1.getName()),
                 Collections.<String>emptySet()));
     }
 
@@ -142,7 +145,7 @@ public class AuthenticatorPrincipalTest {
         verifySubject(updateContext, new Subject(
                 Collections.<Principal>emptySet(),
                 Collections.<String>emptySet(),
-                Collections.singleton(authenticationStrategy2.getClass().getSimpleName())));
+                Collections.singleton(authenticationStrategy2.getName())));
     }
 
     @Test
