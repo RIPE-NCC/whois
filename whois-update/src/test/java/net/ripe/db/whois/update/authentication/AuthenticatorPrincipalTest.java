@@ -36,7 +36,7 @@ import static org.mockito.Mockito.*;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class AuthenticatorTest {
+public class AuthenticatorPrincipalTest {
     @Mock IpRanges ipRanges;
     @Mock UserDao userDao;
     @Mock Origin origin;
@@ -48,7 +48,7 @@ public class AuthenticatorTest {
     @Mock LoggerContext loggerContext;
 
     Authenticator subject;
-    private ArgumentCaptor<Subject> subjectCapture;
+    ArgumentCaptor<Subject> subjectCapture;
 
     @Before
     public void setup() {
@@ -312,8 +312,8 @@ public class AuthenticatorTest {
 
         subject.authenticate(origin, update, updateContext);
         verifySubject(updateContext, new Subject(Principal.OVERRIDE_MAINTAINER));
-        verify(authenticationStrategy1).getPendingAuthenticationTypes();
-        verify(authenticationStrategy2).getPendingAuthenticationTypes();
+        verify(authenticationStrategy1).getTypesWithDeferredAuthenticationSupport();
+        verify(authenticationStrategy2).getTypesWithDeferredAuthenticationSupport();
         verifyNoMoreInteractions(authenticationStrategy1, authenticationStrategy2, userDao, update, updateContext);
     }
 

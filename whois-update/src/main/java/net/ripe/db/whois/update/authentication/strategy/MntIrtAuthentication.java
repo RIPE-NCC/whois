@@ -34,7 +34,7 @@ public class MntIrtAuthentication implements AuthenticationStrategy {
     }
 
     @Override
-    public Set<ObjectType> getPendingAuthenticationTypes() {
+    public Set<ObjectType> getTypesWithDeferredAuthenticationSupport() {
         return Collections.emptySet();
     }
 

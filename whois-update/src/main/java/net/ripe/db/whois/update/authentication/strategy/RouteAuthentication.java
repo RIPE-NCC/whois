@@ -32,7 +32,7 @@ abstract class RouteAuthentication implements AuthenticationStrategy {
     }
 
     @Override
-    public Set<ObjectType> getPendingAuthenticationTypes() {
+    public Set<ObjectType> getTypesWithDeferredAuthenticationSupport() {
         return Sets.newHashSet(ObjectType.ROUTE, ObjectType.ROUTE6);
     }
 

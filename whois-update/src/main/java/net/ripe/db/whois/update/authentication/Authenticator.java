@@ -27,7 +27,7 @@ public class Authenticator {
     private final LoggerContext loggerContext;
     private final List<AuthenticationStrategy> authenticationStrategies;
     private final Map<CIString, Set<Principal>> principalsMap;
-    private final Map<ObjectType, Set<AuthenticationStrategy>> pendingAuthenticationTypes;
+    private final Map<ObjectType, Set<AuthenticationStrategy>> typesWithDeferredAuthentication;
 
     @Autowired
     public Authenticator(final IpRanges ipRanges, final UserDao userDao, final Maintainers maintainers, final LoggerContext loggerContext, final AuthenticationStrategy[] authenticationStrategies) {
@@ -45,16 +45,16 @@ public class Authenticator {
         addMaintainers(tempPrincipalsMap, maintainers.getDbmMaintainers(), Principal.DBM_MAINTAINER);
         this.principalsMap = Collections.unmodifiableMap(tempPrincipalsMap);
 
-        pendingAuthenticationTypes = Maps.newEnumMap(ObjectType.class);
+        typesWithDeferredAuthentication = Maps.newEnumMap(ObjectType.class);
         for (final AuthenticationStrategy authenticationStrategy : authenticationStrategies) {
-            for (final ObjectType objectType : authenticationStrategy.getPendingAuthenticationTypes()) {
-                Set<AuthenticationStrategy> strategies = pendingAuthenticationTypes.get(objectType);
-                if (strategies == null) {
-                    strategies = new HashSet<>();
-                    pendingAuthenticationTypes.put(objectType, strategies);
+            for (final ObjectType objectType : authenticationStrategy.getTypesWithDeferredAuthenticationSupport()) {
+                Set<AuthenticationStrategy> strategiesWithDeferredAuthentication = typesWithDeferredAuthentication.get(objectType);
+                if (strategiesWithDeferredAuthentication == null) {
+                    strategiesWithDeferredAuthentication = new HashSet<>();
+                    typesWithDeferredAuthentication.put(objectType, strategiesWithDeferredAuthentication);
                 }
 
-                strategies.add(authenticationStrategy);
+                strategiesWithDeferredAuthentication.add(authenticationStrategy);
             }
         }
     }
@@ -182,7 +182,7 @@ public class Authenticator {
     }
 
     private void authenticationFailed(final PreparedUpdate update, final UpdateContext updateContext, final Set<Message> authenticationMessages) {
-        if (isPendingAuthentication(update, updateContext)) {
+        if (isDeferredAuthenticationAllowed(update, updateContext)) {
             updateContext.status(update, UpdateStatus.PENDING_AUTHENTICATION);
         } else {
             updateContext.status(update, UpdateStatus.FAILED_AUTHENTICATION);
@@ -193,7 +193,7 @@ public class Authenticator {
         }
     }
 
-    private boolean isPendingAuthentication(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
+    boolean isDeferredAuthenticationAllowed(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
         if (updateContext.hasErrors(preparedUpdate)) {
             return false;
         }
@@ -202,14 +202,14 @@ public class Authenticator {
             return false;
         }
 
-        final Set<AuthenticationStrategy> strategies = pendingAuthenticationTypes.get(preparedUpdate.getType());
-        if (strategies == null) {
+        final Set<AuthenticationStrategy> strategiesWithDeferredAuthentication = typesWithDeferredAuthentication.get(preparedUpdate.getType());
+        if (strategiesWithDeferredAuthentication == null) {
             return false;
         }
 
         final Subject subject = updateContext.getSubject(preparedUpdate);
-        final boolean failedSupportedOnly = Sets.difference(subject.getFailedAuthentications(), strategies).isEmpty();
-        final boolean passedAtLeastOneSupported = !Sets.intersection(subject.getPassedAuthentications(), strategies).isEmpty();
+        final boolean failedSupportedOnly = Sets.difference(subject.getFailedAuthentications(), strategiesWithDeferredAuthentication).isEmpty();
+        final boolean passedAtLeastOneSupported = !Sets.intersection(subject.getPassedAuthentications(), strategiesWithDeferredAuthentication).isEmpty();
 
         return failedSupportedOnly && passedAtLeastOneSupported;
     }

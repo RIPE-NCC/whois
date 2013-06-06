@@ -18,9 +18,9 @@ public interface AuthenticationStrategy {
     boolean supports(PreparedUpdate update);
 
     /**
-     * @return Supported types for pending authentication.
+     * @return Supported types for deferred authentication.
      */
-    Set<ObjectType> getPendingAuthenticationTypes();
+    Set<ObjectType> getTypesWithDeferredAuthenticationSupport();
 
     /**
      * Perform one or more authentication steps for the provided update.
