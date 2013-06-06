@@ -14,6 +14,7 @@ import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -21,8 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
@@ -125,16 +124,15 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
             }
         } else {
             final CIString key = updatedObject.getKey();
-            final List<RpslObject> originalObjects = rpslObjectDao.getByKeys(updatedObject.getType(), Collections.singleton(key));
-            if (originalObjects.isEmpty()) {
+
+            try {
+                final RpslObject originalObject = rpslObjectDao.getByKey(updatedObject.getType(), key);
+                return attributeSanitizer.sanitize(originalObject, new ObjectMessages());
+            } catch (EmptyResultDataAccessException e) {
                 return null;
+            } catch (IncorrectResultSizeDataAccessException e) {
+                throw new IllegalStateException(String.format("Invalid number of results for {}", key, e));
             }
-
-            if (originalObjects.size() == 1) {
-                return attributeSanitizer.sanitize(originalObjects.get(0), new ObjectMessages());
-            }
-
-            throw new IllegalStateException(String.format("%s original objects found for %s", originalObjects.size(), key));
         }
     }
 

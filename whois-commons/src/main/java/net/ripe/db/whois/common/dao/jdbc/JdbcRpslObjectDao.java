@@ -24,13 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -175,6 +173,11 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public RpslObject getByKey(final ObjectType type, final String key) {
+        return getByKey(type, ciString(key));
+    }
+
+    @Override
+    public RpslObject getByKey(final ObjectType type, final CIString key) {
         try {
             return jdbcTemplate.queryForObject("" +
                     "SELECT object_id, object " +
@@ -182,63 +185,24 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
                     "  WHERE object_type = ? and pkey = ? and sequence_id != 0 ",
                     new RpslObjectRowMapper(),
                     ObjectTypeIds.getId(type),
-                    key);
+                    key.toString());
         } catch (EmptyResultDataAccessException e) {
-            return getByKeyFromIndex(type, ciString(key));
+            return getByKeyFromIndex(type, key);
         }
     }
 
     @Override
     public List<RpslObject> getByKeys(final ObjectType type, final Collection<CIString> searchKeys) {
-        if (searchKeys.isEmpty()) {
-            return Collections.emptyList();
-        }
+        final List<RpslObject> result = new ArrayList<>(searchKeys.size());
 
-        final Map<String, Object> paramMap = Maps.newHashMap();
-        paramMap.put("objectType", ObjectTypeIds.getId(type));
-
-        final Set<String> result = Sets.newHashSet();
-        for (final CIString value : searchKeys) {
-            result.add(value.toString());
-        }
-
-        paramMap.put("pkeys", result);
-
-        final Map<CIString, RpslObject> rpslObjectMap = new NamedParameterJdbcTemplate(jdbcTemplate).query("" +
-                "SELECT object_id, object, pkey " +
-                "  FROM last " +
-                "  WHERE object_type = :objectType and pkey in (:pkeys) and sequence_id != 0 ",
-                paramMap,
-                new ResultSetExtractor<Map<CIString, RpslObject>>() {
-                    @Override
-                    public Map<CIString, RpslObject> extractData(final ResultSet rs) throws SQLException, DataAccessException {
-                        final Map<CIString, RpslObject> result = Maps.newHashMap();
-                        final RpslObjectRowMapper rowMapper = new RpslObjectRowMapper();
-
-                        int rowNum = 0;
-                        while (rs.next()) {
-                            result.put(ciString(rs.getString(3)), rowMapper.mapRow(rs, rowNum++));
-                        }
-
-                        return result;
-                    }
-                });
-
-
-        final Set<RpslObject> results = Sets.newLinkedHashSetWithExpectedSize(rpslObjectMap.size());
         for (final CIString searchKey : searchKeys) {
-            final RpslObject rpslObject = rpslObjectMap.get(searchKey);
-            if (rpslObject != null) {
-                results.add(rpslObject);
-            } else {
-                try {
-                    results.add(getById(getByKeyFromIndex(type, searchKey).getObjectId()));
-                } catch (IncorrectResultSizeDataAccessException ignored) {
-                }
+            try {
+                result.add(getByKey(type, searchKey));
+            } catch (EmptyResultDataAccessException ignored) {
             }
         }
 
-        return Lists.newArrayList(results);
+        return result;
     }
 
     private RpslObject getByKeyFromIndex(final ObjectType type, final CIString key) {

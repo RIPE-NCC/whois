@@ -29,4 +29,6 @@ public interface RpslObjectDao extends ProxyLoader<Identifiable, RpslObject> {
     List<RpslObjectInfo> findMemberOfByObjectTypeWithoutMbrsByRef(ObjectType objectType, String attributeValue);
 
     List<RpslObjectInfo> relatedTo(RpslObject identifiable, Set<ObjectType> excludeObjectTypes);
+
+    RpslObject getByKey(ObjectType type, CIString key);
 }
