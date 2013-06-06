@@ -10,6 +10,7 @@ import javax.annotation.CheckForNull;
 import java.util.Map;
 import java.util.Set;
 
+// TODO: [AH] objectId should not be exposed outside DAO (it shouldn't be part of the DAO interface)
 public interface RpslObjectUpdateDao {
 
     RpslObjectUpdateInfo lookupObject(ObjectType type, String pkey);

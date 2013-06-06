@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
-import org.springframework.mail.MailParseException;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -49,7 +48,6 @@ public class MailGatewaySmtp implements MailGateway {
     }
 
     @Override
-    @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
     public void sendEmail(final String to, final String subject, final String text) {
         if (!outgoingMailEnabled) {
             LOGGER.warn("" +
@@ -67,16 +65,13 @@ public class MailGatewaySmtp implements MailGateway {
 
         try {
             sendEmailAttempt(to, subject, text);
-        } catch (MailSendException e) {
-            loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail message to {} with subject {}", to, subject), e);
-            throw e;
-        } catch (MailParseException e) {
-            loggerContext.log(new Message(Messages.Type.ERROR, "Unable to parse mail to {} with subject {}", to, subject), e);
         } catch (MailException e) {
+            loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail to {} with subject {}", to, subject), e);
             LOGGER.error("Unable to send mail message to: {}", to, e);
         }
     }
 
+    @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
     private void sendEmailAttempt(final String to, final String subject, final String text) {
         mailSender.send(new MimeMessagePreparator() {
             @Override
