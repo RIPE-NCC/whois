@@ -33,8 +33,8 @@ public class JdbcPendingUpdateDao implements PendingUpdateDao {
             public PendingUpdate mapRow(final ResultSet rs, final int rowNum) throws SQLException {
                 return new PendingUpdate(
                         rs.getString("authenticated_by"),
-                        RpslObjectBase.parse(rs.getBytes("object")),
-                        new LocalDateTime(rs.getInt("stored_date") * 1000L)
+                        RpslObjectBase.parse(rs.getString("object")),
+                        new LocalDateTime(rs.getDate("stored_date"))
                 );
             }
         }, ObjectTypeIds.getId(type), key);
@@ -45,10 +45,10 @@ public class JdbcPendingUpdateDao implements PendingUpdateDao {
         jdbcTemplate.update("" +
                 "INSERT INTO pending_updates(object, object_type, pkey, stored_date, authenticated_by) " +
                 "VALUES (?, ?, ?, ?, ?)",
-                pendingUpdate.getObject().toByteArray(),
+                pendingUpdate.getObject().toString(),
                 ObjectTypeIds.getId(pendingUpdate.getObject().getType()),
                 pendingUpdate.getObject().getKey(),
-                (int) pendingUpdate.getStoredDate().toDate().getTime() / 1000L,
+                pendingUpdate.getStoredDate().toDate(),
                 pendingUpdate.getAuthenticatedBy());
     }
 
@@ -57,5 +57,10 @@ public class JdbcPendingUpdateDao implements PendingUpdateDao {
         jdbcTemplate.update("DELETE FROM pending_updates WHERE object_type = ? AND pkey = ? ORDER BY stored_date ASC LIMIT 1",
                 ObjectTypeIds.getId(pendingUpdate.getObject().getType()),
                 pendingUpdate.getObject().getKey().toString());
+    }
+
+    @Override
+    public void removePendingUpdatesBefore(final LocalDateTime date) {
+        jdbcTemplate.update("DELETE FROM pending_updates WHERE stored_date < ?", date.toDate());
     }
 }

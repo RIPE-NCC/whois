@@ -11,16 +11,24 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.jdbc.driver.LoggingDriver;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
+import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBase;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +46,19 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.StringValueResolver;
 
 import javax.sql.DataSource;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -410,6 +428,27 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 user.getHashedPassword(),
                 Joiner.on(',').join(user.getObjectTypes()),
                 new Date());
+    }
+
+    public void clearPendingUpdates() {
+        pendingUpdatesTemplate.update("DELETE FROM pending_updates");
+    }
+
+    public void insertPendingUpdate(final LocalDate date, final String authenticatedBy, final RpslObjectBase rpslObjectBase) {
+        pendingUpdatesTemplate.update("INSERT INTO pending_updates (object_type, pkey, stored_date, authenticated_by, object) VALUES (?,?,?,?,?)",
+                ObjectTypeIds.getId(rpslObjectBase.getType()),
+                rpslObjectBase.getKey().toString(),
+                date.toDate(),
+                authenticatedBy,
+                rpslObjectBase.toString());
+    }
+
+    public List<Map<String, Object>> listPendingUpdates() {
+        return pendingUpdatesTemplate.queryForList("SELECT * FROM pending_updates");
+    }
+
+    public List<Map<String, Object>> listPendingUpdates(final String pkey) {
+        return pendingUpdatesTemplate.queryForList("SELECT * FROM pending_updates WHERE pkey = ?", pkey);
     }
 
     public static void dumpSchema(final DataSource datasource) throws SQLException {

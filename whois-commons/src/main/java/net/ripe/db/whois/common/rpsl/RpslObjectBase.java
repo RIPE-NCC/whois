@@ -34,7 +34,6 @@ public class RpslObjectBase {
         this.typeAttribute = attributes.get(0);
         this.type = ObjectType.getByNameOrNull(typeAttribute.getKey());
         this.attributes = Collections.unmodifiableList(attributes);
-
     }
 
     RpslObjectBase(final byte[] buf) {
@@ -118,10 +117,6 @@ public class RpslObjectBase {
     @CheckForNull
     public ObjectType getType() {
         return type;
-    }
-
-    public byte[] toByteArray() {
-        return buf;
     }
 
     public List<RpslAttribute> getAttributes() {

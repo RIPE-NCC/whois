@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS `pending_updates`;
 create table pending_updates (
   `object_type` tinyint(3) unsigned NOT NULL,
   `pkey` varchar(254) NOT NULL,
-  `stored_date` int(10) unsigned NOT NULL DEFAULT '0',
+  `stored_date` date NOT NULL DEFAULT '0000-00-00',
   `authenticated_by` VARCHAR(100) NOT NULL,
   `object` longblob NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
