@@ -58,7 +58,7 @@ public class AuthenticatorPendingTest {
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext);
+        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext, authSubject);
         assertThat(deferredAuthenticationAllowed, is(true));
     }
 
@@ -69,7 +69,7 @@ public class AuthenticatorPendingTest {
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext);
+        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext, authSubject);
         assertThat(deferredAuthenticationAllowed, is(false));
     }
 
@@ -80,7 +80,7 @@ public class AuthenticatorPendingTest {
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext);
+        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext, authSubject);
         assertThat(deferredAuthenticationAllowed, is(false));
     }
 
@@ -91,7 +91,7 @@ public class AuthenticatorPendingTest {
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1, authStrategy"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext);
+        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext, authSubject);
         assertThat(deferredAuthenticationAllowed, is(false));
     }
 
@@ -102,7 +102,7 @@ public class AuthenticatorPendingTest {
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Collections.<String>emptySet());
 
-        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext);
+        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext, authSubject);
         assertThat(deferredAuthenticationAllowed, is(false));
     }
 
@@ -113,7 +113,7 @@ public class AuthenticatorPendingTest {
         when(update.getType()).thenReturn(ObjectType.ROUTE);
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
-        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext);
+        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext, authSubject);
         assertThat(deferredAuthenticationAllowed, is(false));
     }
 

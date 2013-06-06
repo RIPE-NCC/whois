@@ -14,6 +14,8 @@ public class Subject {
     private final Set<String> passedAuthentications;
     private final Set<String> failedAuthentications;
 
+    static Subject EMPTY = new Subject();
+
     Subject(final Principal... principals) {
         this(principals.length == 0 ? Collections.<Principal>emptySet() : Sets.newHashSet(principals),
                 Collections.<String>emptySet(),

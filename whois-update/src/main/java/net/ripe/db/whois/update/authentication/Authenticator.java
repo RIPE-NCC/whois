@@ -111,8 +111,8 @@ public class Authenticator {
         }
 
         if (!authenticationMessages.isEmpty()) {
-            authenticationFailed(update, updateContext, authenticationMessages);
-            return new Subject();
+            authenticationFailed(update, updateContext, Subject.EMPTY, authenticationMessages);
+            return Subject.EMPTY;
         }
 
         final OverrideCredential overrideCredential = overrideCredentials.iterator().next();
@@ -130,9 +130,8 @@ public class Authenticator {
         }
 
         authenticationMessages.add(UpdateMessages.overrideAuthenticationFailed());
-        authenticationFailed(update, updateContext, authenticationMessages);
-
-        return new Subject();
+        authenticationFailed(update, updateContext, Subject.EMPTY, authenticationMessages);
+        return Subject.EMPTY;
     }
 
     private Subject performAuthentication(final Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {
@@ -170,11 +169,12 @@ public class Authenticator {
             }
         }
 
+        final Subject subject = new Subject(principals, passedAuthentications, failedAuthentications);
         if (!authenticationMessages.isEmpty()) {
-            authenticationFailed(update, updateContext, authenticationMessages);
+            authenticationFailed(update, updateContext, subject, authenticationMessages);
         }
 
-        return new Subject(principals, passedAuthentications, failedAuthentications);
+        return subject;
     }
 
     private Set<Principal> getPrincipals(final RpslObject authenticatedObject) {
@@ -190,8 +190,8 @@ public class Authenticator {
         return principals;
     }
 
-    private void authenticationFailed(final PreparedUpdate update, final UpdateContext updateContext, final Set<Message> authenticationMessages) {
-        if (isDeferredAuthenticationAllowed(update, updateContext)) {
+    private void authenticationFailed(final PreparedUpdate update, final UpdateContext updateContext, final Subject subject, final Set<Message> authenticationMessages) {
+        if (isDeferredAuthenticationAllowed(update, updateContext, subject)) {
             updateContext.status(update, UpdateStatus.PENDING_AUTHENTICATION);
         } else {
             updateContext.status(update, UpdateStatus.FAILED_AUTHENTICATION);
@@ -202,7 +202,7 @@ public class Authenticator {
         }
     }
 
-    boolean isDeferredAuthenticationAllowed(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
+    boolean isDeferredAuthenticationAllowed(final PreparedUpdate preparedUpdate, final UpdateContext updateContext, final Subject subject) {
         if (updateContext.hasErrors(preparedUpdate)) {
             return false;
         }
@@ -216,7 +216,6 @@ public class Authenticator {
             return false;
         }
 
-        final Subject subject = updateContext.getSubject(preparedUpdate);
         final boolean failedSupportedOnly = Sets.difference(subject.getFailedAuthentications(), strategiesWithDeferredAuthentication).isEmpty();
         final boolean passedAtLeastOneSupported = !Sets.intersection(subject.getPassedAuthentications(), strategiesWithDeferredAuthentication).isEmpty();
 
