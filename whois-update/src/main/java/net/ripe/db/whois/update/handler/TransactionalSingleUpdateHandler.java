@@ -90,15 +90,16 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
 
         loggerContext.logPreparedUpdate(preparedUpdate);
         authenticator.authenticate(origin, preparedUpdate, updateContext);
+        final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
+        final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION.equals(updateContext.getStatus(preparedUpdate));
 
-        if (UpdateStatus.PENDING_AUTHENTICATION.equals(updateContext.getStatus(preparedUpdate))) {
-            // TODO [AK] Make distinction between authentication errors and business rule errors
-        }
-
-        updateObjectHandler.execute(preparedUpdate, updateContext);
-
-        if (updateContext.hasErrors(update)) {
+        if (businessRulesOk && pendingAuthentication) {
+            // TODO [AK] Enter deferred authentication process
             throw new UpdateFailedException();
+        } else if (updateContext.hasErrors(update)) {
+            throw new UpdateFailedException();
+        } else {
+            updateObjectHandler.execute(preparedUpdate, updateContext);
         }
 
         updateContext.setPreparedUpdate(preparedUpdate);

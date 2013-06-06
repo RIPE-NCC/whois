@@ -85,6 +85,10 @@ public class UpdateContext {
         return getOrCreateContext(updateContainer).objectMessages.hasErrors();
     }
 
+    public int getErrorCount(final UpdateContainer updateContainer) {
+        return getOrCreateContext(updateContainer).objectMessages.getErrorCount();
+    }
+
     public void status(final UpdateContainer updateContainer, final UpdateStatus status) {
         getOrCreateContext(updateContainer).status = status;
         loggerContext.logStatus(updateContainer, status);

@@ -46,8 +46,8 @@ public class ObjectMessages {
             return true;
         }
 
-        for (final Messages message : attributeMessages.values()) {
-            if (hasErrors(message)) {
+        for (final Messages msgs : attributeMessages.values()) {
+            if (hasErrors(msgs)) {
                 return true;
             }
         }
@@ -69,6 +69,16 @@ public class ObjectMessages {
         return false;
     }
 
+    public int getErrorCount() {
+        int count = messages.getErrors().size();
+
+        for (final Messages msgs : attributeMessages.values()) {
+            count += msgs.getErrors().size();
+        }
+
+        return count;
+    }
+
     private boolean hasErrors(final Messages messages) {
         return !messages.getMessages(Messages.Type.ERROR).isEmpty();
     }
@@ -85,10 +95,10 @@ public class ObjectMessages {
     public String toString() {
         StringBuilder ret = new StringBuilder();
         for (Message message : messages.getMessages(Messages.Type.ERROR)) {
-                ret.append(", ").append(message.toString());
+            ret.append(", ").append(message.toString());
         }
 
-        for (Map.Entry<RpslAttribute, Messages> entry: attributeMessages.entrySet()) {
+        for (Map.Entry<RpslAttribute, Messages> entry : attributeMessages.entrySet()) {
             for (Message message : entry.getValue().getMessages(Messages.Type.ERROR)) {
                 ret.append(", ").append(entry.getKey().getType().getName()).append(": ").append(message.toString());
             }

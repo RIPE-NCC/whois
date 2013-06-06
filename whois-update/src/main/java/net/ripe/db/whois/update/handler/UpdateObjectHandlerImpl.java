@@ -87,7 +87,7 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void execute(final PreparedUpdate update, final UpdateContext updateContext) {
-        validate(update, updateContext);
+        validateBusinessRules(update, updateContext);
 
         if (!updateContext.hasErrors(update)) {
             switch (update.getAction()) {
@@ -111,7 +111,9 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public boolean validateBusinessRules(final PreparedUpdate update, final UpdateContext updateContext) {
+        final int initialErrorCount = updateContext.getErrorCount(update);
+
         final Action action = update.getAction();
         final Map<ObjectType, List<BusinessRuleValidator>> validatorsByType = validatorsByActionAndType.get(action);
 
@@ -120,5 +122,7 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
         for (final BusinessRuleValidator businessRuleValidator : validators) {
             businessRuleValidator.validate(update, updateContext);
         }
+
+        return updateContext.getErrorCount(update) == initialErrorCount;
     }
 }
