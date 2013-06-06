@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-public class MntByAuthentication implements AuthenticationStrategy {
+class MntByAuthentication extends AuthenticationStrategyBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(MntByAuthentication.class);
 
     private final Maintainers maintainers;

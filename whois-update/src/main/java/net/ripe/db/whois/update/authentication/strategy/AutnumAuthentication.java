@@ -15,12 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 @Component
-public class AutnumAuthentication implements AuthenticationStrategy {
+class AutnumAuthentication extends AuthenticationStrategyBase {
     private final RpslObjectDao objectDao;
     private final AuthenticationModule authenticationModule;
 
@@ -33,11 +31,6 @@ public class AutnumAuthentication implements AuthenticationStrategy {
     @Override
     public boolean supports(final PreparedUpdate update) {
         return update.getType().equals(ObjectType.AUT_NUM) && update.getAction().equals(Action.CREATE);
-    }
-
-    @Override
-    public Set<ObjectType> getTypesWithDeferredAuthenticationSupport() {
-        return Collections.emptySet();
     }
 
     @Override

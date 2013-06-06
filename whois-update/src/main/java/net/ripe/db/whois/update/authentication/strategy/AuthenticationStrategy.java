@@ -18,6 +18,11 @@ public interface AuthenticationStrategy {
     boolean supports(PreparedUpdate update);
 
     /**
+     * @return The name of the authentication strategy
+     */
+    String getName();
+
+    /**
      * @return Supported types for deferred authentication.
      */
     Set<ObjectType> getTypesWithDeferredAuthenticationSupport();

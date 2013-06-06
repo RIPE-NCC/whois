@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-public class DomainAuthentication implements AuthenticationStrategy {
+class DomainAuthentication extends AuthenticationStrategyBase {
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final RpslObjectDao objectDao;
@@ -44,11 +44,6 @@ public class DomainAuthentication implements AuthenticationStrategy {
     @Override
     public boolean supports(final PreparedUpdate update) {
         return update.getAction().equals(Action.CREATE) && (update.getType().equals(ObjectType.DOMAIN));
-    }
-
-    @Override
-    public Set<ObjectType> getTypesWithDeferredAuthenticationSupport() {
-        return Collections.emptySet();
     }
 
     @Override

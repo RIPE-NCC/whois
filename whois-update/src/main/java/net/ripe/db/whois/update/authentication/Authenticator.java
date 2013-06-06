@@ -14,6 +14,9 @@ import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedExce
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -22,6 +25,8 @@ import java.util.*;
 
 @Component
 public class Authenticator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Authenticator.class);
+
     private final IpRanges ipRanges;
     private final UserDao userDao;
     private final LoggerContext loggerContext;
@@ -54,8 +59,14 @@ public class Authenticator {
                     typesWithDeferredAuthentication.put(objectType, strategiesWithDeferredAuthentication);
                 }
 
-                strategiesWithDeferredAuthentication.add(getStrategyName(authenticationStrategy.getClass()));
+                strategiesWithDeferredAuthentication.add(authenticationStrategy.getName());
             }
+        }
+
+        for (final Map.Entry<ObjectType, Set<String>> objectTypeSetEntry : typesWithDeferredAuthentication.entrySet()) {
+            final Set<String> authenticationStrategyNames = objectTypeSetEntry.getValue();
+            Validate.isTrue(authenticationStrategyNames.size() > 1, "Deferred authentication makes no sense for 1 authentication strategy:", authenticationStrategyNames);
+            LOGGER.info("Deferred authentication supported for {}: {}", objectTypeSetEntry.getKey(), authenticationStrategyNames);
         }
     }
 
@@ -136,14 +147,12 @@ public class Authenticator {
         } else {
             for (final AuthenticationStrategy authenticationStrategy : authenticationStrategies) {
                 if (authenticationStrategy.supports(update)) {
-                    final String authenticationStrategyName = getStrategyName(authenticationStrategy.getClass());
-
                     try {
                         authenticatedObjects.addAll(authenticationStrategy.authenticate(update, updateContext));
-                        passedAuthentications.add(authenticationStrategyName);
+                        passedAuthentications.add(authenticationStrategy.getName());
                     } catch (AuthenticationFailedException e) {
                         authenticationMessages.addAll(e.getAuthenticationMessages());
-                        failedAuthentications.add(authenticationStrategyName);
+                        failedAuthentications.add(authenticationStrategy.getName());
                     }
                 }
             }
@@ -212,9 +221,5 @@ public class Authenticator {
         final boolean passedAtLeastOneSupported = !Sets.intersection(subject.getPassedAuthentications(), strategiesWithDeferredAuthentication).isEmpty();
 
         return failedSupportedOnly && passedAtLeastOneSupported;
-    }
-
-    private static String getStrategyName(final Class<? extends AuthenticationStrategy> clazz) {
-        return clazz.getSimpleName();
     }
 }

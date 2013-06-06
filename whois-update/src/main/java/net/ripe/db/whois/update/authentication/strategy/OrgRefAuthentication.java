@@ -17,12 +17,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 @Component
-public class OrgRefAuthentication implements AuthenticationStrategy {
+class OrgRefAuthentication extends AuthenticationStrategyBase {
 
     private final AuthenticationModule credentialValidators;
     private final RpslObjectDao rpslObjectDao;
@@ -36,11 +35,6 @@ public class OrgRefAuthentication implements AuthenticationStrategy {
     @Override
     public boolean supports(final PreparedUpdate update) {
         return !update.getNewValues(AttributeType.ORG).isEmpty();
-    }
-
-    @Override
-    public Set<ObjectType> getTypesWithDeferredAuthenticationSupport() {
-        return Collections.emptySet();
     }
 
     @Override

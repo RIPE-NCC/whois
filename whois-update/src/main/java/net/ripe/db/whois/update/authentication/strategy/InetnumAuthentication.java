@@ -19,13 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 @Component
-public class InetnumAuthentication implements AuthenticationStrategy {
-
+class InetnumAuthentication extends AuthenticationStrategyBase {
     private final AuthenticationModule authenticationModule;
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
@@ -42,11 +39,6 @@ public class InetnumAuthentication implements AuthenticationStrategy {
     @Override
     public boolean supports(final PreparedUpdate update) {
         return update.getAction().equals(Action.CREATE) && (update.getType().equals(ObjectType.INETNUM) || update.getType().equals(ObjectType.INET6NUM));
-    }
-
-    @Override
-    public Set<ObjectType> getTypesWithDeferredAuthenticationSupport() {
-        return Collections.emptySet();
     }
 
     @Override

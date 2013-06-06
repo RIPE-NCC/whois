@@ -13,12 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 @Component
-public class MntIrtAuthentication implements AuthenticationStrategy {
+class MntIrtAuthentication extends AuthenticationStrategyBase {
     private final AuthenticationModule credentialValidators;
     private final RpslObjectDao rpslObjectDao;
 
@@ -31,11 +29,6 @@ public class MntIrtAuthentication implements AuthenticationStrategy {
     @Override
     public boolean supports(final PreparedUpdate update) {
         return !update.getNewValues(AttributeType.MNT_IRT).isEmpty();
-    }
-
-    @Override
-    public Set<ObjectType> getTypesWithDeferredAuthenticationSupport() {
-        return Collections.emptySet();
     }
 
     @Override
