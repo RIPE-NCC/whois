@@ -15,10 +15,14 @@ public class Ack {
         final List<UpdateResult> failed = Lists.newArrayList();
 
         for (final UpdateResult updateResult : updateResults) {
-            if (UpdateStatus.SUCCESS.equals(updateResult.getStatus())) {
-                succeeded.add(updateResult);
-            } else {
-                failed.add(updateResult);
+            switch(updateResult.getStatus()) {
+                case SUCCESS:
+                    succeeded.add(updateResult);
+                    break;
+                case PENDING_AUTHENTICATION:
+                    break;
+                default:
+                    failed.add(updateResult);
             }
         }
 
