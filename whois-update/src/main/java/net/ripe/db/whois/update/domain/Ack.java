@@ -1,7 +1,10 @@
 package net.ripe.db.whois.update.domain;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,9 +20,8 @@ public class Ack {
         for (final UpdateResult updateResult : updateResults) {
             switch(updateResult.getStatus()) {
                 case SUCCESS:
-                    succeeded.add(updateResult);
-                    break;
                 case PENDING_AUTHENTICATION:
+                    succeeded.add(updateResult);
                     break;
                 default:
                     failed.add(updateResult);
@@ -52,19 +54,39 @@ public class Ack {
     }
 
     public int getNrCreate() {
-        return getCount(Action.CREATE, succeededUpdates);
+        return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
+            @Override
+            public boolean apply(@Nullable UpdateResult input) {
+                return Action.CREATE.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus());
+            }
+        }));
     }
 
     public int getNrUpdate() {
-        return getCount(Action.MODIFY, succeededUpdates);
+        return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
+            @Override
+            public boolean apply(@Nullable UpdateResult input) {
+                return Action.MODIFY.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus());
+            }
+        }));
     }
 
     public int getNrDelete() {
-        return getCount(Action.DELETE, succeededUpdates);
+        return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
+            @Override
+            public boolean apply(@Nullable UpdateResult input) {
+                return Action.DELETE.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus());
+            }
+        }));
     }
 
     public int getNrNoop() {
-        return getCount(Action.NOOP, succeededUpdates);
+        return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
+            @Override
+            public boolean apply(@Nullable UpdateResult input) {
+                return Action.NOOP.equals(input.getAction()) || UpdateStatus.PENDING_AUTHENTICATION.equals(input.getStatus());
+            }
+        }));
     }
 
     public int getNrProcessedErrrors() {
@@ -72,27 +94,30 @@ public class Ack {
     }
 
     public int getNrCreateErrors() {
-        return getCount(Action.CREATE, failedUpdates);
+        return Iterables.size(Iterables.filter(failedUpdates, new Predicate<UpdateResult>() {
+            @Override
+            public boolean apply(@Nullable UpdateResult input) {
+                return Action.CREATE.equals(input.getAction());
+            }
+        }));
     }
 
     public int getNrUpdateErrors() {
-        return getCount(Action.MODIFY, failedUpdates);
+        return Iterables.size(Iterables.filter(failedUpdates, new Predicate<UpdateResult>() {
+            @Override
+            public boolean apply(@Nullable UpdateResult input) {
+                return Action.MODIFY.equals(input.getAction());
+            }
+        }));
     }
 
     public int getNrDeleteErrors() {
-        return getCount(Action.DELETE, failedUpdates);
-    }
-
-    private int getCount(final Action action, final List<UpdateResult> updateResults) {
-        int count = 0;
-
-        for (final UpdateResult updateResult : updateResults) {
-            if (action.equals(updateResult.getAction())) {
-                count++;
+        return Iterables.size(Iterables.filter(failedUpdates, new Predicate<UpdateResult>() {
+            @Override
+            public boolean apply(@Nullable UpdateResult input) {
+                return Action.DELETE.equals(input.getAction());
             }
-        }
-
-        return count;
+        }));
     }
 
     public UpdateStatus getUpdateStatus() {

@@ -45,10 +45,10 @@ The following object(s) were processed SUCCESSFULLY:
 
     #foreach( $updateResult in $succeededUpdates )
     ---
-        #if ($updateResult.noop)
-        No operation: $updateResult.key
-        #elseif ($updateResult.pending)
+        #if ($updateResult.pending)
             $updateResult.action.description PENDING: $updateResult.key
+        #elseif ($updateResult.noop)
+            No operation: $updateResult.key
         #else
             $updateResult.action.description SUCCEEDED: $updateResult.key
         #end
