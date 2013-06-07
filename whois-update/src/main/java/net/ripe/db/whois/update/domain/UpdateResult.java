@@ -57,6 +57,10 @@ public class UpdateResult {
         return objectMessages.getMessages().getMessages(Messages.Type.INFO);
     }
 
+    public boolean isPending() {
+        return status.equals(UpdateStatus.PENDING_AUTHENTICATION);
+    }
+
     public boolean isNoop() {
         return action.equals(Action.NOOP);
     }

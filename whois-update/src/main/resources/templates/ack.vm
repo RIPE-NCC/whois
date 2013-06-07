@@ -47,6 +47,8 @@ The following object(s) were processed SUCCESSFULLY:
     ---
         #if ($updateResult.noop)
         No operation: $updateResult.key
+        #elseif ($updateResult.pending)
+            $updateResult.action.description PENDING: $updateResult.key
         #else
             $updateResult.action.description SUCCEEDED: $updateResult.key
         #end
