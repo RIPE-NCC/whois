@@ -3,7 +3,6 @@ package net.ripe.db.whois.update.handler;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBase;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.authentication.strategy.RouteAutnumAuthentication;
@@ -35,7 +34,7 @@ public class PendingUpdateHandlerTest {
     @Test
     public void found_completing_pendingUpdate() {
         RpslObject object = RpslObject.parse("route: 193.0/16\norigin: AS12345");
-        RpslObjectBase objectBase = RpslObjectBase.parse("route: 193.0/16\norigin: AS12345");
+        RpslObject objectBase = RpslObject.parse("route: 193.0/16\norigin: AS12345");
         final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet(RouteAutnumAuthentication.class.toString()), objectBase);
 
         when(pendingUpdateDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.newArrayList(pendingUpdate));
@@ -51,7 +50,7 @@ public class PendingUpdateHandlerTest {
     @Test
     public void found_pendingUpdate_with_same_authenticator() {
         RpslObject object = RpslObject.parse("route: 193.0/16\norigin: AS12345");
-        RpslObjectBase objectBase = RpslObjectBase.parse("route: 193.0/16\norigin: AS12345");
+        RpslObject objectBase = RpslObject.parse("route: 193.0/16\norigin: AS12345");
         final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet(RouteAutnumAuthentication.class.toString()), objectBase);
 
         when(pendingUpdateDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.newArrayList(pendingUpdate));

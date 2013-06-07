@@ -3,7 +3,7 @@ package net.ripe.db.whois.scheduler.task.update;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
-import net.ripe.db.whois.common.rpsl.RpslObjectBase;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.joda.time.LocalDate;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
 
     @Test
     public void cleanup() {
-        final RpslObjectBase route = RpslObjectBase.parse(
+        final RpslObject route = RpslObject.parse(
                 "route: 10.0.0.0/8\n" +
                 "descr: description\n" +
                 "origin: \n" +
@@ -41,7 +41,7 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
 
     @Test
     public void dont_cleanup() {
-        final RpslObjectBase route = RpslObjectBase.parse(
+        final RpslObject route = RpslObject.parse(
                 "route: 10.0.0.0/8\n" +
                 "descr: description\n" +
                 "origin: \n" +

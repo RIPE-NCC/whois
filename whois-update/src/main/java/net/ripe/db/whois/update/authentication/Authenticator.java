@@ -162,7 +162,7 @@ public class Authenticator {
             principals.addAll(getPrincipals(authenticatedObject));
         }
 
-        // TODO: [AH] remove the isDeployed() when we are done migrating power-maintainer tests to syncupdates
+        // TODO: [AH] remove the isDeployed() when we are done migrating power-maintainer tests to syncupdates (a lot of tests that require power mntner are using mailupdates ATM)
         if (!principals.isEmpty() && !origin.isDefaultOverride() && WhoisProfile.isDeployed()) {
             if (!origin.allowAdminOperations() || !ipRanges.isInRipeRange(IpInterval.parse(origin.getFrom()))) {
                 authenticationMessages.add(UpdateMessages.ripeMntnerUpdatesOnlyAllowedFromWithinNetwork());

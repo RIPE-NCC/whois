@@ -15,13 +15,7 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.jdbc.driver.LoggingDriver;
-import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
-import net.ripe.db.whois.common.rpsl.ObjectMessages;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBase;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
@@ -47,13 +41,9 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.StringValueResolver;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -429,7 +419,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         pendingUpdatesTemplate.update("DELETE FROM pending_updates");
     }
 
-    public int insertPendingUpdate(final LocalDate date, final Set<String> authenticatedBy, final RpslObjectBase rpslObjectBase) {
+    public int insertPendingUpdate(final LocalDate date, final Set<String> authenticatedBy, final RpslObject rpslObjectBase) {
         return new SimpleJdbcInsert(pendingUpdatesTemplate)
                 .withTableName("pending_updates")
                 .usingColumns("object_type", "pkey", "stored_date", "passed_authentications", "object")

@@ -5,7 +5,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObjectBase;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.PendingUpdate;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class JdbcPendingUpdateDao implements PendingUpdateDao {
                 return new PendingUpdate(
                         rs.getInt("id"),
                         Sets.newHashSet(SPLITTER.split(rs.getString("passed_authentications"))),
-                        RpslObjectBase.parse(rs.getString("object")),
+                        RpslObject.parse(rs.getString("object")),
                         new LocalDateTime(rs.getDate("stored_date"))
                 );
             }

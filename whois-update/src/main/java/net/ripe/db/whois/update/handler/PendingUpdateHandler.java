@@ -3,7 +3,6 @@ package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBase;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.domain.PendingUpdate;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
-import java.util.List;
 import java.util.Set;
 
 @Component
@@ -37,7 +35,7 @@ class PendingUpdateHandler {
         final Set<String> passedAuthentications = updateContext.getSubject(preparedUpdate).getPassedAuthentications();
 
         if (pendingUpdate == null) {
-            pendingUpdateDao.store(new PendingUpdate(passedAuthentications, new RpslObjectBase(rpslObject.getAttributes())));
+            pendingUpdateDao.store(new PendingUpdate(passedAuthentications, rpslObject));
         }
         else {
             Set<String> currentSuccessfuls = Sets.newHashSet(pendingUpdate.getPassedAuthentications());
@@ -47,19 +45,15 @@ class PendingUpdateHandler {
                 //TODO
                 LOGGER.info("GOING INTO STAGE H: REMOVE PENDINGUPDATE FROM DB, PROCESS UPDATE SKIP AUTH");
             } else {
-                pendingUpdateDao.store(new PendingUpdate(passedAuthentications, new RpslObjectBase(rpslObject.getAttributes())));
+                pendingUpdateDao.store(new PendingUpdate(passedAuthentications, rpslObject));
             }
         }
     }
 
     @CheckForNull
     private PendingUpdate find(final RpslObject object) {
-        final List<PendingUpdate> result = pendingUpdateDao.findByTypeAndKey(object.getType(), object.getKey().toString());
-        for (final PendingUpdate update : result) {
-            final RpslObjectBase objectBase = update.getObject();
-
-            if (objectBase.getAttributes().size() == object.getAttributes().size() &&
-                    objectBase.getAttributes().containsAll(object.getAttributes())) {
+        for (final PendingUpdate update : pendingUpdateDao.findByTypeAndKey(object.getType(), object.getKey().toString())) {
+            if (object.equals(update.getObject())) {
                 return update;
             }
         }
