@@ -55,11 +55,6 @@ class MntByAuthentication extends AuthenticationStrategyBase {
     }
 
     @Override
-    public Set<ObjectType> getTypesWithDeferredAuthenticationSupport() {
-        return Collections.emptySet();
-    }
-
-    @Override
     public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext) {
         try {
             return authenticateMntBy(update, updateContext);
