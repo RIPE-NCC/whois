@@ -1,7 +1,10 @@
 package spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.common.rpsl.RpslObjectBase
+import org.joda.time.LocalDate
 import spec.domain.SyncUpdate
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class RouteIntegrationSpec extends BaseWhoisSourceSpec {
@@ -23,6 +26,17 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     referral-by: TEST-MNT
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    source: TEST
+                """,
+                "TEST-MNT2": """\
+                    mntner: TEST-MNT2
+                    descr: description
+                    admin-c: TEST-PN
+                    mnt-by: TEST-MNT2
+                    referral-by: TEST-MNT2
+                    upd-to: dbtest@ripe.net
+                    auth:   MD5-PW \$1\$5aMDZg3w\$zL59TnpAszf6Ft.zs148X0 # update2
+                    changed: dbtest@ripe.net 20120707
                     source: TEST
                 """,
                 "ROUTES-MNT": """\
@@ -1125,5 +1139,116 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
       expect:
         insertRoute !=~ /Automatic creation of route objects of this size in not allowed,
             please contact lir-help@ripe.net for further information./
+    }
+
+    def "create route, without pending authentication"() {
+      given:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                            route: 194.0.0.0/24
+                            descr: Test route
+                            origin: AS456
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update
+                            password: update2
+                            password: emptypassword
+                            """.stripIndent()))
+      expect:
+        response =~ /SUCCESS/
+    }
+
+    @Ignore("TODO not implemented")
+    def "create route, with inetnum authentication, and pending autnum authentication"() {
+      setup:
+        databaseHelper.insertPendingUpdate(
+                LocalDate.now().minusDays(1),
+                "AutnumAuthentication",
+                RpslObjectBase.parse("""\
+                    route: 194.0.0.0/24
+                    descr: Test route
+                    origin: AS456
+                    mnt-by: TEST-MNT2
+                    changed: ripe@test.net 20091015
+                    source: TEST
+                """.stripIndent()))
+      when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                            route: 194.0.0.0/24
+                            descr: Test route
+                            origin: AS456
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update
+                            password: update2
+                            """.stripIndent()))
+      then:
+        response =~ /SUCCESS/
+      cleanup:
+        databaseHelper.clearPendingUpdates()
+    }
+
+    def "create route, with inetnum authentication, but no pending autnum authentication"() {
+      when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                            route: 194.0.0.0/24
+                            descr: Test route
+                            origin: AS456
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update
+                            password: update2
+                            """.stripIndent()))
+      then:
+        response =~ /FAILED/
+    }
+
+    @Ignore("TODO not implemented")
+    def "create route, with autnum authentication, and pending inetnum authentication"() {
+      setup:
+        databaseHelper.insertPendingUpdate(
+                LocalDate.now().minusDays(1),
+                "InetnumAuthentication",
+                RpslObjectBase.parse("""\
+                    route: 195.0.0.0/24
+                    descr: Test route
+                    origin: AS456
+                    mnt-by: TEST-MNT2
+                    changed: ripe@test.net 20091015
+                    source: TEST
+                """.stripIndent()))
+      when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                            route: 195.0.0.0/24
+                            descr: Test route
+                            origin: AS456
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: emptypassword
+                            password: update2
+                            """.stripIndent()))
+      then:
+        response =~ /SUCCESS/
+      cleanup:
+        databaseHelper.clearPendingUpdates()
+    }
+
+    def "create route, with autnum authentication, but no pending inetnum authentication"() {
+      when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                            route: 195.0.0.0/24
+                            descr: Test route
+                            origin: AS456
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: emptypassword
+                            password: update2
+                            """.stripIndent()))
+      then:
+        response =~ /FAILED/
     }
 }

@@ -1,7 +1,10 @@
 package spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.common.rpsl.RpslObjectBase
+import org.joda.time.LocalDate
 import spec.domain.SyncUpdate
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class Route6IntegrationSpec extends BaseWhoisSourceSpec {
@@ -23,6 +26,15 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     referral-by: TEST-MNT
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    source: TEST
+                """,
+                "TEST-MNT2": """\
+                    mntner: TEST-MNT2
+                    admin-c: TEST-PN
+                    mnt-by: TEST-MNT2
+                    referral-by: TEST-MNT2
+                    upd-to: dbtest@ripe.net
+                    auth:   MD5-PW \$1\$5aMDZg3w\$zL59TnpAszf6Ft.zs148X0 # update2
                     source: TEST
                 """,
                 "ROUTES-MNT": """\
@@ -70,6 +82,15 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     org:             ORG-NCC1-RIPE
                     mnt-by:          TEST-MNT
                     mnt-routes:      ROUTES-MNT
+                    changed:         ripe@test.net 20091015
+                    source:          TEST
+                """,
+                "AS789": """\
+                    aut-num:         AS789
+                    as-name:         ACK-AS
+                    descr:           "Ack" Ltd
+                    org:             ORG-NCC1-RIPE
+                    mnt-by:          ROUTES-MNT
                     changed:         ripe@test.net 20091015
                     source:          TEST
                 """,
@@ -1079,5 +1100,116 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
       then:
         response =~ /Create SUCCEEDED: \[route6\] 2000::\/12AS123/
+    }
+
+    def "create route6, without pending authentication"() {
+      given:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                route6: 5353::0/24
+                descr: TEST-ROUTE6
+                origin: AS456
+                mnt-by: TEST-MNT2
+                changed: ripe@test.net 20091015
+                source: TEST
+                password: update
+                password: emptypassword
+                password: update2
+                """.stripIndent()))
+      expect:
+        response =~ /SUCCESS/
+    }
+
+    @Ignore("TODO not implemented")
+    def "create route6, with inetnum authentication, and pending autnum authentication"() {
+      setup:
+        databaseHelper.insertPendingUpdate(
+                LocalDate.now().minusDays(1),
+                "AutnumAuthentication",
+                RpslObjectBase.parse("""\
+                    route6: 5353::0/24
+                    descr: TEST-ROUTE6
+                    origin: AS456
+                    mnt-by: TEST-MNT2
+                    changed: ripe@test.net 20091015
+                    source: TEST
+                """.stripIndent()))
+      when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                            route6: 5353::0/24
+                            descr: TEST-ROUTE6
+                            origin: AS456
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update
+                            password: update2
+                            """.stripIndent()))
+      then:
+        response =~ /SUCCESS/
+      cleanup:
+        databaseHelper.clearPendingUpdates()
+    }
+
+    def "create route6, with inetnum authentication, but no pending autnum authentication"() {
+      when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                            route6: 5353::0/24
+                            descr: TEST-ROUTE6
+                            origin: AS456
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update
+                            password: update2
+                            """.stripIndent()))
+      then:
+        response =~ /FAILED/
+    }
+
+    @Ignore("TODO not implemented")
+    def "create route6, with autnum authentication, and pending inetnum authentication"() {
+      setup:
+        databaseHelper.insertPendingUpdate(
+                LocalDate.now().minusDays(1),
+                "InetnumAuthentication",
+                RpslObjectBase.parse("""\
+                    route6: 5353::0/24
+                    descr: TEST-ROUTE6
+                    origin: AS789
+                    mnt-by: TEST-MNT2
+                    changed: ripe@test.net 20091015
+                    source: TEST
+                """.stripIndent()))
+      when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                            route6: 5353::0/24
+                            descr: TEST-ROUTE6
+                            origin: AS789
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update2
+                            password: emptypassword
+                            """.stripIndent()))
+      then:
+        response =~ /SUCCESS/
+      cleanup:
+        databaseHelper.clearPendingUpdates()
+    }
+
+    def "create route6, with autnum authentication, but no pending inetnum authentication"() {
+      when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                            route6: 5353::0/24
+                            descr: TEST-ROUTE6
+                            origin: AS789
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update2
+                            password: emptypassword
+                            """.stripIndent()))
+      then:
+        response =~ /FAILED/
     }
 }
