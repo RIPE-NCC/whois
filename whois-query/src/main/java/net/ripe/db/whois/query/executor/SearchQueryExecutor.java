@@ -123,6 +123,16 @@ public class SearchQueryExecutor implements QueryExecutor {
                 sources.add(Source.slave(source));
             }
         }
+        else {
+            if (!sourceContext.getDefaultSourceNames().isEmpty()) {
+                sources.addAll(Sets.newLinkedHashSet(Iterables.transform(sourceContext.getDefaultSourceNames(), new Function<CIString, Source>() {
+                    @Override
+                    public Source apply(final CIString input) {
+                        return Source.slave(input);
+                    }
+                })));
+            }
+        }
 
         if (sources.isEmpty()) {
             sources.add(sourceContext.getWhoisSlaveSource());
