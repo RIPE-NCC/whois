@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.authentication.Subject;
@@ -17,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -28,6 +30,7 @@ public class PendingUpdateHandlerTest {
     @Mock private UpdateContext updateContext;
     @Mock private Authenticator authenticator;
     @Mock private Subject subject;
+    @Autowired private DateTimeProvider dateTimeProvider;
 
     @InjectMocks private PendingUpdateHandler testSubject;
 
@@ -35,7 +38,7 @@ public class PendingUpdateHandlerTest {
     public void found_completing_pendingUpdate() {
         RpslObject object = RpslObject.parse("route: 193.0/16\norigin: AS12345");
         RpslObject objectBase = RpslObject.parse("route: 193.0/16\norigin: AS12345");
-        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet(RouteAutnumAuthentication.class.toString()), objectBase);
+        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet(RouteAutnumAuthentication.class.toString()), objectBase, dateTimeProvider.getCurrentDateTime());
 
         when(pendingUpdateDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.newArrayList(pendingUpdate));
         when(preparedUpdate.getUpdatedObject()).thenReturn(object);
@@ -51,7 +54,7 @@ public class PendingUpdateHandlerTest {
     public void found_pendingUpdate_with_same_authenticator() {
         RpslObject object = RpslObject.parse("route: 193.0/16\norigin: AS12345");
         RpslObject objectBase = RpslObject.parse("route: 193.0/16\norigin: AS12345");
-        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet(RouteAutnumAuthentication.class.toString()), objectBase);
+        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet(RouteAutnumAuthentication.class.toString()), objectBase, dateTimeProvider.getCurrentDateTime());
 
         when(pendingUpdateDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.newArrayList(pendingUpdate));
         when(preparedUpdate.getUpdatedObject()).thenReturn(object);
