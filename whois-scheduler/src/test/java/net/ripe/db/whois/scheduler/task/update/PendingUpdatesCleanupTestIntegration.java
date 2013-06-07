@@ -30,11 +30,31 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
                 "source: TEST");
 
         databaseHelper.clearPendingUpdates();
-        databaseHelper.insertPendingUpdate(LocalDate.now().minusDays(8), "OWNER-MNT", route);
+        databaseHelper.insertPendingUpdate(LocalDate.now().minusDays(8), "RouteAuthentication", route);
         assertThat(databaseHelper.listPendingUpdates(), hasSize(1));
 
         pendingUpdatesCleanup.run();
 
         assertThat(databaseHelper.listPendingUpdates(), hasSize(0));
+    }
+
+    @Test
+    public void dont_cleanup() {
+        final RpslObjectBase route = RpslObjectBase.parse(
+                "route: 10.0.0.0/8\n" +
+                "descr: description\n" +
+                "origin: \n" +
+                "notify: noreply@ripe.net\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "changed: noreplY@ripe.net\n" +
+                "source: TEST");
+
+        databaseHelper.clearPendingUpdates();
+        databaseHelper.insertPendingUpdate(LocalDate.now().minusDays(6), "RouteAuthentication", route);
+        assertThat(databaseHelper.listPendingUpdates(), hasSize(1));
+
+        pendingUpdatesCleanup.run();
+
+        assertThat(databaseHelper.listPendingUpdates(), hasSize(1));
     }
 }

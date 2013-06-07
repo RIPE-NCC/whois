@@ -27,7 +27,7 @@ public class IdenticalPendingUpdateFinderTest {
         final RpslObject object = RpslObject.parse("route6: 2345:2345::/48\norigin: AS1234\nmnt-by: TEST-MNT,OTHER-MNT");
         final RpslObjectBase objectBase = RpslObjectBase.parse("route6: 2345:2345::/48\norigin: AS1234\nmnt-by: OTHER-MNT,TEST-MNT");
 
-        when(pendingDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.newArrayList(new PendingUpdate("IP", objectBase)));
+        when(pendingDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.newArrayList(new PendingUpdate("InetnumAuthentication", objectBase)));
 
         final PendingUpdate pendingUpdate = subject.find(object);
         assertThat(pendingUpdate, is(nullValue()));
@@ -38,7 +38,7 @@ public class IdenticalPendingUpdateFinderTest {
         final RpslObject object = RpslObject.parse("route6:   2345:2345::/48\norigin: AS1234\nmnt-by: TEST-MNT,OTHER-MNT");
         final RpslObjectBase objectBase = RpslObjectBase.parse("route6: 2345:2345::/48\norigin:  AS1234\nmnt-by: TEST-MNT,OTHER-MNT");
 
-        when(pendingDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.newArrayList(new PendingUpdate("IP", objectBase)));
+        when(pendingDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.newArrayList(new PendingUpdate("InetnumAuthentication", objectBase)));
 
         final PendingUpdate pendingUpdate = subject.find(object);
         assertThat(pendingUpdate, is(not(nullValue())));
