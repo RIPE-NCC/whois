@@ -28,7 +28,9 @@ import java.util.concurrent.TimeUnit;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase {
@@ -40,8 +42,6 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     private static final int MIN_RANGE = 21486000;
     private static final int MID_RANGE = 21486049;  // 21486050 is a person in nrtm_sample.sql
     private static final int MAX_RANGE = 21486100;
-
-    private static CountDownLatch countDownLatch;
 
     @BeforeClass
     public static void setInterval() {
@@ -69,13 +69,13 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
 
     @Test
     public void dontHangOnHugeAutNumObjectKeepalive() throws Exception {
-        countDownLatch = new CountDownLatch(1);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
 
         // initial serial range
         setSerial(MIN_RANGE + 1, MIN_RANGE + 1);
         String query = String.format("-g TEST:3:%d-LAST -k", MIN_RANGE + 1);
 
-        NrtmTestThread thread = new NrtmTestThread(query, MIN_RANGE + 1);
+        NrtmTestThread thread = new NrtmTestThread(query, MIN_RANGE + 1, countDownLatch);
         thread.start();
         countDownLatch.await(5, TimeUnit.SECONDS);
         assertThat(thread.delCount, is(1));
@@ -96,14 +96,14 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     public void manySimultaneousClientsReadingManyObjects() throws InterruptedException {
         // 1st part: clients request MIN to LAST with -k flag, but we provide half of the available serials only
         final List<NrtmTestThread> threads = Lists.newArrayList();
-        countDownLatch = new CountDownLatch(NUM_THREADS);
+        CountDownLatch countDownLatch = new CountDownLatch(NUM_THREADS);
 
         setSerial(MIN_RANGE, MID_RANGE);
 
         String query = String.format("-g TEST:3:%d-LAST -k", MIN_RANGE);
 
         for (int i = 0; i < NUM_THREADS; i++) {
-            NrtmTestThread thread = new NrtmTestThread(query, MID_RANGE);
+            NrtmTestThread thread = new NrtmTestThread(query, MID_RANGE, countDownLatch);
             threads.add(thread);
             thread.start();
         }
@@ -178,10 +178,12 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
         volatile boolean stop = false;
         final String query;
         int lastSerial;
+        CountDownLatch countDownLatch;
 
-        public NrtmTestThread(String query, int lastSerial) {
+        public NrtmTestThread(String query, int lastSerial, CountDownLatch countDownLatch) {
             this.query = query;
             this.lastSerial = lastSerial;
+            this.countDownLatch = countDownLatch;
         }
 
         public void setLastSerial(int lastSerial) {
