@@ -2,12 +2,16 @@ package net.ripe.db.whois.update.handler;
 
 
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.domain.PendingUpdate;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +26,17 @@ class PendingUpdateHandler {
 
     private final PendingUpdateDao pendingUpdateDao;
     private final Authenticator authenticator;
+    private final UpdateObjectHandler updateObjectHandler;
+    private final DateTimeProvider dateTimeProvider;
+    private final LoggerContext loggerContext;
 
     @Autowired
-    public PendingUpdateHandler(final PendingUpdateDao pendingUpdateDao, final Authenticator authenticator) {
+    public PendingUpdateHandler(final PendingUpdateDao pendingUpdateDao, final Authenticator authenticator, UpdateObjectHandler updateObjectHandler, DateTimeProvider dateTimeProvider, LoggerContext loggerContext) {
         this.pendingUpdateDao = pendingUpdateDao;
         this.authenticator = authenticator;
+        this.updateObjectHandler = updateObjectHandler;
+        this.dateTimeProvider = dateTimeProvider;
+        this.loggerContext = loggerContext;
     }
 
     public void handle(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
@@ -35,17 +45,20 @@ class PendingUpdateHandler {
         final Set<String> passedAuthentications = updateContext.getSubject(preparedUpdate).getPassedAuthentications();
 
         if (pendingUpdate == null) {
-            pendingUpdateDao.store(new PendingUpdate(passedAuthentications, rpslObject));
-        }
-        else {
+            loggerContext.log(new Message(Messages.Type.INFO, "No pending updates found; storing in DB"));
+            pendingUpdateDao.store(new PendingUpdate(passedAuthentications, rpslObject, dateTimeProvider.getCurrentDateTime()));
+        } else {
             Set<String> currentSuccessfuls = Sets.newHashSet(pendingUpdate.getPassedAuthentications());
             currentSuccessfuls.addAll(passedAuthentications);
 
             if (authenticator.isAuthenticationForTypeComplete(rpslObject.getType(), currentSuccessfuls)) {
-                //TODO
-                LOGGER.info("GOING INTO STAGE H: REMOVE PENDINGUPDATE FROM DB, PROCESS UPDATE SKIP AUTH");
+                loggerContext.log(new Message(Messages.Type.INFO, "Pending update found and completes authentication; dropping from DB"));
+                pendingUpdateDao.remove(pendingUpdate);
+                updateObjectHandler.execute(preparedUpdate, updateContext);
             } else {
-                pendingUpdateDao.store(new PendingUpdate(passedAuthentications, rpslObject));
+                // TODO: [AH] add sender email to pending updates table
+                loggerContext.log(new Message(Messages.Type.INFO, "Pending update does not complete authentication; storing in DB"));
+                pendingUpdateDao.store(new PendingUpdate(currentSuccessfuls, rpslObject, dateTimeProvider.getCurrentDateTime()));
             }
         }
     }

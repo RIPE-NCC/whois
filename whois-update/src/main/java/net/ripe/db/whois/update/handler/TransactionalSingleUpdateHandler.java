@@ -96,9 +96,6 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
 
         if (businessRulesOk && pendingAuthentication) {
             pendingUpdateHandler.handle(preparedUpdate, updateContext);
-
-            // TODO [AK] Remove this to complete the story, not halfway, since there is no way yet to verify pending works correctly
-            throw new UpdateFailedException();
         } else if (updateContext.hasErrors(update)) {
             throw new UpdateFailedException();
         } else {

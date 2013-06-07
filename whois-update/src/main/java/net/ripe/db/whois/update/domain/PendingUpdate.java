@@ -13,16 +13,14 @@ public class PendingUpdate {
     LocalDateTime storedDate;
     long id;
 
-    public PendingUpdate(final Set<String> passedAuthentications, final RpslObject object) {
+    public PendingUpdate(final Set<String> passedAuthentications, final RpslObject object, final LocalDateTime storedDate) {
         this.passedAuthentications = passedAuthentications;
         this.object = object;
-        this.storedDate = new LocalDateTime();
-        this.id = 0;
+        this.storedDate = storedDate;
     }
 
     public PendingUpdate(final long id, final Set<String> passedAuthentications, final RpslObject object, final LocalDateTime storedDate) {
-        this(passedAuthentications, object);
-        this.storedDate = storedDate;
+        this(passedAuthentications, object, storedDate);
         this.id = id;
     }
 
