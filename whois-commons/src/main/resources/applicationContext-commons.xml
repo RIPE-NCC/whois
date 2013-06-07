@@ -53,7 +53,7 @@
         <property name="password" value="${scheduler.database.password}"/>
     </bean>
 
-    <bean id="pendingDataSource" parent="abstractDataSource">
+    <bean id="deferredUpdateDataSource" parent="abstractDataSource">
         <property name="jdbcUrl" value="${pending.database.url}"/>
         <property name="user" value="${pending.database.username}"/>
         <property name="password" value="${pending.database.password}"/>

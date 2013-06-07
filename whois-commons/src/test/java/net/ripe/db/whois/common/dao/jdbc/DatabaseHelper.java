@@ -40,6 +40,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.StatementCallback;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
@@ -52,13 +53,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,7 +110,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     @Autowired(required = false)
-    @Qualifier("pendingDataSource")
+    @Qualifier("deferredUpdateDataSource")
     public void setPendingDataSource(DataSource pendingDataSource) {
         pendingUpdatesTemplate = new JdbcTemplate(pendingDataSource);
     }
@@ -434,13 +429,18 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         pendingUpdatesTemplate.update("DELETE FROM pending_updates");
     }
 
-    public void insertPendingUpdate(final LocalDate date, final String authenticatedBy, final RpslObjectBase rpslObjectBase) {
-        pendingUpdatesTemplate.update("INSERT INTO pending_updates (object_type, pkey, stored_date, authenticated_by, object) VALUES (?,?,?,?,?)",
-                ObjectTypeIds.getId(rpslObjectBase.getType()),
-                rpslObjectBase.getKey().toString(),
-                date.toDate(),
-                authenticatedBy,
-                rpslObjectBase.toString());
+    public int insertPendingUpdate(final LocalDate date, final Set<String> authenticatedBy, final RpslObjectBase rpslObjectBase) {
+        return new SimpleJdbcInsert(pendingUpdatesTemplate)
+                .withTableName("pending_updates")
+                .usingColumns("object_type", "pkey", "stored_date", "passed_authentications", "object")
+                .usingGeneratedKeyColumns("id")
+                .executeAndReturnKey(new HashMap<String, Object>() {{
+                    put("object_type", ObjectTypeIds.getId(rpslObjectBase.getType()));
+                    put("pkey", rpslObjectBase.getKey().toString());
+                    put("stored_date", date.toDate());
+                    put("passed_authentications", Joiner.on(",").join(authenticatedBy));
+                    put("object", rpslObjectBase.toString());
+                }}).intValue();
     }
 
     public List<Map<String, Object>> listPendingUpdates() {

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.scheduler.task.update;
 
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObjectBase;
@@ -30,7 +31,7 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
                 "source: TEST");
 
         databaseHelper.clearPendingUpdates();
-        databaseHelper.insertPendingUpdate(LocalDate.now().minusDays(8), "RouteAuthentication", route);
+        databaseHelper.insertPendingUpdate(LocalDate.now().minusDays(8), Sets.newHashSet("OWNER-MNT"), route);
         assertThat(databaseHelper.listPendingUpdates(), hasSize(1));
 
         pendingUpdatesCleanup.run();
@@ -50,7 +51,7 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
                 "source: TEST");
 
         databaseHelper.clearPendingUpdates();
-        databaseHelper.insertPendingUpdate(LocalDate.now().minusDays(6), "RouteAuthentication", route);
+        databaseHelper.insertPendingUpdate(LocalDate.now().minusDays(6), Sets.newHashSet("RouteAuthentication"), route);
         assertThat(databaseHelper.listPendingUpdates(), hasSize(1));
 
         pendingUpdatesCleanup.run();

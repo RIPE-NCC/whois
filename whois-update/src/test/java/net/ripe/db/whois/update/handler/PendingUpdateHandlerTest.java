@@ -24,7 +24,6 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PendingUpdateHandlerTest {
-    @Mock private IdenticalPendingUpdateFinder identicalPendingUpdateFinder;
     @Mock private PendingUpdateDao pendingUpdateDao;
     @Mock private PreparedUpdate preparedUpdate;
     @Mock private UpdateContext updateContext;
@@ -33,13 +32,13 @@ public class PendingUpdateHandlerTest {
 
     @InjectMocks private PendingUpdateHandler testSubject;
 
+    @Test
     public void found_completing_pendingUpdate() {
         RpslObject object = RpslObject.parse("route: 193.0/16\norigin: AS12345");
         RpslObjectBase objectBase = RpslObjectBase.parse("route: 193.0/16\norigin: AS12345");
-        final PendingUpdate pendingUpdate = new PendingUpdate(RouteAutnumAuthentication.class.toString(), objectBase);
+        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet(RouteAutnumAuthentication.class.toString()), objectBase);
 
         when(pendingUpdateDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.newArrayList(pendingUpdate));
-        when(identicalPendingUpdateFinder.find(object)).thenReturn(pendingUpdate);
         when(preparedUpdate.getUpdatedObject()).thenReturn(object);
         when(updateContext.getSubject(preparedUpdate)).thenReturn(subject);
         when(subject.getPassedAuthentications()).thenReturn(Sets.newHashSet(RouteIpAddressAuthentication.class.toString()));
@@ -53,10 +52,9 @@ public class PendingUpdateHandlerTest {
     public void found_pendingUpdate_with_same_authenticator() {
         RpslObject object = RpslObject.parse("route: 193.0/16\norigin: AS12345");
         RpslObjectBase objectBase = RpslObjectBase.parse("route: 193.0/16\norigin: AS12345");
-        final PendingUpdate pendingUpdate = new PendingUpdate(RouteAutnumAuthentication.class.toString(), objectBase);
+        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet(RouteAutnumAuthentication.class.toString()), objectBase);
 
         when(pendingUpdateDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.newArrayList(pendingUpdate));
-        when(identicalPendingUpdateFinder.find(object)).thenReturn(pendingUpdate);
         when(preparedUpdate.getUpdatedObject()).thenReturn(object);
         when(updateContext.getSubject(preparedUpdate)).thenReturn(subject);
         when(subject.getPassedAuthentications()).thenReturn(Sets.newHashSet(RouteAutnumAuthentication.class.toString()));
@@ -69,11 +67,8 @@ public class PendingUpdateHandlerTest {
     @Test
     public void did_not_find_pendingUpdate() {
         RpslObject object = RpslObject.parse("route: 193.0/16\norigin: AS12345");
-        RpslObjectBase objectBase = RpslObjectBase.parse("route: 193.0/16\norigin: AS12345");
-        final PendingUpdate pendingUpdate = new PendingUpdate(RouteAutnumAuthentication.class.toString(), objectBase);
 
         when(pendingUpdateDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.<PendingUpdate>newArrayList());
-        when(identicalPendingUpdateFinder.find(object)).thenReturn(pendingUpdate);
         when(preparedUpdate.getUpdatedObject()).thenReturn(object);
         when(updateContext.getSubject(preparedUpdate)).thenReturn(subject);
         when(subject.getPassedAuthentications()).thenReturn(Sets.newHashSet(RouteAutnumAuthentication.class.toString()));

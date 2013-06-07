@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.dao;
 
 
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObjectBase;
@@ -31,7 +32,7 @@ public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
     @Test
     public void findByTypeAndPkey_existing_object() throws SQLException {
         final RpslObjectBase object = RpslObjectBase.parse("route6: 2001:1578:0200::/40\nmnt-by: TEST-MNT\norigin: AS12726");
-        addPendingAuthentication( new PendingUpdate("InetnumAuthentication", object));
+        addPendingAuthentication( new PendingUpdate(Sets.newHashSet("RouteAutnumAuthentication"), object));
 
         final List<PendingUpdate> result = subject.findByTypeAndKey(ObjectType.ROUTE6, object.getKey().toString());
         assertThat(result, hasSize(1));
@@ -39,13 +40,13 @@ public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
         final PendingUpdate pendingUpdate = result.get(0);
         assertThat(pendingUpdate.getStoredDate(), is(not(nullValue())));
         assertThat(pendingUpdate.getObject(), is(object));
-        assertThat(pendingUpdate.getAuthenticatedBy(), is("InetnumAuthentication"));
+        assertThat(pendingUpdate.getPassedAuthentications(), containsInAnyOrder("RouteAutnumAuthentication"));
     }
 
     @Test
     public void findByTypeAndPkey_non_existing_object() {
         final RpslObjectBase object = RpslObjectBase.parse("route: 193.0/8\norigin: AS23423\nsource: TEST");
-        addPendingAuthentication(new PendingUpdate("InetnumAuthentication", object));
+        addPendingAuthentication(new PendingUpdate(Sets.newHashSet("RouteIpAddressAuthentication"), object));
 
         final List<PendingUpdate> result = subject.findByTypeAndKey(ObjectType.ROUTE6, object.getKey().toString());
         assertThat(result, hasSize(0));
@@ -56,8 +57,8 @@ public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
         final RpslObjectBase object = RpslObjectBase.parse("route6: 1995:1996::/40\norigin:AS12345");
         final RpslObjectBase object2 = RpslObjectBase.parse("route6: 1995:1996::/40\norigin:AS12345");
 
-        addPendingAuthentication(new PendingUpdate("InetnumAuthentication", object, new LocalDateTime(2013, 12, 15, 15, 32)));
-        addPendingAuthentication(new PendingUpdate("InetnumAuthentication", object2, new LocalDateTime(2013, 12, 16, 21, 2)));
+        addPendingAuthentication(new PendingUpdate(1, Sets.newHashSet("RouteIpAddressAuthentication"), object, new LocalDateTime(2013, 12, 15, 15, 32)));
+        addPendingAuthentication(new PendingUpdate(1, Sets.newHashSet("RouteIpAddressAuthentication"), object2, new LocalDateTime(2013, 12, 16, 21, 2)));
 
         final List<PendingUpdate> result = subject.findByTypeAndKey(object.getType(), object.getKey().toString());
         assertThat(result, hasSize(2));
@@ -70,7 +71,7 @@ public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
     @Test
     public void store() {
         final RpslObjectBase object = RpslObjectBase.parse("route: 192.168.0/16\norigin:AS1234");
-        final PendingUpdate pendingUpdate = new PendingUpdate("InetnumAuthentication", object, LocalDateTime.parse("2012-01-01"));
+        final PendingUpdate pendingUpdate = new PendingUpdate(1, Sets.newHashSet("RouteAutnumAuthentication"), object, LocalDateTime.parse("2012-01-01"));
         subject.store(pendingUpdate);
 
         final List<Map<String,Object>> result = databaseHelper.listPendingUpdates(object.getKey().toString());
@@ -80,46 +81,25 @@ public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
         assertThat(objectMap.get("object_type"), Is.<Object>is(ObjectTypeIds.getId(ObjectType.ROUTE)));
         assertThat(objectMap.get("pkey"), Is.<Object>is(object.getKey().toString()));
         assertThat(objectMap.get("stored_date").toString(), Is.<Object>is("2012-01-01"));
-        assertThat(objectMap.get("authenticated_by"), Is.<Object>is("InetnumAuthentication"));
+        assertThat(objectMap.get("passed_authentications"), Is.<Object>is("RouteAutnumAuthentication"));
         assertThat(objectMap.get("object"), Is.<Object>is(object.toString().getBytes()));
     }
 
     @Test
     public void remove() {
         final RpslObjectBase object = RpslObjectBase.parse("route6: 5555::4444/48\norigin:AS1234");
-        final PendingUpdate pending = new PendingUpdate("InetnumAuthentication", object);
-        addPendingAuthentication(pending);
+        final PendingUpdate pending = new PendingUpdate(Sets.newHashSet("RouteIpAddressAuthentication"), object);
+        int pendingId = addPendingAuthentication(pending);
 
-        subject.remove(pending);
+        subject.remove(new PendingUpdate((long)pendingId, Sets.newHashSet("RouteIpAddressAuthentication"), object, new LocalDateTime()));
 
         final List<Map<String,Object>> result = databaseHelper.listPendingUpdates(object.getKey().toString());
         assertThat(result, hasSize(0));
     }
 
     @Test
-    public void removes_oldest() {
-        final RpslObjectBase object = RpslObjectBase.parse("route6: 1111::/48\norigin:AS1234");
-        final PendingUpdate pending = new PendingUpdate("InetnumAuthentication", object, new LocalDateTime(2013, 12, 15, 15, 32));
-        addPendingAuthentication(pending);
-        addPendingAuthentication(new PendingUpdate("InetnumAuthentication", RpslObjectBase.parse("route6: 1111::/48\norigin:AS1234"), new LocalDateTime(2014, 3, 5, 4, 2)));
-        addPendingAuthentication(new PendingUpdate("InetnumAuthentication", RpslObjectBase.parse("route6: 1111::/48\norigin:AS1234"), new LocalDateTime(2014, 6, 23, 7, 14)));
-
-        subject.remove(new PendingUpdate("InetnumAuthentication", object));
-
-        final List<Map<String,Object>> result = databaseHelper.listPendingUpdates(object.getKey().toString());
-        assertThat(result, hasSize(2));
-
-        final Map<String, Object> firstResult = result.get(0);
-        final Map<String, Object> lastResult = result.get(1);
-
-        assertThat(new LocalDateTime(firstResult.get("stored_date")).isBefore(new LocalDateTime(lastResult.get("stored_date"))), is(true));
-        assertThat(new LocalDateTime(firstResult.get("stored_date")).isAfter(pending.getStoredDate()), is(true));
-        assertThat(new LocalDateTime(lastResult.get("stored_date")).isAfter(pending.getStoredDate()), is(true));
-    }
-
-    @Test
     public void remove_before_date() {
-        final PendingUpdate pendingUpdate = new PendingUpdate("InetnumAuthentication", RpslObjectBase.parse("route: 10.0.0.0/8\norigin: AS0\nmnt-by: OWNER-MNT\nsource: TEST"), LocalDateTime.now().minusDays(8));
+        final PendingUpdate pendingUpdate = new PendingUpdate(1, Sets.newHashSet("OWNER-MNT"), RpslObjectBase.parse("route: 10.0.0.0/8\norigin: AS0\nmnt-by: OWNER-MNT\nsource: TEST"), LocalDateTime.now().minusDays(8));
         addPendingAuthentication(pendingUpdate);
 
         subject.removePendingUpdatesBefore(LocalDateTime.now().minusDays(7));
@@ -127,8 +107,7 @@ public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
         assertThat(databaseHelper.listPendingUpdates(), hasSize(0));
     }
 
-    private void addPendingAuthentication(final PendingUpdate pendingUpdate) {
-        databaseHelper.insertPendingUpdate(pendingUpdate.getStoredDate().toLocalDate(), pendingUpdate.getAuthenticatedBy(), pendingUpdate.getObject());
+    private int addPendingAuthentication(final PendingUpdate pendingUpdate) {
+        return databaseHelper.insertPendingUpdate(pendingUpdate.getStoredDate().toLocalDate(), pendingUpdate.getPassedAuthentications(), pendingUpdate.getObject());
     }
-
 }
