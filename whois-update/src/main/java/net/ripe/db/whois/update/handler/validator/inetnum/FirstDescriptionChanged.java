@@ -31,10 +31,6 @@ public class FirstDescriptionChanged implements BusinessRuleValidator {
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        if (true) {
-            return; // TODO [AK] For now allow all first description changes because current implementation breaks compatibility
-        }
-
         if (update.isOverride()) {
             return;
         }
