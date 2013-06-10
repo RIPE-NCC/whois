@@ -23,9 +23,9 @@ public interface AuthenticationStrategy {
     String getName();
 
     /**
-     * @return Supported types for deferred authentication.
+     * @return Supported types for pending authentication.
      */
-    Set<ObjectType> getTypesWithDeferredAuthenticationSupport();
+    Set<ObjectType> getTypesWithPendingAuthenticationSupport();
 
     /**
      * Perform one or more authentication steps for the provided update.

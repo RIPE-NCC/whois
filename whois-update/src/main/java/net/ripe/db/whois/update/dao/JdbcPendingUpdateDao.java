@@ -26,7 +26,7 @@ public class JdbcPendingUpdateDao implements PendingUpdateDao {
     private final Joiner JOINER = Joiner.on(",");
 
     @Autowired
-    public JdbcPendingUpdateDao(@Qualifier("deferredUpdateDataSource") final DataSource dataSource) {
+    public JdbcPendingUpdateDao(@Qualifier("pendingUpdateDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

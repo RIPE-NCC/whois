@@ -32,7 +32,7 @@ public class Authenticator {
     private final LoggerContext loggerContext;
     private final List<AuthenticationStrategy> authenticationStrategies;
     private final Map<CIString, Set<Principal>> principalsMap;
-    private final Map<ObjectType, Set<String>> typesWithDeferredAuthentication;
+    private final Map<ObjectType, Set<String>> typesWithPendingAuthenticationSupport;
 
     @Autowired
     public Authenticator(final IpRanges ipRanges, final UserDao userDao, final Maintainers maintainers, final LoggerContext loggerContext, final AuthenticationStrategy[] authenticationStrategies) {
@@ -50,23 +50,23 @@ public class Authenticator {
         addMaintainers(tempPrincipalsMap, maintainers.getDbmMaintainers(), Principal.DBM_MAINTAINER);
         this.principalsMap = Collections.unmodifiableMap(tempPrincipalsMap);
 
-        typesWithDeferredAuthentication = Maps.newEnumMap(ObjectType.class);
+        typesWithPendingAuthenticationSupport = Maps.newEnumMap(ObjectType.class);
         for (final AuthenticationStrategy authenticationStrategy : authenticationStrategies) {
-            for (final ObjectType objectType : authenticationStrategy.getTypesWithDeferredAuthenticationSupport()) {
-                Set<String> strategiesWithDeferredAuthentication = typesWithDeferredAuthentication.get(objectType);
-                if (strategiesWithDeferredAuthentication == null) {
-                    strategiesWithDeferredAuthentication = new HashSet<>();
-                    typesWithDeferredAuthentication.put(objectType, strategiesWithDeferredAuthentication);
+            for (final ObjectType objectType : authenticationStrategy.getTypesWithPendingAuthenticationSupport()) {
+                Set<String> strategiesWithPendingAuthenticationSupport = typesWithPendingAuthenticationSupport.get(objectType);
+                if (strategiesWithPendingAuthenticationSupport == null) {
+                    strategiesWithPendingAuthenticationSupport = new HashSet<>();
+                    typesWithPendingAuthenticationSupport.put(objectType, strategiesWithPendingAuthenticationSupport);
                 }
 
-                strategiesWithDeferredAuthentication.add(authenticationStrategy.getName());
+                strategiesWithPendingAuthenticationSupport.add(authenticationStrategy.getName());
             }
         }
 
-        for (final Map.Entry<ObjectType, Set<String>> objectTypeSetEntry : typesWithDeferredAuthentication.entrySet()) {
+        for (final Map.Entry<ObjectType, Set<String>> objectTypeSetEntry : typesWithPendingAuthenticationSupport.entrySet()) {
             final Set<String> authenticationStrategyNames = objectTypeSetEntry.getValue();
-            Validate.isTrue(authenticationStrategyNames.size() > 1, "Deferred authentication makes no sense for 1 authentication strategy:", authenticationStrategyNames);
-            LOGGER.info("Deferred authentication supported for {}: {}", objectTypeSetEntry.getKey(), authenticationStrategyNames);
+            Validate.isTrue(authenticationStrategyNames.size() > 1, "Pending authentication makes no sense for 1 authentication strategy:", authenticationStrategyNames);
+            LOGGER.info("Pending authentication supported for {}: {}", objectTypeSetEntry.getKey(), authenticationStrategyNames);
         }
     }
 
@@ -191,7 +191,7 @@ public class Authenticator {
     }
 
     private void authenticationFailed(final PreparedUpdate update, final UpdateContext updateContext, final Subject subject, final Set<Message> authenticationMessages) {
-        if (isDeferredAuthenticationAllowed(update, updateContext, subject)) {
+        if (isPendingAuthenticationAllowed(update, updateContext, subject)) {
             updateContext.status(update, UpdateStatus.PENDING_AUTHENTICATION);
         } else {
             updateContext.status(update, UpdateStatus.FAILED_AUTHENTICATION);
@@ -202,7 +202,7 @@ public class Authenticator {
         }
     }
 
-    boolean isDeferredAuthenticationAllowed(final PreparedUpdate preparedUpdate, final UpdateContext updateContext, final Subject subject) {
+    boolean isPendingAuthenticationAllowed(final PreparedUpdate preparedUpdate, final UpdateContext updateContext, final Subject subject) {
         if (updateContext.hasErrors(preparedUpdate)) {
             return false;
         }
@@ -211,19 +211,19 @@ public class Authenticator {
             return false;
         }
 
-        final Set<String> strategiesWithDeferredAuthentication = typesWithDeferredAuthentication.get(preparedUpdate.getType());
-        if (strategiesWithDeferredAuthentication == null) {
+        final Set<String> strategiesWithPendingAuthenticationSupport = typesWithPendingAuthenticationSupport.get(preparedUpdate.getType());
+        if (strategiesWithPendingAuthenticationSupport == null) {
             return false;
         }
 
-        final boolean failedSupportedOnly = Sets.difference(subject.getFailedAuthentications(), strategiesWithDeferredAuthentication).isEmpty();
-        final boolean passedAtLeastOneSupported = !Sets.intersection(subject.getPassedAuthentications(), strategiesWithDeferredAuthentication).isEmpty();
+        final boolean failedSupportedOnly = Sets.difference(subject.getFailedAuthentications(), strategiesWithPendingAuthenticationSupport).isEmpty();
+        final boolean passedAtLeastOneSupported = !Sets.intersection(subject.getPassedAuthentications(), strategiesWithPendingAuthenticationSupport).isEmpty();
 
         return failedSupportedOnly && passedAtLeastOneSupported;
     }
 
     public boolean isAuthenticationForTypeComplete(final ObjectType objectType, final Set<String> authentications) {
-        final Set<String> authenticationStrategyNames = typesWithDeferredAuthentication.get(objectType);
+        final Set<String> authenticationStrategyNames = typesWithPendingAuthenticationSupport.get(objectType);
 
         return authentications.containsAll(authenticationStrategyNames);
     }

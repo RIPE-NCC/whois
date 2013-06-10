@@ -100,7 +100,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     @Autowired(required = false)
-    @Qualifier("deferredUpdateDataSource")
+    @Qualifier("pendingUpdateDataSource")
     public void setPendingDataSource(DataSource pendingDataSource) {
         pendingUpdatesTemplate = new JdbcTemplate(pendingDataSource);
     }

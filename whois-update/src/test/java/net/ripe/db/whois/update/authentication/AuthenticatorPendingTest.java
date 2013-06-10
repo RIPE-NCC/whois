@@ -44,77 +44,77 @@ public class AuthenticatorPendingTest {
         when(authStrategyPending2.getName()).thenReturn("authStrategyPending2");
 
         final HashSet<ObjectType> delayedAuthenticationTypes = Sets.newHashSet(ObjectType.ROUTE, ObjectType.ROUTE6);
-        when(authStrategyPending1.getTypesWithDeferredAuthenticationSupport()).thenReturn(delayedAuthenticationTypes);
-        when(authStrategyPending2.getTypesWithDeferredAuthenticationSupport()).thenReturn(delayedAuthenticationTypes);
+        when(authStrategyPending1.getTypesWithPendingAuthenticationSupport()).thenReturn(delayedAuthenticationTypes);
+        when(authStrategyPending2.getTypesWithPendingAuthenticationSupport()).thenReturn(delayedAuthenticationTypes);
         when(updateContext.getSubject(update)).thenReturn(authSubject);
 
         subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authStrategyPending1, authStrategyPending2});
     }
 
     @Test
-    public void deferred_authentication_allowed() {
+    public void pending_authentication_allowed() {
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getType()).thenReturn(ObjectType.ROUTE);
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext, authSubject);
-        assertThat(deferredAuthenticationAllowed, is(true));
+        final boolean pendingAuthenticationAllowed = subject.isPendingAuthenticationAllowed(update, updateContext, authSubject);
+        assertThat(pendingAuthenticationAllowed, is(true));
     }
 
     @Test
-    public void deferred_authentication_no_create() {
+    public void pending_authentication_no_create() {
         when(update.getAction()).thenReturn(Action.MODIFY);
         when(update.getType()).thenReturn(ObjectType.ROUTE);
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext, authSubject);
-        assertThat(deferredAuthenticationAllowed, is(false));
+        final boolean pendingAuthenticationAllowed = subject.isPendingAuthenticationAllowed(update, updateContext, authSubject);
+        assertThat(pendingAuthenticationAllowed, is(false));
     }
 
     @Test
-    public void deferred_authentication_unsupported_type() {
+    public void pending_authentication_unsupported_type() {
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext, authSubject);
-        assertThat(deferredAuthenticationAllowed, is(false));
+        final boolean pendingAuthenticationAllowed = subject.isPendingAuthenticationAllowed(update, updateContext, authSubject);
+        assertThat(pendingAuthenticationAllowed, is(false));
     }
 
     @Test
-    public void deferred_authentication_failed_other() {
+    public void pending_authentication_failed_other() {
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getType()).thenReturn(ObjectType.ROUTE);
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1, authStrategy"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext, authSubject);
-        assertThat(deferredAuthenticationAllowed, is(false));
+        final boolean pendingAuthenticationAllowed = subject.isPendingAuthenticationAllowed(update, updateContext, authSubject);
+        assertThat(pendingAuthenticationAllowed, is(false));
     }
 
     @Test
-    public void deferred_authentication_passed_none() {
+    public void pending_authentication_passed_none() {
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getType()).thenReturn(ObjectType.ROUTE);
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Collections.<String>emptySet());
 
-        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext, authSubject);
-        assertThat(deferredAuthenticationAllowed, is(false));
+        final boolean pendingAuthenticationAllowed = subject.isPendingAuthenticationAllowed(update, updateContext, authSubject);
+        assertThat(pendingAuthenticationAllowed, is(false));
     }
 
     @Test
-    public void deferred_authentication_existing_errors() {
+    public void pending_authentication_existing_errors() {
         when(updateContext.hasErrors(update)).thenReturn(true);
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getType()).thenReturn(ObjectType.ROUTE);
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
-        final boolean deferredAuthenticationAllowed = subject.isDeferredAuthenticationAllowed(update, updateContext, authSubject);
-        assertThat(deferredAuthenticationAllowed, is(false));
+        final boolean pendingAuthenticationAllowed = subject.isPendingAuthenticationAllowed(update, updateContext, authSubject);
+        assertThat(pendingAuthenticationAllowed, is(false));
     }
 
     @Test

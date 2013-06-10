@@ -12,7 +12,7 @@ abstract class AuthenticationStrategyBase implements AuthenticationStrategy {
     }
 
     @Override
-    public Set<ObjectType> getTypesWithDeferredAuthenticationSupport() {
+    public Set<ObjectType> getTypesWithPendingAuthenticationSupport() {
         return Collections.emptySet();
     }
 }
