@@ -28,7 +28,7 @@ The following object(s) were found to have ERRORS:
 
     #foreach( $updateResult in $failedUpdates )
     ---
-        $updateResult.action.description FAILED: $updateResult.key
+        $updateResult.actionString FAILED: $updateResult.key
 
 >>>>>
 $updateResult
@@ -46,11 +46,11 @@ The following object(s) were processed SUCCESSFULLY:
     #foreach( $updateResult in $succeededUpdates )
     ---
         #if ($updateResult.pending)
-            $updateResult.action.description PENDING: $updateResult.key
+            $updateResult.actionString PENDING: $updateResult.key
         #elseif ($updateResult.noop)
             No operation: $updateResult.key
         #else
-            $updateResult.action.description SUCCEEDED: $updateResult.key
+            $updateResult.actionString SUCCEEDED: $updateResult.key
         #end
 
 >>>>>

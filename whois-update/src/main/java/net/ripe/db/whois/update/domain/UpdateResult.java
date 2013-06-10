@@ -45,6 +45,13 @@ public class UpdateResult {
         return action;
     }
 
+    public String getActionString() {
+        if (action != null) {
+            return action.getDescription();
+        }
+        return "";
+    }
+
     public Collection<Message> getErrors() {
         return objectMessages.getMessages().getMessages(Messages.Type.ERROR);
     }
