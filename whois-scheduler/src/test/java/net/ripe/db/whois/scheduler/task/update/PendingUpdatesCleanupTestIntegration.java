@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
@@ -33,11 +33,10 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
                         "source: TEST");
 
         pendingUpdateDao.store(new PendingUpdate(Sets.newHashSet("RouteAuthentication"), route, LocalDateTime.now().minusDays(8)));
-        assertThat(databaseHelper.listPendingUpdates(), hasSize(1));
+        assertThat(getPendingUpdateCount(), is(1));
 
         pendingUpdatesCleanup.run();
-
-        assertThat(databaseHelper.listPendingUpdates(), hasSize(0));
+        assertThat(getPendingUpdateCount(), is(0));
     }
 
     @Test
@@ -52,10 +51,13 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
                         "source: TEST");
 
         pendingUpdateDao.store(new PendingUpdate(Sets.newHashSet("RouteAuthentication"), route, LocalDateTime.now().minusDays(6)));
-        assertThat(databaseHelper.listPendingUpdates(), hasSize(1));
+        assertThat(getPendingUpdateCount(), is(1));
 
         pendingUpdatesCleanup.run();
+        assertThat(getPendingUpdateCount(), is(1));
+    }
 
-        assertThat(databaseHelper.listPendingUpdates(), hasSize(1));
+    private int getPendingUpdateCount() {
+        return databaseHelper.getPendingUpdatesTemplate().queryForInt("SELECT count(*) FROM pending_updates");
     }
 }

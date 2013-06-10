@@ -73,7 +73,7 @@ public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
         final PendingUpdate pendingUpdate = new PendingUpdate(1, Sets.newHashSet("RouteAutnumAuthentication"), object, LocalDateTime.parse("2012-01-01"));
         subject.store(pendingUpdate);
 
-        final List<Map<String, Object>> result = databaseHelper.listPendingUpdates(object.getKey().toString());
+        final List<Map<String, Object>> result = getPendingUpdates(object);
         assertThat(result, hasSize(1));
         final Map<String, Object> objectMap = result.get(0);
 
@@ -93,8 +93,14 @@ public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
         final int pendingId = new JdbcTemplate(dataSource).queryForInt("select id from pending_updates");
         subject.remove(new PendingUpdate(pendingId, Sets.newHashSet("RouteIpAddressAuthentication"), object, new LocalDateTime()));
 
-        final List<Map<String, Object>> result = databaseHelper.listPendingUpdates(object.getKey().toString());
+        final List<Map<String, Object>> result = getPendingUpdates(object);
         assertThat(result, hasSize(0));
+    }
+
+    private List<Map<String, Object>> getPendingUpdates(RpslObject object) {
+        return databaseHelper.getPendingUpdatesTemplate().queryForList(
+                "SELECT * FROM pending_updates WHERE pkey = ?",
+                object.getKey().toString());
     }
 
     @Test
@@ -104,6 +110,10 @@ public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
 
         subject.removePendingUpdatesBefore(LocalDateTime.now().minusDays(7));
 
-        assertThat(databaseHelper.listPendingUpdates(), hasSize(0));
+        assertThat(getPendingUpdateCount(), is(0));
+    }
+
+    private int getPendingUpdateCount() {
+        return databaseHelper.getPendingUpdatesTemplate().queryForInt("SELECT count(*) FROM pending_updates");
     }
 }

@@ -398,14 +398,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 new Date());
     }
 
-    public List<Map<String, Object>> listPendingUpdates() {
-        return pendingUpdatesTemplate.queryForList("SELECT * FROM pending_updates");
-    }
-
-    public List<Map<String, Object>> listPendingUpdates(final String pkey) {
-        return pendingUpdatesTemplate.queryForList("SELECT * FROM pending_updates WHERE pkey = ?", pkey);
-    }
-
     public static void dumpSchema(final DataSource datasource) throws SQLException {
         new JdbcTemplate(datasource).execute(new StatementCallback<Object>() {
             @Override
