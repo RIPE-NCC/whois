@@ -180,10 +180,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         System.setProperty("grs.sources", grsSources);
     }
 
-    public static void setupDatabase(final String propertyBase, final String name, final String... sql) {
-        setupDatabase(createDefaultTemplate(), propertyBase, name, sql);
-    }
-
     static void setupDatabase(final JdbcTemplate jdbcTemplate, final String propertyBase, final String name, final String... sql) {
         final String dbName = dbBaseName + "_" + name;
         jdbcTemplate.execute("CREATE DATABASE " + dbName);
@@ -248,17 +244,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             }
         }
 
-        if (aclTemplate != null) {
-            truncateTables(aclTemplate);
-        }
-
-        if (schedulerTemplate != null) {
-            truncateTables(schedulerTemplate);
-        }
-
-        if (mailupdatesTemplate != null) {
-            truncateTables(mailupdatesTemplate);
-        }
+        truncateTables(aclTemplate, schedulerTemplate, mailupdatesTemplate, pendingUpdatesTemplate);
     }
 
     public DataSource getMailupdatesDataSource() {
@@ -415,10 +401,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 new Date());
     }
 
-    public void clearPendingUpdates() {
-        pendingUpdatesTemplate.update("DELETE FROM pending_updates");
-    }
-
     public int insertPendingUpdate(final LocalDate date, final Set<String> authenticatedBy, final RpslObject rpslObjectBase) {
         return new SimpleJdbcInsert(pendingUpdatesTemplate)
                 .withTableName("pending_updates")
@@ -442,7 +424,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     public static void dumpSchema(final DataSource datasource) throws SQLException {
-
         new JdbcTemplate(datasource).execute(new StatementCallback<Object>() {
             @Override
             public Object doInStatement(Statement statement) throws SQLException, DataAccessException {

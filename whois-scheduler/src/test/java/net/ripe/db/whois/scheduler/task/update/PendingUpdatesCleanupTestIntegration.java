@@ -30,7 +30,6 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
                 "changed: noreplY@ripe.net\n" +
                 "source: TEST");
 
-        databaseHelper.clearPendingUpdates();
         databaseHelper.insertPendingUpdate(LocalDate.now().minusDays(8), Sets.newHashSet("OWNER-MNT"), route);
         assertThat(databaseHelper.listPendingUpdates(), hasSize(1));
 
@@ -50,7 +49,6 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
                 "changed: noreplY@ripe.net\n" +
                 "source: TEST");
 
-        databaseHelper.clearPendingUpdates();
         databaseHelper.insertPendingUpdate(LocalDate.now().minusDays(6), Sets.newHashSet("RouteAuthentication"), route);
         assertThat(databaseHelper.listPendingUpdates(), hasSize(1));
 

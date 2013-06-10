@@ -25,11 +25,6 @@ public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
     @Autowired private PendingUpdateDao subject;
     @Autowired private DateTimeProvider dateTimeProvider;
 
-    @Before
-    public void setup() {
-        databaseHelper.clearPendingUpdates();
-    }
-
     @Test
     public void findByTypeAndPkey_existing_object() throws SQLException {
         final RpslObject object = RpslObject.parse("route6: 2001:1578:0200::/40\nmnt-by: TEST-MNT\norigin: AS12726");

@@ -1211,8 +1211,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         response =~ /Create SUCCEEDED: \[route\] 197.0.0.0\/24AS123/
-      cleanup:
-        databaseHelper.clearPendingUpdates()
     }
 
     def "create route, with autnum and inetnum authentication, but no mnt-by authentication"() {
@@ -1261,8 +1259,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         response =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123/
-      cleanup:
-        databaseHelper.clearPendingUpdates()
     }
 
     def "create route, with inetnum authentication, but no pending autnum authentication"() {
@@ -1283,18 +1279,18 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Ignore
     def "create route, with autnum authentication, and pending inetnum authentication"() {
-      setup:
-        databaseHelper.insertPendingUpdate(
-                LocalDate.now().minusDays(1),
-                "InetnumAuthentication",
-                RpslObject.parse("""\
-                    route: 195.0.0.0/24
-                    descr: Test route
-                    origin: AS456
-                    mnt-by: TEST-MNT2
-                    changed: ripe@test.net 20091015
-                    source: TEST
-                """.stripIndent()))
+//      setup:
+//        databaseHelper.insertPendingUpdate(
+//                LocalDate.now().minusDays(1),
+//                "InetnumAuthentication",
+//                RpslObject.parse("""\
+//                    route: 195.0.0.0/24
+//                    descr: Test route
+//                    origin: AS456
+//                    mnt-by: TEST-MNT2
+//                    changed: ripe@test.net 20091015
+//                    source: TEST
+//                """.stripIndent()))
       when:
         def response = syncUpdate(new SyncUpdate(data: """\
                             route: 195.0.0.0/24
@@ -1308,8 +1304,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         response =~ /SUCCESS/
-      cleanup:
-        databaseHelper.clearPendingUpdates()
     }
 
     @Ignore

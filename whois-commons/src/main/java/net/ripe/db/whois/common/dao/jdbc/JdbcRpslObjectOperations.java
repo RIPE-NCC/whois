@@ -297,17 +297,23 @@ public class JdbcRpslObjectOperations {
         return (int) (dateTimeProvider.getCurrentDateTime().toDate().getTime() / 1000L);
     }
 
-    public static void truncateTables(final JdbcTemplate jdbcTemplate) {
-        sanityCheck(jdbcTemplate);
-
-        final List<String> tables = jdbcTemplate.queryForList("SHOW TABLES", String.class);
-
-        for (final String table : tables) {
-            if (table.equals("version")) {
+    public static void truncateTables(final JdbcTemplate... jdbcTemplates) {
+        for (final JdbcTemplate jdbcTemplate : jdbcTemplates) {
+            if (jdbcTemplate == null) {
                 continue;
             }
 
-            jdbcTemplate.execute("TRUNCATE TABLE " + table);
+            sanityCheck(jdbcTemplate);
+
+            final List<String> tables = jdbcTemplate.queryForList("SHOW TABLES", String.class);
+
+            for (final String table : tables) {
+                if (table.equals("version")) {
+                    continue;
+                }
+
+                jdbcTemplate.execute("TRUNCATE TABLE " + table);
+            }
         }
     }
 
