@@ -95,7 +95,7 @@ public class ResponseFactory {
     }
 
     private String createResponse(final String templateName, final UpdateContext updateContext, final VelocityContext velocityContext, final Origin origin) {
-        velocityContext.put("globalMessages", updateContext.getGlobalMessages());
+        velocityContext.put("globalMessages", updateContext.printGlobalMessages());
         velocityContext.put("origin", origin);
         velocityContext.put("version", version);
         velocityContext.put("hostName", Hosts.getLocalHost().name());

@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.domain;
 
-import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
@@ -11,8 +10,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collection;
-
-import static net.ripe.db.whois.common.FormatHelper.prettyPrint;
 
 public class UpdateResult {
 
@@ -117,10 +114,11 @@ public class UpdateResult {
         for (final Message message : messages.getAllMessages()) {
             Messages.Type type = message.getType();
             if (UpdateStatus.PENDING_AUTHENTICATION.equals(status) && Messages.Type.ERROR.equals(type)) {
-                type = Messages.Type.INFO;
+                writer.write(UpdateMessages.print(new Message(Messages.Type.INFO, message.getValue())));
+            } else {
+                writer.write(UpdateMessages.print(message));
             }
 
-            writer.write(prettyPrint(String.format("***%s: ", type), message.getValue(), 12, 80));
             writer.write(separator);
         }
     }
