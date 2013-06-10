@@ -508,4 +508,8 @@ public final class UpdateMessages {
     public static Message commentInSourceNotAllowed() {
         return new Message(Type.ERROR, "End of line comments not allowed on \"source:\" attribute");
     }
+
+    public static Message updateAlreadyPendingAuthentication() {
+        return new Message(Type.ERROR, "There is already an identical update pending authentication");
+    }
 }

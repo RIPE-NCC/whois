@@ -12,6 +12,7 @@ import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.domain.PendingUpdate;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -57,7 +58,7 @@ public class PendingUpdateHandlerTest {
 
         testSubject.handle(preparedUpdate, updateContext);
 
-        Mockito.verify(pendingUpdateDao, never()).store(pendingUpdate);
+        verify(pendingUpdateDao, never()).store(pendingUpdate);
     }
 
     @Test
@@ -73,7 +74,8 @@ public class PendingUpdateHandlerTest {
 
         testSubject.handle(preparedUpdate, updateContext);
 
-        Mockito.verify(pendingUpdateDao, times(1)).store(any(PendingUpdate.class));
+        verify(pendingUpdateDao, never()).store(any(PendingUpdate.class));
+        verify(updateContext).addMessage(preparedUpdate, UpdateMessages.updateAlreadyPendingAuthentication());
     }
 
     @Test
@@ -87,6 +89,6 @@ public class PendingUpdateHandlerTest {
 
         testSubject.handle(preparedUpdate, updateContext);
 
-        Mockito.verify(pendingUpdateDao, times(1)).store(any(PendingUpdate.class));
+        verify(pendingUpdateDao).store(any(PendingUpdate.class));
     }
 }
