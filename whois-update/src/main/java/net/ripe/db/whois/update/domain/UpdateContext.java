@@ -197,8 +197,8 @@ public class UpdateContext {
         return new UpdateResult(update, updatedObject, context.action, context.getStatus(), context.objectMessages, context.retryCount);
     }
 
-    public void prepareForReattempt(final Update update) {
-        final Context context = contexts.remove(update);
+    public void prepareForReattempt(final UpdateContainer update) {
+        final Context context = contexts.remove(update.getUpdate());
         getOrCreateContext(update).retryCount = context.retryCount + 1;
     }
 

@@ -54,6 +54,7 @@ class PendingUpdateHandler {
             if (authenticator.isAuthenticationForTypeComplete(rpslObject.getType(), currentSuccessfuls)) {
                 loggerContext.log(new Message(Messages.Type.INFO, "Pending update found and completes authentication; dropping from DB"));
                 pendingUpdateDao.remove(pendingUpdate);
+                updateContext.prepareForReattempt(preparedUpdate);
                 updateObjectHandler.execute(preparedUpdate, updateContext);
             } else {
                 // TODO: [AH] add sender email to pending updates table
