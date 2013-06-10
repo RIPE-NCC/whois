@@ -9,22 +9,18 @@ public class MessageTest {
     @Test
     public void without_args() {
         final Message subject = new Message(Messages.Type.INFO, "info");
-        assertThat(subject.toString(), is("***Info:    info\n"));
+        assertThat(subject.toString(), is("info"));
+        assertThat(subject.getType(), is(Messages.Type.INFO));
+        assertThat(subject.getValue(), is("info"));
     }
 
     @Test
     public void without_args_long_message() {
         final Message subject = new Message(Messages.Type.INFO, "" +
-                "An as-block object is needed to delegate a range of AS numbers " +
-                "to a given repository.  This object may be used for authorisation " +
-                "of the creation of aut-num objects within the range specified " +
-                "by the \"as-block:\" attribute.\n");
+                "An as-block object is needed to delegate a range of AS numbers to a given repository.  This object may be used for authorisation of the creation of aut-num objects within the range specified by the \"as-block:\" attribute.\n");
 
         assertThat(subject.toString(), is("" +
-                "***Info:    An as-block object is needed to delegate a range of AS numbers to a\n" +
-                "            given repository.  This object may be used for authorisation of the\n" +
-                "            creation of aut-num objects within the range specified by the\n" +
-                "            \"as-block:\" attribute.\n"));
+                "An as-block object is needed to delegate a range of AS numbers to a given repository.  This object may be used for authorisation of the creation of aut-num objects within the range specified by the \"as-block:\" attribute.\n"));
     }
 
     @Test
@@ -47,19 +43,6 @@ public class MessageTest {
     }
 
     @Test
-    public void long_message() {
-        final Message subject = new Message(Messages.Type.INFO, "" +
-                "Some\n" +
-                "really-really-really-really-really-really-really-really-really-really-really-really-really-really-really long string \n" +
-                "should work");
-        assertThat(subject.toString(), is("" +
-                "***Info:    Some\n" +
-                "            really-really-really-really-really-really-really-really-really-really-really-really-really-really-really\n" +
-                "            long string\n" +
-                "            should work\n"));
-    }
-
-    @Test
     public void rdns_message() {
         final Message subject = new Message(Messages.Type.ERROR, "" +
                 "***RDNS: (related to 0.2.193.in-addr.arpa) CRITICAL: Fatal error in delegation for zone 0.2.193.in-addr.arpa.\n" +
@@ -67,11 +50,7 @@ public class MessageTest {
                 "No name servers found at child or at parent. No further testing can be performed.");
 
         assertThat(subject.toString(), is("" +
-                "***Error:   ***RDNS: (related to 0.2.193.in-addr.arpa) CRITICAL: Fatal error in\n" +
-                "            delegation for zone 0.2.193.in-addr.arpa.\n" +
-                "            \n" +
-                "            No name servers found at child or at parent. No further testing can\n" +
-                "            be performed.\n"));
+                "***RDNS: (related to 0.2.193.in-addr.arpa) CRITICAL: Fatal error in delegation for zone 0.2.193.in-addr.arpa.\n\nNo name servers found at child or at parent. No further testing can be performed."));
     }
 
     @Test

@@ -18,9 +18,7 @@ public class UpdateMessagesTest {
         final Message result = UpdateMessages.authenticationFailed(object, AttributeType.MNT_BY, Lists.<RpslObject>newArrayList());
 
         assertThat(result.toString(), is(
-                "***Error:   Authorisation for [person] AUTO-1 failed\n" +
-                "            using \"mnt-by:\"\n" +
-                "            no valid maintainer found\n"));
+                "Authorisation for [person] AUTO-1 failed\nusing \"mnt-by:\"\nno valid maintainer found\n"));
     }
 
     @Test
@@ -31,8 +29,6 @@ public class UpdateMessagesTest {
         final Message result = UpdateMessages.authenticationFailed(object, AttributeType.MNT_BY, Lists.newArrayList(mntner));
 
         assertThat(result.toString(), is(
-                "***Error:   Authorisation for [person] AUTO-1 failed\n" +
-                "            using \"mnt-by:\"\n" +
-                "            not authenticated by: maintainer\n"));
+                "Authorisation for [person] AUTO-1 failed\nusing \"mnt-by:\"\nnot authenticated by: maintainer"));
     }
 }

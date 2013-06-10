@@ -9,15 +9,7 @@ public final class Message {
 
     public Message(final Messages.Type type, final String value, final Object... args) {
         this.type = type;
-        this.value = prettyPrint(type, args.length == 0 ? value : String.format(value, args));
-    }
-
-    private static String prettyPrint(final Messages.Type type, final String value) {
-        if (value.startsWith("%") || value.startsWith("#")) {
-            return value;
-        }
-
-        return FormatHelper.prettyPrint("***" + type + ": ", value, 12, 80);
+        this.value = args.length == 0 ? value : String.format(value, args);
     }
 
     @Override
@@ -48,5 +40,9 @@ public final class Message {
 
     public Messages.Type getType() {
         return type;
+    }
+
+    public String getValue() {
+        return value;
     }
 }

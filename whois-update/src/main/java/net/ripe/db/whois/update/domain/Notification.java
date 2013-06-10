@@ -2,7 +2,6 @@ package net.ripe.db.whois.update.domain;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
@@ -11,6 +10,8 @@ import org.apache.commons.lang.StringUtils;
 import javax.annotation.concurrent.Immutable;
 import java.util.Map;
 import java.util.Set;
+
+import static net.ripe.db.whois.common.FormatHelper.prettyPrint;
 
 public final class Notification {
 
@@ -71,7 +72,7 @@ public final class Notification {
 
             String reason = StringUtils.join(update.getUpdate().getDeleteReasons(), ", ");
             if (StringUtils.isNotEmpty(reason)) {
-                reason = new Message(Messages.Type.INFO, reason).toString();
+                reason = prettyPrint(String.format("***%s: ", Messages.Type.INFO), reason, 12, 80);
             }
 
             this.reason = reason;

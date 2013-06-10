@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.dns;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.update.dao.AbstractDaoTest;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.Before;
@@ -72,10 +73,8 @@ public class DnsGatewayImplTest extends AbstractDaoTest {
 
         final List<Message> messages = dnsCheckResponse.getMessages();
         assertThat(messages, hasSize(1));
-        assertThat(messages.get(0).toString(), is("" +
-                "***Error:   This fruit is4.\n" +
-                "            \n" +
-                "            this%dis awesome.\n"));
+        assertThat(messages.get(0).toString(), is("This fruit is4.\n\nthis%dis awesome."));
+        assertThat(messages.get(0).getType(), is(Messages.Type.ERROR));
     }
 
     @Test
@@ -88,15 +87,11 @@ public class DnsGatewayImplTest extends AbstractDaoTest {
 
         final List<Message> messages = dnsCheckResponse.getMessages();
         assertThat(messages, hasSize(2));
-        assertThat(messages.get(0).toString(), is("" +
-                "***Error:   This is critical.\n" +
-                "            \n" +
-                "            This is description\n"));
+        assertThat(messages.get(0).toString(), is("This is critical.\n\nThis is description"));
+        assertThat(messages.get(0).getType(), is(Messages.Type.ERROR));
 
-        assertThat(messages.get(1).toString(), is("" +
-                "***Warning: This fruit is4.\n" +
-                "            \n" +
-                "            this%dis awesome.\n"));
+        assertThat(messages.get(1).toString(), is("This fruit is4.\n\nthis%dis awesome."));
+        assertThat(messages.get(1).getType(), is(Messages.Type.WARNING));
     }
 
     private class DnsCheckStub implements Runnable {
