@@ -94,16 +94,12 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
         final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION.equals(updateContext.getStatus(preparedUpdate));
 
-        if (pendingAuthentication) {
-            if (businessRulesOk) {
-                pendingUpdateHandler.handle(preparedUpdate, updateContext);
-            } else {
-                updateContext.status(preparedUpdate, UpdateStatus.FAILED);
-            }
+        if ((pendingAuthentication && !businessRulesOk) || updateContext.hasErrors(update)) {
+            throw new UpdateFailedException();
         }
 
-        if (updateContext.hasErrors(update)) {
-            throw new UpdateFailedException();
+        if (pendingAuthentication && businessRulesOk) {
+            pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else {
             updateObjectHandler.execute(preparedUpdate, updateContext);
         }
@@ -193,6 +189,7 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
         return Action.MODIFY;
     }
 
+    // `TODO: [AH] once the modify REST call is processed here, this can be dropped
     private void checkForUnexpectedModification(final Update update) {
         if (update.getSubmittedObjectInfo() != null) {
             final RpslObjectUpdateInfo latestUpdateInfo = rpslObjectUpdateDao.lookupObject(
