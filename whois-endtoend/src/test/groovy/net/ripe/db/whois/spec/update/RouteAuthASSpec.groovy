@@ -247,12 +247,13 @@ class RouteAuthASSpec extends BaseSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
-        ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["Authorisation for [aut-num] AS10000 failed using \"mnt-by:\" not authenticated by: ORIGIN-MB-MNT"]
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+
+        def success = ack.pendingUpdates.find { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
+        success != null
+        success.infos == ["Authorisation for [aut-num] AS10000 failed using \"mnt-by:\" not authenticated by: ORIGIN-MB-MNT"]
 
         queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
