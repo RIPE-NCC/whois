@@ -46,7 +46,6 @@ class PendingUpdateHandler {
         final Set<String> passedAuthentications = updateContext.getSubject(preparedUpdate).getPassedAuthentications();
 
         if (pendingUpdate == null) {
-            // TODO: [AH] add sender email to pending updates table
             loggerContext.log(new Message(Messages.Type.INFO, "No pending updates found; storing in DB"));
             pendingUpdateDao.store(new PendingUpdate(passedAuthentications, rpslObject, dateTimeProvider.getCurrentDateTime()));
         } else {

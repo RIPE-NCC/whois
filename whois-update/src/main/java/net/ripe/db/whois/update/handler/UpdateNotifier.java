@@ -1,11 +1,15 @@
 package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.authentication.Subject;
+import net.ripe.db.whois.update.authentication.strategy.RouteAutnumAuthentication;
+import net.ripe.db.whois.update.authentication.strategy.RouteIpAddressAuthentication;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.response.ResponseFactory;
 import net.ripe.db.whois.update.mail.MailGateway;
@@ -14,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class UpdateNotifier {
@@ -63,6 +68,12 @@ public class UpdateNotifier {
                 add(notifications, update, Notification.Type.FAILED_AUTHENTICATION, rpslObjectDao.getByKeys(ObjectType.MNTNER, object.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.UPD_TO);
                 break;
 
+            case PENDING_AUTHENTICATION:
+                for (final RpslObject typeObject : findTypeObjects(update, updateContext)) {
+                    add(notifications, update, Notification.Type.PENDING_UPDATE, rpslObjectDao.getByKeys(ObjectType.MNTNER, typeObject.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.UPD_TO);
+                }
+                break;
+
             default:
                 break;
         }
@@ -80,5 +91,31 @@ public class UpdateNotifier {
                 notification.add(type, update);
             }
         }
+    }
+
+    private Set<RpslObject> findTypeObjects(final PreparedUpdate update, final UpdateContext updateContext) {
+        final RpslObject rpslObject = update.getUpdatedObject();
+        CIString key = null;
+        ObjectType soughtObjectType = null;
+        final Subject subject = updateContext.getSubject(update);
+        final Set<String> failedAuthentications = subject.getFailedAuthentications();
+        final Set<RpslObject> typeObjects = Sets.newHashSet();
+
+        for (final String failed : failedAuthentications) {
+            if (failed.equals(RouteAutnumAuthentication.class.getSimpleName())) {
+                key = rpslObject.getValueForAttribute(AttributeType.ORIGIN);
+                soughtObjectType = ObjectType.AUT_NUM;
+
+            } else if (failed.equals(RouteIpAddressAuthentication.class.getSimpleName())) {
+                key = rpslObject.getValueForAttribute(AttributeType.ROUTE);
+                soughtObjectType = ObjectType.INETNUM;
+                if (rpslObject.getType() == ObjectType.ROUTE6) {
+                    key = rpslObject.getValueForAttribute(AttributeType.ROUTE6);
+                    soughtObjectType = ObjectType.INET6NUM;
+                }
+            }
+            typeObjects.add(rpslObjectDao.getByKey(soughtObjectType, key));
+        }
+        return typeObjects;
     }
 }

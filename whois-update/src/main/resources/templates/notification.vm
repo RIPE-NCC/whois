@@ -34,6 +34,24 @@ $update.reason
 #end
 #end
 
+#if( $pendingUpdate.size() > 0)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Some objects in which you are referenced as a
+maintainer were requested to be changed, but need
+your authorisation to complete the change.
+This update must be completed within one week.
+
+Please submit the following objects *exactly as shown*
+and add your authorisation.
+#foreach( $update in $pendingUpdate )
+---
+    $update.action REQUESTED FOR:
+
+    $update.referenceObject
+
+#end
+#end
+
 #if( $success.size() > 0)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Some object(s) in RIPE Database that you either

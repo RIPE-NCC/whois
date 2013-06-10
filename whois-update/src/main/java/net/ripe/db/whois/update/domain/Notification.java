@@ -15,7 +15,7 @@ import java.util.Set;
 public final class Notification {
 
     public static enum Type {
-        SUCCESS, SUCCESS_REFERENCE, FAILED_AUTHENTICATION
+        SUCCESS, SUCCESS_REFERENCE, FAILED_AUTHENTICATION, PENDING_UPDATE
     }
 
     private final String email;
