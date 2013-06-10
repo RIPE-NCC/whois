@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class RouteIpAddressAuthentication extends RouteAuthentication {
+public class RouteIpAddressAuthentication extends RouteAuthentication { // TODO [AK] Should be package private
     private final Ipv4RouteTree ipv4RouteTree;
     private final Ipv4Tree ipv4Tree;
     private final Ipv6RouteTree ipv6RouteTree;

@@ -94,7 +94,7 @@ public class UpdateNotifier {
         }
     }
 
-    private Set<RpslObject> findTypeObjects(final PreparedUpdate update, final UpdateContext updateContext) {
+    private Set<RpslObject> findTypeObjects(final PreparedUpdate update, final UpdateContext updateContext) { // TODO [AK] Why not get mntner names in the authenticators? This seems very fishy
         final RpslObject rpslObject = update.getUpdatedObject();
         CIString key = null;
         ObjectType soughtObjectType = null;
@@ -103,11 +103,11 @@ public class UpdateNotifier {
         final Set<RpslObject> typeObjects = Sets.newHashSet();
 
         for (final String failed : failedAuthentications) {
-            if (failed.equals(RouteAutnumAuthentication.class.getSimpleName())) {
+            if (failed.equals(RouteAutnumAuthentication.class.getSimpleName())) { // TODO [AK] This is not the correct way to determine the authenticator name!
                 key = rpslObject.getValueForAttribute(AttributeType.ORIGIN);
                 soughtObjectType = ObjectType.AUT_NUM;
 
-            } else if (failed.equals(RouteIpAddressAuthentication.class.getSimpleName())) {
+            } else if (failed.equals(RouteIpAddressAuthentication.class.getSimpleName())) { // TODO [AK] This is not the correct way to determine the authenticator name!
                 key = rpslObject.getValueForAttribute(AttributeType.ROUTE);
                 soughtObjectType = ObjectType.INETNUM;
                 if (rpslObject.getType() == ObjectType.ROUTE6) {
@@ -115,7 +115,7 @@ public class UpdateNotifier {
                     soughtObjectType = ObjectType.INET6NUM;
                 }
             }
-            typeObjects.add(rpslObjectDao.getByKey(soughtObjectType, key));
+            typeObjects.add(rpslObjectDao.getByKey(soughtObjectType, key)); // TODO [AK] Causes exception since object does not exist
         }
         return typeObjects;
     }
