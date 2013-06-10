@@ -1,8 +1,7 @@
 package spec.integration
 import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.common.rpsl.RpslObjectBase
+import net.ripe.db.whois.common.rpsl.RpslObject
 import org.joda.time.LocalDate
-import spock.lang.Ignore
 import spec.domain.SyncUpdate
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
@@ -805,7 +804,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate create
 
       then:
-        response =~ /FAIL/
+        response =~ /Create PENDING:/
 
         response =~ /Authorisation for \[inetnum\] 198.0.0.0 - 198.0.0.255 failed
             using "mnt-routes:"
@@ -1141,7 +1140,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     // TODO: [ES] validate acknowledgement and notification messages for pending updates, once implemented
-
     def "create route, without pending authentication"() {
       given:
         def response = syncUpdate(new SyncUpdate(data: """\
@@ -1159,13 +1157,12 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /SUCCESS/
     }
 
-    @Ignore("TODO not implemented yet")
     def "create route, with inetnum authentication, and pending autnum authentication"() {
       setup:
         databaseHelper.insertPendingUpdate(
                 LocalDate.now().minusDays(1),
                 "AutnumAuthentication",
-                RpslObjectBase.parse("""\
+                RpslObject.parse("""\
                     route: 194.0.0.0/24
                     descr: Test route
                     origin: AS456
@@ -1190,13 +1187,12 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.clearPendingUpdates()
     }
 
-    @Ignore("TODO not implemented yet")
     def "create route, with pending inetnum and autnum authentications"() {
       setup:
         databaseHelper.insertPendingUpdate(
                 LocalDate.now().minusDays(2),
                 "AutnumAuthentication",
-                RpslObjectBase.parse("""\
+                RpslObject.parse("""\
                     route: 194.0.0.0/24
                     descr: Test route
                     origin: AS456
@@ -1207,7 +1203,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.insertPendingUpdate(
                 LocalDate.now().minusDays(1),
                 "InetnumAuthentication",
-                RpslObjectBase.parse("""\
+                RpslObject.parse("""\
                     route: 194.0.0.0/24
                     descr: Test route
                     origin: AS456
@@ -1231,13 +1227,12 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.clearPendingUpdates()
     }
 
-    @Ignore("TODO not implemented yet")
     def "create route, with inetnum authentication, and pending inetnum authentication, but no pending autnum authentication"() {
       setup:
         databaseHelper.insertPendingUpdate(
                 LocalDate.now().minusDays(1),
                 "InetnumAuthentication",
-                RpslObjectBase.parse("""\
+                RpslObject.parse("""\
                     route: 194.0.0.0/24
                     descr: Test route
                     origin: AS456
@@ -1278,13 +1273,12 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /FAILED/
     }
 
-    @Ignore("TODO not implemented yet")
     def "create route, with autnum authentication, and pending inetnum authentication"() {
       setup:
         databaseHelper.insertPendingUpdate(
                 LocalDate.now().minusDays(1),
                 "InetnumAuthentication",
-                RpslObjectBase.parse("""\
+                RpslObject.parse("""\
                     route: 195.0.0.0/24
                     descr: Test route
                     origin: AS456
@@ -1309,7 +1303,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.clearPendingUpdates()
     }
 
-    @Ignore("TODO not implemented yet")
     def "create route, with autnum authentication, but no pending inetnum authentication"() {
       when:
         def response = syncUpdate(new SyncUpdate(data: """\

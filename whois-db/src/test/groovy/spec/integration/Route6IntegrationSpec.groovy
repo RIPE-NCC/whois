@@ -1,6 +1,6 @@
 package spec.integration
 import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.common.rpsl.RpslObjectBase
+import net.ripe.db.whois.common.rpsl.RpslObject
 import org.joda.time.LocalDate
 import spec.domain.SyncUpdate
 import spock.lang.Ignore
@@ -658,7 +658,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate create
 
       then:
-        response =~ /FAIL/
+        response =~ /Create PENDING:/
 
         response =~ /Authorisation for \[inet6num\] bbdd::\/24 failed
             using "mnt-routes:"
@@ -1126,7 +1126,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.insertPendingUpdate(
                 LocalDate.now().minusDays(1),
                 "AutnumAuthentication",
-                RpslObjectBase.parse("""\
+                RpslObject.parse("""\
                     route6: 5353::0/24
                     descr: TEST-ROUTE6
                     origin: AS456
@@ -1157,7 +1157,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.insertPendingUpdate(
                 LocalDate.now().minusDays(2),
                 "AutnumAuthentication",
-                RpslObjectBase.parse("""\
+                RpslObject.parse("""\
                     route6: 5353::0/24
                     descr: TEST-ROUTE6
                     origin: AS456
@@ -1168,7 +1168,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.insertPendingUpdate(
                 LocalDate.now().minusDays(1),
                 "InetnumAuthentication",
-                RpslObjectBase.parse("""\
+                RpslObject.parse("""\
                     route6: 5353::0/24
                     descr: TEST-ROUTE6
                     origin: AS456
@@ -1198,7 +1198,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.insertPendingUpdate(
                 LocalDate.now().minusDays(1),
                 "InetnumAuthentication",
-                RpslObjectBase.parse("""\
+                RpslObject.parse("""\
                     route6: 5353::0/24
                     descr: TEST-ROUTE6
                     origin: AS456
@@ -1246,7 +1246,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.insertPendingUpdate(
                 LocalDate.now().minusDays(1),
                 "InetnumAuthentication",
-                RpslObjectBase.parse("""\
+                RpslObject.parse("""\
                     route6: 5353::0/24
                     descr: TEST-ROUTE6
                     origin: AS789
