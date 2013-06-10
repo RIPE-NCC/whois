@@ -4,9 +4,9 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
+import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.domain.PendingUpdate;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -56,7 +56,7 @@ public class JdbcPendingUpdateDao implements PendingUpdateDao {
         jdbcTemplate.update("" +
                 "INSERT INTO pending_updates(object, object_type, pkey, stored_date, passed_authentications) " +
                 "VALUES (?, ?, ?, ?, ?)",
-                pendingUpdate.getObject().toString(),
+                pendingUpdate.getObject().toByteArray(),
                 ObjectTypeIds.getId(pendingUpdate.getObject().getType()),
                 pendingUpdate.getObject().getKey(),
                 pendingUpdate.getStoredDate().toDate(),
