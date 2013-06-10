@@ -3,6 +3,7 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.RpslObject
 import org.joda.time.LocalDate
 import spec.domain.SyncUpdate
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class RouteIntegrationSpec extends BaseWhoisSourceSpec {
@@ -34,6 +35,17 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     referral-by: TEST-MNT2
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$5aMDZg3w\$zL59TnpAszf6Ft.zs148X0 # update2
+                    changed: dbtest@ripe.net 20120707
+                    source: TEST
+                """,
+                "TEST-MNT3": """\
+                    mntner: TEST-MNT3
+                    descr: description
+                    admin-c: TEST-PN
+                    mnt-by: TEST-MNT3
+                    referral-by: TEST-MNT3
+                    upd-to: dbtest@ripe.net
+                    auth:   MD5-PW \$1\$dNvmHMUm\$5A3Q0AlFopJ662JB2FY/w. # update3
                     changed: dbtest@ripe.net 20120707
                     source: TEST
                 """,
@@ -157,6 +169,18 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     mnt-lower: LOWER-MNT
                     changed: ripe@test.net 20120505
+                    source: TEST
+                """,
+                "INETNUM_MNT_BY_MNT3": """\
+                    inetnum: 197.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: SUB-ALLOCATED PA
+                    mnt-by: TEST-MNT3
+                    changed: ripe@test.net 20120601
                     source: TEST
                 """,
                 "INETNUM_MNT_ROUTES_RANGES_VALID": """\
@@ -1140,106 +1164,90 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     // TODO: [ES] validate acknowledgement and notification messages for pending updates, once implemented
+
     def "create route, without pending authentication"() {
       given:
         def response = syncUpdate(new SyncUpdate(data: """\
-                            route: 194.0.0.0/24
+                            route: 197.0.0.0/24
                             descr: Test route
-                            origin: AS456
+                            origin: AS123
                             mnt-by: TEST-MNT2
                             changed: ripe@test.net 20091015
                             source: TEST
                             password: update
                             password: update2
-                            password: emptypassword
+                            password: update3
                             """.stripIndent()))
       expect:
-        response =~ /SUCCESS/
+        response =~ /Create SUCCEEDED: \[route\] 197.0.0.0\/24AS123/
     }
 
+    @Ignore
     def "create route, with inetnum authentication, and pending autnum authentication"() {
-      setup:
-        databaseHelper.insertPendingUpdate(
-                LocalDate.now().minusDays(1),
-                "AutnumAuthentication",
-                RpslObject.parse("""\
-                    route: 194.0.0.0/24
-                    descr: Test route
-                    origin: AS456
-                    mnt-by: TEST-MNT2
-                    changed: ripe@test.net 20091015
-                    source: TEST
-                """.stripIndent()))
-      when:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route: 194.0.0.0/24
+      given:
+        def pendAutnum = syncUpdate(new SyncUpdate(data: """\
+                            route: 197.0.0.0/24
                             descr: Test route
-                            origin: AS456
+                            origin: AS123
                             mnt-by: TEST-MNT2
                             changed: ripe@test.net 20091015
                             source: TEST
                             password: update
                             password: update2
                             """.stripIndent()))
-      then:
-        response =~ /SUCCESS/
-      cleanup:
-        databaseHelper.clearPendingUpdates()
-    }
-
-    def "create route, with pending inetnum and autnum authentications"() {
-      setup:
-        databaseHelper.insertPendingUpdate(
-                LocalDate.now().minusDays(2),
-                "AutnumAuthentication",
-                RpslObject.parse("""\
-                    route: 194.0.0.0/24
-                    descr: Test route
-                    origin: AS456
-                    mnt-by: TEST-MNT2
-                    changed: ripe@test.net 20091015
-                    source: TEST
-                """.stripIndent()))
-        databaseHelper.insertPendingUpdate(
-                LocalDate.now().minusDays(1),
-                "InetnumAuthentication",
-                RpslObject.parse("""\
-                    route: 194.0.0.0/24
-                    descr: Test route
-                    origin: AS456
-                    mnt-by: TEST-MNT2
-                    changed: ripe@test.net 20091015
-                    source: TEST
-                """.stripIndent()))
+      expect:
+        pendAutnum =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123/
+        pendAutnum =~ /not authenticated by: TEST-MNT3/
       when:
         def response = syncUpdate(new SyncUpdate(data: """\
-                            route: 194.0.0.0/24
+                            route: 197.0.0.0/24
                             descr: Test route
-                            origin: AS456
+                            origin: AS123
                             mnt-by: TEST-MNT2
                             changed: ripe@test.net 20091015
                             source: TEST
                             password: update2
+                            password: update3
                             """.stripIndent()))
       then:
-        response =~ /SUCCESS/
+        response =~ /Create SUCCEEDED: \[route\] 197.0.0.0\/24AS123/
       cleanup:
         databaseHelper.clearPendingUpdates()
     }
 
+    def "create route, with autnum and inetnum authentication, but no mnt-by authentication"() {
+      given:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                            route: 197.0.0.0/24
+                            descr: Test route
+                            origin: AS123
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update
+                            password: update3
+                            """.stripIndent()))
+      expect:
+        response =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123/
+        response =~ /not authenticated by: TEST-MNT2/
+    }
+
+    @Ignore
     def "create route, with inetnum authentication, and pending inetnum authentication, but no pending autnum authentication"() {
-      setup:
-        databaseHelper.insertPendingUpdate(
-                LocalDate.now().minusDays(1),
-                "InetnumAuthentication",
-                RpslObject.parse("""\
-                    route: 194.0.0.0/24
-                    descr: Test route
-                    origin: AS456
-                    mnt-by: TEST-MNT2
-                    changed: ripe@test.net 20091015
-                    source: TEST
-                """.stripIndent()))
+      given:
+        def pendInetnum = syncUpdate(new SyncUpdate(data: """\
+                            route: 197.0.0.0/24
+                            descr: Test route
+                            origin: AS123
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update
+                            password: update3
+                            """.stripIndent()))
+      expect:
+        pendInetnum =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123/
+        pendInetnum =~ /not authenticated by: TEST-MNT/
       when:
         def response = syncUpdate(new SyncUpdate(data: """\
                             route: 194.0.0.0/24
@@ -1249,10 +1257,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             changed: ripe@test.net 20091015
                             source: TEST
                             password: update
-                            password: update2
+                            password: update3
                             """.stripIndent()))
       then:
-        response =~ /FAILED/
+        response =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123/
       cleanup:
         databaseHelper.clearPendingUpdates()
     }
@@ -1273,6 +1281,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /FAILED/
     }
 
+    @Ignore
     def "create route, with autnum authentication, and pending inetnum authentication"() {
       setup:
         databaseHelper.insertPendingUpdate(
@@ -1303,6 +1312,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.clearPendingUpdates()
     }
 
+    @Ignore
     def "create route, with autnum authentication, but no pending inetnum authentication"() {
       when:
         def response = syncUpdate(new SyncUpdate(data: """\
@@ -1318,4 +1328,12 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ /FAILED/
     }
+
+    // TODO: [ES] on successful update, check that pending update has been removed from DB
+
+    // TODO: [ES] when we have multiple pending updates in table (same pkey with different content), are there duplicate notifications to mntners
+
+    // TODO: [ES] on a duplicate update message, send a reply "already pending"
+
+    // TODO: [ES] test routes-mnt auth (e.g. AS456)
 }
