@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
-import net.ripe.db.whois.update.domain.PendingUpdate;
+import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;

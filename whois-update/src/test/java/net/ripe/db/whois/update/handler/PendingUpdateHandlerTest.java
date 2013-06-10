@@ -9,7 +9,7 @@ import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.authentication.strategy.RouteAutnumAuthentication;
 import net.ripe.db.whois.update.authentication.strategy.RouteIpAddressAuthentication;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
-import net.ripe.db.whois.update.domain.PendingUpdate;
+import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.dao;
 
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.update.domain.PendingUpdate;
+import net.ripe.db.whois.common.domain.PendingUpdate;
 import org.joda.time.LocalDateTime;
 
 import java.util.List;

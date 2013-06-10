@@ -6,7 +6,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.PendingUpdate;
+import net.ripe.db.whois.common.domain.PendingUpdate;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
