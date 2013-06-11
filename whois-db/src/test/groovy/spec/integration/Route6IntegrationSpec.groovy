@@ -1,9 +1,8 @@
 package spec.integration
+
 import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.common.rpsl.RpslObject
-import org.joda.time.LocalDate
+import net.ripe.db.whois.common.rpsl.ObjectType
 import spec.domain.SyncUpdate
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class Route6IntegrationSpec extends BaseWhoisSourceSpec {
@@ -1101,8 +1100,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[route6\] 2000::\/12AS123/
     }
 
-    // TODO: [ES] validate acknowledgement and notification messages for pending updates, once implemented
-
     def "create route6, without pending authentication"() {
       given:
         def response = syncUpdate(new SyncUpdate(data: """\
@@ -1120,21 +1117,31 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /SUCCESS/
     }
 
-    @Ignore("TODO not implemented yet")
-    def "create route6, with inetnum authentication, and pending autnum authentication"() {
-//      setup:
-//        databaseHelper.insertPendingUpdate(
-//                LocalDate.now().minusDays(1),
-//                "AutnumAuthentication",
-//                RpslObject.parse("""\
-//                    route6: 5353::0/24
-//                    descr: TEST-ROUTE6
-//                    origin: AS456
-//                    mnt-by: TEST-MNT2
-//                    changed: ripe@test.net 20091015
-//                    source: TEST
-//                """.stripIndent()))
+    def "create route6, pending inet6num, pending autnum, with mnt-by authentication"() {
       when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                            route6: 5353::0/24
+                            descr: TEST-ROUTE6
+                            origin: AS456
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update2
+                            """.stripIndent()))
+
+      then:
+        response =~ /Create FAILED: \[route6\] 5353::\/24AS456\n/
+        response =~ /\*\*\*Error:   Authorisation for \[aut-num\] AS456 failed\n/
+        response =~ /\*\*\*Error:   Authorisation for \[inet6num\] 5353::\/24 failed\n/
+
+        notificationFor("dbtest@ripe.net").authFailed("Create", "route6", "5353::/24AS456")
+        noMoreMessages()
+
+        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").isEmpty()
+    }
+
+    def "create route6, with inet6num, with autnum, missing mnt-by authentication"() {
+      given:
         def response = syncUpdate(new SyncUpdate(data: """\
                             route6: 5353::0/24
                             descr: TEST-ROUTE6
@@ -1143,140 +1150,143 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             changed: ripe@test.net 20091015
                             source: TEST
                             password: update
-                            password: update2
+                            password: update3
                             """.stripIndent()))
-      then:
-        response =~ /SUCCESS/
+      expect:
+        response =~ /Create FAILED: \[route6\] 5353::\/24AS456\n/
+        response =~ /not authenticated by: TEST-MNT2\n/
+
+        notificationFor("dbtest@ripe.net").authFailed("Create", "route6", "5353::/24AS456")
+        noMoreMessages()
+
+        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").isEmpty()
     }
 
-    @Ignore("TODO not implemented yet")
-    def "create route6, with pending inetnum and autnum authentications"() {
-//      setup:
-//        databaseHelper.insertPendingUpdate(
-//                LocalDate.now().minusDays(2),
-//                "AutnumAuthentication",
-//                RpslObject.parse("""\
-//                    route6: 5353::0/24
-//                    descr: TEST-ROUTE6
-//                    origin: AS456
-//                    mnt-by: TEST-MNT2
-//                    changed: ripe@test.net 20091015
-//                    source: TEST
-//                """.stripIndent()))
-//        databaseHelper.insertPendingUpdate(
-//                LocalDate.now().minusDays(1),
-//                "InetnumAuthentication",
-//                RpslObject.parse("""\
-//                    route6: 5353::0/24
-//                    descr: TEST-ROUTE6
-//                    origin: AS456
-//                    mnt-by: TEST-MNT2
-//                    changed: ripe@test.net 20091015
-//                    source: TEST
-//                """.stripIndent()))
-      when:
-        def response = syncUpdate(new SyncUpdate(data: """\
+    def "create route6, pending inet6num, with autnum, with mnt-by authentication"() {
+      given:
+        def pendInetnum = syncUpdate(new SyncUpdate(data: """\
                             route6: 5353::0/24
                             descr: TEST-ROUTE6
                             origin: AS456
                             mnt-by: TEST-MNT2
                             changed: ripe@test.net 20091015
                             source: TEST
-                            password: update2
-                            """.stripIndent()))
-      then:
-        response =~ /SUCCESS/
-    }
-
-    @Ignore("TODO not implemented yet")
-    def "create route6, with inetnum authentication, and pending inetnum authentication, but no pending autnum authentication"() {
-//      setup:
-//        databaseHelper.insertPendingUpdate(
-//                LocalDate.now().minusDays(1),
-//                "InetnumAuthentication",
-//                RpslObject.parse("""\
-//                    route6: 5353::0/24
-//                    descr: TEST-ROUTE6
-//                    origin: AS456
-//                    mnt-by: TEST-MNT2
-//                    changed: ripe@test.net 20091015
-//                    source: TEST
-//                """.stripIndent()))
-      when:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route6: 5353::0/24
-                            descr: TEST-ROUTE6
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      then:
-        response =~ /FAILED/
-    }
-
-    @Ignore("TODO not implemented yet")
-    def "create route6, with inetnum authentication, but no pending autnum authentication"() {
-      when:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route6: 5353::0/24
-                            descr: TEST-ROUTE6
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      then:
-        response =~ /FAILED/
-    }
-
-    @Ignore("TODO not implemented yet")
-    def "create route6, with autnum authentication, and pending inetnum authentication"() {
-//      setup:
-//        databaseHelper.insertPendingUpdate(
-//                LocalDate.now().minusDays(1),
-//                "InetnumAuthentication",
-//                RpslObject.parse("""\
-//                    route6: 5353::0/24
-//                    descr: TEST-ROUTE6
-//                    origin: AS789
-//                    mnt-by: TEST-MNT2
-//                    changed: ripe@test.net 20091015
-//                    source: TEST
-//                """.stripIndent()))
-      when:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route6: 5353::0/24
-                            descr: TEST-ROUTE6
-                            origin: AS789
-                            mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
-                            source: TEST
-                            password: update2
                             password: emptypassword
+                            password: update2
                             """.stripIndent()))
-      then:
-        response =~ /SUCCESS/
+      expect:
+        pendInetnum =~ /Create PENDING: \[route6\] 5353::\/24AS456\n/
+        pendInetnum =~ /\*\*\*Info:\s+Authorisation for \[inet6num\] 5353::\/24 failed\n/
+        pendInetnum =~ /not authenticated by: TEST-MNT\n/
+        pendInetnum =~ /\*\*\*Warning:\s+This update has only passed one of the two required hierarchical/
+        pendInetnum =~ /\*\*\*Info:\s+The route6 object 5353::\/24AS456 will be saved for one week/
+
+        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route6", "5353::0/24")
+        noMoreMessages()
+
+        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
     }
 
-    @Ignore("TODO not implemented yet")
-    def "create route6, with autnum authentication, but no pending inetnum authentication"() {
-      when:
-        def response = syncUpdate(new SyncUpdate(data: """\
+    def "create route6, with inet6num, pending autnum, with mnt-by authentication"() {
+      given:
+        def pendInetnum = syncUpdate(new SyncUpdate(data: """\
                             route6: 5353::0/24
                             descr: TEST-ROUTE6
-                            origin: AS789
+                            origin: AS456
                             mnt-by: TEST-MNT2
                             changed: ripe@test.net 20091015
                             source: TEST
+                            password: update
                             password: update2
+                            """.stripIndent()))
+      expect:
+        pendInetnum =~ /Create PENDING: \[route6\] 5353::\/24AS456\n/
+        pendInetnum =~ /\*\*\*Info:\s+Authorisation for \[aut-num\] AS456 failed\n/
+        pendInetnum =~ /not authenticated by: ROUTES-MNT\n/
+        pendInetnum =~ /\*\*\*Warning:\s+This update has only passed one of the two required hierarchical/
+        pendInetnum =~ /\*\*\*Info:\s+The route6 object 5353::\/24AS456 will be saved for one week/
+
+        notificationFor("dbtest@ripe.net") // TODO [AK] Notification contents
+        noMoreMessages()
+
+        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
+    }
+
+    def "create route6 pending auth, 2nd update identical to first update"() {
+      when:
+        def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
+                            route6: 5353::0/24
+                            descr: TEST-ROUTE6
+                            origin: AS456
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
                             password: emptypassword
+                            password: update2
                             """.stripIndent()))
       then:
-        response =~ /FAILED/
+        inetnumWithAutnumAuth =~ /Create PENDING: \[route6\] 5353::\/24AS456\n/
+        notificationFor("dbtest@ripe.net") // TODO [AK] Notification contents
+        noMoreMessages()
+
+        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
+
+      when:
+        def identical = syncUpdate(new SyncUpdate(data: """\
+                            route6: 5353::0/24
+                            descr: TEST-ROUTE6
+                            origin: AS456
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: emptypassword
+                            password: update2
+                            """.stripIndent()))
+      then:
+        identical =~ /Create FAILED: \[route6\] 5353::\/24AS456\n/
+        identical =~ /\*\*\*Error:\s+Authorisation for \[inet6num\] 5353::\/24 failed\n/
+        identical != ~/\*\*\*Warning: This update has only passed one of the two/
+        identical != ~/\*\*\*Info:\s+The route6 object 5353::\/24AS456 will be saved/
+        noMoreMessages()
+
+        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
+    }
+
+    def "create route6 pending auth, 1st and 2nd update passes successfully"() {
+      when:
+        def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
+                            route6: 5353::0/24
+                            descr: TEST-ROUTE6
+                            origin: AS456
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update
+                            password: update2
+                            """.stripIndent()))
+      then:
+        inetnumWithAutnumAuth =~ /Create PENDING: \[route6\] 5353::\/24AS456\n/
+        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route6", "5353::/24")
+        noMoreMessages()
+
+        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
+
+      when:
+        def inetnumWithIpAuth = syncUpdate(new SyncUpdate(data: """\
+                            route6: 5353::0/24
+                            descr: TEST-ROUTE6
+                            origin: AS456
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: emptypassword
+                            password: update2
+                            """.stripIndent()))
+      then:
+        inetnumWithIpAuth =~ /SUCCEEDED: \[route6\] 5353::\/24AS456\n/
+        inetnumWithIpAuth =~ /\*\*\*Info:    This update concludes a pending update on route6 5353::\/24AS456\n/
+        noMoreMessages()
+
+        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").isEmpty()
     }
 }
