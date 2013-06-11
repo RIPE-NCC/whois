@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.authentication.strategy;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
@@ -19,6 +20,7 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.CheckForNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -45,24 +47,23 @@ class RouteIpAddressAuthentication extends RouteAuthentication {
         final RpslAttribute typeAttribute = updatedObject.getTypeAttribute();
         final IpInterval addressPrefix = IpInterval.parse(typeAttribute.getCleanValue());
 
-        final List<RpslObject> ipObjects = getIpObjects(addressPrefix);
-        if (ipObjects.isEmpty()) {
+        final RpslObject ipObject = getIpObject(addressPrefix);
+        if (ipObject == null) {
             throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(updatedObject, typeAttribute.getType(), Collections.<RpslObject>emptyList()), Collections.<RpslObject>emptyList());
         }
 
         final Set<RpslObject> allCandidates = Sets.newLinkedHashSet();
         final List<Message> authenticationMessages = Lists.newArrayList();
-        for (final RpslObject ipObject : ipObjects) {
-            if (ipObject.containsAttribute(AttributeType.MNT_ROUTES)) {
-                final List<RpslObject> candidates = getCandidatesForMntRoutesAuthentication(ipObject, update);
-                allCandidates.addAll(candidates);
 
-                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
-                if (authenticated.isEmpty()) {
-                    authenticationMessages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_ROUTES, candidates));
-                } else {
-                    return authenticated;
-                }
+        if (ipObject.containsAttribute(AttributeType.MNT_ROUTES)) {
+            final List<RpslObject> candidates = getCandidatesForMntRoutesAuthentication(ipObject, update);
+            allCandidates.addAll(candidates);
+
+            final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
+            if (authenticated.isEmpty()) {
+                authenticationMessages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_ROUTES, candidates));
+            } else {
+                return authenticated;
             }
         }
 
@@ -70,18 +71,16 @@ class RouteIpAddressAuthentication extends RouteAuthentication {
             throw new AuthenticationFailedException(authenticationMessages, allCandidates);
         }
 
-        for (final RpslObject ipObject : ipObjects) {
-            final IpInterval ipInterval = IpInterval.parse(ipObject.getTypeAttribute().getCleanValue());
-            if (!addressPrefix.equals(ipInterval) && ipObject.containsAttribute(AttributeType.MNT_LOWER)) {
-                final List<RpslObject> candidates = objectDao.getByKeys(ObjectType.MNTNER, ipObject.getValuesForAttribute(AttributeType.MNT_LOWER));
-                allCandidates.addAll(candidates);
+        final IpInterval ipInterval = IpInterval.parse(ipObject.getTypeAttribute().getCleanValue());
+        if (!addressPrefix.equals(ipInterval) && ipObject.containsAttribute(AttributeType.MNT_LOWER)) {
+            final List<RpslObject> candidates = objectDao.getByKeys(ObjectType.MNTNER, ipObject.getValuesForAttribute(AttributeType.MNT_LOWER));
+            allCandidates.addAll(candidates);
 
-                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
-                if (authenticated.isEmpty()) {
-                    authenticationMessages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_LOWER, candidates));
-                } else {
-                    return authenticated;
-                }
+            final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
+            if (authenticated.isEmpty()) {
+                authenticationMessages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_LOWER, candidates));
+            } else {
+                return authenticated;
             }
         }
 
@@ -89,17 +88,15 @@ class RouteIpAddressAuthentication extends RouteAuthentication {
             throw new AuthenticationFailedException(authenticationMessages, allCandidates);
         }
 
-        for (final RpslObject ipObject : ipObjects) {
-            if (ipObject.containsAttribute(AttributeType.MNT_BY)) {
-                final List<RpslObject> candidates = objectDao.getByKeys(ObjectType.MNTNER, ipObject.getValuesForAttribute(AttributeType.MNT_BY));
-                allCandidates.addAll(candidates);
+        if (ipObject.containsAttribute(AttributeType.MNT_BY)) {
+            final List<RpslObject> candidates = objectDao.getByKeys(ObjectType.MNTNER, ipObject.getValuesForAttribute(AttributeType.MNT_BY));
+            allCandidates.addAll(candidates);
 
-                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
-                if (authenticated.isEmpty()) {
-                    authenticationMessages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_BY, candidates));
-                } else {
-                    return authenticated;
-                }
+            final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
+            if (authenticated.isEmpty()) {
+                authenticationMessages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_BY, candidates));
+            } else {
+                return authenticated;
             }
         }
 
@@ -110,35 +107,39 @@ class RouteIpAddressAuthentication extends RouteAuthentication {
         throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(updatedObject, typeAttribute.getType(), Collections.<RpslObject>emptyList()), allCandidates);
     }
 
-    private List<RpslObject> getIpObjects(final IpInterval<?> addressPrefix) {
+
+    @CheckForNull
+    private RpslObject getIpObject(final IpInterval<?> addressPrefix) {
         if (addressPrefix instanceof Ipv4Resource) {
-            return getIpObjects(ipv4RouteTree, ipv4Tree, addressPrefix);
+            return getIpObject(ipv4RouteTree, ipv4Tree, addressPrefix);
         }
 
         if (addressPrefix instanceof Ipv6Resource) {
-            return getIpObjects(ipv6RouteTree, ipv6Tree, addressPrefix);
+            return getIpObject(ipv6RouteTree, ipv6Tree, addressPrefix);
         }
 
         throw new IllegalStateException("Unexpected address prefix: " + addressPrefix);
     }
 
-    private List<RpslObject> getIpObjects(final IpTree routeTree, final IpTree ipTree, final IpInterval addressPrefix) {
-        final List<RpslObject> ipEntries = getIpObjects(routeTree, addressPrefix);
-        if (ipEntries.isEmpty()) {
-            return getIpObjects(ipTree, addressPrefix);
+    @CheckForNull
+    private RpslObject getIpObject(final IpTree routeTree, final IpTree ipTree, final IpInterval addressPrefix) {
+        final RpslObject ipObject = getIpObject(routeTree, addressPrefix);
+        if (ipObject == null) {
+            return getIpObject(ipTree, addressPrefix);
+        } else {
+            return ipObject;
         }
-
-        return ipEntries;
     }
 
+    @CheckForNull
     @SuppressWarnings("unchecked")
-    private List<RpslObject> getIpObjects(final IpTree ipTree, final IpInterval addressPrefix) {
+    private RpslObject getIpObject(final IpTree ipTree, final IpInterval addressPrefix) {
         final List<IpEntry> ipEntries = ipTree.findExactOrFirstLessSpecific(addressPrefix);
-        final List<RpslObject> ipObjects = Lists.newArrayListWithCapacity(ipEntries.size());
-        for (final IpEntry ipEntry : ipEntries) {
-            ipObjects.add(objectDao.getById(ipEntry.getObjectId()));
+        final IpEntry ipEntry = CollectionHelper.uniqueResult(ipEntries);
+        if (ipEntry == null) {
+            return null;
         }
 
-        return ipObjects;
+        return objectDao.getById(ipEntry.getObjectId());
     }
 }

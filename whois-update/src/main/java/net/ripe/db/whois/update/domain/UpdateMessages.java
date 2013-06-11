@@ -525,4 +525,8 @@ public final class UpdateMessages {
     public static Message updateAlreadyPendingAuthentication() {
         return new Message(Type.ERROR, "There is already an identical update pending authentication");
     }
+
+    public static Message updateConcludesPendingUpdate(final RpslObject rpslObject) {
+        return new Message(Type.INFO, "This update concludes a pending update on %s %s", rpslObject.getType().getName(), rpslObject.getKey());
+    }
 }

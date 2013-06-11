@@ -50,14 +50,12 @@ public class UpdateNotifier {
     private void addNotifications(final Map<CIString, Notification> notifications, final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject object = update.getReferenceObject();
 
-        final UpdateStatus status = updateContext.getStatus(update);
-        switch (status) {
+        switch (updateContext.getStatus(update)) {
             case SUCCESS:
                 add(notifications, update, Notification.Type.SUCCESS, Collections.singletonList(object), AttributeType.NOTIFY);
                 add(notifications, update, Notification.Type.SUCCESS, rpslObjectDao.getByKeys(ObjectType.MNTNER, object.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.MNT_NFY);
                 add(notifications, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.ORGANISATION, update.getDifferences(AttributeType.ORG)), AttributeType.REF_NFY);
                 add(notifications, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.IRT, update.getDifferences(AttributeType.MNT_IRT)), AttributeType.IRT_NFY);
-                //TODO [AS] specialcase for completing pending update
                 break;
 
             case FAILED_AUTHENTICATION:
