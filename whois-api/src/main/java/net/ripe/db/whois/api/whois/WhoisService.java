@@ -133,7 +133,7 @@ public class WhoisService {
     }
 
     private StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
-        /*final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT) ;
+        /*final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
         for (final String accept : Splitter.on(',').split(acceptHeader)) {
             try {
                 final MediaType mediaType = MediaType.valueOf(accept);
