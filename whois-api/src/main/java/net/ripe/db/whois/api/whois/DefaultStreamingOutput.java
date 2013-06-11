@@ -32,14 +32,14 @@ import java.util.Queue;
  * To change this template use File | Settings | File Templates.
  */
 public class DefaultStreamingOutput implements StreamingOutput {
-    private boolean found;
+    protected boolean found;
     protected static final int STATUS_TOO_MANY_REQUESTS = 429;
-    private StreamingMarshal streamingMarshal;
-    private QueryHandler queryHandler;
-    private Parameters parameters;
-    private Query query;
-    private InetAddress remoteAddress;
-    private int contextId;
+    protected StreamingMarshal streamingMarshal;
+    protected QueryHandler queryHandler;
+    protected Parameters parameters;
+    protected Query query;
+    protected InetAddress remoteAddress;
+    protected int contextId;
 
     public DefaultStreamingOutput(StreamingMarshal sm, QueryHandler qh, Parameters p, Query q, InetAddress ra, int cid) {
         streamingMarshal = sm;
@@ -49,6 +49,8 @@ public class DefaultStreamingOutput implements StreamingOutput {
         remoteAddress = ra;
         contextId = cid;
     }
+
+    protected DefaultStreamingOutput() {}
 
     @Override
     public void write(final OutputStream output) throws IOException {

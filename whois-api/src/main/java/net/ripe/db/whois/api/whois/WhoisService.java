@@ -124,7 +124,7 @@ public class WhoisService {
         return Response.ok(whoisResources).build();
     }
 
-    private Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
+    protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
         final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
 
         DefaultStreamingOutput dso = new DefaultStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
@@ -132,7 +132,7 @@ public class WhoisService {
         return Response.ok(dso).build();
     }
 
-    private StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
+    protected StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
         /*final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
         for (final String accept : Splitter.on(',').split(acceptHeader)) {
             try {
