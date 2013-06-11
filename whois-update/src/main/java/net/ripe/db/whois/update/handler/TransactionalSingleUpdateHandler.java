@@ -99,6 +99,8 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
         }
 
         if (pendingAuthentication) {
+            updateContext.addMessage(preparedUpdate, UpdateMessages.updatePendingAuthentication());
+            updateContext.addMessage(preparedUpdate, UpdateMessages.updatePendingAuthenticationSaved(preparedUpdate.getUpdatedObject()));
             pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else {
             updateObjectHandler.execute(preparedUpdate, updateContext);

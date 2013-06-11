@@ -514,6 +514,14 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "End of line comments not allowed on \"source:\" attribute");
     }
 
+    public static Message updatePendingAuthentication() {
+        return new Message(Type.WARNING, "This update has only passed one of the two required hierarchical authorisations");
+    }
+
+    public static Message updatePendingAuthenticationSaved(final RpslObject rpslObject) {
+        return new Message(Type.INFO, "The %s object %s will be saved for one week pending the second authorisation", rpslObject.getType().getName(), rpslObject.getKey());
+    }
+
     public static Message updateAlreadyPendingAuthentication() {
         return new Message(Type.ERROR, "There is already an identical update pending authentication");
     }
