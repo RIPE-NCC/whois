@@ -110,6 +110,7 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
 
     @Override
     public boolean validateBusinessRules(final PreparedUpdate update, final UpdateContext updateContext) {
+        // TODO [AK] There must be a better way to set the status than to count errors
         final int initialErrorCount = updateContext.getErrorCount(update);
 
         final Action action = update.getAction();

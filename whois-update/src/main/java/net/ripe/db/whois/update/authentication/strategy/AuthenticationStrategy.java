@@ -34,7 +34,7 @@ public interface AuthenticationStrategy {
      *
      * @param update        The update to authenticate.
      * @param updateContext The update context.
-     * @return All succesfully authenticated objects
+     * @return All successfully authenticated objects
      * @throws AuthenticationFailedException In case authentication fails.
      */
     List<RpslObject> authenticate(PreparedUpdate update, UpdateContext updateContext) throws AuthenticationFailedException;

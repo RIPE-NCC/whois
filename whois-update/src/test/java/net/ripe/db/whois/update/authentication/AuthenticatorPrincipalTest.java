@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
@@ -91,7 +92,9 @@ public class AuthenticatorPrincipalTest {
         verifySubject(updateContext, new Subject(
                 Sets.newHashSet(excpectedPrincipals),
                 Collections.singleton(authenticationStrategy1.getName()),
-                Collections.<String>emptySet()));
+                Collections.<String>emptySet(),
+                Collections.<String, Collection<RpslObject>>emptyMap()
+        ));
     }
 
     @Test
@@ -137,7 +140,7 @@ public class AuthenticatorPrincipalTest {
         when(origin.getFrom()).thenReturn("193.0.0.10");
         when(authenticationStrategy1.supports(update)).thenReturn(false);
         when(authenticationStrategy2.supports(update)).thenReturn(true);
-        when(authenticationStrategy2.authenticate(update, updateContext)).thenThrow(new AuthenticationFailedException(UpdateMessages.unexpectedError()));
+        when(authenticationStrategy2.authenticate(update, updateContext)).thenThrow(new AuthenticationFailedException(UpdateMessages.unexpectedError(), Collections.<RpslObject>emptyList()));
 
         subject.authenticate(origin, update, updateContext);
 
@@ -145,7 +148,9 @@ public class AuthenticatorPrincipalTest {
         verifySubject(updateContext, new Subject(
                 Collections.<Principal>emptySet(),
                 Collections.<String>emptySet(),
-                Collections.singleton(authenticationStrategy2.getName())));
+                Collections.singleton(authenticationStrategy2.getName()),
+                Collections.<String, Collection<RpslObject>>emptyMap()
+        ));
     }
 
     @Test

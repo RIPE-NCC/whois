@@ -72,7 +72,7 @@ class DomainAuthentication extends AuthenticationStrategyBase {
 
         final List<IpEntry> ipEntries = ipTree.findExactOrFirstLessSpecific(reverseIp);
         if (ipEntries.isEmpty() || ipEntries.size() > 1) {
-            throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(rpslObject, AttributeType.DOMAIN, Collections.<RpslObject>emptySet()));
+            throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(rpslObject, AttributeType.DOMAIN, Collections.<RpslObject>emptySet()), Collections.<RpslObject>emptyList());
         }
 
         final IpEntry ipEntry = ipEntries.get(0);
@@ -104,7 +104,7 @@ class DomainAuthentication extends AuthenticationStrategyBase {
         final List<RpslObject> candidates = objectDao.getByKeys(ObjectType.MNTNER, keys);
         final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
         if (authenticated.isEmpty()) {
-            throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(ipObject, attributeType, candidates));
+            throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(ipObject, attributeType, candidates), candidates);
         }
 
         return authenticated;

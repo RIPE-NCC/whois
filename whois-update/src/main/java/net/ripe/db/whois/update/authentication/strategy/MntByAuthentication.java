@@ -85,7 +85,7 @@ class MntByAuthentication extends AuthenticationStrategyBase {
 
         final List<RpslObject> authenticatedBy = credentialValidators.authenticate(update, updateContext, candidates);
         if (authenticatedBy.isEmpty()) {
-            throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(authenticationObject, AttributeType.MNT_BY, candidates));
+            throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(authenticationObject, AttributeType.MNT_BY, candidates), candidates);
         }
 
         return authenticatedBy;
@@ -170,7 +170,7 @@ class MntByAuthentication extends AuthenticationStrategyBase {
             final List<Message> messages = Lists.newArrayList(originalAuthenticationException.getAuthenticationMessages());
             messages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_LOWER, mntLowerCandidates));
             messages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_BY, mntByCandidates));
-            throw new AuthenticationFailedException(messages);
+            throw new AuthenticationFailedException(messages, candidates);
         }
 
         return authenticated;

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.authentication.strategy;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
@@ -16,9 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 class OrgRefAuthentication extends AuthenticationStrategyBase {
@@ -41,19 +40,22 @@ class OrgRefAuthentication extends AuthenticationStrategyBase {
     public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext) {
         final List<Message> authenticationMessages = Lists.newArrayList();
 
-        final Collection<CIString> newOrgReferences = update.getNewValues(AttributeType.ORG);
-        final List<RpslObject> organisations = rpslObjectDao.getByKeys(ObjectType.ORGANISATION, newOrgReferences);
-        if (isSelfReference(update, newOrgReferences)) {
-            organisations.add(update.getUpdatedObject());
-        }
-
+        final Map<RpslObject, List<RpslObject>> candidatesForOrganisations = getCandidatesForOrganisations(update, updateContext);
         final Set<RpslObject> authenticatedOrganisations = Sets.newLinkedHashSet();
-        for (final RpslObject organisation : organisations) {
-            authenticatedOrganisations.addAll(authenticateOrganisation(update, updateContext, organisation, authenticationMessages));
+        for (final Map.Entry<RpslObject, List<RpslObject>> organisationEntry : candidatesForOrganisations.entrySet()) {
+            final List<RpslObject> candidates = organisationEntry.getValue();
+            final List<RpslObject> authenticatedBy = credentialValidators.authenticate(update, updateContext, candidates);
+
+            if (authenticatedBy.isEmpty()) {
+                final RpslObject organisation = organisationEntry.getKey();
+                authenticationMessages.add(UpdateMessages.authenticationFailed(organisation, AttributeType.MNT_REF, candidates));
+            } else {
+                authenticatedOrganisations.addAll(authenticatedBy);
+            }
         }
 
         if (!authenticationMessages.isEmpty()) {
-            throw new AuthenticationFailedException(authenticationMessages);
+            throw new AuthenticationFailedException(authenticationMessages, Sets.newLinkedHashSet(Iterables.concat(candidatesForOrganisations.values())));
         }
 
         return Lists.newArrayList(authenticatedOrganisations);
@@ -63,22 +65,29 @@ class OrgRefAuthentication extends AuthenticationStrategyBase {
         return update.getType().equals(ObjectType.ORGANISATION) && newOrgReferences.contains(update.getUpdatedObject().getKey());
     }
 
-    private List<RpslObject> authenticateOrganisation(final PreparedUpdate update, final UpdateContext updateContext, final RpslObject organisation, final List<Message> authenticationMessages) {
-        final List<RpslObject> maintainers = Lists.newArrayList();
+    private Map<RpslObject, List<RpslObject>> getCandidatesForOrganisations(final PreparedUpdate update, final UpdateContext updateContext) {
+        final Map<RpslObject, List<RpslObject>> candidates = new LinkedHashMap<>();
 
-        for (final CIString mntRef : organisation.getValuesForAttribute(AttributeType.MNT_REF)) {
-            try {
-                maintainers.add(rpslObjectDao.getByKey(ObjectType.MNTNER, mntRef.toString()));
-            } catch (EmptyResultDataAccessException e) {
-                updateContext.addMessage(update, UpdateMessages.nonexistantMntRef(organisation.getKey(), mntRef));
+        final Collection<CIString> newOrgReferences = update.getNewValues(AttributeType.ORG);
+        final List<RpslObject> organisations = rpslObjectDao.getByKeys(ObjectType.ORGANISATION, newOrgReferences);
+        if (isSelfReference(update, newOrgReferences)) {
+            organisations.add(update.getUpdatedObject());
+        }
+
+        for (final RpslObject organisation : organisations) {
+            final List<RpslObject> maintainers = Lists.newArrayList();
+
+            for (final CIString mntRef : organisation.getValuesForAttribute(AttributeType.MNT_REF)) {
+                try {
+                    maintainers.add(rpslObjectDao.getByKey(ObjectType.MNTNER, mntRef.toString()));
+                } catch (EmptyResultDataAccessException e) {
+                    updateContext.addMessage(update, UpdateMessages.nonexistantMntRef(organisation.getKey(), mntRef));
+                }
             }
+
+            candidates.put(organisation, maintainers);
         }
 
-        final List<RpslObject> authenticatedBy = credentialValidators.authenticate(update, updateContext, maintainers);
-        if (authenticatedBy.isEmpty()) {
-            authenticationMessages.add(UpdateMessages.authenticationFailed(organisation, AttributeType.MNT_REF, maintainers));
-        }
-
-        return authenticatedBy;
+        return candidates;
     }
 }

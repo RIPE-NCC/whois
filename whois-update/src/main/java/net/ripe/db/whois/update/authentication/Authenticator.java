@@ -111,7 +111,7 @@ public class Authenticator {
         }
 
         if (!authenticationMessages.isEmpty()) {
-            authenticationFailed(update, updateContext, Subject.EMPTY, authenticationMessages);
+            handleFailure(update, updateContext, Subject.EMPTY, authenticationMessages);
             return Subject.EMPTY;
         }
 
@@ -130,7 +130,7 @@ public class Authenticator {
         }
 
         authenticationMessages.add(UpdateMessages.overrideAuthenticationFailed());
-        authenticationFailed(update, updateContext, Subject.EMPTY, authenticationMessages);
+        handleFailure(update, updateContext, Subject.EMPTY, authenticationMessages);
         return Subject.EMPTY;
     }
 
@@ -140,6 +140,7 @@ public class Authenticator {
 
         final Set<String> passedAuthentications = new HashSet<>();
         final Set<String> failedAuthentications = new HashSet<>();
+        final Map<String, Collection<RpslObject>> pendingAuthentications = new HashMap<>();
 
         if (update.getCredentials().ofType(PasswordCredential.class).size() > 20) {
             authenticationMessages.add(UpdateMessages.tooManyPasswordsSpecified());
@@ -151,7 +152,12 @@ public class Authenticator {
                         passedAuthentications.add(authenticationStrategy.getName());
                     } catch (AuthenticationFailedException e) {
                         authenticationMessages.addAll(e.getAuthenticationMessages());
-                        failedAuthentications.add(authenticationStrategy.getName());
+
+                        if (authenticationStrategy.getTypesWithPendingAuthenticationSupport().contains(update.getType())) {
+                            pendingAuthentications.put(authenticationStrategy.getName(), e.getCandidates());
+                        } else {
+                            failedAuthentications.add(authenticationStrategy.getName());
+                        }
                     }
                 }
             }
@@ -169,9 +175,9 @@ public class Authenticator {
             }
         }
 
-        final Subject subject = new Subject(principals, passedAuthentications, failedAuthentications);
+        final Subject subject = new Subject(principals, passedAuthentications, failedAuthentications, pendingAuthentications);
         if (!authenticationMessages.isEmpty()) {
-            authenticationFailed(update, updateContext, subject, authenticationMessages);
+            handleFailure(update, updateContext, subject, authenticationMessages);
         }
 
         return subject;
@@ -190,8 +196,8 @@ public class Authenticator {
         return principals;
     }
 
-    private void authenticationFailed(final PreparedUpdate update, final UpdateContext updateContext, final Subject subject, final Set<Message> authenticationMessages) {
-        if (isPendingAuthenticationAllowed(update, updateContext, subject)) {
+    private void handleFailure(final PreparedUpdate update, final UpdateContext updateContext, final Subject subject, final Set<Message> authenticationMessages) {
+        if (isPending(update, updateContext, subject)) {
             updateContext.status(update, UpdateStatus.PENDING_AUTHENTICATION);
         } else {
             updateContext.status(update, UpdateStatus.FAILED_AUTHENTICATION);
@@ -202,8 +208,8 @@ public class Authenticator {
         }
     }
 
-    boolean isPendingAuthenticationAllowed(final PreparedUpdate preparedUpdate, final UpdateContext updateContext, final Subject subject) {
-        if (updateContext.hasErrors(preparedUpdate)) {
+    boolean isPending(final PreparedUpdate preparedUpdate, final UpdateContext updateContext, final Subject subject) {
+        if (updateContext.hasErrors(preparedUpdate) || !subject.getFailedAuthentications().isEmpty()) {
             return false;
         }
 
@@ -211,15 +217,7 @@ public class Authenticator {
             return false;
         }
 
-        final Set<String> strategiesWithPendingAuthenticationSupport = typesWithPendingAuthenticationSupport.get(preparedUpdate.getType());
-        if (strategiesWithPendingAuthenticationSupport == null) {
-            return false;
-        }
-
-        final boolean failedSupportedOnly = Sets.difference(subject.getFailedAuthentications(), strategiesWithPendingAuthenticationSupport).isEmpty();
-        final boolean passedAtLeastOneSupported = !Sets.intersection(subject.getPassedAuthentications(), strategiesWithPendingAuthenticationSupport).isEmpty();
-
-        return failedSupportedOnly && passedAtLeastOneSupported;
+        return !subject.getPendingAuthentications().isEmpty();
     }
 
     public boolean isAuthenticationForTypeComplete(final ObjectType objectType, final Set<String> authentications) {

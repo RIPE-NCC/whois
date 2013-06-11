@@ -58,7 +58,7 @@ public class AuthenticatorPendingTest {
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean pendingAuthenticationAllowed = subject.isPendingAuthenticationAllowed(update, updateContext, authSubject);
+        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, authSubject);
         assertThat(pendingAuthenticationAllowed, is(true));
     }
 
@@ -69,7 +69,7 @@ public class AuthenticatorPendingTest {
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean pendingAuthenticationAllowed = subject.isPendingAuthenticationAllowed(update, updateContext, authSubject);
+        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, authSubject);
         assertThat(pendingAuthenticationAllowed, is(false));
     }
 
@@ -80,7 +80,7 @@ public class AuthenticatorPendingTest {
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean pendingAuthenticationAllowed = subject.isPendingAuthenticationAllowed(update, updateContext, authSubject);
+        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, authSubject);
         assertThat(pendingAuthenticationAllowed, is(false));
     }
 
@@ -91,7 +91,7 @@ public class AuthenticatorPendingTest {
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1, authStrategy"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean pendingAuthenticationAllowed = subject.isPendingAuthenticationAllowed(update, updateContext, authSubject);
+        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, authSubject);
         assertThat(pendingAuthenticationAllowed, is(false));
     }
 
@@ -102,7 +102,7 @@ public class AuthenticatorPendingTest {
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Collections.<String>emptySet());
 
-        final boolean pendingAuthenticationAllowed = subject.isPendingAuthenticationAllowed(update, updateContext, authSubject);
+        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, authSubject);
         assertThat(pendingAuthenticationAllowed, is(false));
     }
 
@@ -113,7 +113,7 @@ public class AuthenticatorPendingTest {
         when(update.getType()).thenReturn(ObjectType.ROUTE);
         when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
         when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
-        final boolean pendingAuthenticationAllowed = subject.isPendingAuthenticationAllowed(update, updateContext, authSubject);
+        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, authSubject);
         assertThat(pendingAuthenticationAllowed, is(false));
     }
 

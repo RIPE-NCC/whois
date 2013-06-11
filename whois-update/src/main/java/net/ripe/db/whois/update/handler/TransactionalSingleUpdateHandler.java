@@ -94,11 +94,11 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
         final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION.equals(updateContext.getStatus(preparedUpdate));
 
-        if ((pendingAuthentication && !businessRulesOk) || updateContext.hasErrors(update)) {
+        if ((pendingAuthentication && !businessRulesOk) || (!pendingAuthentication && updateContext.hasErrors(update))) {
             throw new UpdateFailedException();
         }
 
-        if (pendingAuthentication && businessRulesOk) {
+        if (pendingAuthentication) {
             pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else {
             updateObjectHandler.execute(preparedUpdate, updateContext);
@@ -134,7 +134,7 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
             } catch (EmptyResultDataAccessException e) {
                 return null;
             } catch (IncorrectResultSizeDataAccessException e) {
-                throw new IllegalStateException(String.format("Invalid number of results for {}", key, e));
+                throw new IllegalStateException(String.format("Invalid number of results for %s", key), e);
             }
         }
     }

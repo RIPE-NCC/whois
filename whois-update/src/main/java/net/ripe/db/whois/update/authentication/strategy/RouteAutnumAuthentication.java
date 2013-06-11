@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class RouteAutnumAuthentication extends RouteAuthentication { // TODO [AK] Should be package private
+class RouteAutnumAuthentication extends RouteAuthentication {
 
     @Autowired
     public RouteAutnumAuthentication(final AuthenticationModule authenticationModule, final RpslObjectDao objectDao) {
@@ -34,7 +34,7 @@ public class RouteAutnumAuthentication extends RouteAuthentication { // TODO [AK
             final List<RpslObject> candidates = getCandidatesForMntRoutesAuthentication(autNum, update);
             final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
             if (authenticated.isEmpty()) {
-                throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(autNum, AttributeType.MNT_ROUTES, candidates));
+                throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(autNum, AttributeType.MNT_ROUTES, candidates), candidates);
             }
 
             return authenticated;
@@ -43,7 +43,7 @@ public class RouteAutnumAuthentication extends RouteAuthentication { // TODO [AK
         final List<RpslObject> candidates = objectDao.getByKeys(ObjectType.MNTNER, autNum.getValuesForAttribute(AttributeType.MNT_BY));
         final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
         if (authenticated.isEmpty()) {
-            throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(autNum, AttributeType.MNT_BY, candidates));
+            throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(autNum, AttributeType.MNT_BY, candidates), candidates);
         }
 
         return authenticated;
@@ -53,7 +53,7 @@ public class RouteAutnumAuthentication extends RouteAuthentication { // TODO [AK
         try {
             return objectDao.getByKey(ObjectType.AUT_NUM, origin.toString());
         } catch (EmptyResultDataAccessException ignored) {
-            throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(updatedObject, AttributeType.ORIGIN, Collections.<RpslObject>emptyList()));
+            throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(updatedObject, AttributeType.ORIGIN, Collections.<RpslObject>emptyList()), Collections.<RpslObject>emptyList());
         }
     }
 }
