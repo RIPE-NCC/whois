@@ -47,6 +47,9 @@ public class WhoisRDAPServletDeployer implements ServletDeployer {
                         jaxbJsonProvider));
             }
         }));
+
+        servlet.setInitParameter("com.sun.jersey.config.property.packages", "net.ripe.db");
+        System.out.println("YO SHIZZLE: " + servlet.getInitParameters());
         context.addServlet(servlet, "/*");
     }
 }
