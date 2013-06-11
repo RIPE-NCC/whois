@@ -69,7 +69,7 @@ public class UpdateResult {
     }
 
     public boolean isNoop() {
-        return action.equals(Action.NOOP);
+        return Action.NOOP.equals(action);
     }
 
     public int getRetryCount() {

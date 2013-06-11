@@ -12,6 +12,7 @@ import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,8 @@ class PendingUpdateHandler {
         if (pendingUpdate == null) {
             loggerContext.log(new Message(Messages.Type.INFO, "No pending updates found; storing in DB"));
             pendingUpdateDao.store(new PendingUpdate(passedAuthentications, rpslObject, dateTimeProvider.getCurrentDateTime()));
+            updateContext.addMessage(preparedUpdate, UpdateMessages.updatePendingAuthentication());
+            updateContext.addMessage(preparedUpdate, UpdateMessages.updatePendingAuthenticationSaved(preparedUpdate.getUpdatedObject()));
         } else {
             final Set<String> allPassedAuthentications = Sets.newHashSet();
             allPassedAuthentications.addAll(pendingUpdate.getPassedAuthentications());
@@ -62,6 +65,7 @@ class PendingUpdateHandler {
 
                 updateObjectHandler.execute(preparedUpdate, updateContext);
             } else {
+                updateContext.status(preparedUpdate, UpdateStatus.FAILED);
                 updateContext.addMessage(preparedUpdate, UpdateMessages.updateAlreadyPendingAuthentication());
             }
         }
