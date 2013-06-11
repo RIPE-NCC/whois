@@ -108,5 +108,4 @@ public class PendingUpdatesCleanup implements DailyScheduledTask {
             loggerContext.remove();
         }
     }
-
 }
