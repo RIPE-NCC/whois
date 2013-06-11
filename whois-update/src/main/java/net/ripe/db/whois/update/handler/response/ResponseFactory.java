@@ -4,7 +4,12 @@ import com.google.common.base.Splitter;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.Hosts;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.domain.Ack;
+import net.ripe.db.whois.update.domain.Notification;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.ResponseMessage;
+import net.ripe.db.whois.update.domain.UpdateContext;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -24,7 +29,8 @@ public class ResponseFactory {
     private static final String TEMPLATE_EXCEPTION = "templates/exception.vm";
     private static final String TEMPLATE_ACK = "templates/ack.vm";
     private static final String TEMPLATE_HELP = "templates/help.vm";
-    private static final String TEMPLATES_NOTIFICATION = "templates/notification.vm";
+    private static final String TEMPLATE_NOTIFICATION = "templates/notification.vm";
+    private static final String TEMPLATE_PENDING_UPDATE_TIMEOUT = "templates/pendingUpdateTimeout.vm";
 
     private final VelocityEngine velocityEngine;
     private final DateTimeProvider dateTimeProvider;
@@ -91,7 +97,18 @@ public class ResponseFactory {
             subject = "Notification of RIPE Database changes";
         }
 
-        return new ResponseMessage(subject, createResponse(TEMPLATES_NOTIFICATION, updateContext, velocityContext, origin));
+        return new ResponseMessage(subject, createResponse(TEMPLATE_NOTIFICATION, updateContext, velocityContext, origin));
+    }
+
+    public ResponseMessage createPendingUpdateTimeout(final UpdateContext updateContext, final Origin origin, final RpslObject rpslObject, final int days) {
+        final VelocityContext velocityContext = new VelocityContext();
+
+        velocityContext.put("object", rpslObject);
+        velocityContext.put("timeout", days);
+
+        final String subject = String.format("Notification of RIPE Database pending update timeout on %s", rpslObject.getFormattedKey());
+
+        return new ResponseMessage(subject, createResponse(TEMPLATE_PENDING_UPDATE_TIMEOUT, updateContext, velocityContext, origin));
     }
 
     private String createResponse(final String templateName, final UpdateContext updateContext, final VelocityContext velocityContext, final Origin origin) {

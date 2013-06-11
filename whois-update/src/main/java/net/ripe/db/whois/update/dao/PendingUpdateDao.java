@@ -13,5 +13,5 @@ public interface PendingUpdateDao {
 
     void remove(PendingUpdate pendingUpdate);
 
-    void removePendingUpdatesBefore(LocalDateTime date);
+    List<PendingUpdate> findBeforeDate(LocalDateTime date);
 }

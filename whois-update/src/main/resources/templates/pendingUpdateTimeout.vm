@@ -1,0 +1,27 @@
+>>>>>
+This is to notify you of a pending update timeout in RIPE Database.
+This message is auto-generated.
+Please DO NOT reply to this message.
+
+If you do not understand why we sent you this message,
+or for assistance or clarification please contact:
+RIPE Database Administration <ripe-dbm@ripe.net>
+
+Change requested from:
+<<<<<
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Some objects in which you are referenced as a
+maintainer were requested to be changed, but the
+pending update timed out after $timeout days.
+
+Please contact the sender of this update about
+changes that need to be made to the following objects.
+
+---
+NO FINAL CREATE REQUESTED FOR:
+
+$object
+
+#parse("/templates/include/terms-and-conditions.vm")
+#parse("/templates/include/version.vm")

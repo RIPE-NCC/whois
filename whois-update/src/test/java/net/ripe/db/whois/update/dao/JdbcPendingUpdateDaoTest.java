@@ -104,13 +104,15 @@ public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
     }
 
     @Test
-    public void remove_before_date() {
+    public void find_before_date() {
         final PendingUpdate pendingUpdate = new PendingUpdate(1, Sets.newHashSet("OWNER-MNT"), RpslObject.parse("route: 10.0.0.0/8\norigin: AS0\nmnt-by: OWNER-MNT\nsource: TEST"), LocalDateTime.now().minusDays(8));
         subject.store(pendingUpdate);
 
-        subject.removePendingUpdatesBefore(LocalDateTime.now().minusDays(7));
+        final List<PendingUpdate> pendingUpdates = subject.findBeforeDate(LocalDateTime.now().minusDays(7));
 
-        assertThat(getPendingUpdateCount(), is(0));
+        assertThat(pendingUpdates, hasSize(1));
+        assertThat(pendingUpdates.get(0).getId(), is(pendingUpdate.getId()));
+        assertThat(pendingUpdates.get(0).getObject(), is(pendingUpdate.getObject()));
     }
 
     private int getPendingUpdateCount() {
