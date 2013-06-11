@@ -159,7 +159,6 @@ public class UpdateContext {
     private void printMessages(final Iterable<Message> messages, final StringBuilder sb) {
         for (final Message message : messages) {
             sb.append(UpdateMessages.print(message));
-            sb.append(UpdateMessages.print(message));
         }
     }
 
