@@ -1,9 +1,10 @@
 package spec.integration
 import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.common.rpsl.RpslObject
-import org.joda.time.LocalDate
+import net.ripe.db.whois.common.rpsl.ObjectType
 import spec.domain.SyncUpdate
-import spock.lang.Ignore
+
+// TODO: [AH] We check successful errors with response =~ /SUCCESS/; this is very error-prone and misleading, should be fixed everywhere
+// TODO: [AH] Use $ in regexp to increase efficiency, e.g. matching for /not authenticated by: TEST-MNT/ happily matches for 'not authenticated by: TEST-MNT2' !!!
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class RouteIntegrationSpec extends BaseWhoisSourceSpec {
@@ -424,28 +425,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ /SUCCESS/
         response =~ /Create SUCCEEDED: \[route\] 195.0.0.0\/24AS456/
-    }
-
-    def "create route aut-num not authenticated"() {
-      when:
-        def create = new SyncUpdate(data: """\
-                route: 212.166.64.0/19
-                descr: other route
-                origin: AS456
-                mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
-                source: TEST
-                password: update
-                """.stripIndent())
-
-      then:
-        def response = syncUpdate create
-
-      then:
-        response =~ /FAIL/
-        response =~ /Authorisation for \[aut-num\] AS456 failed
-            using "mnt-routes:"
-            not authenticated by: ROUTES-MNT/
     }
 
     def "create route ipaddress exact match mnt-routes authentication"() {
@@ -1163,8 +1142,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
             please contact lir-help@ripe.net for further information./
     }
 
-    // TODO: [ES] validate acknowledgement and notification messages for pending updates, once implemented
-
     def "create route, without pending authentication"() {
       given:
         def response = syncUpdate(new SyncUpdate(data: """\
@@ -1182,7 +1159,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[route\] 197.0.0.0\/24AS123/
     }
 
-    @Ignore
     def "create route, with inetnum authentication, and pending autnum authentication"() {
       given:
         def pendAutnum = syncUpdate(new SyncUpdate(data: """\
@@ -1230,8 +1206,32 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /not authenticated by: TEST-MNT2/
     }
 
-    @Ignore
-    def "create route, with inetnum authentication, and pending inetnum authentication, but no pending autnum authentication"() {
+    def "create route, pending inetnum, pending autnum, with mnt-by authentication"() {
+        when:
+        def create = new SyncUpdate(data: """\
+                route: 212.166.64.0/19
+                descr: other route
+                origin: AS456
+                mnt-by: TEST-MNT
+                changed: ripe@test.net 20091015
+                source: TEST
+                password: update
+                """.stripIndent())
+
+        then:
+        def response = syncUpdate create
+
+        then:
+        response =~ /Create FAILED: \[route\] 212.166.64.0\/19AS456/
+        response =~ /Authorisation for \[aut-num\] AS456 failed
+            using "mnt-routes:"
+            not authenticated by: ROUTES-MNT/
+
+        notificationFor("dbtest@ripe.net").authFailed("Create", "route", "212.166.64.0/19AS456")
+        noMoreMessages()
+    }
+
+    def "create route, with inetnum, with autnum, missing mnt-by authentication"() {
       given:
         def pendInetnum = syncUpdate(new SyncUpdate(data: """\
                             route: 197.0.0.0/24
@@ -1244,90 +1244,27 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update3
                             """.stripIndent()))
       expect:
-        pendInetnum =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123/
-        pendInetnum =~ /not authenticated by: TEST-MNT/
-      when:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route: 194.0.0.0/24
-                            descr: Test route
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
-                            source: TEST
-                            password: update
-                            password: update3
-                            """.stripIndent()))
-      then:
-        response =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123/
+        pendInetnum =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123/
+        pendInetnum =~ /not authenticated by: TEST-MNT2\n/
+
+        notificationFor("dbtest@ripe.net").authFailed("Create", "route", "197.0.0.0/24AS123")
+        noMoreMessages()
+
+//        getPendingUpdateDao().findByTypeAndKey(ObjectType.ROUTE, "")
     }
 
-    def "create route, with inetnum authentication, but no pending autnum authentication"() {
-      when:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route: 194.0.0.0/24
-                            descr: Test route
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      then:
-        response =~ /FAILED/
-    }
+    /*
 
-    @Ignore
-    def "create route, with autnum authentication, and pending inetnum authentication"() {
-//      setup:
-//        databaseHelper.insertPendingUpdate(
-//                LocalDate.now().minusDays(1),
-//                "InetnumAuthentication",
-//                RpslObject.parse("""\
-//                    route: 195.0.0.0/24
-//                    descr: Test route
-//                    origin: AS456
-//                    mnt-by: TEST-MNT2
-//                    changed: ripe@test.net 20091015
-//                    source: TEST
-//                """.stripIndent()))
-      when:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route: 195.0.0.0/24
-                            descr: Test route
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
-                            source: TEST
-                            password: emptypassword
-                            password: update2
-                            """.stripIndent()))
-      then:
-        response =~ /SUCCESS/
-    }
+    - pending aut-num: ack + notify inetnum + pending table 1 record inserted
+    - pending inetnum: ack + notify aut-num + pending table 1 record inserted
 
-    @Ignore
-    def "create route, with autnum authentication, but no pending inetnum authentication"() {
-      when:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route: 195.0.0.0/24
-                            descr: Test route
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
-                            source: TEST
-                            password: emptypassword
-                            password: update2
-                            """.stripIndent()))
-      then:
-        response =~ /FAILED/
-    }
+    - 2nd update: repeated first update: ack, ?no notif?
+    - 2nd update fails does not validate any required mntner: ack, ?no notif?
+    - 2nd update is not identical to first update: new pending created (ack, notif)
 
-    // TODO: [ES] on successful update, check that pending update has been removed from DB
+    - 2nd update inetnum: aut-num deleted already - should still pass (ack + ?notif?)
 
-    // TODO: [ES] when we have multiple pending updates in table (same pkey with different content), are there duplicate notifications to mntners
+    - 1st and 2nd update passes successfully
 
-    // TODO: [ES] on a duplicate update message, send a reply "already pending"
-
-    // TODO: [ES] test routes-mnt auth (e.g. AS456)
+    */
 }

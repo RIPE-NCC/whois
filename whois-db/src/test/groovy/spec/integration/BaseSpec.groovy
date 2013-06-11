@@ -106,6 +106,10 @@ abstract class BaseSpec extends Specification {
         return whoisFixture.getTagsDao()
     }
 
+    def getPendingUpdateDao() {
+        return whoisFixture.getPendingUpdateDao()
+    }
+
     def unrefCleanup() {
         whoisFixture.unrefCleanup()
     }

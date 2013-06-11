@@ -24,6 +24,7 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.task.unref.UnrefCleanup;
+import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.dns.DnsGateway;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
 import net.ripe.db.whois.update.mail.MailGateway;
@@ -62,6 +63,8 @@ public class WhoisFixture {
     protected MailUpdatesTestSupport mailUpdatesTestSupport;
     protected RpslObjectDao rpslObjectDao;
     protected RpslObjectUpdateDao rpslObjectUpdateDao;
+    protected TagsDao tagsDao;
+    protected PendingUpdateDao pendingUpdateDao;
     protected MailGateway mailGateway;
     protected MessageDequeue messageDequeue;
     protected DataSource whoisDataSource;
@@ -71,7 +74,6 @@ public class WhoisFixture {
     protected JettyConfig jettyConfig;
     protected Map<String, Stub> stubs;
     protected DatabaseHelper databaseHelper;
-    protected TagsDao tagsDao;
     protected IpTreeUpdater ipTreeUpdater;
     protected SourceContext sourceContext;
     protected UnrefCleanup unrefCleanup;
@@ -105,6 +107,8 @@ public class WhoisFixture {
         mailUpdatesTestSupport = applicationContext.getBean(MailUpdatesTestSupport.class);
         rpslObjectDao = applicationContext.getBean(RpslObjectDao.class);
         rpslObjectUpdateDao = applicationContext.getBean(RpslObjectUpdateDao.class);
+        tagsDao = applicationContext.getBean(TagsDao.class);
+        pendingUpdateDao = applicationContext.getBean(PendingUpdateDao.class);
         mailGateway = applicationContext.getBean(MailGateway.class);
         dnsGateway = applicationContext.getBean(DnsGateway.class);
         messageDequeue = applicationContext.getBean(MessageDequeue.class);
@@ -114,7 +118,6 @@ public class WhoisFixture {
         jettyConfig = applicationContext.getBean(JettyConfig.class);
         stubs = applicationContext.getBeansOfType(Stub.class);
         databaseHelper = applicationContext.getBean(DatabaseHelper.class);
-        tagsDao = applicationContext.getBean(TagsDao.class);
         ipTreeUpdater = applicationContext.getBean(IpTreeUpdater.class);
         sourceContext = applicationContext.getBean(SourceContext.class);
         unrefCleanup = applicationContext.getBean(UnrefCleanup.class);
@@ -337,6 +340,10 @@ public class WhoisFixture {
 
     public TagsDao getTagsDao() {
         return tagsDao;
+    }
+
+    public PendingUpdateDao getPendingUpdateDao() {
+        return pendingUpdateDao;
     }
 
     public RpslObjectDao getRpslObjectDao() {
