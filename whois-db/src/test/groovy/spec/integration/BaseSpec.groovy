@@ -185,4 +185,8 @@ ${result}
     def removeObject(String string) {
         whoisFixture.getDatabaseHelper().removeObject(RpslObject.parse(string))
     }
+
+    def pendingUpdates(ObjectType objectType, String pkey) {
+        getPendingUpdateDao().findByTypeAndKey(objectType, pkey)
+    }
 }

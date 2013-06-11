@@ -69,6 +69,12 @@ class NotificationResponse extends Response {
         contents =~ "the proper authorisation"
     }
 
+    def pendingAuth(String operation, String type, String pkey) {
+        contents =~ "---\n${operation} REQUESTED FOR:\n+${type}:\\s*${pkey}"
+        contents =~ "\\*exactly as shown\\*"
+        contents =~ "This update must be completed within one week.\n"
+    }
+
     class Object {
         String type;
         String key;

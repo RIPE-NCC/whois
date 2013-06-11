@@ -1,4 +1,5 @@
 package spec.integration
+
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import spec.domain.SyncUpdate
@@ -211,7 +212,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "delete route"() {
-      when:
+        when:
         def delete = new SyncUpdate(data: """\
                 route: 193.254.30.0/24
                 descr: Test route
@@ -223,16 +224,16 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 delete: reason
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate delete
 
-      then:
+        then:
         response =~ /SUCCESS/
         response =~ /Delete SUCCEEDED: \[route\] 193.254.30.0\/24AS12726/
     }
 
     def "create route, delete referenced autnum object, delete route object"() {
-      given:
+        given:
         def insertRoute = syncUpdate(new SyncUpdate(data: """\
                             route: 195.0/24
                             descr: Test route
@@ -243,10 +244,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update
                             password: emptypassword
                             """.stripIndent()))
-      expect:
+        expect:
         insertRoute =~ /SUCCESS/
 
-      when:
+        when:
         def deleteAutnum = new SyncUpdate(data: """\
                             aut-num: AS12726
                             as-name: BRB-AS
@@ -260,14 +261,14 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update
                     """.stripIndent())
 
-      then:
+        then:
         def responseAutnum = syncUpdate deleteAutnum
 
-      then:
+        then:
         responseAutnum =~ /SUCCESS/
         println "Delete Autnum response: ${responseAutnum}"
 
-      when:
+        when:
         def deleteRoute = new SyncUpdate(data: """\
                     route: 195.0/24
                     descr: Test route
@@ -279,17 +280,17 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     password: update
                     """.stripIndent())
 
-      then:
+        then:
         def responseRoute = syncUpdate deleteRoute
 
-      then:
+        then:
         responseRoute =~ /SUCCESS/
         println "Delete Route response: ${responseRoute}"
 
     }
 
     def "create route, delete referenced autnum object, modify route object"() {
-      given:
+        given:
         def insertRoute = syncUpdate(new SyncUpdate(data: """\
                             route: 195.0/24
                             descr: Test route
@@ -300,10 +301,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update
                             password: emptypassword
                             """.stripIndent()))
-      expect:
+        expect:
         insertRoute =~ /SUCCESS/
 
-      when:
+        when:
         def deleteAutnum = new SyncUpdate(data: """\
                             aut-num: AS12726
                             as-name: BRB-AS
@@ -317,14 +318,14 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update
                     """.stripIndent())
 
-      then:
+        then:
         def responseAutnum = syncUpdate deleteAutnum
 
-      then:
+        then:
         responseAutnum =~ /SUCCESS/
         println "Delete Autnum response: ${responseAutnum}"
 
-      when:
+        when:
         def modifyRoute = new SyncUpdate(data: """\
                     route: 195.0/24
                     descr: Test route Modified
@@ -335,10 +336,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     password:update
                     """.stripIndent())
 
-      then:
+        then:
         def responseRoute = syncUpdate modifyRoute
 
-      then:
+        then:
         responseRoute =~ /ERROR/
         responseRoute =~ /Unknown object referenced AS12726/
         println "Modify Route response: ${responseRoute}"
@@ -346,7 +347,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "modify route noop"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 193.254.30.0/24
                 descr: Test route
@@ -357,16 +358,16 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
         response =~ /No operation: \[route\] 193.254.30.0\/24AS12726/
     }
 
     def "create route aut-num does not exist"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 212.166.64.0/19
                 descr: Test route
@@ -377,17 +378,17 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /Create FAILED: \[route\] 212.166.64.0\/19AS99999/
         response =~ /Authorisation for \[route\] 212.166.64.0\/19AS99999 failed/
         response =~ /using "origin:"/
     }
 
     def "create route aut-num with mnt-by authentication"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 195.0/24
                 descr: Test route
@@ -398,16 +399,16 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
         response =~ /Create SUCCEEDED: \[route\] 195.0.0.0\/24AS123/
     }
 
     def "create route aut-num with mnt-routes authentication"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 195.0/24
                 descr: other route
@@ -419,16 +420,16 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
         response =~ /Create SUCCEEDED: \[route\] 195.0.0.0\/24AS456/
     }
 
     def "create route ipaddress exact match mnt-routes authentication"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 180.0/24
                 descr: Test route
@@ -440,15 +441,15 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
     }
 
     def "create route ipaddress exact match mnt-by authentication"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route:  193.254.30.0/24
                 descr: Test route
@@ -459,16 +460,16 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
 
     }
 
     def "create route ipaddress exact match authentication fail"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 180.0/24
                 descr: Test route
@@ -479,10 +480,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /FAIL/
         response =~ /Authorisation for \[route\] 180.0.0.0\/24AS12726 failed
             using "mnt-routes:"
@@ -490,7 +491,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create route ipaddress first less specific mnt-routes authentication route"() {
-      given:
+        given:
         def insert = syncUpdate(new SyncUpdate(data: """\
                             route:           180.0/16
                             descr:           Less specific other route
@@ -502,10 +503,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update
                             password: emptypassword
                             """.stripIndent()))
-      expect:
+        expect:
         insert =~ /SUCCESS/
 
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 180.0/20
                 descr: less specific
@@ -517,15 +518,15 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
     }
 
     def "create route ipaddress first less specific mnt-lower authentication route"() {
-      given:
+        given:
         def insert = syncUpdate(new SyncUpdate(data: """\
                             route:           180.0/16
                             descr:           Less specific other route
@@ -537,10 +538,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update
                             password: emptypassword
                             """.stripIndent()))
-      expect:
+        expect:
         insert =~ /SUCCESS/
 
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 180.0/20
                 descr: less specific
@@ -552,15 +553,15 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
     }
 
     def "create route ipaddress first less specific mnt-by authentication route"() {
-      given:
+        given:
         def insert = syncUpdate(new SyncUpdate(data: """\
                             route:           180.0/16
                             descr:           Less specific other route
@@ -571,10 +572,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update
                             password: emptypassword
                             """.stripIndent()))
-      expect:
+        expect:
         insert =~ /SUCCESS/
 
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 180.0/20
                 descr: less specific
@@ -585,15 +586,15 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
     }
 
     def "create route ipaddress first less specific authentication fail route"() {
-      given:
+        given:
         def insert = syncUpdate(new SyncUpdate(data: """\
                             route:           180.0/16
                             descr:           Less specific other route
@@ -604,10 +605,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update
                             password: emptypassword
                             """.stripIndent()))
-      expect:
+        expect:
         insert =~ /SUCCESS/
 
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 180.0/20
                 descr: less specific
@@ -618,10 +619,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /FAIL/
         response =~ /Authorisation for \[route\] 180.0.0.0\/16AS123 failed
             using "mnt-by:"
@@ -632,7 +633,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create route ipaddress exact match mnt-routes authentication inetnum"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 194.0/24
                 descr: Test route
@@ -644,15 +645,15 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
     }
 
     def "create route ipaddress exact match mnt-by authentication inetnum"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 195.0/24
                 descr: Test route
@@ -663,15 +664,15 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
     }
 
     def "create route ipaddress exact match authentication fail inetnum"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 195.0/24
                 descr: Test route
@@ -682,10 +683,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: otherpassword
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /FAIL/
         response =~ /Authorisation for \[route\] 195.0.0.0\/24AS123 failed
             using "mnt-by:"
@@ -702,7 +703,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create route ipaddress first less specific mnt-routes authentication inetnum"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 194.0/28
                 descr: Test route
@@ -714,15 +715,15 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
     }
 
     def "create route ipaddress first less specific mnt-lower authentication inetnum"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 196.0/28
                 descr: Test route
@@ -734,15 +735,15 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: otherpassword
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
     }
 
     def "create route ipaddress first less specific mnt-by authentication inetnum"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 195.0/28
                 descr: Test route
@@ -753,15 +754,15 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
     }
 
     def "create route ipaddress first less specific authentication fail inetnum"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 194.0/28
                 descr: Test route
@@ -772,10 +773,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: wrong
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /FAIL/
         response =~ /Authorisation for \[route\] 194.0.0.0\/28AS123 failed
             using "mnt-by:"
@@ -791,7 +792,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create route address prefix range outside route - no authenticating maintainer"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 198.0/24
                 descr: other route
@@ -803,10 +804,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /Create PENDING:/
 
         response =~ /Authorisation for \[inetnum\] 198.0.0.0 - 198.0.0.255 failed
@@ -815,7 +816,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create route valid address prefix range"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 198.0/32
                 descr: other route
@@ -827,16 +828,16 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
         response =~ /Create SUCCEEDED: \[route\] 198.0.0.0\/32AS456/
     }
 
     def "create route holes contained withing prefix value"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 195.0/24
                 descr: other route
@@ -850,16 +851,16 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
         response =~ /Create SUCCEEDED: \[route\] 195.0.0.0\/24AS456/
     }
 
     def "create route holes not contained withing prefix value"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 195.0/24
                 descr: other route
@@ -873,16 +874,16 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /FAIL/
         response =~ /Error:   196.0.0.0\/32 is outside the range of this object/
     }
 
     def "create route pingable contained withing prefix value"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 195.0/24
                 descr: other route
@@ -896,16 +897,16 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
         response =~ /Create SUCCEEDED: \[route\] 195.0.0.0\/24AS456/
     }
 
     def "create route pingable not contained withing prefix value"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 195.0/24
                 descr: other route
@@ -919,16 +920,16 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /FAIL/
         response =~ /Error:   196.0\/32 is outside the range of this object/
     }
 
     def "create route member-of exists in route-set"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 198.0/32
                 descr: other route
@@ -941,16 +942,16 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /SUCCESS/
         response =~ /Create SUCCEEDED: \[route\] 198.0.0.0\/32AS456/
     }
 
     def "create route member-of does not exist in route-set"() {
-      when:
+        when:
         def create = new SyncUpdate(data: """\
                 route: 198.0/32
                 descr: other route
@@ -963,10 +964,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 """.stripIndent())
 
-      then:
+        then:
         def response = syncUpdate create
 
-      then:
+        then:
         response =~ /FAIL/
         response.contains(
                 "***Error:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
@@ -974,7 +975,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "modify route succeeds"() {
-      when:
+        when:
         def response = syncUpdate(new SyncUpdate(data: """\
                 route: 193.254.30.0/24
                 descr: other route
@@ -986,13 +987,13 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent()))
 
-      then:
+        then:
         response =~ /SUCCESS/
         response =~ /Modify SUCCEEDED: \[route\] 193.254.30.0\/24AS12726/
     }
 
     def "modify route exact same object"() {
-      when:
+        when:
         def response = syncUpdate(new SyncUpdate(data: """\
                     route:           193.254.30.0/24
                     descr:           Test route
@@ -1003,12 +1004,12 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     password:        update
                 """.stripIndent()))
 
-      then:
+        then:
         response =~ /No operation: \[route\] 193.254.30.0\/24AS12726/
     }
 
     def "modify route fail on route-set reference"() {
-      when:
+        when:
         def response = syncUpdate(new SyncUpdate(data: """\
                     route:           193.254.30.0/24
                     descr:           Test route
@@ -1020,7 +1021,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     password:        update
                 """.stripIndent()))
 
-      then:
+        then:
         response =~ /Modify FAILED: \[route\] 193.254.30.0\/24AS12726/
         response.contains(
                 "***Error:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
@@ -1028,7 +1029,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "modify route change maintainers"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """\
                         route: 180.0/24
                         descr: Test route
@@ -1039,13 +1040,13 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         password: update
                         password: emptypassword
                         """.stripIndent())
-      then:
+        then:
         response =~ /SUCCESS/
         response =~ /Modify SUCCEEDED: \[route\] 180.0.0.0\/24AS12726/
     }
 
     def "modify route fail on pingables "() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """\
                         route: 180.0/24
                         descr: Test route
@@ -1056,13 +1057,13 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         source: TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         response =~ /FAIL/
         response =~ /Error:   181.0.0.0\/32 is outside the range of this object/
     }
 
     def "modify route fail on holes"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """\
                         route: 180.0/24
                         descr: Test route
@@ -1073,13 +1074,13 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         source: TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         response =~ /FAIL/
         response =~ /Error:   181.0.0.0\/32 is outside the range of this object/
     }
 
     def "modify route "() {
-      given:
+        given:
         def create = syncUpdate new SyncUpdate(data: """\
                         route: 194.0/24
                         descr: Test route
@@ -1090,10 +1091,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         password: update
                         password: emptypassword
                         """.stripIndent())
-      expect:
+        expect:
         create =~ /SUCCESS/
 
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """\
                         route: 194.0/24
                         descr: Test route
@@ -1103,12 +1104,12 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         source: TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         response =~ /Modify SUCCEEDED: \[route\] 194.0.0.0\/24AS123/
     }
 
     def "create route prefix not allowed"() {
-      given:
+        given:
         def insertRoute = syncUpdate(new SyncUpdate(data: """\
                             route: 195.0/7
                             descr: Test route
@@ -1119,14 +1120,14 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update
                             password: emptypassword
                             """.stripIndent()))
-      expect:
+        expect:
         insertRoute =~ /FAIL/
         insertRoute =~ /Automatic creation of route objects of this size in not allowed,
             please contact lir-help@ripe.net for further information./
     }
 
     def "create route prefix allowed"() {
-      given:
+        given:
         def insertRoute = syncUpdate(new SyncUpdate(data: """\
                             route: 195.0/8
                             descr: Test route
@@ -1137,13 +1138,13 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update
                             password: emptypassword
                             """.stripIndent()))
-      expect:
-        insertRoute !=~ /Automatic creation of route objects of this size in not allowed,
+        expect:
+        insertRoute != ~/Automatic creation of route objects of this size in not allowed,
             please contact lir-help@ripe.net for further information./
     }
 
     def "create route, without pending authentication"() {
-      given:
+        given:
         def response = syncUpdate(new SyncUpdate(data: """\
                             route: 197.0.0.0/24
                             descr: Test route
@@ -1155,60 +1156,13 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update2
                             password: update3
                             """.stripIndent()))
-      expect:
-        response =~ /Create SUCCEEDED: \[route\] 197.0.0.0\/24AS123/
-    }
-
-    def "create route, with inetnum authentication, and pending autnum authentication"() {
-      given:
-        def pendAutnum = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      expect:
-        pendAutnum =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123/
-        pendAutnum =~ /not authenticated by: TEST-MNT3/
-      when:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
-                            source: TEST
-                            password: update2
-                            password: update3
-                            """.stripIndent()))
-      then:
-        response =~ /Create SUCCEEDED: \[route\] 197.0.0.0\/24AS123/
-    }
-
-    def "create route, with autnum and inetnum authentication, but no mnt-by authentication"() {
-      given:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
-                            source: TEST
-                            password: update
-                            password: update3
-                            """.stripIndent()))
-      expect:
-        response =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123/
-        response =~ /not authenticated by: TEST-MNT2/
+        expect:
+        response =~ /Create SUCCEEDED: \[route\] 197.0.0.0\/24AS123\n/
     }
 
     def "create route, pending inetnum, pending autnum, with mnt-by authentication"() {
         when:
-        def create = new SyncUpdate(data: """\
+        def response = syncUpdate(new SyncUpdate(data: """\
                 route: 212.166.64.0/19
                 descr: other route
                 origin: AS456
@@ -1216,23 +1170,20 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 changed: ripe@test.net 20091015
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent()))
 
         then:
-        def response = syncUpdate create
+        response =~ /Create FAILED: \[route\] 212.166.64.0\/19AS456\n/
+        response =~ /Authorisation for \[aut-num\] AS456 failed\n\s+using "mnt-routes:"\n\s+not authenticated by: ROUTES-MNT\n/
 
-        then:
-        response =~ /Create FAILED: \[route\] 212.166.64.0\/19AS456/
-        response =~ /Authorisation for \[aut-num\] AS456 failed
-            using "mnt-routes:"
-            not authenticated by: ROUTES-MNT/
-
-        notificationFor("dbtest@ripe.net").authFailed("Create", "route", "212.166.64.0/19AS456")
+        notificationFor("dbtest@ripe.net").authFailed("Create", "route", "212.166.64.0/19")
         noMoreMessages()
+
+        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").isEmpty()
     }
 
     def "create route, with inetnum, with autnum, missing mnt-by authentication"() {
-      given:
+        given:
         def pendInetnum = syncUpdate(new SyncUpdate(data: """\
                             route: 197.0.0.0/24
                             descr: Test route
@@ -1243,20 +1194,67 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update
                             password: update3
                             """.stripIndent()))
-      expect:
-        pendInetnum =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123/
+        expect:
+        pendInetnum =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123\n/
         pendInetnum =~ /not authenticated by: TEST-MNT2\n/
 
-        notificationFor("dbtest@ripe.net").authFailed("Create", "route", "197.0.0.0/24AS123")
+        notificationFor("dbtest@ripe.net").authFailed("Create", "route", "197.0.0.0/24")
         noMoreMessages()
 
-//        getPendingUpdateDao().findByTypeAndKey(ObjectType.ROUTE, "")
+        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").isEmpty()
     }
 
-    /*
+    def "create route, pending inetnum, with autnum, with mnt-by authentication"() {
+        given:
+        def pendInetnum = syncUpdate(new SyncUpdate(data: """\
+                            route: 197.0.0.0/24
+                            descr: Test route
+                            origin: AS123
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update
+                            password: update2
+                            """.stripIndent()))
+        expect:
+        pendInetnum =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
+        pendInetnum =~ /\*\*\*Info:\s+Authorisation for \[inetnum\] 197.0.0.0 - 197.0.0.255 failed\n/
+        pendInetnum =~ /not authenticated by: TEST-MNT3\n/
+        pendInetnum =~ /\*\*\*Warning:\s+This update has only passed one of the two required hierarchical/
+        pendInetnum =~ /\*\*\*Info:\s+The route object 197.0.0.0\/24AS123 will be saved for one week/
 
-    - pending aut-num: ack + notify inetnum + pending table 1 record inserted
-    - pending inetnum: ack + notify aut-num + pending table 1 record inserted
+        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        noMoreMessages()
+
+        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
+    }
+
+    def "create route, with inetnum, pending autnum, with mnt-by authentication"() {
+        given:
+        def pendInetnum = syncUpdate(new SyncUpdate(data: """\
+                            route: 197.0.0.0/24
+                            descr: Test route
+                            origin: AS123
+                            mnt-by: TEST-MNT2
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update2
+                            password: update3
+                            """.stripIndent()))
+        expect:
+        pendInetnum =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
+        pendInetnum =~ /\*\*\*Info:\s+Authorisation for \[aut-num\] AS123 failed\n/
+        pendInetnum =~ /not authenticated by: TEST-MNT\n/
+        pendInetnum =~ /\*\*\*Warning:\s+This update has only passed one of the two required hierarchical/
+        pendInetnum =~ /\*\*\*Info:\s+The route object 197.0.0.0\/24AS123 will be saved for one week/
+
+        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        noMoreMessages()
+
+        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
+    }
+
+    /* TODO: functionality to still test:
 
     - 2nd update: repeated first update: ack, ?no notif?
     - 2nd update fails does not validate any required mntner: ack, ?no notif?
