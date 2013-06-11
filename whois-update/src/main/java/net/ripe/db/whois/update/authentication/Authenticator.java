@@ -215,6 +215,7 @@ public class Authenticator {
 
         return !updateContext.hasErrors(update)
                 && subject.getFailedAuthentications().isEmpty()
+                && typesWithPendingAuthenticationSupport.containsKey(update.getType())
                 && subject.getPendingAuthentications().size() < typesWithPendingAuthenticationSupport.get(update.getType()).size();
     }
 

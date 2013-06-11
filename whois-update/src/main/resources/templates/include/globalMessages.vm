@@ -1,3 +1,3 @@
 >>>>>
-$globalMessages
+#if($globalMessages)$globalMessages#end
 <<<<<

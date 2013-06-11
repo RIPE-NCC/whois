@@ -89,6 +89,7 @@ public class ResponseFactoryTest {
         ignoredParagraphs = Lists.newArrayList();
 
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(new LocalDateTime(0, DateTimeZone.UTC));
+        when(updateContext.printGlobalMessages()).thenReturn("");
 
         subject.setVersion("1.2.3");
         subject.setSource("TEST");

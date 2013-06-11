@@ -106,6 +106,7 @@ public class UpdateContextTest {
         subject.setAction(deleteWithError, Action.DELETE);
         subject.addMessage(deleteWithError, UpdateMessages.objectInUse(object));
         subject.addMessage(deleteWithError, UpdateMessages.filteredNotAllowed());
+        subject.status(deleteWithError, UpdateStatus.FAILED);
 
         final Update update = new Update(new Paragraph(MAINTAINER), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object);
         subject.setAction(update, Action.MODIFY);
@@ -113,6 +114,7 @@ public class UpdateContextTest {
         final Update updateWithError = new Update(new Paragraph(MAINTAINER), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object);
         subject.setAction(updateWithError, Action.MODIFY);
         subject.addMessage(updateWithError, UpdateMessages.filteredNotAllowed());
+        subject.status(updateWithError, UpdateStatus.FAILED);
 
         final String updateMessage = "ignore";
         final Paragraph paragraphIgnore = new Paragraph(updateMessage);
