@@ -208,21 +208,18 @@ public class Authenticator {
         }
     }
 
-    boolean isPending(final PreparedUpdate preparedUpdate, final UpdateContext updateContext, final Subject subject) {
-        if (updateContext.hasErrors(preparedUpdate) || !subject.getFailedAuthentications().isEmpty()) {
+    boolean isPending(final PreparedUpdate update, final UpdateContext updateContext, final Subject subject) {
+        if (!Action.CREATE.equals(update.getAction())) {
             return false;
         }
 
-        if (!Action.CREATE.equals(preparedUpdate.getAction())) {
-            return false;
-        }
-
-        return !subject.getPendingAuthentications().isEmpty();
+        return !updateContext.hasErrors(update)
+                && subject.getFailedAuthentications().isEmpty()
+                && subject.getPendingAuthentications().size() < typesWithPendingAuthenticationSupport.get(update.getType()).size();
     }
 
     public boolean isAuthenticationForTypeComplete(final ObjectType objectType, final Set<String> authentications) {
         final Set<String> authenticationStrategyNames = typesWithPendingAuthenticationSupport.get(objectType);
-
         return authentications.containsAll(authenticationStrategyNames);
     }
 }
