@@ -128,7 +128,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
         def notification = notificationFor "test_test@ripe.net"
 
         notification.subject =~ "Notification of RIPE Database changes"
-        notification.contents =~ /(?ms)OBJECT BELOW MODIFIED:\n\nperson:         some one\n.*\nOBJECT BELOW MODIFIED:\n\nperson:         some one\n/
+        notification.contents =~ /(?ms)OBJECT BELOW MODIFIED:\n\n.*\nperson:         some one\n.*\nOBJECT BELOW MODIFIED:\n\n.*\nperson:         some one\n/
         noMoreMessages()
     }
 
@@ -170,9 +170,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
         def updateNotif = notificationFor "test_test@ripe.net"
         updateNotif.subject =~ "Notification of RIPE Database changes"
-        updateNotif.contents =~ /OBJECT BELOW MODIFIED:\n\nmntner:         TEST-MNT\nadmin-c:        TEST-PN/
-        updateNotif.contents =~ /REPLACED BY:\n\nmntner:         TEST-MNT\ndescr:          description/
-
+        updateNotif.contents =~ /OBJECT BELOW MODIFIED:\n\n[+] descr:          description/
+        updateNotif.contents =~ /THIS IS THE NEW VERSION OF THE OBJECT:\n\nmntner:         TEST-MNT\ndescr:          description/
 
         def createNotif = notificationFor "notify_test@ripe.net"
         createNotif.contents =~ /OBJECT BELOW CREATED:\n\nmntner:         ADMIN-MNT/
@@ -465,18 +464,10 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "---\n" +
                 "OBJECT BELOW MODIFIED:\n" +
                 "\n" +
-                "mntner:         OTHER-MNT\n" +
-                "admin-c:        OLW-PN\n" +
-                "mnt-by:         TEST-MNT\n" +
-                "descr:          description\n" +
-                "referral-by:    TEST-MNT\n" +
-                "changed:        ripe@test.net 20121221\n" +
-                "notify:         modify_mntner@ripe.net\n" +
-                "upd-to:         dbtest@ripe.net\n" +
-                "auth:           MD5-PW # Filtered\n" +
-                "source:         TEST # Filtered\n" +
+                "- notify:         modify_mntner@ripe.net\n" +
+                "+ notify:         updated_modify_mntner@ripe.net\n" +
                 "\n" +
-                "REPLACED BY:\n" +
+                "THIS IS THE NEW VERSION OF THE OBJECT:\n" +
                 "\n" +
                 "mntner:         OTHER-MNT\n" +
                 "admin-c:        OLW-PN\n" +
@@ -488,7 +479,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "upd-to:         dbtest@ripe.net\n" +
                 "auth:           MD5-PW # Filtered\n" +
                 "source:         TEST # Filtered")
-
 
         def notifModifyPerson = notificationFor "modify_person@ripe.net"
         notifModifyPerson.subject.equals("Notification of RIPE Database changes")

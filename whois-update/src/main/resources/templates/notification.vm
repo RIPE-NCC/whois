@@ -63,18 +63,19 @@ been added, deleted or changed.
 OBJECT BELOW $update.result:
 
 #if ($update.replacement)
-$update.referenceObject
+$update.diff
 
-REPLACED BY:
+THIS IS THE NEW VERSION OF THE OBJECT:
 
 $update.updatedObject
+
+The old object can be seen in the history using the query options --list-versions and --show-version #n
 #else
 $update.updatedObject
 #end
 $update.reason
 #end
 #end
-
 
 #if( $successReference.size() > 0)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -86,11 +87,13 @@ objects you are listed in as to-be-notified.
 OBJECT BELOW $update.result:
 
 #if ($update.replacement)
-$update.referenceObject
+$update.diff
 
-REPLACED BY:
+THIS IS THE NEW VERSION OF THE OBJECT:
 
 $update.updatedObject
+
+The old object can be seen in the history using the query options --list-versions and --show-version #n
 #else
 $update.updatedObject
 #end

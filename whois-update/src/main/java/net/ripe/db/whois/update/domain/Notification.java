@@ -101,5 +101,9 @@ public final class Notification {
         public String getReason() {
             return reason;
         }
+
+        public String getDiff() {
+            return updatedObject.diff(referenceObject);
+        }
     }
 }
