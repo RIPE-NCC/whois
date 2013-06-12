@@ -118,7 +118,7 @@ class AuditLogger {
         updateElement.setAttribute("time", FormatHelper.dateTimeToString(dateTimeProvider.getCurrentDateTime()));
 
         final RpslObject updatedObject = update.getSubmittedObject();
-        updateElement.appendChild(keyValue("key", updatedObject.getFormattedKey()));
+        updateElement.appendChild(keyValue("key", updatedObject.getFormattedKey() + (update.isDryRun() ? " !DRY RUN!" : "")));
         updateElement.appendChild(keyValue("operation", update.getOperation().name()));
         updateElement.appendChild(keyValue("reason", StringUtils.join(update.getDeleteReasons(), ", ")));
         updateElement.appendChild(keyValue("paragraph", update.getParagraph().getContent()));
