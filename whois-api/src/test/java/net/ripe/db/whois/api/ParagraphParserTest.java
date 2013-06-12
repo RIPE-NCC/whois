@@ -141,7 +141,7 @@ public class ParagraphParserTest {
         assertThat(paragraphs, hasSize(1));
         final Paragraph paragraph = paragraphs.get(0);
         assertThat(paragraph.getContent(), is("mntner: DEV-MNT"));
-        assertThat(paragraph.getCredentials().all(), containsInAnyOrder((Credential)OverrideCredential.parse("some override")));
+        assertThat(paragraph.getCredentials().all(), containsInAnyOrder((Credential) OverrideCredential.parse("some override")));
         assertThat(paragraph.isDryRun(), is(true));
     }
 
@@ -160,7 +160,25 @@ public class ParagraphParserTest {
     }
 
     @Test
-    public void dryRun_multiple() throws Exception {
+    public void dryRun_detached() throws Exception {
+        final String content = "" +
+                "mntner: DEV-MNT\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "dry-run: some dry run";
+
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        assertThat(paragraphs, hasSize(1));
+
+        final Paragraph paragraph = paragraphs.get(0);
+        assertThat(paragraph.getContent(), is("mntner: DEV-MNT"));
+        assertThat(paragraph.getCredentials().all(), hasSize(0));
+        assertThat(paragraph.isDryRun(), is(true));
+    }
+
+    @Test
+    public void dryRun_specified_multiple_times() throws Exception {
         final String content = "" +
                 "mntner: DEV-MNT\n" +
                 "dry-run: some dry run\n" +
@@ -173,6 +191,28 @@ public class ParagraphParserTest {
         assertThat(paragraph.getContent(), is("mntner: DEV-MNT"));
         assertThat(paragraph.getCredentials().all(), hasSize(0));
         assertThat(paragraph.isDryRun(), is(true));
+    }
+
+    @Test
+    public void dryRun_multiple_objects() throws Exception {
+        final String content = "" +
+                "mntner: DEV1-MNT\n" +
+                "dry-run: some dry run\n" +
+                "\n" +
+                "mntner: DEV2-MNT\n";
+
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        assertThat(paragraphs, hasSize(2));
+
+        final Paragraph paragraph1 = paragraphs.get(0);
+        assertThat(paragraph1.getContent(), is("mntner: DEV1-MNT"));
+        assertThat(paragraph1.getCredentials().all(), hasSize(0));
+        assertThat(paragraph1.isDryRun(), is(true));
+
+        final Paragraph paragraph2 = paragraphs.get(1);
+        assertThat(paragraph2.getContent(), is("mntner: DEV2-MNT"));
+        assertThat(paragraph2.getCredentials().all(), hasSize(0));
+        assertThat(paragraph2.isDryRun(), is(true));
     }
 
     @Test
@@ -323,12 +363,11 @@ public class ParagraphParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
 
-        assertThat(paragraphs.size(), is(4));
+        assertThat(paragraphs.size(), is(3));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
-        assertThat(paragraphs.get(1).getContent(), is(""));
-        assertThat(paragraphs.get(2).getContent(), is("mntner:two\nsource:RIPE"));
-        assertThat(paragraphs.get(3).getContent(), is("mntner:three\nsource:RIPE"));
-        assertThat(paragraphs.get(3).getCredentials().all(), hasSize(4));
+        assertThat(paragraphs.get(1).getContent(), is("mntner:two\nsource:RIPE"));
+        assertThat(paragraphs.get(2).getContent(), is("mntner:three\nsource:RIPE"));
+        assertThat(paragraphs.get(2).getCredentials().all(), hasSize(4));
     }
 
     @Test
@@ -350,12 +389,11 @@ public class ParagraphParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
 
-        assertThat(paragraphs.size(), is(4));
+        assertThat(paragraphs.size(), is(3));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
-        assertThat(paragraphs.get(1).getContent(), is(""));
-        assertThat(paragraphs.get(2).getContent(), is("mntner:two\nsource:RIPE"));
-        assertThat(paragraphs.get(3).getContent(), is("mntner:three\nsource:RIPE"));
-        assertThat(paragraphs.get(3).getCredentials().all(), hasSize(4));
+        assertThat(paragraphs.get(1).getContent(), is("mntner:two\nsource:RIPE"));
+        assertThat(paragraphs.get(2).getContent(), is("mntner:three\nsource:RIPE"));
+        assertThat(paragraphs.get(2).getCredentials().all(), hasSize(4));
     }
 
     @Test
@@ -376,11 +414,10 @@ public class ParagraphParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
 
-        assertThat(paragraphs.size(), is(4));
+        assertThat(paragraphs.size(), is(3));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
-        assertThat(paragraphs.get(1).getContent(), is(""));
-        assertThat(paragraphs.get(2).getContent(), is("mntner:two\nsource: RIPE"));
-        assertThat(paragraphs.get(3).getContent(), is("mntner:three\nsource:RIPE"));
+        assertThat(paragraphs.get(1).getContent(), is("mntner:two\nsource: RIPE"));
+        assertThat(paragraphs.get(2).getContent(), is("mntner:three\nsource:RIPE"));
     }
 
     @Test
