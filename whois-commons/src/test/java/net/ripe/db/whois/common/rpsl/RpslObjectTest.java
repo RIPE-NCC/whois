@@ -641,6 +641,67 @@ public class RpslObjectTest {
                 "+               DEV-MNT4\n"));
     }
 
+    @Test
+    public void diff_idential() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "description: descr\n" +
+                "mnt-by: UPD-MNT\n" +
+                "source: TEST\n");
+
+        assertThat(original.diff(original), is(""));
+    }
+
+    @Test
+    public void diff_delete_lines() throws Exception {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "description: descr\n" +
+                "mnt-by: UPD-MNT\n" +
+                "source: TEST\n");
+        final RpslObject updated = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "source: TEST\n");
+
+        assertThat(updated.diff(original),
+                is("- description:    descr\n" +
+                   "- mnt-by:         UPD-MNT\n"));
+    }
+
+    @Test
+    public void diff_add_lines() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "source: TEST\n");
+        final RpslObject updated = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "description: descr\n" +
+                "mnt-by: UPD-MNT\n" +
+                "source: TEST\n");
+
+        assertThat(updated.diff(original),
+                is("+ description:    descr\n" +
+                   "+ mnt-by:         UPD-MNT\n"));
+    }
+
+    @Test
+    public void diff_change_lines() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "description: descr\n" +
+                "mnt-by: UPD-MNT\n" +
+                "source: TEST\n");
+        final RpslObject updated = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "description: updated\n" +
+                "mnt-by: UPD-MNT\n" +
+                "source: TEST\n");
+
+        assertThat(updated.diff(original),
+                is("- description:    descr\n" +
+                   "+ description:    updated\n"));
+    }
+
     private static Iterable<String> convertToString(final Iterable<CIString> c) {
         return Iterables.transform(c, new Function<CIString, String>() {
             @Nullable
