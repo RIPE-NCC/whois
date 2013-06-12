@@ -1,11 +1,6 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import difflib.Delta;
-import difflib.DiffUtils;
-import difflib.Patch;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -24,8 +19,6 @@ import java.util.Set;
 // TODO [AK] This should be moved to whois queries, something like RpslObjectResponse
 @Immutable
 public class RpslObject implements ResponseObject, Identifiable {
-    private final Splitter LINE_SPLITTER = Splitter.on('\n').trimResults();
-
     private final Integer objectId;
     private final RpslObjectBase base;
 
@@ -190,35 +183,5 @@ public class RpslObject implements ResponseObject, Identifiable {
 
     public interface AttributeCallback {
         void execute(RpslAttribute attribute, CIString value);
-    }
-
-    public String diff(final RpslObject rpslObject) {
-        final StringBuilder builder = new StringBuilder();
-        final Patch patch = DiffUtils.diff(
-                Lists.newArrayList(LINE_SPLITTER.split(rpslObject.toString())),
-                Lists.newArrayList(LINE_SPLITTER.split(this.toString())));
-        for (Delta delta : patch.getDeltas()) {
-            switch (delta.getType()) {
-                case INSERT:
-                    for (Object line : delta.getRevised().getLines()) {
-                        builder.append(String.format("+ %s\n", line));
-                    }
-                    break;
-                case DELETE:
-                    for (Object line : delta.getOriginal().getLines()) {
-                        builder.append(String.format("- %s\n", line));
-                    }
-                    break;
-                case CHANGE:
-                    for (Object line : delta.getOriginal().getLines()) {
-                        builder.append(String.format("- %s\n", line));
-                    }
-                    for (Object line : delta.getRevised().getLines()) {
-                        builder.append(String.format("+ %s\n", line));
-                    }
-                    break;
-            }
-        }
-        return builder.toString();
     }
 }
