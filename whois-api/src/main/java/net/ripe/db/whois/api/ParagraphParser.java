@@ -110,9 +110,8 @@ public class ParagraphParser {
                 cleanedParagraph = extractOverride(credentials, cleanedParagraph);
                 cleanedParagraph = cleanedParagraph.trim();
 
-                if (StringUtils.isNotBlank(cleanedParagraph)) {
-                    paragraphs.add(new Paragraph(cleanedParagraph, new Credentials(credentials), dryRun));
-                }
+                // Also add empty paragraphs to detect dangling credentials
+                paragraphs.add(new Paragraph(cleanedParagraph, new Credentials(credentials), dryRun));
             }
         }
     }
