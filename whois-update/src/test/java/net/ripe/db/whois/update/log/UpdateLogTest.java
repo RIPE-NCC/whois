@@ -11,9 +11,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import java.text.DecimalFormat;
-
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,7 +28,7 @@ public class UpdateLogTest {
     @Test
     public void logUpdateResult_create_success() {
         final RpslObject maintainer = RpslObject.parse("mntner: TST-MNT");
-        final UpdateResult updateResult = new UpdateResult(update, maintainer, Action.CREATE, UpdateStatus.SUCCESS, new ObjectMessages(), 0);
+        final UpdateResult updateResult = new UpdateResult(update, maintainer, maintainer, Action.CREATE, UpdateStatus.SUCCESS, new ObjectMessages(), 0);
         when(update.getCredentials()).thenReturn(new Credentials());
         when(updateContext.createUpdateResult(update)).thenReturn(updateResult);
 
@@ -43,7 +40,7 @@ public class UpdateLogTest {
     @Test
     public void logUpdateResult_create_success_dryRun() {
         final RpslObject maintainer = RpslObject.parse("mntner: TST-MNT");
-        final UpdateResult updateResult = new UpdateResult(update, maintainer, Action.CREATE, UpdateStatus.SUCCESS, new ObjectMessages(), 0);
+        final UpdateResult updateResult = new UpdateResult(update, maintainer, maintainer, Action.CREATE, UpdateStatus.SUCCESS, new ObjectMessages(), 0);
         when(update.getCredentials()).thenReturn(new Credentials());
         when(update.isDryRun()).thenReturn(true);
         when(updateContext.createUpdateResult(update)).thenReturn(updateResult);

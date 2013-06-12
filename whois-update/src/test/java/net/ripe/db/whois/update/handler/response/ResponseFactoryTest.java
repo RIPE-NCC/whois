@@ -120,10 +120,10 @@ public class ResponseFactoryTest {
 
     @Test
     public void getAck_no_errors() {
-        final RpslObject object = RpslObject.parse("mntner: DEV-ROOT-MNT");
+        final RpslObject rpslObject = RpslObject.parse("mntner: DEV-ROOT-MNT");
 
-        final Update update = new Update(new Paragraph(object.toString()), Operation.DELETE, Lists.<String>newArrayList(), object);
-        updateResults.add(new UpdateResult(update, object, Action.DELETE, UpdateStatus.SUCCESS, new ObjectMessages(), 0));
+        final Update update = new Update(new Paragraph(rpslObject.toString()), Operation.DELETE, Lists.<String>newArrayList(), rpslObject);
+        updateResults.add(new UpdateResult(update, rpslObject, rpslObject, Action.DELETE, UpdateStatus.SUCCESS, new ObjectMessages(), 0));
 
         final Ack ack = new Ack(updateResults, ignoredParagraphs);
 
@@ -251,14 +251,14 @@ public class ResponseFactoryTest {
                 "delete:        no longer required\n";
 
         final Paragraph paragraph = new Paragraph(rpslObjectString);
-        final RpslObject object = RpslObject.parse(rpslObjectString);
-        final Update update = new Update(paragraph, Operation.DELETE, Arrays.asList("no longer required"), object);
+        final RpslObject rpslObject = RpslObject.parse(rpslObjectString);
+        final Update update = new Update(paragraph, Operation.DELETE, Arrays.asList("no longer required"), rpslObject);
 
         final ObjectMessages objectMessages = new ObjectMessages();
 
-        objectMessages.addMessage(object.findAttribute(AttributeType.SOURCE), UpdateMessages.unrecognizedSource("RIPE"));
+        objectMessages.addMessage(rpslObject.findAttribute(AttributeType.SOURCE), UpdateMessages.unrecognizedSource("RIPE"));
 
-        updateResults.add(new UpdateResult(update, object, Action.DELETE, UpdateStatus.FAILED, objectMessages, 0));
+        updateResults.add(new UpdateResult(update, rpslObject, rpslObject, Action.DELETE, UpdateStatus.FAILED, objectMessages, 0));
 
         final Ack ack = new Ack(updateResults, ignoredParagraphs);
 

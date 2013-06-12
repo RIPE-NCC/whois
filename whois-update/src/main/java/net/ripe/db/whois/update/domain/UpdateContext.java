@@ -207,14 +207,17 @@ public class UpdateContext {
         final Context context = getOrCreateContext(updateContainer);
         final Update update = updateContainer.getUpdate();
 
+        final RpslObject originalObject;
         final RpslObject updatedObject;
         if (context.preparedUpdate != null) {
+            originalObject = context.preparedUpdate.getReferenceObject();
             updatedObject = context.preparedUpdate.getUpdatedObject();
         } else {
+            originalObject = null;
             updatedObject = update.getSubmittedObject();
         }
 
-        return new UpdateResult(update, updatedObject, context.action, context.status, context.objectMessages, context.retryCount);
+        return new UpdateResult(update, originalObject, updatedObject, context.action, context.status, context.objectMessages, context.retryCount);
     }
 
     public void prepareForReattempt(final UpdateContainer update) {

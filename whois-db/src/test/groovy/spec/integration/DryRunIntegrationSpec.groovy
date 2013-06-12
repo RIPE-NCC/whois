@@ -141,6 +141,7 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /FAILED: \[organisation\] AUTO-1/
         response =~ /FAILED: \[organisation\] AUTO-1/
         response =~ /\*\*\*Error:\s*Dry-run is only supported when a single update is specified\n/
+        noMoreMessages()
     }
 
     def "dry run create organisation with AUTO key"() {
@@ -162,7 +163,9 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
+        response =~ /\*\*\*Info:    Dry-run performed, no changes to the database have been made/
         queryNothing("ORG-RNO1-TEST")
+        noMoreMessages()
 
       when:
         def response2 = syncUpdate new SyncUpdate(data: """\
@@ -182,6 +185,59 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response2 =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
+        response2 =~ /\*\*\*Info:    Dry-run performed, no changes to the database have been made/
         queryNothing("ORG-RNO1-TEST")
+        noMoreMessages()
+    }
+
+    def "create organisation, update with dry run"() {
+      when:
+        def create = syncUpdate new SyncUpdate(data: """\
+            organisation: AUTO-1
+            org-name:     Ripe NCC organisation
+            org-type:     OTHER
+            address:      Singel 258
+            e-mail:       bitbucket@ripe.net
+            changed:      admin@test.com 20120505
+            mnt-by:       TST-MNT
+            mnt-ref:      TST-MNT
+            source:       TEST
+            password:     update
+            """.stripIndent())
+
+      then:
+        create =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
+        queryObject("ORG-RNO1-TEST", "organisation", "ORG-RNO1-TEST")
+
+      when:
+        def modify = syncUpdate new SyncUpdate(data: """\
+            organisation: ORG-RNO1-TEST
+            org-name:     Updated name
+            org-type:     OTHER
+            address:      Singel 258
+            e-mail:       bitbucket@ripe.net
+            changed:      admin@test.com 20120505
+            mnt-by:       TST-MNT
+            mnt-ref:      TST-MNT
+            source:       TEST
+
+            password:     update
+            dry-run:      some reason
+            """.stripIndent())
+
+      then:
+        modify =~ /Modify SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
+        modify =~ /\*\*\*Info:    Dry-run performed, no changes to the database have been made/
+
+        modify.contains("""\
+            @@ -1,3 +1,3 @@
+             organisation:   ORG-RNO1-TEST
+            -org-name:       Ripe NCC organisation
+            +org-name:       Updated name
+             org-type:       OTHER
+            """.stripIndent())
+
+        query_object_matches("ORG-RNO1-TEST", "organisation", "ORG-RNO1-TEST", "Ripe NCC organisation")
+        noMoreMessages()
     }
 }

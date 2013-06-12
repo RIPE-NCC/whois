@@ -66,6 +66,10 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
         updateLockDao.setUpdateLock();
         ipTreeUpdater.updateCurrent();
 
+        if (update.isDryRun()) {
+            updateContext.addMessage(update, UpdateMessages.dryRunNotice());
+        }
+
         final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
         final RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
         final RpslObject originalObject = getOriginalObject(updatedObject, update, updateContext, overrideOptions);

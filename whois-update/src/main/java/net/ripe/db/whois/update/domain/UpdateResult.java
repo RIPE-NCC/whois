@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -14,14 +15,16 @@ import java.util.Collection;
 public class UpdateResult {
 
     private final Update update;
+    private final RpslObject originalObject;
     private final RpslObject updatedObject;
     private final Action action;
     private final UpdateStatus status;
     private final ObjectMessages objectMessages;
     private final int retryCount;
 
-    public UpdateResult(final Update update, final RpslObject updatedObject, final Action action, final UpdateStatus status, final ObjectMessages objectMessages, final int retryCount) {
+    public UpdateResult(final Update update, @Nullable final RpslObject originalObject, final RpslObject updatedObject, final Action action, final UpdateStatus status, final ObjectMessages objectMessages, final int retryCount) {
         this.update = update;
+        this.originalObject = originalObject;
         this.updatedObject = updatedObject;
         this.action = action;
         this.status = status;
@@ -90,6 +93,11 @@ public class UpdateResult {
 
     public void toString(final Writer writer) throws IOException {
         final boolean showAttributes = !UpdateStatus.SUCCESS.equals(status);
+
+        if (!showAttributes && update.isDryRun() && Action.MODIFY.equals(action) && originalObject != null) {
+            writer.write(updatedObject.diff(originalObject));
+            writer.write('\n');
+        }
 
         for (final RpslAttribute attribute : updatedObject.getAttributes()) {
             if (showAttributes) {

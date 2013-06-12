@@ -35,12 +35,12 @@ public class AckTest {
 
     @Test
     public void getUpdateStatus_success() {
-        final RpslObject updatedObject = RpslObject.parse("mntner: DEV-MNT");
-        final Update update1 = new Update(new Paragraph(""), Operation.DELETE, Lists.<String>newArrayList(), updatedObject);
-        final UpdateResult updateResult1 = new UpdateResult(update1, updatedObject, Action.DELETE, UpdateStatus.SUCCESS, new ObjectMessages(), 0);
+        final RpslObject rpslObject = RpslObject.parse("mntner: DEV-MNT");
+        final Update update1 = new Update(new Paragraph(""), Operation.DELETE, Lists.<String>newArrayList(), rpslObject);
+        final UpdateResult updateResult1 = new UpdateResult(update1, rpslObject, rpslObject, Action.DELETE, UpdateStatus.SUCCESS, new ObjectMessages(), 0);
 
-        final Update update2 = new Update(new Paragraph(""), Operation.UNSPECIFIED, Lists.<String>newArrayList(), updatedObject);
-        final UpdateResult updateResult2 = new UpdateResult(update2, updatedObject, Action.MODIFY, UpdateStatus.SUCCESS, new ObjectMessages(), 0);
+        final Update update2 = new Update(new Paragraph(""), Operation.UNSPECIFIED, Lists.<String>newArrayList(), rpslObject);
+        final UpdateResult updateResult2 = new UpdateResult(update2, rpslObject, rpslObject, Action.MODIFY, UpdateStatus.SUCCESS, new ObjectMessages(), 0);
 
         updateResults.add(updateResult1);
         updateResults.add(updateResult2);
@@ -60,13 +60,13 @@ public class AckTest {
 
     @Test
     public void getUpdateStatus_failed() {
-        final RpslObject updatedObject = RpslObject.parse("mntner: DEV-MNT");
-        final Update update1 = new Update(new Paragraph(""), Operation.DELETE, Lists.<String>newArrayList(), updatedObject);
-        final UpdateResult updateResult1 = new UpdateResult(update1, updatedObject, Action.DELETE, UpdateStatus.FAILED, new ObjectMessages(), 0);
+        final RpslObject rpslObject = RpslObject.parse("mntner: DEV-MNT");
+        final Update update1 = new Update(new Paragraph(""), Operation.DELETE, Lists.<String>newArrayList(), rpslObject);
+        final UpdateResult updateResult1 = new UpdateResult(update1, rpslObject, rpslObject, Action.DELETE, UpdateStatus.FAILED, new ObjectMessages(), 0);
 
-        final Update update2 = new Update(new Paragraph(""), Operation.UNSPECIFIED, Lists.<String>newArrayList(), updatedObject);
+        final Update update2 = new Update(new Paragraph(""), Operation.UNSPECIFIED, Lists.<String>newArrayList(), rpslObject);
 
-        final UpdateResult updateResult2 = new UpdateResult(update2, updatedObject, Action.MODIFY, UpdateStatus.FAILED, new ObjectMessages(), 0);
+        final UpdateResult updateResult2 = new UpdateResult(update2, rpslObject, rpslObject, Action.MODIFY, UpdateStatus.FAILED, new ObjectMessages(), 0);
         updateResults.add(updateResult1);
         updateResults.add(updateResult2);
 

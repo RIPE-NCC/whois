@@ -533,4 +533,8 @@ public final class UpdateMessages {
     public static Message dryRunOnlySupportedOnSingleUpdate() {
         return new Message(Type.ERROR, "Dry-run is only supported when a single update is specified");
     }
+
+    public static Message dryRunNotice() {
+        return new Message(Type.INFO, "Dry-run performed, no changes to the database have been made");
+    }
 }
