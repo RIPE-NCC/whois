@@ -529,4 +529,8 @@ public final class UpdateMessages {
     public static Message updateConcludesPendingUpdate(final RpslObject rpslObject) {
         return new Message(Type.INFO, "This update concludes a pending update on %s %s", rpslObject.getType().getName(), rpslObject.getKey());
     }
+
+    public static Message dryRunOnlySupportedOnSingleUpdate() {
+        return new Message(Type.ERROR, "Dry-run is only supported when a single update is specified");
+    }
 }

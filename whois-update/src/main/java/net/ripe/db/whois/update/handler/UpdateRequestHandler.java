@@ -58,14 +58,38 @@ public class UpdateRequestHandler {
         final Keyword keyword = updateRequest.getKeyword();
         if (Keyword.HELP.equals(keyword) || Keyword.HOWTO.equals(keyword)) {
             return new UpdateResponse(UpdateStatus.SUCCESS, responseFactory.createHelpResponse(updateContext, updateRequest.getOrigin()));
-        } else {
-            try {
-                sourceContext.setCurrentSourceToWhoisMaster();
-                return handleUpdates(updateRequest, updateContext);
-            } finally {
-                sourceContext.removeCurrentSource();
+        }
+
+        if (isMultipleDryRun(updateRequest)) {
+            for (final Update update : updateRequest.getUpdates()) {
+                updateContext.failedUpdate(update, UpdateMessages.dryRunOnlySupportedOnSingleUpdate());
+            }
+
+            return createUpdateResponse(updateRequest, updateContext);
+        }
+
+        try {
+            sourceContext.setCurrentSourceToWhoisMaster();
+            return handleUpdates(updateRequest, updateContext);
+        } finally {
+            sourceContext.removeCurrentSource();
+        }
+    }
+
+    private boolean isMultipleDryRun(final UpdateRequest updateRequest) {
+        boolean hasDryRun = false;
+
+        for (final Update update : updateRequest.getUpdates()) {
+            if (update.isDryRun()) {
+                if (hasDryRun) {
+                    return true;
+                } else {
+                    hasDryRun = true;
+                }
             }
         }
+
+        return false;
     }
 
     private UpdateResponse handleUpdates(final UpdateRequest updateRequest, final UpdateContext updateContext) {
@@ -73,6 +97,18 @@ public class UpdateRequestHandler {
 
         processUpdateQueue(updateRequest, updateContext);
 
+        // Create update response before sending notifications, so in case of an exception
+        // while creating the response we didn't send any notifications
+        final UpdateResponse updateResponse = createUpdateResponse(updateRequest, updateContext);
+
+        if (updateRequest.isNotificationsEnabled()) {
+            updateNotifier.sendNotifications(updateRequest, updateContext);
+        }
+
+        return updateResponse;
+    }
+
+    private UpdateResponse createUpdateResponse(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         final Ack ack = updateContext.createAck();
         final String ackResponse = responseFactory.createAckResponse(updateContext, updateRequest.getOrigin(), ack);
         loggerContext.log("ack.txt", new LogCallback() {
@@ -81,10 +117,6 @@ public class UpdateRequestHandler {
                 outputStream.write(ackResponse.getBytes());
             }
         });
-
-        if (updateRequest.isNotificationsEnabled()) {
-            updateNotifier.sendNotifications(updateRequest, updateContext);
-        }
 
         return new UpdateResponse(ack.getUpdateStatus(), ackResponse);
     }
