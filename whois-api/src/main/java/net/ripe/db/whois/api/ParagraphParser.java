@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 public class ParagraphParser {
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("(?im)^password:\\s*(.*)\\s*");
     private static final Pattern OVERRIDE_PATTERN = Pattern.compile("(?im)^override:\\s*(.*)\\s*");
+    private static final Pattern DRY_RUN_PATTERN = Pattern.compile("(?im)^dry-run:\\s*(.*)\\s*");
 
     private static final Splitter CONTENT_SPLITTER = Splitter.on(Pattern.compile("\\n[ \\t]*\\n")).omitEmptyStrings();
 
@@ -105,8 +106,14 @@ public class ParagraphParser {
 
                 cleanedParagraph = removePasswords(cleanedParagraph);
                 cleanedParagraph = extractOverride(credentials, cleanedParagraph);
-                cleanedParagraph = cleanedParagraph.trim();
-                paragraphs.add(new Paragraph(cleanedParagraph, new Credentials(credentials)));
+
+                final Matcher dryRunMatcher = DRY_RUN_PATTERN.matcher(cleanedParagraph);
+                final boolean dryRun = dryRunMatcher.find();
+                if (dryRun) {
+                    cleanedParagraph = dryRunMatcher.reset().replaceAll("");
+                }
+
+                paragraphs.add(new Paragraph(cleanedParagraph.trim(), new Credentials(credentials), dryRun));
             }
         }
     }

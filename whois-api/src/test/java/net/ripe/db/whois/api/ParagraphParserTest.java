@@ -11,6 +11,7 @@ import org.springframework.core.io.ClassPathResource;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -127,6 +128,51 @@ public class ParagraphParserTest {
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
         assertThat(paragraphs, hasSize(1));
         assertParagraph(paragraphs.get(0), "mntner: DEV-MNT", OverrideCredential.parse("some override"));
+    }
+
+    @Test
+    public void override_with_dryRun() throws Exception {
+        final String content = "" +
+                "mntner: DEV-MNT\n" +
+                "dry-run: some\n" +
+                "override: some override";
+
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        assertThat(paragraphs, hasSize(1));
+        final Paragraph paragraph = paragraphs.get(0);
+        assertThat(paragraph.getContent(), is("mntner: DEV-MNT"));
+        assertThat(paragraph.getCredentials().all(), containsInAnyOrder((Credential)OverrideCredential.parse("some override")));
+        assertThat(paragraph.isDryRun(), is(true));
+    }
+
+    @Test
+    public void dryRun() throws Exception {
+        final String content = "" +
+                "mntner: DEV-MNT\n" +
+                "dry-run: some dry run";
+
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        assertThat(paragraphs, hasSize(1));
+        final Paragraph paragraph = paragraphs.get(0);
+        assertThat(paragraph.getContent(), is("mntner: DEV-MNT"));
+        assertThat(paragraph.getCredentials().all(), hasSize(0));
+        assertThat(paragraph.isDryRun(), is(true));
+    }
+
+    @Test
+    public void dryRun_multiple() throws Exception {
+        final String content = "" +
+                "mntner: DEV-MNT\n" +
+                "dry-run: some dry run\n" +
+                "dry-run: some dry run\n" +
+                "dry-run: some dry run";
+
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        assertThat(paragraphs, hasSize(1));
+        final Paragraph paragraph = paragraphs.get(0);
+        assertThat(paragraph.getContent(), is("mntner: DEV-MNT"));
+        assertThat(paragraph.getCredentials().all(), hasSize(0));
+        assertThat(paragraph.isDryRun(), is(true));
     }
 
     @Test
@@ -255,6 +301,7 @@ public class ParagraphParserTest {
     private void assertParagraph(final Paragraph paragraph, final String content, final Credential... credentials) {
         assertThat(paragraph.getContent(), is(content));
         assertThat(paragraph.getCredentials().all(), containsInAnyOrder(credentials));
+        assertThat(paragraph.isDryRun(), is(false));
     }
 
     @Test
