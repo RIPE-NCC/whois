@@ -3,9 +3,7 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import difflib.Delta;
 import difflib.DiffUtils;
-import difflib.Patch;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -194,31 +192,18 @@ public class RpslObject implements ResponseObject, Identifiable {
 
     public String diff(final RpslObject rpslObject) {
         final StringBuilder builder = new StringBuilder();
-        final Patch patch = DiffUtils.diff(
-                Lists.newArrayList(LINE_SPLITTER.split(rpslObject.toString())),
-                Lists.newArrayList(LINE_SPLITTER.split(this.toString())));
-        for (Delta delta : patch.getDeltas()) {
-            switch (delta.getType()) {
-                case INSERT:
-                    for (Object line : delta.getRevised().getLines()) {
-                        builder.append(String.format("+ %s\n", line));
-                    }
-                    break;
-                case DELETE:
-                    for (Object line : delta.getOriginal().getLines()) {
-                        builder.append(String.format("- %s\n", line));
-                    }
-                    break;
-                case CHANGE:
-                    for (Object line : delta.getOriginal().getLines()) {
-                        builder.append(String.format("- %s\n", line));
-                    }
-                    for (Object line : delta.getRevised().getLines()) {
-                        builder.append(String.format("+ %s\n", line));
-                    }
-                    break;
-            }
+
+        final List<String> originalLines = Lists.newArrayList(LINE_SPLITTER.split(rpslObject.toString()));
+        final List<String> revisedLines = Lists.newArrayList(LINE_SPLITTER.split(this.toString()));
+
+        final List<String> diff = DiffUtils.generateUnifiedDiff(null, null, originalLines, DiffUtils.diff(originalLines, revisedLines), 1);
+
+        for (int index = 2; index < diff.size(); index++) {
+            // skip unified diff header lines
+            builder.append(diff.get(index));
+            builder.append('\n');
         }
+
         return builder.toString();
     }
 }
