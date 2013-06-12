@@ -1,13 +1,13 @@
-package net.ripe.db.whois.query.dao.jdbc;
+package net.ripe.db.whois.common.dao.jdbc;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.dao.VersionDao;
+import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.dao.VersionDao;
-import net.ripe.db.whois.query.dao.VersionInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;

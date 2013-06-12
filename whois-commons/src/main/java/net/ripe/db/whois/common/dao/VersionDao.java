@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.dao;
+package net.ripe.db.whois.common.dao;
 
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;

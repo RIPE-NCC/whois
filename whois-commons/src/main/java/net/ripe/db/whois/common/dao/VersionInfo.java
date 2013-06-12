@@ -1,10 +1,10 @@
-package net.ripe.db.whois.query.dao;
+package net.ripe.db.whois.common.dao;
 
 import net.ripe.db.whois.common.domain.Identifiable;
+import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.query.domain.VersionDateTime;
 
 public class VersionInfo implements Identifiable, Comparable<VersionInfo> {
     private final boolean inLast;

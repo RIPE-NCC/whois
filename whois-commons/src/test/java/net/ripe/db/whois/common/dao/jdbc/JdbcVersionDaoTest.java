@@ -1,11 +1,12 @@
-package net.ripe.db.whois.query.dao.jdbc;
+package net.ripe.db.whois.common.dao.jdbc;
 
+import net.ripe.db.whois.common.dao.VersionDao;
+import net.ripe.db.whois.common.dao.VersionInfo;
+import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.dao.VersionDao;
-import net.ripe.db.whois.query.dao.VersionInfo;
-import net.ripe.db.whois.query.domain.VersionDateTime;
+import net.ripe.db.whois.common.support.AbstractDaoTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-public class JdbcVersionDaoTest extends AbstractQueryDaoTest {
+public class JdbcVersionDaoTest extends AbstractDaoTest {
     @Autowired VersionDao subject;
 
     @Before

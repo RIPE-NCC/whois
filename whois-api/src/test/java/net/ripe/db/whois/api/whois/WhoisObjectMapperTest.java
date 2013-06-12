@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.TagResponseObject;
-import net.ripe.db.whois.query.domain.VersionDateTime;
+import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;

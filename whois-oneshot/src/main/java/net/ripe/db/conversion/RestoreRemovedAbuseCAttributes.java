@@ -4,9 +4,9 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.*;
-import net.ripe.db.whois.query.dao.VersionDao;
-import net.ripe.db.whois.query.dao.VersionInfo;
-import net.ripe.db.whois.query.dao.jdbc.JdbcVersionDao;
+import net.ripe.db.whois.common.dao.VersionDao;
+import net.ripe.db.whois.common.dao.VersionInfo;
+import net.ripe.db.whois.common.dao.jdbc.JdbcVersionDao;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
