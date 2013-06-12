@@ -108,7 +108,7 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
         ]
     }
 
-    def "multiple updates with dry run"() {
+    def "dry run with multiple updates"() {
         def org = new SyncUpdate(data: """\
             organisation: AUTO-1
             org-name:     Ripe NCC organisation 1
@@ -141,5 +141,47 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /FAILED: \[organisation\] AUTO-1/
         response =~ /FAILED: \[organisation\] AUTO-1/
         response =~ /\*\*\*Error:\s*Dry-run is only supported when a single update is specified\n/
+    }
+
+    def "dry run create organisation with AUTO key"() {
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+            organisation: AUTO-1
+            org-name:     Ripe NCC organisation
+            org-type:     OTHER
+            address:      Singel 258
+            e-mail:       bitbucket@ripe.net
+            changed:      admin@test.com 20120505
+            mnt-by:       TST-MNT
+            mnt-ref:      TST-MNT
+            source:       TEST
+
+            password:     update
+            dry-run:      some reason
+            """.stripIndent())
+
+      then:
+        response =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
+        queryNothing("ORG-RNO1-TEST")
+
+      when:
+        def response2 = syncUpdate new SyncUpdate(data: """\
+            organisation: AUTO-1
+            org-name:     Ripe NCC organisation
+            org-type:     OTHER
+            address:      Singel 258
+            e-mail:       bitbucket@ripe.net
+            changed:      admin@test.com 20120505
+            mnt-by:       TST-MNT
+            mnt-ref:      TST-MNT
+            source:       TEST
+
+            password:     update
+            dry-run:      some reason
+            """.stripIndent())
+
+      then:
+        response2 =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
+        queryNothing("ORG-RNO1-TEST")
     }
 }

@@ -98,13 +98,15 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
             throw new UpdateFailedException();
         }
 
-        if (pendingAuthentication) {
+        updateContext.setPreparedUpdate(preparedUpdate);
+
+        if (update.isDryRun()) {
+            throw new UpdateAbortedException();
+        } else if (pendingAuthentication) {
             pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else {
             updateObjectHandler.execute(preparedUpdate, updateContext);
         }
-
-        updateContext.setPreparedUpdate(preparedUpdate);
     }
 
     @CheckForNull

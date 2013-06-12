@@ -135,6 +135,8 @@ public class UpdateRequestHandler {
                     dnsChecker.check(update, updateContext);
                     singleUpdateHandler.handle(updateRequest.getOrigin(), updateRequest.getKeyword(), update, updateContext);
                     loggerContext.logUpdateCompleted(update);
+                } catch (UpdateAbortedException e) {
+                    loggerContext.logUpdateCompleted(update);
                 } catch (UpdateFailedException e) {
                     updateContext.failedUpdate(update);
                     reattemptQueue.add(update);
