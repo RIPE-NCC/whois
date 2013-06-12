@@ -11,6 +11,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
+import java.text.DecimalFormat;
+
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +37,7 @@ public class UpdateLogTest {
 
         subject.logUpdateResult(updateRequest, updateContext, update, stopwatch);
 
-        verify(logger).info("[    0] 0,000 ns   UPD CREATE mntner       TST-MNT                        (1) SUCCESS               : <E0,W0,I0> AUTH  - null");
+        verify(logger).info(matches("\\[\\s*0\\] 0[,.]000 ns   UPD CREATE mntner       TST-MNT                        \\(1\\) SUCCESS               : <E0,W0,I0> AUTH  - null"));
     }
 
     @Test
@@ -46,6 +50,6 @@ public class UpdateLogTest {
 
         subject.logUpdateResult(updateRequest, updateContext, update, stopwatch);
 
-        verify(logger).info("[    0] 0,000 ns   DRY CREATE mntner       TST-MNT                        (1) SUCCESS               : <E0,W0,I0> AUTH  - null");
+        verify(logger).info(matches("\\[\\s*0\\] 0[,.]000 ns   DRY CREATE mntner       TST-MNT                        \\(1\\) SUCCESS               : <E0,W0,I0> AUTH  - null"));
     }
 }
