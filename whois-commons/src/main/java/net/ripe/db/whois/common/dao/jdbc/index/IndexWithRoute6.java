@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class IndexWithRoute6 extends IndexStrategyAdapter {
+class IndexWithRoute6 extends IndexStrategyWithSingleLookupTable {
     public IndexWithRoute6(final AttributeType attributeType) {
-        super(attributeType);
+        super(attributeType, "route6");
     }
 
     @Override
@@ -50,11 +50,6 @@ class IndexWithRoute6 extends IndexStrategyAdapter {
                 Long.toString(Ipv6Resource.lsb(route6Key.resource.begin())),
                 route6Key.resource.getPrefixLength(),
                 route6Key.origin);
-    }
-
-    @Override
-    public void removeFromIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo) {
-        jdbcTemplate.update("DELETE FROM route6 WHERE object_id = ?", objectInfo.getObjectId());
     }
 
     private static Ipv6Resource parseIpv6Resource(final String s) {

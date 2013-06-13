@@ -15,7 +15,7 @@ import java.util.List;
 
 class IndexWithMntRoutes extends IndexWithReference {
     IndexWithMntRoutes(final AttributeType attributeType) {
-        super(attributeType, null, "mnt_id");
+        super(attributeType, "mnt_routes", "mnt_id");
     }
 
     @Override

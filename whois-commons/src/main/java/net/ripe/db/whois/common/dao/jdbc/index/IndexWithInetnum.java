@@ -11,9 +11,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.Collections;
 import java.util.List;
 
-class IndexWithInetnum extends IndexStrategyAdapter {
+class IndexWithInetnum extends IndexStrategyWithSingleLookupTable {
     public IndexWithInetnum(final AttributeType attributeType) {
-        super(attributeType);
+        super(attributeType, "inetnum");
     }
 
     @Override
@@ -46,11 +46,6 @@ class IndexWithInetnum extends IndexStrategyAdapter {
                 new RpslObjectResultSetExtractor(),
                 resource.begin(),
                 resource.end());
-    }
-
-    @Override
-    public void removeFromIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo) {
-        jdbcTemplate.update("DELETE FROM inetnum WHERE object_id = ?", objectInfo.getObjectId());
     }
 
     private Ipv4Resource parseIpv4Resource(final String s) {

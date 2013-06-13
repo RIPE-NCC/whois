@@ -11,9 +11,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.Collections;
 import java.util.List;
 
-class IndexWithAsBlock extends IndexStrategyAdapter {
+class IndexWithAsBlock extends IndexStrategyWithSingleLookupTable {
     public IndexWithAsBlock(final AttributeType attributeType) {
-        super(attributeType);
+        super(attributeType, "as_block");
     }
 
     @Override
@@ -47,11 +47,6 @@ class IndexWithAsBlock extends IndexStrategyAdapter {
                 new RpslObjectResultSetExtractor(),
                 asBlockRange.getBegin(),
                 asBlockRange.getEnd());
-    }
-
-    @Override
-    public void removeFromIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo) {
-        jdbcTemplate.update("DELETE FROM as_block WHERE object_id = ?", objectInfo.getObjectId());
     }
 
     private AsBlockRange parseAsBlockRange(final String s) {

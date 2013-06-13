@@ -25,4 +25,6 @@ public interface IndexStrategy {
     String getLookupTableName();
 
     String getLookupColumnName();
+
+    void cleanupMissingObjects(JdbcTemplate jdbcTemplate);
 }

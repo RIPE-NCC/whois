@@ -13,10 +13,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class IndexWithRoute extends IndexStrategyAdapter {
+class IndexWithRoute extends IndexStrategyWithSingleLookupTable {
 
     public IndexWithRoute(final AttributeType attributeType) {
-        super(attributeType);
+        super(attributeType, "route");
     }
 
     @Override
@@ -49,11 +49,6 @@ class IndexWithRoute extends IndexStrategyAdapter {
                 routeKey.ipRange.begin(),
                 routeKey.ipRange.getPrefixLength(),
                 routeKey.origin);
-    }
-
-    @Override
-    public void removeFromIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo) {
-        jdbcTemplate.update("DELETE FROM route WHERE object_id = ?", objectInfo.getObjectId());
     }
 
     private static class RouteKey {

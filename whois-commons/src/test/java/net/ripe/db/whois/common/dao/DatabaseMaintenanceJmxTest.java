@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.dao;
 
+import net.ripe.db.whois.common.dao.jdbc.IndexDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DatabaseMaintenanceJmxTest {
     @Mock RpslObjectUpdateDao updateDao;
+    @Mock IndexDao indexDao;
     @InjectMocks DatabaseMaintenanceJmx subject;
 
     @Test

@@ -10,9 +10,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.Collections;
 import java.util.List;
 
-class IndexWithInet6num extends IndexStrategyAdapter {
+class IndexWithInet6num extends IndexStrategyWithSingleLookupTable {
     public IndexWithInet6num(final AttributeType attributeType) {
-        super(attributeType);
+        super(attributeType, "inet6num");
     }
 
     // MySQL 5.1 bug workaround: if 64-bit integer has its msb bit set, the comparison fails
@@ -50,11 +50,6 @@ class IndexWithInet6num extends IndexStrategyAdapter {
                 Long.toString(Ipv6Resource.msb(resource.begin())),
                 Long.toString(Ipv6Resource.lsb(resource.begin())),
                 resource.getPrefixLength());
-    }
-
-    @Override
-    public void removeFromIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo) {
-        jdbcTemplate.update("DELETE FROM inet6num WHERE object_id = ?", objectInfo.getObjectId());
     }
 
     private Ipv6Resource parseIpv6Resource(final String s) {

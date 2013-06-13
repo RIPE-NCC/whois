@@ -16,16 +16,12 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
-class IndexWithName extends IndexStrategyAdapter {
+class IndexWithName extends IndexStrategyWithSingleLookupTable {
     protected static final int MYSQL_MAX_JOINS = 61;
     protected static final Splitter SPACE_SPLITTER = Splitter.on(' ').trimResults().omitEmptyStrings();
-    protected String lookupTableName;
 
     public IndexWithName(final AttributeType attributeType, final String lookupTableName) {
-        super(attributeType);
-
-        Validate.notNull(lookupTableName);
-        this.lookupTableName = lookupTableName;
+        super(attributeType, lookupTableName);
     }
 
     @Override
@@ -88,10 +84,5 @@ class IndexWithName extends IndexStrategyAdapter {
     int addToIndex(final JdbcTemplate jdbcTemplate, final int objectId, final String name) {
         final String query = String.format("INSERT INTO %s (object_id, name) VALUES (?, ?)", lookupTableName);
         return jdbcTemplate.update(query, objectId, name);
-    }
-
-    @Override
-    public void removeFromIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo) {
-        jdbcTemplate.update(String.format("DELETE FROM %s WHERE object_id = ?", lookupTableName), objectInfo.getObjectId());
     }
 }

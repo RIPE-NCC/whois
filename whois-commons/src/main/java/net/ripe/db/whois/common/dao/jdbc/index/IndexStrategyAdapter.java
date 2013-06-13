@@ -53,6 +53,10 @@ abstract class IndexStrategyAdapter implements IndexStrategy {
     }
 
     @Override
+    public void cleanupMissingObjects(final JdbcTemplate jdbcTemplate) {
+    }
+
+    @Override
     public String getLookupColumnName() {
         return null;
     }

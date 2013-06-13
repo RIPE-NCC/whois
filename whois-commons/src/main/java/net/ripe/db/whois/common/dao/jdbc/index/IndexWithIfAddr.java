@@ -12,12 +12,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-class IndexWithIfAddr extends IndexStrategyAdapter {
+class IndexWithIfAddr extends IndexStrategyWithSingleLookupTable {
 
     private final Splitter SPACE_SPLITTER = Splitter.on(' ').trimResults().omitEmptyStrings();
 
     public IndexWithIfAddr(final AttributeType attributeType) {
-        super(attributeType);
+        super(attributeType, "ifaddr");
     }
 
     @Override
@@ -48,11 +48,6 @@ class IndexWithIfAddr extends IndexStrategyAdapter {
                 "  AND l.sequence_id != 0 ",
                 new RpslObjectResultSetExtractor(),
                 resource.begin());
-    }
-
-    @Override
-    public void removeFromIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo) {
-        jdbcTemplate.update("DELETE FROM ifaddr WHERE object_id = ?", objectInfo.getObjectId());
     }
 
     private Ipv4Resource parseIfAddr(final String value) {

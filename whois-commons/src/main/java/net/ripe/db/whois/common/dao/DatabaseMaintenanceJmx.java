@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.dao;
 
+import net.ripe.db.whois.common.dao.jdbc.IndexDao;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +19,13 @@ public class DatabaseMaintenanceJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseMaintenanceJmx.class);
 
     private final RpslObjectUpdateDao updateDao;
+    private final IndexDao indexDao;
 
     @Autowired
-    public DatabaseMaintenanceJmx(final RpslObjectUpdateDao updateDao) {
+    public DatabaseMaintenanceJmx(final RpslObjectUpdateDao updateDao, final IndexDao indexDao) {
         super(LOGGER);
         this.updateDao = updateDao;
+        this.indexDao = indexDao;
     }
 
     @ManagedOperation(description = "Recovers a deleted object")
@@ -41,6 +44,20 @@ public class DatabaseMaintenanceJmx extends JmxBase {
                     LOGGER.error("Unable to recover object with id: {}", objectId, e);
                     return String.format("Unable to recover: %s", e.getMessage());
                 }
+            }
+        });
+    }
+
+    @ManagedOperation(description = "Rebuild all indexes based on objects in last")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation")
+    })
+    public String rebuildIndexes(final String comment) {
+        return invokeOperation("Rebuild indexes", comment, new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                indexDao.rebuild();
+                return "Rebuilt indexes";
             }
         });
     }

@@ -8,10 +8,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 
-class IndexWithLocalAs extends IndexStrategyAdapter {
+class IndexWithLocalAs extends IndexStrategyWithSingleLookupTable {
 
     public IndexWithLocalAs(final AttributeType attributeType) {
-        super(attributeType);
+        super(attributeType, "inet_rtr");
     }
 
     @Override
