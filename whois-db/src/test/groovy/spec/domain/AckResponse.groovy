@@ -128,6 +128,16 @@ class AckResponse extends Response {
         success == null ? [] : success.infos
     }
 
+    String[] warningPendingMessagesFor(String operation, String key) {
+        def pending = getPendingUpdates().find { it.operation == operation && it.key.startsWith(key) }
+        pending == null ? [] : pending.warnings
+    }
+
+    String[] infoPendingMessagesFor(String operation, String key) {
+        def pending = getPendingUpdates().find { it.operation == operation && it.key.startsWith(key) }
+        pending == null ? [] : pending.infos
+    }
+
     def objErrorContains(String op, String result, String objType, String key, String errorStr) {
         def error = errorSection
         error =~ /(?is)---\s*${op} ${result}: \[${objType}\] ${key}\n*(.*?)${errorStr}.*?[---\n|~~~\n]/
