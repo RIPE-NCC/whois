@@ -48,7 +48,7 @@ class NotificationResponse extends Response {
     }
 
     List<Object> getModified() {
-        (contents =~ /(?s)---\s*OBJECT BELOW MODIFIED:\s*([^:]*):([^\n]*)/).collect { new Object(type: it[1].trim(), key:  it[2].trim())}
+        (contents =~ /(?s)THIS IS THE NEW VERSION OF THE OBJECT:\s*([^:]*):([^\n]*)/).collect { new Object(type: it[1].trim(), key:  it[2].trim())}
     }
 
     List<Object> getFailedModified() {

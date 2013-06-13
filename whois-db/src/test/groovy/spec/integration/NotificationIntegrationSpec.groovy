@@ -170,14 +170,13 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
         def updateNotif = notificationFor "test_test@ripe.net"
         updateNotif.subject =~ "Notification of RIPE Database changes"
-        updateNotif.contents =~ /OBJECT BELOW MODIFIED:\n\n[+] descr:          description/
+        updateNotif.contents =~ /OBJECT BELOW MODIFIED:\n\n@@ -1,8 \+1,10 @@\n mntner:         TEST-MNT/
         updateNotif.contents =~ /THIS IS THE NEW VERSION OF THE OBJECT:\n\nmntner:         TEST-MNT\ndescr:          description/
 
         def createNotif = notificationFor "notify_test@ripe.net"
         createNotif.contents =~ /OBJECT BELOW CREATED:\n\nmntner:         ADMIN-MNT/
 
         noMoreMessages()
-
     }
 
 
@@ -464,8 +463,12 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "---\n" +
                 "OBJECT BELOW MODIFIED:\n" +
                 "\n" +
-                "- notify:         modify_mntner@ripe.net\n" +
-                "+ notify:         updated_modify_mntner@ripe.net\n" +
+                "@@ -6,3 +6,3 @@\n" +
+                " changed:        ripe@test.net 20121221\n" +
+                "-notify:         modify_mntner@ripe.net\n" +
+                "+notify:         updated_modify_mntner@ripe.net\n" +
+                " upd-to:         dbtest@ripe.net\n" +
+                "\n" +
                 "\n" +
                 "THIS IS THE NEW VERSION OF THE OBJECT:\n" +
                 "\n" +
@@ -764,19 +767,21 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
         def notifRutger = notificationFor "rutger@test.net"
         notifRutger.subject.equals("Notification of RIPE Database changes")
-        notifRutger.contents.contains("OBJECT BELOW MODIFIED:\n\n" +
-                "mntner:         OTHER-MNT\n" +
-                "admin-c:        OLW-PN\n" +
-                "mnt-by:         TEST-MNT\n" +
-                "descr:          description  updated\n" +
-                "referral-by:    TEST-MNT\n" +
-                "changed:        ripe@test.net 20120505\n" +
-                "notify:         rutger@test.net\n" +
-                "upd-to:         dbtest@ripe.net\n" +
-                "auth:           MD5-PW # Filtered\n" +
-                "source:         TEST # Filtered\n" +
+        notifRutger.contents.contains("" +
+                "OBJECT BELOW MODIFIED:\n" +
                 "\n" +
-                "REPLACED BY:\n" +
+                "@@ -3,6 +3,6 @@\n" +
+                " mnt-by:         TEST-MNT\n" +
+                "-descr:          description  updated\n" +
+                "+descr:          description\n" +
+                " referral-by:    TEST-MNT\n" +
+                " changed:        ripe@test.net 20120505\n" +
+                "-notify:         rutger@test.net\n" +
+                "+notify:         same@test.net\n" +
+                " upd-to:         dbtest@ripe.net\n" +
+                "\n" +
+                "\n" +
+                "THIS IS THE NEW VERSION OF THE OBJECT:\n" +
                 "\n" +
                 "mntner:         OTHER-MNT\n" +
                 "admin-c:        OLW-PN\n" +
@@ -787,7 +792,10 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "notify:         same@test.net\n" +
                 "upd-to:         dbtest@ripe.net\n" +
                 "auth:           MD5-PW # Filtered\n" +
-                "source:         TEST # Filtered\n\n" +
+                "source:         TEST # Filtered\n" +
+                "\n" +
+                "The old object can be seen in the history using the query options --list-versions and --show-version #n\n" +
+                "\n" +
                 "---\n" +
                 "OBJECT BELOW CREATED:\n" +
                 "\n" +
@@ -826,21 +834,19 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "---\n" +
                 "OBJECT BELOW MODIFIED:\n" +
                 "\n" +
-                "organisation:   ORG-TOL1-TEST\n" +
-                "org-name:       Test Organisation Ltd\n" +
-                "org-type:       OTHER\n" +
-                "org:            ORG-TOL1-TEST\n" +
-                "descr:          test org\n" +
-                "address:        street 5\n" +
-                "e-mail:         org1@test.com\n" +
-                "mnt-ref:        TEST-MNT\n" +
-                "mnt-by:         TEST-MNT\n" +
-                "ref-nfy:        same@test.net\n" +
-                "changed:        dbtest@ripe.net 20120505\n" +
-                "notify:         barry@test.net\n" +
-                "source:         TEST\n" +
+                "@@ -4,3 +4,3 @@\n" +
+                " org:            ORG-TOL1-TEST\n" +
+                "-descr:          test org\n" +
+                "+descr:          test org  updated\n" +
+                " address:        street 5\n" +
+                "@@ -9,3 +9,3 @@\n" +
+                " mnt-by:         TEST-MNT\n" +
+                "-ref-nfy:        same@test.net\n" +
+                "+ref-nfy:        notsame@test.net\n" +
+                " changed:        dbtest@ripe.net 20120505\n" +
                 "\n" +
-                "REPLACED BY:\n" +
+                "\n" +
+                "THIS IS THE NEW VERSION OF THE OBJECT:\n" +
                 "\n" +
                 "organisation:   ORG-TOL1-TEST\n" +
                 "org-name:       Test Organisation Ltd\n" +
@@ -855,6 +861,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "changed:        dbtest@ripe.net 20120505\n" +
                 "notify:         barry@test.net\n" +
                 "source:         TEST\n" +
+                "\n" +
+                "The old object can be seen in the history using the query options --list-versions and --show-version #n\n" +
                 "\n" +
                 "---\n" +
                 "OBJECT BELOW DELETED:\n" +
