@@ -62,8 +62,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void post_multipart_form_help_parameter_only() {
         String response = createResource(AUDIENCE, "whois/syncupdates/test")
-                    .entity("HELP=help", MediaType.MULTIPART_FORM_DATA)
-                    .post(String.class);
+                .entity("HELP=help", MediaType.MULTIPART_FORM_DATA)
+                .post(String.class);
 
         assertThat(response, containsString("You have requested Help information from the RIPE NCC Database"));
     }
@@ -71,8 +71,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void post_url_encoded_form_help_parameter_only() {
         String response = createResource(AUDIENCE, "whois/syncupdates/test")
-                    .entity("HELP=yes", MediaType.APPLICATION_FORM_URLENCODED)
-                    .post(String.class);
+                .entity("HELP=yes", MediaType.APPLICATION_FORM_URLENCODED)
+                .post(String.class);
 
         assertThat(response, containsString("You have requested Help information from the RIPE NCC Database"));
     }
@@ -88,7 +88,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     public void diff_parameter_only() throws Exception {
         String response = doGetRequest(getUrl("test", "DIFF=yes"), HttpURLConnection.HTTP_BAD_REQUEST);
 
-        assertThat(response, is("the DIFF method is not actually supported by the Syncupdates interface\n"));
+        assertThat(response, is("Invalid request\n"));
     }
 
     @Test
@@ -181,7 +181,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
         assertThat(response, containsString(
                 "***Error:   Enforced new keyword specified, but the object already exists in the\n" +
-                "            database"));
+                        "            database"));
     }
 
     @Test

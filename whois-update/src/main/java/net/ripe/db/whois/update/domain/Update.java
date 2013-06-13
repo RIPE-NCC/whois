@@ -72,10 +72,6 @@ public class Update implements UpdateContainer {
         return paragraph.getCredentials().has(OverrideCredential.class);
     }
 
-    public boolean isDryRun() {
-        return paragraph.isDryRun();
-    }
-
     public Credentials getCredentials() {
         return paragraph.getCredentials();
     }

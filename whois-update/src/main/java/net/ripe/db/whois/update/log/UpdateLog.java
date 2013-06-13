@@ -41,7 +41,7 @@ public class UpdateLog {
         final String logMessage = String.format("[%5d] %-10s %s %-6s %-12s %-30s (%d) %-22s: <E%d,W%d,I%d> AUTH %s - %s",
                 updateContext.getNrSinceRestart(),
                 stopwatch.toString(),
-                update.isDryRun() ? "DRY" : "UPD",
+                updateResult.isDryRun() ? "DRY" : "UPD",
                 updateResult.getAction(),
                 updatedObject.getType().getName(),
                 updatedObject.getKey(),

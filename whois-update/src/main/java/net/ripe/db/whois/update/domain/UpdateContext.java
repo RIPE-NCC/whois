@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class UpdateContext {
     private static final AtomicInteger NEXT_NR_SINCE_RESTART = new AtomicInteger();
 
-    private int nrSinceRestart;
     private final List<Paragraph> ignored = Lists.newArrayList();
     private final Messages globalMessages = new Messages();
     private final Map<Update, CIString> placeHolderForUpdate = Maps.newHashMap();
@@ -32,9 +31,21 @@ public class UpdateContext {
     private final Map<DnsCheckRequest, DnsCheckResponse> dnsCheckResponses = Maps.newHashMap();
     private final LoggerContext loggerContext;
 
+    private int nrSinceRestart;
+    private boolean dryRun;
+
     public UpdateContext(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
         this.nrSinceRestart = NEXT_NR_SINCE_RESTART.incrementAndGet();
+    }
+
+    public boolean isDryRun() {
+        return dryRun;
+    }
+
+    public void dryRun() {
+        loggerContext.logDryRun();
+        this.dryRun = true;
     }
 
     public int getNrSinceRestart() {
@@ -217,7 +228,7 @@ public class UpdateContext {
             updatedObject = update.getSubmittedObject();
         }
 
-        return new UpdateResult(update, originalObject, updatedObject, context.action, context.status, context.objectMessages, context.retryCount);
+        return new UpdateResult(update, originalObject, updatedObject, context.action, context.status, context.objectMessages, context.retryCount, dryRun);
     }
 
     public void prepareForReattempt(final UpdateContainer update) {

@@ -60,8 +60,13 @@ public class UpdateRequestHandler {
             return new UpdateResponse(UpdateStatus.SUCCESS, responseFactory.createHelpResponse(updateContext, updateRequest.getOrigin()));
         }
 
-        if (isMultipleDryRun(updateRequest)) {
-            for (final Update update : updateRequest.getUpdates()) {
+        if (Keyword.DIFF.equals(keyword)) {
+            updateContext.dryRun();
+        }
+
+        final List<Update> updates = updateRequest.getUpdates();
+        if (updateContext.isDryRun() && updates.size() > 1) {
+            for (final Update update : updates) {
                 updateContext.failedUpdate(update, UpdateMessages.dryRunOnlySupportedOnSingleUpdate());
             }
 
@@ -74,22 +79,6 @@ public class UpdateRequestHandler {
         } finally {
             sourceContext.removeCurrentSource();
         }
-    }
-
-    private boolean isMultipleDryRun(final UpdateRequest updateRequest) {
-        boolean hasDryRun = false;
-
-        for (final Update update : updateRequest.getUpdates()) {
-            if (update.isDryRun()) {
-                if (hasDryRun) {
-                    return true;
-                } else {
-                    hasDryRun = true;
-                }
-            }
-        }
-
-        return false;
     }
 
     private UpdateResponse handleUpdates(final UpdateRequest updateRequest, final UpdateContext updateContext) {

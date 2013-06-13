@@ -37,10 +37,10 @@ public class AckTest {
     public void getUpdateStatus_success() {
         final RpslObject rpslObject = RpslObject.parse("mntner: DEV-MNT");
         final Update update1 = new Update(new Paragraph(""), Operation.DELETE, Lists.<String>newArrayList(), rpslObject);
-        final UpdateResult updateResult1 = new UpdateResult(update1, rpslObject, rpslObject, Action.DELETE, UpdateStatus.SUCCESS, new ObjectMessages(), 0);
+        final UpdateResult updateResult1 = new UpdateResult(update1, rpslObject, rpslObject, Action.DELETE, UpdateStatus.SUCCESS, new ObjectMessages(), 0, false);
 
         final Update update2 = new Update(new Paragraph(""), Operation.UNSPECIFIED, Lists.<String>newArrayList(), rpslObject);
-        final UpdateResult updateResult2 = new UpdateResult(update2, rpslObject, rpslObject, Action.MODIFY, UpdateStatus.SUCCESS, new ObjectMessages(), 0);
+        final UpdateResult updateResult2 = new UpdateResult(update2, rpslObject, rpslObject, Action.MODIFY, UpdateStatus.SUCCESS, new ObjectMessages(), 0, false);
 
         updateResults.add(updateResult1);
         updateResults.add(updateResult2);
@@ -62,11 +62,11 @@ public class AckTest {
     public void getUpdateStatus_failed() {
         final RpslObject rpslObject = RpslObject.parse("mntner: DEV-MNT");
         final Update update1 = new Update(new Paragraph(""), Operation.DELETE, Lists.<String>newArrayList(), rpslObject);
-        final UpdateResult updateResult1 = new UpdateResult(update1, rpslObject, rpslObject, Action.DELETE, UpdateStatus.FAILED, new ObjectMessages(), 0);
+        final UpdateResult updateResult1 = new UpdateResult(update1, rpslObject, rpslObject, Action.DELETE, UpdateStatus.FAILED, new ObjectMessages(), 0, false);
 
         final Update update2 = new Update(new Paragraph(""), Operation.UNSPECIFIED, Lists.<String>newArrayList(), rpslObject);
 
-        final UpdateResult updateResult2 = new UpdateResult(update2, rpslObject, rpslObject, Action.MODIFY, UpdateStatus.FAILED, new ObjectMessages(), 0);
+        final UpdateResult updateResult2 = new UpdateResult(update2, rpslObject, rpslObject, Action.MODIFY, UpdateStatus.FAILED, new ObjectMessages(), 0, false);
         updateResults.add(updateResult1);
         updateResults.add(updateResult2);
 

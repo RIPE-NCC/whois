@@ -21,10 +21,13 @@ public class ParagraphParser {
 
     private static final Splitter CONTENT_SPLITTER = Splitter.on(Pattern.compile("\\n[ \\t]*\\n")).omitEmptyStrings();
 
-    public List<Paragraph> createParagraphs(final ContentWithCredentials contentWithCredentials) {
+    public List<Paragraph> createParagraphs(final ContentWithCredentials contentWithCredentials, final UpdateContext updateContext) {
         String content = contentWithCredentials.getContent().replaceAll("\\r\\n", "\n");
 
-        final boolean dryRun = DRY_RUN_PATTERN.matcher(content).find();
+        if (DRY_RUN_PATTERN.matcher(content).find()) {
+            updateContext.dryRun();
+        }
+
         final Set<Credential> baseCredentials = getPasswordCredentials(content);
         baseCredentials.addAll(contentWithCredentials.getCredentials());
 
@@ -35,27 +38,27 @@ public class ParagraphParser {
         while (offset < content.length()) {
             final Matcher signedMessageMatcher = PgpSignedMessage.SIGNED_MESSAGE_PATTERN.matcher(content).region(offset, content.length());
             if (signedMessageMatcher.find(offset)) {
-                addPlainTextContent(baseCredentials, paragraphs, content, offset, signedMessageMatcher.start(), dryRun);
-                offset = addSignedContent(baseCredentials, paragraphs, content, signedMessageMatcher.start(), dryRun);
+                addPlainTextContent(baseCredentials, paragraphs, content, offset, signedMessageMatcher.start());
+                offset = addSignedContent(baseCredentials, paragraphs, content, signedMessageMatcher.start());
             } else {
-                offset = addPlainTextContent(baseCredentials, paragraphs, content, offset, content.length(), dryRun);
+                offset = addPlainTextContent(baseCredentials, paragraphs, content, offset, content.length());
             }
         }
 
         return paragraphs;
     }
 
-    private int addPlainTextContent(final Set<Credential> baseCredentials, final List<Paragraph> paragraphs, final String content, final int beginIndex, final int endIndex, final boolean dryRun) {
+    private int addPlainTextContent(final Set<Credential> baseCredentials, final List<Paragraph> paragraphs, final String content, final int beginIndex, final int endIndex) {
         if (endIndex > beginIndex) {
             final String substring = content.substring(beginIndex, endIndex);
             if (StringUtils.isNotBlank(substring)) {
-                addParagraphs(paragraphs, substring, baseCredentials, dryRun);
+                addParagraphs(paragraphs, substring, baseCredentials);
             }
         }
         return endIndex + 1;
     }
 
-    private int addSignedContent(final Set<Credential> baseCredentials, final List<Paragraph> paragraphs, final String content, final int beginIndex, final boolean dryRun) {
+    private int addSignedContent(final Set<Credential> baseCredentials, final List<Paragraph> paragraphs, final String content, final int beginIndex) {
         final Set<Credential> credentials = Sets.newLinkedHashSet(baseCredentials);
 
         int endIdx = -1;
@@ -74,13 +77,13 @@ public class ParagraphParser {
                     credentials.add(credential);
                     signedContent = credential.getContent();
                     if (StringUtils.isBlank(signedContent)) {
-                        addPlainTextContent(baseCredentials, paragraphs, clearText, 0, clearText.length(), dryRun);
+                        addPlainTextContent(baseCredentials, paragraphs, clearText, 0, clearText.length());
                     }
                 } catch (IllegalArgumentException e) {
-                    addPlainTextContent(baseCredentials, paragraphs, signedContent, 0, signedContent.length(), dryRun);
+                    addPlainTextContent(baseCredentials, paragraphs, signedContent, 0, signedContent.length());
                 }
             } else {
-                addParagraphs(paragraphs, signedContent, credentials, dryRun);
+                addParagraphs(paragraphs, signedContent, credentials);
                 break;
             }
         }
@@ -98,7 +101,7 @@ public class ParagraphParser {
         return result;
     }
 
-    private void addParagraphs(final List<Paragraph> paragraphs, final String content, final Set<Credential> baseCredentials, final boolean dryRun) {
+    private void addParagraphs(final List<Paragraph> paragraphs, final String content, final Set<Credential> baseCredentials) {
         for (final String paragraph : CONTENT_SPLITTER.split(content)) {
             if (StringUtils.isNotEmpty(paragraph)) {
                 final Set<Credential> credentials = Sets.newLinkedHashSet(baseCredentials);
@@ -111,7 +114,7 @@ public class ParagraphParser {
                 cleanedParagraph = cleanedParagraph.trim();
 
                 // Also add empty paragraphs to detect dangling credentials
-                paragraphs.add(new Paragraph(cleanedParagraph, new Credentials(credentials), dryRun));
+                paragraphs.add(new Paragraph(cleanedParagraph, new Credentials(credentials)));
             }
         }
     }

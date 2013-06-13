@@ -12,11 +12,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.update.domain.ContentWithCredentials;
-import net.ripe.db.whois.update.domain.Keyword;
-import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.domain.UpdateRequest;
-import net.ripe.db.whois.update.domain.UpdateResponse;
+import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -26,15 +22,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.Encoded;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -131,10 +119,6 @@ public class SyncUpdatesService {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Invalid source specified: " + request.getSource()).build();
             }
 
-            if (request.isParam(Command.DIFF)) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("the DIFF method is not actually supported by the Syncupdates interface").build();
-            }
-
             boolean notificationsEnabled = true;
             if (request.isParam(Command.REDIRECT)) {
                 if (!ipRanges.isInRipeRange(IpInterval.parse(request.getRemoteAddress()))) {
@@ -203,9 +187,19 @@ public class SyncUpdatesService {
     }
 
     private Keyword getKeyword(final Request request) {
-        return request.isParam(Command.HELP) ? Keyword.HELP :
-                request.isParam(Command.NEW) ? Keyword.NEW :
-                        Keyword.NONE;
+        if (request.isParam(Command.HELP)) {
+            return Keyword.HELP;
+        }
+
+        if (request.isParam(Command.NEW)) {
+            return Keyword.NEW;
+        }
+
+        if (request.isParam(Command.DIFF)) {
+            return Keyword.DIFF;
+        }
+
+        return Keyword.NONE;
     }
 
     private Charset getCharset(final String contentType) {
@@ -346,5 +340,7 @@ public class SyncUpdatesService {
         static final String NEW = "NEW";
         static final String DIFF = "DIFF";
         static final String REDIRECT = "REDIRECT";
-    };
+    }
+
+    ;
 }

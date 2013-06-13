@@ -5,19 +5,22 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ParagraphParserTest {
-    @InjectMocks
-    private ParagraphParser subject;
+    @Mock UpdateContext updateContext;
+    @InjectMocks ParagraphParser subject;
+
     public static final String OBJECT = "mntner: DEV-MNT";
     public static final String INPUT = OBJECT + "\npassword: pass";
     public static final String SIGNATURE = "" +
@@ -31,7 +34,7 @@ public class ParagraphParserTest {
 
     @Test
     public void empty_message() {
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(""));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(""), updateContext);
 
         assertThat(paragraphs, hasSize(0));
     }
@@ -42,10 +45,10 @@ public class ParagraphParserTest {
                 "mntner: DEV-MNT\n" +
                 "password: pass\n");
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentials);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentials, updateContext);
 
         assertThat(paragraphs, hasSize(1));
-        assertParagraph(paragraphs.get(0), "mntner: DEV-MNT", new PasswordCredential("pass"));
+        assertParagraphNoDryRun(paragraphs.get(0), "mntner: DEV-MNT", new PasswordCredential("pass"));
     }
 
     @Test
@@ -58,21 +61,21 @@ public class ParagraphParserTest {
 
         final ContentWithCredentials contentWithCredentials = new ContentWithCredentials(content1 + "\n\n" + content2);
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentials);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentials, updateContext);
 
         assertThat(paragraphs, hasSize(2));
-        assertParagraph(paragraphs.get(0), "mntner: DEV-MNT", new PasswordCredential("pass"));
-        assertParagraph(paragraphs.get(1), "mntner: DEV2-MNT", new PasswordCredential("pass"));
+        assertParagraphNoDryRun(paragraphs.get(0), "mntner: DEV-MNT", new PasswordCredential("pass"));
+        assertParagraphNoDryRun(paragraphs.get(1), "mntner: DEV2-MNT", new PasswordCredential("pass"));
     }
 
     @Test
     public void single_paragraph_signed() {
         final String content = "-----BEGIN PGP SIGNED MESSAGE-----\n" + "Hash: SHA1\n\n" + INPUT + "\n" + SIGNATURE;
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
         assertThat(paragraphs, hasSize(1));
 
-        assertParagraph(
+        assertParagraphNoDryRun(
                 paragraphs.get(0), "mntner: DEV-MNT",
                 PgpCredential.createOfferedCredential(content),
                 new PasswordCredential("pass"));
@@ -83,11 +86,11 @@ public class ParagraphParserTest {
         final String content = "-----BEGIN PGP SIGNED MESSAGE-----\n" + "Hash: SHA1\n\n" + INPUT + "\n" + SIGNATURE;
         final ContentWithCredentials contentWithCredentials = new ContentWithCredentials(content + "\n\n" + content);
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentials);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentials, updateContext);
         assertThat(paragraphs, hasSize(2));
 
         for (final Paragraph paragraph : paragraphs) {
-            assertParagraph(paragraph, "mntner: DEV-MNT", new PasswordCredential("pass"), PgpCredential.createOfferedCredential(content));
+            assertParagraphNoDryRun(paragraph, "mntner: DEV-MNT", new PasswordCredential("pass"), PgpCredential.createOfferedCredential(content));
         }
     }
 
@@ -105,7 +108,7 @@ public class ParagraphParserTest {
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" + "Hash: SHA1\n\n" + INPUT + "\n" + SIGNATURE + "\n\n" +
                 content2;
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
         assertThat(paragraphs, hasSize(4));
 
         final PasswordCredential pass = new PasswordCredential("pass");
@@ -113,10 +116,10 @@ public class ParagraphParserTest {
         final PgpCredential pgpCredential = PgpCredential.createOfferedCredential(
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" + "Hash: SHA1\n\n" + INPUT + "\n" + SIGNATURE + "\n\n");
 
-        assertParagraph(paragraphs.get(0), "mntner: DEV-MNT", pass, pw, pgpCredential);
-        assertParagraph(paragraphs.get(1), "mntner: DEV1-MNT", pass, pw);
-        assertParagraph(paragraphs.get(2), "mntner: DEV-MNT", pass, pw, pgpCredential);
-        assertParagraph(paragraphs.get(3), "mntner: DEV2-MNT", pass, pw);
+        assertParagraphNoDryRun(paragraphs.get(0), "mntner: DEV-MNT", pass, pw, pgpCredential);
+        assertParagraphNoDryRun(paragraphs.get(1), "mntner: DEV1-MNT", pass, pw);
+        assertParagraphNoDryRun(paragraphs.get(2), "mntner: DEV-MNT", pass, pw, pgpCredential);
+        assertParagraphNoDryRun(paragraphs.get(3), "mntner: DEV2-MNT", pass, pw);
     }
 
     @Test
@@ -125,9 +128,9 @@ public class ParagraphParserTest {
                 "mntner: DEV-MNT\n" +
                 "override: some override";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
         assertThat(paragraphs, hasSize(1));
-        assertParagraph(paragraphs.get(0), "mntner: DEV-MNT", OverrideCredential.parse("some override"));
+        assertParagraphNoDryRun(paragraphs.get(0), "mntner: DEV-MNT", OverrideCredential.parse("some override"));
     }
 
     @Test
@@ -137,12 +140,13 @@ public class ParagraphParserTest {
                 "dry-run: some\n" +
                 "override: some override";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
         assertThat(paragraphs, hasSize(1));
         final Paragraph paragraph = paragraphs.get(0);
         assertThat(paragraph.getContent(), is("mntner: DEV-MNT"));
         assertThat(paragraph.getCredentials().all(), containsInAnyOrder((Credential) OverrideCredential.parse("some override")));
-        assertThat(paragraph.isDryRun(), is(true));
+
+        verify(updateContext).dryRun();
     }
 
     @Test
@@ -151,12 +155,12 @@ public class ParagraphParserTest {
                 "mntner: DEV-MNT\n" +
                 "dry-run: some dry run";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
         assertThat(paragraphs, hasSize(1));
         final Paragraph paragraph = paragraphs.get(0);
         assertThat(paragraph.getContent(), is("mntner: DEV-MNT"));
         assertThat(paragraph.getCredentials().all(), hasSize(0));
-        assertThat(paragraph.isDryRun(), is(true));
+        verify(updateContext).dryRun();
     }
 
     @Test
@@ -168,18 +172,18 @@ public class ParagraphParserTest {
                 "\n" +
                 "dry-run: some dry run";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
         assertThat(paragraphs, hasSize(2));
 
         final Paragraph paragraph1 = paragraphs.get(0);
         assertThat(paragraph1.getContent(), is("mntner: DEV-MNT"));
         assertThat(paragraph1.getCredentials().all(), hasSize(0));
-        assertThat(paragraph1.isDryRun(), is(true));
 
         final Paragraph paragraph2 = paragraphs.get(1);
         assertThat(paragraph2.getContent(), is(""));
         assertThat(paragraph2.getCredentials().all(), hasSize(0));
-        assertThat(paragraph2.isDryRun(), is(true));
+
+        verify(updateContext).dryRun();
     }
 
     @Test
@@ -190,12 +194,12 @@ public class ParagraphParserTest {
                 "dry-run: some dry run\n" +
                 "dry-run: some dry run";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
         assertThat(paragraphs, hasSize(1));
         final Paragraph paragraph = paragraphs.get(0);
         assertThat(paragraph.getContent(), is("mntner: DEV-MNT"));
         assertThat(paragraph.getCredentials().all(), hasSize(0));
-        assertThat(paragraph.isDryRun(), is(true));
+        verify(updateContext).dryRun();
     }
 
     @Test
@@ -206,18 +210,18 @@ public class ParagraphParserTest {
                 "\n" +
                 "mntner: DEV2-MNT\n";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
         assertThat(paragraphs, hasSize(2));
 
         final Paragraph paragraph1 = paragraphs.get(0);
         assertThat(paragraph1.getContent(), is("mntner: DEV1-MNT"));
         assertThat(paragraph1.getCredentials().all(), hasSize(0));
-        assertThat(paragraph1.isDryRun(), is(true));
 
         final Paragraph paragraph2 = paragraphs.get(1);
         assertThat(paragraph2.getContent(), is("mntner: DEV2-MNT"));
         assertThat(paragraph2.getCredentials().all(), hasSize(0));
-        assertThat(paragraph2.isDryRun(), is(true));
+
+        verify(updateContext).dryRun();
     }
 
     @Test
@@ -226,10 +230,10 @@ public class ParagraphParserTest {
                 "mntner: DEV-MNT\n" +
                 "password:    \t     123 and something   \t \r\n";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
         assertThat(paragraphs, hasSize(1));
-        assertParagraph(paragraphs.get(0), "mntner: DEV-MNT", new PasswordCredential("123 and something"));
+        assertParagraphNoDryRun(paragraphs.get(0), "mntner: DEV-MNT", new PasswordCredential("123 and something"));
     }
 
     @Test
@@ -240,7 +244,7 @@ public class ParagraphParserTest {
                         "descr: DEV maintainer\n" +
                         "password: pass1\n" +
                         "password: pass2\n" +
-                        "password: pass2\n"));
+                        "password: pass2\n"), updateContext);
 
         assertThat(paragraphs, hasSize(1));
         final Paragraph paragraph = paragraphs.get(0);
@@ -254,7 +258,7 @@ public class ParagraphParserTest {
                 new ContentWithCredentials("" +
                         "mntner: DEV-MNT\n" +
                         "descr: DEV maintainer\n" +
-                        " password: pass1\n"));
+                        " password: pass1\n"), updateContext);
 
         assertThat(paragraphs, hasSize(1));
         final Paragraph paragraph = paragraphs.get(0);
@@ -268,7 +272,7 @@ public class ParagraphParserTest {
                         "mntner: DEV-MNT\n" +
                         "password: password1\n\n" +
                         "mntner: DEV-MNT2\n" +
-                        "password: password2"));
+                        "password: password2"), updateContext);
 
         assertThat(paragraphs, hasSize(2));
         final Credential[] expectedCredentials = {new PasswordCredential("password1"), new PasswordCredential("password2")};
@@ -280,7 +284,7 @@ public class ParagraphParserTest {
     @Test
     public void override_before() {
         final List<Paragraph> paragraphs = subject.createParagraphs(
-                new ContentWithCredentials("override: override\nmntner: DEV-MNT\n\nmntner: DEV-MNT"));
+                new ContentWithCredentials("override: override\nmntner: DEV-MNT\n\nmntner: DEV-MNT"), updateContext);
 
         assertThat(paragraphs, hasSize(2));
         assertThat(paragraphs.get(0).getContent(), is("mntner: DEV-MNT"));
@@ -294,7 +298,7 @@ public class ParagraphParserTest {
                 "mntner: DEV-MNT\n" +
                 "override: override\n" +
                 "\n" +
-                "mntner: DEV-MNT"));
+                "mntner: DEV-MNT"), updateContext);
 
         assertThat(paragraphs, hasSize(2));
         assertThat(paragraphs.get(0).getContent(), is("mntner: DEV-MNT"));
@@ -310,7 +314,7 @@ public class ParagraphParserTest {
                         "override: override1\n" +
                         "override: override2\n" +
                         "\n" +
-                        "mntner: DEV-MNT"));
+                        "mntner: DEV-MNT"), updateContext);
 
         assertThat(paragraphs, hasSize(2));
         assertThat(paragraphs.get(0).getContent(), is("mntner: DEV-MNT"));
@@ -327,7 +331,7 @@ public class ParagraphParserTest {
                         "override: override2\n" +
                         "\n" +
                         "mntner: DEV-MNT2\n" +
-                        "override: override3\n"));
+                        "override: override3\n"), updateContext);
 
         assertThat(paragraphs, hasSize(2));
         assertThat(paragraphs.get(0).getContent(), is("mntner: DEV-MNT1"));
@@ -340,13 +344,14 @@ public class ParagraphParserTest {
         // Note: prevously, we had a regexp matcher that took unacceptable time to finish (>10 minutes).
         // Hint: don't try to match massive input with DOTALL and .*? - it will be too slow
         final String content = IOUtils.toString(new ClassPathResource("testMail/giantRawUnsignedObject").getInputStream());
-        subject.createParagraphs(new ContentWithCredentials(content + "\n\n" + content));
+        subject.createParagraphs(new ContentWithCredentials(content + "\n\n" + content), updateContext);
     }
 
-    private void assertParagraph(final Paragraph paragraph, final String content, final Credential... credentials) {
+    private void assertParagraphNoDryRun(final Paragraph paragraph, final String content, final Credential... credentials) {
         assertThat(paragraph.getContent(), is(content));
         assertThat(paragraph.getCredentials().all(), containsInAnyOrder(credentials));
-        assertThat(paragraph.isDryRun(), is(false));
+
+        verify(updateContext, never()).dryRun();
     }
 
     @Test
@@ -366,7 +371,7 @@ public class ParagraphParserTest {
                 "source:RIPE\n" +
                 "password:four";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
         assertThat(paragraphs.size(), is(4));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
@@ -393,7 +398,7 @@ public class ParagraphParserTest {
                 "source:RIPE\r\n" +
                 "password:four";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
         assertThat(paragraphs.size(), is(4));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
@@ -419,7 +424,7 @@ public class ParagraphParserTest {
                 "source:RIPE\n" +
                 "override:three";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
         assertThat(paragraphs.size(), is(4));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
@@ -460,7 +465,7 @@ public class ParagraphParserTest {
                 "=5MfA\n" +
                 "-----END PGP SIGNATURE-----\n";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
         assertThat(paragraphs.size(), is(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
@@ -526,7 +531,7 @@ public class ParagraphParserTest {
                 "=Dowb\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(secondSigned));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(secondSigned), updateContext);
 
         assertThat(paragraphs.size(), is(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
@@ -603,7 +608,7 @@ public class ParagraphParserTest {
                 "=o4kj\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(thirdSigned));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(thirdSigned), updateContext);
 
         assertThat(paragraphs.size(), is(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
@@ -646,7 +651,7 @@ public class ParagraphParserTest {
                 "=it26\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content));
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
         assertThat(paragraphs.size(), is(1));
         assertThat(paragraphs.get(0).getContent(), is(content));

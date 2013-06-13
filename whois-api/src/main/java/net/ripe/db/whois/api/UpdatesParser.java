@@ -30,10 +30,9 @@ public class UpdatesParser {
     }
 
     public List<Update> parse(final UpdateContext updateContext, final List<ContentWithCredentials> contentWithCredentials) {
-
         final List<Paragraph> paragraphs = Lists.newArrayList();
         for (final ContentWithCredentials next : contentWithCredentials) {
-            paragraphs.addAll(paragraphParser.createParagraphs(next));
+            paragraphs.addAll(paragraphParser.createParagraphs(next, updateContext));
         }
 
         final List<Update> updates = Lists.newArrayList();

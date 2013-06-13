@@ -42,10 +42,10 @@ public class UpdatesParserTest {
 
     @Before
     public void setUp() throws Exception {
-        when(paragraphParser.createParagraphs(any(ContentWithCredentials.class))).thenAnswer(new Answer<List<Paragraph>>() {
+        when(paragraphParser.createParagraphs(any(ContentWithCredentials.class), any(UpdateContext.class))).thenAnswer(new Answer<List<Paragraph>>() {
             @Override
             public List<Paragraph> answer(final InvocationOnMock invocation) throws Throwable {
-                final ContentWithCredentials content = (ContentWithCredentials)invocation.getArguments()[0];
+                final ContentWithCredentials content = (ContentWithCredentials) invocation.getArguments()[0];
                 final Set<Credential> credentials = Sets.newLinkedHashSet();
                 credentials.addAll(content.getCredentials());
                 return Arrays.asList(new Paragraph(content.getContent(), new Credentials(credentials)));
@@ -98,7 +98,7 @@ public class UpdatesParserTest {
 
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
-        assertThat(update.getDeleteReasons(), contains(new String[] {"reason"}));
+        assertThat(update.getDeleteReasons(), contains(new String[]{"reason"}));
         assertFalse(update.isOverride());
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(MNTNER_DEV_MNT)));
 
@@ -115,7 +115,7 @@ public class UpdatesParserTest {
 
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
-        assertThat(update.getDeleteReasons(), contains(new String[] {"reason"}));
+        assertThat(update.getDeleteReasons(), contains(new String[]{"reason"}));
         assertFalse(update.isOverride());
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(MNTNER_DEV_MNT)));
 
@@ -127,22 +127,22 @@ public class UpdatesParserTest {
         List<ContentWithCredentials> content = Lists.newArrayList();
         content.add(new ContentWithCredentials(
                 "mntner: UPD-MNT\n" +
-                "descr: description\n" +
-                "admin-c: TEST-RIPE\n" +
-                "mnt-by: UPD-MNT\n" +
-                "referral-by: ADMIN-MNT\n" +
-                "delete: reason\n" +
-                "upd-to: dbtest@ripe.net\n" +
-                "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
-                "source: TEST\n"));
+                        "descr: description\n" +
+                        "admin-c: TEST-RIPE\n" +
+                        "mnt-by: UPD-MNT\n" +
+                        "referral-by: ADMIN-MNT\n" +
+                        "delete: reason\n" +
+                        "upd-to: dbtest@ripe.net\n" +
+                        "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
+                        "changed: dbtest@ripe.net 20120707\n" +
+                        "source: TEST\n"));
 
         final List<Update> updates = subject.parse(updateContext, content);
 
         assertThat(updates, hasSize(1));
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
-        assertThat(update.getDeleteReasons(), contains(new String[] {"reason"}));
+        assertThat(update.getDeleteReasons(), contains(new String[]{"reason"}));
         assertFalse(update.isOverride());
         assertThat(update.getSubmittedObject(), is(RpslObject.parse("" +
                 "mntner: UPD-MNT\n" +

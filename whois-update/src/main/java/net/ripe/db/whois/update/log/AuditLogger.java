@@ -46,6 +46,7 @@ class AuditLogger {
     private final Element updates;
 
     private Map<Update, Element> updateElements = Maps.newHashMap();
+    private final Element dbupdate;
 
     AuditLogger(final DateTimeProvider dateTimeProvider, final OutputStream outputStream) {
         this.dateTimeProvider = dateTimeProvider;
@@ -56,7 +57,7 @@ class AuditLogger {
             final DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 
             doc = documentBuilder.newDocument();
-            final Element dbupdate = doc.createElement("dbupdate");
+            dbupdate = doc.createElement("dbupdate");
             dbupdate.setAttribute("created", FormatHelper.dateTimeToString(dateTimeProvider.getCurrentDateTime()));
             doc.appendChild(dbupdate);
 
@@ -101,6 +102,10 @@ class AuditLogger {
         messages.appendChild(typeElement);
     }
 
+    public void logDryRun() {
+        dbupdate.appendChild(doc.createElement("dryRun"));
+    }
+
     public void logUpdate(final Update update) {
         Element updateElement = createOrGetUpdateElement(update);
 
@@ -118,7 +123,7 @@ class AuditLogger {
         updateElement.setAttribute("time", FormatHelper.dateTimeToString(dateTimeProvider.getCurrentDateTime()));
 
         final RpslObject updatedObject = update.getSubmittedObject();
-        updateElement.appendChild(keyValue("key", updatedObject.getFormattedKey() + (update.isDryRun() ? " !DRY RUN!" : "")));
+        updateElement.appendChild(keyValue("key", updatedObject.getFormattedKey()));
         updateElement.appendChild(keyValue("operation", update.getOperation().name()));
         updateElement.appendChild(keyValue("reason", StringUtils.join(update.getDeleteReasons(), ", ")));
         updateElement.appendChild(keyValue("paragraph", update.getParagraph().getContent()));

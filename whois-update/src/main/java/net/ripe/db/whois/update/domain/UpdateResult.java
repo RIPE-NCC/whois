@@ -21,8 +21,9 @@ public class UpdateResult {
     private final UpdateStatus status;
     private final ObjectMessages objectMessages;
     private final int retryCount;
+    private final boolean dryRun;
 
-    public UpdateResult(final Update update, @Nullable final RpslObject originalObject, final RpslObject updatedObject, final Action action, final UpdateStatus status, final ObjectMessages objectMessages, final int retryCount) {
+    public UpdateResult(final Update update, @Nullable final RpslObject originalObject, final RpslObject updatedObject, final Action action, final UpdateStatus status, final ObjectMessages objectMessages, final int retryCount, final boolean dryRun) {
         this.update = update;
         this.originalObject = originalObject;
         this.updatedObject = updatedObject;
@@ -30,6 +31,7 @@ public class UpdateResult {
         this.status = status;
         this.objectMessages = objectMessages;
         this.retryCount = retryCount;
+        this.dryRun = dryRun;
     }
 
     public RpslObject getUpdatedObject() {
@@ -75,6 +77,10 @@ public class UpdateResult {
         return Action.NOOP.equals(action);
     }
 
+    public boolean isDryRun() {
+        return dryRun;
+    }
+
     public int getRetryCount() {
         return retryCount;
     }
@@ -94,7 +100,7 @@ public class UpdateResult {
     public void toString(final Writer writer) throws IOException {
         final boolean showAttributes = !UpdateStatus.SUCCESS.equals(status);
 
-        if (!showAttributes && update.isDryRun() && Action.MODIFY.equals(action) && originalObject != null) {
+        if (!showAttributes && dryRun && Action.MODIFY.equals(action) && originalObject != null) {
             writer.write(updatedObject.diff(originalObject));
             writer.write('\n');
         }

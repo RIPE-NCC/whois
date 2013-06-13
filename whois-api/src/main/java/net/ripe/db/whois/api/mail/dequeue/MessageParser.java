@@ -93,10 +93,6 @@ public class MessageParser {
                 updateContext.addGlobalMessage(UpdateMessages.invalidKeywordsFound(subject));
                 updateContext.addGlobalMessage(UpdateMessages.allKeywordsIgnored());
             } else {
-                if (keyword.equals(Keyword.DIFF)) {
-                    updateContext.addGlobalMessage(UpdateMessages.diffNotSupported());
-                }
-
                 messageBuilder.keyword(keyword);
             }
         }
@@ -104,11 +100,10 @@ public class MessageParser {
 
     private void parseReplyTo(@Nonnull final MailMessageBuilder messageBuilder, @Nonnull final MimeMessage message) throws MessagingException {
         try {
-
             Address[] replyTo = message.getReplyTo();
             if (replyTo != null && replyTo.length > 0) {
                 messageBuilder.replyTo(replyTo[0].toString());
-                messageBuilder.replyToEmail(((InternetAddress)replyTo[0]).getAddress());
+                messageBuilder.replyToEmail(((InternetAddress) replyTo[0]).getAddress());
             }
 
             Address[] from = message.getFrom();
@@ -116,7 +111,7 @@ public class MessageParser {
                 messageBuilder.from(from[0].toString());
                 if (StringUtils.isBlank(messageBuilder.getReplyTo())) {
                     messageBuilder.replyTo(from[0].toString());
-                    messageBuilder.replyToEmail(((InternetAddress)from[0]).getAddress());
+                    messageBuilder.replyToEmail(((InternetAddress) from[0]).getAddress());
                 }
             }
         } catch (AddressException e) {

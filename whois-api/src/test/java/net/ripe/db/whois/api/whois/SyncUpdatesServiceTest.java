@@ -98,7 +98,7 @@ public class SyncUpdatesServiceTest {
         final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_BAD_REQUEST));
-        assertThat(response.getEntity().toString(), is("the DIFF method is not actually supported by the Syncupdates interface"));
+        assertThat(response.getEntity().toString(), is("Invalid request"));
     }
 
     @Test
@@ -146,8 +146,8 @@ public class SyncUpdatesServiceTest {
 
         final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
 
-        assertThat(response.getStatus(), is(HttpURLConnection.HTTP_BAD_REQUEST));
-        assertThat(response.getEntity().toString(), is("the DIFF method is not actually supported by the Syncupdates interface"));
+        assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
+        assertThat(response.getEntity().toString(), is("OK"));
     }
 
     @Test
@@ -162,7 +162,7 @@ public class SyncUpdatesServiceTest {
             final String contentType = "UTF-8";
 
             doThrow(new IllegalArgumentException("some message")).
-                        when(messageHandler).handle(any(UpdateRequest.class), any(UpdateContext.class));
+                    when(messageHandler).handle(any(UpdateRequest.class), any(UpdateContext.class));
 
             subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
             fail();
@@ -183,7 +183,7 @@ public class SyncUpdatesServiceTest {
             final String contentType = "UTF-8";
 
             doThrow(new RuntimeException("some message", new IllegalStateException("some message"))).
-                        when(messageHandler).handle(any(UpdateRequest.class), any(UpdateContext.class));
+                    when(messageHandler).handle(any(UpdateRequest.class), any(UpdateContext.class));
 
             subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
             fail();

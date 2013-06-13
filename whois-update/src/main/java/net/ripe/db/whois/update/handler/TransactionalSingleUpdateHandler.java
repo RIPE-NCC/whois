@@ -66,7 +66,7 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
         updateLockDao.setUpdateLock();
         ipTreeUpdater.updateCurrent();
 
-        if (update.isDryRun()) {
+        if (updateContext.isDryRun()) {
             updateContext.addMessage(update, UpdateMessages.dryRunNotice());
         }
 
@@ -104,7 +104,7 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
 
         updateContext.setPreparedUpdate(preparedUpdate);
 
-        if (update.isDryRun()) {
+        if (updateContext.isDryRun()) {
             throw new UpdateAbortedException();
         } else if (pendingAuthentication) {
             pendingUpdateHandler.handle(preparedUpdate, updateContext);

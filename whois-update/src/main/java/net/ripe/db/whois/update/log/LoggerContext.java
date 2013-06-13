@@ -187,6 +187,10 @@ public class LoggerContext {
         }
     }
 
+    public void logDryRun() {
+        getContext().auditLogger.logDryRun();
+    }
+
     public void logAction(final UpdateContainer updateContainer, final Action action) {
         getContext().auditLogger.logAction(updateContainer.getUpdate(), action);
     }
