@@ -240,4 +240,53 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
         query_object_matches("ORG-RNO1-TEST", "organisation", "ORG-RNO1-TEST", "Ripe NCC organisation")
         noMoreMessages()
     }
+
+    def "dry run other mntners than powermaintainers"() {
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: AUTO-1
+                org-name:     Other Organisation Ltd
+                org-type:     LIR
+                descr:        test org
+                address:      street 5
+                e-mail:       org1@test.com
+                mnt-ref:      TST-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       TST-MNT2
+                changed:      dbtest@ripe.net 20120505
+                source:       TEST
+                password:     update
+                dry-run:""".stripIndent())
+
+      then:
+        response =~ /\*\*\*Error:   This org-type value can only be set by administrative mntners/
+        response =~ /\*\*\*Info:    Dry-run performed, no changes to the database have been made/
+    }
+
+    def "dry run incorrect password"() {
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+            organisation: AUTO-1
+            org-name:     Ripe NCC organisation
+            org-type:     LIR
+            address:      Singel 258
+            e-mail:       bitbucket@ripe.net
+            changed:      admin@test.com 20120505
+            mnt-by:       TST-MNT
+            mnt-ref:      TST-MNT
+            source:       TEST
+            password:     invalid
+            dry-run:
+            """.stripIndent())
+
+      then:
+        response =~ """
+            \\*\\*\\*Error:   Authorisation for \\[organisation\\] ORG-RNO1-TEST failed
+                        using "mnt-by:"
+                        not authenticated by: TST-MNT
+            """.stripIndent()
+
+        response =~ /\*\*\*Info:    Dry-run performed, no changes to the database have been made/
+    }
+
 }
