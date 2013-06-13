@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.dao.jdbc;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
+import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
 import net.ripe.db.whois.common.domain.serials.Operation;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 
 @Repository
@@ -60,7 +60,7 @@ public class JdbcVersionDao implements VersionDao {
     }
 
     @Override
-    public List<VersionInfo> findByKey(final ObjectType type, final String searchKey) {
+    public VersionLookupResult findByKey(final ObjectType type, final String searchKey) {
         final List<Integer> objectIds = jdbcTemplate.queryForList("" +
                 "SELECT object_id " +
                 "FROM last " +
@@ -71,7 +71,7 @@ public class JdbcVersionDao implements VersionDao {
                 searchKey);
 
         if (objectIds.isEmpty()) {
-            return Collections.emptyList();
+            return null;
         }
 
         final List<VersionInfo> versionInfos = Lists.newArrayList();
@@ -92,12 +92,12 @@ public class JdbcVersionDao implements VersionDao {
                         public VersionInfo mapRow(final ResultSet rs, final int rowNum) throws SQLException {
                             return new VersionInfo(
                                     rs.getBoolean(1), rs.getInt(2), rs.getInt(3), rs.getLong(5),
-                                    Operation.getByCode(rs.getInt(4)), type, searchKey);
+                                    Operation.getByCode(rs.getInt(4)));
                         }
                     },
                     objectId)
             );
         }
-        return versionInfos;
+        return new VersionLookupResult(versionInfos, type, searchKey);
     }
 }

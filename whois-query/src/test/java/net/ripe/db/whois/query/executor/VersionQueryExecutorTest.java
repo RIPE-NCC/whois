@@ -2,15 +2,16 @@ package net.ripe.db.whois.query.executor;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.dao.VersionDao;
+import net.ripe.db.whois.common.dao.VersionInfo;
+import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.dao.VersionDao;
-import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.QueryMessages;
-import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.query.planner.VersionResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.joda.time.DateTimeZone;
@@ -24,7 +25,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
@@ -64,7 +64,7 @@ public class VersionQueryExecutorTest {
 
     @Test
     public void notFoundList() {
-        when(versionDao.findByKey(ObjectType.IRT, "IRT-THISONE")).thenReturn(new ArrayList<VersionInfo>());
+        when(versionDao.findByKey(ObjectType.IRT, "IRT-THISONE")).thenReturn(null);
 
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(Query.parse("--list-versions IRT-THISONE"), responseHandler);
@@ -78,9 +78,8 @@ public class VersionQueryExecutorTest {
         setupVersionMock(versionInfo2, 2, 1334066282L);
         setupVersionMock(versionInfo3, 3, 1335336916L);
 
-        when(versionDao.findByKey(ObjectType.AUT_NUM, "AS2050")).thenReturn(Lists.newArrayList(
-                versionInfo1, versionInfo2, versionInfo3
-        ));
+        final VersionLookupResult as2050 = new VersionLookupResult(Lists.newArrayList(versionInfo1, versionInfo2, versionInfo3), ObjectType.AUT_NUM, "AS2050");
+        when(versionDao.findByKey(ObjectType.AUT_NUM, "AS2050")).thenReturn(as2050);
         when(versionDao.getObjectType("AS2050")).thenReturn(ImmutableList.of(ObjectType.AUT_NUM));
 
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
@@ -106,9 +105,8 @@ public class VersionQueryExecutorTest {
         setupVersionMock(versionInfo3, 3, 1335336916L);
         when(versionInfo3.getOperation()).thenReturn(Operation.DELETE);
 
-        when(versionDao.findByKey(ObjectType.AUT_NUM, "AS2050")).thenReturn(Lists.newArrayList(
-                versionInfo1, versionInfo2, versionInfo3
-        ));
+        final VersionLookupResult as2050 = new VersionLookupResult(Lists.newArrayList(versionInfo1, versionInfo2, versionInfo3), ObjectType.AUT_NUM, "AS2050");
+        when(versionDao.findByKey(ObjectType.AUT_NUM, "AS2050")).thenReturn(as2050);
 
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(Query.parse("--list-versions AS2050"), responseHandler);
@@ -125,9 +123,8 @@ public class VersionQueryExecutorTest {
         setupVersionMock(versionInfo2, 2, 1334066282L);
         when(versionInfo2.getOperation()).thenReturn(Operation.DELETE);
 
-        when(versionDao.findByKey(ObjectType.AUT_NUM, "AS2050")).thenReturn(Lists.newArrayList(
-                versionInfo1, versionInfo2
-        ));
+        final VersionLookupResult as2050 = new VersionLookupResult(Lists.newArrayList(versionInfo1, versionInfo2), ObjectType.AUT_NUM, "AS2050");
+        when(versionDao.findByKey(ObjectType.AUT_NUM, "AS2050")).thenReturn(as2050);
 
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(Query.parse("--show-version 1 AS2050"), responseHandler);
@@ -139,14 +136,17 @@ public class VersionQueryExecutorTest {
 
     @Test
     public void showInfo_version_too_high() {
-        when(versionDao.findByKey(ObjectType.AUT_NUM, "AS2050")).thenReturn(Lists.<VersionInfo>newArrayList());
+        when(versionDao.getObjectType("AS2050")).thenReturn(Lists.newArrayList(ObjectType.AUT_NUM));
+        setupVersionMock(versionInfo1, 1, 1312210585L);
+        final VersionLookupResult as2050 = new VersionLookupResult(Lists.newArrayList(versionInfo1), ObjectType.AUT_NUM, "AS2050");
+        when(versionDao.findByKey(ObjectType.AUT_NUM, "AS2050")).thenReturn(as2050);
 
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
-        subject.execute(Query.parse("--show-version 1 AS2050"), responseHandler);
+        subject.execute(Query.parse("--show-version 2 AS2050"), responseHandler);
 
         final Iterator<? extends ResponseObject> iterator = responseHandler.getResponseObjects().iterator();
         assertThat(iterator.hasNext(), is(true));
-        assertThat(new String(iterator.next().toByteArray()), is(QueryMessages.versionOutOfRange(0).toString()));
+        assertThat(new String(iterator.next().toByteArray()), is(QueryMessages.versionOutOfRange(1).toString()));
     }
 
     @Test
@@ -165,11 +165,9 @@ public class VersionQueryExecutorTest {
         when(versionDao.getObjectType("TP1-TEST")).thenReturn(Lists.newArrayList(ObjectType.ROLE));
         setupVersionMock(versionInfo1, 1, 1312210585L);
         setupVersionMock(versionInfo2, 2, 1334066282L);
-        when(versionInfo1.getObjectType()).thenReturn(ObjectType.ROLE);
-        when(versionInfo2.getObjectType()).thenReturn(ObjectType.ROLE);
-        when(versionDao.findByKey(ObjectType.ROLE, "TP1-TEST")).thenReturn(Lists.newArrayList(
-                versionInfo1, versionInfo2
-        ));
+
+        final VersionLookupResult tp1 = new VersionLookupResult(Lists.newArrayList(versionInfo1, versionInfo2), ObjectType.ROLE, "TP1-TEST");
+        when(versionDao.findByKey(ObjectType.ROLE, "TP1-TEST")).thenReturn(tp1);
 
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(Query.parse("--list-versions TP1-TEST"), responseHandler);
@@ -184,11 +182,10 @@ public class VersionQueryExecutorTest {
         when(versionDao.getObjectType("TP1-TEST")).thenReturn(Lists.newArrayList(ObjectType.PERSON));
         setupVersionMock(versionInfo1, 1, 1312210585L);
         setupVersionMock(versionInfo2, 2, 1334066282L);
-        when(versionInfo1.getObjectType()).thenReturn(ObjectType.PERSON);
-        when(versionInfo2.getObjectType()).thenReturn(ObjectType.PERSON);
-        when(versionDao.findByKey(ObjectType.PERSON, "TP1-TEST")).thenReturn(Lists.newArrayList(
-                versionInfo1, versionInfo2
-        ));
+
+        final VersionLookupResult tp1 = new VersionLookupResult(Lists.newArrayList(versionInfo1, versionInfo2), ObjectType.PERSON, "TP1-TEST");
+        when(versionDao.findByKey(ObjectType.PERSON, "TP1-TEST")).thenReturn(tp1);
+
         final RpslObject rpslObject = RpslObject.parse("" +
                 "person: Tom Post\n" +
                 "nic-hdl: TP1-TEST");
@@ -203,9 +200,7 @@ public class VersionQueryExecutorTest {
     }
 
     private void setupVersionMock(VersionInfo mock, int objectId, long timestamp) {
-        when(mock.getKey()).thenReturn("AS2050");
         when(mock.getObjectId()).thenReturn(objectId);
-        when(mock.getObjectType()).thenReturn(ObjectType.AUT_NUM);
         when(mock.getOperation()).thenReturn(Operation.UPDATE);
         when(mock.getTimestamp()).thenReturn(new VersionDateTime(new LocalDateTime(timestamp * 1000L, DateTimeZone.UTC)));
         when(mock.getSequenceId()).thenReturn(objectId - 1);

@@ -136,6 +136,7 @@ public class WhoisRestService {
         return handleQueryAndStreamResponse(query, request, remoteAddress, contextId, parameters);
     }
 
+    // TODO: [AH] refactor this spaghetti
     private Response handleVersionQuery(final Query query, final String source, final String key, final InetAddress remoteAddress, final int contextId) {
         final ApiResponseHandlerVersions apiResponseHandlerVersions = new ApiResponseHandlerVersions();
         queryHandler.streamResults(query, remoteAddress, contextId, apiResponseHandlerVersions);

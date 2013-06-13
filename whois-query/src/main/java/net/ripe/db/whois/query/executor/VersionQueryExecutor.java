@@ -1,23 +1,24 @@
 package net.ripe.db.whois.query.executor;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.domain.serials.Operation;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
+import net.ripe.db.whois.common.dao.VersionLookupResult;
+import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.domain.VersionDateTime;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.*;
 import net.ripe.db.whois.query.planner.VersionResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-// TODO [AK] This thing has become unmaintainable, so refactor is in place
 @Component
 public class VersionQueryExecutor implements QueryExecutor {
     private final VersionDao versionDao;
@@ -46,6 +47,7 @@ public class VersionQueryExecutor implements QueryExecutor {
     public void execute(final Query query, final ResponseHandler responseHandler) {
         final Iterable<? extends ResponseObject> responseObjects = query.isVersionList() ? getAllVersions(query) : getVersion(query);
 
+        // TODO: [AH] refactor this spaghetti
         for (final ResponseObject responseObject : versionResponseDecorator.getResponse(responseObjects)) {
             if (query.isObjectVersion() && responseObject instanceof RpslObject) {
                 final VersionWithRpslResponseObject withVersion = new VersionWithRpslResponseObject((RpslObject) responseObject, query.getObjectVersion());
@@ -57,41 +59,35 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     private Iterable<? extends ResponseObject> getAllVersions(final Query query) {
-        final List<VersionInfo> versions = getVersionInfo(query);
-        List<VersionInfo> concern = filterVersionInfo(versions);
-        if (concern.isEmpty()) {
+        VersionLookupResult res = getVersionInfo(query);
+
+        if (res == null) {
             return Collections.emptyList();
         }
 
-        final List<ResponseObject> messages = Lists.newArrayList();
-        final VersionInfo firstVersionInfo = concern.get(0);
-        final ObjectType objectType = firstVersionInfo.getObjectType();
+        final ObjectType objectType = res.getObjectType();
 
         if (objectType == ObjectType.PERSON || objectType == ObjectType.ROLE) {
             return Collections.singletonList(new MessageObject(QueryMessages.versionPersonRole(objectType.getName().toUpperCase(), query.getSearchValue())));
         }
 
+        final List<ResponseObject> messages = Lists.newArrayList();
         messages.add(new MessageObject(QueryMessages.versionListHeader(objectType.getName().toUpperCase(), query.getCleanSearchValue())));
 
-        if (firstVersionInfo.getOperation() == Operation.DELETE) {
-            messages.add(new DeletedVersionResponseObject(firstVersionInfo.getTimestamp(), firstVersionInfo.getObjectType(), firstVersionInfo.getKey()));
-            if (concern.size() == 1) {
-                return messages;
-            }
-            concern = concern.subList(1, concern.size());
+        final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
+        final String pkey = res.getPkey();
+        if (lastDeletionTimestamp != null) {
+            messages.add(new DeletedVersionResponseObject(lastDeletionTimestamp, objectType, pkey));
         }
 
-        // Minimum is the column header size
-        int versionPadding = String.valueOf(concern.size()).length();
-        if (versionPadding < VERSION_HEADER.length()) {
-            versionPadding = VERSION_HEADER.length();
-        }
+        final List<VersionInfo> versionInfos = res.getVersionInfos();
+        int versionPadding = getPadding(versionInfos);
 
         messages.add(new MessageObject(String.format("\n%-" + versionPadding + "s  %-16s  %-7s\n", VERSION_HEADER, DATE_HEADER, OPERATION_HEADER)));
 
-        for (int i = 0; i < concern.size(); i++) {
-            final VersionInfo versionInfo = concern.get(i);
-            messages.add(new VersionResponseObject(versionPadding, versionInfo.getOperation(), i + 1, versionInfo.getTimestamp(), versionInfo.getObjectType(), versionInfo.getKey()));
+        for (int i = 0; i < versionInfos.size(); i++) {
+            final VersionInfo versionInfo = versionInfos.get(i);
+            messages.add(new VersionResponseObject(versionPadding, versionInfo.getOperation(), i + 1, versionInfo.getTimestamp(), objectType, pkey));
         }
 
         messages.add(new MessageObject(""));
@@ -99,34 +95,34 @@ public class VersionQueryExecutor implements QueryExecutor {
         return messages;
     }
 
-    private List<VersionInfo> filterVersionInfo(List<VersionInfo> versions) {
-        if (versions.isEmpty()) {
-            return Collections.emptyList();
+    private int getPadding(List<VersionInfo> versionInfos) {
+        // Minimum is the column header size
+        int versionPadding = String.valueOf(versionInfos.size()).length();
+        if (versionPadding < VERSION_HEADER.length()) {
+            versionPadding = VERSION_HEADER.length();
         }
-        for (int i = versions.size() - 1; i >= 0; i--) {
-            if (versions.get(i).getOperation() == Operation.DELETE) {
-                return versions.subList(i, versions.size());
-            }
-        }
-        return versions;
+        return versionPadding;
     }
 
     private Iterable<? extends ResponseObject> getVersion(final Query query) {
+        VersionLookupResult res = getVersionInfo(query);
+        if (res == null) {
+            return Collections.emptyList();
+        }
+
+        final List<VersionInfo> versionInfos = res.getVersionInfos();
         final int version = query.getObjectVersion();
-        List<VersionInfo> concern = filterVersionInfo(getVersionInfo(query));
 
-        if (!concern.isEmpty() && concern.get(0).getOperation() == Operation.DELETE) {
-            if (concern.size() == 1) {
-                return Collections.singletonList(new MessageObject(QueryMessages.versionDeleted(concern.get(0).getTimestamp().toString())));
-            }
-            concern = concern.subList(1, concern.size());
+        final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
+        if (versionInfos.isEmpty() && lastDeletionTimestamp != null) {
+            return Collections.singletonList(new MessageObject(QueryMessages.versionDeleted(lastDeletionTimestamp.toString())));
         }
 
-        if (version < 1 || version > concern.size()) {
-            return Collections.singletonList(new MessageObject(QueryMessages.versionOutOfRange(concern.size())));
+        if (version < 1 || version > versionInfos.size()) {
+            return Collections.singletonList(new MessageObject(QueryMessages.versionOutOfRange(versionInfos.size())));
         }
 
-        final VersionInfo info = concern.get(version - 1);
+        final VersionInfo info = versionInfos.get(version - 1);
         final RpslObject rpslObject = versionDao.getRpslObject(info);
 
         if (rpslObject.getType() == ObjectType.PERSON || rpslObject.getType() == ObjectType.ROLE) {
@@ -134,7 +130,7 @@ public class VersionQueryExecutor implements QueryExecutor {
         }
 
         return Lists.newArrayList(
-                new MessageObject(QueryMessages.versionInformation(version, (version == concern.size()), rpslObject.getKey(), info.getOperation(), info.getTimestamp())),
+                new MessageObject(QueryMessages.versionInformation(version, (version == versionInfos.size()), rpslObject.getKey(), info.getOperation(), info.getTimestamp())),
                 rpslObject);
     }
 
@@ -146,14 +142,15 @@ public class VersionQueryExecutor implements QueryExecutor {
         return versionDao.getObjectType(query.getCleanSearchValue());
     }
 
-    public List<VersionInfo> getVersionInfo(final Query query) {
+    @CheckForNull
+    public VersionLookupResult getVersionInfo(final Query query) {
         for (ObjectType type : getObjectType(query)) {
-            final List<VersionInfo> found = versionDao.findByKey(type, query.getCleanSearchValue());
-            if (!found.isEmpty()) {
+            final VersionLookupResult found = versionDao.findByKey(type, query.getCleanSearchValue());
+            if (found != null) {
                 return found;
             }
         }
 
-        return Collections.emptyList();
+        return null;
     }
 }

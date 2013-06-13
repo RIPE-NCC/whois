@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -20,12 +21,14 @@ public class UpdateNotifier {
     private final RpslObjectDao rpslObjectDao;
     private final ResponseFactory responseFactory;
     private final MailGateway mailGateway;
+    private final VersionDao versionDao;
 
     @Autowired
-    public UpdateNotifier(final RpslObjectDao rpslObjectDao, final ResponseFactory responseFactory, final MailGateway mailGateway) {
+    public UpdateNotifier(final RpslObjectDao rpslObjectDao, final ResponseFactory responseFactory, final MailGateway mailGateway, final VersionDao versionDao) {
         this.rpslObjectDao = rpslObjectDao;
         this.responseFactory = responseFactory;
         this.mailGateway = mailGateway;
+        this.versionDao = versionDao;
     }
 
     public void sendNotifications(final UpdateRequest updateRequest, final UpdateContext updateContext) {
@@ -36,6 +39,8 @@ public class UpdateNotifier {
             if (preparedUpdate != null) {
                 final OverrideOptions overrideOptions = preparedUpdate.getOverrideOptions();
                 if (!overrideOptions.isNotifyOverride() || overrideOptions.isNotify()) {
+
+
                     addNotifications(notifications, preparedUpdate, updateContext);
                 }
             }

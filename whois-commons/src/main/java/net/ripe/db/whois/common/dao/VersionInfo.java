@@ -3,8 +3,6 @@ package net.ripe.db.whois.common.dao;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
-import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 
 public class VersionInfo implements Identifiable, Comparable<VersionInfo> {
     private final boolean inLast;
@@ -13,17 +11,12 @@ public class VersionInfo implements Identifiable, Comparable<VersionInfo> {
     private final VersionDateTime timestamp;
     private final Operation operation;
 
-    private final ObjectType objectType;
-    private final String objectKey;
-
-    public VersionInfo(final boolean inLast, final Integer objectId, final Integer sequenceId, final Long timestamp, final Operation operation, final ObjectType objectType, final String key) {
+    public VersionInfo(final boolean inLast, final Integer objectId, final Integer sequenceId, final Long timestamp, final Operation operation) {
         this.inLast = inLast;
         this.objectId = objectId;
         this.sequenceId = sequenceId;
         this.timestamp = new VersionDateTime(timestamp);
         this.operation = operation;
-        this.objectType = objectType;
-        this.objectKey = key;
     }
 
     public boolean isInLast() {
@@ -47,14 +40,6 @@ public class VersionInfo implements Identifiable, Comparable<VersionInfo> {
         return timestamp;
     }
 
-    public ObjectType getObjectType() {
-        return objectType;
-    }
-
-    public String getKey() {
-        return objectKey;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -65,8 +50,6 @@ public class VersionInfo implements Identifiable, Comparable<VersionInfo> {
         return inLast == that.inLast
                 && objectId == that.objectId
                 && sequenceId == that.sequenceId
-                && objectKey.equals(that.objectKey)
-                && objectType == that.objectType
                 && operation == that.operation
                 && timestamp.equals(that.timestamp);
     }
@@ -78,23 +61,15 @@ public class VersionInfo implements Identifiable, Comparable<VersionInfo> {
         result = 31 * result + sequenceId;
         result = 31 * result + timestamp.hashCode();
         result = 31 * result + operation.hashCode();
-        result = 31 * result + objectType.hashCode();
-        result = 31 * result + objectKey.hashCode();
         return result;
     }
 
     @Override
     public int compareTo(final VersionInfo o) {
-        final int result = ObjectTemplate.getTemplate(objectType).compareTo(ObjectTemplate.getTemplate(o.getObjectType()));
-        if (result != 0) {
-            return result;
+        final int objectIdComp = this.objectId - o.objectId;
+        if (objectIdComp != 0) {
+            return objectIdComp;
         }
-
-        int cmp = objectKey.compareTo(o.objectKey);
-        if (cmp != 0) {
-            return cmp;
-        }
-
         return this.sequenceId - o.sequenceId;
     }
 
@@ -106,8 +81,6 @@ public class VersionInfo implements Identifiable, Comparable<VersionInfo> {
                 ", sequenceId=" + sequenceId +
                 ", timestamp=" + timestamp +
                 ", operation=" + operation +
-                ", objectType=" + objectType +
-                ", objectKey='" + objectKey + '\'' +
                 '}';
     }
 }

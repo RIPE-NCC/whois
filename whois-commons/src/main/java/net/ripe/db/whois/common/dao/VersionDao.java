@@ -8,7 +8,7 @@ import java.util.List;
 public interface VersionDao {
     RpslObject getRpslObject(VersionInfo info);
 
-    List<VersionInfo> findByKey(ObjectType type, String searchKey);
+    VersionLookupResult findByKey(ObjectType type, String searchKey);
 
     List<ObjectType> getObjectType(String searchKey);
 }
