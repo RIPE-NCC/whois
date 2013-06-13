@@ -289,4 +289,48 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /\*\*\*Info:    Dry-run performed, no changes to the database have been made/
     }
 
+    def "dry run delete organisation"() {
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+            organisation: AUTO-1
+            org-name:     Ripe NCC organisation
+            org-type:     OTHER
+            address:      Singel 258
+            e-mail:       bitbucket@ripe.net
+            changed:      admin@test.com 20120505
+            mnt-by:       TST-MNT
+            mnt-ref:      TST-MNT
+            source:       TEST
+
+            password:     update
+            """.stripIndent())
+
+      then:
+        response =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
+        queryObject("ORG-RNO1-TEST", "organisation", "ORG-RNO1-TEST")
+        noMoreMessages()
+
+      when:
+        def delete = syncUpdate new SyncUpdate(data: """\
+            organisation: ORG-RNO1-TEST
+            org-name:     Ripe NCC organisation
+            org-type:     OTHER
+            address:      Singel 258
+            e-mail:       bitbucket@ripe.net
+            changed:      admin@test.com 20120505
+            mnt-by:       TST-MNT
+            mnt-ref:      TST-MNT
+            source:       TEST
+            delete:       dry run
+
+            password:     update
+            dry-run:      some reason
+            """.stripIndent())
+
+      then:
+        delete =~ /Delete SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
+        delete =~ /\*\*\*Info:    Dry-run performed, no changes to the database have been made/
+        queryObject("ORG-RNO1-TEST", "organisation", "ORG-RNO1-TEST")
+        noMoreMessages()
+    }
 }
