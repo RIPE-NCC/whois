@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
+import net.ripe.db.whois.common.dao.jdbc.IndexDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
@@ -77,6 +78,7 @@ public class WhoisFixture {
     protected IpTreeUpdater ipTreeUpdater;
     protected SourceContext sourceContext;
     protected UnrefCleanup unrefCleanup;
+    protected IndexDao indexDao;
     protected String apiKey;
 
     private static final String SYNCUPDATES_INSTANCE = "TEST";
@@ -121,6 +123,7 @@ public class WhoisFixture {
         ipTreeUpdater = applicationContext.getBean(IpTreeUpdater.class);
         sourceContext = applicationContext.getBean(SourceContext.class);
         unrefCleanup = applicationContext.getBean(UnrefCleanup.class);
+        indexDao = applicationContext.getBean(IndexDao.class);
         apiKey = applicationContext.getBeanFactory().resolveEmbeddedValue("${api.key}");
 
         databaseHelper.setup();
@@ -368,5 +371,9 @@ public class WhoisFixture {
 
     public void setIpRanges(String... ranges) {
         ipRanges.setRipeRanges(ranges);
+    }
+
+    public void rebuildIndexes() {
+        indexDao.rebuild();
     }
 }

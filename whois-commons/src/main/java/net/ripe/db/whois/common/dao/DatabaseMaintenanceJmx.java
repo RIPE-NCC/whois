@@ -61,4 +61,19 @@ public class DatabaseMaintenanceJmx extends JmxBase {
             }
         });
     }
+
+    @ManagedOperation(description = "Rebuild indexes for specified object")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "objectId", description = "Id of the object to rebuild"),
+            @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation")
+    })
+    public String rebuildIndexesForObject(final int objectId, final String comment) {
+        return invokeOperation("Rebuild indexes for object: " + objectId, comment, new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                indexDao.rebuildForObject(objectId);
+                return "Rebuilt indexes for object: " + objectId;
+            }
+        });
+    }
 }
