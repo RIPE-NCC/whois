@@ -46,7 +46,8 @@ public class SearchQueryExecutor implements QueryExecutor {
                 || query.isTemplate()
                 || query.isVerbose()
                 || query.isVersionList()
-                || query.isObjectVersion()) {
+                || query.isObjectVersion()
+                || query.isVersionDiff()) {
             return false;
         }
 

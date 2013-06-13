@@ -90,6 +90,14 @@ public final class QueryMessages {
                 QueryFlag.LIST_VERSIONS);
     }
 
+    public static Message versionDifferenceHeader(final int earlierVersion, final int laterVersion, final CIString key) {
+        return new Message(Type.INFO, ""
+                + "%% Difference between version %d and %d of object \"%s\"\n",
+                earlierVersion,
+                laterVersion,
+                key);
+    }
+
     public static Message versionDeleted(final CharSequence deletionTime) {
         return new Message(Type.INFO,
                 "%% This object was deleted on %-16s\n", deletionTime);

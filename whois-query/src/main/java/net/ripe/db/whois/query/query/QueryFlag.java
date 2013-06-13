@@ -165,6 +165,11 @@ public enum QueryFlag {
     LIST_VERSIONS(new Builder("list-versions")
             .describedAs("Returns a list of historical versions of the object")),
 
+    DIFF_VERSIONS(new Builder("diff-versions")
+            .withSearchKey("<version-number:version-number>")
+            .describedAs("Returns a difference between two versions of the object")
+            .requiresArgument(String.class)),
+
     SHOW_VERSION(new Builder("show-version")
             .withSearchKey("<version-number>")
             .describedAs("Returns historical version of the object")

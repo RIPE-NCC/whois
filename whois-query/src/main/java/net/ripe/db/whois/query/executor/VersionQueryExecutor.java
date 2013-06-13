@@ -40,12 +40,12 @@ public class VersionQueryExecutor implements QueryExecutor {
 
     @Override
     public boolean supports(final Query query) {
-        return query.isVersionList() || query.isObjectVersion();
+        return query.isVersionList() || query.isObjectVersion() || query.isVersionDiff();
     }
 
     @Override
     public void execute(final Query query, final ResponseHandler responseHandler) {
-        final Iterable<? extends ResponseObject> responseObjects = query.isVersionList() ? getAllVersions(query) : getVersion(query);
+        final Iterable<? extends ResponseObject> responseObjects = getResponseObjects(query);
 
         // TODO: [AH] refactor this spaghetti
         for (final ResponseObject responseObject : versionResponseDecorator.getResponse(responseObjects)) {
@@ -55,6 +55,16 @@ public class VersionQueryExecutor implements QueryExecutor {
             } else {
                 responseHandler.handle(responseObject);
             }
+        }
+    }
+
+    private Iterable<? extends ResponseObject> getResponseObjects(final Query query) {
+        if (query.isVersionList()) {
+            return getAllVersions(query);
+        } else if (query.isVersionDiff()) {
+            return getVersionDiffs(query);
+        } else {
+            return getVersion(query);
         }
     }
 
@@ -152,5 +162,40 @@ public class VersionQueryExecutor implements QueryExecutor {
         }
 
         return null;
+    }
+
+    private Iterable<? extends ResponseObject> getVersionDiffs(final Query query) {
+        VersionLookupResult res = getVersionInfo(query);
+        if (res == null) {
+            return Collections.emptyList();
+        }
+
+        final List<VersionInfo> versionInfos = res.getVersionInfos();
+        final int[] versions = query.getObjectVersions();
+
+        final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
+        if (versionInfos.isEmpty() && lastDeletionTimestamp != null) {
+            return Collections.singletonList(new MessageObject(QueryMessages.versionDeleted(lastDeletionTimestamp.toString())));
+        }
+
+        if ((versions[0] < 1 || versions[0] > versionInfos.size()) ||
+                (versions[1] < 1 || versions[1] > versionInfos.size())) {
+            return Collections.singletonList(new MessageObject(QueryMessages.versionOutOfRange(versionInfos.size())));
+        }
+
+        final VersionInfo firstInfo = versionInfos.get(versions[0] - 1);
+        final RpslObject firstObject = versionDao.getRpslObject(firstInfo);
+
+        if (firstObject.getType() == ObjectType.PERSON || firstObject.getType() == ObjectType.ROLE) {
+            return Collections.singletonList(new MessageObject(QueryMessages.versionPersonRole(firstObject.getType().getName().toUpperCase(), query.getSearchValue())));
+        }
+
+        final VersionInfo secondInfo = versionInfos.get(versions[1] - 1);
+        final RpslObject secondObject = versionDao.getRpslObject(secondInfo);
+
+        return Lists.newArrayList(
+                new MessageObject(QueryMessages.versionDifferenceHeader(versions[0], versions[1], firstObject.getKey())),
+                new MessageObject(secondObject.diff(firstObject)));
+
     }
 }

@@ -836,23 +836,48 @@ public class QueryTest {
 
     @Test
     public void allow_only_k_and_V_options_for_version_queries() {
-        Query.parse("--show-version 1 AS12 -k");
-        Query.parse("--show-version 1 AS12 -V fred");
-        Query.parse("--show-version 1 AS12 -k -V fred");
-        Query.parse("--list-versions AS12 -k -V fred");
-        Query.parse("--list-versions AS12 -V fred");
-        Query.parse("--list-versions AS12 -k");
+        final String[] validQueries = {
+            "--show-version 1 AS12 -k",
+            "--show-version 1 AS12 -V fred",
+            "--show-version 1 AS12 -k -V fred",
+            "--list-versions AS12 -k -V fred",
+            "--list-versions AS12 -V fred",
+            "--list-versions AS12 -k",
+            "--diff-versions 1:2 AS12",
+            "--diff-versions 1:2 AS12 -k",
+            "--diff-versions 1:2 AS12 -V fred"
+        };
 
-        try {
-            Query.parse("--show-version 1 AS12 -B");
-            Query.parse("--show-version 1 AS12 -T aut-num");
-            Query.parse("--list-versions AS12 -G");
-            Query.parse("--list-versions AS12 -V fred --no-tag-info");
-            Query.parse("--list-versions AS12 -k --show-version 1 AS12");
-            fail("should not succeed");
-        } catch (final QueryException e) {
-            assertThat(e.getMessage(), containsString("cannot be used together"));
+        for (String query : validQueries) {
+            Query.parse(query);
         }
+
+        final String[] invalidQueries = {
+//            "--show-version 1 AS12 -B",                   // TODO: [ES] should this be valid?
+            "--show-version 1 AS12 -T aut-num",
+            "--list-versions AS12 -G",
+            "--list-versions AS12 -V fred --no-tag-info",
+            "--list-versions AS12 -k --show-version 1 AS12",
+            "--diff-versions 1:2 AS12 -k --show-version 1",
+            "--diff-versions 1:2 AS12 -B",
+            "--diff-versions 1:2 AS12 -V fred --no-tag-info"
+        };
+
+        for (String query : invalidQueries) {
+            try {
+                Query.parse(query);
+                fail(String.format("%s should not succeed", query));
+            } catch (final QueryException e) {
+                assertThat(e.getMessage(), containsString("cannot be used together"));
+            }
+        }
+    }
+
+    @Test
+    public void versionDiffQuery() {
+        Query query = Query.parse("--diff-versions 1:2 10.0.0.0");
+        assertThat(query.hasOption(QueryFlag.DIFF_VERSIONS), is(true));
+        assertThat(query.isVersionDiff(), is(true));
     }
 
     @Test

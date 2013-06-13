@@ -21,6 +21,7 @@ class CombinationValidator implements QueryValidator {
 
         final Map<QueryFlag, List<QueryFlag>> limitedCombinations = Maps.newHashMap();
         limitedCombinations.put(QueryFlag.LIST_VERSIONS, Lists.newArrayList(QueryFlag.PERSISTENT_CONNECTION, QueryFlag.CLIENT));
+        limitedCombinations.put(QueryFlag.DIFF_VERSIONS, Lists.newArrayList(QueryFlag.PERSISTENT_CONNECTION, QueryFlag.CLIENT));
         limitedCombinations.put(QueryFlag.SHOW_VERSION, Lists.newArrayList(QueryFlag.PERSISTENT_CONNECTION, QueryFlag.CLIENT, QueryFlag.NO_FILTERING));
 
         for (Map.Entry<QueryFlag, List<QueryFlag>> limitedCombinationEntry : limitedCombinations.entrySet()) {

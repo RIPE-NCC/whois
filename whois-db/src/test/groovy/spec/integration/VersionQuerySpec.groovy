@@ -1,5 +1,4 @@
 package spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.source.Source
 import spec.domain.SyncUpdate
@@ -1022,4 +1021,121 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         after =~ /2.*ADD\/UPD/
         after != ~/3.*ADD\/UPD/
     }
+
+    def "--diff-versions 1:2 TST-MNT"() {
+      when:
+        def response = query "--diff-versions 1:2 " + pkey
+
+      then:
+        response =~ header
+        !(response =~ advert)
+        !(response =~ /ERROR:/)
+
+        response =~ "% Difference between version 1 and 2 of object \"TST-MNT\""
+        response =~ "@@ -1,2 \\+1,10 @@\n" +
+                " mntner:         TST-MNT\n" +
+                "\\+descr:          MNTNER for test\n" +
+                "\\+admin-c:        TP1-TEST\n" +
+                "\\+upd-to:         dbtest@ripe.net\n" +
+                "\\+auth:           MD5-PW \\\$1\\\$d9fKeTr2\\\$Si7YudNf4rUGmR71n/cqk/  #test\n" +
+                "\\+mnt-by:         OWNER-MNT\n" +
+                "\\+referral-by:    TST-MNT\n" +
+                "\\+changed:        dbtest@ripe.net\n" +
+                "\\+source:         TEST"
+
+      where:
+        pkey << ["TST-MNT"]
+    }
+
+    def "--diff-versions 2:1 TST-MNT"() {
+      when:
+        def response = query "--diff-versions 2:1 " + pkey
+
+      then:
+        response =~ header
+        !(response =~ advert)
+        !(response =~ /ERROR:/)
+
+        response =~ "% Difference between version 2 and 1 of object \"TST-MNT\""
+        response =~ "@@ -1,10 \\+1,2 @@\n" +
+                " mntner:         TST-MNT\n"
+                "-descr:          MNTNER for test\n" +
+                "-admin-c:        TP1-TEST\n" +
+                "-upd-to:         dbtest@ripe.net\n" +
+                "-auth:           MD5-PW \\\$1\\\$d9fKeTr2\\\$Si7YudNf4rUGmR71n/cqk/  #test\n" +
+                "-mnt-by:         OWNER-MNT\n" +
+                "-referral-by:    TST-MNT\n" +
+                "-changed:        dbtest@ripe.net\n" +
+                "-source:         TEST"
+
+      where:
+        pkey << ["TST-MNT"]
+    }
+
+    def "--diff-versions 0:1 TST-MNT"() {
+      when:
+        def response = query "--diff-versions 0:1 " + pkey
+
+      then:
+        response =~ header
+        response =~ "% diff version number must be greater than 0\n%\n" +
+                "%ERROR:111: invalid option supplied"
+
+      where:
+        pkey << ["TST-MNT"]
+    }
+
+    def "--diff-versions 1:3 TST-MNT"() {
+      when:
+        def response = query "--diff-versions 1:3 " + pkey
+
+      then:
+        response =~ header
+        response =~ "%ERROR:117: version cannot exceed 2 for this object"
+
+      where:
+        pkey << ["TST-MNT"]
+    }
+
+    def "--diff-versions 1:2 TP1-TEST"() {
+      when:
+        def response = query "--diff-versions 1:2 " + pkey
+
+      then:
+        response =~ header
+        response =~ "% Version history for PERSON object \"TP1-TEST\"\n" +
+                "% History not available for PERSON and ROLE objects."
+
+      where:
+        pkey << ["TP1-TEST"]
+    }
+
+    def "--diff-versions 1:2 TP3-TEST (deleted)"() {
+     given:
+        syncUpdate(new SyncUpdate(data: """\
+                    person:         Test Person3
+                    address:        Hebrew Road
+                    address:        Burnley
+                    address:        UK
+                    phone:          +44 282 411141
+                    nic-hdl:        TP3-TEST
+                    mnt-by:         TST-MNT
+                    changed:        dbtest@ripe.net 20120101
+                    source:         TEST
+                    password: test
+                    delete: reason
+                    """.stripIndent()))
+
+      when:
+        def response = query "--diff-versions 1:2 " + pkey
+
+      then:
+        response =~ header
+        response =~ "% This object was deleted on \\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}\n"
+
+      where:
+        pkey << ["TP3-TEST"]
+    }
+
+
 }
