@@ -249,11 +249,13 @@ class RouteAuthASSpec extends BaseSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 0, 1)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 2)
 
         def success = ack.pendingUpdates.find { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
         success != null
-        success.infos == ["Authorisation for [aut-num] AS10000 failed using \"mnt-by:\" not authenticated by: ORIGIN-MB-MNT"]
+        success.warnings == ["This update has only passed one of the two required hierarchical authorisations"]
+        success.infos == ["Authorisation for [aut-num] AS10000 failed using \"mnt-by:\" not authenticated by: ORIGIN-MB-MNT",
+                          "The route object 99.13.0.0/16AS10000 will be saved for one week pending the second authorisation"]
 
         queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
@@ -328,12 +330,15 @@ class RouteAuthASSpec extends BaseSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
-        ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["Authorisation for [aut-num] AS10000 failed using \"mnt-by:\" not authenticated by: ORIGIN-MB-MNT"]
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 2)
+        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
+        ack.warningPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
+              ["This update has only passed one of the two required hierarchical authorisations"]
+        ack.infoPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
+              ["Authorisation for [aut-num] AS10000 failed using \"mnt-by:\" not authenticated by: ORIGIN-MB-MNT",
+               "The route object 99.13.0.0/16AS10000 will be saved for one week pending the second authorisation"]
 
         queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
@@ -369,12 +374,15 @@ class RouteAuthASSpec extends BaseSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
-        ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["Authorisation for [aut-num] AS10000 failed using \"mnt-routes:\" not authenticated by: ORIGIN-MR-MNT"]
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 2)
+        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
+        ack.warningPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
+              ["This update has only passed one of the two required hierarchical authorisations"]
+        ack.infoPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
+              ["Authorisation for [aut-num] AS10000 failed using \"mnt-routes:\" not authenticated by: ORIGIN-MR-MNT",
+               "The route object 99.13.0.0/16AS10000 will be saved for one week pending the second authorisation"]
 
         queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
@@ -449,12 +457,15 @@ class RouteAuthASSpec extends BaseSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
-        ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["Authorisation for [aut-num] AS10000 failed using \"mnt-routes:\" not authenticated by: ORIGIN-MR-MNT"]
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 2)
+        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
+        ack.warningPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
+              ["This update has only passed one of the two required hierarchical authorisations"]
+        ack.infoPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
+              ["Authorisation for [aut-num] AS10000 failed using \"mnt-routes:\" not authenticated by: ORIGIN-MR-MNT",
+               "The route object 99.13.0.0/16AS10000 will be saved for one week pending the second authorisation"]
 
         queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
@@ -490,12 +501,15 @@ class RouteAuthASSpec extends BaseSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
-        ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["Authorisation for [aut-num] AS10000 failed using \"mnt-routes:\" not authenticated by: ORIGIN-MR-MNT"]
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 2)
+        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
+        ack.warningPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
+              ["This update has only passed one of the two required hierarchical authorisations"]
+        ack.infoPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
+              ["Authorisation for [aut-num] AS10000 failed using \"mnt-routes:\" not authenticated by: ORIGIN-MR-MNT",
+               "The route object 99.13.0.0/16AS10000 will be saved for one week pending the second authorisation"]
 
         queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
