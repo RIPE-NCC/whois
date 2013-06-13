@@ -367,8 +367,8 @@ public class ResponseFactoryTest {
         final PreparedUpdate create2 = new PreparedUpdate(update2, null, object2, Action.CREATE);
 
         final Notification notification = new Notification("notify@me.com");
-        notification.add(Notification.Type.SUCCESS, create1);
-        notification.add(Notification.Type.SUCCESS, create2);
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+        notification.add(Notification.Type.SUCCESS, create2, updateContext);
 
 
         final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
@@ -406,7 +406,7 @@ public class ResponseFactoryTest {
         final PreparedUpdate create = new PreparedUpdate(update, null, object, Action.CREATE);
 
         final Notification notification = new Notification("notify@me.com");
-        notification.add(Notification.Type.SUCCESS, create);
+        notification.add(Notification.Type.SUCCESS, create, updateContext);
 
 
         final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
@@ -441,8 +441,8 @@ public class ResponseFactoryTest {
         final PreparedUpdate create2 = new PreparedUpdate(update2, null, object2, Action.CREATE);
 
         final Notification notification = new Notification("notify@me.com");
-        notification.add(Notification.Type.SUCCESS_REFERENCE, create1);
-        notification.add(Notification.Type.SUCCESS_REFERENCE, create2);
+        notification.add(Notification.Type.SUCCESS_REFERENCE, create1, updateContext);
+        notification.add(Notification.Type.SUCCESS_REFERENCE, create2, updateContext);
 
         final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
         assertNotification(responseMessage);
@@ -476,8 +476,8 @@ public class ResponseFactoryTest {
         final PreparedUpdate create2 = new PreparedUpdate(update2, null, object2, Action.CREATE);
 
         final Notification notification = new Notification("notify@me.com");
-        notification.add(Notification.Type.FAILED_AUTHENTICATION, create1);
-        notification.add(Notification.Type.FAILED_AUTHENTICATION, create2);
+        notification.add(Notification.Type.FAILED_AUTHENTICATION, create1, updateContext);
+        notification.add(Notification.Type.FAILED_AUTHENTICATION, create2, updateContext);
 
         final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
         assertNotification(responseMessage);

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.attrs.Changed;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -88,16 +89,20 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
     @Transactional(propagation = Propagation.MANDATORY)
     public void execute(final PreparedUpdate update, final UpdateContext updateContext) {
         if (!updateContext.hasErrors(update)) {
+            final RpslObjectUpdateInfo updateInfo;
             switch (update.getAction()) {
                 case CREATE:
-                    rpslObjectUpdateDao.createObject(updateLastChangedAttribute(update.getUpdatedObject()));
+                    updateInfo = rpslObjectUpdateDao.createObject(updateLastChangedAttribute(update.getUpdatedObject()));
+                    updateContext.updateInfo(update, updateInfo);
                     break;
                 case MODIFY:
-                    rpslObjectUpdateDao.updateObject(update.getReferenceObject().getObjectId(), updateLastChangedAttribute(update.getUpdatedObject()));
+                    updateInfo = rpslObjectUpdateDao.updateObject(update.getReferenceObject().getObjectId(), updateLastChangedAttribute(update.getUpdatedObject()));
+                    updateContext.updateInfo(update, updateInfo);
                     break;
                 case DELETE:
                     final RpslObject object = update.getReferenceObject();
-                    rpslObjectUpdateDao.deleteObject(object.getObjectId(), object.getKey().toString());
+                    updateInfo = rpslObjectUpdateDao.deleteObject(object.getObjectId(), object.getKey().toString());
+                    updateContext.updateInfo(update, updateInfo);
                     break;
                 case NOOP:
                     updateContext.addMessage(update, UpdateMessages.updateIsIdentical());

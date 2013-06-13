@@ -96,4 +96,9 @@ public class PreparedUpdate implements UpdateContainer {
 
         return differences;
     }
+
+    @Override
+    public String toString() {
+        return "PreparedUpdate{" + action + " " + updatedObject.getTypeAttribute() + '}';
+    }
 }

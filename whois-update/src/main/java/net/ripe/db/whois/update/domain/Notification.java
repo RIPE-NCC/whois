@@ -31,8 +31,8 @@ public final class Notification {
         }
     }
 
-    public void add(final Type type, final PreparedUpdate update) {
-        updates.get(type).add(new Update(update));
+    public void add(final Type type, final PreparedUpdate update, UpdateContext updateContext) {
+        updates.get(type).add(new Update(update, updateContext));
     }
 
     public String getEmail() {
@@ -63,8 +63,9 @@ public final class Notification {
         private final String action;
         private final String result;
         private final String reason;
+        private final int versionId;
 
-        public Update(final PreparedUpdate update) {
+        public Update(final PreparedUpdate update, UpdateContext updateContext) {
             this.referenceObject = new FilterAuthFunction().apply(update.getReferenceObject());
             this.updatedObject = new FilterAuthFunction().apply(update.getUpdatedObject());
             this.action = update.getAction().name();
@@ -74,6 +75,8 @@ public final class Notification {
             if (StringUtils.isNotEmpty(reason)) {
                 reason = prettyPrint(String.format("***%s: ", Messages.Type.INFO), reason, 12, 80);
             }
+
+            versionId = updateContext.getVersionId(update);
 
             this.reason = reason;
         }
@@ -104,6 +107,14 @@ public final class Notification {
 
         public String getDiff() {
             return updatedObject.diff(referenceObject);
+        }
+
+        public int getVersionId() {
+            return versionId;
+        }
+
+        public String getPKey() {
+            return updatedObject.getKey().toString();
         }
     }
 }

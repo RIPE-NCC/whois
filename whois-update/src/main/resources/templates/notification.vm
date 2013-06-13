@@ -97,7 +97,9 @@ THIS IS THE NEW VERSION OF THE OBJECT:
 
 $update.updatedObject
 
-The old object can be seen in the history using the query options --list-versions and --show-version #n
+#if ($update.versionId > 0)
+The old object can be seen in the history using the query options --list-versions and --show-version $update.versionId $update.PKey
+#end
 #else
 $update.updatedObject
 #end

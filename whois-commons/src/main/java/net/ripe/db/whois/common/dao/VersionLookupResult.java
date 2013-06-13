@@ -32,6 +32,18 @@ public class VersionLookupResult {
         lastDeletionTimestamp = null;
     }
 
+    public int getVersionIdFor(RpslObjectUpdateInfo updateInfo) {
+        final int objectId = updateInfo.getObjectId();
+        final int sequenceId = updateInfo.getSequenceId();
+
+        for (int i = versionInfos.size() - 1; i >= 0; i--) {
+            if (versionInfos.get(i).getObjectId() == objectId && versionInfos.get(i).getSequenceId() == sequenceId) {
+                return i + 1;
+            }
+        }
+        throw new IllegalStateException("Update not found in version lookup result: " + updateInfo);
+    }
+
     public List<VersionInfo> getVersionInfos() {
         return versionInfos;
     }

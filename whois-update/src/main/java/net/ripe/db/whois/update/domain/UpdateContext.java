@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -25,6 +26,7 @@ public class UpdateContext {
 
     private final List<Paragraph> ignored = Lists.newArrayList();
     private final Messages globalMessages = new Messages();
+    // TODO: [AH] this seems to be the same as generatedkeys; could be dropped?
     private final Map<Update, CIString> placeHolderForUpdate = Maps.newHashMap();
     private final Map<CIString, GeneratedKey> generatedKeys = Maps.newHashMap();
     private final Map<Update, Context> contexts = Maps.newLinkedHashMap();
@@ -115,6 +117,22 @@ public class UpdateContext {
 
     public Subject getSubject(final UpdateContainer updateContainer) {
         return getOrCreateContext(updateContainer).subject;
+    }
+
+    public void updateInfo(final UpdateContainer updateContainer, final RpslObjectUpdateInfo updateInfo) {
+        getOrCreateContext(updateContainer).updateInfo = updateInfo;
+    }
+
+    public RpslObjectUpdateInfo getUpdateInfo(final UpdateContainer updateContainer) {
+        return getOrCreateContext(updateContainer).updateInfo;
+    }
+
+    public void versionId(final UpdateContainer updateContainer, final int versionId) {
+        getOrCreateContext(updateContainer).versionId = versionId;
+    }
+
+    public int getVersionId(final UpdateContainer updateContainer) {
+        return getOrCreateContext(updateContainer).versionId;
     }
 
     public void setPreparedUpdate(final PreparedUpdate preparedUpdate) {
@@ -255,5 +273,7 @@ public class UpdateContext {
         private Subject subject;
         private UpdateStatus status = UpdateStatus.SUCCESS;
         private int retryCount;
+        private RpslObjectUpdateInfo updateInfo;
+        private int versionId = -1;
     }
 }

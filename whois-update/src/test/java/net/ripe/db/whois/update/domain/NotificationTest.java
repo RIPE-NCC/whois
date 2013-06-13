@@ -18,6 +18,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class NotificationTest {
     @Mock Update update;
+    @Mock UpdateContext updateContext;
     Notification subject;
 
     @Before
@@ -49,7 +50,7 @@ public class NotificationTest {
         RpslObject created = RpslObject.parse("mntner: DEV-MNT");
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, null, created, Action.CREATE);
-        subject.add(Notification.Type.SUCCESS, preparedUpdate);
+        subject.add(Notification.Type.SUCCESS, preparedUpdate, updateContext);
 
         assertThat(subject.getUpdates(Notification.Type.SUCCESS_REFERENCE), hasSize(0));
         assertThat(subject.has(Notification.Type.SUCCESS_REFERENCE), is(false));
@@ -74,7 +75,7 @@ public class NotificationTest {
         RpslObject modified = RpslObject.parse("mntner: DEV-MNT\ndescr: some description");
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, original, modified, Action.MODIFY);
-        subject.add(Notification.Type.SUCCESS_REFERENCE, preparedUpdate);
+        subject.add(Notification.Type.SUCCESS_REFERENCE, preparedUpdate, updateContext);
 
         final Set<Notification.Update> updates = subject.getUpdates(Notification.Type.SUCCESS_REFERENCE);
         assertThat(updates, hasSize(1));
@@ -94,7 +95,7 @@ public class NotificationTest {
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, original, original, Action.DELETE);
         when(update.getDeleteReasons()).thenReturn(Lists.newArrayList("reason1", "reason2"));
-        subject.add(Notification.Type.FAILED_AUTHENTICATION, preparedUpdate);
+        subject.add(Notification.Type.FAILED_AUTHENTICATION, preparedUpdate, updateContext);
 
         final Set<Notification.Update> updates = subject.getUpdates(Notification.Type.FAILED_AUTHENTICATION);
         assertThat(updates, hasSize(1));
@@ -113,7 +114,7 @@ public class NotificationTest {
         RpslObject original = RpslObject.parse("mntner: DEV-MNT");
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, original, original, Action.NOOP);
-        subject.add(Notification.Type.SUCCESS_REFERENCE, preparedUpdate);
+        subject.add(Notification.Type.SUCCESS_REFERENCE, preparedUpdate, updateContext);
 
         final Set<Notification.Update> updates = subject.getUpdates(Notification.Type.SUCCESS_REFERENCE);
         assertThat(updates, hasSize(1));
