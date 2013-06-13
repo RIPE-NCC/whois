@@ -547,7 +547,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         def ack = ackFor message
 
-        ack.contents =~ /\*\*\*Warning: The DIFF keyword is not supported/
+        ack.contents =~ /Number of objects found:\s*0/
     }
 
     def "invalid keyword in subject line"() {
