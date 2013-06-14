@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
+import net.ripe.db.whois.common.domain.attrs.AttributeParseException;
 import net.ripe.db.whois.common.domain.attrs.OrgType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -189,7 +190,11 @@ public class UnrefCleanup implements DailyScheduledTask {
                     try {
                         filterReferencedInAttribute(rpslObject, rpslAttribute, date);
                     } catch (RuntimeException e) {
-                        LOGGER.error("Processing attribute {}: {}", rpslObject.getFormattedKey(), rpslAttribute, e);
+                        if (e instanceof AttributeParseException) {
+                            LOGGER.error("Processing attribute {}: {}", rpslObject.getFormattedKey(), rpslAttribute);
+                        } else {
+                            LOGGER.error("Processing attribute {}: {}", rpslObject.getFormattedKey(), rpslAttribute, e);
+                        }
 
                         if (nrErrors++ > MAX_ERRORS) {
                             throw new IllegalStateException("Too many errors occured removing delete candidates, aborting unref cleanup");
