@@ -74,7 +74,7 @@ public class PreparedUpdateTest {
 
     @Test
     public void getKey() {
-        assertThat(subject.getKey(), is("[mntner] DEV-TST-MNT"));
+        assertThat(subject.getFormattedKey(), is("[mntner] DEV-TST-MNT"));
     }
 
     @Test

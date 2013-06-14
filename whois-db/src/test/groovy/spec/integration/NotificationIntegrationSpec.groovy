@@ -101,7 +101,9 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         ackFor firstUpdate
-        notificationFor "test_test@ripe.net"
+        def firstNotif = notificationFor "test_test@ripe.net"
+        firstNotif.contents =~ /--show-version 2 TEST-PN/
+        firstNotif.contents =~ /--show-version 2 TEST-MNT/
         noMoreMessages()
 
       then:
@@ -128,7 +130,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
         def notification = notificationFor "test_test@ripe.net"
 
         notification.subject =~ "Notification of RIPE Database changes"
-        notification.contents =~ /(?ms)OBJECT BELOW MODIFIED:\n\n.*\nperson:         some one\n.*\nOBJECT BELOW MODIFIED:\n\n.*\nperson:         some one\n/
+        notification.contents =~ /(?ms)OBJECT BELOW MODIFIED:\n\n.*\nperson:         some one\n/
+        notification.contents =~ /--show-version 3 TEST-PN/
         noMoreMessages()
     }
 
@@ -172,6 +175,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
         updateNotif.subject =~ "Notification of RIPE Database changes"
         updateNotif.contents =~ /OBJECT BELOW MODIFIED:\n\n@@ -1,8 \+1,10 @@\n mntner:         TEST-MNT/
         updateNotif.contents =~ /THIS IS THE NEW VERSION OF THE OBJECT:\n\nmntner:         TEST-MNT\ndescr:          description/
+        updateNotif.contents =~ /--show-version 2 TEST-MNT/
 
         def createNotif = notificationFor "notify_test@ripe.net"
         createNotif.contents =~ /OBJECT BELOW CREATED:\n\nmntner:         ADMIN-MNT/
@@ -341,6 +345,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
         notif.created.any { it.type == "person" && it.key == "some one" }
         notif.modified.any { it.type == "person" && it.key == "some one" }
 
+        notif.contents =~ /--show-version 1 OLW-PN/
+
         noMoreMessages()
     }
 
@@ -377,6 +383,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
         ackFor update
 
         def notif = notificationFor "test_test@ripe.net"
+        notif.contents =~ /--show-version 2 TEST-MNT/
+        notif.contents =~ /--show-version 3 TEST-MNT/
 
         notif.subject =~ "Notification of RIPE Database changes"
         notif.modified.size() == 2
@@ -794,7 +802,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "auth:           MD5-PW # Filtered\n" +
                 "source:         TEST # Filtered\n" +
                 "\n" +
-                "The old object can be seen in the history using the query options --list-versions and --show-version #n\n" +
+                "The old object can be seen in the history using the query options --list-versions and --show-version 1 OTHER-MNT\n" +
                 "\n" +
                 "---\n" +
                 "OBJECT BELOW CREATED:\n" +
@@ -862,7 +870,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "notify:         barry@test.net\n" +
                 "source:         TEST\n" +
                 "\n" +
-                "The old object can be seen in the history using the query options --list-versions and --show-version #n\n" +
+                "The old object can be seen in the history using the query options --list-versions and --show-version\n" +
                 "\n" +
                 "---\n" +
                 "OBJECT BELOW DELETED:\n" +

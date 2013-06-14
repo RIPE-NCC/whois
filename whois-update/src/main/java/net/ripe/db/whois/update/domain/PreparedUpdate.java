@@ -76,6 +76,10 @@ public class PreparedUpdate implements UpdateContainer {
     }
 
     public String getKey() {
+        return updatedObject.getKey().toString();
+    }
+
+    public String getFormattedKey() {
         return updatedObject.getFormattedKey();
     }
 

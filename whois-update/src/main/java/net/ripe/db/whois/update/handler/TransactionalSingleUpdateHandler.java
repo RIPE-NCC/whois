@@ -86,7 +86,7 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
         }
 
         if (Action.DELETE.equals(preparedUpdate.getAction()) && !preparedUpdate.hasOriginalObject()) {
-            updateContext.addMessage(preparedUpdate, UpdateMessages.objectNotFound(preparedUpdate.getKey()));
+            updateContext.addMessage(preparedUpdate, UpdateMessages.objectNotFound(preparedUpdate.getFormattedKey()));
             throw new UpdateFailedException();
         }
 

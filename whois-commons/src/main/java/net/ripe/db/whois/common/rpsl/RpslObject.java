@@ -22,7 +22,7 @@ import java.util.Set;
 // TODO [AK] This should be moved to whois queries, something like RpslObjectResponse
 @Immutable
 public class RpslObject implements ResponseObject, Identifiable {
-    private final Splitter LINE_SPLITTER = Splitter.on('\n').trimResults();
+    private static final Splitter LINE_SPLITTER = Splitter.on('\n').trimResults();
 
     private final Integer objectId;
     private final RpslObjectBase base;

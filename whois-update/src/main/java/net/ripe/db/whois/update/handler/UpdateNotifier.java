@@ -1,9 +1,7 @@
 package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.VersionDao;
-import net.ripe.db.whois.common.dao.VersionLookupResult;
+import net.ripe.db.whois.common.dao.*;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -42,7 +40,6 @@ public class UpdateNotifier {
         for (final Update update : updateRequest.getUpdates()) {
             final PreparedUpdate preparedUpdate = updateContext.getPreparedUpdate(update);
             if (preparedUpdate != null && !notificationsDisabledByOverride(preparedUpdate)) {
-                addVersionId(preparedUpdate, updateContext);
                 addNotifications(notifications, preparedUpdate, updateContext);
             }
         }
@@ -54,7 +51,7 @@ public class UpdateNotifier {
     }
 
     private void addVersionId(PreparedUpdate preparedUpdate, UpdateContext context) {
-        if (preparedUpdate.getAction() != Action.MODIFY) {
+        if (preparedUpdate.getAction() != Action.MODIFY || context.isDryRun()) {
             return;
         }
 
@@ -62,8 +59,12 @@ public class UpdateNotifier {
         if (res == null) {
             LOGGER.info("Failed to find version lookup result on update for " + preparedUpdate.toString());
         } else {
-            final int versionId = res.getVersionIdFor(context.getUpdateInfo(preparedUpdate)) - 1;   // -1 as we want the previous version
-            context.versionId(preparedUpdate, versionId);
+            try {
+                final RpslObjectUpdateInfo updateInfo = context.getUpdateInfo(preparedUpdate);
+                final int versionId = res.getVersionIdFor(updateInfo) - 1;   // -1 as we want the previous version
+                context.versionId(preparedUpdate, versionId);
+            } catch (VersionVanishedException e) {  // update + delete in the same update message
+            }
         }
     }
 
@@ -77,6 +78,7 @@ public class UpdateNotifier {
 
         switch (updateContext.getStatus(update)) {
             case SUCCESS:
+                addVersionId(update, updateContext);
                 add(notifications, updateContext, update, Notification.Type.SUCCESS, Collections.singletonList(object), AttributeType.NOTIFY);
                 add(notifications, updateContext, update, Notification.Type.SUCCESS, rpslObjectDao.getByKeys(ObjectType.MNTNER, object.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.MNT_NFY);
                 add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.ORGANISATION, update.getDifferences(AttributeType.ORG)), AttributeType.REF_NFY);

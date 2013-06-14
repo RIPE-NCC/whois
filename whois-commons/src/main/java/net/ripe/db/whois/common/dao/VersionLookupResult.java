@@ -41,7 +41,7 @@ public class VersionLookupResult {
                 return i + 1;
             }
         }
-        throw new IllegalStateException("Update not found in version lookup result: " + updateInfo);
+        throw new VersionVanishedException("Update not found in version lookup result: " + updateInfo);
     }
 
     public List<VersionInfo> getVersionInfos() {
