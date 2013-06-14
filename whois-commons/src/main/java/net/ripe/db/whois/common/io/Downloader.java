@@ -54,7 +54,7 @@ public class Downloader {
 
     @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
     public void downloadToFile(final Logger logger, final URL url, final File file) throws IOException {
-        logger.info("Downloading {} from {}", file, url);
+        logger.debug("Downloading {} from {}", file, url);
 
         InputStream is = null;
         try {
@@ -67,7 +67,7 @@ public class Downloader {
 
     void downloadToFile(final Logger logger, final InputStream is, final File file) throws IOException {
         if (file.mkdirs()) {
-            logger.info("Created dirs for {}", file);
+            logger.debug("Created dirs for {}", file);
         }
 
         if (file.exists()) {
@@ -96,6 +96,6 @@ public class Downloader {
             throw new IllegalStateException(String.format("Empty file: %s", file));
         }
 
-        logger.info("Downloaded {} in {}", file, stopwatch.stop());
+        logger.debug("Downloaded {} in {}", file, stopwatch.stop());
     }
 }
