@@ -63,6 +63,7 @@ public final class Notification {
         private final String action;
         private final String result;
         private final String reason;
+        private final PreparedUpdate update;
         private final int versionId;
 
         public Update(final PreparedUpdate update, UpdateContext updateContext) {
@@ -70,6 +71,7 @@ public final class Notification {
             this.updatedObject = new FilterAuthFunction().apply(update.getUpdatedObject());
             this.action = update.getAction().name();
             this.result = RESULT_MAP.get(update.getAction());
+            this.update = update;
 
             String reason = StringUtils.join(update.getUpdate().getDeleteReasons(), ", ");
             if (StringUtils.isNotEmpty(reason)) {
@@ -115,6 +117,18 @@ public final class Notification {
 
         public String getPKey() {
             return updatedObject.getKey().toString();
+        }
+
+        @Override
+        public boolean equals(Object that) {
+            if (this == that) return true;
+            if (that == null || getClass() != that.getClass()) return false;
+            return ((Update) that).update == update;
+        }
+
+        @Override
+        public int hashCode() {
+            return update.hashCode();
         }
     }
 }
