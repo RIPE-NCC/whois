@@ -1,4 +1,10 @@
 ## next
+[update] added pending auth support for route(6) creation
+[update] added dry-run support for a single object update via the 'dry-run: reason' pseudo-attribute
+[update] display diff instead of original object in update notifications
+[query] added svn-style (n:m) diff support in --show-version queries
+[all] added JMX call for online regeneration of index tables
+[all] dropped fallbacks in failed index lookup; need to regenerate indexes on deployment!
 
 ## 1.66.3
 [query] --all-sources now correctly returns results from RIPE + (all GRS except RIPE-GRS)
