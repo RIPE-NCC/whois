@@ -274,7 +274,7 @@ public final class Query {
     public int[] getObjectVersions() {
         try {
             if (hasOption(QueryFlag.DIFF_VERSIONS)) {
-                final String[] values = StringUtils.split(getOptionValue(QueryFlag.DIFF_VERSIONS), ":");
+                final String[] values = StringUtils.split(getOptionValue(QueryFlag.DIFF_VERSIONS), ':');
                 if (values.length != 2) {
                     throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff versions must be in the format a:b"));
                 }

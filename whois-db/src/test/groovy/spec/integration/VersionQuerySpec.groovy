@@ -1022,7 +1022,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         after != ~/3.*ADD\/UPD/
     }
 
-    def "--diff-versions 1:2 TST-MNT"() {
+    def "--diff-versions (forward range)"() {
       when:
         def response = query "--diff-versions 1:2 " + pkey
 
@@ -1047,7 +1047,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         pkey << ["TST-MNT"]
     }
 
-    def "--diff-versions 2:1 TST-MNT"() {
+    def "--diff-versions (inverse range)"() {
       when:
         def response = query "--diff-versions 2:1 " + pkey
 
@@ -1072,7 +1072,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         pkey << ["TST-MNT"]
     }
 
-    def "--diff-versions 0:1 TST-MNT"() {
+    def "--diff-versions (version zero)"() {
       when:
         def response = query "--diff-versions 0:1 " + pkey
 
@@ -1085,7 +1085,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         pkey << ["TST-MNT"]
     }
 
-    def "--diff-versions 1:3 TST-MNT"() {
+    def "--diff-versions (out of range)"() {
       when:
         def response = query "--diff-versions 1:3 " + pkey
 
@@ -1097,7 +1097,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         pkey << ["TST-MNT"]
     }
 
-    def "--diff-versions 1:2 TP1-TEST"() {
+    def "--diff-versions (person/role)"() {
       when:
         def response = query "--diff-versions 1:2 " + pkey
 
@@ -1110,21 +1110,9 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         pkey << ["TP1-TEST"]
     }
 
-    def "--diff-versions 1:2 TP3-TEST (deleted)"() {
+    def "--diff-versions (deleted)"() {
      given:
-        syncUpdate(new SyncUpdate(data: """\
-                    person:         Test Person3
-                    address:        Hebrew Road
-                    address:        Burnley
-                    address:        UK
-                    phone:          +44 282 411141
-                    nic-hdl:        TP3-TEST
-                    mnt-by:         TST-MNT
-                    changed:        dbtest@ripe.net 20120101
-                    source:         TEST
-                    password: test
-                    delete: reason
-                    """.stripIndent()))
+        removeObject(oneBasicFixture("TEST-PN3"))
 
       when:
         def response = query "--diff-versions 1:2 " + pkey
@@ -1137,5 +1125,34 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         pkey << ["TP3-TEST"]
     }
 
+    def "--diff-versions (recreated)"() {
+     given:
+        removeObject(oneBasicFixture("TST"))
+        addObject(oneBasicFixture("TST"))
 
+      when:
+        def response = query "--diff-versions 1:3 " + pkey
+
+      then:
+        response =~ header
+        response =~ "%ERROR:117: version cannot exceed 2 for this object"
+
+      where:
+        pkey << ["TST"]
+    }
+
+    def "-V foo --diff-versions <pkey>"() {
+      when:
+        def response = query "-V foo --diff-versions 2:1 " + pkey
+
+      then:
+        response =~ header
+        !(response =~ advert)
+        !(response =~ /ERROR:/)
+
+        response =~ "% Difference between version 2 and 1 of object \"AS1000\""
+
+      where:
+        pkey << ["AS1000"]
+    }
 }

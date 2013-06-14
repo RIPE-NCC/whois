@@ -853,8 +853,8 @@ public class QueryTest {
         }
 
         final String[] invalidQueries = {
-//            "--show-version 1 AS12 -B",                   // TODO: [ES] should this be valid?
             "--show-version 1 AS12 -T aut-num",
+            //"--show-version 1 AS12 -B",               // TODO: [ES] -B flag currently accepted, but filtering not turned off
             "--list-versions AS12 -G",
             "--list-versions AS12 -V fred --no-tag-info",
             "--list-versions AS12 -k --show-version 1 AS12",
