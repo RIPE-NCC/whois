@@ -34,7 +34,7 @@ public class DatabaseMaintenanceJmx extends JmxBase {
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation")
     })
     public String undeleteObject(final int objectId, final String comment) {
-        return invokeOperation("Unref cleanup", comment, new Callable<String>() {
+        return invokeOperation("Undelete Object", comment, new Callable<String>() {
             @Override
             public String call() {
                 try {
