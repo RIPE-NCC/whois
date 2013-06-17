@@ -1,5 +1,4 @@
 package spec.integration
-
 import net.ripe.db.whois.common.ClockDateTimeProvider
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.RpslObject
@@ -140,5 +139,92 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         queryObject("NP-RIPE", "person", "New person")
         queryObject("-i mnt-by TST-MNT", "person", "New person")
+    }
+
+    def "santitize objects and pkeys"() {
+      given:
+        insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
+            inetnum:    010.0.00.000 - 10.255.255.255
+            netname:    RIPE-NCC
+            descr:      some descr
+            country:    NL
+            admin-c:    TEST-RIPE
+            tech-c:     TEST-RIPE
+            status:     OTHER
+            mnt-by:     TST-MNT
+            changed:    ripe@test.net 20120505
+            source:     TEST
+            """.stripIndent()))
+        insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
+            inet6num:   2001:0100:0000::/24
+            netname:    RIPE-NCC
+            descr:      some descr
+            country:    NL
+            admin-c:    TEST-RIPE
+            tech-c:     TEST-RIPE
+            status:     OTHER
+            mnt-by:     TST-MNT
+            changed:    ripe@test.net 20120505
+            source:     TEST
+            """.stripIndent()))
+        insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
+            aut-num:    AS123
+            as-name:    TST-AS
+            descr:      Testing
+            org:        ORG-TOL1-TEST
+            mnt-by:     TST-MNT
+            changed:    ripe@test.net 20091015
+            source:     TEST
+            """.stripIndent()))
+        insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
+            route:      10.01.2.0/24
+            descr:      Test route
+            origin:     AS123
+            mnt-by:     TST-MNT
+            changed:    ripe@test.net 20091015
+            source:     TEST
+            """.stripIndent()))
+        insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
+            route6:     2001:0100::/24
+            descr:      TEST
+            origin:     AS123
+            mnt-by:     TST-MNT
+            changed:    ripe@test.net 20091015
+            source:     TEST
+            """.stripIndent()))
+        insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
+            domain:     0.0.10.in-addr.arpa.
+            descr:      Test domain
+            admin-c:    TEST-RIPE
+            tech-c:     TEST-RIPE
+            zone-c:     TEST-RIPE
+            nserver:    ns.foo.net
+            nserver:    ns.bar.net
+            mnt-by:     TST-MNT
+            changed:    test@ripe.net 20120505
+            source:     TEST
+            """.stripIndent()))
+        insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
+            inet-rtr:   test.ripe.net.
+            descr:      description
+            local-as:   AS123
+            ifaddr:     10.0.0.1 masklen 22
+            admin-c:    TEST-RIPE
+            tech-c:     TEST-RIPE
+            mnt-by:     TST-MNT
+            changed:    test@ripe.net 20120622
+            source:     TEST
+            """.stripIndent()))
+
+      when:
+        whoisFixture.rebuildIndexes()
+
+      then:
+        queryObject("-rBG -T inetnum 10.0.0.0 - 10.255.255.255", "inetnum", "10.0.0.0 - 10.255.255.255").contains("10.0.0.0 - 10.255.255.255")
+        queryObject("-rBG -T inet6num 2001:100::/24", "inet6num", "2001:100::/24").contains("2001:100::/24")
+        queryObject("-rBG -T route 10.1.2.0/24", "route", "10.1.2.0/24").contains("10.1.2.0/24")
+        queryObject("-rBG -T route6 2001:100::/24", "route6", "2001:100::/24").contains("2001:100::/24")
+        queryObject("-rBG -T domain 0.0.10.in-addr.arpa", "domain", "0.0.10.in-addr.arpa").contains("0.0.10.in-addr.arpa")
+        queryObject("-rBG -T inet-rtr test.ripe.net", "inet-rtr", "test.ripe.net").contains("test.ripe.net")
     }
 }

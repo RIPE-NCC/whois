@@ -5,11 +5,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.UpdateLockDao;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.sql.DataSource;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -40,13 +43,15 @@ public class JdbcIndexDao implements IndexDao {
 
     private final JdbcTemplate jdbcTemplate;
     private final UpdateLockDao updateLockDao;
+    private final AttributeSanitizer attributeSanitizer;
 
     private enum Phase {KEYS, OTHER}
 
     @Autowired
-    JdbcIndexDao(@Qualifier("sourceAwareDataSource") final DataSource dataSource, final UpdateLockDao updateLockDao) {
+    JdbcIndexDao(@Qualifier("sourceAwareDataSource") final DataSource dataSource, final UpdateLockDao updateLockDao, final AttributeSanitizer attributeSanitizer) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.updateLockDao = updateLockDao;
+        this.attributeSanitizer = attributeSanitizer;
     }
 
     @Override
@@ -91,10 +96,15 @@ public class JdbcIndexDao implements IndexDao {
 
         for (final Integer objectId : objectIds) {
             try {
-                final RpslObject rpslObject = jdbcTemplate.queryForObject(
-                        "SELECT object_id, object FROM last WHERE object_id = ? AND sequence_id != 0",
-                        new RpslObjectRowMapper(),
+                final Map<String, Object> map = jdbcTemplate.queryForMap(
+                        "SELECT object_id, object, pkey FROM last WHERE object_id = ? AND sequence_id != 0",
                         objectId);
+                RpslObject rpslObject = RpslObject.parse(((Long)map.get("object_id")).intValue(), (byte[])map.get("object"));
+                final String pkey = (String)map.get("pkey");
+
+                if (phase == Phase.KEYS) {
+                    rpslObject = sanitizeObject(rpslObject, pkey);
+                }
 
                 final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
                 final Set<AttributeType> keyAttributes = objectTemplate.getKeyAttributes();
@@ -103,6 +113,7 @@ public class JdbcIndexDao implements IndexDao {
                 for (final AttributeType attributeType : updateAttributes) {
                     updateAttributeIndex(rpslObject, attributeType);
                 }
+
             } catch (EmptyResultDataAccessException e) {
                 LOGGER.debug("Missing: {}", objectId);
             } catch (RuntimeException e) {
@@ -130,6 +141,28 @@ public class JdbcIndexDao implements IndexDao {
                 }
             }
         }
+    }
+
+    private RpslObject sanitizeObject(final RpslObject rpslObject, final String pkey) {
+        final RpslObject sanitizedObject = attributeSanitizer.sanitize(rpslObject, new ObjectMessages());
+
+        final CIString sanitizedPKey = sanitizedObject.getKey();
+        if (sanitizedPKey.equals(rpslObject.getKey()) &&
+                sanitizedPKey.toString().equals(pkey)) {
+            return rpslObject;
+        }
+
+        LOGGER.info("Updating {} object from {} to {}", rpslObject.getType(), rpslObject.getKey(), sanitizedObject.getKey());
+
+        final int rows = jdbcTemplate.update("UPDATE last SET pkey = ?, object = ? WHERE object_id = ?",
+                sanitizedObject.getKey(),
+                sanitizedObject.toByteArray(),
+                rpslObject.getObjectId());
+        if (rows != 1) {
+            throw new DataIntegrityViolationException("Unexpected rows:" + rows + " when updating object:" + rpslObject.getObjectId());
+        }
+
+        return sanitizedObject;
     }
 
     private void deleteIndexesForMissingObjects() {
