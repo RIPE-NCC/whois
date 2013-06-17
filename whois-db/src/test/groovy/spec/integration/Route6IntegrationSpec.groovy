@@ -1289,4 +1289,39 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
 
         pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").isEmpty()
     }
+
+    def "update with multiple route6 objects pending auth"() {
+      when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                            route6: dddd::/24
+                            descr: Test route
+                            origin: AS456
+                            mnt-by: TEST-MNT
+                            changed: ripe@test.net 20091015
+                            source: TEST
+
+                            route6: 5353::/24
+                            descr: Test route
+                            origin: AS456
+                            mnt-by: TEST-MNT
+                            changed: ripe@test.net 20091015
+                            source: TEST
+
+                            password: update
+                            password: otherpassword
+
+                            """.stripIndent()))
+      then:
+        response =~ /Create PENDING: \[route6\] dddd::\/24AS456\n/
+        response =~ /Create PENDING: \[route6\] 5353::\/24AS456\n/
+
+        def notification = notificationFor("dbtest@ripe.net")
+        notification.pendingAuth("Create", "route6", "dddd::/24")
+        notification.pendingAuth("Create", "route6", "5353::/24")
+
+        noMoreMessages()
+    }
+
+
+
 }

@@ -1655,4 +1655,36 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 0
     }
 
+    def "update with multiple route objects pending auth"() {
+      when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                            route: 195.0.0.0/24
+                            descr: Test route
+                            origin: AS456
+                            mnt-by: TEST-MNT
+                            changed: ripe@test.net 20091015
+                            source: TEST
+
+                            route: 196.0.0.0/24
+                            descr: Test route
+                            origin: AS456
+                            mnt-by: TEST-MNT
+                            changed: ripe@test.net 20091015
+                            source: TEST
+
+                            password: update
+                            password: otherpassword
+
+                            """.stripIndent()))
+      then:
+        response =~ /Create PENDING: \[route\] 195.0.0.0\/24AS456\n/
+        response =~ /Create PENDING: \[route\] 196.0.0.0\/24AS456\n/
+
+        def notification = notificationFor("dbtest@ripe.net")
+        notification.pendingAuth("Create", "route", "195.0.0.0/24")
+        notification.pendingAuth("Create", "route", "196.0.0.0/24")
+
+        noMoreMessages()
+    }
+
 }
