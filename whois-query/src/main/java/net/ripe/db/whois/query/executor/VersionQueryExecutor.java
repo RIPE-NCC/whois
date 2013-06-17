@@ -8,6 +8,8 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
+import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.query.domain.*;
 import net.ripe.db.whois.query.planner.VersionResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
@@ -26,6 +28,8 @@ public class VersionQueryExecutor implements QueryExecutor {
     private final static String VERSION_HEADER = "rev#";
     private final static String DATE_HEADER = "Date";
     private final static String OPERATION_HEADER = "Op.";
+    private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
+    private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
 
     @Autowired
     public VersionQueryExecutor(final VersionResponseDecorator versionResponseDecorator, final VersionDao versionDao) {
@@ -184,18 +188,22 @@ public class VersionQueryExecutor implements QueryExecutor {
         }
 
         final VersionInfo firstInfo = versionInfos.get(versions[0] - 1);
-        final RpslObject firstObject = versionDao.getRpslObject(firstInfo);
+        final RpslObject firstObject = filter(versionDao.getRpslObject(firstInfo));
 
         if (firstObject.getType() == ObjectType.PERSON || firstObject.getType() == ObjectType.ROLE) {
             return Collections.singletonList(new MessageObject(QueryMessages.versionPersonRole(firstObject.getType().getName().toUpperCase(), query.getSearchValue())));
         }
 
         final VersionInfo secondInfo = versionInfos.get(versions[1] - 1);
-        final RpslObject secondObject = versionDao.getRpslObject(secondInfo);
+        final RpslObject secondObject = filter(versionDao.getRpslObject(secondInfo));
 
         return Lists.newArrayList(
                 new MessageObject(QueryMessages.versionDifferenceHeader(versions[0], versions[1], firstObject.getKey())),
                 new MessageObject(secondObject.diff(firstObject)));
+    }
 
+    private RpslObject filter(final RpslObject rpslObject) {
+        return FILTER_AUTH_FUNCTION.apply(
+                FILTER_EMAIL_FUNCTION.apply(rpslObject));
     }
 }

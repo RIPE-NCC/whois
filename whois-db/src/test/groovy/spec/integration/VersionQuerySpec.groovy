@@ -1032,16 +1032,14 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Difference between version 1 and 2 of object \"TST-MNT\""
-        response =~ "@@ -1,2 \\+1,10 @@\n" +
+        response =~ "@@ -1,2 +1,8 @@\n" +
                 " mntner:         TST-MNT\n" +
-                "\\+descr:          MNTNER for test\n" +
-                "\\+admin-c:        TP1-TEST\n" +
-                "\\+upd-to:         dbtest@ripe.net\n" +
-                "\\+auth:           MD5-PW \\\$1\\\$d9fKeTr2\\\$Si7YudNf4rUGmR71n/cqk/  #test\n" +
-                "\\+mnt-by:         OWNER-MNT\n" +
-                "\\+referral-by:    TST-MNT\n" +
-                "\\+changed:        dbtest@ripe.net\n" +
-                "\\+source:         TEST"
+                "+descr:          MNTNER for test\n" +
+                "+admin-c:        TP1-TEST\n" +
+                "+auth:           MD5-PW # Filtered\n" +
+                "+mnt-by:         OWNER-MNT\n" +
+                "+referral-by:    TST-MNT\n" +
+                "+source:         TEST # Filtered"
 
       where:
         pkey << ["TST-MNT"]
@@ -1057,16 +1055,14 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Difference between version 2 and 1 of object \"TST-MNT\""
-        response =~ "@@ -1,10 \\+1,2 @@\n" +
-                " mntner:         TST-MNT\n"
+        response =~ "@@ -1,8 +1,2 @@\n" +
+                " mntner:         TST-MNT\n" +
                 "-descr:          MNTNER for test\n" +
                 "-admin-c:        TP1-TEST\n" +
-                "-upd-to:         dbtest@ripe.net\n" +
-                "-auth:           MD5-PW \\\$1\\\$d9fKeTr2\\\$Si7YudNf4rUGmR71n/cqk/  #test\n" +
+                "-auth:           MD5-PW # Filtered\n" +
                 "-mnt-by:         OWNER-MNT\n" +
                 "-referral-by:    TST-MNT\n" +
-                "-changed:        dbtest@ripe.net\n" +
-                "-source:         TEST"
+                "-source:         TEST # Filtered"
 
       where:
         pkey << ["TST-MNT"]
