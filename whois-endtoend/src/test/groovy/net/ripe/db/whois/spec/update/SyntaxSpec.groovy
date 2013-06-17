@@ -1,6 +1,7 @@
 package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.spec.BaseSpec
+import spec.domain.AckResponse
 import spec.domain.Message
 
 class SyntaxSpec extends BaseSpec {
@@ -829,6 +830,44 @@ class SyntaxSpec extends BaseSpec {
 
         query_object_matches("-rBG -T person FP1-TEST", "person", "First Person", "\\*\\*\\*@")
         query_object_matches("-rBG -T person FP1-TEST", "person", "First Person", "4\\.\\.")
+    }
+
+    def "create person with @ripe.net in notify: attr"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
+
+        when:
+        def message = syncUpdate("""\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                notify:  dbtest@ripe.net
+                mnt-by:  OWNER-MNT
+                changed: denis@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[person] First Person" }
+        ack.errorMessagesFor("Modify", "[person] First Person") ==
+                ["Authorisation for [inetnum] 192.168.200.0 - 192.168.200.255 failed using \"mnt-by:\" not authenticated by: END-USER-MNT"]
+
+        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
     }
 
 }
