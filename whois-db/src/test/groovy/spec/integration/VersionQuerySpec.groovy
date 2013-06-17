@@ -961,7 +961,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         input << ["AS1000", "TST-MNT", "ORG-OTO1-TEST", "10.0.0.0 - 10.255.255.255", "TP1-TEST", "TR1-TEST"]
     }
 
-    def "--show-version 3 -B AS1000"() {
+    def "--show-version 3 AS1000"() {
       when:
         def updateResponse = syncUpdate new SyncUpdate(data: """\
             aut-num:     AS1000
@@ -979,7 +979,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         updateResponse =~ "SUCCESS"
 
       when:
-        def response = query "--show-version 3 -B AS1000"
+        def response = query "--show-version 3 AS1000"
 
       then:
         response =~ header
@@ -990,6 +990,17 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
 
         // no related objects
         !(response =~ /person:\s+/)
+    }
+
+    def "--show-version and -B cannot be used together"() {
+      when:
+        def response = query "--show-version 2 -B AS1000"
+
+      then:
+        response =~ header
+        !(response =~ advert)
+
+        response =~ /%ERROR:109: invalid combination of flags passed/
     }
 
     def "do not display versions for deleted object"() {
