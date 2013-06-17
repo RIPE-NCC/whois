@@ -1043,14 +1043,14 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Difference between version 1 and 2 of object \"TST-MNT\""
-        response =~ "@@ -1,2 +1,8 @@\n" +
+        response =~ "@@ -1,2 \\+1,8 @@\n" +
                 " mntner:         TST-MNT\n" +
-                "+descr:          MNTNER for test\n" +
-                "+admin-c:        TP1-TEST\n" +
-                "+auth:           MD5-PW # Filtered\n" +
-                "+mnt-by:         OWNER-MNT\n" +
-                "+referral-by:    TST-MNT\n" +
-                "+source:         TEST # Filtered"
+                "\\+descr:          MNTNER for test\n" +
+                "\\+admin-c:        TP1-TEST\n" +
+                "\\+auth:           MD5-PW # Filtered\n" +
+                "\\+mnt-by:         OWNER-MNT\n" +
+                "\\+referral-by:    TST-MNT\n" +
+                "\\+source:         TEST # Filtered"
 
       where:
         pkey << ["TST-MNT"]
@@ -1066,7 +1066,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Difference between version 2 and 1 of object \"TST-MNT\""
-        response =~ "@@ -1,8 +1,2 @@\n" +
+        response =~ "@@ -1,8 \\+1,2 @@\n" +
                 " mntner:         TST-MNT\n" +
                 "-descr:          MNTNER for test\n" +
                 "-admin-c:        TP1-TEST\n" +
