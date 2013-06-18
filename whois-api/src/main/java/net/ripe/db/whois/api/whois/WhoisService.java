@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.whois;
 
+import com.google.common.base.Splitter;
 import com.google.common.net.InetAddresses;
 import com.sun.jersey.api.NotFoundException;
 import net.ripe.db.whois.api.whois.domain.Parameters;
@@ -20,11 +21,11 @@ import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Path;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.util.Collections;
@@ -33,9 +34,7 @@ import java.util.List;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @ExternallyManagedLifecycle
-@Component
-@Path("/")
-public class WhoisService {
+public abstract class WhoisService {
 
     protected static final String TEXT_JSON = "text/json";
     protected static final String TEXT_XML = "text/xml";
@@ -133,7 +132,8 @@ public class WhoisService {
     }
 
     protected StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
-        /*final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
+        final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
+
         for (final String accept : Splitter.on(',').split(acceptHeader)) {
             try {
                 final MediaType mediaType = MediaType.valueOf(accept);
@@ -145,9 +145,9 @@ public class WhoisService {
                 }
             } catch (IllegalArgumentException ignored) {
             }
-        } */
+        }
 
-        return new StreamingMarshalJson();
+        return new StreamingMarshalXml();
     }
 
 }

@@ -16,7 +16,6 @@ import net.ripe.db.whois.query.query.Query;
 import javax.annotation.Nullable;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -24,33 +23,11 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 
-/**
- * Created with IntelliJ IDEA.
- * User: andrew-old
- * Date: 11/06/13
- * Time: 11:17 AM
- * To change this template use File | Settings | File Templates.
- */
-public class DefaultStreamingOutput implements StreamingOutput {
-    protected boolean found;
-    protected static final int STATUS_TOO_MANY_REQUESTS = 429;
-    protected StreamingMarshal streamingMarshal;
-    protected QueryHandler queryHandler;
-    protected Parameters parameters;
-    protected Query query;
-    protected InetAddress remoteAddress;
-    protected int contextId;
+public class DefaultStreamingOutput extends WhoisStreamingOutput {
 
     public DefaultStreamingOutput(StreamingMarshal sm, QueryHandler qh, Parameters p, Query q, InetAddress ra, int cid) {
-        streamingMarshal = sm;
-        queryHandler = qh;
-        parameters = p;
-        query = q;
-        remoteAddress = ra;
-        contextId = cid;
+        super(sm,qh,p,q,ra,cid);
     }
-
-    protected DefaultStreamingOutput() {}
 
     @Override
     public void write(final OutputStream output) throws IOException {

@@ -88,7 +88,7 @@ public class WhoisRDAPServiceTestIntegration extends AbstractRestClientTest {
         final RpslObject person = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(1));
         assertThat(person.getKey(), is(ciString("TP1-TEST")));   */
 
-        Thread.sleep(1500000);
+        //Thread.sleep(1500000);
     }
 
     @Test
