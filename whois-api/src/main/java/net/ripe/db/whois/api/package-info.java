@@ -25,8 +25,7 @@
  * <h3>The Update services</h3>
  *  <div><b>Rest services</b></div>
  *  <ul>
- *      <li><a href="path__create.html">create</a></li>
- *      <li><a href="path__create_-source.html">create (for given source)</a></li>
+ *      <li><a href="path__create_-source-.html">create</a></li>
  *      <li><a href="path__delete_-source-_-objectType-_-key-.html">delete</a></li>
  *      <li><a href="path__modify_-source-_-objectType-_-key-.html">modify</a></li>
  *      <li><a href="path__update_-source-_-objectType-_-key-.html">update</a></li>

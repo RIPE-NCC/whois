@@ -78,6 +78,11 @@ public class GeolocationService {
         this.rpslObjectDao = rpslObjectDao;
     }
 
+    /**
+     * Find out which geolocation and language is set for a particular ip address.
+     * @param source Source.
+     * @param ipkey IP address
+     */
     @GET
     @Produces(MediaType.APPLICATION_XML)
     public WhoisResources geolocation(

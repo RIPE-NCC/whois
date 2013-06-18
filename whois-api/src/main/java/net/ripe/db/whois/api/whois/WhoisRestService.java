@@ -253,28 +253,6 @@ public class WhoisRestService {
         return new StreamingMarshalXml();
     }
 
-    @POST
-    // TODO [AK] Does text/json actually result in a json response and text/xml in xml?
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
-    @Path("/create/{source}")
-    public Response create(
-            final WhoisResources resources,
-            @Context final HttpServletRequest request,
-            @PathParam("source") final String source,
-            @QueryParam(value = "password") final List<String> passwords) {
-
-        final RpslObject submittedObject = getSubmittedObject(resources);
-
-        final UpdateResponse response = performUpdate(
-                createOrigin(request),
-                createUpdate(submittedObject, null, passwords, null),
-                createContent(submittedObject, passwords, null),
-                Keyword.NEW,
-                source);
-
-        return getResponse(response);
-    }
-
     /**
      * <p>A successful create request creates an object in the RIPE Database or in the RIPE Test Database, depending on the source that you specify in the source element of your request XML. Source can be "ripe" or "test".</p>
      * <p>One or more password values can be specified as HTTP parameters.</p>
@@ -326,10 +304,34 @@ public class WhoisRestService {
      *
      */
     @POST
+    // TODO [AK] Does text/json actually result in a json response and text/xml in xml?
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @Path("/create/{source}")
+    public Response create(
+            final WhoisResources resources,
+            @Context final HttpServletRequest request,
+            @PathParam("source") final String source,
+            @QueryParam(value = "password") final List<String> passwords) {
+
+        final RpslObject submittedObject = getSubmittedObject(resources);
+
+        final UpdateResponse response = performUpdate(
+                createOrigin(request),
+                createUpdate(submittedObject, null, passwords, null),
+                createContent(submittedObject, passwords, null),
+                Keyword.NEW,
+                source);
+
+        return getResponse(response);
+    }
+
+    /**
+     * Create request without including source in URL is no longer allowed - use <a href="path__create_-source-.html">/create/source</a> instead.
+     */
+    @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Path("/create")
     public Response create() {
-        // Create request without including source in URL is no longer allowed.
         // Source needs to be included to be consistent with the other CRUD operations, and also
         // to allow mod-proxy to redirect requests to the correct instance.
         throw new IllegalArgumentException("Source must be specified in URL");
