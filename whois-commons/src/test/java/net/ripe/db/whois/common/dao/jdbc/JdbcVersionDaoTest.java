@@ -14,10 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-import static junit.framework.Assert.assertNull;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -32,7 +30,7 @@ public class JdbcVersionDaoTest extends AbstractDaoTest {
     @Test
     public void findNoObject() {
         VersionLookupResult history = subject.findByKey(ObjectType.MNTNER, "MAINT-ANY");
-        assertNull(history);
+        assertThat(history, is(nullValue()));
     }
 
     @Test
@@ -42,7 +40,7 @@ public class JdbcVersionDaoTest extends AbstractDaoTest {
 
         assertThat(result.getObjectType(), is(ObjectType.AS_SET));
         assertThat(result.getPkey(), is("AS-TEST"));
-        assertNull(result.getLastDeletionTimestamp());
+        assertThat(result.getLastDeletionTimestamp(), is(nullValue()));
 
         assertThat(history, hasSize(1));
         assertThat(history.get(0).isInLast(), is(true));
