@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.domain;
+package net.ripe.db.whois.query.integration;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// TODO: [ES] this class is only used for testing
-public class RpslObjectVersions {
+class RpslObjectVersions {
 
     private static Pattern LINE_PATTERN = Pattern.compile("(\\d+)\\s+(.*\\s+.*)\\s+([A-Z/]+)\\s*");
     private static DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-dd-mm hh:MM");
