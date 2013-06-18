@@ -23,9 +23,9 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 
-public class DefaultStreamingOutput extends WhoisStreamingOutput {
+public class RestStreamingOutput extends WhoisStreamingOutput {
 
-    public DefaultStreamingOutput(StreamingMarshal sm, QueryHandler qh, Parameters p, Query q, InetAddress ra, int cid) {
+    public RestStreamingOutput(StreamingMarshal sm, QueryHandler qh, Parameters p, Query q, InetAddress ra, int cid) {
         super(sm,qh,p,q,ra,cid);
     }
 

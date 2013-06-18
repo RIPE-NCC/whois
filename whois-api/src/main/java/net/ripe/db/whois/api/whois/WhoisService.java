@@ -126,7 +126,7 @@ public abstract class WhoisService {
     protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
         final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
 
-        DefaultStreamingOutput dso = new DefaultStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
+        RestStreamingOutput dso = new RestStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
 
         return Response.ok(dso).build();
     }
