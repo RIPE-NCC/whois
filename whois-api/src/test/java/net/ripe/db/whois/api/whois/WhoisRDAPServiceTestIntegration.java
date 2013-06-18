@@ -98,6 +98,8 @@ public class WhoisRDAPServiceTestIntegration extends AbstractRestClientTest {
 
         createResource(AUDIENCE, "person/PP1-TEST");
 
+        /* blah */
+
         /*final WhoisResources whoisResources = createResource(AUDIENCE, "person/PP1-TEST").get(WhoisResources.class);
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
