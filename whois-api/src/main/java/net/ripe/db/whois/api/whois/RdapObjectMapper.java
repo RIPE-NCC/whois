@@ -1,34 +1,41 @@
 package net.ripe.db.whois.api.whois;
 
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.whois.domain.RdapObject;
-import net.ripe.db.whois.api.whois.domain.WhoisObject;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 
 public class RdapObjectMapper {
-    private WhoisObject primaryWhoisObject;
-    private Queue<WhoisObject> whoisObjectQueue;
+    private TaggedRpslObject primaryTaggedRpslObject;
+    private Queue<TaggedRpslObject> taggedRpslObjectQueue;
     private RdapObject rdapObject = new RdapObject();
 
-    public RdapObjectMapper(Queue<WhoisObject> whoisObjectQueue) {
-        this.whoisObjectQueue = whoisObjectQueue;
+    public RdapObjectMapper(Queue<TaggedRpslObject> taggedRpslObjectQueue) {
+        this.taggedRpslObjectQueue = taggedRpslObjectQueue;
     }
 
     public RdapObject build () throws Exception {
-        if (whoisObjectQueue == null) {
+        if (taggedRpslObjectQueue == null) {
             return rdapObject;
         }
 
-        if (!whoisObjectQueue.isEmpty()) {
-            primaryWhoisObject = whoisObjectQueue.poll();
+        if (!taggedRpslObjectQueue.isEmpty()) {
+            primaryTaggedRpslObject = taggedRpslObjectQueue.poll();
         } else {
             throw new Exception("The rpsl queue is empty");
         }
 
-        System.out.println(primaryWhoisObject.getType());
+        System.out.println(primaryTaggedRpslObject.rpslObject.getType());
 
-        add(primaryWhoisObject);
+        add(primaryTaggedRpslObject);
 
         /*while (!whoisObjectQueue.isEmpty()) {
             add(whoisObjectQueue.poll());
@@ -37,18 +44,53 @@ public class RdapObjectMapper {
         return rdapObject;
     }
 
-    private void add (WhoisObject whoisObject) {
-        String whoisObjectType = whoisObject.getType();
+    private void add (TaggedRpslObject taggedRpslObject) {
+        RpslObject rpslObject = taggedRpslObject.rpslObject;
 
-        if (whoisObjectType.equals(ObjectType.PERSON.getName())) {
-            rdapObject.setPrimaryKey(whoisObject.getPrimaryKey());
+        ObjectType rpslObjectType = rpslObject.getType();
 
-        } else if (whoisObjectType.equals(ObjectType.ORGANISATION.getName())) {
+        if (rpslObjectType.getName().equals(ObjectType.PERSON.getName())) {
+            RpslAttribute primaryKey = getPrimaryKey(rpslObject);
+            CIString handle = CIString.ciString(stripWhitespace(primaryKey.getValue()));
 
-        } else if (whoisObjectType.equals(ObjectType.ROLE.getName())) {
+            debug(rpslObject);
 
-        } else if (whoisObjectType.equals(ObjectType.IRT.getName())) {
+            rdapObject.setHandle(handle);
+
+        } else if (rpslObjectType.equals(ObjectType.ORGANISATION.getName())) {
+
+        } else if (rpslObjectType.equals(ObjectType.ROLE.getName())) {
+
+        } else if (rpslObjectType.equals(ObjectType.IRT.getName())) {
 
         }
+    }
+
+    private static RpslAttribute getPrimaryKey(final RpslObject rpslObject) {
+        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
+        Iterator<AttributeType> iterator = Sets.intersection(objectTemplate.getKeyAttributes(), objectTemplate.getLookupAttributes()).iterator();
+        if (iterator.hasNext()) {
+            AttributeType primaryKey = iterator.next();
+            if (!iterator.hasNext()) {
+                return rpslObject.findAttribute(primaryKey);
+            }
+        }
+
+        throw new IllegalArgumentException("Couldn't find primary key attribute for type: " + rpslObject.getType());
+    }
+
+    private void debug (RpslObject rpslObject) {
+        List<RpslAttribute> rpslAttributes = rpslObject.getAttributes();
+
+        Iterator<RpslAttribute> iter = rpslAttributes.iterator();
+        RpslAttribute ra;
+        while (iter.hasNext()) {
+            ra = iter.next();
+            System.out.println(ra.getKey() + ":" + ra.getValue());
+        }
+    }
+
+    private String stripWhitespace (String str) {
+         return str.replace(" ","");
     }
 }

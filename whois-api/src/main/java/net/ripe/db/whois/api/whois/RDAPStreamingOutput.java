@@ -4,8 +4,6 @@ import com.google.common.collect.Lists;
 import com.sun.jersey.api.NotFoundException;
 import net.ripe.db.whois.api.whois.domain.Parameters;
 import net.ripe.db.whois.api.whois.domain.RdapObject;
-import net.ripe.db.whois.api.whois.domain.WhoisObject;
-import net.ripe.db.whois.api.whois.domain.WhoisTag;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
@@ -14,7 +12,6 @@ import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 
-import javax.annotation.Nullable;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -35,8 +32,9 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
         streamingMarshal.open(output);
 
         // TODO [AK] Crude way to handle tags, but working
-        final Queue<WhoisObject> whoisObjectQueue = new ArrayDeque<WhoisObject>(1);
+        final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<RpslObject>(1);
         final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
+        final Queue<TaggedRpslObject> taggedRpslObjectQueue = new ArrayDeque<TaggedRpslObject>(1);
 
         try {
             queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
@@ -47,7 +45,7 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
                         tagResponseObjects.add((TagResponseObject) responseObject);
                     } else if (responseObject instanceof RpslObject) {
                         found = true;
-                        whoisObjectQueue.add(getWhoisObject((RpslObject) responseObject, tagResponseObjects));
+                        taggedRpslObjectQueue.add(new TaggedRpslObject((RpslObject)responseObject, tagResponseObjects));
                         tagResponseObjects.clear();
                     }
 
@@ -55,14 +53,7 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
                 }
             });
 
-            /*RpslObject ro;
-
-            while (!rpslObjectQueue.isEmpty()) {
-                ro = rpslObjectQueue.poll();
-                WhoisObject wo = getWhoisObject(ro, tagResponseObjects);
-                System.out.println(wo.getType());
-            }*/
-            RdapObjectMapper rdapObjectMapper = new RdapObjectMapper(whoisObjectQueue);
+            RdapObjectMapper rdapObjectMapper = new RdapObjectMapper(taggedRpslObjectQueue);
             RdapObject rdapObject;
 
             try {
@@ -84,13 +75,6 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
         }
 
         streamingMarshal.close();
-    }
-
-    protected WhoisObject getWhoisObject (@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
-        final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject);
-        final List<WhoisTag> tags = WhoisObjectMapper.mapTags(tagResponseObjects).getTags();
-        whoisObject.setTags(tags);
-        return whoisObject;
     }
 
     protected void streamObject(Object rdapObject) {

@@ -9,14 +9,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
         //"type",
         //"link",
         //"source",
-        "primaryKey",
+        "handle",
         //"attributes",
         //"tags"
 })
@@ -28,14 +27,14 @@ public class RdapObject {
     private CIString objectType;
 
     @XmlElement(name = "handle")
-    protected PrimaryKey primaryKey;
+    protected Handle handle;
 
-    public List<Attribute> getPrimaryKey() {
-        return primaryKey != null ? primaryKey.attributes : null;
+    public CIString getHandle() {
+        return handle != null ? handle.handle : null;
     }
 
-    public void setPrimaryKey(List<Attribute> value) {
-        this.primaryKey = new PrimaryKey(value);
+    public void setHandle(CIString handle) {
+        this.handle = new Handle(handle);
     }
 
     /*

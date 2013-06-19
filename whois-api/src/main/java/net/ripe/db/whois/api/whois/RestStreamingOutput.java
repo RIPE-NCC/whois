@@ -19,7 +19,9 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Queue;
 
 public class RestStreamingOutput extends WhoisStreamingOutput {
 
@@ -39,7 +41,7 @@ public class RestStreamingOutput extends WhoisStreamingOutput {
         streamingMarshal.start("objects");
 
         // TODO [AK] Crude way to handle tags, but working
-        //final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<RpslObject>(1);
+        final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<RpslObject>(1);
         final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
 
         try {
@@ -53,14 +55,15 @@ public class RestStreamingOutput extends WhoisStreamingOutput {
                         found = true;
                         WhoisObject wo = getWhoisObject((RpslObject) responseObject, tagResponseObjects);
                         streamObject(wo);
+                        rpslObjectQueue.add((RpslObject) responseObject);
                     }
 
                     // TODO [AK] Handle related messages
                 }
             });
 
-            /*WhoisObject wo = getWhoisObject(rpslObjectQueue.poll(), tagResponseObjects);
-            streamObject(wo);*/
+            WhoisObject wo = getWhoisObject(rpslObjectQueue.poll(), tagResponseObjects);
+            streamObject(wo);
 
             if (!found) {
                 throw new NotFoundException();
