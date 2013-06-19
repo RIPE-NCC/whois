@@ -29,6 +29,8 @@ public class RdapObject {
         this.handle = handle;
     }
 
+    // TODO work out how to remove the root element
+
     /*
 
             "person:  Pauleth Palthen\n" +
