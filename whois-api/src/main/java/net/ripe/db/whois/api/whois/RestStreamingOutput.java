@@ -19,9 +19,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
-import java.util.ArrayDeque;
 import java.util.List;
-import java.util.Queue;
 
 public class RestStreamingOutput extends WhoisStreamingOutput {
 
@@ -41,7 +39,7 @@ public class RestStreamingOutput extends WhoisStreamingOutput {
         streamingMarshal.start("objects");
 
         // TODO [AK] Crude way to handle tags, but working
-        final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<RpslObject>(1);
+        //final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<RpslObject>(1);
         final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
 
         try {
@@ -53,15 +51,16 @@ public class RestStreamingOutput extends WhoisStreamingOutput {
                         tagResponseObjects.add((TagResponseObject) responseObject);
                     } else if (responseObject instanceof RpslObject) {
                         found = true;
-                        streamObject(rpslObjectQueue.poll(), tagResponseObjects);
-                        rpslObjectQueue.add((RpslObject) responseObject);
+                        WhoisObject wo = getWhoisObject((RpslObject) responseObject, tagResponseObjects);
+                        streamObject(wo);
                     }
 
                     // TODO [AK] Handle related messages
                 }
             });
 
-            streamObject(rpslObjectQueue.poll(), tagResponseObjects);
+            /*WhoisObject wo = getWhoisObject(rpslObjectQueue.poll(), tagResponseObjects);
+            streamObject(wo);*/
 
             if (!found) {
                 throw new NotFoundException();
@@ -77,18 +76,19 @@ public class RestStreamingOutput extends WhoisStreamingOutput {
         streamingMarshal.close();
     }
 
-    protected void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
-        if (rpslObject == null) {
+    protected WhoisObject getWhoisObject (@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
+        final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject);
+        final List<WhoisTag> tags = WhoisObjectMapper.mapTags(tagResponseObjects).getTags();
+        whoisObject.setTags(tags);
+        tagResponseObjects.clear();
+        return whoisObject;
+    }
+
+    protected void streamObject(Object whoisObject) {
+        if (whoisObject == null) {
             return;
         }
 
-        final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject);
-
-        // TODO [AK] Fix mapper API
-        final List<WhoisTag> tags = WhoisObjectMapper.mapTags(tagResponseObjects).getTags();
-        whoisObject.setTags(tags);
-
         streamingMarshal.write("object", whoisObject);
-        tagResponseObjects.clear();
     }
 }

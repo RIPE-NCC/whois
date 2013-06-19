@@ -32,16 +32,9 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
     @Override
     public void write(final OutputStream output) throws IOException {
         streamingMarshal.open(output);
-        streamingMarshal.start("whois-resources");
-
-        if (parameters != null) {
-            streamingMarshal.write("parameters", parameters);
-        }
-
-        streamingMarshal.start("objects");
 
         // TODO [AK] Crude way to handle tags, but working
-        final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<RpslObject>(1);
+        final Queue<WhoisObject> whoisObjectQueue = new ArrayDeque<WhoisObject>(1);
         final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
 
         try {
@@ -53,15 +46,30 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
                         tagResponseObjects.add((TagResponseObject) responseObject);
                     } else if (responseObject instanceof RpslObject) {
                         found = true;
-                        streamObject(rpslObjectQueue.poll(), tagResponseObjects);
-                        rpslObjectQueue.add((RpslObject) responseObject);
+                        whoisObjectQueue.add(getWhoisObject((RpslObject) responseObject, tagResponseObjects));
+                        tagResponseObjects.clear();
                     }
 
                     // TODO [AK] Handle related messages
                 }
             });
 
-            streamObject(rpslObjectQueue.poll(), tagResponseObjects);
+            /*RpslObject ro;
+
+            while (!rpslObjectQueue.isEmpty()) {
+                ro = rpslObjectQueue.poll();
+                WhoisObject wo = getWhoisObject(ro, tagResponseObjects);
+                System.out.println(wo.getType());
+            }*/
+            RdapObjectFactory rdapObjectFactory = new RdapObjectFactory(whoisObjectQueue);
+            RdapObject rdapObject;
+
+            try {
+                rdapObject = rdapObjectFactory.build();
+                streamObject(rdapObject);
+            } catch (Exception e) {
+                // TODO do something meaningful coz this aint too meaningful tevs
+            }
 
             if (!found) {
                 throw new NotFoundException();
@@ -77,21 +85,18 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
         streamingMarshal.close();
     }
 
-    @Override
-    protected void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
-        if (rpslObject == null) {
+    protected WhoisObject getWhoisObject (@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
+        final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject);
+        final List<WhoisTag> tags = WhoisObjectMapper.mapTags(tagResponseObjects).getTags();
+        whoisObject.setTags(tags);
+        return whoisObject;
+    }
+
+    protected void streamObject(Object rdapObject) {
+        if (rdapObject == null) {
             return;
         }
 
-        final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject);
-
-        // TODO [AK] Fix mapper API
-        final List<WhoisTag> tags = WhoisObjectMapper.mapTags(tagResponseObjects).getTags();
-        whoisObject.setTags(tags);
-
-        System.out.println(whoisObject.getType());
-
-        streamingMarshal.write("object", whoisObject);
-        tagResponseObjects.clear();
+        streamingMarshal.write("", rdapObject);
     }
 }

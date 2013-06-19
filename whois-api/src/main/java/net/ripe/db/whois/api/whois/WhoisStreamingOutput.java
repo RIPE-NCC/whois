@@ -1,15 +1,11 @@
 package net.ripe.db.whois.api.whois;
 
 import net.ripe.db.whois.api.whois.domain.Parameters;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 
-import javax.annotation.Nullable;
 import javax.ws.rs.core.StreamingOutput;
 import java.net.InetAddress;
-import java.util.List;
 
 abstract class WhoisStreamingOutput implements StreamingOutput {
 
@@ -31,5 +27,5 @@ abstract class WhoisStreamingOutput implements StreamingOutput {
         contextId = cid;
     }
 
-    abstract void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects);
+    abstract void streamObject(Object object);
 }

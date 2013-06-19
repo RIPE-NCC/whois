@@ -59,4 +59,10 @@ public class WhoisRdapService extends WhoisService {
 
         return Response.ok(rso).build();
     }
+
+    protected StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
+        // Always return JSON for RDAP
+
+        return new StreamingMarshalJson();
+    }
 }
