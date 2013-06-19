@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.whois;
 import com.google.common.collect.Lists;
 import com.sun.jersey.api.NotFoundException;
 import net.ripe.db.whois.api.whois.domain.Parameters;
+import net.ripe.db.whois.api.whois.domain.RdapObject;
 import net.ripe.db.whois.api.whois.domain.WhoisObject;
 import net.ripe.db.whois.api.whois.domain.WhoisTag;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -61,11 +62,11 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
                 WhoisObject wo = getWhoisObject(ro, tagResponseObjects);
                 System.out.println(wo.getType());
             }*/
-            RdapObjectFactory rdapObjectFactory = new RdapObjectFactory(whoisObjectQueue);
+            RdapObjectMapper rdapObjectMapper = new RdapObjectMapper(whoisObjectQueue);
             RdapObject rdapObject;
 
             try {
-                rdapObject = rdapObjectFactory.build();
+                rdapObject = rdapObjectMapper.build();
                 streamObject(rdapObject);
             } catch (Exception e) {
                 // TODO do something meaningful coz this aint too meaningful tevs

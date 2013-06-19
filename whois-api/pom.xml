@@ -88,6 +88,11 @@
             <artifactId>lucene-facet</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.googlecode.ez-vcard</groupId>
+            <artifactId>ez-vcard</artifactId>
+        </dependency>
+
         <!-- Solr -->
         <dependency>
             <groupId>org.apache.solr</groupId>
