@@ -1,13 +1,11 @@
 package net.ripe.db.whois.api.whois.domain;
 
-import ezvcard.VCard;
 import net.ripe.db.whois.common.domain.CIString;
+import org.codehaus.jackson.map.annotate.JsonRootName;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -20,21 +18,15 @@ import javax.xml.bind.annotation.XmlType;
         //"tags"
 })
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@XmlRootElement(name = "")
+//@XmlRootElement(name = "")
 public class RdapObject {
 
-    private VCard [] vCards;
-    private CIString objectType;
+    //private VCard [] vCards;
 
-    @XmlElement(name = "handle")
-    protected Handle handle;
-
-    public CIString getHandle() {
-        return handle != null ? handle.handle : null;
-    }
+    protected CIString handle;
 
     public void setHandle(CIString handle) {
-        this.handle = new Handle(handle);
+        this.handle = handle;
     }
 
     /*
