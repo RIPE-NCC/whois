@@ -115,13 +115,13 @@ public class MessageDequeue implements ApplicationService {
         } else {
             pollerExecutor.shutdown();
             handlerExecutor.shutdown();
+        }
 
-            try {
-                pollerExecutor.awaitTermination(2, TimeUnit.HOURS);
-                handlerExecutor.awaitTermination(2, TimeUnit.HOURS);
-            } catch (Exception e) {
-                LOGGER.error("Awaiting termination", e);
-            }
+        try {
+            pollerExecutor.awaitTermination(2, TimeUnit.HOURS);
+            handlerExecutor.awaitTermination(2, TimeUnit.HOURS);
+        } catch (Exception e) {
+            LOGGER.error("Awaiting termination", e);
         }
 
         pollerExecutor = null;
