@@ -9,7 +9,6 @@ import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -27,7 +26,6 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
     public void testThatBootstrapLeavesDatabaseInWorkingState() throws Exception {
         assertThat(whoisTemplate.queryForInt("select count(*) from x509"), is(1));
         assertThat(whoisTemplate.queryForInt("select count(*) from update_lock"), is(1));
-        assertThat(whoisTemplate.queryForInt("select count(*) from mntner"), is(1));
 
         bootstrap.bootstrap();
 

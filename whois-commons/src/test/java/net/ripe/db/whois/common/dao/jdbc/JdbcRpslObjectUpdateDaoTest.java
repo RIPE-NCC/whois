@@ -53,7 +53,7 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
         final DatabaseDiff diff = Database.diff(before, new Database(whoisTemplate));
 
         // identical
-        assertThat(diff.getIdentical().getAll(), hasSize(1));
+        assertThat(diff.getIdentical().getAll(), hasSize(0));
 
         // removed
         assertThat(diff.getRemoved().getAll(), hasSize(2));
@@ -105,9 +105,9 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
         final DatabaseDiff diff = Database.diff(before, after);
 
         // identical
-        assertThat(diff.getIdentical().getAll(), hasSize(4));
+        assertThat(diff.getIdentical().getAll(), hasSize(3));
         assertThat(diff.getIdentical().find("history"), hasSize(1));
-        assertThat(diff.getIdentical().find("mntner"), hasSize(1));
+        assertThat(diff.getIdentical().find("serials"), hasSize(2));
 
         final Rows serialsRows = diff.getIdentical().find("serials");
         assertThat(serialsRows, hasSize(2));
@@ -175,7 +175,7 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
         final DatabaseDiff diff = Database.diff(before, new Database(whoisTemplate));
 
         // identical
-        assertThat(diff.getIdentical().getAll(), hasSize(3));
+        assertThat(diff.getIdentical().getAll(), hasSize(2));
         diff.getIdentical().get("history",
                 with("object_id", created.getObjectId()),
                 with("sequence_id", created.getSequenceId()));
@@ -215,7 +215,7 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
         final DatabaseDiff diff = Database.diff(before, new Database(whoisTemplate));
 
         // identical
-        assertThat(diff.getIdentical().getAll(), hasSize(7));
+        assertThat(diff.getIdentical().getAll(), hasSize(6));
         diff.getIdentical().get("last",
                 with("object_id", first.getObjectId()));
         diff.getIdentical().get("last",
@@ -490,9 +490,9 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
         // Objects not modified
         final Database identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(5));
+        assertThat("Identical", identical.getAll(), hasSize(4));
         assertThat(identical.getTable("last"), hasSize(1));
-        assertThat(identical.getTable("mntner"), hasSize(3));
+        assertThat(identical.getTable("mntner"), hasSize(2));
         assertThat(identical.getTable("serials"), hasSize(1));
 
         // Objects modified
@@ -548,8 +548,8 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
         // Objects not modified
         final Database identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(2));
-        assertThat(identical.getTable("mntner"), hasSize(2));
+        assertThat("Identical", identical.getAll(), hasSize(1));
+        assertThat(identical.getTable("mntner"), hasSize(1));
 
         // Modified
         final Database modified = diff.getModified();
@@ -591,9 +591,9 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
         // Objects not modified
         final Database identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(5));
+        assertThat("Identical", identical.getAll(), hasSize(4));
         assertThat(identical.getTable("last"), hasSize(1));
-        assertThat(identical.getTable("mntner"), hasSize(3));
+        assertThat(identical.getTable("mntner"), hasSize(2));
         assertThat(identical.getTable("serials"), hasSize(1));
 
         // Modified
@@ -644,9 +644,9 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
         // Identical
         Database identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(18));
+        assertThat("Identical", identical.getAll(), hasSize(17));
         assertThat(identical.find("last"), hasSize(4));
-        assertThat(identical.find("mntner"), hasSize(2));
+        assertThat(identical.find("mntner"), hasSize(1));
         assertThat(identical.find("person_role"), hasSize(4));
         assertThat(identical.find("serials"), hasSize(4));
         assertThat(identical.find("names"), hasSize(4));
@@ -694,9 +694,9 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
         // Identical
         identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(21));
+        assertThat("Identical", identical.getAll(), hasSize(20));
         assertThat(identical.find("last"), hasSize(4));
-        assertThat(identical.find("mntner"), hasSize(2));
+        assertThat(identical.find("mntner"), hasSize(1));
         assertThat(identical.find("person_role"), hasSize(4));
         assertThat(identical.find("serials"), hasSize(5));
         assertThat(identical.find("history"), hasSize(1));
@@ -744,9 +744,9 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
         // Identical
         identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(22));
+        assertThat("Identical", identical.getAll(), hasSize(21));
         assertThat(identical.find("last"), hasSize(4));
-        assertThat(identical.find("mntner"), hasSize(2));
+        assertThat(identical.find("mntner"), hasSize(1));
         assertThat(identical.find("person_role"), hasSize(4));
         assertThat(identical.find("serials"), hasSize(6));
         assertThat(identical.find("names"), hasSize(4));
@@ -790,9 +790,9 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
         // Identical
         identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(24));
+        assertThat("Identical", identical.getAll(), hasSize(23));
         assertThat(identical.find("last"), hasSize(4));
-        assertThat(identical.find("mntner"), hasSize(2));
+        assertThat(identical.find("mntner"), hasSize(1));
         assertThat(identical.find("person_role"), hasSize(4));
         assertThat(identical.find("serials"), hasSize(7));
         assertThat(identical.find("names"), hasSize(4));
