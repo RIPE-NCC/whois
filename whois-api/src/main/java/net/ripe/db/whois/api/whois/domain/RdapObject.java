@@ -1,12 +1,13 @@
 package net.ripe.db.whois.api.whois.domain;
 
-import ezvcard.VCard;
 import net.ripe.db.whois.common.domain.CIString;
+import org.codehaus.jackson.annotate.JsonAnyGetter;
+import org.codehaus.jackson.annotate.JsonAnySetter;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
+import java.util.HashMap;
+import java.util.Map;
 
 /*@XmlAccessorType(XmlAccessType.FIELD)*/
 @XmlType(name = "", propOrder = {
@@ -56,7 +57,6 @@ public class RdapObject {
             "source:  TEST\n");
 
      */
-
 
 
 }

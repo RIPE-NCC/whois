@@ -1,35 +1,30 @@
 package net.ripe.db.whois.api.whois.domain;
 
-import net.ripe.db.whois.api.whois.ValidXmlAdapter;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import ezvcard.Ezvcard;
+import ezvcard.VCard;
+import ezvcard.types.StructuredNameType;
 
 public class RdapVCard {
 
-    public String version = "version";
+    public String vcard;
 
-    /*public RdapVCard(final String name, final String value, final String comment, final String referencedType, final Link link) {
-        this.name = name;
-        this.value = value;
-        this.comment = comment;
-        this.referencedType = referencedType;
-        this.link = link;
+    public RdapVCard() {//final String name, final String value, final String comment, final String referencedType, final Link link) {
+        VCard vCard = new VCard();
+        StructuredNameType n = new StructuredNameType();
+        n.setFamily("Doe");
+        n.setGiven("Jonathan");
+        n.addPrefix("Mr");
+        vCard.setStructuredName(n);
+        vCard.setFormattedName("John Doe");
+        //vcard = Ezvcard.write(vCard).version(VCardVersion.V4_0).go();
+        //vcard = Ezvcard.writeJson(vCard).go().;
+        vcard = Ezvcard.writeJson(vCard).go();
+        //vcard = vCard;
     }
 
-    public RdapVCard(final String name, final String value) {
-        this(name, value, null, null, null);
-    }*/
-
-    public RdapVCard() {
+    /*public RdapVCard() {
         // required no-arg constructor
-    }
+    }*/
 
     /*public Link getLink() {
         return link;

@@ -31,6 +31,8 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
     public void write(final OutputStream output) throws IOException {
         streamingMarshal.open(output);
 
+        streamingMarshal.start("yep");
+
         // TODO [AK] Crude way to handle tags, but working
         final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<RpslObject>(1);
         final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
@@ -82,6 +84,6 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
             return;
         }
 
-        streamingMarshal.write("", rdapObject);
+        streamingMarshal.writeObject(rdapObject);
     }
 }

@@ -53,7 +53,7 @@ public class WhoisRdapService extends WhoisService {
     }
 
     protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
-        final StreamingMarshal streamingMarshal = new StreamingMarshalJson();
+        final StreamingMarshal streamingMarshal = new RdapStreamingMarshalJson();
 
         RdapStreamingOutput rso = new RdapStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
 

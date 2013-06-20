@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
@@ -31,8 +30,6 @@ public class RdapObjectMapper {
         } else {
             throw new Exception("The rpsl queue is empty");
         }
-
-        System.out.println(primaryTaggedRpslObject.rpslObject.getType());
 
         add(primaryTaggedRpslObject);
 
@@ -64,6 +61,7 @@ public class RdapObjectMapper {
 
             // turn it into an array
             rdapObject.setvCards(vCards.toArray(new RdapVCard[]{}));
+
 
 
 

@@ -10,7 +10,7 @@ import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
 import java.io.IOException;
 import java.io.OutputStream;
 
-class StreamingMarshalJson implements StreamingMarshal {
+class RdapStreamingMarshalJson implements StreamingMarshal {
     protected static JsonFactory jsonFactory;
 
     static {
@@ -29,7 +29,7 @@ class StreamingMarshalJson implements StreamingMarshal {
     public void open(final OutputStream outputStream) {
         try {
             generator = jsonFactory.createJsonGenerator(outputStream);
-            generator.writeStartObject();
+            //generator.writeStartObject();
         } catch (IOException e) {
             throw new StreamingException(e);
         }
@@ -37,11 +37,7 @@ class StreamingMarshalJson implements StreamingMarshal {
 
     @Override
     public void start(final String name) {
-        try {
-            generator.writeObjectFieldStart(name);
-        } catch (IOException e) {
-            throw new StreamingException(e);
-        }
+        System.out.println(generator.getClass().getName());
     }
 
     @Override
@@ -63,13 +59,21 @@ class StreamingMarshalJson implements StreamingMarshal {
     }
 
     @Override
-    public void writeRaw(final String str) {
-        return;
+    public <T> void writeObject(final T t) {
+        try {
+            generator.writeObject(t);
+        } catch (IOException e) {
+            throw new StreamingException(e);
+        }
     }
 
     @Override
-    public void writeObject(final Object o) {
-        return;
+    public void writeRaw(final String str) {
+        try {
+            generator.writeRaw(str);
+        } catch (IOException e) {
+            throw new StreamingException(e);
+        }
     }
 
     @Override
