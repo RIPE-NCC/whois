@@ -40,7 +40,6 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
             public Set<Object> getSingletons() {
                 final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
                 jaxbJsonProvider.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
-                jaxbJsonProvider.configure(SerializationConfig.Feature.WRAP_ROOT_VALUE, true);
                 return Sets.newLinkedHashSet(Lists.<Object>newArrayList(
                         whoisRDAPService,
                         defaultExceptionMapper,
@@ -49,7 +48,7 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
         }));
 
         servlet.setInitParameter("com.sun.jersey.config.property.packages", "net.ripe.db");
-        System.out.println("YO SHIZZLE: " + servlet.getInitParameters());
+        //System.out.println("YO SHIZZLE: " + servlet.getInitParameters());
         context.addServlet(servlet, "/*");
     }
 }

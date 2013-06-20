@@ -8,34 +8,34 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
-/*@XmlAccessorType(XmlAccessType.FIELD)
+/*@XmlAccessorType(XmlAccessType.FIELD)*/
 @XmlType(name = "", propOrder = {
         //"type",
         //"link",
-        //"source",
+        "rdapConformance",
         "handle",
-        //"vcardArray"
+        "vcardArray"
         //"attributes",
         //"tags"
-})*/
-//@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+})
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class RdapObject {
 
-    public String[] rdapConformance = {"rdap_level_0"};
-    //public RdapVCardArray vCards;
+    public String[] rdapConformance;
+    public RdapVCard[] vcardArray;
     public CIString handle;
 
     public void setHandle(CIString handle) {
         this.handle = handle;
     }
 
-    /*public void setvCards(RdapVCardArray vCards) {
-        this.vCards = vCards;
+    public void setvCards(RdapVCard[] vcardArray) {
+        this.vcardArray = vcardArray;
     }
 
-    public void setRdapConformance(String[] rdapConformance) {
-        this.rdapConformance = rdapConformance;
-    }*/
+    public void decoratePrimary() {
+        rdapConformance = new String[] {"rdap_level_0"};
+    }
 
     //public void addVCard(VCard vcard) {
 

@@ -1,10 +1,13 @@
 package net.ripe.db.whois.api.whois;
 
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.whois.domain.RdapObject;
+import net.ripe.db.whois.api.whois.domain.RdapVCard;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
@@ -49,7 +52,20 @@ public class RdapObjectMapper {
 
             debug(rpslObject);
 
+            rdapObject.decoratePrimary();
             rdapObject.setHandle(rpslObject.getKey());
+
+            //build some vCards
+            List<RdapVCard> vCards = Lists.newArrayList();
+
+            // do some sort of iteration here but for now 1's enuff what
+            RdapVCard vCard = new RdapVCard();
+            vCards.add(vCard);
+
+            // turn it into an array
+            rdapObject.setvCards(vCards.toArray(new RdapVCard[]{}));
+
+
 
         } else if (rpslObjectType.equals(ObjectType.ORGANISATION.getName())) {
 

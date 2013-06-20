@@ -53,16 +53,10 @@ public class WhoisRdapService extends WhoisService {
     }
 
     protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
-        final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
+        final StreamingMarshal streamingMarshal = new StreamingMarshalJson();
 
         RdapStreamingOutput rso = new RdapStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
 
         return Response.ok(rso).build();
-    }
-
-    protected StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
-        // Always return JSON for RDAP
-
-        return new StreamingMarshalJson();
     }
 }

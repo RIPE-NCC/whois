@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 public class RdapVCard {
 
-    /*public String version = "version"
+    public String version = "version";
 
-    public RdapVCard(final String name, final String value, final String comment, final String referencedType, final Link link) {
+    /*public RdapVCard(final String name, final String value, final String comment, final String referencedType, final Link link) {
         this.name = name;
         this.value = value;
         this.comment = comment;
