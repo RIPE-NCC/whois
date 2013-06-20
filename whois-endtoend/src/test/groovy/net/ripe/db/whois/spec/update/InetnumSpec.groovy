@@ -5190,4 +5190,46 @@ class InetnumSpec extends BaseSpec {
         query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
     }
 
+    def "dry-run modify PI assignment, pw supplied, add remarks:"() {
+        given:
+        syncUpdate(getTransient("ASSPI") + "password: hm")
+
+        expect:
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                dry-run: testing
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       lir-MNT
+                changed:      dbtest@ripe.net 20020101
+                remarks:      just added
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        query_object_not_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "just added")
+    }
+
 }

@@ -1511,7 +1511,7 @@ class AbuseHandlingSpec extends BaseSpec {
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "AH1-TEST")
     }
 
-    def "modify ROLE with abuse-mailbox, ref by admin-c & tech-c, no ref by abuse-c, remove abuse-mailbox"() {
+    def "modify ROLE with abuse-mailbox, ref by admin-c & tech-c in org, no ref by abuse-c, remove abuse-mailbox, org has no abuse-c"() {
       given:
         syncUpdate(getTransient("ROLE-AM") + "password: lir")
         query_object_matches("-r -T role AR1-TEST", "role", "Abuse Role", "abuse-mailbox:")
@@ -1551,6 +1551,60 @@ class AbuseHandlingSpec extends BaseSpec {
         )
 
       then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 2
+        ack.summary.assertSuccess(2, 0, 2, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[role] AR1-TEST   Abuse Role" }
+
+        query_object_not_matches("-rGBT role AR1-TEST", "role", "Abuse Role", "abuse-mailbox:")
+    }
+
+    def "modify ROLE with abuse-mailbox, ref by admin-c & tech-c, no ref by abuse-c, remove abuse-mailbox, org has abuse-c"() {
+        given:
+        syncUpdate(getTransient("ROLE-AM") + "password: lir")
+        query_object_matches("-r -T role AR1-TEST", "role", "Abuse Role", "abuse-mailbox:")
+
+        expect:
+
+        when:
+        def message = syncUpdate("""\
+                organisation: ORG-LIR2-TEST
+                org-type:     LIR
+                org-name:     Local Internet Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      AR1-TEST
+                tech-c:       AR1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       ripe-ncc-hm-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+                password:     hm
+
+                role:         Abuse Role
+                address:      St James Street
+                address:      Burnley
+                address:      UK
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                nic-hdl:      AR1-TEST
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20121016
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 2
