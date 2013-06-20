@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.ConcurrentState;
 import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
@@ -44,6 +45,7 @@ public class JdbcIndexDao implements IndexDao {
     private final JdbcTemplate jdbcTemplate;
     private final UpdateLockDao updateLockDao;
     private final AttributeSanitizer attributeSanitizer;
+    private final ConcurrentState state;
 
     private enum Phase {KEYS, OTHER}
 
@@ -52,6 +54,7 @@ public class JdbcIndexDao implements IndexDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.updateLockDao = updateLockDao;
         this.attributeSanitizer = attributeSanitizer;
+        this.state = new ConcurrentState();
     }
 
     @Override
@@ -63,13 +66,26 @@ public class JdbcIndexDao implements IndexDao {
         rebuildForObjects(objectIds, Phase.OTHER);
     }
 
+    @Override
+    public void pause() {
+        state.set(false);
+    }
+
+    @Override
+    public void resume() {
+        state.set(true);
+    }
+
     private void rebuildForObjects(final List<Integer> objectIds, final Phase phase) {
         final List<List<Integer>> objectIdBatches = Lists.partition(objectIds, BATCH_SIZE);
 
         final Stopwatch stopwatch = new Stopwatch().start();
+        state.set(true);
 
         int count = 0;
         for (final List<Integer> objectIdBatch : objectIdBatches) {
+            state.waitUntil(true);
+
             rebuildIndexes(objectIdBatch, phase);
 
             count += objectIdBatch.size();

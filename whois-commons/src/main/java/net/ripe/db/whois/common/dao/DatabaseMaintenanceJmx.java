@@ -76,4 +76,26 @@ public class DatabaseMaintenanceJmx extends JmxBase {
             }
         });
     }
+
+    @ManagedOperation(description = "Pause rebuild indexes")
+    public void pause() {
+        invokeOperation("Pause rebuild indexes", "", new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                indexDao.pause();
+                return null;
+            }
+        });
+    }
+
+    @ManagedOperation(description = "Resume rebuild indexes")
+    public void resume() {
+        invokeOperation("Resume rebuild indexes", "", new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                indexDao.resume();
+                return null;
+            }
+        });
+    }
 }
