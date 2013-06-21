@@ -10,8 +10,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-//import org.codehaus.jackson.annotate.JsonAnyGetter;
-//import org.codehaus.jackson.annotate.JsonAnySetter;
 
 import java.util.*;
 
@@ -57,7 +55,6 @@ public class RdapObjectMapper {
             // do the vcard dance
             VCard vCard = generateVCard(rpslObject);
             CustomEzvcard.WriterChainJsonSingle vcardWriter = CustomEzvcard.writeJson(vCard);
-            //Ezvcard.WriterChainJsonSingle vcardWriter = Ezvcard.writeJson(vCard);
             vcardWriter.prodId(false);
             RdapEntity rdapEntity= new RdapEntity(rpslObject.getKey(), vcardWriter.go());
 
@@ -101,17 +98,5 @@ public class RdapObjectMapper {
 
         return vCard;
     }
-
-//
-//    // "any getter" needed for serialization
-//    @JsonAnyGetter
-//    public Map<String,Object> any() {
-//        return other;
-//    }
-//
-//    @JsonAnySetter
-//    public void set(String name, Object value) {
-//        other.put(name, value);
-//    }
 
 }
