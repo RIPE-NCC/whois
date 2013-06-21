@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.whois;
 
+import ezvcard.Ezvcard;
 import ezvcard.VCard;
 import ezvcard.types.StructuredNameType;
 import net.ripe.db.whois.api.whois.domain.RdapEntity;
@@ -7,15 +8,20 @@ import net.ripe.db.whois.api.whois.domain.RdapResponse;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.codehaus.jackson.annotate.JsonAnyGetter;
+import org.codehaus.jackson.annotate.JsonAnySetter;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 public class RdapObjectMapper {
     private TaggedRpslObject primaryTaggedRpslObject;
     private Queue<TaggedRpslObject> taggedRpslObjectQueue;
     private RdapResponse rdapResponse = new RdapResponse();
+    protected Map<String,Object> other = new HashMap<String,Object>();
 
     public RdapObjectMapper(Queue<TaggedRpslObject> taggedRpslObjectQueue) {
         this.taggedRpslObjectQueue = taggedRpslObjectQueue;
@@ -52,7 +58,9 @@ public class RdapObjectMapper {
 
             // do the vcard dance
             VCard vCard = generateVCard(rpslObject);
-            RdapEntity rdapEntity= new RdapEntity(rpslObject.getKey(), vCard.writeJson());
+            Ezvcard.WriterChainJsonSingle vcardWriter = Ezvcard.writeJson(vCard);
+            vcardWriter.prodId(false);
+            RdapEntity rdapEntity= new RdapEntity(rpslObject.getKey(), vcardWriter.go());
 
             rdapResponse.setRdapObject(rdapEntity);
 
@@ -84,9 +92,19 @@ public class RdapObjectMapper {
         n.setFamily("Doe");
         n.setGiven("Jonathan");
         n.addPrefix("Mr");
-        vCard.setStructuredName(n);
         vCard.setFormattedName("John Doe");
 
         return vCard;
+    }
+
+    // "any getter" needed for serialization
+    @JsonAnyGetter
+    public Map<String,Object> any() {
+        return other;
+    }
+
+    @JsonAnySetter
+    public void set(String name, Object value) {
+        other.put(name, value);
     }
 }
