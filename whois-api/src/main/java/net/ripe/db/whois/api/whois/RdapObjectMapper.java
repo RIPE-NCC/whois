@@ -2,9 +2,11 @@ package net.ripe.db.whois.api.whois;
 
 import ezvcard.CustomEzvcard;
 import ezvcard.VCard;
+import ezvcard.types.AddressType;
 import ezvcard.types.StructuredNameType;
 import net.ripe.db.whois.api.whois.domain.RdapEntity;
 import net.ripe.db.whois.api.whois.domain.RdapResponse;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -86,10 +88,16 @@ public class RdapObjectMapper {
         // make the vcard
         VCard vCard = new VCard();
         StructuredNameType n = new StructuredNameType();
-        n.setFamily("Doe");
-        n.setGiven("Jonathan");
-        n.addPrefix("Mr");
-        vCard.setFormattedName("John Doe");
+        AddressType at = new AddressType();
+        at.setStreetAddress(rpslObject.findAttribute(AttributeType.ADDRESS).getValue().trim());
+        vCard.addAddress(at);
+
+        String name = "";
+        if (rpslObject.findAttribute(AttributeType.PERSON).getValue().trim() != "") {
+            name = rpslObject.findAttribute(AttributeType.PERSON).getValue().trim();
+        }
+
+        vCard.setFormattedName(name);
 
         return vCard;
     }

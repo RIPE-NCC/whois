@@ -75,9 +75,6 @@ public class CustomJCardWriter implements Closeable {
             JsonFactory factory = new JsonFactory();
             factory.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
             jg = factory.createJsonGenerator(writer);
-
-            jg.writeStartArray();
-            jg.writeString("YO-SHIZZLE");
         }
 
         jg.writeStartArray();
@@ -324,7 +321,6 @@ public class CustomJCardWriter implements Closeable {
     public void endJsonStream() throws IOException {
         if (jg != null) {
             indent(0);
-            //jg.writeEndArray(); //YO-SHIZZLE
             jg.close();
         }
     }
