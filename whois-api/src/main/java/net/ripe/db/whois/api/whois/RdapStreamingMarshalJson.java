@@ -29,7 +29,6 @@ class RdapStreamingMarshalJson implements StreamingMarshal {
     public void open(final OutputStream outputStream) {
         try {
             generator = jsonFactory.createJsonGenerator(outputStream);
-            //generator.writeStartObject();
         } catch (IOException e) {
             throw new StreamingException(e);
         }
