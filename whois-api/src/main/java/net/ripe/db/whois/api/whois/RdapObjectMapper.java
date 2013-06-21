@@ -8,8 +8,8 @@ import net.ripe.db.whois.api.whois.domain.RdapResponse;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.codehaus.jackson.annotate.JsonAnyGetter;
-import org.codehaus.jackson.annotate.JsonAnySetter;
+//import org.codehaus.jackson.annotate.JsonAnyGetter;
+//import org.codehaus.jackson.annotate.JsonAnySetter;
 
 import java.util.*;
 
@@ -94,14 +94,16 @@ public class RdapObjectMapper {
         return vCard;
     }
 
-    // "any getter" needed for serialization
-    @JsonAnyGetter
-    public Map<String,Object> any() {
-        return other;
-    }
+//
+//    // "any getter" needed for serialization
+//    @JsonAnyGetter
+//    public Map<String,Object> any() {
+//        return other;
+//    }
+//
+//    @JsonAnySetter
+//    public void set(String name, Object value) {
+//        other.put(name, value);
+//    }
 
-    @JsonAnySetter
-    public void set(String name, Object value) {
-        other.put(name, value);
-    }
 }
