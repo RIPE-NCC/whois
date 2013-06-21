@@ -29,10 +29,10 @@ import java.net.InetAddress;
 @ExternallyManagedLifecycle
 @Component
 @Path("/")
-public class WhoisRdapServiceblah extends WhoisService {
+public class WhoisRdapService extends WhoisService {
 
     @Autowired
-    public WhoisRdapServiceblah(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final RpslObjectUpdateDao rpslObjectUpdateDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
+    public WhoisRdapService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final RpslObjectUpdateDao rpslObjectUpdateDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
         super(dateTimeProvider, updateRequestHandler,loggerContext, rpslObjectDao, rpslObjectUpdateDao, sourceContext, queryHandler);
     }
 
@@ -55,7 +55,7 @@ public class WhoisRdapServiceblah extends WhoisService {
     protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
         final StreamingMarshal streamingMarshal = new RdapStreamingMarshalJson();
 
-        RdapStreamingOutputblah rso = new RdapStreamingOutputblah(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
+        RdapStreamingOutput rso = new RdapStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
 
         return Response.ok(rso).build();
     }
