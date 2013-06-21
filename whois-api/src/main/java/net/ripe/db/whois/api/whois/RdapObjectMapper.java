@@ -1,5 +1,8 @@
 package net.ripe.db.whois.api.whois;
 
+import com.google.common.collect.Lists;
+import ezvcard.VCard;
+import ezvcard.types.StructuredNameType;
 import net.ripe.db.whois.api.whois.domain.RdapEntity;
 import net.ripe.db.whois.api.whois.domain.RdapResponse;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -48,26 +51,14 @@ public class RdapObjectMapper {
 
             debug(rpslObject);
 
-            /*rdapObject.decoratePrimary();
-            rdapObject.setHandle(rpslObject.getKey());*/
-
-            /*//build some vCards
-            List<RdapVCard> vCards = Lists.newArrayList();
-
-            // do some sort of iteration here but for now 1's enuff what
-            RdapVCard vCard = new RdapVCard();
-            vCards.add(vCard);
-
-            // turn it into an array
-            rdapObject.setvCards(vCards.toArray(new RdapVCard[]{}));*/
-
             // do the vcard dance
-            /*List<String> vCards = Lists.newArrayList();
+            List<String> vCards = Lists.newArrayList();
 
-            // iterate here
-            VCard vCard = generateVcard(rpslObject);*/
+            // split or something and iterate here
+            VCard vCard = generateVcard(rpslObject);
+            vCards.add(vCard.writeJson());
 
-            RdapEntity rdapEntity= new RdapEntity(rpslObject.getKey(), );
+            RdapEntity rdapEntity= new RdapEntity(rpslObject.getKey(), arrayListToString(vCards));
 
             rdapResponse.setRdapObject(rdapEntity);
 
@@ -90,5 +81,27 @@ public class RdapObjectMapper {
             ra = iter.next();
             System.out.println(ra.getKey() + ":" + ra.getValue());
         }
+    }
+
+    private VCard generateVcard (RpslObject rpslObject) {
+        // make the vcard
+        VCard vCard = new VCard();
+        StructuredNameType n = new StructuredNameType();
+        n.setFamily("Doe");
+        n.setGiven("Jonathan");
+        n.addPrefix("Mr");
+        vCard.setStructuredName(n);
+        vCard.setFormattedName("John Doe");
+
+        return vCard;
+    }
+
+    private String arrayListToString (List<String> arrayList) {
+        Iterator<String> listIter = arrayList.iterator();
+        String finalString = "";
+        while(listIter.hasNext()) {
+            finalString = finalString + "," + listIter.next();
+        }
+        return finalString;
     }
 }
