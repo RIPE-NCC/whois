@@ -21,9 +21,9 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 
-public class RdapStreamingOutput extends WhoisStreamingOutput {
+public class RdapStreamingOutputblah extends WhoisStreamingOutput {
 
-    public RdapStreamingOutput(StreamingMarshal sm, QueryHandler qh, Parameters p, Query q, InetAddress ra, int cid) {
+    public RdapStreamingOutputblah(StreamingMarshal sm, QueryHandler qh, Parameters p, Query q, InetAddress ra, int cid) {
         super(sm,qh,p,q,ra,cid);
     }
 

@@ -17,13 +17,13 @@ import javax.ws.rs.core.Application;
 import java.util.Set;
 
 @Component
-public class WhoisRdapServletDeployer implements ServletDeployer {
+public class WhoisRdapServletDeployerblah implements ServletDeployer {
 
-    private final WhoisRdapService whoisRDAPService;
+    private final WhoisRdapServiceblah whoisRDAPService;
     private final DefaultExceptionMapper defaultExceptionMapper;
 
     @Autowired
-    public WhoisRdapServletDeployer(final WhoisRdapService whoisRDAPService, final DefaultExceptionMapper defaultExceptionMapper) {
+    public WhoisRdapServletDeployerblah(final WhoisRdapServiceblah whoisRDAPService, final DefaultExceptionMapper defaultExceptionMapper) {
         this.whoisRDAPService = whoisRDAPService;
         this.defaultExceptionMapper = defaultExceptionMapper;
     }
