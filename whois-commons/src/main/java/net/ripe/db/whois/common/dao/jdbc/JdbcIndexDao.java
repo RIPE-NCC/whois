@@ -37,8 +37,6 @@ import java.util.Set;
 public class JdbcIndexDao implements IndexDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcIndexDao.class);
 
-    private static final Set<AttributeType> ALL_ATTRIBUTES = Sets.newEnumSet(Lists.newArrayList(AttributeType.values()), AttributeType.class);
-
     private final static int BATCH_SIZE = 100;
     private final static int LOG_EVERY = 100_000;
 
@@ -124,7 +122,12 @@ public class JdbcIndexDao implements IndexDao {
 
                 final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
                 final Set<AttributeType> keyAttributes = objectTemplate.getKeyAttributes();
-                final Set<AttributeType> updateAttributes = Phase.KEYS.equals(phase) ? keyAttributes : Sets.difference(ALL_ATTRIBUTES, keyAttributes);
+                final Set<AttributeType> otherAttributes = Sets.newHashSet();
+                otherAttributes.addAll(objectTemplate.getInverseLookupAttributes());
+                otherAttributes.addAll(objectTemplate.getLookupAttributes());
+                otherAttributes.removeAll(keyAttributes);
+
+                final Set<AttributeType> updateAttributes = Phase.KEYS.equals(phase) ? keyAttributes : otherAttributes;
 
                 for (final AttributeType attributeType : updateAttributes) {
                     updateAttributeIndex(rpslObject, attributeType);
