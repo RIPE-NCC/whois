@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(IntegrationTest.class)
-public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
+public class WhoisRdapServiceTestIntegrationblah extends AbstractRestClientTest {
 
     private static final Audience AUDIENCE = Audience.RDAP;
     private static final String VERSION_DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}";
