@@ -2,10 +2,12 @@ package net.ripe.db.whois.api.whois.domain;
 
 import ezvcard.VCard;
 import ezvcard.types.StructuredNameType;
+import org.codehaus.jackson.annotate.JsonRawValue;
 
 public class RdapVCard {
 
-    public VCard vcard;
+    @JsonRawValue
+    public String vcard;
 
     public RdapVCard() {//final String name, final String value, final String comment, final String referencedType, final Link link) {
         VCard vCard = new VCard();
@@ -15,10 +17,8 @@ public class RdapVCard {
         n.addPrefix("Mr");
         vCard.setStructuredName(n);
         vCard.setFormattedName("John Doe");
-        //vcard = Ezvcard.write(vCard).version(VCardVersion.V4_0).go();
-        //vcard = Ezvcard.writeJson(vCard).go().;
-        vcard = vCard;
-        //vcard = vCard;
+
+        vcard = vCard.writeJson();
     }
 
     /*public RdapVCard() {

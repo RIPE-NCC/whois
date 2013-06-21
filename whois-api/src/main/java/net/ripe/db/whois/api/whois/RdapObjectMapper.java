@@ -1,8 +1,7 @@
 package net.ripe.db.whois.api.whois;
 
-import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.whois.domain.RdapObject;
-import net.ripe.db.whois.api.whois.domain.RdapVCard;
+import net.ripe.db.whois.api.whois.domain.RdapEntity;
+import net.ripe.db.whois.api.whois.domain.RdapResponse;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -14,15 +13,15 @@ import java.util.Queue;
 public class RdapObjectMapper {
     private TaggedRpslObject primaryTaggedRpslObject;
     private Queue<TaggedRpslObject> taggedRpslObjectQueue;
-    private RdapObject rdapObject = new RdapObject();
+    private RdapResponse rdapResponse = new RdapResponse();
 
     public RdapObjectMapper(Queue<TaggedRpslObject> taggedRpslObjectQueue) {
         this.taggedRpslObjectQueue = taggedRpslObjectQueue;
     }
 
-    public RdapObject build () throws Exception {
+    public RdapResponse build () throws Exception {
         if (taggedRpslObjectQueue == null) {
-            return rdapObject;
+            return rdapResponse;
         }
 
         if (!taggedRpslObjectQueue.isEmpty()) {
@@ -37,7 +36,7 @@ public class RdapObjectMapper {
             add(whoisObjectQueue.poll());
         }*/
 
-        return rdapObject;
+        return rdapResponse;
     }
 
     private void add (TaggedRpslObject taggedRpslObject) {
@@ -49,10 +48,10 @@ public class RdapObjectMapper {
 
             debug(rpslObject);
 
-            rdapObject.decoratePrimary();
-            rdapObject.setHandle(rpslObject.getKey());
+            /*rdapObject.decoratePrimary();
+            rdapObject.setHandle(rpslObject.getKey());*/
 
-            //build some vCards
+            /*//build some vCards
             List<RdapVCard> vCards = Lists.newArrayList();
 
             // do some sort of iteration here but for now 1's enuff what
@@ -60,9 +59,17 @@ public class RdapObjectMapper {
             vCards.add(vCard);
 
             // turn it into an array
-            rdapObject.setvCards(vCards.toArray(new RdapVCard[]{}));
+            rdapObject.setvCards(vCards.toArray(new RdapVCard[]{}));*/
 
+            // do the vcard dance
+            /*List<String> vCards = Lists.newArrayList();
 
+            // iterate here
+            VCard vCard = generateVcard(rpslObject);*/
+
+            RdapEntity rdapEntity= new RdapEntity(rpslObject.getKey(), );
+
+            rdapResponse.setRdapObject(rdapEntity);
 
 
         } else if (rpslObjectType.equals(ObjectType.ORGANISATION.getName())) {
