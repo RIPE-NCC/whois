@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.whois;
 
-import com.google.common.collect.Lists;
 import ezvcard.VCard;
 import ezvcard.types.StructuredNameType;
 import net.ripe.db.whois.api.whois.domain.RdapEntity;
@@ -52,13 +51,8 @@ public class RdapObjectMapper {
             debug(rpslObject);
 
             // do the vcard dance
-            List<String> vCards = Lists.newArrayList();
-
-            // split or something and iterate here
-            VCard vCard = generateVcard(rpslObject);
-            vCards.add(vCard.writeJson());
-
-            RdapEntity rdapEntity= new RdapEntity(rpslObject.getKey(), arrayListToString(vCards));
+            VCard vCard = generateVCard(rpslObject);
+            RdapEntity rdapEntity= new RdapEntity(rpslObject.getKey(), vCard.writeJson());
 
             rdapResponse.setRdapObject(rdapEntity);
 
@@ -83,7 +77,7 @@ public class RdapObjectMapper {
         }
     }
 
-    private VCard generateVcard (RpslObject rpslObject) {
+    private VCard generateVCard (RpslObject rpslObject) {
         // make the vcard
         VCard vCard = new VCard();
         StructuredNameType n = new StructuredNameType();
@@ -94,14 +88,5 @@ public class RdapObjectMapper {
         vCard.setFormattedName("John Doe");
 
         return vCard;
-    }
-
-    private String arrayListToString (List<String> arrayList) {
-        Iterator<String> listIter = arrayList.iterator();
-        String finalString = "";
-        while(listIter.hasNext()) {
-            finalString = finalString + "," + listIter.next();
-        }
-        return finalString;
     }
 }
