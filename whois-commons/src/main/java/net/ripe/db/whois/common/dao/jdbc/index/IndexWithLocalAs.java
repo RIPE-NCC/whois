@@ -33,4 +33,8 @@ class IndexWithLocalAs extends IndexStrategyWithSingleLookupTable {
                 new RpslObjectResultSetExtractor(),
                 value);
     }
+
+    @Override
+    public void removeFromIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo) {
+    }
 }
