@@ -250,7 +250,7 @@ public enum AttributeType implements Documented {
 
     MNTNER(new Builder("mntner", "mt")
             .doc("A unique identifier of the mntner object.")
-            .syntax(OBJECT_NAME_SYNTAX)),
+            .syntax(OBJECT_NAME_SYNTAX)),                                   // TODO: need to include reserved words in object name syntax
 
     MNT_BY(new Builder("mnt-by", "mb")
             .doc("Specifies the identifier of a registered mntner object used for authorisation of operations " +

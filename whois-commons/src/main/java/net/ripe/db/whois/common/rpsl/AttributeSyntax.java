@@ -302,7 +302,7 @@ interface AttributeSyntax extends Documented {
     AttributeSyntax NUMBER_SYNTAX = new AttributeSyntaxRegexp(Pattern.compile("^[0-9]+$"), "" +
             "Specifies a numeric value.\n");
 
-    AttributeSyntax OBJECT_NAME_SYNTAX = new AttributeSyntaxRegexp(80, Pattern.compile("(?i)^[A-Z][A-Z0-9_-]*[A-Z0-9]$"), "" +
+    AttributeSyntax OBJECT_NAME_SYNTAX = new AttributeSyntaxParser(new NameParser(), "" +
             "Made up of letters, digits, the character underscore \"_\",\n" +
             "and the character hyphen \"-\"; the first character of a name\n" +
             "must be a letter, and the last character of a name must be a\n" +
@@ -313,7 +313,7 @@ interface AttributeSyntax extends Documented {
             " action accept announce except refine networks into inbound\n" +
             " outbound\n" +
             "\n" +
-            "Names starting with certain prefixes are reserved for\n" +
+            "Names starting with certain prefixes are reserved for\n" +             // TODO: [ES] implement per type
             "certain object types.  Names starting with \"as-\" are\n" +
             "reserved for as set names.  Names starting with \"rs-\" are\n" +
             "reserved for route set names.  Names starting with \"rtrs-\"\n" +

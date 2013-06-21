@@ -836,6 +836,27 @@ public class AttributeSyntaxTest {
     public void object_name() throws Exception {
         verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "A");
         verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "A12345678901234567890123456789012345678901234567890123456789012345678901234567890");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "ANY");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "any");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "as-any");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "rs-any");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "peeras");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "and");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "or");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "not");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "atomic");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "from");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "to");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "at");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "action");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "accept");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "announce");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "except");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "refine");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "networks");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "into");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "inbound");
+        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "outbound");
         verifySuccess(ObjectType.MNTNER, AttributeType.MNTNER, "ABCDEfghijKLMNOprstuVWXYz0123456789_______________----_________________________0");
         verifySuccess(ObjectType.MNTNER, AttributeType.MNTNER, "A1");
         verifySuccess(ObjectType.MNTNER, AttributeType.MNTNER, "FOO-BAR-ZOT");

@@ -39,6 +39,7 @@ MpFilterParser src/main/resources/byacc/mp_filter.y
 MpImportParser src/main/resources/byacc/mp_import.y
 MpPeerParser src/main/resources/byacc/mp_peer.y
 MpPeeringParser src/main/resources/byacc/mp_peering.y
+NameParser src/main/resources/byacc/name.y
 PeerParser src/main/resources/byacc/peer.y
 PeeringParser src/main/resources/byacc/peering.y
 V6FilterParser src/main/resources/byacc/v6_filter.y' | while read GENERATED YACCDEF; do
