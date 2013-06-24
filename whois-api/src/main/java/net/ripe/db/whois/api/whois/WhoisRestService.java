@@ -5,7 +5,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
-import com.sun.jersey.api.NotFoundException;
 import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -146,7 +145,7 @@ public class WhoisRestService {
         final List<VersionResponseObject> versions = apiResponseHandlerVersions.getVersionObjects();
 
         if (versionResponseObject == null && deleted.isEmpty() && versions.isEmpty()) {
-            throw new NotFoundException();
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
         final WhoisResources whoisResources = new WhoisResources();
@@ -205,7 +204,7 @@ public class WhoisRestService {
                     streamObject(rpslObjectQueue.poll(), tagResponseObjects);
 
                     if (!found) {
-                        throw new NotFoundException();
+                        throw new WebApplicationException(Response.Status.NOT_FOUND);
                     }
                 } catch (QueryException e) {
                     if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
