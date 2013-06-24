@@ -4,7 +4,6 @@ import ezvcard.CustomEzvcard;
 import ezvcard.VCard;
 import ezvcard.types.AddressType;
 import ezvcard.types.EmailType;
-import ezvcard.types.StructuredNameType;
 import ezvcard.types.TelephoneType;
 import net.ripe.db.whois.api.whois.domain.RdapEntity;
 import net.ripe.db.whois.api.whois.domain.RdapResponse;
@@ -86,30 +85,44 @@ public class RdapObjectMapper {
     private VCard generateVCard (RpslObject rpslObject) {
         // make the vcard
         VCard vCard = new VCard();
-        StructuredNameType n = new StructuredNameType();
-        AddressType at = new AddressType();
-        at.setStreetAddress(rpslObject.findAttribute(AttributeType.ADDRESS).getValue().trim());
-        vCard.addAddress(at);
 
-        String name = rpslObject.findAttribute(AttributeType.PERSON).getValue().trim();
-        if (name != "") {
-            vCard.setFormattedName(name);
+        List<RpslAttribute> addressAttributes = rpslObject.findAttributes(AttributeType.ADDRESS);
+        if (!addressAttributes.isEmpty()) {
+            AddressType at = new AddressType();
+            at.setExtendedAddress(attributeListToString(addressAttributes));
+            vCard.addAddress(at);
         }
 
-        TelephoneType tt = new TelephoneType(rpslObject.findAttribute(AttributeType.PHONE).getValue().trim());
-        vCard.addTelephoneNumber(tt);
+        List<RpslAttribute> personAttributes = rpslObject.findAttributes(AttributeType.PERSON);
+        if (!personAttributes.isEmpty()) {
+            vCard.setFormattedName(attributeListToString(personAttributes));
+        }
 
-        try {
-            if (rpslObject.findAttribute(AttributeType.E_MAIL).getValue().trim() != "") {
-                EmailType et = new EmailType(rpslObject.findAttribute(AttributeType.E_MAIL).getValue().trim());
-                vCard.addEmail(et);
-            }
-        } catch (Exception e) {
-            // piece o crap
-            System.out.println(e);
+        List<RpslAttribute> phoneAttributes = rpslObject.findAttributes(AttributeType.PHONE);
+        if (!phoneAttributes.isEmpty()) {
+            TelephoneType tt = new TelephoneType(attributeListToString(phoneAttributes));
+            vCard.addTelephoneNumber(tt);
+        }
+
+        List<RpslAttribute> emailAttributes = rpslObject.findAttributes(AttributeType.E_MAIL);
+        if (!emailAttributes.isEmpty()) {
+            EmailType et = new EmailType(attributeListToString(emailAttributes));
+            vCard.addEmail(et);
         }
 
         return vCard;
+    }
+
+    private String attributeListToString (List<RpslAttribute> rpslAttributes) {
+        Iterator<RpslAttribute> rpslAttributeIterator = rpslAttributes.iterator();
+
+        String output = "";
+
+        while (rpslAttributeIterator.hasNext()) {
+            output = output + " " + rpslAttributeIterator.next().getValue().trim();
+        }
+
+        return output.trim();
     }
 
 }
