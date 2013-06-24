@@ -1267,6 +1267,64 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         ));
     }
 
+
+    @Test
+    public void search_with_longoptions() {
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        final WhoisResources resources = createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rG")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(resources.getWhoisObjects(), hasSize(1));
+
+        final List<Flag> flags = resources.getParameters().getFlags().getFlags();
+        assertThat(flags, hasSize(3));
+        assertThat(flags.get(0).getValue(), is("G"));
+        assertThat(flags.get(1).getValue(), is("r"));
+        assertThat(flags.get(2).getValue(), is("no-filtering"));
+    }
+
+    @Test
+    public void search_with_short_and_longoptions_together() {
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        try {
+            createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST&flags=show-tag-inforG")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), is("%ERROR:111: invalid option supplied\n%\n% Use help query to see the valid options.\n"));
+        }
+    }
+
+    @Test
+    public void search_invalid_flag() {
+        try {
+            createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST&flags=qW")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), is("%ERROR:111: invalid option supplied\n%\n% Use help query to see the valid options.\n"));
+        }
+    }
+
     @Test
     public void search_includes_tags() throws Exception {
         final RpslObject autnum = RpslObject.parse("" +

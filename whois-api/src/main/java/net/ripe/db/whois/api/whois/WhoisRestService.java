@@ -1,7 +1,9 @@
 package net.ripe.db.whois.api.whois;
 
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
@@ -21,7 +23,6 @@ import net.ripe.db.whois.query.query.QueryFlag;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.lang.StringUtils;
 import org.codehaus.enunciate.jaxrs.TypeHint;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -242,7 +243,7 @@ public class WhoisRestService {
                     if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
                         throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
                     } else {
-                        throw new RuntimeException("Unexpected result", e);
+                        throw e;
                     }
                 }
 
@@ -771,6 +772,10 @@ public class WhoisRestService {
      *      <li><div>A search on multiple sources and multiple type-filters:</div>
      *      <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&query-string=google&type-filter=person&type-filter=organisation</span>
      *      </li>
+     *      <li><div>A search using both long and short flags:</div>
+     *      <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&query-string=aardvark-mnt&flags=no-filtering&flags=rG</span>
+     *      <div>Use separate flags for long options and short options. Long options can not be "bundled" the same way as short options.</div>
+     *      </li>
      *  </ul>
      * Further documentation on the standard Whois Database Query flags can be found on the RIPE Whois Database Query Reference Manual.</p>
      *
@@ -794,7 +799,7 @@ public class WhoisRestService {
             @QueryParam("query-string") String queryString,
             @QueryParam("inverse-attribute") Set<String> inverseAttributes,
             @QueryParam("type-filter") Set<String> types,
-            @QueryParam("flags") String flags) {
+            @QueryParam("flags") Set<String> flags) {
         return doSearch(request, queryString, sources, inverseAttributes, types, flags, false);
     }
 
@@ -826,7 +831,7 @@ public class WhoisRestService {
             @QueryParam("query-string") String queryString,
             @QueryParam("inverse-attribute") Set<String> inverseAttributes,
             @QueryParam("type-filter") Set<String> types,
-            @QueryParam("flags") String flags) {
+            @QueryParam("flags") Set<String> flags) {
         return doSearch(request, queryString, sources, inverseAttributes, types, flags, true);
     }
 
@@ -836,7 +841,7 @@ public class WhoisRestService {
             final Set<String> sources,
             final Set<String> inverseAttributes,
             final Set<String> types,
-            final String flags,
+            final Set<String> flags,
             final boolean isGrsExpected) {
         if (sources == null || sources.isEmpty()) {
             throw new IllegalArgumentException("Argument 'source' is missing, you have to specify a valid RIR source for your search request");
@@ -852,11 +857,17 @@ public class WhoisRestService {
             }
         }
 
-        if (StringUtils.isNotBlank(flags)) {
-            final CharacterIterator charIterator = new StringCharacterIterator(flags);
-            for (char flag = charIterator.first(); flag != CharacterIterator.DONE; flag = charIterator.next()) {
-                if (NOT_ALLOWED_SEARCH_FLAGS.contains(flag)) {
-                    throw new IllegalArgumentException(String.format("The flag: %s is not valid.", flag));
+        final Set<String> separateFlags = Sets.newHashSet();
+        for (final String flagParameter : flags) {
+            if (QueryFlag.getValidLongFlags().contains(flagParameter)) {
+                separateFlags.add(flagParameter);
+            } else {
+                final CharacterIterator charIterator = new StringCharacterIterator(flagParameter);
+                for (char flag = charIterator.first(); flag != CharacterIterator.DONE; flag = charIterator.next()) {
+                    if (NOT_ALLOWED_SEARCH_FLAGS.contains(flag)) {
+                        throw new IllegalArgumentException(String.format("The flag: %s is not valid.", flag));
+                    }
+                    separateFlags.add(String.valueOf(flag));
                 }
             }
         }
@@ -869,7 +880,13 @@ public class WhoisRestService {
                 JOINER.join(types),
                 (inverseAttributes == null || inverseAttributes.isEmpty()) ? "" : QueryFlag.INVERSE.getLongFlag(),
                 JOINER.join(inverseAttributes),
-                (flags == null) ? "" : "-" + flags,
+                Joiner.on(" ").join(Iterables.transform(separateFlags, new Function<String, String>() {
+                    @Nullable
+                    @Override
+                    public String apply(@Nullable String input) {
+                        return QueryFlag.getValidLongFlags().contains(input) ? "--" + input : "-" + input;
+                    }
+                })),
                 (queryString == null ? "" : queryString)));
 
         final Parameters parameters = new Parameters();
@@ -877,7 +894,7 @@ public class WhoisRestService {
         parameters.setQueryStrings(queryString);
         parameters.setInverseLookup(inverseAttributes);
         parameters.setTypeFilters(types);
-        parameters.setFlags(flags == null ? Collections.<String>emptySet() : Sets.newHashSet(flags.split("(?!^)")));
+        parameters.setFlags(separateFlags);
 
         return handleQuery(query, JOINER.join(sources), queryString, request, parameters);
     }

@@ -27,6 +27,10 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
+        if (exception instanceof IllegalSourceException) {
+            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(exception.getMessage()).build();
+        }
+
         if (exception instanceof IllegalArgumentException) {
             return Response.status(Response.Status.BAD_REQUEST).entity(exception.getMessage()).build();
         }
@@ -47,12 +51,8 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
             return Response.status(HttpServletResponse.SC_NOT_FOUND).build();
         }
 
-        if (exception instanceof IllegalSourceException) {
-            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(exception.getMessage()).build();
-        }
-
         if (exception instanceof QueryException) {
-            return Response.status(HttpServletResponse.SC_BAD_REQUEST).build();
+            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(exception.getMessage()).build();
         }
 
         LOGGER.error("Unexpected", exception);
