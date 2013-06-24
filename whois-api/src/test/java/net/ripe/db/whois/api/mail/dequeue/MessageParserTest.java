@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
+import com.google.common.base.Charsets;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.common.Message;
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.ContentType;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -755,6 +757,11 @@ public class MessageParserTest {
                 "source: RIPE\n\n"));
         assertThat(contentWithCredentialsList.get(0).getCredentials(), hasSize(1));
         assertTrue(contentWithCredentialsList.get(0).getCredentials().get(0) instanceof X509Credential);
+    }
+
+    @Test
+    public void illegal_charset() throws Exception {
+        assertThat(subject.getCharset(new ContentType("text/plain;\n\tcharset=\"_iso-2022-jp$ESC\"")), is(Charsets.ISO_8859_1));
     }
 
     private MimeMessage getMessage(final String message) throws MessagingException, IOException {

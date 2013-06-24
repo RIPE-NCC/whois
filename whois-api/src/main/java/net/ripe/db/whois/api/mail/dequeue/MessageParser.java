@@ -27,6 +27,7 @@ import javax.mail.internet.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Enumeration;
 import java.util.List;
@@ -213,6 +214,8 @@ public class MessageParser {
                 return Charset.forName(MimeUtility.javaCharset(charset));
             } catch (UnsupportedCharsetException e) {
                 loggerContext.log(new Message(Messages.Type.WARNING, "Unsupported charset: %s in contentType: %s", charset, contentType));
+            } catch (IllegalCharsetNameException e) {
+                loggerContext.log(new Message(Messages.Type.WARNING, "Illegal charset: %s in contentType: %s", charset, contentType));
             }
         }
 
