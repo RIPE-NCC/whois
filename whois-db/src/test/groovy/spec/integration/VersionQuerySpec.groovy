@@ -1126,7 +1126,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
 
       then:
         response =~ header
-        response =~ "% This object was deleted on \\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}\n"
+        response =~ "% History not available for PERSON and ROLE objects.\n"
 
       where:
         pkey << ["TP3-TEST"]
