@@ -9,7 +9,7 @@ import java.util.List;
 
 @XmlType(name = "", propOrder = {
         "handle",
-        "vcardArray",
+        "vcardArray"
 })
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class RdapEntity extends RdapObject {
