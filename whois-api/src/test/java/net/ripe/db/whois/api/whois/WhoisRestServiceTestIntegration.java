@@ -177,7 +177,36 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void lookup_include_tags() {
+    public void lookup_includes_tags() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
+
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
+
+        final WhoisResources whoisResources = createResource(AUDIENCE,
+                "whois/lookup/TEST/aut-num/AS102")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(whoisObject.getTags(), contains(
+                new WhoisTag("foobar", "description"),
+                new WhoisTag("other", "other stuff"),
+                new WhoisTag("unref", "28")));
+    }
+
+    @Test
+    public void lookup_include_tags_params() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -199,15 +228,10 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
 
-        final List<WhoisTag> tags = whoisObject.getTags();
-        assertThat(tags, hasSize(3));
-        assertThat(tags.get(0).getId(), is("foobar"));
-        assertThat(tags.get(0).getData(), is("description"));
-        assertThat(tags.get(1).getId(), is("other"));
-        assertThat(tags.get(1).getData(), is("other stuff"));
-        assertThat(tags.get(2).getId(), is("unref"));
-        assertThat(tags.get(2).getData(), is("28"));
-
+        assertThat(whoisObject.getTags(), contains(
+                new WhoisTag("foobar", "description"),
+                new WhoisTag("other", "other stuff"),
+                new WhoisTag("unref", "28")));
         assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("aut-num", "AS102"),
                 new Attribute("as-name", "End-User-2"),
@@ -220,7 +244,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void lookup_include_tags_no_results() {
+    public void lookup_include_tags_param_no_results() {
         try {
             createResource(AUDIENCE,
                     "whois/lookup/TEST/person/TP1-TEST?include=foobar")
@@ -233,7 +257,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void lookup_exclude_tags_shows_related_objects() {
+    public void lookup_exclude_tags_param_shows_related_objects() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -268,7 +292,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void lookup_include_and_exclude_tags_no_results() {
+    public void lookup_include_and_exclude_tags_params_no_results() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -294,7 +318,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void lookup_include_and_exclude_tags() {
+    public void lookup_include_and_exclude_tags_params() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -315,13 +339,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
 
-        final List<WhoisTag> tags = whoisObject.getTags();
-        assertThat(tags, hasSize(2));
-        assertThat(tags.get(0).getId(), is("foobar"));
-        assertThat(tags.get(0).getData(), is("foobar"));
-        assertThat(tags.get(1).getId(), is("unref"));
-        assertThat(tags.get(1).getData(), is("28"));
-
+        assertThat(whoisObject.getTags(), contains(
+                new WhoisTag("foobar", "foobar"),
+                new WhoisTag("unref", "28")));
         assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("aut-num", "AS102"),
                 new Attribute("as-name", "End-User-2"),
@@ -1214,17 +1234,13 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
 
-        final String s = createResource(AUDIENCE, "whois/search?query-string=AS102&source=TEST")
-                .accept(MediaType.APPLICATION_XML)
-                .get(String.class);
-
-        final WhoisResources whoisResources2 = createResource(AUDIENCE, "whois/search?query-string=AS102&source=TEST")
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=AS102&source=TEST")
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        assertThat(whoisResources2.getWhoisObjects(), hasSize(2));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
 
-        final WhoisObject autnum = whoisResources2.getWhoisObjects().get(0);
+        final WhoisObject autnum = whoisResources.getWhoisObjects().get(0);
         assertThat(autnum.getType(), is("aut-num"));
         assertThat(autnum.getPrimaryKey().get(0).getValue(), is("AS102"));
         assertThat(autnum.getAttributes(), contains(
@@ -1237,7 +1253,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("source", "TEST")
         ));
 
-        final WhoisObject person = whoisResources2.getWhoisObjects().get(1);
+        final WhoisObject person = whoisResources.getWhoisObjects().get(1);
         assertThat(person.getType(), is("person"));
         assertThat(person.getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
 
@@ -1249,6 +1265,34 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)
         ));
+    }
+
+    @Test
+    public void search_includes_tags() throws Exception {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
+
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
+
+        final WhoisResources whoisResources = createResource(AUDIENCE,
+                "whois/lookup/TEST/aut-num/AS102?include=foobar&include=unref")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getTags(), contains(
+                new WhoisTag("foobar", "description"),
+                new WhoisTag("other", "other stuff"),
+                new WhoisTag("unref", "28")));
     }
 
     @Test

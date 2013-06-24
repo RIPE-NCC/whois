@@ -136,9 +136,11 @@ public class WhoisRestService {
             final Set<String> excludeTags,
             final boolean isGrsExpected) {
         final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s",
-                QueryFlag.SOURCES.getLongFlag(), source,
-                QueryFlag.SELECT_TYPES.getLongFlag(), objectTypeString,
-                ((includeTags == null || includeTags.isEmpty()) && (excludeTags == null || excludeTags.isEmpty())) ? "" : QueryFlag.SHOW_TAG_INFO.getLongFlag(),
+                QueryFlag.SOURCES.getLongFlag(),
+                source,
+                QueryFlag.SELECT_TYPES.getLongFlag(),
+                objectTypeString,
+                QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 (includeTags == null || includeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(),
                 JOINER.join(includeTags),
                 (excludeTags == null || excludeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(),
@@ -857,9 +859,10 @@ public class WhoisRestService {
             }
         }
 
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s",
+        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s",
                 QueryFlag.SOURCES.getLongFlag(),
                 JOINER.join(sources),
+                QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 (types == null || types.isEmpty()) ? "" : QueryFlag.SELECT_TYPES.getLongFlag(),
                 JOINER.join(types),
                 (inverseAttributes == null || inverseAttributes.isEmpty()) ? "" : QueryFlag.INVERSE.getLongFlag(),
