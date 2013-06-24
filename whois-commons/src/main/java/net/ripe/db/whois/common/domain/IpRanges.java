@@ -13,21 +13,21 @@ import java.util.Set;
 public class IpRanges {
     private static final Logger LOGGER = LoggerFactory.getLogger(IpRanges.class);
 
-    private Set<Interval> ripeRanges;
+    private Set<Interval> trusted;
 
     @Value("${ipranges.trusted}")
-    public void setRipeRanges(final String... ripeRanges) {
-        final Set<Interval> ipResources = Sets.newLinkedHashSetWithExpectedSize(ripeRanges.length);
-        for (final String ripeRange : ripeRanges) {
-            ipResources.add(IpInterval.parse(ripeRange));
+    public void setTrusted(final String... trusted) {
+        final Set<Interval> ipResources = Sets.newLinkedHashSetWithExpectedSize(trusted.length);
+        for (final String trustedRange : trusted) {
+            ipResources.add(IpInterval.parse(trustedRange));
         }
 
-        this.ripeRanges = ipResources;
-        LOGGER.info("Trusted ranges: {}", this.ripeRanges);
+        this.trusted = ipResources;
+        LOGGER.info("Trusted ranges: {}", this.trusted);
     }
 
-    public boolean isInRipeRange(final Interval ipResource) {
-        for (final Interval resource : ripeRanges) {
+    public boolean isTrusted(final Interval ipResource) {
+        for (final Interval resource : trusted) {
             if (resource.getClass().equals(ipResource.getClass()) && resource.contains(ipResource)) {
                 return true;
             }

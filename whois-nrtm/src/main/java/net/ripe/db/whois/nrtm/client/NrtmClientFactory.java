@@ -1,6 +1,8 @@
 package net.ripe.db.whois.nrtm.client;
 
 
+import net.ripe.db.whois.common.MaintenanceMode;
+import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -36,16 +38,19 @@ class NrtmClientFactory {
     private final SerialDao serialDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final NrtmClientDao nrtmClientDao;
+    private final MaintenanceMode maintenanceMode;
 
     @Autowired
     public NrtmClientFactory(final SourceContext sourceContext,
                              final SerialDao serialDao,
                              final RpslObjectUpdateDao rpslObjectUpdateDao,
-                             final NrtmClientDao nrtmClientDao) {
+                             final NrtmClientDao nrtmClientDao,
+                             final MaintenanceMode maintenanceMode) {
         this.sourceContext = sourceContext;
         this.serialDao = serialDao;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.nrtmClientDao = nrtmClientDao;
+        this.maintenanceMode = maintenanceMode;
     }
 
     public NrtmClient createNrtmClient(final NrtmSource nrtmSource) {
@@ -151,9 +156,13 @@ class NrtmClientFactory {
 
         private void readUpdates() throws IOException {
             while (true) {
-                final OperationSerial operationSerial = readOperationAndSerial();
-                final RpslObject object = readObject();
-                update(operationSerial.getOperation(), operationSerial.getSerial(), object);
+                if (maintenanceMode.allowUpdate()) {
+                    final OperationSerial operationSerial = readOperationAndSerial();
+                    final RpslObject object = readObject();
+                    update(operationSerial.getOperation(), operationSerial.getSerial(), object);
+                } else {
+                    ServerHelper.sleep(1000);
+                }
             }
         }
 

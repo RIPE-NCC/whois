@@ -1,6 +1,7 @@
 package net.ripe.db.whois.nrtm;
 
 import joptsimple.OptionException;
+import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
@@ -151,11 +152,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         for (int serial = query.getSerialBegin(); serial <= query.getSerialEnd(); ) {
             serial = writeSerials(serial, query.getSerialEnd(), query.getVersion(), channel);
             if (serial <= query.getSerialEnd()) {
-                try {
-                    // throttle response
-                    Thread.sleep(1000);
-                } catch (InterruptedException ignored) {
-                }
+                ServerHelper.sleep(1000);
             }
         }
 

@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
+import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.*;
 public class MessageDequeueTest {
     private static final int TIMEOUT = 1000;
 
+    @Mock MaintenanceMode maintenanceMode;
     @Mock MailGateway mailGateway;
     @Mock MailMessageDao mailMessageDao;
     @Mock MessageFilter messageFilter;
@@ -52,6 +54,7 @@ public class MessageDequeueTest {
     @Before
     public void setUp() throws Exception {
         subject.setNrThreads(1);
+        when(maintenanceMode.allowUpdate()).thenReturn(true);
     }
 
     @After

@@ -2,6 +2,7 @@ package net.ripe.db.whois.nrtm;
 
 import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.dao.SerialDao;
+import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -34,6 +35,7 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
     private final Dummifier dummifier;
     private final TaskScheduler clientSynchronisationScheduler;
     private final NrtmLog nrtmLog;
+    private final MaintenanceHandler maintenanceHandler;
 
     private final String version;
     private final String source;
@@ -42,7 +44,7 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
     protected BaseNrtmServerPipelineFactory(final NrtmChannelsRegistry nrtmChannelsRegistry,
                                             final NrtmExceptionHandler exceptionHandler, final AccessControlHandler aclHandler,
                                             final SerialDao serialDao, final NrtmLog nrtmLog, final Dummifier dummifier,
-                                            final TaskScheduler clientSynchronisationScheduler, final String version,
+                                            final TaskScheduler clientSynchronisationScheduler, final MaintenanceHandler maintenanceHandler, final String version,
                                             final String source, final long updateInterval) {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;
         this.exceptionHandler = exceptionHandler;
@@ -51,6 +53,7 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
         this.nrtmLog = nrtmLog;
         this.dummifier = dummifier;
         this.clientSynchronisationScheduler = clientSynchronisationScheduler;
+        this.maintenanceHandler = maintenanceHandler;
 
         this.version = version;
         this.source = source;
@@ -61,6 +64,7 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
     public ChannelPipeline getPipeline() {
         ChannelPipeline pipeline = Channels.pipeline();
 
+        pipeline.addLast("U-maintenanceHandler", maintenanceHandler);
         pipeline.addLast("U-channels", nrtmChannelsRegistry);
         pipeline.addLast("U-acl", aclHandler);
 

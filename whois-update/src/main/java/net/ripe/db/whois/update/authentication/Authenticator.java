@@ -102,7 +102,7 @@ public class Authenticator {
 
         if (!origin.allowAdminOperations()) {
             authenticationMessages.add(UpdateMessages.overrideNotAllowedForOrigin(origin));
-        } else if (!ipRanges.isInRipeRange(IpInterval.parse(origin.getFrom()))) {
+        } else if (!ipRanges.isTrusted(IpInterval.parse(origin.getFrom()))) {
             authenticationMessages.add(UpdateMessages.overrideOnlyAllowedByDbAdmins());
         }
 
@@ -170,7 +170,7 @@ public class Authenticator {
 
         // TODO: [AH] remove the isDeployed() when we are done migrating power-maintainer tests to syncupdates (a lot of tests that require power mntner are using mailupdates ATM)
         if (!principals.isEmpty() && !origin.isDefaultOverride() && WhoisProfile.isDeployed()) {
-            if (!origin.allowAdminOperations() || !ipRanges.isInRipeRange(IpInterval.parse(origin.getFrom()))) {
+            if (!origin.allowAdminOperations() || !ipRanges.isTrusted(IpInterval.parse(origin.getFrom()))) {
                 authenticationMessages.add(UpdateMessages.ripeMntnerUpdatesOnlyAllowedFromWithinNetwork());
             }
         }

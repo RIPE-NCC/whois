@@ -1,7 +1,6 @@
 package net.ripe.db.whois;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.WhoisFixture;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.Audience;
@@ -77,7 +76,7 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
 
     @Test
     public void rest_api_update_from_outside_ripe_network() throws IOException {
-        ipRanges.setRipeRanges("53.67.0.1");
+        ipRanges.setTrusted("53.67.0.1");
 
         String url = "http://localhost:" + getPort(Audience.PUBLIC) + "/whois/create?password=emptypassword";
         String person =
@@ -106,7 +105,7 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
 
     @Test
     public void rest_api_update_from_within_ripe_network() throws IOException {
-        ipRanges.setRipeRanges("127.0.0.1", "::1");
+        ipRanges.setTrusted("127.0.0.1", "::1");
 
         String url = "http://localhost:" + getPort(Audience.PUBLIC) + "/whois/create?password=emptypassword";
         String person =
@@ -135,7 +134,7 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
 
     @Test
     public void mail_update_from_outside_ripe_network() throws Exception {
-        ipRanges.setRipeRanges("53.67.0.1");
+        ipRanges.setTrusted("53.67.0.1");
 
         final String response = mailUpdatesTestSupport.insert("NEW", RPSL_PERSON_WITH_RIPE_MAINTAINER);
 
@@ -148,7 +147,7 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
 
     @Test
     public void mail_update_from_within_ripe_network() throws Exception {
-        ipRanges.setRipeRanges("127.0.0.1", "::1");
+        ipRanges.setTrusted("127.0.0.1", "::1");
 
         final String response = mailUpdatesTestSupport.insert("NEW", RPSL_PERSON_WITH_RIPE_MAINTAINER);
 
@@ -161,7 +160,7 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
 
     @Test
     public void sync_update_from_outside_ripe_network() throws Exception {
-        ipRanges.setRipeRanges("53.67.0.1");
+        ipRanges.setTrusted("53.67.0.1");
 
         final String response = WhoisFixture.syncupdate(jettyConfig, RPSL_PERSON_WITH_RIPE_MAINTAINER,
                 false, false, true, false, true, 200);
@@ -173,7 +172,7 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
 
     @Test
     public void sync_update_from_within_ripe_network() throws Exception {
-        ipRanges.setRipeRanges("127.0.0.1", "::1");
+        ipRanges.setTrusted("127.0.0.1", "::1");
 
         final String response = WhoisFixture.syncupdate(jettyConfig, RPSL_PERSON_WITH_RIPE_MAINTAINER,
                 false, false, true, false, true, 200);

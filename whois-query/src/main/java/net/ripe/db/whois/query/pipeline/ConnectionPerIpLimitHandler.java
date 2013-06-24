@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.pipeline;
 
 import com.google.common.collect.Maps;
+import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
@@ -23,6 +24,7 @@ import java.util.Map;
 @ChannelHandler.Sharable
 public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionPerIpLimitHandler.class);
+    private static final Object CONNECTION_REFUSED = new Object();
 
     private final IpResourceConfiguration ipResourceConfiguration;
     private final WhoisLog whoisLog;
@@ -45,8 +47,9 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
     public void channelOpen(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         final Channel channel = ctx.getChannel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
+        final IpInterval remoteIp = IpInterval.asIpInterval(remoteAddress);
 
-        if (limitConnections(remoteAddress)) {
+        if (limitConnections(remoteIp)) {
             Integer count;
             synchronized (connections) {
                 count = connections.get(remoteAddress);
@@ -55,6 +58,7 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
             }
 
             if (count > maxConnectionsPerIp) {
+                ctx.setAttachment(CONNECTION_REFUSED);
                 whoisLog.logQueryResult("QRY", 0, 0, QueryCompletionInfo.REJECTED, 0, remoteAddress, channel.getId(), "");
                 channel.write(QueryMessages.termsAndConditions());
                 channel.write(QueryMessages.connectionsExceeded(maxConnectionsPerIp));
@@ -68,16 +72,21 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+        if (ctx.getAttachment() == CONNECTION_REFUSED) {
+            return;
+        }
+
         final Channel channel = ctx.getChannel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
 
-        if (limitConnections(remoteAddress)) {
-            synchronized (connections) {
-                final Integer count = connections.get(remoteAddress) - 1;
+        synchronized (connections) {
+            final Integer num = this.connections.get(remoteAddress);
+            if (num != null) {
+                final Integer count = num - 1;
                 if (count <= 0) {
-                    connections.remove(remoteAddress);
+                    this.connections.remove(remoteAddress);
                 } else {
-                    connections.put(remoteAddress, count);
+                    this.connections.put(remoteAddress, count);
                 }
             }
         }
@@ -85,7 +94,7 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
         super.channelClosed(ctx, e);
     }
 
-    private boolean limitConnections(final InetAddress remoteAddress) {
+    private boolean limitConnections(final IpInterval remoteAddress) {
         if (ipResourceConfiguration.isUnlimitedConnections(remoteAddress)) {
             LOGGER.debug("Unlimited connections allowed for {}", remoteAddress);
             return false;

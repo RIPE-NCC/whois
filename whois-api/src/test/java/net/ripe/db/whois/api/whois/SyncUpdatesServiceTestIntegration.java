@@ -93,7 +93,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void redirect_not_allowed() throws Exception {
-        ipRanges.setRipeRanges();
+        ipRanges.setTrusted();
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
         String response = doGetRequest(getUrl("test", "REDIRECT=yes&DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword")), HttpURLConnection.HTTP_FORBIDDEN);
@@ -104,7 +104,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void redirect_allowed() throws Exception {
-        ipRanges.setRipeRanges("0/0", "::0/0");
+        ipRanges.setTrusted("0/0", "::0/0");
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
         String response = doGetRequest(getUrl("test", "REDIRECT=yes&DATA=" + encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword")), HttpURLConnection.HTTP_OK);

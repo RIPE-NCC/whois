@@ -121,7 +121,7 @@ public class SyncUpdatesService {
 
             boolean notificationsEnabled = true;
             if (request.isParam(Command.REDIRECT)) {
-                if (!ipRanges.isInRipeRange(IpInterval.parse(request.getRemoteAddress()))) {
+                if (!ipRanges.isTrusted(IpInterval.parse(request.getRemoteAddress()))) {
                     return Response.status(Response.Status.FORBIDDEN).entity("Not allowed to disable notifications: " + request.getRemoteAddress()).build();
                 }
 

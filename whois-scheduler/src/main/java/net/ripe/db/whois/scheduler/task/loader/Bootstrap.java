@@ -1,5 +1,6 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
+import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.scheduler.DailyScheduledTask;
@@ -40,9 +41,7 @@ public class Bootstrap implements DailyScheduledTask {
 
             // wait until trees pick up empty DB to avoid case where few updates done and new objects added to text dump result in
             // treeupdaters not recognising rebuild is needed
-            try {
-                Thread.sleep((IpTreeUpdater.TREE_UPDATE_IN_SECONDS) * 1000);
-            } catch (InterruptedException ignored) {}
+            ServerHelper.sleep((IpTreeUpdater.TREE_UPDATE_IN_SECONDS) * 1000);
 
             final String result = loader.loadSplitFiles(dumpFileLocation);
             return result;

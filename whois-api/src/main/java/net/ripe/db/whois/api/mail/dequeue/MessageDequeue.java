@@ -4,7 +4,9 @@ import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationService;
+import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -35,6 +37,7 @@ public class MessageDequeue implements ApplicationService {
 
     private static final Pattern MESSAGE_ID_PATTERN = Pattern.compile("^<(.+?)(@.*)?>$");
 
+    private final MaintenanceMode maintenanceMode;
     private final MailGateway mailGateway;
     private final MailMessageDao mailMessageDao;
     private final MessageFilter messageFilter;
@@ -64,7 +67,15 @@ public class MessageDequeue implements ApplicationService {
     }
 
     @Autowired
-    public MessageDequeue(final MailGateway mailGateway, final MailMessageDao mailMessageDao, final MessageFilter messageFilter, final MessageParser messageParser, final UpdatesParser updatesParser, final UpdateRequestHandler messageHandler, final LoggerContext loggerContext) {
+    public MessageDequeue(final MaintenanceMode maintenanceMode,
+                          final MailGateway mailGateway,
+                          final MailMessageDao mailMessageDao,
+                          final MessageFilter messageFilter,
+                          final MessageParser messageParser,
+                          final UpdatesParser updatesParser,
+                          final UpdateRequestHandler messageHandler,
+                          final LoggerContext loggerContext) {
+        this.maintenanceMode = maintenanceMode;
         this.mailGateway = mailGateway;
         this.mailMessageDao = mailMessageDao;
         this.messageFilter = messageFilter;
@@ -135,10 +146,14 @@ public class MessageDequeue implements ApplicationService {
         public void run() {
             while (running) {
                 try {
-                    final String messageId = mailMessageDao.claimMessage();
+                    String messageId = null;
+                    if (maintenanceMode.allowUpdate()) {
+                        messageId = mailMessageDao.claimMessage();
+                    }
+
                     if (messageId == null) {
                         LOGGER.debug("No more messages");
-                        Thread.sleep(intervalMs);
+                        ServerHelper.sleep(intervalMs);
                         continue;
                     }
 
@@ -148,9 +163,8 @@ public class MessageDequeue implements ApplicationService {
 
                     while (freeThreads.get() == 0 && running) {
                         LOGGER.debug("Postpone message claiming until free thread is available");
-                        Thread.sleep(intervalMs);
+                        ServerHelper.sleep(intervalMs);
                     }
-                } catch (InterruptedException ignored) {
                 } catch (RuntimeException e) {
                     LOGGER.error("Unexpected", e);
                 }

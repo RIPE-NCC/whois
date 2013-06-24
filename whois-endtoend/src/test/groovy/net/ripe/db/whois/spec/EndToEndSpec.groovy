@@ -98,7 +98,7 @@ class EndToEndSpec extends Specification {
 
         stubs.each { it.reset() }
 
-        ipRanges.setRipeRanges("127.0.0.1", "0:0:0:0:0:0:0:1")
+        ipRanges.setTrusted("127.0.0.1", "0:0:0:0:0:0:0:1")
         ipTreeUpdater.rebuild()
     }
 

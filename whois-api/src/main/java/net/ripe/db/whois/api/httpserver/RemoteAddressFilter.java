@@ -110,7 +110,7 @@ public class RemoteAddressFilter implements Filter {
 
         private boolean isAddressInRipeNccRange(final String address) {
             try {
-                return ipRanges.isInRipeRange(IpInterval.parse(address));
+                return ipRanges.isTrusted(IpInterval.parse(address));
             } catch (IllegalArgumentException e) {
                 LOGGER.warn("Illegal address {}", address);
             }

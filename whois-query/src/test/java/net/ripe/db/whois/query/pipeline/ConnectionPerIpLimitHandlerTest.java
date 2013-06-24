@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.pipeline;
 
+import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryMessages;
@@ -41,8 +42,8 @@ public class ConnectionPerIpLimitHandlerTest {
 
         when(ctx.getChannel()).thenReturn(channel);
 
-        when(ipResourceConfiguration.isUnlimitedConnections(any(InetAddress.class))).thenReturn(false);
-        when(ipResourceConfiguration.isProxy(any(InetAddress.class))).thenReturn(false);
+        when(ipResourceConfiguration.isUnlimitedConnections(any(IpInterval.class))).thenReturn(false);
+        when(ipResourceConfiguration.isProxy(any(IpInterval.class))).thenReturn(false);
         when(channel.write(anyObject())).thenReturn(channelFuture);
     }
 
@@ -66,12 +67,12 @@ public class ConnectionPerIpLimitHandlerTest {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
         when(channel.getRemoteAddress()).thenReturn(remoteAddress);
 
-        final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
-        subject.handleUpstream(ctx, event);
-        subject.handleUpstream(ctx, event);
-        subject.handleUpstream(ctx, event);
+        final ChannelEvent openEvent = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
+        subject.handleUpstream(ctx, openEvent);
+        subject.handleUpstream(ctx, openEvent);
+        subject.handleUpstream(ctx, openEvent);
 
-        verify(ctx, times(2)).sendUpstream(event);
+        verify(ctx, times(2)).sendUpstream(openEvent);
         verify(channel, times(1)).write(argThat(new ArgumentMatcher<Object>() {
             @Override
             public boolean matches(Object argument) {
@@ -80,6 +81,7 @@ public class ConnectionPerIpLimitHandlerTest {
         }));
         verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
         verify(whoisLog).logQueryResult(anyString(), eq(0), eq(0), eq(QueryCompletionInfo.REJECTED), eq(0L), (InetAddress) Mockito.anyObject(), Mockito.anyInt(), eq(""));
+        verify(ctx, times(2)).sendUpstream(openEvent);
     }
 
     @Test
@@ -99,7 +101,6 @@ public class ConnectionPerIpLimitHandlerTest {
         subject.handleUpstream(ctx, closeEvent);
         subject.handleUpstream(ctx, closeEvent);
 
-
         verify(ctx, times(3)).sendUpstream(openEvent);
         verify(ctx, times(3)).sendUpstream(closeEvent);
         verify(channel, never()).close();
@@ -111,7 +112,7 @@ public class ConnectionPerIpLimitHandlerTest {
     public void multiple_connected_unlimited_allowed() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
 
-        when(ipResourceConfiguration.isUnlimitedConnections(any(InetAddress.class))).thenReturn(true);
+        when(ipResourceConfiguration.isUnlimitedConnections(any(IpInterval.class))).thenReturn(true);
         when(channel.getRemoteAddress()).thenReturn(remoteAddress);
 
         final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
@@ -129,7 +130,7 @@ public class ConnectionPerIpLimitHandlerTest {
     public void multiple_connected_proxy_allowed() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
 
-        when(ipResourceConfiguration.isProxy(any(InetAddress.class))).thenReturn(true);
+        when(ipResourceConfiguration.isProxy(any(IpInterval.class))).thenReturn(true);
         when(channel.getRemoteAddress()).thenReturn(remoteAddress);
 
         final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);

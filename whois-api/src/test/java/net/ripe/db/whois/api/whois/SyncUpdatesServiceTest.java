@@ -257,7 +257,7 @@ public class SyncUpdatesServiceTest {
         final String source = "test";
         final String contentType = "UTF-8";
 
-        when(ipRanges.isInRipeRange(any(Interval.class))).thenReturn(true);
+        when(ipRanges.isTrusted(any(Interval.class))).thenReturn(true);
         final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));

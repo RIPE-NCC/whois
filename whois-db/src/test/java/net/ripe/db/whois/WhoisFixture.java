@@ -142,7 +142,7 @@ public class WhoisFixture {
         initData();
         ipTreeUpdater.rebuild();
 
-        ipRanges.setRipeRanges("127.0.0.1", "0:0:0:0:0:0:0:1");
+        ipRanges.setTrusted("127.0.0.1", "0:0:0:0:0:0:0:1");
         for (final Stub stub : stubs.values()) {
             stub.reset();
         }
@@ -205,7 +205,7 @@ public class WhoisFixture {
     }
 
     public void setRipeRanges(final String... ripeRanges) {
-        ipRanges.setRipeRanges(ripeRanges);
+        ipRanges.setTrusted(ripeRanges);
     }
 
     public void setTime(LocalDateTime dateTime) {
@@ -370,7 +370,7 @@ public class WhoisFixture {
     }
 
     public void setIpRanges(String... ranges) {
-        ipRanges.setRipeRanges(ranges);
+        ipRanges.setTrusted(ranges);
     }
 
     public void rebuildIndexes() {

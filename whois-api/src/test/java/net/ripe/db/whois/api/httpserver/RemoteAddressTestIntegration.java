@@ -38,7 +38,7 @@ public class RemoteAddressTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void help_forward_header_ripe() throws Exception {
-        ipRanges.setRipeRanges("193/8");
+        ipRanges.setTrusted("193/8");
 
         final String index = client.resource(
                 String.format("http://localhost:%s/whois/syncupdates/TEST?HELP=yes", getPort(AUDIENCE)))

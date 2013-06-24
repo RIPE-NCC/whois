@@ -73,14 +73,14 @@ public class AuthenticatorPrincipalTest {
     @Test
     public void authenticate_powerMaintainer() {
         when(origin.getFrom()).thenReturn("127.0.0.1");
-        when(ipRanges.isInRipeRange(any(Interval.class))).thenReturn(true);
+        when(ipRanges.isTrusted(any(Interval.class))).thenReturn(true);
         authenticate_maintainer(RpslObject.parse("mntner: RIPE-NCC-HM-MNT"), Principal.POWER_MAINTAINER, Principal.ALLOC_MAINTAINER);
     }
 
     @Test
     public void authenticate_powerMaintainer_case_mismatch() {
         when(origin.getFrom()).thenReturn("127.0.0.1");
-        when(ipRanges.isInRipeRange(any(Interval.class))).thenReturn(true);
+        when(ipRanges.isTrusted(any(Interval.class))).thenReturn(true);
         authenticate_maintainer(RpslObject.parse("mntner: riPe-nCC-hm-Mnt"), Principal.POWER_MAINTAINER, Principal.ALLOC_MAINTAINER);
     }
 
@@ -101,7 +101,7 @@ public class AuthenticatorPrincipalTest {
     @Ignore // [AK] For now we allow updating by power maintainers outside the RIPE range, so this test fails
     public void authenticate_by_powerMaintainer_outside_ripe() {
         when(origin.getFrom()).thenReturn("212.0.0.0");
-        when(ipRanges.isInRipeRange(any(Interval.class))).thenReturn(false);
+        when(ipRanges.isTrusted(any(Interval.class))).thenReturn(false);
         when(authenticationStrategy1.supports(update)).thenReturn(true);
         when(authenticationStrategy1.authenticate(update, updateContext)).thenReturn(Lists.newArrayList(RpslObject.parse("mntner: RIPE-NCC-HM-MNT")));
 
@@ -126,7 +126,7 @@ public class AuthenticatorPrincipalTest {
     public void authenticate_by_powerMaintainer_inside_ripe() {
         when(origin.getFrom()).thenReturn("193.0.0.10");
         when(origin.allowAdminOperations()).thenReturn(true);
-        when(ipRanges.isInRipeRange(any(Interval.class))).thenReturn(true);
+        when(ipRanges.isTrusted(any(Interval.class))).thenReturn(true);
         when(authenticationStrategy1.supports(update)).thenReturn(true);
         when(authenticationStrategy1.authenticate(update, updateContext)).thenReturn(Lists.newArrayList(RpslObject.parse("mntner: RIPE-NCC-HM-MNT")));
 
@@ -228,7 +228,7 @@ public class AuthenticatorPrincipalTest {
         when(origin.getFrom()).thenReturn("193.0.0.10");
         when(update.isOverride()).thenReturn(true);
         when(update.getCredentials()).thenReturn(new Credentials(credentialSet));
-        when(ipRanges.isInRipeRange(IpInterval.parse("193.0.0.10"))).thenReturn(true);
+        when(ipRanges.isTrusted(IpInterval.parse("193.0.0.10"))).thenReturn(true);
 
         when(userDao.getOverrideUser("user")).thenThrow(EmptyResultDataAccessException.class);
         when(userDao.getOverrideUser("dbase1")).thenThrow(EmptyResultDataAccessException.class);
@@ -249,7 +249,7 @@ public class AuthenticatorPrincipalTest {
         when(origin.getFrom()).thenReturn("193.0.0.10");
         when(update.isOverride()).thenReturn(true);
         when(update.getCredentials()).thenReturn(new Credentials(credentialSet));
-        when(ipRanges.isInRipeRange(IpInterval.parse("193.0.0.10"))).thenReturn(true);
+        when(ipRanges.isTrusted(IpInterval.parse("193.0.0.10"))).thenReturn(true);
 
         when(userDao.getOverrideUser("user")).thenThrow(EmptyResultDataAccessException.class);
         when(userDao.getOverrideUser("dbase1")).thenReturn(User.createWithPlainTextPassword("dbase", "password"));
@@ -335,7 +335,7 @@ public class AuthenticatorPrincipalTest {
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(update.isOverride()).thenReturn(true);
         when(update.getCredentials()).thenReturn(new Credentials(credentialSet));
-        when(ipRanges.isInRipeRange(IpInterval.parse("193.0.0.10"))).thenReturn(true);
+        when(ipRanges.isTrusted(IpInterval.parse("193.0.0.10"))).thenReturn(true);
 
         when(userDao.getOverrideUser("user")).thenReturn(User.createWithPlainTextPassword("user", "password", ObjectType.INETNUM));
 

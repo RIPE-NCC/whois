@@ -34,8 +34,18 @@ public class IpResourceConfiguration {
         return result != null && result;
     }
 
+    public boolean isDenied(final IpInterval address) {
+        final Boolean result = denied.getValue(address);
+        return result != null && result;
+    }
+
     public boolean isProxy(final InetAddress address) {
         final Boolean result = proxy.getValue(IpInterval.asIpInterval(address));
+        return result != null && result;
+    }
+
+    public boolean isProxy(final IpInterval address) {
+        final Boolean result = proxy.getValue(address);
         return result != null && result;
     }
 
@@ -44,8 +54,18 @@ public class IpResourceConfiguration {
         return result == null ? DEFAULT_LIMIT : result;
     }
 
+    public int getLimit(final IpInterval address) {
+        final Integer result = limit.getValue(address);
+        return result == null ? DEFAULT_LIMIT : result;
+    }
+
     public boolean isUnlimitedConnections(final InetAddress address) {
         final Boolean result = unlimitedConnections.getValue(IpInterval.asIpInterval(address));
+        return result != null && result;
+    }
+
+    public boolean isUnlimitedConnections(final IpInterval address) {
+        final Boolean result = unlimitedConnections.getValue(address);
         return result != null && result;
     }
 

@@ -19,10 +19,10 @@ public final class ChannelUtil {
         final InetAddress inetAddress = ((InetSocketAddress) channel.getRemoteAddress()).getAddress();
 
         if (inetAddress instanceof Inet6Address) {
-            // strip of the % because Whois cannot handle it
+            // clean the zone index (% following the ip address)
             try {
                 return InetAddress.getByAddress(inetAddress.getAddress());
-            } catch (UnknownHostException e) {
+            } catch (UnknownHostException ignored) {
             }
         }
 

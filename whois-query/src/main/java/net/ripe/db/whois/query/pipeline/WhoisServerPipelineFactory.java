@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.pipeline;
 
 import com.google.common.base.Charsets;
+import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -50,6 +51,7 @@ public class WhoisServerPipelineFactory implements ChannelPipelineFactory {
         }
     }));
 
+    private final MaintenanceHandler maintenanceHandler;
     private final ConnectionPerIpLimitHandler connectionPerIpLimitHandler;
     private final QueryChannelsRegistry queryChannelsRegistry;
     private final TermsAndConditionsHandler termsAndConditionsHandler;
@@ -58,12 +60,14 @@ public class WhoisServerPipelineFactory implements ChannelPipelineFactory {
     private final QueryHandler queryHandler;
 
     @Autowired
-    public WhoisServerPipelineFactory(final QueryChannelsRegistry queryChannelsRegistry,
+    public WhoisServerPipelineFactory(final MaintenanceHandler maintenanceHandler,
+                                      final QueryChannelsRegistry queryChannelsRegistry,
                                       final TermsAndConditionsHandler termsAndConditionsHandler,
                                       final QueryDecoder queryDecoder,
                                       final WhoisEncoder whoisEncoder,
                                       final ConnectionPerIpLimitHandler connectionPerIpLimitHandler,
                                       final QueryHandler queryHandler) {
+        this.maintenanceHandler = maintenanceHandler;
         this.queryChannelsRegistry = queryChannelsRegistry;
         this.termsAndConditionsHandler = termsAndConditionsHandler;
         this.queryDecoder = queryDecoder;
@@ -81,6 +85,7 @@ public class WhoisServerPipelineFactory implements ChannelPipelineFactory {
     public ChannelPipeline getPipeline() {
         final ChannelPipeline pipeline = Channels.pipeline();
 
+        pipeline.addLast("maintenanceHandler", maintenanceHandler);
         pipeline.addLast("connectionPerIpLimit", connectionPerIpLimitHandler);
 
         pipeline.addLast("query-channels", queryChannelsRegistry);

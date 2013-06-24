@@ -1,6 +1,7 @@
 package net.ripe.db.whois.nrtm;
 
 import net.ripe.db.whois.common.dao.SerialDao;
+import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,13 +14,17 @@ public class LegacyNrtmServerPipelineFactory extends BaseNrtmServerPipelineFacto
 
     @Autowired
     public LegacyNrtmServerPipelineFactory(final NrtmChannelsRegistry nrtmChannelsRegistry,
-                                           final NrtmExceptionHandler exceptionHandler, final AccessControlHandler aclHandler,
-                                           final SerialDao serialDao, final NrtmLog nrtmLog, @Qualifier("dummifierLegacy") final Dummifier dummifier,
+                                           final NrtmExceptionHandler exceptionHandler,
+                                           final AccessControlHandler aclHandler,
+                                           final SerialDao serialDao,
+                                           final MaintenanceHandler maintenanceHandler,
+                                           final NrtmLog nrtmLog,
+                                           @Qualifier("dummifierLegacy") final Dummifier dummifier,
                                            @Qualifier("clientSynchronisationScheduler") final TaskScheduler clientSynchronisationScheduler,
                                            @Value("${application.version}") final String version,
                                            @Value("${whois.source}") final String source,
                                            @Value("${nrtm.update.interval:60}") final long updateInterval) {
 
-        super(nrtmChannelsRegistry, exceptionHandler, aclHandler, serialDao, nrtmLog, dummifier, clientSynchronisationScheduler, version, source, updateInterval);
+        super(nrtmChannelsRegistry, exceptionHandler, aclHandler, serialDao, nrtmLog, dummifier, clientSynchronisationScheduler, maintenanceHandler, version, source, updateInterval);
     }
 }

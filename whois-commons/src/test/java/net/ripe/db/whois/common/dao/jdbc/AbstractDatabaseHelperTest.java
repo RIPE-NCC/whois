@@ -25,7 +25,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Properties;
-import java.util.UUID;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles("TEST")
@@ -59,7 +58,7 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
             propertyStore = out.toByteArray();
         }
 
-        System.setProperty("mail.dequeue.interval", "10");
+        System.setProperty("mail.dequeue.interval", "3");
         System.setProperty("application.version", "0.1-TEST");
         System.setProperty("whois.source", "TEST");
         System.setProperty("grs.sources", "TEST-GRS");
