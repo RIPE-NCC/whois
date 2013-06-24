@@ -26,8 +26,7 @@ class NotificationResponse extends Response {
     def added(String type, String pkey, String new_str) {
         contents =~ "---\nOBJECT BELOW MODIFIED:\n+${type}:\\s*${pkey}" +
                 "(.*\n)+?REPLACED BY:\n+${type}:\\s*${pkey}" +
-                "(.*\n)*?${new_str}"
-
+                "(.*\n)*?${new_str}" &&
         !(contents =~ "---\nOBJECT BELOW MODIFIED:\n+${type}:\\s*${pkey}" +
                 "(.*\n)*?${new_str}(.*\n)*?REPLACED BY:\n+${type}:\\s*${pkey}")
     }
@@ -35,15 +34,14 @@ class NotificationResponse extends Response {
     def removed(String type, String pkey, String old_str) {
         contents =~ "---\nOBJECT BELOW MODIFIED:\n+${type}:\\s*${pkey}" +
                 "(.*\n)+?${old_str}" +
-                "(.*\n)+?REPLACED BY:\n+${type}:\\s*${pkey}"
-
+                "(.*\n)+?REPLACED BY:\n+${type}:\\s*${pkey}" &&
         !(contents =~ "---\nOBJECT BELOW MODIFIED:\n+${type}:\\s*${pkey}" +
                 "(.*\n)+?REPLACED BY:\n+${type}:\\s*${pkey}" +
                 "(.*\n)*?${old_str}.*?\n(.+\n)*?\n")
     }
 
     def changed(String type, String pkey, String old_str, String new_str) {
-        added(type, pkey, new_str)
+        added(type, pkey, new_str) &&
         removed(type, pkey, old_str)
     }
 
@@ -64,14 +62,14 @@ class NotificationResponse extends Response {
     }
 
     def authFailed(String operation, String type, String pkey) {
-        contents =~ "---\n${operation} REQUESTED FOR:\n+${type}:\\s*${pkey}"
-        contents =~ "\\*failed\\*"
+        contents =~ "---\n${operation} REQUESTED FOR:\n+${type}:\\s*${pkey}" &&
+        contents =~ "\\*failed\\*" &&
         contents =~ "the proper authorisation"
     }
 
     def pendingAuth(String operation, String type, String pkey) {
-        contents =~ "---\n${operation} REQUESTED FOR:\n+${type}:\\s*${pkey}"
-        contents =~ "\\*exactly as shown\\*"
+        contents =~ "---\n${operation} REQUESTED FOR:\n+${type}:\\s*${pkey}" &&
+        contents =~ "\\*exactly as shown\\*" &&
         contents =~ "This update must be completed within one week.\n"
     }
 
