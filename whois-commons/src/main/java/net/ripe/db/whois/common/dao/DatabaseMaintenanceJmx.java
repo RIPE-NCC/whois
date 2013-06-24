@@ -52,12 +52,11 @@ public class DatabaseMaintenanceJmx extends JmxBase {
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation")
     })
-    public String rebuildIndexes(final String comment) {
-        return invokeOperation("Rebuild indexes", comment, new Callable<String>() {
+    public void rebuildIndexes(final String comment) {
+        invokeOperation("Rebuild indexes", comment, new Runnable() {
             @Override
-            public String call() throws Exception {
+            public void run() {
                 indexDao.rebuild();
-                return "Rebuilt indexes";
             }
         });
     }

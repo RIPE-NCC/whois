@@ -28,4 +28,10 @@ public abstract class JmxBase {
             logger.info("{}: {} invocation took {}", description, comment, stopwatch.stop());
         }
     }
+
+    protected void invokeOperation(final String description, final String comment, final Runnable runnable) {
+        logger.info("{}: {}", description, comment);
+
+        (new Thread(runnable)).start();
+    }
 }
