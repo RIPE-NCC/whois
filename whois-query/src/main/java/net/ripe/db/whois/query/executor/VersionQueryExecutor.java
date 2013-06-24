@@ -63,16 +63,6 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     private Iterable<? extends ResponseObject> getResponseObjects(final Query query) {
-        if (query.isVersionList()) {
-            return getAllVersions(query);
-        } else if (query.isVersionDiff()) {
-            return getVersionDiffs(query);
-        } else {
-            return getVersion(query);
-        }
-    }
-
-    private Iterable<? extends ResponseObject> getAllVersions(final Query query) {
         VersionLookupResult res = getVersionInfo(query);
 
         if (res == null) {
@@ -80,11 +70,27 @@ public class VersionQueryExecutor implements QueryExecutor {
         }
 
         final ObjectType objectType = res.getObjectType();
-
         if (objectType == ObjectType.PERSON || objectType == ObjectType.ROLE) {
             return Collections.singletonList(new MessageObject(QueryMessages.versionPersonRole(objectType.getName().toUpperCase(), query.getSearchValue())));
         }
 
+        final List<VersionInfo> versionInfos = res.getVersionInfos();
+        final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
+        if (versionInfos.isEmpty() && lastDeletionTimestamp != null) {
+            return Collections.singletonList(new MessageObject(QueryMessages.versionDeleted(lastDeletionTimestamp.toString())));
+        }
+
+        if (query.isVersionList()) {
+            return getAllVersions(res, query);
+        } else if (query.isVersionDiff()) {
+            return getVersionDiffs(res, query);
+        } else {
+            return getVersion(res, query);
+        }
+    }
+
+    private Iterable<? extends ResponseObject> getAllVersions(final VersionLookupResult res, final Query query) {
+        final ObjectType objectType = res.getObjectType();
         final List<ResponseObject> messages = Lists.newArrayList();
         messages.add(new MessageObject(QueryMessages.versionListHeader(objectType.getName().toUpperCase(), query.getCleanSearchValue())));
 
@@ -109,28 +115,9 @@ public class VersionQueryExecutor implements QueryExecutor {
         return messages;
     }
 
-    private int getPadding(List<VersionInfo> versionInfos) {
-        // Minimum is the column header size
-        int versionPadding = String.valueOf(versionInfos.size()).length();
-        if (versionPadding < VERSION_HEADER.length()) {
-            versionPadding = VERSION_HEADER.length();
-        }
-        return versionPadding;
-    }
-
-    private Iterable<? extends ResponseObject> getVersion(final Query query) {
-        VersionLookupResult res = getVersionInfo(query);
-        if (res == null) {
-            return Collections.emptyList();
-        }
-
+    private Iterable<? extends ResponseObject> getVersion(final VersionLookupResult res, final Query query) {
         final List<VersionInfo> versionInfos = res.getVersionInfos();
         final int version = query.getObjectVersion();
-
-        final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
-        if (versionInfos.isEmpty() && lastDeletionTimestamp != null) {
-            return Collections.singletonList(new MessageObject(QueryMessages.versionDeleted(lastDeletionTimestamp.toString())));
-        }
 
         if (version < 1 || version > versionInfos.size()) {
             return Collections.singletonList(new MessageObject(QueryMessages.versionOutOfRange(versionInfos.size())));
@@ -139,13 +126,29 @@ public class VersionQueryExecutor implements QueryExecutor {
         final VersionInfo info = versionInfos.get(version - 1);
         final RpslObject rpslObject = versionDao.getRpslObject(info);
 
-        if (rpslObject.getType() == ObjectType.PERSON || rpslObject.getType() == ObjectType.ROLE) {
-            return Collections.singletonList(new MessageObject(QueryMessages.versionPersonRole(rpslObject.getType().getName().toUpperCase(), query.getSearchValue())));
-        }
-
         return Lists.newArrayList(
                 new MessageObject(QueryMessages.versionInformation(version, (version == versionInfos.size()), rpslObject.getKey(), info.getOperation(), info.getTimestamp())),
                 rpslObject);
+    }
+
+    private Iterable<? extends ResponseObject> getVersionDiffs(final VersionLookupResult res, final Query query) {
+        final List<VersionInfo> versionInfos = res.getVersionInfos();
+        final int[] versions = query.getObjectVersions();
+
+        if ((versions[0] < 1 || versions[0] > versionInfos.size()) ||
+                (versions[1] < 1 || versions[1] > versionInfos.size())) {
+            return Collections.singletonList(new MessageObject(QueryMessages.versionOutOfRange(versionInfos.size())));
+        }
+
+        final VersionInfo firstInfo = versionInfos.get(versions[0] - 1);
+        final RpslObject firstObject = filter(versionDao.getRpslObject(firstInfo));
+
+        final VersionInfo secondInfo = versionInfos.get(versions[1] - 1);
+        final RpslObject secondObject = filter(versionDao.getRpslObject(secondInfo));
+
+        return Lists.newArrayList(
+                new MessageObject(QueryMessages.versionDifferenceHeader(versions[0], versions[1], firstObject.getKey())),
+                new MessageObject(secondObject.diff(firstObject)));
     }
 
     private Collection<ObjectType> getObjectType(final Query query) {
@@ -168,38 +171,13 @@ public class VersionQueryExecutor implements QueryExecutor {
         return null;
     }
 
-    private Iterable<? extends ResponseObject> getVersionDiffs(final Query query) {
-        VersionLookupResult res = getVersionInfo(query);
-        if (res == null) {
-            return Collections.emptyList();
+    private int getPadding(List<VersionInfo> versionInfos) {
+        // Minimum is the column header size
+        int versionPadding = String.valueOf(versionInfos.size()).length();
+        if (versionPadding < VERSION_HEADER.length()) {
+            versionPadding = VERSION_HEADER.length();
         }
-
-        final List<VersionInfo> versionInfos = res.getVersionInfos();
-        final int[] versions = query.getObjectVersions();
-
-        final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
-        if (versionInfos.isEmpty() && lastDeletionTimestamp != null) {
-            return Collections.singletonList(new MessageObject(QueryMessages.versionDeleted(lastDeletionTimestamp.toString())));
-        }
-
-        if ((versions[0] < 1 || versions[0] > versionInfos.size()) ||
-                (versions[1] < 1 || versions[1] > versionInfos.size())) {
-            return Collections.singletonList(new MessageObject(QueryMessages.versionOutOfRange(versionInfos.size())));
-        }
-
-        final VersionInfo firstInfo = versionInfos.get(versions[0] - 1);
-        final RpslObject firstObject = filter(versionDao.getRpslObject(firstInfo));
-
-        if (firstObject.getType() == ObjectType.PERSON || firstObject.getType() == ObjectType.ROLE) {
-            return Collections.singletonList(new MessageObject(QueryMessages.versionPersonRole(firstObject.getType().getName().toUpperCase(), query.getSearchValue())));
-        }
-
-        final VersionInfo secondInfo = versionInfos.get(versions[1] - 1);
-        final RpslObject secondObject = filter(versionDao.getRpslObject(secondInfo));
-
-        return Lists.newArrayList(
-                new MessageObject(QueryMessages.versionDifferenceHeader(versions[0], versions[1], firstObject.getKey())),
-                new MessageObject(secondObject.diff(firstObject)));
+        return versionPadding;
     }
 
     private RpslObject filter(final RpslObject rpslObject) {
