@@ -1,7 +1,8 @@
 ## next
 [all] added maintenance mode (-Dmaintenance=none,none)
+[all] fixes for index regeneration (pre-production tests)
 
-## 1.67
+## 1.67 (not yet deployed)
 [update] added pending auth support for route(6) creation
 [update] added dry-run support for a single object update via the 'dry-run: reason' pseudo-attribute
 [update] display diff instead of original object in update notifications
@@ -9,7 +10,7 @@
 [all] added JMX call for online regeneration of index tables
 [all] dropped fallbacks in failed index lookup; need to regenerate indexes on deployment!
 
-## 1.66.3
+## 1.66.3 (deployed on 2013-06-05)
 [query] --all-sources now correctly returns results from RIPE + (all GRS except RIPE-GRS)
 
 ## 1.66.2
