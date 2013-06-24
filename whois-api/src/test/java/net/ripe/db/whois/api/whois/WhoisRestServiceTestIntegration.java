@@ -1336,6 +1336,18 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void search_nonexistant_person() {
+        try {
+            createResource(AUDIENCE, "whois/search?query-string=NONEXISTANT&source=TEST")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
+    }
+
+    @Test
     public void tags_include() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
@@ -1390,7 +1402,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
         }
     }
-
 
     @Test
     public void tag_exclude_shows_related_objects() {
