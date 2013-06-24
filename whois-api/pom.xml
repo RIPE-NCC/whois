@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
@@ -206,6 +207,26 @@
                             <artifactId>whois-commons</artifactId>
                         </aspectLibrary>
                     </aspectLibraries>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <packageName>net.ripe.db.whois.api.whois.domain.rdap</packageName>
+                    <outputDirectory>${project.build.sourceDirectory}</outputDirectory>
+                    <schemaDirectory>${basedir}/src/main/resources/rdap-docs/xsd</schemaDirectory>
+                    <bindingDirectory>${basedir}/src/main/resources/rdap-docs/xsd</bindingDirectory>
+                    <bindingFiles>rdap-bindings.xjb</bindingFiles>
+                    <clearOutputDir>false</clearOutputDir>
+                    <extension>true</extension>
                 </configuration>
             </plugin>
         </plugins>

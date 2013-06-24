@@ -4,11 +4,15 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.AnnotationIntrospector;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.introspect.JacksonAnnotationIntrospector;
 import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 class RdapStreamingMarshalJson implements StreamingMarshal {
     protected static JsonFactory jsonFactory;
@@ -20,6 +24,10 @@ class RdapStreamingMarshalJson implements StreamingMarshal {
                 new JacksonAnnotationIntrospector(),
                 new JaxbAnnotationIntrospector()));
 
+        objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+        objectMapper.setDateFormat(df);
         jsonFactory = objectMapper.getJsonFactory();
     }
 
@@ -28,7 +36,7 @@ class RdapStreamingMarshalJson implements StreamingMarshal {
     @Override
     public void open(final OutputStream outputStream) {
         try {
-            generator = jsonFactory.createJsonGenerator(outputStream);
+            generator = jsonFactory.createJsonGenerator(outputStream).useDefaultPrettyPrinter();
         } catch (IOException e) {
             throw new StreamingException(e);
         }
