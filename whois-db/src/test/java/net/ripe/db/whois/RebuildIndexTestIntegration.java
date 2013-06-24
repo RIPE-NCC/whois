@@ -2,6 +2,7 @@ package net.ripe.db.whois;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.dao.jdbc.IndexDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.database.diff.Database;
@@ -509,6 +510,31 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void person_missing_reference() throws Exception {
+        rebuild(RpslObject.parse(
+                "person:        First Last\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 20 123456\n" +
+                "nic-hdl:       FL1-TEST\n" +
+                "mnt-by:        TST-MNT\n" +
+                "changed:       first@last.org\n" +
+                "source:        TEST"));
+
+        whoisTemplate.update("DELETE FROM last WHERE pkey = 'FL1-TEST'");
+
+        DatabaseHelper.dumpSchema(databaseHelper.getWhoisTemplate().getDataSource());
+
+        final DatabaseDiff diff = rebuild();
+
+        assertThat(diff.getAdded().getAll(), hasSize(0));
+        assertThat(diff.getModified().getAll(), hasSize(0));
+        assertThat(diff.getRemoved().getAll(), hasSize(4));
+        assertThat(diff.getRemoved().getTable("names"), hasSize(2));
+        assertThat(diff.getRemoved().getTable("person_role"), hasSize(1));
+        assertThat(diff.getRemoved().getTable("mnt_by"), hasSize(1));
+    }
+
+    @Test
     public void poem() {
         databaseHelper.addObject(RpslObject.parse(
                 "poetic-form:     FORM-HAIKU\n" +
@@ -717,6 +743,10 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     private DatabaseDiff rebuild(final RpslObject object) {
         indexDao.rebuild();
         databaseHelper.addObject(object);
+        return rebuild();
+    }
+
+    private DatabaseDiff rebuild() {
         final Database before = new Database(databaseHelper.getWhoisTemplate());
         indexDao.rebuild();
         return Database.diff(before, new Database(databaseHelper.getWhoisTemplate()));
