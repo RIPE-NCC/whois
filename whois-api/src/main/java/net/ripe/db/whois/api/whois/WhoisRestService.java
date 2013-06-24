@@ -80,6 +80,12 @@ public class WhoisRestService {
      *
      *  <p><div>Example query:</div>
      *  http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT</p>
+     *
+     * @param source Source
+     * @param objectType Object type for given object.
+     * @param key Primary key of the given object.
+     * @param include Only show RPSL objects that have these tags. Can be multiple.
+     * @param exclude Only show RPSL objects that <i>do not</i> have these tags. Can be multiple.
      */
     @GET
     @TypeHint(WhoisResources.class)
@@ -89,8 +95,10 @@ public class WhoisRestService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
-            @PathParam("key") final String key) {
-        return lookupObject(request, source, objectType, key, false);
+            @PathParam("key") final String key,
+            @QueryParam("include") Set<String> include,
+            @QueryParam("exclude") Set<String> exclude) {
+        return lookupObject(request, source, objectType, key, include, exclude, false);
     }
 
     /**
@@ -98,6 +106,12 @@ public class WhoisRestService {
      *
      * <p><div>Example query:</div>
      * http://apps.db.ripe.net/whois/grs-lookup/apnic-grs/mntner/MAINT-APNIC-AP</p>
+     *
+     * @param source Source
+     * @param objectType Object type for given object.
+     * @param key Primary key of the given object.
+     * @param include Only show RPSL objects that have these tags. Can be multiple.
+     * @param exclude Only show RPSL objects that <i>do not</i> have these tags. Can be multiple.
      */
     @GET
     @TypeHint(WhoisResources.class)
@@ -107,14 +121,28 @@ public class WhoisRestService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
-            @PathParam("key") final String key) {
-        return lookupObject(request, source, objectType, key, true);
+            @PathParam("key") final String key,
+            @QueryParam("include") Set<String> include,
+            @QueryParam("exclude") Set<String> exclude) {
+        return lookupObject(request, source, objectType, key, include, exclude, true);
     }
 
-    private Response lookupObject(final HttpServletRequest request, final String source, final String objectTypeString, final String key, final boolean isGrsExpected) {
-        final Query query = Query.parse(String.format("%s %s %s %s %s",
+    private Response lookupObject(
+            final HttpServletRequest request,
+            final String source,
+            final String objectTypeString,
+            final String key,
+            final Set<String> includeTags,
+            final Set<String> excludeTags,
+            final boolean isGrsExpected) {
+        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s",
                 QueryFlag.SOURCES.getLongFlag(), source,
                 QueryFlag.SELECT_TYPES.getLongFlag(), objectTypeString,
+                ((includeTags == null || includeTags.isEmpty()) && (excludeTags == null || excludeTags.isEmpty())) ? "" : QueryFlag.SHOW_TAG_INFO.getLongFlag(),
+                (includeTags == null || includeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(),
+                JOINER.join(includeTags),
+                (excludeTags == null || excludeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(),
+                JOINER.join(excludeTags),
                 key));
 
         if (sourceContext.getGrsSourceNames().contains(ciString(source)) != isGrsExpected) {
@@ -798,7 +826,14 @@ public class WhoisRestService {
         return doSearch(request, queryString, sources, inverseAttributes, types, flags, true);
     }
 
-    private Response doSearch(final HttpServletRequest request, final String queryString, final Set<String> sources, final Set<String> inverseAttributes, final Set<String> types, final String flags, final boolean isGrsExpected) {
+    private Response doSearch(
+            final HttpServletRequest request,
+            final String queryString,
+            final Set<String> sources,
+            final Set<String> inverseAttributes,
+            final Set<String> types,
+            final String flags,
+            final boolean isGrsExpected) {
         if (sources == null || sources.isEmpty()) {
             throw new IllegalArgumentException("Argument 'source' is missing, you have to specify a valid RIR source for your search request");
         }
@@ -823,9 +858,12 @@ public class WhoisRestService {
         }
 
         final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s",
-                QueryFlag.SOURCES.getLongFlag(), JOINER.join(sources),
-                (types == null || types.isEmpty()) ? "" : QueryFlag.SELECT_TYPES.getLongFlag(), JOINER.join(types),
-                (inverseAttributes == null || inverseAttributes.isEmpty()) ? "" : QueryFlag.INVERSE.getLongFlag(), JOINER.join(inverseAttributes),
+                QueryFlag.SOURCES.getLongFlag(),
+                JOINER.join(sources),
+                (types == null || types.isEmpty()) ? "" : QueryFlag.SELECT_TYPES.getLongFlag(),
+                JOINER.join(types),
+                (inverseAttributes == null || inverseAttributes.isEmpty()) ? "" : QueryFlag.INVERSE.getLongFlag(),
+                JOINER.join(inverseAttributes),
                 (flags == null) ? "" : "-" + flags,
                 (queryString == null ? "" : queryString)));
 
@@ -837,41 +875,6 @@ public class WhoisRestService {
         parameters.setFlags(flags == null ? Collections.<String>emptySet() : Sets.newHashSet(flags.split("(?!^)")));
 
         return handleQuery(query, JOINER.join(sources), queryString, request, parameters);
-    }
-
-    /**
-     * Finds tags for given RPSL object
-     * <p/>
-     * <p><div>Example:</div>
-     * http://apps.db.ripe.net/whois/tags/RIPE/TEST-DBM?include=foo&include=bar&exclude=boo</p>
-     *
-     * @param source  TEST or RIPE
-     * @param key     sought RPSL object
-     * @param include only show RPSL objects that have these tags. Can be multiple.
-     * @param exclude only show RPSL objects that <i>do not</i> have these tags. Can be multiple.
-     * @return returns the RPSL object(s) asked for with their respective tags
-     */
-    @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @TypeHint(WhoisResources.class)
-    @Path("/tags/{source}/{key:.*}")
-    public Response tagSearch(
-            @Context HttpServletRequest request,
-            @PathParam("source") String source,
-            @PathParam("key") String key,
-            @QueryParam("include") Set<String> include,
-            @QueryParam("exclude") Set<String> exclude) {
-
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s",
-                key,
-                QueryFlag.SHOW_TAG_INFO.getLongFlag(),
-                (include == null || include.isEmpty()) ? "" :
-                        QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(), JOINER.join(include),
-
-                (exclude == null || exclude.isEmpty()) ? "" :
-                        QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(), JOINER.join(exclude)));
-
-        return handleQuery(query, source, key, request, null);
     }
 
     private UpdateResponse performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword, final String source) {
