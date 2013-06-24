@@ -27,6 +27,6 @@ abstract class IndexStrategyWithSingleLookupTable extends IndexStrategyAdapter {
 
     @Override
     public void cleanupMissingObjects(final JdbcTemplate jdbcTemplate) {
-        jdbcTemplate.update(String.format("DELETE %s FROM %s LEFT JOIN LAST ON %s.object_id=last.object_id WHERE last.object_id IS NULL", lookupTableName, lookupTableName, lookupTableName));
+        jdbcTemplate.update(String.format("DELETE %s FROM %s LEFT JOIN last ON %s.object_id=last.object_id WHERE last.object_id IS NULL", lookupTableName, lookupTableName, lookupTableName));
     }
 }
