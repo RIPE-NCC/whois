@@ -3,7 +3,9 @@ package net.ripe.db.whois.api.whois;
 import ezvcard.CustomEzvcard;
 import ezvcard.VCard;
 import ezvcard.types.AddressType;
+import ezvcard.types.EmailType;
 import ezvcard.types.StructuredNameType;
+import ezvcard.types.TelephoneType;
 import net.ripe.db.whois.api.whois.domain.RdapEntity;
 import net.ripe.db.whois.api.whois.domain.RdapResponse;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -89,12 +91,23 @@ public class RdapObjectMapper {
         at.setStreetAddress(rpslObject.findAttribute(AttributeType.ADDRESS).getValue().trim());
         vCard.addAddress(at);
 
-        String name = "";
-        if (rpslObject.findAttribute(AttributeType.PERSON).getValue().trim() != "") {
-            name = rpslObject.findAttribute(AttributeType.PERSON).getValue().trim();
+        String name = rpslObject.findAttribute(AttributeType.PERSON).getValue().trim();
+        if (name != "") {
+            vCard.setFormattedName(name);
         }
 
-        vCard.setFormattedName(name);
+        TelephoneType tt = new TelephoneType(rpslObject.findAttribute(AttributeType.PHONE).getValue().trim());
+        vCard.addTelephoneNumber(tt);
+
+        try {
+            if (rpslObject.findAttribute(AttributeType.E_MAIL).getValue().trim() != "") {
+                EmailType et = new EmailType(rpslObject.findAttribute(AttributeType.E_MAIL).getValue().trim());
+                vCard.addEmail(et);
+            }
+        } catch (Exception e) {
+            // piece o crap
+            System.out.println(e);
+        }
 
         return vCard;
     }
