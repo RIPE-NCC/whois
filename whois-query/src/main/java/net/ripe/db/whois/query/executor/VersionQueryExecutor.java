@@ -65,34 +65,44 @@ public class VersionQueryExecutor implements QueryExecutor {
     private Iterable<? extends ResponseObject> getResponseObjects(final Query query) {
         VersionLookupResult res = getVersionInfo(query);
 
+        // common & sanity checks
         if (res == null) {
             return Collections.emptyList();
         }
 
         final ObjectType objectType = res.getObjectType();
+        final String searchKey = query.getCleanSearchValue();
         if (objectType == ObjectType.PERSON || objectType == ObjectType.ROLE) {
-            return Collections.singletonList(new MessageObject(QueryMessages.versionPersonRole(objectType.getName().toUpperCase(), query.getSearchValue())));
+            return Collections.singletonList(new MessageObject(QueryMessages.versionPersonRole(objectType.getName().toUpperCase(), searchKey)));
         }
 
         final List<VersionInfo> versionInfos = res.getVersionInfos();
         final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
         if (versionInfos.isEmpty() && lastDeletionTimestamp != null) {
-            return Collections.singletonList(new MessageObject(QueryMessages.versionDeleted(lastDeletionTimestamp.toString())));
+            return Collections.singletonList(new DeletedVersionResponseObject(lastDeletionTimestamp, objectType, searchKey));
         }
 
+        final int version = query.getObjectVersion();
+        final int[] versions = query.getObjectVersions();
+
+        if (version > versionInfos.size() || versions[0] > versionInfos.size() || versions[1] > versionInfos.size()) {
+            return Collections.singletonList(new MessageObject(QueryMessages.versionOutOfRange(versionInfos.size())));
+        }
+
+        // all good, dispatch
         if (query.isVersionList()) {
-            return getAllVersions(res, query);
+            return getAllVersions(res, searchKey);
         } else if (query.isVersionDiff()) {
-            return getVersionDiffs(res, query);
+            return getVersionDiffs(res, versions);
         } else {
-            return getVersion(res, query);
+            return getVersion(res, version);
         }
     }
 
-    private Iterable<? extends ResponseObject> getAllVersions(final VersionLookupResult res, final Query query) {
+    private Iterable<? extends ResponseObject> getAllVersions(final VersionLookupResult res, final String searchKey) {
         final ObjectType objectType = res.getObjectType();
         final List<ResponseObject> messages = Lists.newArrayList();
-        messages.add(new MessageObject(QueryMessages.versionListHeader(objectType.getName().toUpperCase(), query.getCleanSearchValue())));
+        messages.add(new MessageObject(QueryMessages.versionListHeader(objectType.getName().toUpperCase(), searchKey)));
 
         final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
         final String pkey = res.getPkey();
@@ -115,14 +125,8 @@ public class VersionQueryExecutor implements QueryExecutor {
         return messages;
     }
 
-    private Iterable<? extends ResponseObject> getVersion(final VersionLookupResult res, final Query query) {
+    private Iterable<? extends ResponseObject> getVersion(final VersionLookupResult res, final int version) {
         final List<VersionInfo> versionInfos = res.getVersionInfos();
-        final int version = query.getObjectVersion();
-
-        if (version < 1 || version > versionInfos.size()) {
-            return Collections.singletonList(new MessageObject(QueryMessages.versionOutOfRange(versionInfos.size())));
-        }
-
         final VersionInfo info = versionInfos.get(version - 1);
         final RpslObject rpslObject = versionDao.getRpslObject(info);
 
@@ -131,20 +135,10 @@ public class VersionQueryExecutor implements QueryExecutor {
                 rpslObject);
     }
 
-    private Iterable<? extends ResponseObject> getVersionDiffs(final VersionLookupResult res, final Query query) {
+    private Iterable<? extends ResponseObject> getVersionDiffs(final VersionLookupResult res, final int[] versions) {
         final List<VersionInfo> versionInfos = res.getVersionInfos();
-        final int[] versions = query.getObjectVersions();
-
-        if ((versions[0] < 1 || versions[0] > versionInfos.size()) ||
-                (versions[1] < 1 || versions[1] > versionInfos.size())) {
-            return Collections.singletonList(new MessageObject(QueryMessages.versionOutOfRange(versionInfos.size())));
-        }
-
-        final VersionInfo firstInfo = versionInfos.get(versions[0] - 1);
-        final RpslObject firstObject = filter(versionDao.getRpslObject(firstInfo));
-
-        final VersionInfo secondInfo = versionInfos.get(versions[1] - 1);
-        final RpslObject secondObject = filter(versionDao.getRpslObject(secondInfo));
+        final RpslObject firstObject = filter(versionDao.getRpslObject(versionInfos.get(versions[0] - 1)));
+        final RpslObject secondObject = filter(versionDao.getRpslObject(versionInfos.get(versions[1] - 1)));
 
         return Lists.newArrayList(
                 new MessageObject(QueryMessages.versionDifferenceHeader(versions[0], versions[1], firstObject.getKey())),

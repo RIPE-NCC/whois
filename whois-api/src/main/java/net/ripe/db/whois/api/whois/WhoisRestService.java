@@ -174,8 +174,10 @@ public class WhoisRestService {
         final List<DeletedVersionResponseObject> deleted = apiResponseHandlerVersions.getDeletedObjects();
         final List<VersionResponseObject> versions = apiResponseHandlerVersions.getVersionObjects();
 
-        if (versionResponseObject == null && deleted.isEmpty() && versions.isEmpty()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        if (versionResponseObject == null && versions.isEmpty()) {
+            if (deleted.isEmpty() || query.isObjectVersion()) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
         }
 
         final WhoisResources whoisResources = new WhoisResources();
