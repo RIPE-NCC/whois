@@ -1640,7 +1640,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void route6_sanitized() {
+    public void route6_sanitized_leading_zero() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "route-set:    RS-BLA123\n" +
                 "org:          ORG-TOL1-TEST\n" +
@@ -1688,6 +1688,35 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:         notify@test.net\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-routes:     TST-MNT\n" +
+                "changed:        ripe@test.net 20091015\n" +
+                "source:         TEST\n"));
+    }
+
+    @Test
+    public void route6_sanitized_prefix_length() {
+        final RpslObject object = RpslObject.parse(
+                "route6:     2001:a300:800::/32\n" +
+                "descr:      TEST\n" +
+                "origin:     AS123\n" +
+                "mnt-by:     TST-MNT\n" +
+                "changed:    ripe@test.net 20091015\n" +
+                "source:     TEST");
+
+        final DatabaseDiff diff = rebuild(object);
+
+        assertThat(diff.getAdded().getAll(), hasSize(0));
+        assertThat(diff.getRemoved().getAll(), hasSize(0));
+        assertThat(diff.getModified().getAll(), hasSize(1));
+
+        final Table lastTable = diff.getModified().getTable("last");
+        assertThat(lastTable, hasSize(1));
+        final Row lastRow = lastTable.get(0);
+        assertThat(lastRow.getString("pkey"), is("2001:a300::/32AS123"));
+        assertThat(new String((byte[])lastRow.get("object")), is(
+                "route6:         2001:a300::/32\n" +
+                "descr:          TEST\n" +
+                "origin:         AS123\n" +
+                "mnt-by:         TST-MNT\n" +
                 "changed:        ripe@test.net 20091015\n" +
                 "source:         TEST\n"));
     }
