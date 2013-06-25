@@ -90,7 +90,7 @@ public class WhoisRestService {
      */
     @GET
     @TypeHint(WhoisResources.class)
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @Path("/lookup/{source}/{objectType}/{key:.*}")
     public Response lookup(
             @Context final HttpServletRequest request,
@@ -116,7 +116,7 @@ public class WhoisRestService {
      */
     @GET
     @TypeHint(WhoisResources.class)
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @Path("/grs-lookup/{source}/{objectType}/{key:.*}")
     public Response grslookup(
             @Context final HttpServletRequest request,
@@ -339,8 +339,8 @@ public class WhoisRestService {
      *
      */
     @POST
-    // TODO [AK] Does text/json actually result in a json response and text/xml in xml?
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Path("/create/{source}")
     public Response create(
             final WhoisResources resources,
@@ -365,6 +365,7 @@ public class WhoisRestService {
      */
     @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Path("/create")
     public Response create() {
         // Source needs to be included to be consistent with the other CRUD operations, and also
@@ -719,7 +720,7 @@ public class WhoisRestService {
      * @return all updates of given RPSL object
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @TypeHint(WhoisResources.class)
     @Path("/versions/{source}/{key:.*}")
     public Response listVersions(
@@ -739,7 +740,7 @@ public class WhoisRestService {
      * @return The version of the RPSL object asked for
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @TypeHint(WhoisResources.class)
     @Path("/version/{source}/{version}/{key:.*}")
     public Response showVersion(
@@ -793,7 +794,7 @@ public class WhoisRestService {
      * @param flags Specifies an optional sequence of query-flags.
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @TypeHint(WhoisResources.class)
     @Path("/search")
     public Response search(
@@ -825,7 +826,7 @@ public class WhoisRestService {
      * @param flags Specifies an optional sequence of query-flags.
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @TypeHint(WhoisResources.class)
     @Path("/grs-search")
     public Response grssearch(

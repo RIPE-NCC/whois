@@ -1130,9 +1130,48 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     // response format
 
     @Test
-    public void lookup_json_response() throws Exception {
+    public void lookup_accept_application_xml() throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) (new URL(getUrl("lookup/test/person/TP1-TEST"))).openConnection();
+        connection.setRequestProperty(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML);
+        assertThat(connection.getResponseCode(), is(HttpURLConnection.HTTP_OK));
+
+        final String response = readResponse(connection);
+
+        assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
+        assertThat(response, containsString("<whois-resources>"));
+    }
+
+    @Test
+    public void lookup_accept_text_xml() throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) (new URL(getUrl("lookup/test/person/TP1-TEST"))).openConnection();
+        connection.setRequestProperty(HttpHeaders.ACCEPT, "text/xml");
+        assertThat(connection.getResponseCode(), is(HttpURLConnection.HTTP_OK));
+
+        final String response = readResponse(connection);
+
+        assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
+        assertThat(response, containsString("<whois-resources>"));
+    }
+
+    @Test
+    public void lookup_accept_application_json() throws Exception {
         HttpURLConnection connection = (HttpURLConnection) (new URL(getUrl("lookup/test/person/TP1-TEST"))).openConnection();
         connection.setRequestProperty(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        assertThat(connection.getResponseCode(), is(HttpURLConnection.HTTP_OK));
+
+        final String response = readResponse(connection);
+
+        assertThat(response, containsString("\"whois-resources\""));
+        assertThat(response, containsString("\"objects\""));
+        assertThat(response, containsString("\"object\""));
+        assertThat(response, containsString("\"xlink:type\""));
+        assertThat(response, containsString("\"xlink:href\""));
+    }
+
+    @Test
+    public void lookup_accept_text_json() throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) (new URL(getUrl("lookup/test/person/TP1-TEST"))).openConnection();
+        connection.setRequestProperty(HttpHeaders.ACCEPT, "text/json");
         assertThat(connection.getResponseCode(), is(HttpURLConnection.HTTP_OK));
 
         final String response = readResponse(connection);
@@ -1222,6 +1261,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         assertThat(response, not(containsString("&#x0;")));
         assertThat(response, not(containsString("<!--")));
     }
+
+    // search
 
     @Test
     public void search() throws Exception {
