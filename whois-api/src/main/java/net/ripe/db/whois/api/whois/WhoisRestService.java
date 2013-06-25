@@ -770,17 +770,17 @@ public class WhoisRestService {
      * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?inverse-attribute=org&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
      * </li>
      * <li><div>Search for objects of type organisation on the same query-string and specifying a preference for non recursion:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?inverse-attribute=org&flags=r&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?inverse-attribute=org&flags=no-referenced&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
      * </li>
      * <li><div>A search on multiple sources:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&flags=rC&query-string=MAINT-APNIC-AP</span>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&flags=no-referenced&flags=no-irt&query-string=MAINT-APNIC-AP</span>
      * </li>
      * <li><div>A search on multiple sources and multiple type-filters:</div>
      * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&query-string=google&type-filter=person&type-filter=organisation</span>
      * </li>
-     * <li><div>A search using both long and short flags:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&query-string=aardvark-mnt&flags=no-filtering&flags=rG</span>
-     * <div>Use separate flags for long options and short options. Long options can not be "bundled" the same way as short options.</div>
+     * <li><div>A search using multiple flags:</div>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&query-string=aardvark-mnt&flags=no-filtering&flags=brief&flags=no-referenced</span>
+     * <div>Use separate flags parameters for each option.</div>
      * </li>
      * </ul>
      * Further documentation on the standard Whois Database Query flags can be found on the RIPE Whois Database Query Reference Manual.</p>
@@ -793,7 +793,7 @@ public class WhoisRestService {
      * @param queryString       Mandatory.
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
      * @param types             If specified the results will be filtered by object-type, multiple type-filters can be specified.
-     * @param flags             Specifies an optional sequence of query-flags.
+     * @param flags             Optional query-flags.
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
@@ -826,7 +826,7 @@ public class WhoisRestService {
      * @param queryString       Mandatory.
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
      * @param types             If specified the results will be filtered by object-type, multiple type-filters can be specified.
-     * @param flags             Specifies an optional sequence of query-flags.
+     * @param flags             Optional query-flags.
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
