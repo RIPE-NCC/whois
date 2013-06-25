@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.whois;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -43,6 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static net.ripe.db.whois.query.query.QueryFlag.*;
 
 @ExternallyManagedLifecycle
 @Component
@@ -63,7 +65,7 @@ public class WhoisRestService {
 
     private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
     private static final Joiner JOINER = Joiner.on(",");
-    private static final Set<Character> NOT_ALLOWED_SEARCH_FLAGS = Sets.newHashSet('k');
+    private static final Set<QueryFlag> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(TEMPLATE, VERBOSE, CLIENT, NO_GROUPING, NO_TAG_INFO, SHOW_TAG_INFO, ALL_SOURCES, LIST_SOURCES_OR_VERSION, LIST_SOURCES, DIFF_VERSIONS, LIST_VERSIONS, SHOW_VERSION, PERSISTENT_CONNECTION);
 
     @Autowired
     public WhoisRestService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final RpslObjectUpdateDao rpslObjectUpdateDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
@@ -78,15 +80,15 @@ public class WhoisRestService {
 
     /**
      * <p><div>The lookup interface returns the single object that satisfy the key conditions specified as path parameters via the source and the primary-key arguments</div>
+     * <p/>
+     * <p><div>Example query:</div>
+     * http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT</p>
      *
-     *  <p><div>Example query:</div>
-     *  http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT</p>
-     *
-     * @param source Source
+     * @param source     Source
      * @param objectType Object type for given object.
-     * @param key Primary key of the given object.
-     * @param include Only show RPSL objects that have these tags. Can be multiple.
-     * @param exclude Only show RPSL objects that <i>do not</i> have these tags. Can be multiple.
+     * @param key        Primary key of the given object.
+     * @param include    Only show RPSL objects that have these tags. Can be multiple.
+     * @param exclude    Only show RPSL objects that <i>do not</i> have these tags. Can be multiple.
      */
     @GET
     @TypeHint(WhoisResources.class)
@@ -104,15 +106,15 @@ public class WhoisRestService {
 
     /**
      * <p>The grs-lookup interface returns the single object that satisfy the key conditions specified as path parameters via the grs-source and the primary-key arguments</p>
-     *
+     * <p/>
      * <p><div>Example query:</div>
      * http://apps.db.ripe.net/whois/grs-lookup/apnic-grs/mntner/MAINT-APNIC-AP</p>
      *
-     * @param source Source
+     * @param source     Source
      * @param objectType Object type for given object.
-     * @param key Primary key of the given object.
-     * @param include Only show RPSL objects that have these tags. Can be multiple.
-     * @param exclude Only show RPSL objects that <i>do not</i> have these tags. Can be multiple.
+     * @param key        Primary key of the given object.
+     * @param include    Only show RPSL objects that have these tags. Can be multiple.
+     * @param exclude    Only show RPSL objects that <i>do not</i> have these tags. Can be multiple.
      */
     @GET
     @TypeHint(WhoisResources.class)
@@ -311,7 +313,7 @@ public class WhoisRestService {
      * &lt;/object&gt;
      * &lt;/objects&gt;
      * &lt;/whois-resources&gt;</pre></p>
-     *
+     * <p/>
      * <p>Example<div>Create request using the CURL command:</div>
      * <pre>curl -X POST -H 'Content-Type: application/xml' -d
      * '&lt;whois-resources&gt;&lt;objects&gt;
@@ -336,7 +338,6 @@ public class WhoisRestService {
      * Connection: close
      * Content-Type: text/plain; charset=UTF-8</pre>
      * The response body will be empty.
-     *
      */
     @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
@@ -376,7 +377,7 @@ public class WhoisRestService {
     /**
      * <p>A successful update request replaces all of an object attributes with the new set of attributes described in the request. The target database can be ripe or test and is specified with the source element in the XML document sent with the request.</p>
      * <p>The update interface is accessible using the HTTP PUT method. The request must include a 'content-type: application/xml' header because your request body will contain an XML document describing the object update and the target source.</p>
-     *
+     * <p/>
      * <p>An example of XML object:
      * <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      * &lt;whois-resources&gt;
@@ -397,7 +398,7 @@ public class WhoisRestService {
      * &lt;/objects&gt;
      * &lt;/whois-resources&gt;</pre>
      * </p>
-     *
+     * <p/>
      * <p>An example of update request using the CURL command:
      * <pre>curl -X PUT -H 'Content-Type: application/xml' -d '&lt;whois-resources&gt;&lt;objects&gt;
      * &lt;object-type="person"&gt;&lt;source-id="test"/&gt;&lt;attributes&gt;
@@ -410,9 +411,9 @@ public class WhoisRestService {
      * &lt;attribute name="nic-hdl" value="PP16-TEST" /&gt;
      * &lt;attribute name="source" value="TEST"/&gt;&lt;/attributes&gt;&lt;/object&gt;&lt;/objects&gt;&lt;/whois-resources&gt;'
      * https://apps.db.ripe.net/whois/update/test/person/pp16-test?password=123 -D headers.txt</pre></p>
-     *
+     * <p/>
      * <p>The HTTP headers for a success response:
-     *
+     * <p/>
      * <pre>HTTP/1.1 200 OK
      * Date: Tue, 28 Dec 2010 15:24:35 GMT
      * Server: Apache/2.2.3 (CentOS)
@@ -420,7 +421,7 @@ public class WhoisRestService {
      * Connection: close
      * Transfer-Encoding: chunked
      * Content-Type: application/xml</pre></p>
-     *
+     * <p/>
      * The response body for a success response:
      * <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      * &lt;whois-resources service="lookup" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
@@ -446,10 +447,11 @@ public class WhoisRestService {
      * &lt;/attributes&gt;
      * &lt;/object&gt;
      * &lt;/objects&gt;</pre>
-     * @param source Source.
+     *
+     * @param source     Source.
      * @param objectType Object type for given object.
-     * @param key Primary key of the given object.
-     * @param passwords One or more password values.
+     * @param key        Primary key of the given object.
+     * @param passwords  One or more password values.
      */
     @PUT
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
@@ -485,35 +487,35 @@ public class WhoisRestService {
     /**
      * <p>The modify interface implements complex object manipulations that would otherwise require multiple client side operations, like:</p>
      * <ul>
-     *  <li>querying the Whois Database</li>
-     *  <li>filtering from the query response the only object that need to be modified</li>
-     *  <li>parsing the object RPSL (handling all the intricacies of RPSL)</li>
-     *  <li>modifying specific attributes</li>
-     *  <li>submitting the edited object</li>
+     * <li>querying the Whois Database</li>
+     * <li>filtering from the query response the only object that need to be modified</li>
+     * <li>parsing the object RPSL (handling all the intricacies of RPSL)</li>
+     * <li>modifying specific attributes</li>
+     * <li>submitting the edited object</li>
      * </ul>
-     *
+     * <p/>
      * <p>With the modify interface this error prone processing of objects can be replaced with just one simple request.
      * A client just needs to specify the type of operation to be applied, the primary key of an object and eventually a set of attributes.</p>
-     *
+     * <p/>
      * <p>The HTTP request must include a "content-type: application/xml" header.</p>
-     *
+     * <p/>
      * <p>Important, a modify request succeeds only if the final modified object satisfies the RPSL specification. For example a modify request that generate an object missing mandatory attributes will obviously fail because such an object would be invalid.</p>
-     *
+     * <p/>
      * <p>Different actions that can be executed by specifying one of 'add', 'remove' or 'replace':
-     *
+     * <p/>
      * <ul>
-     *   <li>replace attributes</li>
-     *   <li>append new attributes</li>
-     *   <li>add new attributes starting from the line at index N</li>
-     *   <li>remove all attributes of a given type</li>
-     *   <li>remove the Nth attribute</li>
+     * <li>replace attributes</li>
+     * <li>append new attributes</li>
+     * <li>add new attributes starting from the line at index N</li>
+     * <li>remove all attributes of a given type</li>
+     * <li>remove the Nth attribute</li>
      * </ul></p>
-     *
+     * <p/>
      * <p><div>Examples</div>
-     *
+     * <p/>
      * <ul>
-     *  <li><div>Add attributes request</div>
-     *  <pre>
+     * <li><div>Add attributes request</div>
+     * <pre>
      *  &lt;whois-modify&gt;
      *      &lt;add&gt;
      *          &lt;attributes&gt;
@@ -524,12 +526,12 @@ public class WhoisRestService {
      *  &lt;/whois-modify&gt;
      *  </pre></li>
      *
-     *  <li><div>Add attributes using CURL</div>
-     *  <pre>curl -X POST -H 'Content-Type: application/xml' -d
+     * <li><div>Add attributes using CURL</div>
+     * <pre>curl -X POST -H 'Content-Type: application/xml' -d
      * '&lt;whois-modify&gt;&lt;add&gt;&lt;attributes&gt;&lt;attribute name="phone" value="+31 20 535 4444"/&gt;
      * &lt;attribute name="fax-no" value="+31 20 535 4445"/&gt;&lt;/attributes&gt;&lt;/add&gt;&lt;/whois-modify&gt;'
      * https://apps.db.ripe.net/whois/modify/test/person/pp16-test?password=123 -D headers.txt</pre>
-     *  </li>
+     * </li>
      * </ul></p>
      *
      *
@@ -576,10 +578,10 @@ public class WhoisRestService {
      *      &lt;/whois-resources&gt;
      * </pre>
      *
-     * @param source RIPE or TEST.
+     * @param source     RIPE or TEST.
      * @param objectType Object type of given object.
-     * @param key Primary key of given object.
-     * @param passwords One or more password values.
+     * @param key        Primary key of given object.
+     * @param passwords  One or more password values.
      */
     @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
@@ -668,14 +670,14 @@ public class WhoisRestService {
 
     /**
      * <p>A successful delete request deletes an object from the RIPE Database or the RIPE Test Database. The target database for the delete service is specified directly as a URL parameter as well as the primary key and the object type of the object to be deleted.</p>
-     *
+     * <p/>
      * <p>The HTTP Request body must be empty.</p>
-     *
+     * <p/>
      * <p><div>Example using CURL:</div>
      * <span style="font-style:italic;">curl -X DELETE https://apps.db.ripe.net/whois/delete/test/person/pp16-test?password=123 -D headers.txt</span></p>
-     *
+     * <p/>
      * <p>The HTTP headers for a success response:
-     *
+     * <p/>
      * <pre>HTTP/1.1 204 No Content
      * Date: Wed, 29 Dec 2010 09:43:17 GMT
      * Server: Apache/2.2.3 (CentOS)
@@ -684,11 +686,11 @@ public class WhoisRestService {
      * Connection: close
      * Content-Type: text/plain; charset=UTF-8</pre></p>
      *
-     * @param source Source.
+     * @param source     Source.
      * @param objectType Object type of given object.
-     * @param key Primary key for given object.
-     * @param reason Reason for deleting given object. Optional.
-     * @param passwords One or more password values.
+     * @param key        Primary key for given object.
+     * @param reason     Reason for deleting given object. Optional.
+     * @param passwords  One or more password values.
      */
     @DELETE
     @Path("/delete/{source}/{objectType}/{key:.*}")
@@ -758,40 +760,40 @@ public class WhoisRestService {
 
     /**
      * <p>The search interface resembles a standard Whois client query with the extra features of multi-registry client, multiple response styles that can be selected via content negotiation and with an extensible URL parameters schema.</p>
-     *
+     * <p/>
      * <p>Query using multiple sources: It is possible to specify multiple sources for the same request. This will execute the request on all the specified sources. Queries are executed on the online Whois servers, not on mirrored data, so they return live objects directly from the trusted sources.
      * In case of system exception on any of the sources the client will get an appropriate error code in response.</p>
-     *
+     * <p/>
      * <p><div>Examples:</div>
-     *  <ul>
-     *      <li><div>Valid inverse lookup query on an org value, filtering by inetnum:</div>
-     *      <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?inverse-attribute=org&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
-     *      </li>
-     *      <li><div>Search for objects of type organisation on the same query-string and specifying a preference for non recursion:</div>
-     *      <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?inverse-attribute=org&flags=r&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
-     *      </li>
-     *      <li><div>A search on multiple sources:</div>
-     *      <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&flags=rC&query-string=MAINT-APNIC-AP</span>
-     *      </li>
-     *      <li><div>A search on multiple sources and multiple type-filters:</div>
-     *      <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&query-string=google&type-filter=person&type-filter=organisation</span>
-     *      </li>
-     *      <li><div>A search using both long and short flags:</div>
-     *      <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&query-string=aardvark-mnt&flags=no-filtering&flags=rG</span>
-     *      <div>Use separate flags for long options and short options. Long options can not be "bundled" the same way as short options.</div>
-     *      </li>
-     *  </ul>
+     * <ul>
+     * <li><div>Valid inverse lookup query on an org value, filtering by inetnum:</div>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?inverse-attribute=org&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
+     * </li>
+     * <li><div>Search for objects of type organisation on the same query-string and specifying a preference for non recursion:</div>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?inverse-attribute=org&flags=r&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
+     * </li>
+     * <li><div>A search on multiple sources:</div>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&flags=rC&query-string=MAINT-APNIC-AP</span>
+     * </li>
+     * <li><div>A search on multiple sources and multiple type-filters:</div>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&query-string=google&type-filter=person&type-filter=organisation</span>
+     * </li>
+     * <li><div>A search using both long and short flags:</div>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&query-string=aardvark-mnt&flags=no-filtering&flags=rG</span>
+     * <div>Use separate flags for long options and short options. Long options can not be "bundled" the same way as short options.</div>
+     * </li>
+     * </ul>
      * Further documentation on the standard Whois Database Query flags can be found on the RIPE Whois Database Query Reference Manual.</p>
-     *
+     * <p/>
      * <p><div>The service URL must be:</div>
      * <div>'http://apps.db.ripe.net/whois/search'</div>
      * and the following parameters can be specified as HTTP GET parameters:</p>
      *
-     * @param sources Mandatory. It's possible to specify multiple sources.
-     * @param queryString Mandatory.
+     * @param sources           Mandatory. It's possible to specify multiple sources.
+     * @param queryString       Mandatory.
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
-     * @param types If specified the results will be filtered by object-type, multiple type-filters can be specified.
-     * @param flags Specifies an optional sequence of query-flags.
+     * @param types             If specified the results will be filtered by object-type, multiple type-filters can be specified.
+     * @param flags             Specifies an optional sequence of query-flags.
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
@@ -810,20 +812,21 @@ public class WhoisRestService {
     /**
      * <p>The grs-search interface has exactly the same features of the search, with the only difference that in the source parameter you will be specifying one or more GRS sources.
      * The query will therefore be executed on the GRS sources that you specify and will return data from the respective mirrors maintained in the RIPE Database platform.</p>
-     *
+     * <p/>
      * <p><div>The service URL is:</div>
      * 'http://apps.db.ripe.net/whois/grs-search'</p>
-     *
+     * <p/>
      * <p><div>Example:</div>
      * <ul>
      * <li><div>Search for 193/8 on the ripe, apnic, arin, lacnic, radb GRS mirrors:</div>
      * <span style="font-style:italic;">http://apps.db.ripe.net/whois/grs-search?flags=&source=apnic-grs&source=arin-grs&source=lacnic-grs&source=radb-grs&query-string=193%2F8</span></li>
      * </ul></p>
-     * @param sources Mandatory. It's possible to specify multiple sources.
-     * @param queryString  Mandatory.
+     *
+     * @param sources           Mandatory. It's possible to specify multiple sources.
+     * @param queryString       Mandatory.
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
-     * @param types If specified the results will be filtered by object-type, multiple type-filters can be specified.
-     * @param flags Specifies an optional sequence of query-flags.
+     * @param types             If specified the results will be filtered by object-type, multiple type-filters can be specified.
+     * @param flags             Specifies an optional sequence of query-flags.
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
@@ -851,30 +854,9 @@ public class WhoisRestService {
             throw new IllegalArgumentException("Argument 'source' is missing, you have to specify a valid RIR source for your search request");
         }
 
-        for (final String source : sources) {
-            if (isGrsExpected) {
-                if (!sourceContext.getGrsSourceNames().contains(ciString(source))) {
-                    throw new IllegalArgumentException(String.format("The given grs source id: '%s' is not valid", source));
-                }
-            } else if (!sourceContext.getCurrentSource().getName().contains(ciString(source))) {
-                throw new IllegalArgumentException(String.format("The given source id: '%s' is not valid", source));
-            }
-        }
-
-        final Set<String> separateFlags = Sets.newHashSet();
-        for (final String flagParameter : flags) {
-            if (QueryFlag.getValidLongFlags().contains(flagParameter)) {
-                separateFlags.add(flagParameter);
-            } else {
-                final CharacterIterator charIterator = new StringCharacterIterator(flagParameter);
-                for (char flag = charIterator.first(); flag != CharacterIterator.DONE; flag = charIterator.next()) {
-                    if (NOT_ALLOWED_SEARCH_FLAGS.contains(flag) || !QueryFlag.getValidShortFlags().contains(flag)) {
-                        throw new IllegalArgumentException(String.format("Invalid option '%s'", flag));
-                    }
-                    separateFlags.add(String.valueOf(flag));
-                }
-            }
-        }
+        checkForInvalidSources(sources, isGrsExpected);
+        final Set<String> separateFlags = splitInputFlags(flags);
+        checkForInvalidFlags(separateFlags);
 
         final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s",
                 QueryFlag.SOURCES.getLongFlag(),
@@ -900,6 +882,50 @@ public class WhoisRestService {
         parameters.setFlags(separateFlags);
 
         return handleQuery(query, JOINER.join(sources), queryString, request, parameters);
+    }
+
+    private void checkForInvalidSources(final Set<String> sources, final boolean isGrsExpected) {
+        for (final String source : sources) {
+            if (isGrsExpected) {
+                if (!sourceContext.getGrsSourceNames().contains(ciString(source))) {
+                    throw new IllegalArgumentException(String.format("The given grs source id: '%s' is not valid", source));
+                }
+            } else if (!sourceContext.getCurrentSource().getName().contains(ciString(source))) {
+                throw new IllegalArgumentException(String.format("The given source id: '%s' is not valid", source));
+            }
+        }
+    }
+
+    private Set<String> splitInputFlags(final Set<String> inputFlags) {
+        final Set<String> separateFlags = Sets.newHashSet();
+        for (final String flagParameter : inputFlags) {
+            if (QueryFlag.getValidLongFlags().contains(flagParameter)) {
+                separateFlags.add(flagParameter);
+            } else {
+                final CharacterIterator charIterator = new StringCharacterIterator(flagParameter);
+                for (char flag = charIterator.first(); flag != CharacterIterator.DONE; flag = charIterator.next()) {
+                    final String flagString = String.valueOf(flag);
+                    if (!QueryFlag.getValidShortFlags().contains(flagString)) {
+                        throw new IllegalArgumentException(String.format("Invalid option '%s'", flag));
+                    }
+                    separateFlags.add(flagString);
+                }
+            }
+        }
+        return separateFlags;
+    }
+
+    private void checkForInvalidFlags(final Set<String> flags) {
+        for (final String flag : flags) {
+            if (0 <= Iterables.indexOf(NOT_ALLOWED_SEARCH_QUERY_FLAGS, new Predicate<QueryFlag>() {
+                @Override
+                public boolean apply(final QueryFlag input) {
+                    return input.getFlags().contains(flag);
+                }
+            })) {
+                throw new IllegalArgumentException(String.format("Invalid option '%s'", flag));
+            }
+        }
     }
 
     private UpdateResponse performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword, final String source) {
