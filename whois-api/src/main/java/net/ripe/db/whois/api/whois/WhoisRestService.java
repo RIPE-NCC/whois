@@ -148,6 +148,8 @@ public class WhoisRestService {
                 JOINER.join(excludeTags),
                 key));
 
+        // TODO: [AH] lookup will happily return multiple objects, which is NOT the idea
+
         if (sourceContext.getGrsSourceNames().contains(ciString(source)) != isGrsExpected) {
             throw new IllegalArgumentException(String.format("The given grs source id: '%s' is not valid", source));
         }
@@ -864,8 +866,8 @@ public class WhoisRestService {
             } else {
                 final CharacterIterator charIterator = new StringCharacterIterator(flagParameter);
                 for (char flag = charIterator.first(); flag != CharacterIterator.DONE; flag = charIterator.next()) {
-                    if (NOT_ALLOWED_SEARCH_FLAGS.contains(flag)) {
-                        throw new IllegalArgumentException(String.format("The flag: %s is not valid.", flag));
+                    if (NOT_ALLOWED_SEARCH_FLAGS.contains(flag) || !QueryFlag.getValidShortFlags().contains(flag)) {
+                        throw new IllegalArgumentException(String.format("Invalid option '%s'", flag));
                     }
                     separateFlags.add(String.valueOf(flag));
                 }
@@ -881,10 +883,9 @@ public class WhoisRestService {
                 (inverseAttributes == null || inverseAttributes.isEmpty()) ? "" : QueryFlag.INVERSE.getLongFlag(),
                 JOINER.join(inverseAttributes),
                 Joiner.on(" ").join(Iterables.transform(separateFlags, new Function<String, String>() {
-                    @Nullable
                     @Override
-                    public String apply(@Nullable String input) {
-                        return QueryFlag.getValidLongFlags().contains(input) ? "--" + input : "-" + input;
+                    public String apply(String input) {
+                        return input.length() > 1 ? "--" + input : "-" + input;
                     }
                 })),
                 (queryString == null ? "" : queryString)));

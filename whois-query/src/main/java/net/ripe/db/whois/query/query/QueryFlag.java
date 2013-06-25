@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.query;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import javax.annotation.CheckForNull;
 import java.util.Collections;
@@ -259,23 +259,32 @@ public enum QueryFlag {
         return toString;
     }
 
-
     private static Set<String> VALID_LONG_FLAGS;
+    private static Set<String> VALID_SHORT_FLAGS;
 
     static {
-        final List<String> validLongFlags = Lists.newArrayListWithCapacity(QueryFlag.values().length);
+        final ImmutableSet.Builder<String> validLongFlags = ImmutableSet.builder();
+        final ImmutableSet.Builder<String> validShortFlags = ImmutableSet.builder();
+
         for (final QueryFlag queryFlag : QueryFlag.values()) {
             for (final String flag : queryFlag.getFlags()) {
                 if (flag.length() > 1) {
                     validLongFlags.add(flag);
+                } else {
+                    validShortFlags.add(flag);
                 }
             }
         }
 
-        VALID_LONG_FLAGS = Collections.unmodifiableSet(Sets.newLinkedHashSet(validLongFlags));
+        VALID_LONG_FLAGS = validLongFlags.build();
+        VALID_SHORT_FLAGS = validLongFlags.build();
     }
 
     public static Set<String> getValidLongFlags() {
         return VALID_LONG_FLAGS;
+    }
+
+    public static Set<String> getValidShortFlags() {
+        return VALID_SHORT_FLAGS;
     }
 }
