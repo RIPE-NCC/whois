@@ -152,6 +152,11 @@ public class JdbcIndexDao implements IndexDao {
         for (final RpslAttribute attribute : attributes) {
             for (final CIString value : attribute.getReferenceValues()) {
                 if (uniqueValues.add(value)) {
+                    if (!attribute.getType().isValidValue(rpslObject.getType(), value)) {
+                        LOGGER.debug("Invalid value {} type {} (object id {})", value, rpslObject.getType(), rpslObject.getObjectId());
+                        continue;
+                    }
+
                     try {
                         indexStrategy.addToIndex(jdbcTemplate, rpslObjectInfo, rpslObject, value.toString());
                     } catch (IllegalArgumentException e) {

@@ -2,7 +2,6 @@ package net.ripe.db.whois;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.dao.jdbc.IndexDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.database.diff.Database;
@@ -522,8 +521,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'FL1-TEST'");
 
-        DatabaseHelper.dumpSchema(databaseHelper.getWhoisTemplate().getDataSource());
-
         final DatabaseDiff diff = rebuild();
 
         assertThat(diff.getAdded().getAll(), hasSize(0));
@@ -532,6 +529,34 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
         assertThat(diff.getRemoved().getTable("names"), hasSize(2));
         assertThat(diff.getRemoved().getTable("person_role"), hasSize(1));
         assertThat(diff.getRemoved().getTable("mnt_by"), hasSize(1));
+    }
+
+    @Test
+    public void person_invalid_email_attribute() throws Exception {
+        final RpslObject person = databaseHelper.addObject(
+                "person:       Another Person\n" +
+                "address:      Amsterdam\n" +
+                "phone:        +31 2 12 34 56\n" +
+                "nic-hdl:      AP1-TEST\n" +
+                "mnt-by:       TST-MNT\n" +
+                "changed:      user@ripe.net 20130101\n" +
+                "source:       TEST");
+        whoisTemplate.update("UPDATE last SET object = ? WHERE object_id = ?",
+                ("person:      Another Person\n" +
+                "address:      Amsterdam\n" +
+                "phone:        +31 2 12 34 56\n" +
+                "nic-hdl:      AP1-TEST\n" +
+                "mnt-by:       TST-MNT\n" +
+                "e-mail:       12345678901234567890123456789012345678901234567890123456789012345678901234567890@host.org\n" +
+                "changed:      user@ripe.net 20130101\n" +
+                "source:       TEST").getBytes(),
+                person.getObjectId());
+
+        final DatabaseDiff diff = rebuild();
+
+        assertThat(diff.getAdded().getAll(), hasSize(0));
+        assertThat(diff.getRemoved().getAll(), hasSize(0));
+        assertThat(diff.getModified().getAll(), hasSize(0));
     }
 
     @Test
