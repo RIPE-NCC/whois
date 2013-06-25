@@ -1130,9 +1130,48 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     // response format
 
     @Test
-    public void lookup_json_response() throws Exception {
+    public void lookup_accept_application_xml() throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) (new URL(getUrl("lookup/test/person/TP1-TEST"))).openConnection();
+        connection.setRequestProperty(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML);
+        assertThat(connection.getResponseCode(), is(HttpURLConnection.HTTP_OK));
+
+        final String response = readResponse(connection);
+
+        assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
+        assertThat(response, containsString("<whois-resources>"));
+    }
+
+    @Test
+    public void lookup_accept_text_xml() throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) (new URL(getUrl("lookup/test/person/TP1-TEST"))).openConnection();
+        connection.setRequestProperty(HttpHeaders.ACCEPT, "text/xml");
+        assertThat(connection.getResponseCode(), is(HttpURLConnection.HTTP_OK));
+
+        final String response = readResponse(connection);
+
+        assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
+        assertThat(response, containsString("<whois-resources>"));
+    }
+
+    @Test
+    public void lookup_accept_application_json() throws Exception {
         HttpURLConnection connection = (HttpURLConnection) (new URL(getUrl("lookup/test/person/TP1-TEST"))).openConnection();
         connection.setRequestProperty(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        assertThat(connection.getResponseCode(), is(HttpURLConnection.HTTP_OK));
+
+        final String response = readResponse(connection);
+
+        assertThat(response, containsString("\"whois-resources\""));
+        assertThat(response, containsString("\"objects\""));
+        assertThat(response, containsString("\"object\""));
+        assertThat(response, containsString("\"xlink:type\""));
+        assertThat(response, containsString("\"xlink:href\""));
+    }
+
+    @Test
+    public void lookup_accept_text_json() throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) (new URL(getUrl("lookup/test/person/TP1-TEST"))).openConnection();
+        connection.setRequestProperty(HttpHeaders.ACCEPT, "text/json");
         assertThat(connection.getResponseCode(), is(HttpURLConnection.HTTP_OK));
 
         final String response = readResponse(connection);
@@ -1223,6 +1262,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         assertThat(response, not(containsString("<!--")));
     }
 
+    // search
+
     @Test
     public void search() throws Exception {
         databaseHelper.addObject("" +
@@ -1265,6 +1306,64 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)
         ));
+    }
+
+
+    @Test
+    public void search_with_longoptions() {
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        final WhoisResources resources = createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rG")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(resources.getWhoisObjects(), hasSize(1));
+
+        final List<Flag> flags = resources.getParameters().getFlags().getFlags();
+        assertThat(flags, hasSize(3));
+        assertThat(flags.get(0).getValue(), is("G"));
+        assertThat(flags.get(1).getValue(), is("r"));
+        assertThat(flags.get(2).getValue(), is("no-filtering"));
+    }
+
+    @Test
+    public void search_with_short_and_longoptions_together() {
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        try {
+            createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST&flags=show-tag-inforG")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), is("Invalid option 's'"));
+        }
+    }
+
+    @Test
+    public void search_invalid_flag() {
+        try {
+            createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST&flags=qW")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), is("Invalid option 'q'"));
+        }
     }
 
     @Test
@@ -1464,7 +1563,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("The flag: k is not valid."));
+            assertThat(e.getResponse().getEntity(String.class), is("Invalid option 'k'"));
         }
     }
 
@@ -1537,7 +1636,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void search_nonexistant_person() {
+    public void search_not_found() {
         try {
             createResource(AUDIENCE, "whois/search?query-string=NONEXISTANT&source=TEST")
                     .accept(MediaType.APPLICATION_XML)

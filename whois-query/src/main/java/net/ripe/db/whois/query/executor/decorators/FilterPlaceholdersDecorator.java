@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.query.QueryFlag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +24,7 @@ public class FilterPlaceholdersDecorator implements ResponseDecorator {
     }
 
     public Iterable<? extends ResponseObject> decorate(final Query query, final Iterable<? extends ResponseObject> input) {
-        if (!query.hasOption(QueryFlag.RESOURCE) || !sourceContext.isVirtual()) {
+        if (!sourceContext.isVirtual()) {
             return input;
         }
 

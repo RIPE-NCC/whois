@@ -257,41 +257,33 @@ public final class Query {
     }
 
     public int getObjectVersion() {
-        try {
-            if (hasOption(QueryFlag.SHOW_VERSION)) {
-                int version = Integer.parseInt(getOptionValue(QueryFlag.SHOW_VERSION));
-                if (version < 1) {
-                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("version flag number must be greater than 0"));
-                }
-                return version;
+        if (hasOption(QueryFlag.SHOW_VERSION)) {
+            int version = Integer.parseInt(getOptionValue(QueryFlag.SHOW_VERSION));
+            if (version < 1) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("version flag number must be greater than 0"));
             }
-            return -1;
-        } catch (OptionException e) {
-            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
+            return version;
         }
+        return -1;
     }
 
     public int[] getObjectVersions() {
-        try {
-            if (hasOption(QueryFlag.DIFF_VERSIONS)) {
-                final String[] values = StringUtils.split(getOptionValue(QueryFlag.DIFF_VERSIONS), ':');
-                if (values.length != 2) {
-                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff versions must be in the format a:b"));
-                }
-                final int firstValue = Integer.parseInt(values[0]);
-                final int secondValue = Integer.parseInt(values[1]);
-                if (firstValue < 1 || secondValue < 1) {
-                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff version number must be greater than 0"));
-                }
-                if (secondValue == firstValue) {
-                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff versions are the same"));
-                }
-                return new int[]{firstValue, secondValue};
+        if (hasOption(QueryFlag.DIFF_VERSIONS)) {
+            final String[] values = StringUtils.split(getOptionValue(QueryFlag.DIFF_VERSIONS), ':');
+            if (values.length != 2) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff versions must be in the format a:b"));
             }
-        } catch (OptionException ignored) {
+            final int firstValue = Integer.parseInt(values[0]);
+            final int secondValue = Integer.parseInt(values[1]);
+            if (firstValue < 1 || secondValue < 1) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff version number must be greater than 0"));
+            }
+            if (secondValue == firstValue) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff versions are the same"));
+            }
+            return new int[]{firstValue, secondValue};
         }
-
-        throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
+        return new int[] {-1, -1};
     }
 
     public String getTemplateOption() {

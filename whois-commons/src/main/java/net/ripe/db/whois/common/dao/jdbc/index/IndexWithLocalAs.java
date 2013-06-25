@@ -36,5 +36,6 @@ class IndexWithLocalAs extends IndexStrategyWithSingleLookupTable {
 
     @Override
     public void removeFromIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo) {
+        //do nothing, removed for inet_rtr using the indexWithValue strategy
     }
 }

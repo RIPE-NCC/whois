@@ -49,7 +49,7 @@ public class RpslResponseDecorator {
     private final FilterTagsDecorator filterTagsDecorator;
     private final FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
-    private final String source;
+    private final String mainSource;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -59,7 +59,7 @@ public class RpslResponseDecorator {
                                  final DummifyFunction dummifyFunction,
                                  final FilterTagsDecorator filterTagsDecorator,
                                  final FilterPlaceholdersDecorator filterPlaceholdersDecorator,
-                                 final @Value("${whois.source}") String source,
+                                 final @Value("${whois.source}") String mainSource,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -70,7 +70,7 @@ public class RpslResponseDecorator {
         this.abuseCFunction = new AbuseCFunction(abuseCFinder);
         this.toBriefFunction = new ToBriefFunction(abuseCFinder);
         this.decorators = Sets.newHashSet(decorators);
-        this.source = source;
+        this.mainSource = mainSource;
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
@@ -91,7 +91,7 @@ public class RpslResponseDecorator {
     }
 
     private Iterable<? extends ResponseObject> applyAbuseC(final Query query, final Iterable<? extends ResponseObject> result) {
-        if (!query.isBrief() && sourceContext.getCurrentSource().getName().equals(CIString.ciString(source))) {
+        if (!query.isBrief() && sourceContext.getCurrentSource().getName().equals(CIString.ciString(mainSource))) {
             return Iterables.concat(Iterables.transform(result, abuseCFunction));
         }
 

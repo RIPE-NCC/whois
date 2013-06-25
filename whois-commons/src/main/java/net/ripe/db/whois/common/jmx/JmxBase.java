@@ -17,15 +17,24 @@ public abstract class JmxBase {
     protected <T> T invokeOperation(final String description, final String comment, final Callable<T> callable) {
         final Stopwatch stopwatch = new Stopwatch().start();
 
-        logger.info("{}: {}", description, comment);
+        logger.info("{} ({})", description, comment);
 
         try {
             return callable.call();
         } catch (Exception e) {
-            logger.error("{}: {}", description, comment, e);
+            logger.error("{} ({})", description, comment, e);
             return null;
         } finally {
-            logger.info("{}: {} invocation took {}", description, comment, stopwatch.stop());
+            logger.info("{} ({}) invocation took {}", description, comment, stopwatch.stop());
         }
+    }
+
+    protected <T> void backgroundOperation(final String description, final String comment, final Callable<T> callable) {
+        new Thread() {
+            @Override
+            public void run() {
+                logger.info("{} ({}) returned {}", description, comment, invokeOperation(description, comment, callable));
+            }
+        }.start();
     }
 }

@@ -25,6 +25,7 @@ import java.util.List;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -89,13 +90,13 @@ public class FilterPlaceholderDecoratorTest {
     }
 
     @Test
-    public void nonResourceQueriesAreLeftAlone() {
+    public void nonResourceQueriesAreFilteredAlone() {
         when(sourceContext.isVirtual()).thenReturn(true);
         List<? extends ResponseObject> toFilter = Collections.emptyList();
 
         Iterable<? extends ResponseObject> result = subject.decorate(Query.parse("10.10.10.10"), toFilter);
 
-        assertSame(result, toFilter);
+        assertNotSame(result, toFilter);
     }
 
     @Test
