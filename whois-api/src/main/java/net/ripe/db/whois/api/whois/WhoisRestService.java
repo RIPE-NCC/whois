@@ -128,6 +128,7 @@ public class WhoisRestService {
         return lookupObject(request, source, objectType, key, include, exclude, true);
     }
 
+    // TODO: [AH] hierarchical lookups return the encompassing range if no direct hit
     private Response lookupObject(
             final HttpServletRequest request,
             final String source,
@@ -135,8 +136,10 @@ public class WhoisRestService {
             final String key,
             final Set<String> includeTags,
             final Set<String> excludeTags,
-            final boolean isGrsExpected) {
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s",
+            final boolean isGrs) {
+        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s %s %s",
+                QueryFlag.NO_GROUPING.getLongFlag(),
+                QueryFlag.NO_REFERENCED.getLongFlag(),
                 QueryFlag.SOURCES.getLongFlag(),
                 source,
                 QueryFlag.SELECT_TYPES.getLongFlag(),
@@ -148,9 +151,7 @@ public class WhoisRestService {
                 JOINER.join(excludeTags),
                 key));
 
-        // TODO: [AH] lookup will happily return multiple objects, which is NOT the idea
-
-        if (sourceContext.getGrsSourceNames().contains(ciString(source)) != isGrsExpected) {
+        if (sourceContext.getGrsSourceNames().contains(ciString(source)) != isGrs) {
             throw new IllegalArgumentException(String.format("The given grs source id: '%s' is not valid", source));
         }
 
