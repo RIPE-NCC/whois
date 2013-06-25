@@ -24,20 +24,19 @@ class NotificationResponse extends Response {
   }
 
     def added(String type, String pkey, String new_str) {
-        contents =~ "---\nOBJECT BELOW MODIFIED:\n+${type}:\\s*${pkey}" +
-                "(.*\n)+?REPLACED BY:\n+${type}:\\s*${pkey}" +
-                "(.*\n)*?${new_str}" &&
-        !(contents =~ "---\nOBJECT BELOW MODIFIED:\n+${type}:\\s*${pkey}" +
-                "(.*\n)*?${new_str}(.*\n)*?REPLACED BY:\n+${type}:\\s*${pkey}")
+        (contents =~ "---\nOBJECT BELOW MODIFIED:\n+(.*\n)+?\\+${new_str}" +
+                "(.*\n)+?THIS IS THE NEW VERSION OF THE OBJECT:\n+${type}:\\s*${pkey}") &&
+
+        (contents =~ "THIS IS THE NEW VERSION OF THE OBJECT:\n+${type}:\\s*${pkey}" +
+                "(.*\n)*?${new_str}")
     }
 
     def removed(String type, String pkey, String old_str) {
-        contents =~ "---\nOBJECT BELOW MODIFIED:\n+${type}:\\s*${pkey}" +
-                "(.*\n)+?${old_str}" +
-                "(.*\n)+?REPLACED BY:\n+${type}:\\s*${pkey}" &&
-        !(contents =~ "---\nOBJECT BELOW MODIFIED:\n+${type}:\\s*${pkey}" +
-                "(.*\n)+?REPLACED BY:\n+${type}:\\s*${pkey}" +
-                "(.*\n)*?${old_str}.*?\n(.+\n)*?\n")
+        (contents =~ "---\nOBJECT BELOW MODIFIED:\n+(.*\n)+?-${old_str}" +
+                "(.*\n)+?THIS IS THE NEW VERSION OF THE OBJECT:\n+${type}:\\s*${pkey}") &&
+
+        !(contents =~ "THIS IS THE NEW VERSION OF THE OBJECT:\n+${type}:\\s*${pkey}" +
+                "(.*\n)*?${old_str}")
     }
 
     def changed(String type, String pkey, String old_str, String new_str) {

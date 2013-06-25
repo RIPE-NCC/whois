@@ -16,7 +16,7 @@ class NotificationSpec extends BaseSpec {
                 auth:        MD5-PW \$1\$Bsso7xK2\$u1I7XvRIJyMQlF2rYWbYx.  #modify
                 mnt-by:      MOD-MNT
                 referral-by: MOD-MNT
-                changed:     dbtest@ripe.net
+                changed:     dbtest@ripe.net 20010601
                 source:      TEST
                 """,
             "MOD2-MNT": """\
@@ -194,9 +194,8 @@ class NotificationSpec extends BaseSpec {
         def mnt = object(getTransient("MOD2-MNT"))
 
       expect:
-        def qry = query("-r -BG -T mntner MOD-MNT")
-        qry =~ "mntner:\\s*MOD-MNT"
-        !(qry =~ "notify:\\s*notify_test@ripe.net")
+        queryObject("-r -BG -T mntner MOD-MNT", "mntner", "MOD-MNT")
+        query_object_not_matches("-r -BG -T mntner MOD-MNT", "mntner", "MOD-MNT", "notify:\\s*notify_test@ripe.net")
 
       when:
         def message = send new Message(
@@ -217,7 +216,7 @@ class NotificationSpec extends BaseSpec {
 
         noMoreMessages()
 
-        query("-r -B -G -T mntner MOD-MNT") =~ "notify:\\s*notify_test@ripe.net"
+        query_object_matches("-r -BG -T mntner MOD-MNT", "mntner", "MOD-MNT", "notify:\\s*notify_test@ripe.net")
     }
 
     def "change notify in object"() {
@@ -316,6 +315,7 @@ class NotificationSpec extends BaseSpec {
         def notif = notificationFor "notify_test@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
         notif.deleted.any { it.type == "mntner" && it.key == "MOD-MNT" }
+        notif.contents =~ "\\*\\*\\*Info:\\s*del reason"
 
         noMoreMessages()
     }
@@ -410,7 +410,7 @@ class NotificationSpec extends BaseSpec {
 
         def notif = notificationFor "updto_owner@ripe.net"
         notif.subject =~ "RIPE Database updates, auth error notification"
-        notif.authFailed("UPDATE", "mntner", "TST-MNT")
+        notif.authFailed("MODIFY", "mntner", "TST-MNT")
 
         noMoreMessages()
 
@@ -516,10 +516,12 @@ class NotificationSpec extends BaseSpec {
         def notif = notificationFor "mntnfy_owner@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
         notif.deleted.any { it.type == "mntner" && it.key == "TST-MNT4" }
+        notif.contents =~ "\\*\\*\\*Info:\\s*not required"
 
         def notif2 = notificationFor "notify_tst4@ripe.net"
         notif2.subject =~ "Notification of RIPE Database changes"
-        notif.deleted.any { it.type == "mntner" && it.key == "TST-MNT4" }
+        notif2.deleted.any { it.type == "mntner" && it.key == "TST-MNT4" }
+        notif2.contents =~ "\\*\\*\\*Info:\\s*not required"
 
         noMoreMessages()
 
@@ -610,6 +612,7 @@ class NotificationSpec extends BaseSpec {
         notif5.subject =~ "Notification of RIPE Database changes"
         notif5.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
         notif5.changed("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120101", "changed:\\s*dbtest@ripe.net 20130601")
+        notif5.contents =~ "The old object can be seen in the history using the query options --list-versions and --show-version 2 TST-MNT5"
 
         noMoreMessages()
 
