@@ -24,14 +24,7 @@ import java.io.StringReader;
 
 %%
 
-/*
-reserved: TKN_RESERVED {
-    yyerror("reserved word");
-};
-*/
-
 name: TKN_NAME {
-    System.out.println("name");
 };
 
 %%
