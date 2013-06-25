@@ -1,6 +1,7 @@
 ## next
 [all] added maintenance mode (-Dmaintenance=none,none)
 [all] fixes for index regeneration (pre-production tests)
+[api] REST API changed; need to adjust web gui!
 
 ## 1.67 (not yet deployed)
 [update] added pending auth support for route(6) creation
