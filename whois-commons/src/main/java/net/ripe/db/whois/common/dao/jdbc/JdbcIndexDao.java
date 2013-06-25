@@ -111,7 +111,10 @@ public class JdbcIndexDao implements IndexDao {
         for (final Integer objectId : objectIds) {
             try {
                 final Map<String, Object> map = jdbcTemplate.queryForMap(
-                        "SELECT object_id, object, pkey FROM last WHERE object_id = ? AND sequence_id != 0",
+                        "SELECT object_id, object, pkey FROM last " +
+                        "WHERE object_id = ? " +
+                        "AND sequence_id != 0 " +
+                        "AND object_type != 100",
                         objectId);
                 RpslObject rpslObject = RpslObject.parse(((Long)map.get("object_id")).intValue(), (byte[])map.get("object"));
                 final String pkey = (String)map.get("pkey");
@@ -176,7 +179,7 @@ public class JdbcIndexDao implements IndexDao {
             return rpslObject;
         }
 
-        LOGGER.info("Updating {} object from {} to {}", rpslObject.getType(), rpslObject.getKey(), sanitizedObject.getKey());
+        LOGGER.info("Updating {} object from {} to {}", rpslObject.getType(), rpslObject.getKey(), sanitizedPKey);
 
         final int rows = jdbcTemplate.update("UPDATE last SET pkey = ?, object = ? WHERE object_id = ?",
                 sanitizedObject.getKey(),
