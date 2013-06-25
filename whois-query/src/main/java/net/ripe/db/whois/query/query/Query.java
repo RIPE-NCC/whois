@@ -205,7 +205,7 @@ public final class Query {
     }
 
     public boolean isGrouping() {
-        return (!isKeysOnly() && !hasOption(QueryFlag.NO_GROUPING)) && !(isBrief() || isObjectVersion());
+        return (!isKeysOnly() && !hasOption(QueryFlag.NO_GROUPING)) && !isBrief();
     }
 
     public boolean isBrief() {
@@ -233,7 +233,7 @@ public final class Query {
     }
 
     public boolean isReturningReferencedObjects() {
-        return !(hasOption(QueryFlag.NO_REFERENCED) || isShortHand() || isKeysOnly() || isObjectVersion() || isBrief());
+        return !(hasOption(QueryFlag.NO_REFERENCED) || isShortHand() || isKeysOnly() || isResource() || isBrief());
     }
 
     public boolean isInverse() {
