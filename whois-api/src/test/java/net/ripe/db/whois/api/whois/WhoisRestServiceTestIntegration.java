@@ -1308,7 +1308,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("%ERROR:111: invalid option supplied\n%\n% Use help query to see the valid options.\n"));
+            assertThat(e.getResponse().getEntity(String.class), is("Invalid option 's'"));
         }
     }
 
@@ -1321,7 +1321,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("%ERROR:111: invalid option supplied\n%\n% Use help query to see the valid options.\n"));
+            assertThat(e.getResponse().getEntity(String.class), is("Invalid option 'q'"));
         }
     }
 
@@ -1522,7 +1522,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("The flag: k is not valid."));
+            assertThat(e.getResponse().getEntity(String.class), is("Invalid option 'k'"));
         }
     }
 
@@ -1595,7 +1595,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void search_nonexistant_person() {
+    public void search_not_found() {
         try {
             createResource(AUDIENCE, "whois/search?query-string=NONEXISTANT&source=TEST")
                     .accept(MediaType.APPLICATION_XML)
