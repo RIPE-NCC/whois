@@ -87,7 +87,7 @@ class NotificationSpec extends BaseSpec {
                 mnt-by:      OWNER-MNT
                 mnt-by:      OWNER4-MNT
                 referral-by: TST-MNT5
-                changed:     dbtest@ripe.net
+                changed:     dbtest@ripe.net 20130601
                 source:      TEST
                 """,
             "TST6-MNT": """\
@@ -571,7 +571,7 @@ class NotificationSpec extends BaseSpec {
 
       when:
         def message = send new Message(
-                subject: "delete mntner",
+                subject: "modify mntner",
                 body: mnt + "password: owner4"
         )
 
@@ -589,27 +589,27 @@ class NotificationSpec extends BaseSpec {
         def notif = notificationFor "mntnfy_owner4@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
         notif.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
-        notif.added("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120901")
+        notif.changed("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120101", "changed:\\s*dbtest@ripe.net 20130601")
 
         def notif2 = notificationFor "mntnfy2_owner4@ripe.net"
         notif2.subject =~ "Notification of RIPE Database changes"
         notif2.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
-        notif2.added("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120901")
+        notif2.changed("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120101", "changed:\\s*dbtest@ripe.net 20130601")
 
         def notif3 = notificationFor "notify_tst5@ripe.net"
         notif3.subject =~ "Notification of RIPE Database changes"
         notif3.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
-        notif3.added("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120901")
+        notif3.changed("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120101", "changed:\\s*dbtest@ripe.net 20130601")
 
         def notif4 = notificationFor "notify2_tst5@ripe.net"
         notif4.subject =~ "Notification of RIPE Database changes"
         notif4.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
-        notif4.added("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120901")
+        notif4.changed("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120101", "changed:\\s*dbtest@ripe.net 20130601")
 
         def notif5 = notificationFor "mntnfy_owner@ripe.net"
         notif5.subject =~ "Notification of RIPE Database changes"
         notif5.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
-        notif5.added("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120901")
+        notif5.changed("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120101", "changed:\\s*dbtest@ripe.net 20130601")
 
         noMoreMessages()
 
@@ -647,22 +647,22 @@ class NotificationSpec extends BaseSpec {
         def notif = notificationFor "updto_owner3@ripe.net"
         notif.subject =~ "RIPE Database updates, auth error notification"
         notif.failedModified.any { it.type == "mntner" && it.key == "TST-MNT6" }
-        notif.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
+        !notif.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
 
         def notif2 = notificationFor "updto2_owner3@ripe.net"
         notif2.subject =~ "RIPE Database updates, auth error notification"
         notif2.failedModified.any { it.type == "mntner" && it.key == "TST-MNT6" }
-        notif2.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
+        !notif2.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
 
         def notif3 = notificationFor "updto_owner4@ripe.net"
         notif3.subject =~ "RIPE Database updates, auth error notification"
         notif3.failedModified.any { it.type == "mntner" && it.key == "TST-MNT6" }
-        notif3.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
+        !notif3.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
 
         def notif4 = notificationFor "updto2_owner4@ripe.net"
         notif4.subject =~ "RIPE Database updates, auth error notification"
         notif4.failedModified.any { it.type == "mntner" && it.key == "TST-MNT6" }
-        notif4.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
+        !notif4.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
 
         noMoreMessages()
 
