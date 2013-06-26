@@ -47,17 +47,17 @@ import net.ripe.db.whois.api.whois.rdap.VcardObject;
     "entryType",
     "entryValue"
 })
-@XmlRootElement(name = "org")
-public class Org
+@XmlRootElement(name = "tz")
+public class Tz
     extends VcardObject
     implements Serializable
 {
 
-    @XmlElement(required = true, defaultValue = "org")
+    @XmlElement(required = true, defaultValue = "tz")
     protected String name;
     @XmlElement(required = true)
     protected HashMap keyValues;
-    @XmlElement(required = true, defaultValue = "text")
+    @XmlElement(required = true, defaultValue = "utc-offset")
     protected String entryType;
     @XmlElement(required = true)
     protected String entryValue;
@@ -140,7 +140,7 @@ public class Org
      */
     public String getName() {
         if (null == name) {
-            return "org";
+            return "tz";
         }
         return name;
     }
@@ -151,7 +151,7 @@ public class Org
      */
     public String getEntryType() {
         if (null == entryType) {
-            return "text";
+            return "utc-offset";
         }
         return entryType;
     }

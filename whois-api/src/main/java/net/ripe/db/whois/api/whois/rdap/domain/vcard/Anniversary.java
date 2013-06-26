@@ -14,7 +14,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.datatype.XMLGregorianCalendar;
 import net.ripe.db.whois.api.whois.rdap.VcardObject;
 
 
@@ -31,7 +33,7 @@ import net.ripe.db.whois.api.whois.rdap.VcardObject;
  *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="keyValues" type="{}hashMapType"/>
  *         &lt;element name="entryType" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="entryValue" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="entryValue" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -47,20 +49,21 @@ import net.ripe.db.whois.api.whois.rdap.VcardObject;
     "entryType",
     "entryValue"
 })
-@XmlRootElement(name = "org")
-public class Org
+@XmlRootElement(name = "anniversary")
+public class Anniversary
     extends VcardObject
     implements Serializable
 {
 
-    @XmlElement(required = true, defaultValue = "org")
+    @XmlElement(required = true, defaultValue = "anniversary")
     protected String name;
     @XmlElement(required = true)
     protected HashMap keyValues;
-    @XmlElement(required = true, defaultValue = "text")
+    @XmlElement(required = true, defaultValue = "date-and-or-time")
     protected String entryType;
     @XmlElement(required = true)
-    protected String entryValue;
+    @XmlSchemaType(name = "dateTime")
+    protected XMLGregorianCalendar entryValue;
 
     /**
      * Sets the value of the name property.
@@ -115,10 +118,10 @@ public class Org
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link XMLGregorianCalendar }
      *     
      */
-    public String getEntryValue() {
+    public XMLGregorianCalendar getEntryValue() {
         return entryValue;
     }
 
@@ -127,10 +130,10 @@ public class Org
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link XMLGregorianCalendar }
      *     
      */
-    public void setEntryValue(String value) {
+    public void setEntryValue(XMLGregorianCalendar value) {
         this.entryValue = value;
     }
 
@@ -140,7 +143,7 @@ public class Org
      */
     public String getName() {
         if (null == name) {
-            return "org";
+            return "anniversary";
         }
         return name;
     }
@@ -151,7 +154,7 @@ public class Org
      */
     public String getEntryType() {
         if (null == entryType) {
-            return "text";
+            return "date-and-or-time";
         }
         return entryType;
     }

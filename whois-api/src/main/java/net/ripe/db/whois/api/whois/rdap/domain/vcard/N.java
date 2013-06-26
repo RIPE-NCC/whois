@@ -31,7 +31,7 @@ import net.ripe.db.whois.api.whois.rdap.VcardObject;
  *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="keyValues" type="{}hashMapType"/>
  *         &lt;element name="entryType" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="entryValue" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="nEntryValue" type="{}nEntryValueType"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -45,22 +45,22 @@ import net.ripe.db.whois.api.whois.rdap.VcardObject;
     "name",
     "keyValues",
     "entryType",
-    "entryValue"
+    "nEntryValue"
 })
-@XmlRootElement(name = "org")
-public class Org
+@XmlRootElement(name = "n")
+public class N
     extends VcardObject
     implements Serializable
 {
 
-    @XmlElement(required = true, defaultValue = "org")
+    @XmlElement(required = true, defaultValue = "n")
     protected String name;
     @XmlElement(required = true)
     protected HashMap keyValues;
     @XmlElement(required = true, defaultValue = "text")
     protected String entryType;
     @XmlElement(required = true)
-    protected String entryValue;
+    protected NEntryValueType nEntryValue = new NEntryValueType();
 
     /**
      * Sets the value of the name property.
@@ -111,27 +111,27 @@ public class Org
     }
 
     /**
-     * Gets the value of the entryValue property.
+     * Gets the value of the nEntryValue property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link NEntryValueType }
      *     
      */
-    public String getEntryValue() {
-        return entryValue;
+    public NEntryValueType getNEntryValue() {
+        return nEntryValue;
     }
 
     /**
-     * Sets the value of the entryValue property.
+     * Sets the value of the nEntryValue property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link NEntryValueType }
      *     
      */
-    public void setEntryValue(String value) {
-        this.entryValue = value;
+    public void setNEntryValue(NEntryValueType value) {
+        this.nEntryValue = value;
     }
 
     /**
@@ -140,7 +140,7 @@ public class Org
      */
     public String getName() {
         if (null == name) {
-            return "org";
+            return "n";
         }
         return name;
     }
