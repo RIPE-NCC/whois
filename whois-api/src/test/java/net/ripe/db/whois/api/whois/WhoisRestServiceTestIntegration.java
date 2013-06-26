@@ -819,6 +819,30 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         ));
     }
 
+    @Test
+    public void modify_object_not_found() {
+        try {
+            createResource(AUDIENCE, "whois/modify/test/person/NONEXISTANT")
+                    .accept(MediaType.APPLICATION_XML)
+                    .post(WhoisResources.class, new WhoisModify(new WhoisModify.Remove(7)));
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), containsString("Not Found"));
+        }
+    }
+
+    @Test
+    public void modify_invalid_object_type() {
+        try {
+            createResource(AUDIENCE, "whois/modify/test/invalid/OWNER-MNT")
+                    .accept(MediaType.APPLICATION_XML)
+                    .post(WhoisResources.class, new WhoisModify(new WhoisModify.Remove(7)));
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+        }
+    }
+
     // versions
 
     @Test

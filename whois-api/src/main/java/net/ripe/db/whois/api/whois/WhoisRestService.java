@@ -8,16 +8,31 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.api.whois.domain.*;
+import net.ripe.db.whois.api.whois.domain.Attribute;
+import net.ripe.db.whois.api.whois.domain.Link;
+import net.ripe.db.whois.api.whois.domain.Parameters;
+import net.ripe.db.whois.api.whois.domain.WhoisModify;
+import net.ripe.db.whois.api.whois.domain.WhoisObject;
+import net.ripe.db.whois.api.whois.domain.WhoisResources;
+import net.ripe.db.whois.api.whois.domain.WhoisTag;
+import net.ripe.db.whois.api.whois.domain.WhoisVersions;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.domain.*;
+import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
+import net.ripe.db.whois.query.domain.QueryCompletionInfo;
+import net.ripe.db.whois.query.domain.QueryException;
+import net.ripe.db.whois.query.domain.TagResponseObject;
+import net.ripe.db.whois.query.domain.VersionResponseObject;
+import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
@@ -33,13 +48,21 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -351,7 +374,7 @@ public class WhoisRestService {
 
         final UpdateResponse response = performUpdate(
                 createOrigin(request),
-                createUpdate(submittedObject, null, passwords, null),
+                createUpdate(submittedObject, passwords, null),
                 createContent(submittedObject, passwords, null),
                 Keyword.NEW,
                 source);
@@ -468,7 +491,7 @@ public class WhoisRestService {
 
         final UpdateResponse response = performUpdate(
                 createOrigin(request),
-                createUpdate(submittedObject, null, passwords, null),
+                createUpdate(submittedObject, passwords, null),
                 createContent(submittedObject, passwords, null),
                 Keyword.NONE,
                 source);
@@ -593,14 +616,12 @@ public class WhoisRestService {
             @PathParam("key") final String key,
             @QueryParam(value = "password") final List<String> passwords) {
 
-        // TODO: [AH] this should be a single dao call
-        RpslObjectUpdateInfo objectInfo = rpslObjectUpdateDao.lookupObject(ObjectType.getByName(objectType), key);
-        RpslObject originalObject = rpslObjectDao.getById(objectInfo.getObjectId());
+        RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
         RpslObject updatedObject = modifyRpslObject(originalObject, whoisModify);
 
         final UpdateResponse response = performUpdate(
                 createOrigin(request),
-                createUpdate(updatedObject, objectInfo, passwords, null),
+                createUpdate(updatedObject, passwords, null),
                 createContent(updatedObject, passwords, null),
                 Keyword.NONE,
                 source);
@@ -704,7 +725,7 @@ public class WhoisRestService {
 
         final UpdateResponse response = performUpdate(
                 createOrigin(request),
-                createUpdate(originalObject, null, passwords, reason),
+                createUpdate(originalObject, passwords, reason),
                 createContent(originalObject, passwords, reason),
                 Keyword.NONE,
                 source);
@@ -982,13 +1003,12 @@ public class WhoisRestService {
         return builder.toString();
     }
 
-    private Update createUpdate(final RpslObject rpslObject, final RpslObjectUpdateInfo objectInfo, final List<String> passwords, final String deleteReason) {
+    private Update createUpdate(final RpslObject rpslObject, final List<String> passwords, final String deleteReason) {
         return new Update(
                 createParagraph(rpslObject, passwords),
                 deleteReason != null ? Operation.DELETE : Operation.UNSPECIFIED,
                 deleteReason != null ? Lists.newArrayList(deleteReason) : null,
-                rpslObject,
-                objectInfo);
+                rpslObject);
     }
 
     private Paragraph createParagraph(final RpslObject rpslObject, final List<String> passwords) {
