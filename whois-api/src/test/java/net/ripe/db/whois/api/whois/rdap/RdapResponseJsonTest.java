@@ -114,6 +114,7 @@ public class RdapResponseJsonTest {
                 "}, \"text\", \"joe.user@example.com\" ] ]", result);
     }
 
+
     @Test
     public void nameserver_serialization_test() throws Exception {
         Nameserver nameserver = new Nameserver();
