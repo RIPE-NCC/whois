@@ -4,26 +4,6 @@
            elementFormDefault="qualified"
            version="1.0">
 
-    <xs:element name="entity">
-	    <xs:complexType >
-	    	<xs:sequence>
-	    		<xs:element name="handle" type="xs:string" maxOccurs="1"
-	    			minOccurs="1">
-	    		</xs:element>
-	    		<xs:element name="vcardArray" type="xs:anySimpleType"
-	    			maxOccurs="unbounded" minOccurs="0">
-	    		</xs:element>
-	    		<xs:element name="roles" type="xs:string"
-	    			maxOccurs="unbounded" minOccurs="0">
-	    		</xs:element>
-	    		<xs:element name="publicIds" type="hashMapType"
-	    			maxOccurs="1" minOccurs="0">
-	    		</xs:element>
-	    		<xs:element name="remarks" type="hashMapType" maxOccurs="1" minOccurs="0"></xs:element>
-	    	</xs:sequence>
-	    </xs:complexType>
-	</xs:element>
-
     <xs:complexType name="vcardEntryType">
     	<xs:sequence>
     		<xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>

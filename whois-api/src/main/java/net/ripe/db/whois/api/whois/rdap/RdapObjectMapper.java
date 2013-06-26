@@ -8,16 +8,18 @@ import ezvcard.types.TelephoneType;
 import net.ripe.db.whois.api.whois.TaggedRpslObject;
 import net.ripe.db.whois.api.whois.domain.RdapEntity;
 import net.ripe.db.whois.api.whois.domain.RdapResponse;
-import net.ripe.db.whois.api.whois.rdap.domain.vcard.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.Fn;
-import net.ripe.db.whois.api.whois.rdap.domain.vcard.ObjectFactory;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.Version;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Queue;
 
 public class RdapObjectMapper {
     private TaggedRpslObject primaryTaggedRpslObject;
@@ -182,18 +184,18 @@ public class RdapObjectMapper {
 //    }
 
     public Object generateVcards() {
-        ObjectFactory of = new ObjectFactory();
 
-        Entity entity = of.createEntity();
+
+        Entity entity = new Entity();
         entity.setHandle("XXXX");
         entity.getVcardArray().add("vcard");
 
-        Version version = of.createVersion();
+        Version version = new Version();
         version.setEntryType("text");
         version.setEntryValue("4.0");
         entity.getVcardArray().add(version.toObjects());
 
-        Fn fn = of.createFn();
+        Fn fn = new Fn();
         fn.setEntryType("text");
         HashMap vals = new HashMap();
         vals.put("key1","val1");
