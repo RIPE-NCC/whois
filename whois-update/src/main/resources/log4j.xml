@@ -19,7 +19,7 @@
         <param name="Threshold" value="DEBUG" />
 
         <rollingPolicy name="UPDATELOG" class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
-            <param name="FileNamePattern" value="{$dir.var}/log/updlog.%d{yyyyMMdd}" />
+            <param name="FileNamePattern" value="${dir.var}/log/updlog.%d{yyyyMMdd}" />
         </rollingPolicy>
 
         <layout class="org.apache.log4j.PatternLayout">
@@ -32,7 +32,7 @@
         <param name="Threshold" value="DEBUG" />
 
         <rollingPolicy name="UNREFCLEANUPLOG" class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
-            <param name="FileNamePattern" value="{$dir.var}/log/unref/unref.%d{yyyyMMdd}" />
+            <param name="FileNamePattern" value="${dir.var}/log/unref/unref.%d{yyyyMMdd}" />
         </rollingPolicy>
 
         <layout class="org.apache.log4j.PatternLayout">
