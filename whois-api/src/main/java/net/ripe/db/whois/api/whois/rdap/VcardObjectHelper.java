@@ -58,9 +58,8 @@ public class VcardObjectHelper {
                 }
             }
         }
-        // Add unordered values to the end of our list
         List<Object> ret = new ArrayList<Object>(Arrays.asList(result)).subList(0, order.size());
-        ret.removeAll(Collections.singleton(null));
+        // Add unordered getter values to the end of our list
         ret.addAll(unordered);
         return ret;
     }
