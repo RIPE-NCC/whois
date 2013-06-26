@@ -5,14 +5,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
 import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
-import net.ripe.db.whois.api.whois.rdap.domain.vcard.*;
 import org.codehaus.plexus.util.StringInputStream;
 import org.codehaus.plexus.util.StringOutputStream;
 import org.junit.Test;
 
 import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -21,99 +19,79 @@ import static org.junit.Assert.assertEquals;
 public class RdapResponseJsonTest {
 
     @Test
-    public void vcard_serialization_test() throws Exception {
+    public void entity_vcard_serialization_test() throws Exception {
+        VcardObjectHelper.EntityVcardBuilder builder = new VcardObjectHelper.EntityVcardBuilder();
 
-        List<Object> vcardArray = new ArrayList<Object>();
-        vcardArray.add("vcard");
+        GregorianCalendar gc = new GregorianCalendar();
+        gc.setTimeInMillis(1372214924859L);
 
-        Version version = new Version();
-        version.setEntryType("text");
-        version.setEntryValue("4.0");
-        vcardArray.add(VcardObjectHelper.toObjects(version));
+        builder.setVersion()
+                .setFn("Joe User")
+                .setN(builder.createNEntryValueType("User", "Joe", "", "", Lists.<String>newArrayList("ing. jr", "M.Sc.")))
+                .setBday("--02-03")
+                .setAnniversary(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc))
+                .setGender("M")
+                .setKind("individual")
+                .addLang(VcardObjectHelper.createHashMap(Maps.immutableEntry("pref", "1")), "fr")
+                .addLang(VcardObjectHelper.createHashMap(Maps.immutableEntry("pref", "2")), "en")
+                .setOrg(VcardObjectHelper.createHashMap(Maps.immutableEntry("type", "work")), "Example")
+                .setTitle("Research Scientist")
+                .setRole("Project Lead")
+                .addAdr(VcardObjectHelper.createHashMap(Maps.immutableEntry("type", "work")), builder.createAdrEntryValueType("",
+                        "Suite 1234",
+                        "4321 Rue Somewhere",
+                        "Quebec",
+                        "QC",
+                        "G1V 2M2",
+                        "Canada"))
+                .addAdr(VcardObjectHelper.createHashMap(Maps.immutableEntry("pref", "1")), null)
+                .addTel(VcardObjectHelper.createHashMap(Maps.immutableEntry("type", new String[]{"work", "voice"})), "tel:+1-555-555-1234;ext=102")
+                .addTel(VcardObjectHelper.createHashMap(Maps.immutableEntry("type", new String[]{"work", "cell", "voice", "video", "text"})), "tel:+1-555-555-4321")
+                .setEmail(VcardObjectHelper.createHashMap(Maps.immutableEntry("type", "work")), "joe.user@example.com")
+                .setGeo(VcardObjectHelper.createHashMap(Maps.immutableEntry("type", "work")), "geo:46.772673,-71.282945")
+                .setKey(VcardObjectHelper.createHashMap(Maps.immutableEntry("type", "work")), "http://www.example.com/joe.user/joe.asc")
+                .setTz("-05:00")
+                .setUrl(VcardObjectHelper.createHashMap(Maps.immutableEntry("type", "work")), "http://example.org");
 
-        Fn fn = new Fn();
-        fn.setEntryType("text");
-        fn.setEntryValue("Joe User");
-        vcardArray.add(VcardObjectHelper.toObjects(fn));
-
-        Kind kind = new Kind();
-        kind.setEntryType("text");
-        kind.setEntryValue("individual");
-        vcardArray.add(VcardObjectHelper.toObjects(kind));
-
-        Lang lang1 = new Lang();
-        lang1.setKeyValues(Maps.newHashMap());
-        lang1.getKeyValues().put("pref","1");
-        lang1.setEntryType("language-tag");
-        lang1.setEntryValue("fr");
-        vcardArray.add(VcardObjectHelper.toObjects(lang1));
-
-        Lang lang2 = new Lang();
-        lang2.setKeyValues(Maps.newHashMap());
-        lang2.getKeyValues().put("pref","2");
-        lang2.setEntryType("language-tag");
-        lang2.setEntryValue("en");
-        vcardArray.add(VcardObjectHelper.toObjects(lang2));
-
-        Org org = new Org();
-        org.setEntryType("text");
-        org.setEntryValue("Example");
-        vcardArray.add(VcardObjectHelper.toObjects(org));
-
-        Title title = new Title();
-        title.setEntryType("text");
-        title.setEntryValue("Research Scientist");
-        vcardArray.add(VcardObjectHelper.toObjects(title));
-
-        Role role = new Role();
-        role.setEntryType("text");
-        role.setEntryValue("Project Lead");
-        vcardArray.add(VcardObjectHelper.toObjects(role));
-
-        Adr adr = new Adr();
-        adr.setKeyValues(Maps.newHashMap());
-        adr.getKeyValues().put("type","work");
-        adr.setEntryType("text");
-        adr.getEntryValue().addAll(Lists.<String>newArrayList("", "Suite 1234", "4321 Rue Somewhere", "Quebec", "QC", "G1V 2M2", "Canada"));
-        vcardArray.add(VcardObjectHelper.toObjects(adr));
-
-        Tel tel = new Tel();
-        tel.setKeyValues(Maps.newHashMap());
-        tel.getKeyValues().put("type",new String[]{"work", "voice"});
-        tel.setEntryType("uri");
-        tel.setEntryValue("tel:+1-555-555-1234;ext=102");
-        vcardArray.add(VcardObjectHelper.toObjects(tel));
-
-        Email email = new Email();
-        email.setKeyValues(Maps.newHashMap());
-        email.getKeyValues().put("type","work");
-        email.setEntryType("text");
-        email.setEntryValue("joe.user@example.com");
-        vcardArray.add(VcardObjectHelper.toObjects(email));
-
-        StringOutputStream serializer = streamObject(vcardArray);
+        List<Object> objs = VcardObjectHelper.toObjects(builder.build());
+        StringOutputStream serializer = streamObject(objs);
         String result = convertEOLToUnix(serializer);
 
         assertEquals("" +
-                "[ \"vcard\", [ \"version\", {\n" +
+                "[ \"vcard\", [ [ \"version\", {\n" +
                 "}, \"text\", \"4.0\" ], [ \"fn\", {\n" +
-                "}, \"text\", \"Joe User\" ], [ \"kind\", {\n" +
+                "}, \"text\", \"Joe User\" ], [ \"n\", {\n" +
+                "}, \"text\", [ \"User\", \"Joe\", \"\", \"\", [ \"ing. jr\", \"M.Sc.\" ] ] ], [ \"bday\", {\n" +
+                "}, \"date-and-or-time\", \"--02-03\" ], [ \"anniversary\", {\n" +
+                "}, \"date-and-or-time\", \"2013-06-26T02:48:44Z\" ], [ \"gender\", {\n" +
+                "}, \"text\", \"M\" ], [ \"kind\", {\n" +
                 "}, \"text\", \"individual\" ], [ \"lang\", {\n" +
                 "  \"pref\" : \"1\"\n" +
                 "}, \"language-tag\", \"fr\" ], [ \"lang\", {\n" +
                 "  \"pref\" : \"2\"\n" +
                 "}, \"language-tag\", \"en\" ], [ \"org\", {\n" +
+                "  \"type\" : \"work\"\n" +
                 "}, \"text\", \"Example\" ], [ \"title\", {\n" +
                 "}, \"text\", \"Research Scientist\" ], [ \"role\", {\n" +
                 "}, \"text\", \"Project Lead\" ], [ \"adr\", {\n" +
                 "  \"type\" : \"work\"\n" +
-                "}, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ], [ \"tel\", {\n" +
+                "}, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ], [ \"adr\", {\n" +
+                "  \"pref\" : \"1\"\n" +
+                "}, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
                 "  \"type\" : [ \"work\", \"voice\" ]\n" +
-                "}, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"email\", {\n" +
+                "}, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"tel\", {\n" +
+                "  \"type\" : [ \"work\", \"cell\", \"voice\", \"video\", \"text\" ]\n" +
+                "}, \"uri\", \"tel:+1-555-555-4321\" ], [ \"email\", {\n" +
                 "  \"type\" : \"work\"\n" +
-                "}, \"text\", \"joe.user@example.com\" ] ]", result);
+                "}, \"text\", \"joe.user@example.com\" ], [ \"geo\", {\n" +
+                "  \"type\" : \"work\"\n" +
+                "}, \"uri\", \"geo:46.772673,-71.282945\" ], [ \"key\", {\n" +
+                "  \"type\" : \"work\"\n" +
+                "}, \"uri\", \"http://www.example.com/joe.user/joe.asc\" ], [ \"tz\", {\n" +
+                "}, \"utc-offset\", \"-05:00\" ], [ \"key\", {\n" +
+                "  \"type\" : \"work\"\n" +
+                "}, \"uri\", \"http://example.org\" ] ] ]", result);
     }
-
 
     @Test
     public void nameserver_serialization_test() throws Exception {
@@ -130,7 +108,7 @@ public class RdapResponseJsonTest {
 
         Nameserver.Remarks remarks1 = new Nameserver.Remarks();
         remarks1.getDescription().add("She sells sea shells down by the sea shore.");
-        remarks1.getDescription().add( "Originally written by Terry Sullivan.");
+        remarks1.getDescription().add("Originally written by Terry Sullivan.");
         nameserver.getRemarks().add(remarks1);
 
 
@@ -198,7 +176,6 @@ public class RdapResponseJsonTest {
                 "}", result);
     }
 
-
     private StringOutputStream streamObject(Object o) {
         StreamingMarshal streamingMarshal = new RdapStreamingMarshalJson();
         StringOutputStream serializer = new StringOutputStream();
@@ -208,7 +185,6 @@ public class RdapResponseJsonTest {
         streamingMarshal.close();
         return serializer;
     }
-
 
     private String convertEOLToUnix(StringOutputStream serializer) throws IOException {
         StringOutputStream resultStream = new StringOutputStream();
