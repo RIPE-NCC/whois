@@ -13,6 +13,7 @@ import java.util.Set;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -48,6 +49,7 @@ public class NotificationTest {
     @Test
     public void add_created() {
         RpslObject created = RpslObject.parse("mntner: DEV-MNT");
+        when(updateContext.getPersistedUpdate(any(UpdateContainer.class))).thenReturn(created);
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, null, created, Action.CREATE);
         subject.add(Notification.Type.SUCCESS, preparedUpdate, updateContext);
@@ -112,6 +114,7 @@ public class NotificationTest {
     @Test
     public void add_noop() {
         RpslObject original = RpslObject.parse("mntner: DEV-MNT");
+        when(updateContext.getPersistedUpdate(any(UpdateContainer.class))).thenReturn(original);
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, original, original, Action.NOOP);
         subject.add(Notification.Type.SUCCESS_REFERENCE, preparedUpdate, updateContext);

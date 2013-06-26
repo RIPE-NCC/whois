@@ -92,12 +92,16 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
             final RpslObjectUpdateInfo updateInfo;
             switch (update.getAction()) {
                 case CREATE:
-                    updateInfo = rpslObjectUpdateDao.createObject(updateLastChangedAttribute(update.getUpdatedObject()));
+                    final RpslObject persistedObjectCreate = updateLastChangedAttribute(update.getUpdatedObject());
+                    updateInfo = rpslObjectUpdateDao.createObject(persistedObjectCreate);
                     updateContext.updateInfo(update, updateInfo);
+                    updateContext.addPersistedUpdate(update, persistedObjectCreate);
                     break;
                 case MODIFY:
-                    updateInfo = rpslObjectUpdateDao.updateObject(update.getReferenceObject().getObjectId(), updateLastChangedAttribute(update.getUpdatedObject()));
+                    final RpslObject persistedObjectUpdate = updateLastChangedAttribute(update.getUpdatedObject());
+                    updateInfo = rpslObjectUpdateDao.updateObject(update.getReferenceObject().getObjectId(), persistedObjectUpdate);
                     updateContext.updateInfo(update, updateInfo);
+                    updateContext.addPersistedUpdate(update, persistedObjectUpdate);
                     break;
                 case DELETE:
                     final RpslObject object = update.getReferenceObject();

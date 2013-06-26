@@ -127,6 +127,14 @@ public class UpdateContext {
         return getOrCreateContext(updateContainer).updateInfo;
     }
 
+    public void addPersistedUpdate(final UpdateContainer updateContainer, final RpslObject persistedUpdate) {
+        getOrCreateContext(updateContainer).persistedUpdate = persistedUpdate;
+    }
+
+    public RpslObject getPersistedUpdate(final UpdateContainer updateContainer) {
+        return getOrCreateContext(updateContainer).persistedUpdate;
+    }
+
     public void versionId(final UpdateContainer updateContainer, final int versionId) {
         getOrCreateContext(updateContainer).versionId = versionId;
     }
@@ -275,5 +283,6 @@ public class UpdateContext {
         private int retryCount;
         private RpslObjectUpdateInfo updateInfo;
         private int versionId = -1;
+        private RpslObject persistedUpdate;
     }
 }

@@ -60,6 +60,7 @@ public final class Notification {
 
         private final RpslObject referenceObject;
         private final RpslObject updatedObject;
+        private final RpslObject persistedObject;
         private final String action;
         private final String result;
         private final String reason;
@@ -72,6 +73,7 @@ public final class Notification {
             this.action = update.getAction().name();
             this.result = RESULT_MAP.get(update.getAction());
             this.update = update;
+            this.persistedObject = updateContext.getPersistedUpdate(update) == null ? updatedObject : new FilterAuthFunction().apply(updateContext.getPersistedUpdate(update));
 
             String reason = StringUtils.join(update.getUpdate().getDeleteReasons(), ", ");
             if (StringUtils.isNotEmpty(reason)) {
@@ -91,6 +93,10 @@ public final class Notification {
             return updatedObject;
         }
 
+        public RpslObject getPersistedObject() {
+            return persistedObject;
+        }
+
         public boolean isReplacement() {
             return !referenceObject.equals(updatedObject);
         }
@@ -108,7 +114,7 @@ public final class Notification {
         }
 
         public String getDiff() {
-            return updatedObject.diff(referenceObject);
+            return persistedObject.diff(referenceObject);
         }
 
         public int getVersionId() {
