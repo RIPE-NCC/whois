@@ -51,7 +51,7 @@ done
 # files into place if they differ from those previously generated.
 
 mkdir -p $GENERATED_PATH
-TEMP_GENERATED_PATH=`mktemp -d`
+TEMP_GENERATED_PATH=`mktemp -d -t XXXXXX`
 mv *.java $TEMP_GENERATED_PATH/
 if (diff -r $TEMP_GENERATED_PATH $GENERATED_PATH --exclude='*Lexer*');
     then
