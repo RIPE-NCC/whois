@@ -472,7 +472,7 @@ public final class Query {
 
     private Set<ObjectType> parseObjectTypes() {
         final Set<String> objectTypes = getOptionValues(QueryFlag.SELECT_TYPES);
-        final Set<ObjectType> response = Sets.newTreeSet(ObjectType.COMPARATOR);
+        final Set<ObjectType> response = Sets.newTreeSet(ObjectType.COMPARATOR);    // whois query results returned in correct order
 
         if (objectTypes.isEmpty()) {
             if (isLookupInBothDirections()) {

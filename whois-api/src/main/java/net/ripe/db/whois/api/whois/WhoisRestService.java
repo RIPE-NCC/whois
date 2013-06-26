@@ -920,7 +920,7 @@ public class WhoisRestService {
     }
 
     private Set<String> splitInputFlags(final Set<String> inputFlags) {
-        final Set<String> separateFlags = Sets.newHashSet();
+        final Set<String> separateFlags = Sets.newLinkedHashSet();  // reporting errors should happen in the same order
         for (final String flagParameter : inputFlags) {
             if (QueryFlag.getValidLongFlags().contains(flagParameter)) {
                 separateFlags.add(flagParameter);
@@ -940,6 +940,7 @@ public class WhoisRestService {
 
     private void checkForInvalidFlags(final Set<String> flags) {
         for (final String flag : flags) {
+            // TODO: [AH] cache this instead of executing fot each request
             if (0 <= Iterables.indexOf(NOT_ALLOWED_SEARCH_QUERY_FLAGS, new Predicate<QueryFlag>() {
                 @Override
                 public boolean apply(final QueryFlag input) {

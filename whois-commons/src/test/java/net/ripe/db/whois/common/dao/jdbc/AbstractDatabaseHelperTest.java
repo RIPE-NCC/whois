@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -62,6 +63,7 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
         System.setProperty("application.version", "0.1-TEST");
         System.setProperty("grs.sources", "TEST-GRS");
         System.setProperty("grs.sources.dummify", "TEST-GRS");
+        System.setProperty("grs.import.test.resourceDataUrl", new ClassPathResource("/grs/delegated-test").getURL().toString());
     }
 
     @AfterClass
@@ -81,8 +83,6 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
         }
 
         ipTreeUpdater.rebuild();
-
-        System.setProperty("grs.import.test.resourceDataUrl", applicationContext.getResource("grs/delegated-test").getURL().toString());
     }
 
     @Autowired
