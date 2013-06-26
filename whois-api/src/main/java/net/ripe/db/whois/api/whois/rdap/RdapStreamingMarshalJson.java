@@ -50,7 +50,6 @@ public class RdapStreamingMarshalJson implements StreamingMarshal {
 
     @Override
     public void start(final String name) {
-        System.out.println(generator.getClass().getName());
     }
 
     @Override

@@ -408,6 +408,14 @@
                 <version>1.4.1</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.ostermiller</groupId>
+                <artifactId>utils</artifactId>
+                <version>1.07.00</version>
+                <scope>test</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
