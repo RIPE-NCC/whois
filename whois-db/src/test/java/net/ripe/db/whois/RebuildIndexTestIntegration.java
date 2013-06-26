@@ -587,7 +587,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "source:    TEST");
 
         final RpslObject object = RpslObject.parse("" +
-                "inet6num:       3333::4444/48\n" +
+                "inet6num:       3333:4444::/48\n" +
                 "netname:        RIPE-NCC\n" +
                 "descr:          some descr\n" +
                 "country:        NL\n" +
@@ -1724,7 +1724,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     @Test
     public void routeset() {
         final RpslObject object = RpslObject.parse("" +
-                "route-set:     RS101\n" +
+                "route-set:     RS-101\n" +
                 "descr:         test route-set\n" +
                 "members:       10.0.0.0/16\n" +
                 "mp-members:    2001:100::/24\n" +
@@ -1748,7 +1748,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     @Test
     public void routeset_missing_reference() {
         rebuild(RpslObject.parse("" +
-                "route-set:     RS101\n" +
+                "route-set:     RS-101\n" +
                 "descr:         test route-set\n" +
                 "members:       10.0.0.0/16\n" +
                 "mp-members:    2001:100::/24\n" +
@@ -1762,7 +1762,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n"));
 
-        whoisTemplate.update("DELETE FROM last WHERE pkey = 'RS101'");
+        whoisTemplate.update("DELETE FROM last WHERE pkey = 'RS-101'");
 
         final DatabaseDiff diff = rebuild();
 
@@ -1782,7 +1782,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     @Test
     public void rtrset() {
         final RpslObject object = RpslObject.parse("" +
-                "rtr-set:      AS101\n" +
+                "rtr-set:      RTRS-foo\n" +
                 "descr:        test rtr-set\n" +
                 "members:      rtr1.isp.net\n" +
                 "mp-members:   2001:100::/24\n" +
@@ -1806,7 +1806,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     @Test
     public void rtrset_missing_reference() {
         rebuild(RpslObject.parse("" +
-                "rtr-set:       AS101\n" +
+                "rtr-set:       RTRS-foo\n" +
                 "descr:         test rtr-set\n" +
                 "members:       rtr1.isp.net\n" +
                 "mp-members:    2001:100::/24\n" +
@@ -1820,7 +1820,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n"));
 
-        whoisTemplate.update("DELETE FROM last WHERE pkey = 'AS101'");
+        whoisTemplate.update("DELETE FROM last WHERE pkey = 'RTRS-foo'");
 
         final DatabaseDiff diff = rebuild();
 
