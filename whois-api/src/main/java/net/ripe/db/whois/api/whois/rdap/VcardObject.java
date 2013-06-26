@@ -1,7 +1,5 @@
 package net.ripe.db.whois.api.whois.rdap;
 
-import org.codehaus.plexus.util.StringUtils;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -16,13 +14,13 @@ public class VcardObject {
         // Reflect class getters and populate our Object List
         Method[] methods = getClass().getMethods();
 
-        // Add the name of the vcard entity first
-        ret.add(StringUtils.lowercaseFirstLetter(this.getClass().getSimpleName()));
         for (Method method : methods) {
             if (!method.getDeclaringClass().equals(Object.class)) {
                 if (Modifier.isPublic(method.getModifiers()) && method.getName().startsWith("get")) {
                     try {
                         Object o = method.invoke(this, null);
+
+                        // Create an empty hashmap for null value
                         if (o == null && method.getReturnType().isAssignableFrom(HashMap.class)) {
                             o =  method.getReturnType().newInstance();
                         }

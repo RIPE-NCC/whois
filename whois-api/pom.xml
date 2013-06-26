@@ -219,6 +219,9 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <extensions>
+                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.4.0</extension>
+                    </extensions>
                     <sourceRoot>${project.build.sourceDirectory}</sourceRoot>
                     <xsdOptions>
                         <xsdOption>
@@ -231,6 +234,9 @@
                             <bindingFile>${basedir}/src/main/resources/rdap-docs/xsd/vcard/vcard.xjb</bindingFile>
                             <packagename>net.ripe.db.whois.api.whois.rdap.domain.vcard</packagename>
                             <extension>true</extension>
+                            <extensionArgs>
+                                <arg>-Xdv</arg>
+                            </extensionArgs>
                         </xsdOption>
                     </xsdOptions>
                 </configuration>

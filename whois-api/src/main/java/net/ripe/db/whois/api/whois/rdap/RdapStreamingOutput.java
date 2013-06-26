@@ -66,7 +66,6 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
 //                streamObject(rdapResponse);
 
 //                streamObject(rdapObjectMapper.generateNameserver());
-
                 streamObject(rdapObjectMapper.generateVcards());
 
             } catch (Exception e) {

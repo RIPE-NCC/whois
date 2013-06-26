@@ -31,19 +31,19 @@
                 <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="ldhName" type="xs:string" minOccurs="0" maxOccurs="1"/>
                 <xs:element name="unicodeName" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                <xs:element name="status" type="stringList" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="status" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="ipAddresses"  minOccurs="0" maxOccurs="1">
 				    <xs:complexType>
 				        <xs:sequence>
-				            <xs:element name="ipv4" type="stringList" maxOccurs="1" minOccurs="0"></xs:element>
-				            <xs:element name="ipv6" type="stringList" maxOccurs="1" minOccurs="0"></xs:element>
+				            <xs:element name="ipv4" type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
+				            <xs:element name="ipv6"  type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
 				        </xs:sequence>
 				    </xs:complexType>
                 </xs:element>
                 <xs:element name="remarks" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
 				    	<xs:sequence>
-				            <xs:element name="description" type="stringList" maxOccurs="1" minOccurs="1"></xs:element>
+				            <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
 				    	</xs:sequence>
     				</xs:complexType>
 				</xs:element>
@@ -74,11 +74,6 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-
-    <xs:simpleType name="stringList">
-        <xs:list itemType="xs:string"/>
-    </xs:simpleType>
-
 
     <xs:element name="domain">
 	    <xs:complexType >

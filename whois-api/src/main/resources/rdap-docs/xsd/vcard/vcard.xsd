@@ -20,7 +20,12 @@
     <xs:element name="version">
         <xs:complexType>
 		    <xs:complexContent>
-		        <xs:extension base="vcardEntryType"/>
+		        <xs:extension base="vcardEntryType">
+           			<xs:sequence>
+        				<xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="version">
+        				</xs:element>
+        			</xs:sequence>
+		        </xs:extension>
 		    </xs:complexContent>
 		</xs:complexType>
     </xs:element>
@@ -30,6 +35,8 @@
         	<xs:complexContent>
         		<xs:extension base="vcardEntryType">
         			<xs:sequence>
+        				<xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="fn">
+        				</xs:element>
         			</xs:sequence>
         		</xs:extension>
         	</xs:complexContent>

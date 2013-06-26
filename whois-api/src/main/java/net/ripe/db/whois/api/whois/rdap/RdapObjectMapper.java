@@ -9,6 +9,7 @@ import net.ripe.db.whois.api.whois.TaggedRpslObject;
 import net.ripe.db.whois.api.whois.domain.RdapEntity;
 import net.ripe.db.whois.api.whois.domain.RdapResponse;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.Fn;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.Version;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -16,10 +17,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Queue;
+import javax.xml.datatype.DatatypeFactory;
+import java.util.*;
 
 public class RdapObjectMapper {
     private TaggedRpslObject primaryTaggedRpslObject;
@@ -131,61 +130,59 @@ public class RdapObjectMapper {
 
         return output.trim();
     }
-//
-//    public Object generateNameserver() {
-//        Nameserver ret = new Nameserver();
-//        ret.setHandle("handle");
-//        ret.setLdhName("ns1.xn--fo-5ja.example");
-//        ret.setUnicodeName("foo.example");
-//        ret.getStatus().add("active");
-//        Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
-//        ipAddresses.getIpv4().add("192.0.2.1");
-//        ipAddresses.getIpv4().add("192.0.2.2");
-//        ipAddresses.getIpv6().add("2001:db8::123");
-//        ret.setIpAddresses(ipAddresses);
-//
-//        Nameserver.Remarks remarks1 = new Nameserver.Remarks();
-//        remarks1.getDescription().add("She sells sea shells down by the sea shore.");
-//        remarks1.getDescription().add( "Originally written by Terry Sullivan.");
-//        ret.getRemarks().add(remarks1);
-//
-//
-//        Nameserver.Links link = new Nameserver.Links();
-//        link.setHref("http://example.net/nameserver/xxxx");
-//        link.setValue("http://example.net/nameserver/xxxx");
-//        link.setRel("self");
-//        ret.getLinks().add(link);
-//
-//        ret.setPort43("whois.example.net");
-//
-//        Nameserver.Events event1 = new Nameserver.Events();
-//        event1.setEventAction("registration");
-//
-//        GregorianCalendar gc = new GregorianCalendar();
-//        gc.setTimeInMillis(System.currentTimeMillis());
-//        try {
-//            event1.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
-//        } catch (Exception ex) {
-//
-//        }
-//        ret.getEvents().add(event1);
-//
-//        Nameserver.Events event2 = new Nameserver.Events();
-//        event2.setEventAction("last changed");
-//        try {
-//            event2.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
-//        } catch (Exception ex) {
-//
-//        }
-//        event2.setEventActor("joe@example.com");
-//        ret.getEvents().add(event2);
-//
-//        return ret;
-//    }
+
+    public Object generateNameserver() {
+        Nameserver ret = new Nameserver();
+        ret.setHandle("handle");
+        ret.setLdhName("ns1.xn--fo-5ja.example");
+        ret.setUnicodeName("foo.example");
+        ret.getStatus().add("active");
+        Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
+        ipAddresses.getIpv4().add("192.0.2.1");
+        ipAddresses.getIpv4().add("192.0.2.2");
+        ipAddresses.getIpv6().add("2001:db8::123");
+        ret.setIpAddresses(ipAddresses);
+
+        Nameserver.Remarks remarks1 = new Nameserver.Remarks();
+        remarks1.getDescription().add("She sells sea shells down by the sea shore.");
+        remarks1.getDescription().add( "Originally written by Terry Sullivan.");
+        ret.getRemarks().add(remarks1);
+
+
+        Nameserver.Links link = new Nameserver.Links();
+        link.setHref("http://example.net/nameserver/xxxx");
+        link.setValue("http://example.net/nameserver/xxxx");
+        link.setRel("self");
+        ret.getLinks().add(link);
+
+        ret.setPort43("whois.example.net");
+
+        Nameserver.Events event1 = new Nameserver.Events();
+        event1.setEventAction("registration");
+
+        GregorianCalendar gc = new GregorianCalendar();
+        gc.setTimeInMillis(System.currentTimeMillis());
+        try {
+            event1.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
+        } catch (Exception ex) {
+
+        }
+        ret.getEvents().add(event1);
+
+        Nameserver.Events event2 = new Nameserver.Events();
+        event2.setEventAction("last changed");
+        try {
+            event2.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
+        } catch (Exception ex) {
+
+        }
+        event2.setEventActor("joe@example.com");
+        ret.getEvents().add(event2);
+
+        return ret;
+    }
 
     public Object generateVcards() {
-
-
         Entity entity = new Entity();
         entity.setHandle("XXXX");
         entity.getVcardArray().add("vcard");
