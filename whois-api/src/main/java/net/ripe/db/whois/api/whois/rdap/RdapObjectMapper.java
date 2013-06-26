@@ -1,7 +1,9 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import net.ripe.db.whois.api.whois.TaggedRpslObject;
+import net.ripe.db.whois.api.whois.rdap.domain.Domain;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.Fn;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.Version;
@@ -48,9 +50,9 @@ public class RdapObjectMapper {
 
         ObjectType rpslObjectType = rpslObject.getType();
 
-        if (rpslObjectType.getName().equals(ObjectType.PERSON.getName())) {
+        debug(rpslObject);
 
-            debug(rpslObject);
+        if (rpslObjectType.getName().equals(ObjectType.PERSON.getName())) {
 
             Entity entity = new ObjectFactory().createEntity();
             entity.setHandle(rpslObject.getKey().toString());
@@ -66,6 +68,19 @@ public class RdapObjectMapper {
 
         } else if (rpslObjectType.equals(ObjectType.IRT.getName())) {
 
+        } else if (rpslObjectType.equals(ObjectType.DOMAIN.getName())) {
+
+            Domain domain = new ObjectFactory().createDomain();
+            domain.setHandle(rpslObject.getKey().toString());
+
+            rdapResponse = domain;
+        } else if (rpslObjectType.equals(ObjectType.INETNUM.getName())
+                || rpslObjectType.equals(ObjectType.INET6NUM.getName())) {
+
+            Ip ip = new ObjectFactory().createIp();
+            ip.setHandle(rpslObject.getKey().toString());
+
+            rdapResponse = ip;
         }
     }
 

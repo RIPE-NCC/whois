@@ -51,11 +51,27 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             "changed: dbtest@ripe.net 20120101\n" +
             "source:  TEST\n");
 
+    private static final RpslObject TEST_DOMAIN = RpslObject.parse("" +
+            "domain:  31.12.202.in-addr.arpa\n" +
+            "descr:   Test domain\n" +
+            "admin-c: TP1-TEST\n" +
+            "tech-c:  TP1-TEST\n" +
+            "zone-c:  TP1-TEST\n" +
+            "notify:  notify@test.net.au\n" +
+            "nserver: ns1.test.com.au\n" +
+            "nserver: ns2.test.com.au\n" +
+            "changed: test@test.net.au 20010816\n" +
+            "changed: test@test.net.au 20121121\n" +
+            "mnt-by:  OWNER-MNT\n" +
+            "source:  TEST\n");
+
+
     @Before
     public void setup() throws Exception {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
+        databaseHelper.addObject(TEST_DOMAIN);
     }
 
     @Before
@@ -97,6 +113,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
 
         createResource(AUDIENCE, "person/PP1-TEST");
+
+        final WebResource resource = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa");
+
+        String foo = resource.toString();
+
+        System.out.println(foo);
+
+
 
         /* blah */
 
