@@ -1,15 +1,13 @@
 package net.ripe.db.whois.api.whois.rdap;
 
-import ezvcard.CustomEzvcard;
 import ezvcard.VCard;
 import ezvcard.types.AddressType;
 import ezvcard.types.EmailType;
 import ezvcard.types.TelephoneType;
 import net.ripe.db.whois.api.whois.TaggedRpslObject;
-import net.ripe.db.whois.api.whois.domain.RdapEntity;
-import net.ripe.db.whois.api.whois.domain.RdapResponse;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.Fn;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.Version;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -18,7 +16,11 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
 import javax.xml.datatype.DatatypeFactory;
-import java.util.*;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Queue;
 
 public class RdapObjectMapper {
     private TaggedRpslObject primaryTaggedRpslObject;
@@ -59,14 +61,8 @@ public class RdapObjectMapper {
 
             debug(rpslObject);
 
-            // do the vcard dance
-            VCard vCard = generateVCard(rpslObject);
-            CustomEzvcard.WriterChainJsonSingle vcardWriter = CustomEzvcard.writeJson(vCard);
-            vcardWriter.prodId(false);
-            RdapEntity rdapEntity= new RdapEntity(rpslObject.getKey(), vcardWriter.go());
-
-            rdapResponse.setRdapObject(rdapEntity);
-
+            RdapResponse rdapResponse = new RdapResponse();
+            rdapResponse.setObject(new ObjectFactory().createEntity());
 
         } else if (rpslObjectType.equals(ObjectType.ORGANISATION.getName())) {
 

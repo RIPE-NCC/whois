@@ -6,7 +6,6 @@ import net.ripe.db.whois.api.whois.StreamingMarshal;
 import net.ripe.db.whois.api.whois.TaggedRpslObject;
 import net.ripe.db.whois.api.whois.WhoisStreamingOutput;
 import net.ripe.db.whois.api.whois.domain.Parameters;
-import net.ripe.db.whois.api.whois.domain.RdapResponse;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
@@ -62,11 +61,8 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
             RdapResponse rdapResponse;
 
             try {
-//                rdapResponse = rdapObjectMapper.build();
-//                streamObject(rdapResponse);
-
-//                streamObject(rdapObjectMapper.generateNameserver());
-                streamObject(rdapObjectMapper.generateVcards());
+                rdapResponse = rdapObjectMapper.build();
+                streamObject(rdapResponse);
 
             } catch (Exception e) {
                 // TODO do something meaningful coz this aint too meaningful tevs
