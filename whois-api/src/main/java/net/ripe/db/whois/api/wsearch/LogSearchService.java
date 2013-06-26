@@ -188,7 +188,9 @@ public class LogSearchService {
     @GET
     @Path("/{host}/{updateId}")
     @Produces({MediaType.TEXT_PLAIN})
-    public String getRemoteUpdateLogs(@PathParam("host") final String host, @PathParam("updateId") final String updateId) throws IOException {
+    public String getRemoteUpdateLogs(
+            @PathParam("host") final String host,
+            @PathParam("updateId") final String updateId) throws IOException {
         return getRemoteUpdateLogs(host, LoggedUpdateId.parse(updateId));
     }
 
@@ -274,7 +276,8 @@ public class LogSearchService {
     @Path("/current/{updateId}")
     @Produces({MediaType.TEXT_PLAIN})
     @TypeHint(String.class)
-    public Response getUpdateLogs(@PathParam("updateId") final String updateId) throws IOException {
+    public Response getUpdateLogs(
+            @PathParam("updateId") final String updateId) throws IOException {
         return getUpdateLogs(LoggedUpdateId.parse(updateId));
     }
 
@@ -291,7 +294,9 @@ public class LogSearchService {
     @Path("/current/{date}/{updateId}")
     @Produces({MediaType.TEXT_PLAIN})
     @TypeHint(String.class)
-    public Response getUpdateLogs(@PathParam("date") final String date, @PathParam("updateId") final String updateId) throws IOException {
+    public Response getUpdateLogs(
+            @PathParam("date") final String date,
+            @PathParam("updateId") final String updateId) throws IOException {
         return getUpdateLogs(new LoggedUpdateId(date, updateId));
     }
 
@@ -299,9 +304,18 @@ public class LogSearchService {
         return Response.ok(new StreamingOutput() {
             @Override
             public void write(final OutputStream output) throws IOException, WebApplicationException {
-                final Writer writer = new BufferedWriter(new OutputStreamWriter(output, Charsets.UTF_8));
-                logFileSearch.writeLoggedUpdates(loggedUpdateId, writer);
-                writer.flush();
+                try {
+                    final Writer writer = new BufferedWriter(new OutputStreamWriter(output, Charsets.UTF_8));
+                    logFileSearch.writeLoggedUpdates(loggedUpdateId, writer);
+                    writer.flush();
+                } catch (IOException e) {
+                    LOGGER.error(e.getMessage(), e);
+                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+                }
+                catch (RuntimeException e) {
+                    LOGGER.error(e.getMessage(), e);
+                    throw new WebApplicationException(Response.Status.BAD_REQUEST);
+                }
             }
         }).build();
     }
