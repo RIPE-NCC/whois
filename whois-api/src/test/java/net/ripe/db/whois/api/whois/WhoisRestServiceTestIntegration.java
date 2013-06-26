@@ -104,11 +104,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/lookup/test/inet6num/2001:2002:2003::").get(WhoisResources.class);
-        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final RpslObject inet6num = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
         assertThat(inet6num.getKey(), is(ciString("2001:2002:2003::/48")));
-        final RpslObject person = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(1));
-        assertThat(person.getKey(), is(ciString("TP1-TEST")));
     }
 
     @Test
@@ -126,11 +124,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/lookup/test/inet6num/2001:2002:2003::/48").get(WhoisResources.class);
-        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final RpslObject inet6num = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
         assertThat(inet6num.getKey(), is(ciString("2001:2002:2003::/48")));
-        final RpslObject person = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(1));
-        assertThat(person.getKey(), is(ciString("TP1-TEST")));
     }
 
     @Test
@@ -161,7 +157,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("The given grs source id: 'test-grs' is not valid"));
+            assertThat(e.getResponse().getEntity(String.class), is("Invalid source 'test-grs'"));
         }
     }
 
@@ -172,7 +168,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("The given grs source id: 'test' is not valid"));
+            assertThat(e.getResponse().getEntity(String.class), is("Invalid GRS source 'test'"));
         }
     }
 
@@ -254,41 +250,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
         }
-    }
-
-    @Test
-    public void lookup_exclude_tags_param_shows_related_objects() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        final WhoisResources whoisResources = createResource(AUDIENCE,
-                "whois/lookup/TEST/aut-num/AS102?exclude=foobar&exclude=unref")
-                .accept(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-
-        assertThat(whoisObject.getTags(), nullValue());
-
-        assertThat(whoisObject.getAttributes(), contains(
-                new Attribute("person", "Test Person"),
-                new Attribute("address", "Singel 258"),
-                new Attribute("phone", "+31 6 12345678"),
-                new Attribute("nic-hdl", "TP1-TEST"),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT")),
-                new Attribute("source", "TEST", "Filtered", null, null)
-        ));
     }
 
     @Test
@@ -1319,7 +1280,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:    OWNER-MNT\n" +
                 "source:    TEST\n");
 
-        final WhoisResources resources = createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rG")
+        final WhoisResources resources = createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB")
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1327,8 +1288,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
         final List<Flag> flags = resources.getParameters().getFlags().getFlags();
         assertThat(flags, hasSize(3));
-        assertThat(flags.get(0).getValue(), is("G"));
-        assertThat(flags.get(1).getValue(), is("r"));
+        assertThat(flags.get(0).getValue(), is("r"));
+        assertThat(flags.get(1).getValue(), is("B"));
         assertThat(flags.get(2).getValue(), is("no-filtering"));
     }
 
@@ -1349,20 +1310,20 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("Invalid option 's'"));
+            assertThat(e.getResponse().getEntity(String.class), is("Invalid option 'h'"));
         }
     }
 
     @Test
     public void search_invalid_flag() {
         try {
-            createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST&flags=qW")
+            createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST&flags=q")
                     .accept(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("Invalid option 'q'"));
+            assertThat(e.getResponse().getEntity(String.class), is("Disallowed option 'q'"));
         }
     }
 
@@ -1428,7 +1389,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("The given source id: 'INVALID' is not valid"));
+            assertThat(e.getResponse().getEntity(String.class), is("Invalid source 'INVALID'"));
         }
     }
 
@@ -1441,7 +1402,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("The given grs source id: 'INVALID' is not valid"));
+            assertThat(e.getResponse().getEntity(String.class), is("Invalid GRS source 'INVALID'"));
         }
     }
 
@@ -1538,7 +1499,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void search_flags() {
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=TP1-TEST&source=TEST&flags=BrGCx")
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1557,13 +1518,13 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void search_invalid_flags() {
         try {
-            createResource(AUDIENCE, "whois/search?query-string=TP1-TEST&source=TEST&flags=k")
+            createResource(AUDIENCE, "whois/search?query-string=TP1-TEST&source=TEST&flags=kq")
                     .accept(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("Invalid option 'k'"));
+            assertThat(e.getResponse().getEntity(String.class), is("Disallowed option 'k'"));
         }
     }
 

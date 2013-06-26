@@ -74,7 +74,7 @@ public class AuthoritativeResourceData implements EmbeddedValueResolverAware {
         timer.cancel();
     }
 
-    void refreshAuthoritativeResourceCache() {
+    synchronized public void refreshAuthoritativeResourceCache() {
         for (final CIString source : sources) {
             try {
                 LOGGER.debug("Refresh: {}", source);

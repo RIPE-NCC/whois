@@ -58,7 +58,7 @@ public class AuthoritativeResource {
     private static AuthoritativeResource load(final Logger logger, final String name, final Scanner scanner) {
         scanner.useDelimiter("\n");
 
-        final Set<String> allowedStatusses = Sets.newHashSet("allocated", "assigned");
+        final Set<String> allowedStatus = Sets.newHashSet("allocated", "assigned");
         final Pattern linePattern = Pattern.compile("^([a-zA-Z]+)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)(?:\\|.*|$)");
 
         return new Callable<AuthoritativeResource>() {
@@ -102,7 +102,7 @@ public class AuthoritativeResource {
                     return;
                 }
 
-                if (!allowedStatusses.contains(status)) {
+                if (!allowedStatus.contains(status)) {
                     logger.debug("Ignoring status '{}': {}", status, line);
                     return;
                 }

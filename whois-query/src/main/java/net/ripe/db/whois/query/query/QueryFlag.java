@@ -277,7 +277,7 @@ public enum QueryFlag {
         }
 
         VALID_LONG_FLAGS = validLongFlags.build();
-        VALID_SHORT_FLAGS = validLongFlags.build();
+        VALID_SHORT_FLAGS = validShortFlags.build();
     }
 
     public static Set<String> getValidLongFlags() {

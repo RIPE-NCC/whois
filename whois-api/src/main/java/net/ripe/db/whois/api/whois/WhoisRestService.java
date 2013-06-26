@@ -65,7 +65,7 @@ public class WhoisRestService {
 
     private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
     private static final Joiner JOINER = Joiner.on(",");
-    private static final Set<QueryFlag> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(TEMPLATE, VERBOSE, CLIENT, NO_GROUPING, NO_TAG_INFO, SHOW_TAG_INFO, ALL_SOURCES, LIST_SOURCES_OR_VERSION, LIST_SOURCES, DIFF_VERSIONS, LIST_VERSIONS, SHOW_VERSION, PERSISTENT_CONNECTION);
+    private static final Set<QueryFlag> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(TEMPLATE, VERBOSE, CLIENT, NO_GROUPING, SOURCES, NO_TAG_INFO, SHOW_TAG_INFO, ALL_SOURCES, LIST_SOURCES_OR_VERSION, LIST_SOURCES, DIFF_VERSIONS, LIST_VERSIONS, SHOW_VERSION, PERSISTENT_CONNECTION);
 
     @Autowired
     public WhoisRestService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final RpslObjectUpdateDao rpslObjectUpdateDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
@@ -153,9 +153,7 @@ public class WhoisRestService {
                 JOINER.join(excludeTags),
                 key));
 
-        if (sourceContext.getGrsSourceNames().contains(ciString(source)) != isGrs) {
-            throw new IllegalArgumentException(String.format("The given grs source id: '%s' is not valid", source));
-        }
+        checkForInvalidSource(source, isGrs);
 
         return handleQuery(query, source, key, request, null);
     }
@@ -849,12 +847,12 @@ public class WhoisRestService {
             final Set<String> inverseAttributes,
             final Set<String> types,
             final Set<String> flags,
-            final boolean isGrsExpected) {
+            final boolean isGrs) {
         if (sources == null || sources.isEmpty()) {
             throw new IllegalArgumentException("Argument 'source' is missing, you have to specify a valid RIR source for your search request");
         }
 
-        checkForInvalidSources(sources, isGrsExpected);
+        checkForInvalidSources(sources, isGrs);
         final Set<String> separateFlags = splitInputFlags(flags);
         checkForInvalidFlags(separateFlags);
 
@@ -884,15 +882,19 @@ public class WhoisRestService {
         return handleQuery(query, JOINER.join(sources), queryString, request, parameters);
     }
 
-    private void checkForInvalidSources(final Set<String> sources, final boolean isGrsExpected) {
+    private void checkForInvalidSources(final Set<String> sources, final boolean isGrs) {
         for (final String source : sources) {
-            if (isGrsExpected) {
-                if (!sourceContext.getGrsSourceNames().contains(ciString(source))) {
-                    throw new IllegalArgumentException(String.format("The given grs source id: '%s' is not valid", source));
-                }
-            } else if (!sourceContext.getCurrentSource().getName().contains(ciString(source))) {
-                throw new IllegalArgumentException(String.format("The given source id: '%s' is not valid", source));
+            checkForInvalidSource(source, isGrs);
+        }
+    }
+
+    private void checkForInvalidSource(final String source, final boolean isGrs) {
+        if (isGrs) {
+            if (!sourceContext.getGrsSourceNames().contains(ciString(source))) {
+                throw new IllegalArgumentException(String.format("Invalid GRS source '%s'", source));
             }
+        } else if (!sourceContext.getCurrentSource().getName().contains(ciString(source))) {
+            throw new IllegalArgumentException(String.format("Invalid source '%s'", source));
         }
     }
 
@@ -923,7 +925,7 @@ public class WhoisRestService {
                     return input.getFlags().contains(flag);
                 }
             })) {
-                throw new IllegalArgumentException(String.format("Invalid option '%s'", flag));
+                throw new IllegalArgumentException(String.format("Disallowed option '%s'", flag));
             }
         }
     }
