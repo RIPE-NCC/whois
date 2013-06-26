@@ -1,12 +1,10 @@
 package net.ripe.db.whois.api.whois.rdap;
 
-import ezvcard.VCard;
-import ezvcard.types.AddressType;
-import ezvcard.types.EmailType;
-import ezvcard.types.TelephoneType;
 import net.ripe.db.whois.api.whois.TaggedRpslObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
+import net.ripe.db.whois.api.whois.rdap.domain.vcard.Fn;
+import net.ripe.db.whois.api.whois.rdap.domain.vcard.Version;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -57,6 +55,9 @@ public class RdapObjectMapper {
             Entity entity = new ObjectFactory().createEntity();
             entity.setHandle(rpslObject.getKey().toString());
 
+            List<Object> vcardArray = entity.getVcardArray();
+            generateAndAddVCard(vcardArray, rpslObject);
+
             rdapResponse = entity;
 
         } else if (rpslObjectType.equals(ObjectType.ORGANISATION.getName())) {
@@ -79,22 +80,31 @@ public class RdapObjectMapper {
         }
     }
 
-    private VCard generateVCard(RpslObject rpslObject) {
+    private void generateAndAddVCard(List<Object> vcardArray, RpslObject rpslObject) {
+        vcardArray.add("vcard");
 
+        Version version = new Version();
+        version.setEntryType("text");
+        version.setEntryValue("4.0");
+        vcardArray.add(VcardObjectHelper.toObjects(version));
 
-        List<RpslAttribute> addressAttributes = rpslObject.findAttributes(AttributeType.ADDRESS);
+        /*List<RpslAttribute> addressAttributes = rpslObject.findAttributes(AttributeType.ADDRESS);
         if (!addressAttributes.isEmpty()) {
             AddressType at = new AddressType();
             at.setExtendedAddress(attributeListToString(addressAttributes));
             //vCard.addAddress(at);
-        }
+        }*/
 
         List<RpslAttribute> personAttributes = rpslObject.findAttributes(AttributeType.PERSON);
         if (!personAttributes.isEmpty()) {
             //vCard.setFormattedName(attributeListToString(personAttributes));
+            Fn fn = new Fn();
+            fn.setEntryType("text");
+            fn.setEntryValue(attributeListToString(personAttributes));
+            vcardArray.add(VcardObjectHelper.toObjects(fn));
         }
 
-        List<RpslAttribute> phoneAttributes = rpslObject.findAttributes(AttributeType.PHONE);
+        /*List<RpslAttribute> phoneAttributes = rpslObject.findAttributes(AttributeType.PHONE);
         if (!phoneAttributes.isEmpty()) {
             TelephoneType tt = new TelephoneType(attributeListToString(phoneAttributes));
             //vCard.addTelephoneNumber(tt);
@@ -104,9 +114,7 @@ public class RdapObjectMapper {
         if (!emailAttributes.isEmpty()) {
             EmailType et = new EmailType(attributeListToString(emailAttributes));
             //vCard.addEmail(et);
-        }
-
-        return null;
+        }*/
     }
 
     private String attributeListToString(List<RpslAttribute> rpslAttributes) {
