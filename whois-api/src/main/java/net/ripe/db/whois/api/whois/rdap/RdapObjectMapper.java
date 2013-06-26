@@ -5,6 +5,7 @@ import ezvcard.types.AddressType;
 import ezvcard.types.EmailType;
 import ezvcard.types.TelephoneType;
 import net.ripe.db.whois.api.whois.TaggedRpslObject;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -18,14 +19,13 @@ import java.util.Queue;
 public class RdapObjectMapper {
     private TaggedRpslObject primaryTaggedRpslObject;
     private Queue<TaggedRpslObject> taggedRpslObjectQueue;
-    private RdapResponse rdapResponse = new RdapResponse();
-    protected Map<String,Object> other = new HashMap<String,Object>();
+    private Object rdapResponse = new Object();
 
     public RdapObjectMapper(Queue<TaggedRpslObject> taggedRpslObjectQueue) {
         this.taggedRpslObjectQueue = taggedRpslObjectQueue;
     }
 
-    public RdapResponse build() throws Exception {
+    public Object build() throws Exception {
         if (taggedRpslObjectQueue == null) {
             return rdapResponse;
         }
@@ -54,8 +54,10 @@ public class RdapObjectMapper {
 
             debug(rpslObject);
 
-            RdapResponse rdapResponse = new RdapResponse();
-            rdapResponse.setObject(new ObjectFactory().createEntity());
+            Entity entity = new ObjectFactory().createEntity();
+            entity.setHandle(rpslObject.getKey().toString());
+
+            rdapResponse = entity;
 
         } else if (rpslObjectType.equals(ObjectType.ORGANISATION.getName())) {
 

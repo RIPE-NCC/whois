@@ -58,11 +58,11 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
             });
 
             RdapObjectMapper rdapObjectMapper = new RdapObjectMapper(taggedRpslObjectQueue);
-            RdapResponse rdapResponse;
+            Object rdapResponse;
 
             try {
                 rdapResponse = rdapObjectMapper.build();
-                streamObject(rdapResponse);
+                streamObject(rdapResponse );
 
             } catch (Exception e) {
                 // TODO do something meaningful coz this aint too meaningful tevs
