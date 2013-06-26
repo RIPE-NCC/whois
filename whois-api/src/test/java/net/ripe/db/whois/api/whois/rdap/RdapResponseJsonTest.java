@@ -1,10 +1,11 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.Ostermiller.util.LineEnds;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
 import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
-import net.ripe.db.whois.api.whois.rdap.domain.vcard.Fn;
-import net.ripe.db.whois.api.whois.rdap.domain.vcard.Version;
+import net.ripe.db.whois.api.whois.rdap.domain.vcard.*;
 import org.codehaus.plexus.util.StringInputStream;
 import org.codehaus.plexus.util.StringOutputStream;
 import org.junit.Test;
@@ -35,13 +36,82 @@ public class RdapResponseJsonTest {
         fn.setEntryValue("Joe User");
         vcardArray.add(VcardObjectHelper.toObjects(fn));
 
+        Kind kind = new Kind();
+        kind.setEntryType("text");
+        kind.setEntryValue("individual");
+        vcardArray.add(VcardObjectHelper.toObjects(kind));
+
+        Lang lang1 = new Lang();
+        lang1.setKeyValues(Maps.newHashMap());
+        lang1.getKeyValues().put("pref","1");
+        lang1.setEntryType("language-tag");
+        lang1.setEntryValue("fr");
+        vcardArray.add(VcardObjectHelper.toObjects(lang1));
+
+        Lang lang2 = new Lang();
+        lang2.setKeyValues(Maps.newHashMap());
+        lang2.getKeyValues().put("pref","2");
+        lang2.setEntryType("language-tag");
+        lang2.setEntryValue("en");
+        vcardArray.add(VcardObjectHelper.toObjects(lang2));
+
+        Org org = new Org();
+        org.setEntryType("text");
+        org.setEntryValue("Example");
+        vcardArray.add(VcardObjectHelper.toObjects(org));
+
+        Title title = new Title();
+        title.setEntryType("text");
+        title.setEntryValue("Research Scientist");
+        vcardArray.add(VcardObjectHelper.toObjects(title));
+
+        Role role = new Role();
+        role.setEntryType("text");
+        role.setEntryValue("Project Lead");
+        vcardArray.add(VcardObjectHelper.toObjects(role));
+
+        Adr adr = new Adr();
+        adr.setKeyValues(Maps.newHashMap());
+        adr.getKeyValues().put("type","work");
+        adr.setEntryType("text");
+        adr.getEntryValue().addAll(Lists.<String>newArrayList("", "Suite 1234", "4321 Rue Somewhere", "Quebec", "QC", "G1V 2M2", "Canada"));
+        vcardArray.add(VcardObjectHelper.toObjects(adr));
+
+        Tel tel = new Tel();
+        tel.setKeyValues(Maps.newHashMap());
+        tel.getKeyValues().put("type",new String[]{"work", "voice"});
+        tel.setEntryType("uri");
+        tel.setEntryValue("tel:+1-555-555-1234;ext=102");
+        vcardArray.add(VcardObjectHelper.toObjects(tel));
+
+        Email email = new Email();
+        email.setKeyValues(Maps.newHashMap());
+        email.getKeyValues().put("type","work");
+        email.setEntryType("text");
+        email.setEntryValue("joe.user@example.com");
+        vcardArray.add(VcardObjectHelper.toObjects(email));
+
         StringOutputStream serializer = streamObject(vcardArray);
         String result = convertEOLToUnix(serializer);
 
         assertEquals("" +
                 "[ \"vcard\", [ \"version\", {\n" +
                 "}, \"text\", \"4.0\" ], [ \"fn\", {\n" +
-                "}, \"text\", \"Joe User\" ] ]", result);
+                "}, \"text\", \"Joe User\" ], [ \"kind\", {\n" +
+                "}, \"text\", \"individual\" ], [ \"lang\", {\n" +
+                "  \"pref\" : \"1\"\n" +
+                "}, \"language-tag\", \"fr\" ], [ \"lang\", {\n" +
+                "  \"pref\" : \"2\"\n" +
+                "}, \"language-tag\", \"en\" ], [ \"org\", {\n" +
+                "}, \"text\", \"Example\" ], [ \"title\", {\n" +
+                "}, \"text\", \"Research Scientist\" ], [ \"role\", {\n" +
+                "}, \"text\", \"Project Lead\" ], [ \"adr\", {\n" +
+                "  \"type\" : \"work\"\n" +
+                "}, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ], [ \"tel\", {\n" +
+                "  \"type\" : [ \"work\", \"voice\" ]\n" +
+                "}, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"email\", {\n" +
+                "  \"type\" : \"work\"\n" +
+                "}, \"text\", \"joe.user@example.com\" ] ]", result);
     }
 
     @Test
