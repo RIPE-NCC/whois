@@ -36,4 +36,5 @@ public class VcardObject {
         }
         return ret;
     }
+
 }
