@@ -211,6 +211,38 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /SUCCESS/
     }
 
+    def "delete inetnum with no status attribute"() {
+        given:
+          databaseHelper.addObject("""\
+                inetnum:    192.168.0.0 - 192.168.0.255
+                netname:    RIPE-NCC
+                descr:      description
+                country:    NL
+                admin-c:    TEST-PN
+                tech-c:     TEST-PN
+                mnt-by:     TEST-MNT
+                changed:    ripe@test.net 20120505
+                source:     TEST
+                """.stripIndent())
+          whoisFixture.reloadTrees()
+        when:
+          def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:    192.168.0.0 - 192.168.0.255
+                netname:    RIPE-NCC
+                descr:      description
+                country:    NL
+                admin-c:    TEST-PN
+                tech-c:     TEST-PN
+                mnt-by:     TEST-MNT
+                changed:    ripe@test.net 20120505
+                source:     TEST
+                delete:     yes
+                password:   update
+                """.stripIndent()))
+        then:
+          response =~ /SUCCESS/
+    }
+
     def "create inetnum dash notation multiple spaces"() {
         when:
         def response = syncUpdate new SyncUpdate(data: """\

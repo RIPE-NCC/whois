@@ -252,17 +252,22 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
     }
 
     private void validateDelete(PreparedUpdate update, UpdateContext updateContext) {
-        if (update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS).equals(NOT_SET)) {
-            updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(NOT_SET));
-        } else {
+        try {
             final InetStatus status = getStatus(update);
 
-            if (status != null && status.requiresRsMaintainer()) {
+            if (status.equals(NOT_SET)) {
+                updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(NOT_SET));
+                return;
+            }
+
+            if (status.requiresRsMaintainer()) {
                 final Set<CIString> mntBy = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
                 if (Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty()) {
                     updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(status.toString()));
                 }
             }
+        } catch (IllegalArgumentException ignored) {
+            // status not set
         }
     }
 }
