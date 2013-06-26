@@ -1586,8 +1586,9 @@ class AbuseHandlingSpec extends BaseSpec {
                 mnt-by:       ripe-ncc-hm-mnt
                 changed:      denis@ripe.net 20121016
                 source:       TEST
-                password:     hm
+                password:     hm""".stripIndent())
 
+        def roleMessage = syncUpdate("""\
                 role:         Abuse Role
                 address:      St James Street
                 address:      Burnley
@@ -1607,13 +1608,20 @@ class AbuseHandlingSpec extends BaseSpec {
         then:
         def ack = new AckResponse("", message)
 
-        ack.summary.nrFound == 2
-        ack.summary.assertSuccess(2, 0, 2, 0, 0)
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
-        ack.successes.any { it.operation == "Modify" && it.key == "[role] AR1-TEST   Abuse Role" }
+
+        def ack2 = new AckResponse("", roleMessage)
+        ack2.summary.nrFound == 1
+        ack2.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack2.summary.assertErrors(0, 0, 0, 0)
+
+        ack2.countErrorWarnInfo(0, 0, 0)
+        ack2.successes.any { it.operation == "Modify" && it.key == "[role] AR1-TEST   Abuse Role" }
 
         query_object_not_matches("-rGBT role AR1-TEST", "role", "Abuse Role", "abuse-mailbox:")
     }

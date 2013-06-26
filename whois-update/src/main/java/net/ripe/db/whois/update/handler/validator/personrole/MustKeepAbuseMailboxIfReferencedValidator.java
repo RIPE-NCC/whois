@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -52,8 +51,8 @@ public class MustKeepAbuseMailboxIfReferencedValidator implements BusinessRuleVa
 
         for (final RpslObjectInfo referenceInfo : updateObjectDao.getReferences(update.getUpdatedObject())) {
             if (referenceInfo.getObjectType() == ObjectType.ORGANISATION) {
-                final List<RpslAttribute> abuseCAttributes = objectDao.getById(referenceInfo.getObjectId()).findAttributes(AttributeType.ABUSE_C);
-                if (!abuseCAttributes.isEmpty()) {
+                final Set<CIString> abuseCAttributes = objectDao.getById(referenceInfo.getObjectId()).getValuesForAttribute(AttributeType.ABUSE_C);
+                if (!abuseCAttributes.isEmpty() && abuseCAttributes.contains(update.getUpdatedObject().getValueForAttribute(AttributeType.NIC_HDL))) {
                     updateContext.addMessage(update, UpdateMessages.abuseMailboxReferenced(update.getUpdatedObject().getValueForAttribute(AttributeType.ROLE)));
                     break;
                 }
