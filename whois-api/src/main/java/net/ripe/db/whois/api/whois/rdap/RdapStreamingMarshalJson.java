@@ -1,9 +1,12 @@
-package net.ripe.db.whois.api.whois;
+package net.ripe.db.whois.api.whois.rdap;
 
+import net.ripe.db.whois.api.whois.StreamingException;
+import net.ripe.db.whois.api.whois.StreamingMarshal;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.AnnotationIntrospector;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.introspect.JacksonAnnotationIntrospector;
 import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
@@ -14,7 +17,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
-class RdapStreamingMarshalJson implements StreamingMarshal {
+public class RdapStreamingMarshalJson implements StreamingMarshal {
     protected static JsonFactory jsonFactory;
 
     static {
@@ -25,6 +28,9 @@ class RdapStreamingMarshalJson implements StreamingMarshal {
                 new JaxbAnnotationIntrospector()));
 
         objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+
+        objectMapper.configure(SerializationConfig.Feature.WRITE_EMPTY_JSON_ARRAYS, true);
+
         final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
         objectMapper.setDateFormat(df);

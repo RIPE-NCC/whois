@@ -4,9 +4,10 @@
           xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
           version="2.1">
 
-    <globalBindings>
-        <!-- All beans should extend this base class: -->
-        <xjc:superClass name="net.ripe.db.whois.api.whois.domain.RdapObject" />
-    </globalBindings>
-
+    <bindings>
+        <globalBindings>
+            <serializable/>
+            <xjc:superClass name="net.ripe.db.whois.api.whois.rdap.VcardObject" />
+        </globalBindings>
+    </bindings>
 </bindings>

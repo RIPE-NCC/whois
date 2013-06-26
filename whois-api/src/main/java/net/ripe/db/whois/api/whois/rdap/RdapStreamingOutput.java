@@ -1,7 +1,10 @@
-package net.ripe.db.whois.api.whois;
+package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.collect.Lists;
-import com.sun.jersey.api.NotFoundException;
+import net.ripe.db.whois.api.whois.ApiResponseHandler;
+import net.ripe.db.whois.api.whois.StreamingMarshal;
+import net.ripe.db.whois.api.whois.TaggedRpslObject;
+import net.ripe.db.whois.api.whois.WhoisStreamingOutput;
 import net.ripe.db.whois.api.whois.domain.Parameters;
 import net.ripe.db.whois.api.whois.domain.RdapResponse;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -59,15 +62,20 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
             RdapResponse rdapResponse;
 
             try {
-                rdapResponse = rdapObjectMapper.build();
-                streamObject(rdapResponse);
+//                rdapResponse = rdapObjectMapper.build();
+//                streamObject(rdapResponse);
+
+//                streamObject(rdapObjectMapper.generateNameserver());
+
+                streamObject(rdapObjectMapper.generateVcards());
+
             } catch (Exception e) {
                 // TODO do something meaningful coz this aint too meaningful tevs
             }
 
-            if (!found) {
-                throw new NotFoundException();
-            }
+//            if (!found) {
+//                throw new NotFoundException();
+//            }
         } catch (QueryException e) {
             if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
                 throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());

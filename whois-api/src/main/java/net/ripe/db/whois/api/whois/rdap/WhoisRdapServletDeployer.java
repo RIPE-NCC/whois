@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.whois;
+package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;

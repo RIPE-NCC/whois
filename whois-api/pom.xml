@@ -209,24 +209,30 @@
                     </aspectLibraries>
                 </configuration>
             </plugin>
-
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>1.5</version>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-xjc-plugin</artifactId>
+                <version>2.4.0</version>
                 <executions>
                     <execution>
                         <phase>none</phase>
                     </execution>
                 </executions>
                 <configuration>
-                    <packageName>net.ripe.db.whois.api.whois.domain.rdap</packageName>
-                    <outputDirectory>${project.build.sourceDirectory}</outputDirectory>
-                    <schemaDirectory>${basedir}/src/main/resources/rdap-docs/xsd</schemaDirectory>
-                    <bindingDirectory>${basedir}/src/main/resources/rdap-docs/xsd</bindingDirectory>
-                    <bindingFiles>rdap-bindings.xjb</bindingFiles>
-                    <clearOutputDir>false</clearOutputDir>
-                    <extension>true</extension>
+                    <sourceRoot>${project.build.sourceDirectory}</sourceRoot>
+                    <xsdOptions>
+                        <xsdOption>
+                            <xsd>${basedir}/src/main/resources/rdap-docs/xsd/rdap/rdap-resources.xsd</xsd>
+                            <bindingFile>${basedir}/src/main/resources/rdap-docs/xsd/rdap/rdap-resources.xjb</bindingFile>
+                            <packagename>net.ripe.db.whois.api.whois.rdap.domain</packagename>
+                        </xsdOption>
+                        <xsdOption>
+                            <xsd>${basedir}/src/main/resources/rdap-docs/xsd/vcard/vcard.xsd</xsd>
+                            <bindingFile>${basedir}/src/main/resources/rdap-docs/xsd/vcard/vcard.xjb</bindingFile>
+                            <packagename>net.ripe.db.whois.api.whois.rdap.domain.vcard</packagename>
+                            <extension>true</extension>
+                        </xsdOption>
+                    </xsdOptions>
                 </configuration>
             </plugin>
         </plugins>

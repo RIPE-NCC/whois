@@ -1,7 +1,11 @@
-package net.ripe.db.whois.api.whois;
+package net.ripe.db.whois.api.whois.rdap;
 
+import net.ripe.db.whois.api.whois.StreamingMarshal;
+import net.ripe.db.whois.api.whois.WhoisService;
 import net.ripe.db.whois.api.whois.domain.Parameters;
 import net.ripe.db.whois.api.whois.domain.WhoisResources;
+import net.ripe.db.whois.api.whois.rdap.RdapStreamingMarshalJson;
+import net.ripe.db.whois.api.whois.rdap.RdapStreamingOutput;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;

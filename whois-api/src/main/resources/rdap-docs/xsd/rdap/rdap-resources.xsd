@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.1"
            elementFormDefault="qualified"
            version="1.0">
     <xs:element name="rdap-resources">
@@ -31,8 +32,8 @@
 				    	</xs:sequence>
     				</xs:complexType>
 				</xs:element>
-				
-                <xs:element name="links" minOccurs="0"	maxOccurs="unbounded" >                
+
+                <xs:element name="links" minOccurs="0"	maxOccurs="unbounded" >
 				   <xs:complexType>
 				    	<xs:sequence>
 				    		<xs:element name="value" type="xs:string" maxOccurs="1"
@@ -57,9 +58,10 @@
                 </xs:element>
             </xs:sequence>
         </xs:complexType>
-    </xs:element> 	
+    </xs:element>
 
     <xs:simpleType name="stringList">
         <xs:list itemType="xs:string"/>
     </xs:simpleType>
+
 </xs:schema>

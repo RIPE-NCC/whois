@@ -7,7 +7,7 @@ import net.ripe.db.whois.query.query.Query;
 import javax.ws.rs.core.StreamingOutput;
 import java.net.InetAddress;
 
-abstract class WhoisStreamingOutput implements StreamingOutput {
+public abstract class WhoisStreamingOutput implements StreamingOutput {
 
     protected boolean found;
     protected static final int STATUS_TOO_MANY_REQUESTS = 429;
@@ -27,5 +27,5 @@ abstract class WhoisStreamingOutput implements StreamingOutput {
         contextId = cid;
     }
 
-    abstract void streamObject(Object object);
+    protected abstract void streamObject(Object object);
 }

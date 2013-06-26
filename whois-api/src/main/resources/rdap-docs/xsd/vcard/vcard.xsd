@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.1"
+           elementFormDefault="qualified"
+           version="1.0">
+
+    <xs:element name="entity">
+	    <xs:complexType >
+	    	<xs:sequence>
+	    		<xs:element name="handle" type="xs:string" maxOccurs="1"
+	    			minOccurs="1">
+	    		</xs:element>
+	    		<xs:element name="vcardArray" type="xs:anySimpleType"
+	    			maxOccurs="unbounded" minOccurs="0">
+	    		</xs:element>
+	    		<xs:element name="roles" type="xs:string"
+	    			maxOccurs="unbounded" minOccurs="0">
+	    		</xs:element>
+	    		<xs:element name="publicIds" type="hashMapType"
+	    			maxOccurs="1" minOccurs="0">
+	    		</xs:element>
+	    		<xs:element name="remarks" type="hashMapType" maxOccurs="1" minOccurs="0"></xs:element>
+	    	</xs:sequence>
+	    </xs:complexType>
+	</xs:element>
+
+    <xs:complexType name="vcardEntryType">
+    	<xs:sequence>
+    		<xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
+            <xs:element name="entryType" type="xs:string" maxOccurs="1"
+    			minOccurs="1">
+    		</xs:element>
+    		<xs:element name="entryValue" type="xs:string" maxOccurs="1"
+    			minOccurs="1">
+    		</xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+
+
+    <xs:element name="version">
+        <xs:complexType>
+		    <xs:complexContent>
+		        <xs:extension base="vcardEntryType"/>
+		    </xs:complexContent>
+		</xs:complexType>
+    </xs:element>
+
+    <xs:element name="fn">
+        <xs:complexType>
+        	<xs:complexContent>
+        		<xs:extension base="vcardEntryType">
+        			<xs:sequence>
+        			</xs:sequence>
+        		</xs:extension>
+        	</xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:complexType name="hashMapType">
+        <xs:annotation>
+            <xs:appinfo>
+                <jaxb:class ref="java.util.HashMap" />
+            </xs:appinfo>
+        </xs:annotation>
+    </xs:complexType>
+
+</xs:schema>
