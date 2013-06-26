@@ -45,7 +45,7 @@ public class Database {
                         final String tableName = rs.getString("TABLE_NAME").toLowerCase();
 
                         // [EB]: We do *NOT* care for the lock table
-                        if (tableName.equals("update_lock") || tableName.equals("x509") || tableName.equals("object_order")) {
+                        if (tableName.equals("update_lock") || tableName.equals("x509")) {
                             continue;
                         }
 

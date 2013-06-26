@@ -205,21 +205,6 @@ CREATE TABLE `ds_rdata` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `dummy_rec`
---
-
-DROP TABLE IF EXISTS `dummy_rec`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `dummy_rec` (
-  `transaction_id` int(11) NOT NULL DEFAULT '0',
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`transaction_id`,`object_id`),
-  KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `e_mail`
 --
 
@@ -233,23 +218,6 @@ CREATE TABLE `e_mail` (
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`e_mail`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `failed_transaction`
---
-
-DROP TABLE IF EXISTS `failed_transaction`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `failed_transaction` (
-  `thread_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `serial_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
-  `object` longblob NOT NULL,
-  PRIMARY KEY (`serial_id`),
-  KEY `thread_id` (`thread_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1170,43 +1138,6 @@ CREATE TABLE `tech_c` (
   PRIMARY KEY (`pe_ro_id`,`object_id`),
   KEY `object_type` (`object_type`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `tid`
---
-
-DROP TABLE IF EXISTS `tid`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tid` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=3118174 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `transaction_rec`
---
-
-DROP TABLE IF EXISTS `transaction_rec`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `transaction_rec` (
-  `transaction_id` int(11) NOT NULL DEFAULT '0',
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `sequence_id` int(10) unsigned NOT NULL DEFAULT '1',
-  `serial_id` int(10) unsigned NOT NULL DEFAULT '1',
-  `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `save` varchar(255) NOT NULL DEFAULT '',
-  `error_script` blob NOT NULL,
-  `mode` tinyint(4) unsigned NOT NULL DEFAULT '0',
-  `succeeded` tinyint(4) unsigned NOT NULL DEFAULT '0',
-  `action` tinyint(4) unsigned NOT NULL DEFAULT '0',
-  `status` int(10) unsigned NOT NULL DEFAULT '0',
-  `clean` tinyint(3) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`transaction_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
