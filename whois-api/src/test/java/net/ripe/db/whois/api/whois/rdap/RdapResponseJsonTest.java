@@ -4,6 +4,8 @@ import com.Ostermiller.util.LineEnds;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
 import org.codehaus.plexus.util.StringInputStream;
 import org.codehaus.plexus.util.StringOutputStream;
@@ -175,6 +177,168 @@ public class RdapResponseJsonTest {
                 "  } ]\n" +
                 "}", result);
     }
+
+    @Test
+    public void ip_serialization_test() throws Exception {
+        Ip ip = new Ip();
+        ip.setHandle("XXXX-RIR");
+        ip.setParentHandle("YYYY-RIR");
+        ip.setStartAddress("2001:db8::0");
+        ip.setEndAddress("2001:db8::0:FFFF:FFFF:FFFF:FFFF:FFFF");
+        ip.setIpVersion("v6");
+        ip.setName("NET-RTR-1");
+        ip.setType("DIRECT ALLOCATION");
+        ip.setCountry("AU");
+        ip.getStatus().add("allocated");
+
+        Ip.Remarks remarks1 = new Ip.Remarks();
+        remarks1.getDescription().add("She sells sea shells down by the sea shore.");
+        remarks1.getDescription().add( "Originally written by Terry Sullivan.");
+        ip.getRemarks().add(remarks1);
+
+
+        Ip.Links link = new Ip.Links();
+        link.setHref("http://example.net/ip/2001:db8::/48");
+        link.setValue("http://example.net/ip/2001:db8::/48");
+        link.setRel("self");
+        ip.getLinks().add(link);
+
+        Ip.Links uplink = new Ip.Links();
+        uplink.setHref("http://example.net/ip/2001:C00::/23");
+        uplink.setValue("http://example.net/ip/2001:db8::/48");
+        uplink.setRel("up");
+        ip.getLinks().add(uplink);
+
+        Ip.Events event1 = new Ip.Events();
+        event1.setEventAction("registration");
+
+        GregorianCalendar gc = new GregorianCalendar();
+        gc.setTimeInMillis(1372214924859L);
+
+        try {
+            event1.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
+        } catch (Exception ex) {
+
+        }
+        ip.getEvents().add(event1);
+
+        Ip.Events event2 = new Ip.Events();
+        event2.setEventAction("last changed");
+        try {
+            event2.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
+        } catch (Exception ex) {
+
+        }
+        event2.setEventActor("joe@example.com");
+        ip.getEvents().add(event2);
+
+        Entity entity = new Entity();
+        entity.setHandle("XXXX");
+        entity.getRoles().add("registrant");
+
+        Entity.Remarks remarks2 = new Entity.Remarks();
+        remarks2.getDescription().add("She sells sea shells down by the sea shore.");
+        remarks2.getDescription().add( "Originally written by Terry Sullivan.");
+        entity.getRemarks().add(remarks2);
+
+        Entity.Events event3 = new Entity.Events();
+        event3.setEventAction("registration");
+
+        try {
+            event3.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
+        } catch (Exception ex) {
+
+        }
+        entity.getEvents().add(event3);
+
+        Entity.Events event4 = new Entity.Events();
+        event4.setEventAction("last changed");
+        try {
+            event4.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
+        } catch (Exception ex) {
+
+        }
+        event4.setEventActor("joe@example.com");
+        entity.getEvents().add(event4);
+
+        ip.getEntities().add(entity);
+
+        Entity.Links entityLink = new Entity.Links();
+        entityLink.setHref("http://example.net/entity/xxxx");
+        entityLink.setValue("http://example.net/entity/xxxx");
+        entityLink.setRel("self");
+        entity.getLinks().add(entityLink);
+
+        StringOutputStream serializer = streamObject(ip);
+        String result = convertEOLToUnix(serializer);
+
+        assertEquals("" +
+                "{\n" +
+                "  \"handle\" : \"XXXX-RIR\",\n" +
+                "  \"startAddress\" : \"2001:db8::0\",\n" +
+                "  \"endAddress\" : \"2001:db8::0:FFFF:FFFF:FFFF:FFFF:FFFF\",\n" +
+                "  \"ipVersion\" : \"v6\",\n" +
+                "  \"name\" : \"NET-RTR-1\",\n" +
+                "  \"type\" : \"DIRECT ALLOCATION\",\n" +
+                "  \"country\" : \"AU\",\n" +
+                "  \"parentHandle\" : \"YYYY-RIR\",\n" +
+                "  \"status\" : [ \"allocated\" ],\n" +
+                "  \"remarks\" : [ {\n" +
+                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "  } ],\n" +
+                "  \"links\" : [ {\n" +
+                "    \"value\" : \"http://example.net/ip/2001:db8::/48\",\n" +
+                "    \"rel\" : \"self\",\n" +
+                "    \"href\" : \"http://example.net/ip/2001:db8::/48\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"http://example.net/ip/2001:db8::/48\",\n" +
+                "    \"rel\" : \"up\",\n" +
+                "    \"href\" : \"http://example.net/ip/2001:C00::/23\"\n" +
+                "  } ],\n" +
+                "  \"events\" : [ {\n" +
+                "    \"eventAction\" : \"registration\",\n" +
+                "    \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
+                "  }, {\n" +
+                "    \"eventAction\" : \"last changed\",\n" +
+                "    \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
+                "    \"eventActor\" : \"joe@example.com\"\n" +
+                "  } ],\n" +
+                "  \"entities\" : [ {\n" +
+                "    \"handle\" : \"XXXX\",\n" +
+                "    \"vcardArray\" : [\n" +
+                "      \"vcard\", [\n" +
+                "        [ \"version\", {}, \"text\", \"4.0\" ],\n" +
+                "        [ \"fn\", {}, \"text\", \"Joe User\" ],\n" +
+                "        [ \"kind\", {}, \"text\", \"individual\" ],\n" +
+                "        [ \"org\", {}, \"text\", \"Example\" ],\n" +
+                "        [ \"title\", {}, \"text\", \"Research Scientist\" ],\n" +
+                "        [ \"role\", {}, \"text\", \"Project Lead\" ],\n" +
+                "        [ \"adr\", {}, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ],\n" +
+                "        [ \"tel\", {}, \"uri\", \"tel:+1-555-555-1234;ext=102\" ],\n" +
+                "        [ \"email\", {}, \"text\", \"joe.user@example.com\" ]\n" +
+                "      ]\n" +
+                "    ],\n" +
+                "    \"roles\" : [ \"registrant\" ],\n" +
+                "    \"remarks\" : [ {\n" +
+                "      \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "    } ],\n" +
+                "    \"links\" : [ {\n" +
+                "      \"value\" : \"http://example.net/entity/xxxx\",\n" +
+                "      \"rel\" : \"self\",\n" +
+                "      \"href\" : \"http://example.net/entity/xxxx\"\n" +
+                "    } ],\n" +
+                "    \"events\" : [ {\n" +
+                "      \"eventAction\" : \"registration\",\n" +
+                "      \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
+                "    }, {\n" +
+                "      \"eventAction\" : \"last changed\",\n" +
+                "      \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
+                "      \"eventActor\" : \"joe@example.com\"\n" +
+                "    } ]\n" +
+                "  } ]\n" +
+                "}", result);
+    }
+
 
     private StringOutputStream streamObject(Object o) {
         StreamingMarshal streamingMarshal = new RdapStreamingMarshalJson();

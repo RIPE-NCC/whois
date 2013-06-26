@@ -19,9 +19,37 @@
 	    		<xs:element name="publicIds" type="hashMapType"
 	    			maxOccurs="1" minOccurs="0">
 	    		</xs:element>
-	    		<xs:element name="remarks" type="hashMapType" maxOccurs="1" minOccurs="0"></xs:element>
-	    	</xs:sequence>
-	    </xs:complexType>
+                <xs:element name="remarks" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="links" minOccurs="0"	maxOccurs="unbounded" >
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="value" type="xs:string" maxOccurs="1"
+                                        minOccurs="0">
+                            </xs:element>
+                            <xs:element name="rel" type="xs:string" maxOccurs="1"
+                                        minOccurs="0">
+                            </xs:element>
+                            <xs:element name="href" type="xs:string" maxOccurs="1" minOccurs="0"></xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="events" minOccurs="0" maxOccurs="unbounded" >
+                    <xs:complexType >
+                        <xs:sequence>
+                            <xs:element name="eventAction" type="xs:string" maxOccurs="1" minOccurs="0"></xs:element>
+                            <xs:element name="eventDate" type="xs:dateTime" maxOccurs="1" minOccurs="0"></xs:element>
+                            <xs:element name="eventActor" type="xs:string" maxOccurs="1" minOccurs="0"></xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+            </xs:element>
+            </xs:sequence>
+        </xs:complexType>
 	</xs:element>
 
 
@@ -105,8 +133,6 @@
                 <xs:element name="parentHandle" type="xs:string" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="status" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
-                <xs:element ref="entity" maxOccurs="unbounded" minOccurs="1"></xs:element>
-
                 <xs:element name="remarks" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:sequence>
@@ -138,10 +164,20 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
+
+                <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType" />
+
             </xs:sequence>
         </xs:complexType>
     </xs:element>
 
+    <xs:complexType name="rdapEntityType">
+        <xs:annotation>
+            <xs:appinfo>
+                <jaxb:class ref="net.ripe.db.whois.api.whois.rdap.domain.Entity" />
+            </xs:appinfo>
+        </xs:annotation>
+    </xs:complexType>
 
     <xs:complexType name="hashMapType">
         <xs:annotation>
