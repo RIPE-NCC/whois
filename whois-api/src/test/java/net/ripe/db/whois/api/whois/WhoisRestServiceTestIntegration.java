@@ -27,7 +27,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -1101,14 +1100,18 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     @Ignore
     public void schema_int() throws Exception {
-        final String response = doGetRequest(getUrl("xsd/int-docs/whois-resources.xsd"), HttpURLConnection.HTTP_OK);
+        final String response = createResource(AUDIENCE, "whois/xsd/int-docs/whois-resources.xsd")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(String.class);
         assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
     }
 
     @Test
     @Ignore
     public void schema_ext() throws Exception {
-        final String response = doGetRequest(getUrl("xsd/ext-docs/whois-resources.xsd"), HttpURLConnection.HTTP_OK);
+        final String response = createResource(AUDIENCE, "whois/xsd/ext-docs/whois-resources.xsd")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(String.class);
         assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
     }
 
@@ -1116,36 +1119,27 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_accept_application_xml() throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) (new URL(getUrl("lookup/test/person/TP1-TEST"))).openConnection();
-        connection.setRequestProperty(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML);
-        assertThat(connection.getResponseCode(), is(HttpURLConnection.HTTP_OK));
-
-        final String response = readResponse(connection);
-
+        final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(String.class);
         assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
         assertThat(response, containsString("<whois-resources>"));
     }
 
     @Test
     public void lookup_accept_text_xml() throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) (new URL(getUrl("lookup/test/person/TP1-TEST"))).openConnection();
-        connection.setRequestProperty(HttpHeaders.ACCEPT, "text/xml");
-        assertThat(connection.getResponseCode(), is(HttpURLConnection.HTTP_OK));
-
-        final String response = readResponse(connection);
-
+        final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
+                    .accept("text/xml")
+                    .get(String.class);
         assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
         assertThat(response, containsString("<whois-resources>"));
     }
 
     @Test
     public void lookup_accept_application_json() throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) (new URL(getUrl("lookup/test/person/TP1-TEST"))).openConnection();
-        connection.setRequestProperty(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-        assertThat(connection.getResponseCode(), is(HttpURLConnection.HTTP_OK));
-
-        final String response = readResponse(connection);
-
+        final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .get(String.class);
         assertThat(response, containsString("\"whois-resources\""));
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"object\""));
@@ -1155,12 +1149,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_accept_text_json() throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) (new URL(getUrl("lookup/test/person/TP1-TEST"))).openConnection();
-        connection.setRequestProperty(HttpHeaders.ACCEPT, "text/json");
-        assertThat(connection.getResponseCode(), is(HttpURLConnection.HTTP_OK));
-
-        final String response = readResponse(connection);
-
+        final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
+                    .accept("text/json")
+                    .get(String.class);
         assertThat(response, containsString("\"whois-resources\""));
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"object\""));
@@ -1193,7 +1184,10 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                         "   }\n" +
                         "}";
 
-        final String response = doPostOrPutRequest(getUrl("update/test/mntner/OWNER-MNT?password=test"), "PUT", update, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, HttpURLConnection.HTTP_OK);
+        final String response = createResource(AUDIENCE, "whois/update/test/mntner/OWNER-MNT?password=test")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .put(String.class, update);
 
         assertThat(response, containsString("\"whois-resources\""));
         assertThat(response, containsString("\"objects\""));
@@ -1215,7 +1209,10 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                         "  }\n" +
                         "}";
 
-        final String response = doPostOrPutRequest(getUrl("modify/test/mntner/OWNER-MNT?password=test"), "POST", update, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, HttpURLConnection.HTTP_OK);
+        final String response = createResource(AUDIENCE, "whois/modify/test/mntner/OWNER-MNT?password=test")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .post(String.class, update);
 
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"name\" : \"remarks\""));
@@ -1235,11 +1232,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "changed:     dbtest@ripe.net 20120101\n" +
                 "source:      TEST");
 
-        HttpURLConnection connection = (HttpURLConnection) (new URL(getUrl("lookup/test/mntner/TEST-MNT"))).openConnection();
-        connection.setRequestProperty(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML);
-        assertThat(connection.getResponseCode(), is(HttpURLConnection.HTTP_OK));
-
-        final String response = readResponse(connection);
+        final String response = createResource(AUDIENCE, "whois/lookup/test/mntner/TEST-MNT")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(String.class);
 
         assertThat(response, not(containsString("\u001b")));
         assertThat(response, not(containsString("<b>")));
@@ -1629,6 +1624,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), not(containsString("Caused by:")));
         }
     }
 
@@ -1637,9 +1633,5 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Override
     protected WebResource createResource(final Audience audience, final String path) {
         return client.resource(String.format("http://localhost:%s/%s", getPort(audience), path));
-    }
-
-    private String getUrl(final String command) {
-        return "http://localhost:" + getPort(Audience.PUBLIC) + "/whois/" + command;
     }
 }
