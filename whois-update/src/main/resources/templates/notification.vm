@@ -71,7 +71,9 @@ THIS IS THE NEW VERSION OF THE OBJECT:
 
 $update.persistedObject
 
+#if ($update.showVersionInstruction)
 The old object can be seen in the history using the query options --list-versions and --show-version #if($update.versionId > 0)$update.versionId $update.PKey#end
+#end
 
 #else
 $update.updatedObject
@@ -98,7 +100,10 @@ THIS IS THE NEW VERSION OF THE OBJECT:
 
 $update.persistedObject
 
+#if ($update.showVersionInstruction)
 The old object can be seen in the history using the query options --list-versions and --show-version #if($update.versionId > 0)$update.versionId $update.PKey#end
+#end
+
 #else
 $update.updatedObject
 #end

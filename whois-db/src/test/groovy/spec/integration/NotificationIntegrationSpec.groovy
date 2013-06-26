@@ -102,7 +102,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         ackFor firstUpdate
         def firstNotif = notificationFor "test_test@ripe.net"
-        firstNotif.contents =~ /--show-version 2 TEST-PN/
+        firstNotif.contents !=~ /--show-version 2 TEST-PN/
         firstNotif.contents =~ /--show-version 2 TEST-MNT/
         noMoreMessages()
 
@@ -131,7 +131,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
         notification.subject =~ "Notification of RIPE Database changes"
         notification.contents =~ /(?ms)OBJECT BELOW MODIFIED:\n\n.*\nperson:         some one\n/
-        notification.contents =~ /--show-version 3 TEST-PN/
+        notification.contents !=~ /--show-version 3 TEST-PN/
         noMoreMessages()
     }
 
@@ -345,7 +345,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
         notif.created.any { it.type == "person" && it.key == "some one" }
         notif.modified.any { it.type == "person" && it.key == "some one" }
 
-        notif.contents =~ /--show-version 1 OLW-PN/
+        notif.contents !=~ /--show-version 1 OLW-PN/
 
         noMoreMessages()
     }

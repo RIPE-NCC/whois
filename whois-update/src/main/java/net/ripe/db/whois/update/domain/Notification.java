@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.FormatHelper.prettyPrint;
+import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 
 public final class Notification {
 
@@ -123,6 +125,10 @@ public final class Notification {
 
         public String getPKey() {
             return updatedObject.getKey().toString();
+        }
+
+        public boolean isShowVersionInstruction() {
+            return !(updatedObject.getType() == PERSON || updatedObject.getType() == ROLE);
         }
 
         @Override
