@@ -4,45 +4,32 @@
            elementFormDefault="qualified"
            version="1.0">
 
-    <xs:complexType name="vcardEntryType">
-    	<xs:sequence>
-    		<xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-            <xs:element name="entryType" type="xs:string" maxOccurs="1"
-    			minOccurs="1">
-    		</xs:element>
-    		<xs:element name="entryValue" type="xs:string" maxOccurs="1"
-    			minOccurs="1">
-    		</xs:element>
-    	</xs:sequence>
-    </xs:complexType>
-
 
     <xs:element name="version">
-        <xs:complexType>
-		    <xs:complexContent>
-		        <xs:extension base="vcardEntryType">
-           			<xs:sequence>
-        				<xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="version">
-        				</xs:element>
-        			</xs:sequence>
-		        </xs:extension>
-		    </xs:complexContent>
-		</xs:complexType>
+	    <xs:complexType>
+	    	<xs:sequence>
+	    		<xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="version"/>
+	    		<xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
+	            <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1">
+	    		</xs:element>
+	    		<xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
+	    		</xs:element>
+	    	</xs:sequence>
+	    </xs:complexType>
     </xs:element>
 
     <xs:element name="fn">
-        <xs:complexType>
-        	<xs:complexContent>
-        		<xs:extension base="vcardEntryType">
-        			<xs:sequence>
-        				<xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="fn">
-        				</xs:element>
-        			</xs:sequence>
-        		</xs:extension>
-        	</xs:complexContent>
-        </xs:complexType>
-    </xs:element>
-
+	    <xs:complexType >
+	    	<xs:sequence>
+	    		<xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="fn"/>
+	    		<xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
+	            <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1">
+	    		</xs:element>
+	    		<xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
+	    		</xs:element>
+	    	</xs:sequence>
+	    </xs:complexType>
+	</xs:element>
 
     <xs:complexType name="hashMapType">
         <xs:annotation>

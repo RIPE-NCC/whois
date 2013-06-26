@@ -5,9 +5,8 @@
           version="2.1">
 
     <bindings>
-        <globalBindings>
+        <globalBindings generateElementClass="true">
             <serializable/>
-            <xjc:superClass name="net.ripe.db.whois.api.whois.rdap.VcardObject" />
         </globalBindings>
     </bindings>
 </bindings>

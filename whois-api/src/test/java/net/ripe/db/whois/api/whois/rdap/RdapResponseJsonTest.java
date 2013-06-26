@@ -13,7 +13,6 @@ import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -22,22 +21,19 @@ public class RdapResponseJsonTest {
 
     @Test
     public void vcard_serialization_test() throws Exception {
+
         List<Object> vcardArray = new ArrayList<Object>();
         vcardArray.add("vcard");
 
         Version version = new Version();
         version.setEntryType("text");
         version.setEntryValue("4.0");
-        vcardArray.add(version.toObjects());
+        vcardArray.add(VcardObjectHelper.toObjects(version));
 
         Fn fn = new Fn();
         fn.setEntryType("text");
-        HashMap vals = new HashMap();
-        vals.put("key1","val1");
-        vals.put("key2","val2");
-        fn.setKeyValues(vals);
         fn.setEntryValue("Joe User");
-        vcardArray.add(fn.toObjects());
+        vcardArray.add(VcardObjectHelper.toObjects(fn));
 
         StringOutputStream serializer = streamObject(vcardArray);
         String result = convertEOLToUnix(serializer);
@@ -45,8 +41,6 @@ public class RdapResponseJsonTest {
         assertEquals("" +
                 "[ \"vcard\", [ \"version\", {\n" +
                 "}, \"text\", \"4.0\" ], [ \"fn\", {\n" +
-                "  \"key2\" : \"val2\",\n" +
-                "  \"key1\" : \"val1\"\n" +
                 "}, \"text\", \"Joe User\" ] ]", result);
     }
 
