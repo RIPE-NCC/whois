@@ -27,18 +27,20 @@
  *       <li><a href="path__version_-source-_-version-_-key-.html">version</a></li>
  *   </ul>
  *
+ * <p>The Query Services are REST interfaces that can be used to search for, or directly lookup, RIPE database objects.</p>
+ *
  * <h3>Update Services</h3>
  *  <div><b>REST Services</b></div>
  *  <ul>
  *      <li><a href="path__create_-source-.html">create</a></li>
- *      <li><a href="path__delete_-source-_-objectType-_-key-.html">delete</a></li>
  *      <li><a href="path__modify_-source-_-objectType-_-key-.html">modify</a></li>
  *      <li><a href="path__update_-source-_-objectType-_-key-.html">update</a></li>
+ *      <li><a href="path__delete_-source-_-objectType-_-key-.html">delete</a></li>
  *  </ul>
  *
- * <p>The Update Services are REST interfaces that you can use to Create, Update and Delete RIPE Database objects.</p>
+ * <p>The Update Services are REST interfaces that you can use to create, update and delete RIPE database objects.</p>
  *
- * <p>Unlike the other update interfaces (Mail Update and Syncupdates), the REST Services accepts only a single object per request.</p>
+ * <p>Unlike the other update interfaces (Mail Update and Syncupdates), the Update Services accepts only a single object per request.</p>
  *
  * <div><b>Syncupdates</b></div>
  * <ul>
