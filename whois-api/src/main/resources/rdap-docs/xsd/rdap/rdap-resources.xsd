@@ -95,17 +95,13 @@
                 <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="startAutnum" type="xs:long" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="endAutnum" type="xs:long" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="endAutnum" type="xs:long" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="type" type="xs:string" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="country" type="xs:string" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="status" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
-
                 <xs:element ref="links" minOccurs="0"	maxOccurs="unbounded"/>
-
                 <xs:element ref="events" minOccurs="0" maxOccurs="unbounded"/>
-
                 <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType" />
             </xs:sequence>
         </xs:complexType>
