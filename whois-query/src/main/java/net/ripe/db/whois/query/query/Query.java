@@ -283,7 +283,7 @@ public final class Query {
             }
             return new int[]{firstValue, secondValue};
         }
-        return new int[] {-1, -1};
+        return new int[]{-1, -1};
     }
 
     public String getTemplateOption() {
@@ -573,20 +573,17 @@ public final class Query {
     String getOptionValue(final QueryFlag queryFlag) {
         String optionValue = null;
         for (final String flag : queryFlag.getFlags()) {
-            List<?> optionValues;
             if (options.has(flag)) {
                 try {
-                    optionValues = options.valuesOf(flag);
-                }   catch (final OptionException e) {
-                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
-                }
-
-                for (final Object optionArgument : optionValues) {
-                    if (optionValue == null) {
-                        optionValue = optionArgument.toString();
-                    } else {
-                        throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidMultipleFlags((flag.length() == 1 ? "-" : "--") + flag));
+                    for (final Object optionArgument : options.valuesOf(flag)) {
+                        if (optionValue == null) {
+                            optionValue = optionArgument.toString();
+                        } else {
+                            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidMultipleFlags((flag.length() == 1 ? "-" : "--") + flag));
+                        }
                     }
+                } catch (OptionException e) {
+                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
                 }
             }
         }
