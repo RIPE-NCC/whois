@@ -140,10 +140,7 @@ public class WhoisObjectMapper {
     }
 
     private static Link createLink(final String source, final String type, final String key) {
-        final Link link = new Link();
-        link.setType("locator");
-        link.setHref(String.format("%s/%s/%s/%s", BASE_URL, source, type, key));
-        return link;
+        return new Link("locator", String.format("%s/%s/%s/%s", BASE_URL, source, type, key));
     }
 
     private static Source createSource(final String id) {
