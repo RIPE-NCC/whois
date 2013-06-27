@@ -4,12 +4,7 @@ import com.Ostermiller.util.LineEnds;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
-import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Ip;
-import net.ripe.db.whois.api.whois.rdap.domain.Events;
-import net.ripe.db.whois.api.whois.rdap.domain.Links;
-import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
-import net.ripe.db.whois.api.whois.rdap.domain.Remarks;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
 import org.codehaus.plexus.util.StringInputStream;
 import org.codehaus.plexus.util.StringOutputStream;
 import org.junit.Test;
@@ -190,25 +185,25 @@ public class RdapResponseJsonTest {
         ip.setCountry("AU");
         ip.getStatus().add("allocated");
 
-        Ip.Remarks remarks1 = new Ip.Remarks();
+        Remarks remarks1 = new Remarks();
         remarks1.getDescription().add("She sells sea shells down by the sea shore.");
         remarks1.getDescription().add( "Originally written by Terry Sullivan.");
         ip.getRemarks().add(remarks1);
 
 
-        Ip.Links link = new Ip.Links();
+        Links link = new Links();
         link.setHref("http://example.net/ip/2001:db8::/48");
         link.setValue("http://example.net/ip/2001:db8::/48");
         link.setRel("self");
         ip.getLinks().add(link);
 
-        Ip.Links uplink = new Ip.Links();
+        Links uplink = new Links();
         uplink.setHref("http://example.net/ip/2001:C00::/23");
         uplink.setValue("http://example.net/ip/2001:db8::/48");
         uplink.setRel("up");
         ip.getLinks().add(uplink);
 
-        Ip.Events event1 = new Ip.Events();
+        Events event1 = new Events();
         event1.setEventAction("registration");
 
         GregorianCalendar gc = new GregorianCalendar();
@@ -221,7 +216,7 @@ public class RdapResponseJsonTest {
         }
         ip.getEvents().add(event1);
 
-        Ip.Events event2 = new Ip.Events();
+        Events event2 = new Events();
         event2.setEventAction("last changed");
         try {
             event2.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
@@ -235,12 +230,12 @@ public class RdapResponseJsonTest {
         entity.setHandle("XXXX");
         entity.getRoles().add("registrant");
 
-        Entity.Remarks remarks2 = new Entity.Remarks();
+        Remarks remarks2 = new Remarks();
         remarks2.getDescription().add("She sells sea shells down by the sea shore.");
         remarks2.getDescription().add( "Originally written by Terry Sullivan.");
         entity.getRemarks().add(remarks2);
 
-        Entity.Events event3 = new Entity.Events();
+        Events event3 = new Events();
         event3.setEventAction("registration");
 
         try {
@@ -250,7 +245,7 @@ public class RdapResponseJsonTest {
         }
         entity.getEvents().add(event3);
 
-        Entity.Events event4 = new Entity.Events();
+        Events event4 = new Events();
         event4.setEventAction("last changed");
         try {
             event4.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
@@ -262,7 +257,7 @@ public class RdapResponseJsonTest {
 
         ip.getEntities().add(entity);
 
-        Entity.Links entityLink = new Entity.Links();
+        Links entityLink = new Links();
         entityLink.setHref("http://example.net/entity/xxxx");
         entityLink.setValue("http://example.net/entity/xxxx");
         entityLink.setRel("self");
