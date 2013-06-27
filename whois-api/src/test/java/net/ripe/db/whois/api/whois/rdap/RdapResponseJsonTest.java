@@ -6,7 +6,10 @@ import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Events;
+import net.ripe.db.whois.api.whois.rdap.domain.Links;
 import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.whois.rdap.domain.Remarks;
 import org.codehaus.plexus.util.StringInputStream;
 import org.codehaus.plexus.util.StringOutputStream;
 import org.junit.Test;
@@ -108,13 +111,13 @@ public class RdapResponseJsonTest {
         ipAddresses.getIpv6().add("2001:db8::123");
         nameserver.setIpAddresses(ipAddresses);
 
-        Nameserver.Remarks remarks1 = new Nameserver.Remarks();
+        Remarks remarks1 = new Remarks();
         remarks1.getDescription().add("She sells sea shells down by the sea shore.");
         remarks1.getDescription().add("Originally written by Terry Sullivan.");
         nameserver.getRemarks().add(remarks1);
 
 
-        Nameserver.Links link = new Nameserver.Links();
+        Links link = new Links();
         link.setHref("http://example.net/nameserver/xxxx");
         link.setValue("http://example.net/nameserver/xxxx");
         link.setRel("self");
@@ -122,20 +125,16 @@ public class RdapResponseJsonTest {
 
         nameserver.setPort43("whois.example.net");
 
-        Nameserver.Events event1 = new Nameserver.Events();
+        Events event1 = new Events();
         event1.setEventAction("registration");
 
         GregorianCalendar gc = new GregorianCalendar();
         gc.setTimeInMillis(1372214924859L);
 
-        try {
-            event1.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
-        } catch (Exception ex) {
-
-        }
+        event1.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
         nameserver.getEvents().add(event1);
 
-        Nameserver.Events event2 = new Nameserver.Events();
+        Events event2 = new Events();
         event2.setEventAction("last changed");
         try {
             event2.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
