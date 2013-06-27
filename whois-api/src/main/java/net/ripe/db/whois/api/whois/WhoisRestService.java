@@ -23,6 +23,8 @@ import net.ripe.db.whois.query.query.QueryFlag;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.codehaus.enunciate.jaxrs.TypeHint;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,21 +80,167 @@ public class WhoisRestService {
     }
 
     /**
-     * <p><div>The lookup interface returns the single object that satisfy the key conditions specified as path parameters via the source and the primary-key arguments</div>
+     * <p><div>The lookup service returns a single object specified by the source, object type and primary-key arguments.</div>
      * <p/>
      * <p><div>Example query:</div>
      * http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT</p>
      *
-     * @param source     Source
-     * @param objectType Object type for given object.
+     * <p><div>Example XML response:</div>
+     * <pre>
+     * &lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
+     * &lt;whois-resources service="lookup" xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois-beta/xsd/whois-resources.xsd"
+     * xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+     *  &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
+     *  &lt;objects&gt;
+     *    &lt;object type="mntner"&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
+     *      &lt;source id="ripe"/&gt;
+     *      &lt;primary-key&gt;
+     *        &lt;attribute name="mntner" value="RIPE-DBM-MNT"/&gt;
+     *      &lt;/primary-key&gt;
+     *      &lt;attributes&gt;
+     *        &lt;attribute name="mntner" value="RIPE-DBM-MNT"/&gt;
+     *        &lt;attribute name="descr" value="Mntner for RIPE DBM objects."/&gt;
+     *        &lt;attribute name="admin-c" value="RD132-RIPE" referenced-type="person-role"&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/person-role/RD132-RIPE"/&gt;
+     *        &lt;/attribute&gt;
+     *        &lt;attribute name="tech-c" value="RD132-RIPE" referenced-type="person-role"&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/person-role/RD132-RIPE"/&gt;
+     *        &lt;/attribute&gt;
+     *        &lt;attribute name="org" value="ORG-NCC1-RIPE" referenced-type="organisation"&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/organisation/ORG-NCC1-RIPE"/&gt;
+     *        &lt;/attribute&gt;
+     *        &lt;attribute name="auth" value="PGPKEY-1290F9D2" referenced-type="key-cert"&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/key-cert/PGPKEY-1290F9D2"/&gt;
+     *        &lt;/attribute&gt;
+     *        &lt;attribute name="auth" value="MD5-PW" comment="Filtered"/&gt;
+     *        &lt;attribute name="mnt-by" value="RIPE-DBM-MNT" referenced-type="mntner"&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
+     *        &lt;/attribute&gt;
+     *        &lt;attribute name="changed" value="hostmaster@ripe.net 20050830"/&gt;
+     *        &lt;attribute name="source" value="RIPE" comment="Filtered"/&gt;
+     *      &lt;/attributes&gt;
+     *    &lt;/object&gt;
+     *  &lt;/objects&gt;
+     * &lt;/whois-resources&gt;
+     * </pre>
+     * </p>
+     *
+     * <p><div>Example JSON response:</div>
+     * <pre>
+     * {
+     * "whois-resources": {
+     *    "objects": {
+     *      "object": {
+     *        "type": "mntner",
+     *        "link": {
+     *          "xlink:type": "locator",
+     *          "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT"
+     *        },
+     *        "source": {
+     *          "id": "ripe"
+     *        },
+     *        "primary-key": {
+     *          "attribute": [
+     *            {
+     *              "name": "mntner",
+     *              "value": "RIPE-DBM-MNT"
+     *            }
+     *          ]
+     *        },
+     *        "attributes": {
+     *          "attribute": [
+     *            {
+     *              "name": "mntner",
+     *              "value": "RIPE-DBM-MNT"
+     *            },
+     *            {
+     *              "name": "descr",
+     *              "value": "Mntner for RIPE DBM objects."
+     *            },
+     *            {
+     *              "link": {
+     *                "xlink:type": "locator",
+     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/person-role/RD132-RIPE"
+     *              },
+     *              "name": "admin-c",
+     *              "value": "RD132-RIPE",
+     *              "referenced-type": "person-role"
+     *            },
+     *            {
+     *              "link": {
+     *                "xlink:type": "locator",
+     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/person-role/RD132-RIPE"
+     *              },
+     *              "name": "tech-c",
+     *              "value": "RD132-RIPE",
+     *              "referenced-type": "person-role"
+     *            },
+     *            {
+     *              "link": {
+     *                "xlink:type": "locator",
+     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/organisation/ORG-NCC1-RIPE"
+     *              },
+     *              "name": "organisation",
+     *              "value": "ORG-NCC1-RIPE",
+     *              "referenced-type": "organisation"
+     *            },
+     *            {
+     *              "link": {
+     *                "xlink:type": "locator",
+     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/key-cert/PGPKEY-1290F9D2"
+     *              },
+     *              "name": "auth",
+     *              "value": "PGPKEY-1290F9D2",
+     *              "referenced-type": "key-cert"
+     *            },
+     *            {
+     *              "name": "auth",
+     *              "value": "MD5-PW",
+     *              "comment": "Filtered"
+     *            },
+     *            {
+     *              "link": {
+     *                "xlink:type": "locator",
+     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/OWNER-MNT"
+     *              },
+     *              "name": "mnt-by",
+     *              "value": "RIPE-DBM-MNT",
+     *              "referenced-type": "mntner"
+     *            },
+     *            {
+     *              "name": "changed",
+     *              "value": "hostmaster@ripe.net 20050830"
+     *            }
+     *            {
+     *              "name": "source",
+     *              "value": "RIPE",
+     *              "comment": "Filtered"
+     *            }
+     *          ]
+     *        }
+     *      }
+     *    }
+     *  }
+     *}
+     * </pre>
+     * </p>
+     *
+     * @param source     Source name (RIPE or TEST).
+     * @param objectType Object type of given object.
      * @param key        Primary key of the given object.
      * @param include    Only show RPSL objects that have these tags. Can be multiple.
      * @param exclude    Only show RPSL objects that <i>do not</i> have these tags. Can be multiple.
+     * @return Returns the lookup result.
      */
     @GET
     @TypeHint(WhoisResources.class)
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @Path("/lookup/{source}/{objectType}/{key:.*}")
+    @StatusCodes({
+        @ResponseCode(code = 200, condition = "Object found for the specified key"),
+        @ResponseCode(code = 404, condition = "The query didn't return any valid object")
+    })
     public Response lookup(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
