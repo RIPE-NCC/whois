@@ -57,7 +57,7 @@ public class RdapObjectMapper {
             Entity entity = new ObjectFactory().createEntity();
             entity.setHandle(rpslObject.getKey().toString());
 
-            List<Object> vcardArray = entity.getVcardArray();
+            List<Object> vcardArray = (List<Object>) entity.getVcardArray();
             generateAndAddVCard(vcardArray, rpslObject);
 
             rdapResponse = entity;

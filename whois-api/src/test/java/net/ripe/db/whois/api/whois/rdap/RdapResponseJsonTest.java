@@ -277,7 +277,7 @@ public class RdapResponseJsonTest {
                 .addTel("tel:+1-555-555-1234;ext=102")
                 .setEmail("joe.user@example.com");
 
-        entity.getVcardArray().add(VcardObjectHelper.toObjects(builder.build()));
+        entity.setVcardArray(VcardObjectHelper.toObjects(builder.build()));
 
         StringOutputStream serializer = streamObject(ip);
         String result = convertEOLToUnix(serializer);
@@ -295,19 +295,16 @@ public class RdapResponseJsonTest {
                 "  \"status\" : [ \"allocated\" ],\n" +
                 "  \"entities\" : [ {\n" +
                 "    \"handle\" : \"XXXX\",\n" +
-                "    \"vcardArray\" : [\n" +
-                "      \"vcard\", [\n" +
-                "        [ \"version\", {}, \"text\", \"4.0\" ],\n" +
-                "        [ \"fn\", {}, \"text\", \"Joe User\" ],\n" +
-                "        [ \"kind\", {}, \"text\", \"individual\" ],\n" +
-                "        [ \"org\", {}, \"text\", \"Example\" ],\n" +
-                "        [ \"title\", {}, \"text\", \"Research Scientist\" ],\n" +
-                "        [ \"role\", {}, \"text\", \"Project Lead\" ],\n" +
-                "        [ \"adr\", {}, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ],\n" +
-                "        [ \"tel\", {}, \"uri\", \"tel:+1-555-555-1234;ext=102\" ],\n" +
-                "        [ \"email\", {}, \"text\", \"joe.user@example.com\" ]\n" +
-                "      ]\n" +
-                "    ],\n" +
+                "    \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +
+                "    }, \"text\", \"4.0\" ], [ \"fn\", {\n" +
+                "    }, \"text\", \"Joe User\" ], [ \"kind\", {\n" +
+                "    }, \"text\", \"individual\" ], [ \"org\", {\n" +
+                "    }, \"text\", \"Example\" ], [ \"title\", {\n" +
+                "    }, \"text\", \"Research Scientist\" ], [ \"role\", {\n" +
+                "    }, \"text\", \"Project Lead\" ], [ \"adr\", {\n" +
+                "    }, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ], [ \"tel\", {\n" +
+                "    }, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"email\", {\n" +
+                "    }, \"text\", \"joe.user@example.com\" ] ] ],\n" +
                 "    \"roles\" : [ \"registrant\" ],\n" +
                 "    \"remarks\" : [ {\n" +
                 "      \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
