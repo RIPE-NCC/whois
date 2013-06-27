@@ -88,7 +88,7 @@ public class JettyBootstrap implements ApplicationService {
         }
     }
 
-    @RetryFor(value = Exception.class)
+    @RetryFor(attempts=5, value=Exception.class)
     private Server createAndStartServer(int port, HandlerList handlers, Audience audience) throws Exception {
         int tryPort = (port <= 0) ? ServerHelper.getAvailablePort() : port;
         LOGGER.debug("Trying port {}", tryPort);
