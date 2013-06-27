@@ -107,16 +107,26 @@
         </xs:complexType>
     </xs:element>
 
+    <xs:element name="notices">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="title" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+                <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
+                <xs:element ref="links" minOccurs="0" maxOccurs="1"></xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
     <xs:element name="links">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="value" type="xs:string" maxOccurs="1"
-                            minOccurs="0">
-                </xs:element>
-                <xs:element name="rel" type="xs:string" maxOccurs="1"
-                            minOccurs="0">
-                </xs:element>
-                <xs:element name="href" type="xs:string" maxOccurs="1" minOccurs="0"></xs:element>
+                <xs:element name="value" type="xs:string" maxOccurs="1" minOccurs="0"/>
+                <xs:element name="rel" type="xs:string" maxOccurs="1" minOccurs="0"/>
+                <xs:element name="href" type="xs:string" maxOccurs="1" minOccurs="0"/>
+                <xs:element name="hreflang" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+                <xs:element name="title" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+                <xs:element name="media" type="xs:string" maxOccurs="1" minOccurs="0"/>
+                <xs:element name="type" type="xs:string" maxOccurs="1" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

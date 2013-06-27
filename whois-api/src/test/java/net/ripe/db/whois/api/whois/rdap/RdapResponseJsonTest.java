@@ -8,6 +8,8 @@ import net.ripe.db.whois.api.whois.rdap.domain.*;
 import org.codehaus.plexus.util.StringInputStream;
 import org.codehaus.plexus.util.StringOutputStream;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
@@ -17,6 +19,16 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class RdapResponseJsonTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RdapResponseJsonTest.class);
+
+    private static DatatypeFactory dataTypeFactory;
+    static {
+        try {
+            dataTypeFactory = DatatypeFactory.newInstance();
+        } catch (Exception ex) {
+            LOGGER.error("Failed to init dataTypeFactory");
+        }
+    }
 
     @Test
     public void entity_vcard_serialization_test() throws Exception {
@@ -29,7 +41,7 @@ public class RdapResponseJsonTest {
                 .setFn("Joe User")
                 .setN(builder.createNEntryValueType("User", "Joe", "", "", Lists.<String>newArrayList("ing. jr", "M.Sc.")))
                 .setBday("--02-03")
-                .setAnniversary(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc))
+                .setAnniversary(dataTypeFactory.newXMLGregorianCalendar(gc))
                 .setGender("M")
                 .setKind("individual")
                 .addLang(VcardObjectHelper.createHashMap(Maps.immutableEntry("pref", "1")), "fr")
@@ -126,16 +138,14 @@ public class RdapResponseJsonTest {
         GregorianCalendar gc = new GregorianCalendar();
         gc.setTimeInMillis(1372214924859L);
 
-        event1.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
+        event1.setEventDate(dataTypeFactory.newXMLGregorianCalendar(gc));
+
         nameserver.getEvents().add(event1);
 
         Events event2 = new Events();
         event2.setEventAction("last changed");
-        try {
-            event2.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
-        } catch (Exception ex) {
+        event2.setEventDate(dataTypeFactory.newXMLGregorianCalendar(gc));
 
-        }
         event2.setEventActor("joe@example.com");
         nameserver.getEvents().add(event2);
 
@@ -209,20 +219,13 @@ public class RdapResponseJsonTest {
         GregorianCalendar gc = new GregorianCalendar();
         gc.setTimeInMillis(1372214924859L);
 
-        try {
-            event1.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
-        } catch (Exception ex) {
+        event1.setEventDate(dataTypeFactory.newXMLGregorianCalendar(gc));
 
-        }
         ip.getEvents().add(event1);
 
         Events event2 = new Events();
         event2.setEventAction("last changed");
-        try {
-            event2.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
-        } catch (Exception ex) {
-
-        }
+        event2.setEventDate(dataTypeFactory.newXMLGregorianCalendar(gc));
         event2.setEventActor("joe@example.com");
         ip.getEvents().add(event2);
 
@@ -238,20 +241,13 @@ public class RdapResponseJsonTest {
         Events event3 = new Events();
         event3.setEventAction("registration");
 
-        try {
-            event3.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
-        } catch (Exception ex) {
+        event3.setEventDate(dataTypeFactory.newXMLGregorianCalendar(gc));
 
-        }
         entity.getEvents().add(event3);
 
         Events event4 = new Events();
         event4.setEventAction("last changed");
-        try {
-            event4.setEventDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
-        } catch (Exception ex) {
-
-        }
+        event4.setEventDate(dataTypeFactory.newXMLGregorianCalendar(gc));
         event4.setEventActor("joe@example.com");
         entity.getEvents().add(event4);
 
@@ -330,6 +326,47 @@ public class RdapResponseJsonTest {
                 "      \"eventActor\" : \"joe@example.com\"\n" +
                 "    } ]\n" +
                 "  } ]\n" +
+                "}", result);
+    }
+
+
+
+    @Test
+    public void notices_serialization_test() throws Exception {
+
+        Notices notices = new Notices();
+        notices.setTitle("Beverage policy");
+        notices.getDescription().add("Beverages with caffeine for keeping horses awake.");
+        notices.getDescription().add("Very effective.");
+
+        Links link = new Links();
+        link.setValue("http://example.com/context_uri");
+        link.setRel("self");
+        link.setHref("http://example.com/target_uri_href");
+        link.getHreflang().add("en");
+        link.getHreflang().add("ch");
+        link.getTitle().add("title1");
+        link.getTitle().add("title2");
+        link.setMedia("screen");
+        link.setType("application/json");
+        notices.setLinks(link);
+
+        StringOutputStream serializer = streamObject(notices);
+        String result = convertEOLToUnix(serializer);
+
+        assertEquals("" +
+                "{\n" +
+                "  \"title\" : \"Beverage policy\",\n" +
+                "  \"description\" : [ \"Beverages with caffeine for keeping horses awake.\", \"Very effective.\" ],\n" +
+                "  \"links\" : {\n" +
+                "    \"value\" : \"http://example.com/context_uri\",\n" +
+                "    \"rel\" : \"self\",\n" +
+                "    \"href\" : \"http://example.com/target_uri_href\",\n" +
+                "    \"hreflang\" : [ \"en\", \"ch\" ],\n" +
+                "    \"title\" : [ \"title1\", \"title2\" ],\n" +
+                "    \"media\" : \"screen\",\n" +
+                "    \"type\" : \"application/json\"\n" +
+                "  }\n" +
                 "}", result);
     }
 
