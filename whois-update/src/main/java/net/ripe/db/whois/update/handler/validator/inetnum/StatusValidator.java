@@ -257,6 +257,7 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
         try {
             status = getStatus(update);
             if (status == null) {
+                // invalid status attribute value
                 return;
             }
         } catch (IllegalArgumentException e) {

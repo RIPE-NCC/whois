@@ -24,7 +24,7 @@ import java.util.List;
 public class WhoisResources {
 
     private static final String XSI_NAMESPACE_URI = "http://www.w3.org/2001/XMLSchema-instance";
-    private static final String WHOIS_RESOURCES_SCHEMA_LOCATION = "http://apps.db.ripe.net/whois/xsd/whois-resources.xsd";
+    private static final String WHOIS_RESOURCES_SCHEMA_LOCATION = "http://apps.db.ripe.net/whois-beta/xsd/whois-resources.xsd";
 
     protected Parameters parameters;
 

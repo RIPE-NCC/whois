@@ -59,7 +59,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\""));
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
-        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
+        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois-beta/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<language value=\"EN\">"));
-        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
+        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois-beta/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
     }
 
     @Test
@@ -147,7 +147,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<language value=\"EN\">"));
-        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois/whois/lookup/test/organisation/ORG-LIR1-TEST\"/>"));
+        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois-beta/lookup/test/organisation/ORG-LIR1-TEST\"/>"));
     }
 
     @Test
@@ -179,7 +179,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
         final String response = doGetRequest(getUrl("source=test&ipkey=10.1.0.0%20-%2010.1.255.255"), HttpURLConnection.HTTP_OK);
 
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
-        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
+        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois-beta/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
     }
 
     @Test
@@ -205,7 +205,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<language value=\"EN\">"));
-        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois/whois/lookup/test/inet6num/2001::/20\"/>"));
+        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois-beta/lookup/test/inet6num/2001::/20\"/>"));
     }
 
     @Test
@@ -215,6 +215,6 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
     }
 
     private String getUrl(final String command) {
-        return "http://localhost:" + getPort(Audience.PUBLIC) + "/whois/geolocation?" + command;
+        return "http://localhost:" + getPort(Audience.PUBLIC) + "/whois-beta/geolocation?" + command;
     }
 }

@@ -85,7 +85,7 @@ public class WhoisMetadata {
     public Response sources() {
         WhoisResources result = new WhoisResources()
             .setService("getSupportedDataSources")
-            .setLink(new Link("locator", "http://apps.db.ripe.net/whois/sources"))
+            .setLink(new Link("locator", "http://apps.db.ripe.net/whois-beta/sources"))
             .setSources(SOURCES)
             .setGrsSources(GRSSOURCES);
         return Response.ok(result).build();
@@ -95,7 +95,7 @@ public class WhoisMetadata {
      * <p>The RPSL template for given object type.</p>
      *
      * <p><div>Example:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/templates/person</span></p>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois-beta/templates/person</span></p>
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -108,7 +108,7 @@ public class WhoisMetadata {
 
         TemplateResources result = new TemplateResources()
                 .setService("getObjectTemplate")
-                .setLink(new Link("locator", "http://apps.db.ripe.net/whois/templates/"+objectType))
+                .setLink(new Link("locator", "http://apps.db.ripe.net/whois-beta/templates/"+objectType))
                 .setTemplates(Collections.singletonList(template));
 
         return Response.ok(result).build();

@@ -51,7 +51,8 @@ public class WhoisServletDeployer implements ServletDeployer {
 
     @Override
     public void deploy(WebAppContext context) {
-        context.addFilter(new FilterHolder(maintenanceModeFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(maintenanceModeFilter), "/whois-beta/*", EnumSet.allOf(DispatcherType.class));
+
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(new Application() {
             @Override
             public Set<Object> getSingletons() {
@@ -59,13 +60,24 @@ public class WhoisServletDeployer implements ServletDeployer {
                 jaxbJsonProvider.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
                 jaxbJsonProvider.configure(SerializationConfig.Feature.WRAP_ROOT_VALUE, true);
                 return Sets.newLinkedHashSet(Lists.<Object>newArrayList(
-                        whoisRestService,
                         syncUpdatesService,
+                        defaultExceptionMapper,
+                        jaxbJsonProvider));
+            }
+        })), "/whois/*");
+        context.addServlet(new ServletHolder("Whois REST API (beta)", new ServletContainer(new Application() {
+            @Override
+            public Set<Object> getSingletons() {
+                final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
+                jaxbJsonProvider.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
+                jaxbJsonProvider.configure(SerializationConfig.Feature.WRAP_ROOT_VALUE, true);
+                return Sets.newLinkedHashSet(Lists.<Object>newArrayList(
+                        whoisRestService,
                         whoisMetadata,
                         geolocationService,
                         defaultExceptionMapper,
                         jaxbJsonProvider));
             }
-        })), "/whois/*");
+        })), "/whois-beta/*");
     }
 }

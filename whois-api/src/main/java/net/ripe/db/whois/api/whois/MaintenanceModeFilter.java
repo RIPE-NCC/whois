@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 public class MaintenanceModeFilter implements Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MaintenanceModeFilter.class);
 
-    private static final Pattern WHICH_WHOIS_API = Pattern.compile("(?i)^/whois/(\\w+)(?:/|$)");
+    private static final Pattern WHICH_WHOIS_API = Pattern.compile("(?i)^/whois-beta/(\\w+)(?:/|$)");
     private static final Set<String> READ_API = ImmutableSet.of("geolocation", "grs-lookup", "grs-search", "lookup", "search", "tags", "version");
     private static final Set<String> UPDATE_API = ImmutableSet.of("create", "delete", "modify", "syncupdates", "update");
 

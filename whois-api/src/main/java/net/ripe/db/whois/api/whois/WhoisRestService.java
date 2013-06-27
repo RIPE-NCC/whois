@@ -105,7 +105,7 @@ public class WhoisRestService {
      * <p><div>The lookup interface returns the single object that satisfy the key conditions specified as path parameters via the source and the primary-key arguments</div>
      * <p/>
      * <p><div>Example query:</div>
-     * http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT</p>
+     * http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT</p>
      *
      * @param source     Source
      * @param objectType Object type for given object.
@@ -131,7 +131,7 @@ public class WhoisRestService {
      * <p>The grs-lookup interface returns the single object that satisfy the key conditions specified as path parameters via the grs-source and the primary-key arguments</p>
      * <p/>
      * <p><div>Example query:</div>
-     * http://apps.db.ripe.net/whois/grs-lookup/apnic-grs/mntner/MAINT-APNIC-AP</p>
+     * http://apps.db.ripe.net/whois-beta/grs-lookup/apnic-grs/mntner/MAINT-APNIC-AP</p>
      *
      * @param source     Source
      * @param objectType Object type for given object.
@@ -347,14 +347,14 @@ public class WhoisRestService {
      * &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;&lt;attribute name="source" value="TEST"/&gt;
      * &lt;/attributes&gt;
      * &lt;/object&gt;&lt;/objects&gt;&lt;/whois-resources&gt;'
-     * https://apps.db.ripe.net/whois/create?password=123 -D headers.txt</pre></p>
+     * https://apps.db.ripe.net/whois-beta/create?password=123 -D headers.txt</pre></p>
      * The HTTP headers for a success response:
      * <pre>
      * HTTP/1.1 201 Created
      * Date: Tue, 28 Dec 2010 14:17:28 GMT
      * Server: Apache/2.2.3 (CentOS)
      * X-Powered-By: Servlet 2.5; JBoss-5.0/JBossWeb-2.1
-     * Location: http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST
+     * Location: http://apps.db.ripe.net/whois-beta/lookup/test/person/PP16-TEST
      * Content-Length: 0
      * Connection: close
      * Content-Type: text/plain; charset=UTF-8</pre>
@@ -431,7 +431,7 @@ public class WhoisRestService {
      * &lt;attribute name="mnt-by" value="PP-MNT" /&gt;
      * &lt;attribute name="nic-hdl" value="PP16-TEST" /&gt;
      * &lt;attribute name="source" value="TEST"/&gt;&lt;/attributes&gt;&lt;/object&gt;&lt;/objects&gt;&lt;/whois-resources&gt;'
-     * https://apps.db.ripe.net/whois/update/test/person/pp16-test?password=123 -D headers.txt</pre></p>
+     * https://apps.db.ripe.net/whois-beta/update/test/person/pp16-test?password=123 -D headers.txt</pre></p>
      * <p/>
      * <p>The HTTP headers for a success response:
      * <p/>
@@ -446,10 +446,10 @@ public class WhoisRestService {
      * The response body for a success response:
      * <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      * &lt;whois-resources service="lookup" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP3-TEST"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person/PP3-TEST"/&gt;
      * &lt;objects&gt;
      * &lt;object type="person"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person/PP16-TEST"/&gt;
      * &lt;source id="test"/&gt;
      * &lt;primary-key&gt;
      * &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
@@ -461,7 +461,7 @@ public class WhoisRestService {
      * &lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
      * &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;
      * &lt;attribute name="mnt-by" value="PP-MNT" referenced-type="mntner"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/mntner/PP-MNT"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/mntner/PP-MNT"/&gt;
      * &lt;/attribute&gt;
      * &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
      * &lt;attribute name="source" value="TEST"/&gt;
@@ -551,7 +551,7 @@ public class WhoisRestService {
      * <pre>curl -X POST -H 'Content-Type: application/xml' -d
      * '&lt;whois-modify&gt;&lt;add&gt;&lt;attributes&gt;&lt;attribute name="phone" value="+31 20 535 4444"/&gt;
      * &lt;attribute name="fax-no" value="+31 20 535 4445"/&gt;&lt;/attributes&gt;&lt;/add&gt;&lt;/whois-modify&gt;'
-     * https://apps.db.ripe.net/whois/modify/test/person/pp16-test?password=123 -D headers.txt</pre>
+     * https://apps.db.ripe.net/whois-beta/modify/test/person/pp16-test?password=123 -D headers.txt</pre>
      * </li>
      * </ul></p>
      *
@@ -570,10 +570,10 @@ public class WhoisRestService {
      * <pre>
      *     &lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      *      &lt;whois-resources service="lookup" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
-     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST"/&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person/PP16-TEST"/&gt;
      *      &lt;objects&gt;
      *      &lt;object type="person"&gt;
-     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST"/&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person/PP16-TEST"/&gt;
      *      &lt;source id="test"/&gt;
      *      &lt;primary-key&gt;
      *      &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
@@ -589,7 +589,7 @@ public class WhoisRestService {
      *      &lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
      *      &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;
      *      &lt;attribute name="mnt-by" value="PP-MNT" referenced-type="mntner"&gt;
-     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/mntner/PP-MNT"/&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/mntner/PP-MNT"/&gt;
      *      &lt;/attribute&gt;
      *      &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
      *      &lt;attribute name="source" value="TEST"/&gt;
@@ -693,7 +693,7 @@ public class WhoisRestService {
      * <p>The HTTP Request body must be empty.</p>
      * <p/>
      * <p><div>Example using CURL:</div>
-     * <span style="font-style:italic;">curl -X DELETE https://apps.db.ripe.net/whois/delete/test/person/pp16-test?password=123 -D headers.txt</span></p>
+     * <span style="font-style:italic;">curl -X DELETE https://apps.db.ripe.net/whois-beta/delete/test/person/pp16-test?password=123 -D headers.txt</span></p>
      * <p/>
      * <p>The HTTP headers for a success response:
      * <p/>
@@ -786,26 +786,26 @@ public class WhoisRestService {
      * <p><div>Examples:</div>
      * <ul>
      * <li><div>Valid inverse lookup query on an org value, filtering by inetnum:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?inverse-attribute=org&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois-beta/search?inverse-attribute=org&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
      * </li>
      * <li><div>Search for objects of type organisation on the same query-string and specifying a preference for non recursion:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?inverse-attribute=org&flags=no-referenced&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois-beta/search?inverse-attribute=org&flags=no-referenced&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
      * </li>
      * <li><div>A search on multiple sources:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&flags=no-referenced&flags=no-irt&query-string=MAINT-APNIC-AP</span>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois-beta/search?source=ripe&source=apnic&flags=no-referenced&flags=no-irt&query-string=MAINT-APNIC-AP</span>
      * </li>
      * <li><div>A search on multiple sources and multiple type-filters:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&query-string=google&type-filter=person&type-filter=organisation</span>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois-beta/search?source=ripe&source=apnic&query-string=google&type-filter=person&type-filter=organisation</span>
      * </li>
      * <li><div>A search using multiple flags:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/search?source=ripe&query-string=aardvark-mnt&flags=no-filtering&flags=brief&flags=no-referenced</span>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois-beta/search?source=ripe&query-string=aardvark-mnt&flags=no-filtering&flags=brief&flags=no-referenced</span>
      * <div>Use separate flags parameters for each option.</div>
      * </li>
      * </ul>
      * Further documentation on the standard Whois Database Query flags can be found on the RIPE Whois Database Query Reference Manual.</p>
      * <p/>
      * <p><div>The service URL must be:</div>
-     * <div>'http://apps.db.ripe.net/whois/search'</div>
+     * <div>'http://apps.db.ripe.net/whois-beta/search'</div>
      * and the following parameters can be specified as HTTP GET parameters:</p>
      *
      * @param sources           Mandatory. It's possible to specify multiple sources.
@@ -833,12 +833,12 @@ public class WhoisRestService {
      * The query will therefore be executed on the GRS sources that you specify and will return data from the respective mirrors maintained in the RIPE Database platform.</p>
      * <p/>
      * <p><div>The service URL is:</div>
-     * 'http://apps.db.ripe.net/whois/grs-search'</p>
+     * 'http://apps.db.ripe.net/whois-beta/grs-search'</p>
      * <p/>
      * <p><div>Example:</div>
      * <ul>
      * <li><div>Search for 193/8 on the ripe, apnic, arin, lacnic, radb GRS mirrors:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois/grs-search?flags=&source=apnic-grs&source=arin-grs&source=lacnic-grs&source=radb-grs&query-string=193%2F8</span></li>
+     * <span style="font-style:italic;">http://apps.db.ripe.net/whois-beta/grs-search?flags=&source=apnic-grs&source=arin-grs&source=lacnic-grs&source=radb-grs&query-string=193%2F8</span></li>
      * </ul></p>
      *
      * @param sources           Mandatory. It's possible to specify multiple sources.
