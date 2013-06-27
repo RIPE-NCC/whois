@@ -12,7 +12,8 @@
         <c disabled="true"/>
         <csharp disabled="true"/>
         <java-client disabled="true"/>
-        <docs title="RIPE WHOIS API (beta)" splashPackage="net.ripe.db.whois.api" groupRestResources="byPath"/>
+        <docs title="RIPE WHOIS API (beta)" splashPackage="net.ripe.db.whois.api" groupRestResources="byPath"
+              freemarkerXMLProcessingTemplate="enunciateTemplate.fmt"/>
         <obj-c disabled="true"/>
     </modules>
 </enunciate>
