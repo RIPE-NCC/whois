@@ -8,31 +8,15 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.api.whois.domain.Attribute;
-import net.ripe.db.whois.api.whois.domain.Link;
-import net.ripe.db.whois.api.whois.domain.Parameters;
-import net.ripe.db.whois.api.whois.domain.WhoisModify;
-import net.ripe.db.whois.api.whois.domain.WhoisObject;
-import net.ripe.db.whois.api.whois.domain.WhoisResources;
-import net.ripe.db.whois.api.whois.domain.WhoisTag;
-import net.ripe.db.whois.api.whois.domain.WhoisVersions;
+import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
-import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.domain.TagResponseObject;
-import net.ripe.db.whois.query.domain.VersionResponseObject;
-import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
+import net.ripe.db.whois.query.domain.*;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
@@ -48,21 +32,13 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.ArrayDeque;
-import java.util.Collections;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -692,9 +668,12 @@ public class WhoisRestService {
      * <p/>
      * <p>The HTTP Request body must be empty.</p>
      * <p/>
-     * <p><div>Example using CURL:</div>
-     * <span style="font-style:italic;">curl -X DELETE https://apps.db.ripe.net/whois-beta/delete/test/person/pp16-test?password=123 -D headers.txt</span></p>
+     * <div>Example using CURL:</div>
+     * <pre>
+     * curl -X DELETE https://apps.db.ripe.net/whois-beta/delete/test/person/pp16-test?password=123 -D headers.txt
+     * </pre>
      * <p/>
+     *
      * <p>The HTTP headers for a success response:
      * <p/>
      * <pre>HTTP/1.1 204 No Content
@@ -734,11 +713,66 @@ public class WhoisRestService {
     }
 
     /**
-     * Lists versions of an RPSL object
+     * <p>Lists versions of an RPSL object</p>
+     *
+     * <div>Example query:</div>
+     * <pre>
+     *  http://apps.db.ripe.net/whois-beta/versions/TEST/AS102
+     * </pre>
+     *
+     * <div>Example response in XML:</div>
+     * <pre>
+     *  &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
+     * &lt;whois-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     *                  xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois-beta/xsd/whois-resources.xsd"&gt;
+     *     &lt;versions type="aut-num" key="AS102"&gt;
+     *         &lt;source id="TEST"/&gt;
+     *         &lt;version deleted="2013-06-27 13:22"/&gt;
+     *         &lt;version&gt;
+     *             &lt;revision&gt;1&lt;/revision&gt;
+     *             &lt;date&gt;2013-06-27 13:22&lt;/date&gt;
+     *             &lt;operation&gt;ADD/UPD&lt;/operation&gt;
+     *         &lt;/version&gt;
+     *         &lt;version&gt;
+     *              &lt;revision&gt;2&lt;/revision&gt;
+     *              &lt;date&gt;2013-06-27 13:22&lt;/date&gt;
+     *              &lt;operation&gt;ADD/UPD&lt;/operation&gt;
+     *         &lt;/version&gt;
+     *     &lt;/versions&gt;
+     * &lt;/whois-resources&gt;
+     * </pre>
+     *
+     * <div>Example response in JSON:</div>
+     * <pre>
+     * {
+     * "whois-resources" : {
+     *  "versions" : {
+     *      "source" : {
+     *          "id" : "TEST"
+     *      },
+     *      "type" : "aut-num",
+     *      "key" : "AS102",
+     *      "version" : [ {
+     *          "deleted" : "2013-06-27 14:02"
+     *          }, {
+     *          "deleted" : null,
+     *          "revision" : 1,
+     *          "date" : "2013-06-27 14:02",
+     *          "operation" : "ADD/UPD"
+     *          }, {
+     *          "deleted" : null,
+     *          "revision" : 2,
+     *          "date" : "2013-06-27 14:02",
+     *          "operation" : "ADD/UPD"
+     *          } ]
+     *      }
+     *  }
+     * }
+     * </pre>
      *
      * @param source RIPE or TEST
      * @param key    sought RPSL object
-     * @return all updates of given RPSL object
+     * @return Returns all updates of given RPSL object
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
@@ -753,12 +787,111 @@ public class WhoisRestService {
     }
 
     /**
-     * Show a specific version of an RPSL object
+     * <p>Show a specific version of an RPSL object</p>
+     *
+     * <div>Example query:</div>
+     * <pre>
+     *  http://apps.db.ripe.net/whois-beta/version/TEST/2/AS102
+     * </pre>
+     *
+     * <div>Example response in XML:</div>
+     * <pre>
+     *  &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
+     * &lt;whois-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois-beta/xsd/whois-resources.xsd"&gt;
+     * &lt;objects&gt;
+     * &lt;object type="aut-num" version="1"&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/AS102"/&gt;
+     * &lt;source id="test"/&gt;
+     * &lt;primary-key&gt;
+     * &lt;attribute name="aut-num" value="AS102"/&gt;
+     * &lt;/primary-key&gt;
+     * &lt;attributes&gt;
+     * &lt;attribute name="aut-num" value="AS102"/&gt;
+     * &lt;attribute name="as-name" value="End-User-2"/&gt;
+     * &lt;attribute name="descr" value="description"/&gt;
+     * &lt;attribute name="admin-c" value="TP1-TEST" referenced-type="person-role"&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"/&gt;
+     * &lt;/attribute&gt;
+     * &lt;attribute name="tech-c" value="TP1-TEST" referenced-type="person-role"&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"/&gt;
+     * &lt;/attribute&gt;
+     * &lt;attribute name="mnt-by" value="OWNER-MNT" referenced-type="mntner"&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"/&gt;
+     * &lt;/attribute&gt;
+     * &lt;attribute name="source" value="TEST"/&gt;
+     * &lt;/attributes&gt;
+     * &lt;/object&gt;
+     * &lt;/objects&gt;
+     * &lt;/whois-resources&gt;
+     * </pre>
+     *
+     * <div>Example response in JSON:</div>
+     * <pre>
+     *  {
+     *   "whois-resources" : {
+     *   "objects" : {
+     *   "object" : [ {
+     *   "type" : "aut-num",
+     *   "link" : {
+     *   "xlink:type" : "locator",
+     *   "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/AS102"
+     *  },
+     *  version" : 1,
+     *  "source" : {
+     *      "id" : "test"
+     *  },
+     *  "primary-key" : {
+     *      "attribute" : [ {
+     *          "name" : "aut-num",
+     *          "value" : "AS102"
+     *      } ]
+     *  },
+     *  "attributes" : {
+     *      "attribute" : [ {
+     *          "name" : "aut-num",
+     *          "value" : "AS102"
+     *          }, {
+     *          "name" : "as-name",
+     *          "value" : "End-User-2"
+     *          }, {
+     *          "name" : "descr",
+     *          "value" : "description"
+     *          }, {
+     *          "link" : {
+     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
+     *          },
+     *          "name" : "admin-c",
+     *          "value" : "TP1-TEST",
+     *          "referenced-type" : "person-role"
+     *          }, {
+     *          "link" : {
+     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
+     *          } ,
+     *          "name" : "tech-c",
+     *          "value" : "TP1-TEST",
+     *          "referenced-type" : "person-role"
+     *          } , {
+     *          "link" : {
+     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *          },
+     *          "name" : "mnt-by",
+     *          "value" : "OWNER-MNT",
+     *          "referenced-type" : "mntner"
+     *          }, {
+     *              "name" : "source",
+     *              "value" : "TEST"
+     *          } ]
+     *          }
+     *      } ]
+     *    }
+     *  }
+     *}
+     ** </pre>
      *
      * @param source  RIPE or TEST
      * @param version sought version
      * @param key     sought RPSL object
-     * @return The version of the RPSL object asked for
+     * @return Returns the version of the RPSL object asked for
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
@@ -786,33 +919,250 @@ public class WhoisRestService {
      * <p><div>Examples:</div>
      * <ul>
      * <li><div>Valid inverse lookup query on an org value, filtering by inetnum:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois-beta/search?inverse-attribute=org&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
+     * <pre>
+     * http://apps.db.ripe.net/whois-beta/search?inverse-attribute=org&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE
+     * </pre>
      * </li>
      * <li><div>Search for objects of type organisation on the same query-string and specifying a preference for non recursion:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois-beta/search?inverse-attribute=org&flags=no-referenced&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE</span>
+     * <pre>
+     * http://apps.db.ripe.net/whois-beta/search?inverse-attribute=org&flags=no-referenced&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE
+     * </pre>
      * </li>
      * <li><div>A search on multiple sources:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois-beta/search?source=ripe&source=apnic&flags=no-referenced&flags=no-irt&query-string=MAINT-APNIC-AP</span>
+     * <pre>
+     * http://apps.db.ripe.net/whois-beta/search?source=ripe&source=apnic&flags=no-referenced&flags=no-irt&query-string=MAINT-APNIC-AP
+     * </pre>
      * </li>
      * <li><div>A search on multiple sources and multiple type-filters:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois-beta/search?source=ripe&source=apnic&query-string=google&type-filter=person&type-filter=organisation</span>
+     * <pre>http://apps.db.ripe.net/whois-beta/search?source=ripe&source=apnic&query-string=google&type-filter=person&type-filter=organisation</pre>
      * </li>
      * <li><div>A search using multiple flags:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois-beta/search?source=ripe&query-string=aardvark-mnt&flags=no-filtering&flags=brief&flags=no-referenced</span>
-     * <div>Use separate flags parameters for each option.</div>
+     * <pre>
+     * http://apps.db.ripe.net/whois-beta/search?source=ripe&query-string=aardvark-mnt&flags=no-filtering&flags=brief&flags=no-referenced
+     * </pre>
      * </li>
      * </ul>
      * Further documentation on the standard Whois Database Query flags can be found on the RIPE Whois Database Query Reference Manual.</p>
      * <p/>
+     *
+     * <div>Example of response in XML:</div>
+     * <pre>
+     *     &lt;?xml version='1.0' encoding='UTF-8'?&gt;
+     *      &lt;whois-resources&gt;
+     *          &lt;parameters xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
+     *              &lt;inverse-lookup/&gt;
+     *              &lt;type-filters/&gt;
+     *              &lt;flags&gt;
+     *                  &lt;flag value="B"/&gt;
+     *              &lt;/flags&gt;
+     *              &lt;query-strings&gt;
+     *                  &lt;query-string value="AS102"/&gt;
+     *              &lt;/query-strings&gt;
+     *              &lt;sources&gt;
+     *                  &lt;source id="TEST"/&gt;
+     *              &lt;/sources&gt;
+     *          &lt;/parameters&gt;
+     *          &lt;objects&gt;
+     *              &lt;object xmlns:xlink="http://www.w3.org/1999/xlink" type="aut-num"&gt;
+     *                  &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/AS102"/&gt;
+     *                  &lt;source id="test"/&gt;
+     *                  &lt;primary-key&gt;
+     *                      &lt;attribute name="aut-num" value="AS102"/&gt;
+     *                  &lt;/primary-key&gt;
+     *                  &lt;attributes&gt;
+     *                      &lt;attribute name="aut-num" value="AS102"/&gt;
+     *                      &lt;attribute name="as-name" value="End-User-2"/&gt;
+     *                      &lt;attribute name="descr" value="description"/&gt;
+     *                      &lt;attribute name="admin-c" value="TP1-TEST" referenced-type="person-role"&gt;
+     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"/&gt;
+     *                      &lt;/attribute&gt;
+     *                      &lt;attribute name="tech-c" value="TP1-TEST" referenced-type="person-role"&gt;
+     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"/&gt;
+     *                      &lt;/attribute&gt;
+     *                      &lt;attribute name="mnt-by" value="OWNER-MNT" referenced-type="mntner"&gt;
+     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"/&gt;
+     *                      &lt;/attribute&gt;
+     *                     &lt;attribute name="source" value="TEST"/&gt;
+     *                 &lt;/attributes&gt;
+     *                 &lt;tags/&gt;
+     *             &lt;/object&gt;
+     *         &lt;/objects&gt;
+     *     &lt;/whois-resources&gt;
+     * </pre>
+     *
+     * <div>Example of response in JSON:</div>
+     * <pre>
+     *    {"whois-resources": {
+     *      "parameters": {
+     *          "inverse-lookup": {
+     *              "inverse-attribute": []
+     *          },
+     *          "type-filters": {
+     *              "type-filter": []
+     *          },
+     *          "flags": {
+     *              "flag": [
+     *                  {
+     *                      "value": "B"
+     *                  }
+     *              ]
+     *          },
+     *          "query-strings": {
+     *              "query-string": [
+     *                  {
+     *                      "value": "AS102"
+     *                  }
+     *              ]
+     *          },
+     *          "sources": {
+     *              "source": [
+     *                  {
+     *                      "id": "TEST"
+     *                  }
+     *              ]
+     *          }
+     *      },
+     *      "objects": {
+     *          "object": {
+     *              "type": "aut-num",
+     *              "link": {
+     *                  "xlink:type": "locator",
+     *                  "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/AS102"
+     *              },
+     *              "source": {
+     *                  "id": "test"
+     *              },
+     *              "primary-key": {
+     *                  "attribute": [
+     *                      {
+     *                          "name": "aut-num",
+     *                          "value": "AS102"
+     *                      }
+     *                  ]
+     *              },
+     *              "attributes": {
+     *                  "attribute": [
+     *                      {
+     *                          "name": "aut-num",
+     *                          "value": "AS102"
+     *                      },
+     *                      {
+     *                          "name": "as-name",
+     *                          "value": "End-User-2"
+     *                      },
+     *                      {
+     *                          "name": "descr",
+     *                          "value": "description"
+     *                      },
+     *                      {
+     *                          "link": {
+     *                              "xlink:type": "locator",
+     *                              "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
+     *                          },
+     *                          "name": "admin-c",
+     *                          "value": "TP1-TEST",
+     *                          "referenced-type": "person-role"
+     *                      },
+     *                      {
+     *                          "link": {
+     *                              "xlink:type": "locator",
+     *                              "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
+     *                          },
+     *                          "name": "tech-c",
+     *                          "value": "TP1-TEST",
+     *                          "referenced-type": "person-role"
+     *                      },
+     *                      {
+     *                          "link": {
+     *                              "xlink:type": "locator",
+     *                              "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *                          },
+     *                          "name": "mnt-by",
+     *                          "value": "OWNER-MNT",
+     *                          "referenced-type": "mntner"
+     *                      },
+     *                      {
+     *                          "name": "source",
+     *                          "value": "TEST"
+     *                      }
+     *                  ]
+     *              },
+     *              "tags": {
+     *                  "tag": []
+     *              }
+     *          },
+     *          "object": {
+     *              "type": "person",
+     *              "link": {
+     *                  "xlink:type": "locator",
+     *                  "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/person/TP1-TEST"
+     *              },
+     *              "source": {
+     *                  "id": "test"
+     *              },
+     *              "primary-key": {
+     *                  "attribute": [
+     *                      {
+     *                          "name": "nic-hdl",
+     *                          "value": "TP1-TEST"
+     *                      }
+     *                  ]
+     *              },
+     *              "attributes": {
+     *                  "attribute": [
+     *                      {
+     *                          "name": "person",
+     *                          "value": "Test Person"
+     *                      },
+     *                      {
+     *                          "name": "address",
+     *                          "value": "Singel 258"
+     *                      },
+     *                      {
+     *                          "name": "phone",
+     *                          "value": "+31 6 12345678"
+     *                      },
+     *                      {
+     *                          "name": "nic-hdl",
+     *                          "value": "TP1-TEST"
+     *                      },
+     *                      {
+     *                          "link": {
+     *                              "xlink:type": "locator",
+     *                              "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *                          },
+     *                          "name": "mnt-by",
+     *                          "value": "OWNER-MNT",
+     *                          "referenced-type": "mntner"
+     *                      },
+     *                      {
+     *                          "name": "changed",
+     *                          "value": "dbtest@ripe.net 20120101"
+     *                      },
+     *                      {
+     *                          "name": "source",
+     *                          "value": "TEST"
+     *                      }
+     *                  ]
+     *              },
+     *              "tags": {
+     *                  "tag": []
+     *              }
+     *          }
+     *      }
+     *  }}
+     * </pre>
+     *
      * <p><div>The service URL must be:</div>
      * <div>'http://apps.db.ripe.net/whois-beta/search'</div>
-     * and the following parameters can be specified as HTTP GET parameters:</p>
+     * and the following can be specified as HTTP parameters:</p>
      *
      * @param sources           Mandatory. It's possible to specify multiple sources.
      * @param queryString       Mandatory.
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
      * @param types             If specified the results will be filtered by object-type, multiple type-filters can be specified.
-     * @param flags             Optional query-flags.
+     * @param flags             Optional query-flags. Use separate flags parameters for each option (see examples above)
+     * @return Returns the query result.
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
@@ -838,7 +1188,191 @@ public class WhoisRestService {
      * <p><div>Example:</div>
      * <ul>
      * <li><div>Search for 193/8 on the ripe, apnic, arin, lacnic, radb GRS mirrors:</div>
-     * <span style="font-style:italic;">http://apps.db.ripe.net/whois-beta/grs-search?flags=&source=apnic-grs&source=arin-grs&source=lacnic-grs&source=radb-grs&query-string=193%2F8</span></li>
+     * <pre>
+     *  http://apps.db.ripe.net/whois-beta/grs-search?flags=&source=apnic-grs&source=arin-grs&source=lacnic-grs&source=radb-grs&query-string=193%2F8</li>
+     * </pre>
+     *
+     * <div>Example response in XML:</div>
+     * <pre>
+     *     &lt;?xml version='1.0' encoding='UTF-8'?&gt;
+     &lt;whois-resources&gt;
+     &lt;parameters xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
+     &lt;inverse-lookup/&gt;
+     &lt;type-filters/&gt;
+     &lt;flags/&gt;
+     &lt;query-strings&gt;
+     &lt;query-string value="AS102"/&gt;
+     &lt;/query-strings&gt;
+     &lt;sources&gt;
+     &lt;source id="TEST-GRS"/&gt;
+     &lt;/sources&gt;
+     &lt;/parameters&gt;
+     &lt;objects&gt;
+     &lt;object xmlns:xlink="http://www.w3.org/1999/xlink"
+     type="aut-num"&gt;
+     &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test-grs/aut-num/AS102"/&gt;
+     &lt;source id="test-grs"/&gt;
+     &lt;primary-key&gt;
+     &lt;attribute name="aut-num" value="AS102"/&gt;
+     &lt;/primary-key&gt;
+     &lt;attributes&gt;
+     &lt;attribute name="aut-num" value="AS102"/&gt;
+     &lt;attribute name="as-name" value="End-User-2"/&gt;
+     &lt;attribute name="descr" value="description"/&gt;
+     &lt;attribute name="admin-c" value="DUMY-RIPE" referenced-type="person-role"&gt;
+     &lt;link xlink:type="locator"
+     xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test-grs/person-role/DUMY-RIPE"/&gt;
+     &lt;/attribute&gt;
+     &lt;attribute name="tech-c" value="DUMY-RIPE" referenced-type="person-role"&gt;
+     &lt;link xlink:type="locator"
+     xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test-grs/person-role/DUMY-RIPE"/&gt;
+     &lt;/attribute&gt;
+     &lt;attribute name="mnt-by" value="OWNER-MNT" referenced-type="mntner"&gt;
+     &lt;link xlink:type="locator"
+     xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test-grs/mntner/OWNER-MNT"/&gt;
+     &lt;/attribute&gt;
+     &lt;attribute name="source" value="TEST-GRS"/&gt;
+     &lt;attribute name="remarks" value="****************************"/&gt;
+     &lt;attribute name="remarks" value="* THIS OBJECT IS MODIFIED"/&gt;
+     &lt;attribute name="remarks" value="* Please note that all data that is generally regarded as personal"/&gt;
+     &lt;attribute name="remarks" value="* data has been removed from this object."/&gt;
+     &lt;attribute name="remarks" value="* To view the original object, please query the RIPE Database at:"/&gt;
+     &lt;attribute name="remarks" value="* http://www.ripe.net/whois"/&gt;
+     &lt;attribute name="remarks" value="****************************"/&gt;
+     &lt;/attributes&gt;
+     &lt;tags/&gt;
+     &lt;/object&gt;
+     &lt;/objects&gt;
+     &lt;/whois-resources&gt;
+     * </pre>
+     * <div>Example response in JSON:</div>
+     * <pre>
+     *{"whois-resources": {
+     *    "parameters": {
+     *        "inverse-lookup": {
+     *            "inverse-attribute": []
+     *        },
+     *        "type-filters": {
+     *            "type-filter": []
+     *        },
+     *        "flags": {
+     *            "flag": []
+     *        },
+     *        "query-strings": {
+     *            "query-string": [
+     *                {
+     *                    "value": "AS102"
+     *                }
+     *            ]
+     *        },
+     *        "sources": {
+     *            "source": [
+     *                {
+     *                    "id": "TEST-GRS"
+     *                }
+     *            ]
+     *        }
+     *    },
+     *    "objects": {
+     *        "object": {
+     *            "type": "aut-num",
+     *            "link": {
+     *                "xlink:type": "locator",
+     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test-grs/aut-num/AS102"
+     *            },
+     *            "source": {
+     *                "id": "test-grs"
+     *            },
+     *            "primary-key": {
+     *                "attribute": [
+     *                    {
+     *                        "name": "aut-num",
+     *                        "value": "AS102"
+     *                    }
+     *                ]
+     *            },
+     *            "attributes": {
+     *                "attribute": [
+     *                    {
+     *                        "name": "aut-num",
+     *                        "value": "AS102"
+     *                    },
+     *                    {
+     *                        "name": "as-name",
+     *                        "value": "End-User-2"
+     *                    },
+     *                    {
+     *                        "name": "descr",
+     *                        "value": "description"
+     *                    },
+     *                    {
+     *                        "link": {
+     *                            "xlink:type": "locator",
+     *                            "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test-grs/person-role/DUMY-RIPE"
+     *                        },
+     *                        "name": "admin-c",
+     *                        "value": "DUMY-RIPE",
+     *                        "referenced-type": "person-role"
+     *                    },
+     *                    {
+     *                        "link": {
+     *                            "xlink:type": "locator",
+     *                            "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test-grs/person-role/DUMY-RIPE"
+     *                        },
+     *                        "name": "tech-c",
+     *                        "value": "DUMY-RIPE",
+     *                        "referenced-type": "person-role"
+     *                    },
+     *                    {
+     *                        "link": {
+     *                            "xlink:type": "locator",
+     *                            "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test-grs/mntner/OWNER-MNT"
+     *                        },
+     *                        "name": "mnt-by",
+     *                        "value": "OWNER-MNT",
+     *                        "referenced-type": "mntner"
+     *                    },
+     *                    {
+     *                        "name": "source",
+     *                        "value": "TEST-GRS"
+     *                    },
+     *                    {
+     *                        "name": "remarks",
+     *                        "value": "****************************"
+     *                    },
+     *                    {
+     *                        "name": "remarks",
+     *                        "value": "* THIS OBJECT IS MODIFIED"
+     *                    },
+     *                    {
+     *                        "name": "remarks",
+     *                        "value": "* Please note that all data that is generally regarded as personal"
+     *                    },
+     *                    {
+     *                        "name": "remarks",
+     *                        "value": "* data has been removed from this object."
+     *                    },
+     *                    {
+     *                        "name": "remarks",
+     *                        "value": "* To view the original object, please query the RIPE Database at:"
+     *                    },
+     *                    {
+     *                        "name": "remarks",
+     *                        "value": "* http://www.ripe.net/whois"
+     *                    },
+     *                    {
+     *                        "name": "remarks",
+     *                        "value": "****************************"
+     *                    }
+     *                ]
+     *            },
+     *            "tags": {
+     *                "tag": []
+     *            }
+     *        }
+     *    }
+     *}}
+     * </pre>
      * </ul></p>
      *
      * @param sources           Mandatory. It's possible to specify multiple sources.
@@ -846,6 +1380,7 @@ public class WhoisRestService {
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
      * @param types             If specified the results will be filtered by object-type, multiple type-filters can be specified.
      * @param flags             Optional query-flags.
+     * @return Returns the result of a grs query.
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
