@@ -234,23 +234,10 @@ public class RdapResponseJsonTest {
         entity.setHandle("XXXX");
         entity.getRoles().add("registrant");
 
-        Remarks remarks2 = new Remarks();
-        remarks2.getDescription().add("She sells sea shells down by the sea shore.");
-        remarks2.getDescription().add( "Originally written by Terry Sullivan.");
-        entity.getRemarks().add(remarks2);
+        entity.getRemarks().add(remarks1);
 
-        Events event3 = new Events();
-        event3.setEventAction("registration");
-
-        event3.setEventDate(dataTypeFactory.newXMLGregorianCalendar(gc));
-
-        entity.getEvents().add(event3);
-
-        Events event4 = new Events();
-        event4.setEventAction("last changed");
-        event4.setEventDate(dataTypeFactory.newXMLGregorianCalendar(gc));
-        event4.setEventActor("joe@example.com");
-        entity.getEvents().add(event4);
+        entity.getEvents().add(event1);
+        entity.getEvents().add(event2);
 
         ip.getEntities().add(entity);
 
@@ -268,15 +255,15 @@ public class RdapResponseJsonTest {
                 .setOrg("Example")
                 .setTitle("Research Scientist")
                 .setRole("Project Lead")
-                .addAdr(new HashMap(), builder.createAdrEntryValueType("",
+                .addAdr(builder.createAdrEntryValueType("",
                         "Suite 1234",
                         "4321 Rue Somewhere",
                         "Quebec",
                         "QC",
                         "G1V 2M2",
                         "Canada"))
-                .addTel(new HashMap(), "tel:+1-555-555-1234;ext=102")
-                .setEmail(new HashMap(),"joe.user@example.com");
+                .addTel("tel:+1-555-555-1234;ext=102")
+                .setEmail("joe.user@example.com");
 
         entity.setVcardArray(VcardObjectHelper.toObjects(builder.build()));
 
