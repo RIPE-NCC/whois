@@ -98,6 +98,33 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void inetnum_with_geolocation_and_language_json_response() throws Exception {
+        databaseHelper.addObject(
+               "inetnum:        10.0.0.0 - 10.255.255.255\n" +
+               "netname:        RIPE-NCC\n" +
+               "descr:          Private Network\n" +
+               "geoloc:         52.375599 4.899902\n" +
+               "language:       EN\n" +
+               "country:        NL\n" +
+               "tech-c:         TP1-TEST\n" +
+               "status:         ASSIGNED PA\n" +
+               "mnt-by:         OWNER-MNT\n" +
+               "mnt-lower:      OWNER-MNT\n" +
+               "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final String response = createResource("whois-beta/geolocation?source=test&ipkey=10.0.0.0")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .get(String.class);
+
+        assertThat(response, containsString("\"whois-resources\""));
+        assertThat(response, containsString("\"service\" : \"geolocation-finder\""));
+        assertThat(response, containsString("\"geolocation-attributes\""));
+        assertThat(response, containsString("\"location\""));
+        assertThat(response, containsString("\"language\""));
+    }
+
+    @Test
     public void inetnum_without_geolocation() throws Exception {
        databaseHelper.addObject(
                "inetnum:        10.0.0.0 - 10.255.255.255\n" +

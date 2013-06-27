@@ -52,6 +52,9 @@ public class GeolocationService {
 
     private static final String LOOKUP_URL = "http://apps.db.ripe.net/whois-beta/lookup";
 
+    private static final String TEXT_JSON = "text/json";
+    private static final String TEXT_XML = "text/xml";
+
     private static final Set<InetnumStatus> STOP_AT_STATUS_IPV4 = Sets.immutableEnumSet(
             InetnumStatus.ASSIGNED_PI,
             InetnumStatus.ASSIGNED_ANYCAST,
@@ -80,11 +83,16 @@ public class GeolocationService {
 
     /**
      * Find out which geolocation and language is set for a particular ip address.
+     *
+     * <p>For further background information, refer to the RIPE Labs article here:
+     * <a href="https://labs.ripe.net/Members/denis/geolocation-prototype-for-ripe-database" class="external-link" rel="nofollow" target="_blank">
+     *     https://labs.ripe.net/Members/denis/geolocation-prototype-for-ripe-database</a></p>
+     *
      * @param source Source.
      * @param ipkey IP address
      */
     @GET
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     public WhoisResources geolocation(
             @Context final HttpServletRequest request,
             @QueryParam(value = "source") final String source,      // TODO: validate source
