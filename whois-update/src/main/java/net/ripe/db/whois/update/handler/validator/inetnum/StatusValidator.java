@@ -255,6 +255,10 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
         try {
             final InetStatus status = getStatus(update);
 
+            if (status == null) {
+                return;
+            }
+
             if (status.equals(NOT_SET)) {
                 updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(NOT_SET));
                 return;
