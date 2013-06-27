@@ -55,7 +55,15 @@ public class WhoisRestServiceTest {
                 "show-tag-info", "a", "all-sources", "q", "list-sources", "diff-versions", "list-versions", "show-version", "k", "persistent-connection");
         for (String disallowedFlag : disallowedFlags) {
             try {
-                subject.search(request, Sets.newHashSet("TEST"), "AARDVARK-MNT", Collections.EMPTY_SET, Collections.EMPTY_SET, Sets.newHashSet(disallowedFlag));
+                subject.search(
+                        request,
+                        Sets.newHashSet("TEST"),
+                        "AARDVARK-MNT",
+                        Collections.EMPTY_SET,
+                        Collections.EMPTY_SET,
+                        Collections.EMPTY_SET,
+                        Collections.EMPTY_SET,
+                        Sets.newHashSet(disallowedFlag));
                 fail("Disallowed option " + disallowedFlag + " did not throw error");
             } catch (IllegalArgumentException expected) {
                 assertThat(expected.getMessage(), is("Disallowed option '" + disallowedFlag + "'"));

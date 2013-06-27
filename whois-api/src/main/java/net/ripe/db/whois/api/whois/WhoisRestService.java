@@ -229,8 +229,6 @@ public class WhoisRestService {
      * @param source     Source name (RIPE or TEST).
      * @param objectType Object type of given object.
      * @param key        Primary key of the given object.
-     * @param include    Only show RPSL objects that have these tags. Can be multiple.
-     * @param exclude    Only show RPSL objects that <i>do not</i> have these tags. Can be multiple.
      * @return Returns the lookup result.
      */
     @GET
@@ -245,10 +243,8 @@ public class WhoisRestService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
-            @PathParam("key") final String key,
-            @QueryParam("include") Set<String> include,
-            @QueryParam("exclude") Set<String> exclude) {
-        return lookupObject(request, source, objectType, key, include, exclude, false);
+            @PathParam("key") final String key) {
+        return lookupObject(request, source, objectType, key, false);
     }
 
     /**
@@ -260,8 +256,6 @@ public class WhoisRestService {
      * @param source     Source
      * @param objectType Object type for given object.
      * @param key        Primary key of the given object.
-     * @param include    Only show RPSL objects that have these tags. Can be multiple.
-     * @param exclude    Only show RPSL objects that <i>do not</i> have these tags. Can be multiple.
      */
     @GET
     @TypeHint(WhoisResources.class)
@@ -271,10 +265,8 @@ public class WhoisRestService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
-            @PathParam("key") final String key,
-            @QueryParam("include") Set<String> include,
-            @QueryParam("exclude") Set<String> exclude) {
-        return lookupObject(request, source, objectType, key, include, exclude, true);
+            @PathParam("key") final String key) {
+        return lookupObject(request, source, objectType, key, true);
     }
 
     // TODO: [AH] hierarchical lookups return the encompassing range if no direct hit
@@ -283,10 +275,8 @@ public class WhoisRestService {
             final String source,
             final String objectTypeString,
             final String key,
-            final Set<String> includeTags,
-            final Set<String> excludeTags,
             final boolean isGrs) {
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s %s %s",
+        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s",
                 QueryFlag.NO_GROUPING.getLongFlag(),
                 QueryFlag.NO_REFERENCED.getLongFlag(),
                 QueryFlag.SOURCES.getLongFlag(),
@@ -294,10 +284,6 @@ public class WhoisRestService {
                 QueryFlag.SELECT_TYPES.getLongFlag(),
                 objectTypeString,
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
-                (includeTags == null || includeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(),
-                JOINER.join(includeTags),
-                (excludeTags == null || excludeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(),
-                JOINER.join(excludeTags),
                 key));
 
         checkForInvalidSource(source, isGrs);
@@ -642,9 +628,10 @@ public class WhoisRestService {
      * <p>With the modify interface this error prone processing of objects can be replaced with just one simple request.
      * A client just needs to specify the type of operation to be applied, the primary key of an object and eventually a set of attributes.</p>
      * <p/>
-     * <p>The HTTP request must include a "content-type: application/xml" header.</p>
+     * <p>A request containing XML format content must include a "content-type: application/xml" HTTP header.</p>
      * <p/>
-     * <p>Important, a modify request succeeds only if the final modified object satisfies the RPSL specification. For example a modify request that generate an object missing mandatory attributes will obviously fail because such an object would be invalid.</p>
+     * <p>Important, a modify request succeeds only if the final modified object satisfies the RPSL specification.
+     * For example a modify request resulting in an object missing mandatory attributes will fail.</p>
      * <p/>
      * <p>Different actions that can be executed by specifying one of 'add', 'remove' or 'replace':
      * <p/>
@@ -1308,6 +1295,8 @@ public class WhoisRestService {
      * @param sources           Mandatory. It's possible to specify multiple sources.
      * @param queryString       Mandatory.
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
+     * @param include           Only show RPSL objects with given tags. Can be multiple.
+     * @param exclude           Only show RPSL objects that <i>do not</i> have given tags. Can be multiple.
      * @param types             If specified the results will be filtered by object-type, multiple type-filters can be specified.
      * @param flags             Optional query-flags. Use separate flags parameters for each option (see examples above)
      * @return Returns the query result.
@@ -1321,9 +1310,11 @@ public class WhoisRestService {
             @QueryParam("source") Set<String> sources,
             @QueryParam("query-string") String queryString,
             @QueryParam("inverse-attribute") Set<String> inverseAttributes,
+            @QueryParam("include") Set<String> include,
+            @QueryParam("exclude") Set<String> exclude,
             @QueryParam("type-filter") Set<String> types,
             @QueryParam("flags") Set<String> flags) {
-        return doSearch(request, queryString, sources, inverseAttributes, types, flags, false);
+        return doSearch(request, queryString, sources, inverseAttributes, include, exclude, types, flags, false);
     }
 
     /**
@@ -1526,6 +1517,8 @@ public class WhoisRestService {
      * @param sources           Mandatory. It's possible to specify multiple sources.
      * @param queryString       Mandatory.
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
+     * @param include           Only show RPSL objects with given tags. Can be multiple.
+     * @param exclude           Only show RPSL objects that <i>do not</i> have given tags. Can be multiple.
      * @param types             If specified the results will be filtered by object-type, multiple type-filters can be specified.
      * @param flags             Optional query-flags.
      * @return Returns the result of a grs query.
@@ -1539,9 +1532,11 @@ public class WhoisRestService {
             @QueryParam("source") Set<String> sources,
             @QueryParam("query-string") String queryString,
             @QueryParam("inverse-attribute") Set<String> inverseAttributes,
+            @QueryParam("include") Set<String> include,
+            @QueryParam("exclude") Set<String> exclude,
             @QueryParam("type-filter") Set<String> types,
             @QueryParam("flags") Set<String> flags) {
-        return doSearch(request, queryString, sources, inverseAttributes, types, flags, true);
+        return doSearch(request, queryString, sources, inverseAttributes, include, exclude, types, flags, true);
     }
 
     private Response doSearch(
@@ -1549,6 +1544,8 @@ public class WhoisRestService {
             final String queryString,
             final Set<String> sources,
             final Set<String> inverseAttributes,
+            final Set<String> includeTags,
+            final Set<String> excludeTags,
             final Set<String> types,
             final Set<String> flags,
             final boolean isGrs) {
@@ -1560,7 +1557,7 @@ public class WhoisRestService {
         final Set<String> separateFlags = splitInputFlags(flags);
         checkForInvalidFlags(separateFlags);
 
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s",
+        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s %s %s %s",
                 QueryFlag.SOURCES.getLongFlag(),
                 JOINER.join(sources),
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
@@ -1568,6 +1565,10 @@ public class WhoisRestService {
                 JOINER.join(types),
                 (inverseAttributes == null || inverseAttributes.isEmpty()) ? "" : QueryFlag.INVERSE.getLongFlag(),
                 JOINER.join(inverseAttributes),
+                (includeTags == null || includeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(),
+                JOINER.join(includeTags),
+                (excludeTags == null || excludeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(),
+                JOINER.join(excludeTags),
                 Joiner.on(" ").join(Iterables.transform(separateFlags, new Function<String, String>() {
                     @Override
                     public String apply(String input) {

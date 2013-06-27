@@ -200,120 +200,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new WhoisTag("unref", "28")));
     }
 
-    @Test
-    public void lookup_include_tags_params() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        final WhoisResources whoisResources = createResource(AUDIENCE,
-                "whois-beta/lookup/TEST/aut-num/AS102?include=foobar&include=unref")
-                .accept(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "description"),
-                new WhoisTag("other", "other stuff"),
-                new WhoisTag("unref", "28")));
-        assertThat(whoisObject.getAttributes(), contains(
-                new Attribute("aut-num", "AS102"),
-                new Attribute("as-name", "End-User-2"),
-                new Attribute("descr", "description"),
-                new Attribute("admin-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST")),
-                new Attribute("tech-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST")),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT")),
-                new Attribute("source", "TEST")
-        ));
-    }
-
-    @Test
-    public void lookup_include_tags_param_no_results() {
-        try {
-            createResource(AUDIENCE,
-                    "whois-beta/lookup/TEST/person/TP1-TEST?include=foobar")
-                    .accept(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-            fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
-        }
-    }
-
-    @Test
-    public void lookup_include_and_exclude_tags_params_no_results() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        try {
-            createResource(AUDIENCE,
-                    "whois-beta/lookup/TEST/aut-num/AS102?exclude=foobar&include=unref&include=other")
-                    .accept(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-            fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
-        }
-    }
-
-    @Test
-    public void lookup_include_and_exclude_tags_params() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
-
-        final WhoisResources whoisResources = createResource(AUDIENCE,
-                "whois-beta/lookup/TEST/aut-num/AS102?exclude=other&include=unref&include=foobar")
-                .accept(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "foobar"),
-                new WhoisTag("unref", "28")));
-        assertThat(whoisObject.getAttributes(), contains(
-                new Attribute("aut-num", "AS102"),
-                new Attribute("as-name", "End-User-2"),
-                new Attribute("descr", "description"),
-                new Attribute("admin-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST")),
-                new Attribute("tech-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST")),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT")),
-                new Attribute("source", "TEST")
-        ));
-    }
-
     // create
 
     @Test
@@ -1292,7 +1178,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
 
     @Test
-    public void search_with_longoptions() {
+    public void search_with_long_options() {
         databaseHelper.addObject("" +
                 "person:    Lo Person\n" +
                 "admin-c:   TP1-TEST\n" +
@@ -1315,7 +1201,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void search_with_short_and_longoptions_together() {
+    public void search_with_short_and_long_options_together() {
         databaseHelper.addObject("" +
                 "person:    Lo Person\n" +
                 "admin-c:   TP1-TEST\n" +
@@ -1349,7 +1235,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void search_includes_tags() throws Exception {
+    public void search_tags_in_response() throws Exception {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -1374,6 +1260,129 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new WhoisTag("foobar", "description"),
                 new WhoisTag("other", "other stuff"),
                 new WhoisTag("unref", "28")));
+    }
+
+    @Test
+    public void search_include_tag_param() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
+
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
+
+        final WhoisResources whoisResources = createResource(AUDIENCE,
+                "whois-beta/search?source=TEST&query-string=AS102&include=foobar&include=unref")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(whoisObject.getTags(), contains(
+                new WhoisTag("foobar", "description"),
+                new WhoisTag("other", "other stuff"),
+                new WhoisTag("unref", "28")));
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("aut-num", "AS102"),
+                new Attribute("as-name", "End-User-2"),
+                new Attribute("descr", "description"),
+                new Attribute("admin-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST")),
+                new Attribute("tech-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST")),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST")
+        ));
+    }
+
+    @Test
+    public void search_include_tag_param_no_results() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n"));
+
+        try {
+            createResource(AUDIENCE,
+                    "whois-beta/search?source=TEST&query-string=AS102&include=foobar")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
+    }
+
+    @Test
+    public void search_include_and_exclude_tags_params_no_results() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
+
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
+
+        try {
+            createResource(AUDIENCE,
+                    "whois-beta/search?source=TEST&query-string=AS102&exclude=foobar&include=unref&include=other")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
+    }
+
+    @Test
+    public void search_include_and_exclude_tags_params() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
+
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
+
+        final WhoisResources whoisResources = createResource(AUDIENCE,
+                "whois-beta/search?source=TEST&query-string=AS102&exclude=other&include=unref&include=foobar")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(whoisObject.getTags(), contains(
+                new WhoisTag("foobar", "foobar"),
+                new WhoisTag("unref", "28")));
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("aut-num", "AS102"),
+                new Attribute("as-name", "End-User-2"),
+                new Attribute("descr", "description"),
+                new Attribute("admin-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST")),
+                new Attribute("tech-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST")),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST")
+        ));
     }
 
     @Test
