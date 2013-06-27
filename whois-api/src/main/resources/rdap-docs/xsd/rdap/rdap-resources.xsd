@@ -93,8 +93,8 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="startAutnum" type="xs:long" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="endAutnum" type="xs:long" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="startAutnum" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="endAutnum" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="type" type="xs:string" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="country" type="xs:string" minOccurs="1" maxOccurs="1"/>
