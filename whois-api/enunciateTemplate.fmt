@@ -229,6 +229,25 @@
         [/#if]
         [#if restAvailable]
 
+        <ul style="display:none;">
+            [#if ((groupRestResources!"byDocumentationGroup") != "byPath") && docsxml.rest.groups.group?size > 0]
+                [#list docsxml.rest.groups.group?sort_by("name") as group]
+                    [@processResourceGroup group=group/]
+                    <li><a href="resource_${group.name}.html">${group.name}</a></li>
+                [/#list]
+            [#else]
+                [#list docsxml.rest.resources.resource?sort_by("@name") as resource]
+                    [@processResource resource=resource/]
+                    <li[#if isDeprecated(resource)] class="deprecated"[/#if]><a href="${scrubPathToFilename(resource.@name)}">${resource.@name}</a></li>
+                [/#list]
+            [/#if]
+        </ul>
+            [#if ((downloadsxml??) && (downloadsxml.download?size > 0))]
+            <p>
+                The REST resources expose a data model that is supported by a set of client-side libraries that are made available on the
+                <a href="downloads.html">files and libraries</a> page.
+            </p>
+            [/#if]
         [/#if]
         [#if soapAvailable]
 
