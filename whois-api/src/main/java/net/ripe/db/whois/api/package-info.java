@@ -23,7 +23,6 @@
  *       <li><a href="path__metadata_templates_-objectType-.html">metadata (object template for given object type)</a></li>
  *       <li><a href="path__search.html">search</a></li>
  *       <li><a href="path__grs-search.html">grs-search</a></li>
- *       <li><a href="path__tags_-source-_-key-.html">tags</a></li>
  *       <li><a href="path__versions_-source-_-key-.html">versions</a></li>
  *       <li><a href="path__version_-source-_-version-_-key-.html">version</a></li>
  *   </ul>
