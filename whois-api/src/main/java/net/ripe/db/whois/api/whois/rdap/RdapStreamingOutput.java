@@ -16,6 +16,7 @@ import net.ripe.db.whois.query.query.Query;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -60,23 +61,21 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
             RdapObjectMapper rdapObjectMapper = new RdapObjectMapper(taggedRpslObjectQueue);
             Object rdapResponse;
 
-            try {
-                rdapResponse = rdapObjectMapper.build();
-                streamObject(rdapResponse );
+            rdapResponse = rdapObjectMapper.build();
+            streamObject(rdapResponse);
 
-            } catch (Exception e) {
-                // TODO do something meaningful coz this aint too meaningful tevs
-            }
-
-//            if (!found) {
-//                throw new NotFoundException();
-//            }
         } catch (QueryException e) {
             if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
                 throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
             } else {
                 throw new RuntimeException("Unexpected result", e);
             }
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                Response.status(Response.Status.BAD_REQUEST)
+                        .entity(e.toString())
+                        .build()
+            );
         }
 
         streamingMarshal.close();
