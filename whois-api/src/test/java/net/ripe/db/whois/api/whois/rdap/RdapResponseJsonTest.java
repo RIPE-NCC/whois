@@ -259,6 +259,26 @@ public class RdapResponseJsonTest {
         entityLink.setRel("self");
         entity.getLinks().add(entityLink);
 
+        VcardObjectHelper.EntityVcardBuilder builder = new VcardObjectHelper.EntityVcardBuilder();
+
+        builder.setVersion()
+                .setFn("Joe User")
+                .setKind("individual")
+                .setOrg("Example")
+                .setTitle("Research Scientist")
+                .setRole("Project Lead")
+                .addAdr(builder.createAdrEntryValueType("",
+                        "Suite 1234",
+                        "4321 Rue Somewhere",
+                        "Quebec",
+                        "QC",
+                        "G1V 2M2",
+                        "Canada"))
+                .addTel("tel:+1-555-555-1234;ext=102")
+                .setEmail("joe.user@example.com");
+
+        entity.getVcardArray().add(VcardObjectHelper.toObjects(builder.build()));
+
         StringOutputStream serializer = streamObject(ip);
         String result = convertEOLToUnix(serializer);
 
@@ -273,26 +293,6 @@ public class RdapResponseJsonTest {
                 "  \"country\" : \"AU\",\n" +
                 "  \"parentHandle\" : \"YYYY-RIR\",\n" +
                 "  \"status\" : [ \"allocated\" ],\n" +
-                "  \"remarks\" : [ {\n" +
-                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
-                "  } ],\n" +
-                "  \"links\" : [ {\n" +
-                "    \"value\" : \"http://example.net/ip/2001:db8::/48\",\n" +
-                "    \"rel\" : \"self\",\n" +
-                "    \"href\" : \"http://example.net/ip/2001:db8::/48\"\n" +
-                "  }, {\n" +
-                "    \"value\" : \"http://example.net/ip/2001:db8::/48\",\n" +
-                "    \"rel\" : \"up\",\n" +
-                "    \"href\" : \"http://example.net/ip/2001:C00::/23\"\n" +
-                "  } ],\n" +
-                "  \"events\" : [ {\n" +
-                "    \"eventAction\" : \"registration\",\n" +
-                "    \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
-                "  }, {\n" +
-                "    \"eventAction\" : \"last changed\",\n" +
-                "    \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
-                "    \"eventActor\" : \"joe@example.com\"\n" +
-                "  } ],\n" +
                 "  \"entities\" : [ {\n" +
                 "    \"handle\" : \"XXXX\",\n" +
                 "    \"vcardArray\" : [\n" +
@@ -325,6 +325,26 @@ public class RdapResponseJsonTest {
                 "      \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
                 "      \"eventActor\" : \"joe@example.com\"\n" +
                 "    } ]\n" +
+                "  } ],\n" +
+                "  \"remarks\" : [ {\n" +
+                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "  } ],\n" +
+                "  \"links\" : [ {\n" +
+                "    \"value\" : \"http://example.net/ip/2001:db8::/48\",\n" +
+                "    \"rel\" : \"self\",\n" +
+                "    \"href\" : \"http://example.net/ip/2001:db8::/48\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"http://example.net/ip/2001:db8::/48\",\n" +
+                "    \"rel\" : \"up\",\n" +
+                "    \"href\" : \"http://example.net/ip/2001:C00::/23\"\n" +
+                "  } ],\n" +
+                "  \"events\" : [ {\n" +
+                "    \"eventAction\" : \"registration\",\n" +
+                "    \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
+                "  }, {\n" +
+                "    \"eventAction\" : \"last changed\",\n" +
+                "    \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
+                "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ]\n" +
                 "}", result);
     }

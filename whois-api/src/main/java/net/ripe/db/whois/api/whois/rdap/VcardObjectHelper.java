@@ -170,6 +170,10 @@ public class VcardObjectHelper {
             return this;
         }
 
+        public EntityVcardBuilder setOrg(String entryValue) {
+            return this.setOrg(new HashMap(), entryValue);
+        }
+
         public EntityVcardBuilder setTitle(String entryValue) {
             Title ev = vcardObjectFactory.createTitle();
             ev.setKeyValues(new HashMap());
@@ -196,6 +200,10 @@ public class VcardObjectHelper {
             return this;
         }
 
+        public EntityVcardBuilder addAdr(AdrEntryValueType entryValue) {
+            return addAdr(new HashMap(), entryValue);
+        }
+
         public EntityVcardBuilder addTel(HashMap keyValues, String entryValue) {
             Tel ev = vcardObjectFactory.createTel();
             ev.setKeyValues(keyValues);
@@ -204,12 +212,20 @@ public class VcardObjectHelper {
             return this;
         }
 
+        public EntityVcardBuilder addTel(String entryValue) {
+            return addTel(new HashMap(), entryValue);
+        }
+
         public EntityVcardBuilder setEmail(HashMap keyValues, String entryValue) {
             Email ev = vcardObjectFactory.createEmail();
             ev.setKeyValues(keyValues);
             ev.setEntryValue(entryValue);
             setCheck(ev);
             return this;
+        }
+
+        public EntityVcardBuilder setEmail(String entryValue) {
+            return setEmail(new HashMap(), entryValue);
         }
 
         public EntityVcardBuilder setGeo(HashMap keyValues, String entryValue) {

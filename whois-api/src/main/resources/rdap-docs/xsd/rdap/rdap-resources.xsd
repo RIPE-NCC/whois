@@ -7,20 +7,15 @@
     <xs:element name="entity">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="handle" type="xs:string" maxOccurs="1"
-                            minOccurs="1">
-                </xs:element>
-                <xs:element name="vcardArray" type="xs:anySimpleType"
-                            maxOccurs="unbounded" minOccurs="0">
-                </xs:element>
-                <xs:element name="roles" type="xs:string"
-                            maxOccurs="unbounded" minOccurs="0">
-                </xs:element>
-                <xs:element name="publicIds" type="hashMapType"
-                            maxOccurs="1" minOccurs="0">
-                </xs:element>
+		<xs:element name="handle" type="xs:string" maxOccurs="1" minOccurs="1"/>
+		<xs:element name="vcardArray" type="xs:anySimpleType" maxOccurs="unbounded" minOccurs="0"/>
+		<xs:element name="roles" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+		<xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
+
+                <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType"/>
                 <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element ref="links" minOccurs="0"	maxOccurs="unbounded"/>
+                <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
                 <xs:element ref="events" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
@@ -42,13 +37,12 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
+
+                <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType"/>
                 <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
-
                 <xs:element ref="links" minOccurs="0"	maxOccurs="unbounded"/>
-
                 <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
-
-                <xs:element name="events" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="events" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -59,7 +53,13 @@
                 <xs:element name="handle" type="xs:string" maxOccurs="1"  minOccurs="1"/>
                 <xs:element name="ldhName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
                 <xs:element ref="nameserver" maxOccurs="unbounded"  minOccurs="1"/>
-                <xs:element ref="entity" maxOccurs="unbounded" minOccurs="1"/>
+		<xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
+
+                <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType"/>
+                <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="links" minOccurs="0"	maxOccurs="unbounded"/>
+                <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                <xs:element ref="events" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -68,8 +68,8 @@
         <xs:complexType >
             <xs:sequence>
                 <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="startAddress" type="xs:string" minOccurs="1" maxOccurs="1" />
-                <xs:element name="endAddress" type="xs:string" minOccurs="1" maxOccurs="1" />
+                <xs:element name="startAddress" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="endAddress" type="xs:string" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="ipVersion" type="xs:string" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="type" type="xs:string" minOccurs="1" maxOccurs="1"/>
@@ -77,14 +77,10 @@
                 <xs:element name="parentHandle" type="xs:string" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="status" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
+                <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType"/>
                 <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
-
                 <xs:element ref="links" minOccurs="0"	maxOccurs="unbounded"/>
-
                 <xs:element ref="events" minOccurs="0" maxOccurs="unbounded"/>
-
-                <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType" />
-
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -110,9 +106,9 @@
     <xs:element name="events">
         <xs:complexType >
             <xs:sequence>
-                <xs:element name="eventAction" type="xs:string" maxOccurs="1" minOccurs="0"></xs:element>
-                <xs:element name="eventDate" type="xs:dateTime" maxOccurs="1" minOccurs="0"></xs:element>
-                <xs:element name="eventActor" type="xs:string" maxOccurs="1" minOccurs="0"></xs:element>
+		<xs:element name="eventAction" type="xs:string" maxOccurs="1" minOccurs="0"/>
+                <xs:element name="eventDate" type="xs:dateTime" maxOccurs="1" minOccurs="0"/>
+                <xs:element name="eventActor" type="xs:string" maxOccurs="1" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -120,7 +116,7 @@
     <xs:element name="remarks">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
+		<xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -152,7 +148,7 @@
     <xs:complexType name="rdapEntityType">
         <xs:annotation>
             <xs:appinfo>
-                <jaxb:class ref="net.ripe.db.whois.api.whois.rdap.domain.Entity" />
+                <jaxb:class ref="Entity"/>
             </xs:appinfo>
         </xs:annotation>
     </xs:complexType>
@@ -161,7 +157,7 @@
     <xs:complexType name="hashMapType">
         <xs:annotation>
             <xs:appinfo>
-                <jaxb:class ref="java.util.HashMap" />
+                <jaxb:class ref="java.util.HashMap"/>
             </xs:appinfo>
         </xs:annotation>
     </xs:complexType>
