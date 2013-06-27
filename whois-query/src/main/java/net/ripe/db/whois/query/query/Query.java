@@ -573,8 +573,15 @@ public final class Query {
     String getOptionValue(final QueryFlag queryFlag) {
         String optionValue = null;
         for (final String flag : queryFlag.getFlags()) {
+            List<?> optionValues;
             if (options.has(flag)) {
-                for (final Object optionArgument : options.valuesOf(flag)) {
+                try {
+                    optionValues = options.valuesOf(flag);
+                }   catch (final OptionException e) {
+                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
+                }
+
+                for (final Object optionArgument : optionValues) {
                     if (optionValue == null) {
                         optionValue = optionArgument.toString();
                     } else {
