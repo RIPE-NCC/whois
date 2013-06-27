@@ -4,6 +4,7 @@ import net.ripe.db.whois.api.whois.TaggedRpslObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Domain;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
 import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.Fn;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.Version;
@@ -15,6 +16,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
+import java.math.BigInteger;
 
 public class RdapObjectMapper {
     private TaggedRpslObject primaryTaggedRpslObject;
@@ -81,6 +83,22 @@ public class RdapObjectMapper {
             ip.setHandle(rpslObject.getKey().toString());
 
             rdapResponse = ip;
+        } else if (rpslObjectType.equals(ObjectType.AUT_NUM.getName())) {
+            Autnum an = new ObjectFactory().createAutnum();
+            an.setHandle(rpslObject.getKey().toString());
+
+            RpslAttribute asn = 
+                rpslObject.findAttribute(AttributeType.AUT_NUM);
+            String asn_str = asn.getValue().replace("AS", "");
+
+            an.setStartAutnum(new BigInteger(asn_str));
+            an.setEndAutnum(new BigInteger(asn_str));
+
+            an.setName("name");
+            an.setType("type");
+            an.setCountry("AU");
+
+            rdapResponse = an;
         }
     }
 

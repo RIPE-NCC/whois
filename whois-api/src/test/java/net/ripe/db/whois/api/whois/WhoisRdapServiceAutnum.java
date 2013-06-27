@@ -2,12 +2,15 @@ package net.ripe.db.whois.api.whois;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
+import net.ripe.db.whois.api.whois.domain.WhoisResources;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.domain.CIString;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.junit.Before;
@@ -17,6 +20,9 @@ import org.junit.experimental.categories.Category;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @Category(IntegrationTest.class)
 public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
@@ -112,14 +118,11 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
 
     @Test
     public void lookupAutnum() throws Exception {
-        //final WhoisResources whoisResources = createResource(AUDIENCE, "inet6num/2001:2002:2003::/48").get(WhoisResources.class);
-        /*assertThat(whoisResources.getWhoisObjects(), hasSize(2));
-        final RpslObject inet6num = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
-        assertThat(inet6num.getKey(), is(ciString("2001:2002:2003::/48")));
-        final RpslObject person = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(1));
-        assertThat(person.getKey(), is(ciString("TP1-TEST")));   */
-
-        //Thread.sleep(1500000);
+        final ClientResponse cr = 
+            createResource(AUDIENCE, "aut-num/AS12345")
+                .get(ClientResponse.class);
+    //    throw new RuntimeException("Entity content: " +
+    //                               cr.getEntity(String.class));
     }
 
     @Override
