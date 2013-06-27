@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -47,7 +48,7 @@ public class RdapResponseJsonTest {
                 .setKind("individual")
                 .addLang(VcardObjectHelper.createHashMap(Maps.immutableEntry("pref", "1")), "fr")
                 .addLang(VcardObjectHelper.createHashMap(Maps.immutableEntry("pref", "2")), "en")
-                .setOrg(VcardObjectHelper.createHashMap(Maps.immutableEntry("type", "work")), "Example")
+                .setOrg("Example")
                 .setTitle("Research Scientist")
                 .setRole("Project Lead")
                 .addAdr(VcardObjectHelper.createHashMap(Maps.immutableEntry("type", "work")), builder.createAdrEntryValueType("",
@@ -83,7 +84,6 @@ public class RdapResponseJsonTest {
                 "}, \"language-tag\", \"fr\" ], [ \"lang\", {\n" +
                 "  \"pref\" : \"2\"\n" +
                 "}, \"language-tag\", \"en\" ], [ \"org\", {\n" +
-                "  \"type\" : \"work\"\n" +
                 "}, \"text\", \"Example\" ], [ \"title\", {\n" +
                 "}, \"text\", \"Research Scientist\" ], [ \"role\", {\n" +
                 "}, \"text\", \"Project Lead\" ], [ \"adr\", {\n" +
@@ -92,9 +92,9 @@ public class RdapResponseJsonTest {
                 "  \"pref\" : \"1\"\n" +
                 "}, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
                 "  \"type\" : [ \"work\", \"voice\" ]\n" +
-                "}, \"text\", \"tel:+1-555-555-1234;ext=102\" ], [ \"tel\", {\n" +
+                "}, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"tel\", {\n" +
                 "  \"type\" : [ \"work\", \"cell\", \"voice\", \"video\", \"text\" ]\n" +
-                "}, \"text\", \"tel:+1-555-555-4321\" ], [ \"email\", {\n" +
+                "}, \"uri\", \"tel:+1-555-555-4321\" ], [ \"email\", {\n" +
                 "  \"type\" : \"work\"\n" +
                 "}, \"text\", \"joe.user@example.com\" ], [ \"geo\", {\n" +
                 "  \"type\" : \"work\"\n" +
@@ -260,7 +260,7 @@ public class RdapResponseJsonTest {
         entityLink.setRel("self");
         entity.getLinks().add(entityLink);
 
-        VcardObjectHelper.EntityVcardBuilder builder = new VcardObjectHelper.EntityVcardBuilder();
+        VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
 
         builder.setVersion()
                 .setFn("Joe User")
@@ -268,15 +268,15 @@ public class RdapResponseJsonTest {
                 .setOrg("Example")
                 .setTitle("Research Scientist")
                 .setRole("Project Lead")
-                .addAdr(builder.createAdrEntryValueType("",
+                .addAdr(new HashMap(), builder.createAdrEntryValueType("",
                         "Suite 1234",
                         "4321 Rue Somewhere",
                         "Quebec",
                         "QC",
                         "G1V 2M2",
                         "Canada"))
-                .addTel("tel:+1-555-555-1234;ext=102")
-                .setEmail("joe.user@example.com");
+                .addTel(new HashMap(), "tel:+1-555-555-1234;ext=102")
+                .setEmail(new HashMap(),"joe.user@example.com");
 
         entity.setVcardArray(VcardObjectHelper.toObjects(builder.build()));
 

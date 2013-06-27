@@ -422,7 +422,7 @@
             <xs:sequence>
                 <xs:element name="name" type="xs:string" minOccurs="0" default="tel"/>
                 <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
-                <xs:element name="type" minOccurs="0" default="text">
+                <xs:element name="type" minOccurs="0" default="uri">
                     <xs:simpleType>
                         <xs:restriction base="xs:string">
                             <xs:enumeration value="text"/>

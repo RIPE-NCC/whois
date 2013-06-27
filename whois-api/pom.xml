@@ -247,6 +247,29 @@
                     </xsdOptions>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>maven-replacer-plugin</artifactId>
+                <version>1.4.1</version>
+                <executions>
+                    <execution>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <basedir>${project.build.sourceDirectory}/net/ripe/db/whois/api/whois/rdap/domain</basedir>
+                    <filesToInclude>**/*.java</filesToInclude>
+                    <regex>true</regex>
+                    <token>^// Generated on: 20.*$</token>
+                    <value>// Generated on: stripped</value>
+                    <regexFlags>
+                        <regexFlag>MULTILINE</regexFlag>
+                    </regexFlags>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

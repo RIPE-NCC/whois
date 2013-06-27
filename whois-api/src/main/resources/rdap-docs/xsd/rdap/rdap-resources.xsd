@@ -54,7 +54,7 @@
                 <xs:element name="handle" type="xs:string" maxOccurs="1"  minOccurs="1"/>
                 <xs:element name="ldhName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
                 <xs:element ref="nameserver" maxOccurs="unbounded"  minOccurs="1"/>
-		<xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
+		        <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
 
                 <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType"/>
                 <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
@@ -107,7 +107,7 @@
     <xs:element name="events">
         <xs:complexType >
             <xs:sequence>
-		<xs:element name="eventAction" type="xs:string" maxOccurs="1" minOccurs="0"/>
+		        <xs:element name="eventAction" type="xs:string" maxOccurs="1" minOccurs="0"/>
                 <xs:element name="eventDate" type="xs:dateTime" maxOccurs="1" minOccurs="0"/>
                 <xs:element name="eventActor" type="xs:string" maxOccurs="1" minOccurs="0"/>
             </xs:sequence>
