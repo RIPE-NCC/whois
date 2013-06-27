@@ -252,26 +252,28 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
     }
 
     private void validateDelete(PreparedUpdate update, UpdateContext updateContext) {
-        try {
-            final InetStatus status = getStatus(update);
+        InetStatus status;
 
+        try {
+            status = getStatus(update);
             if (status == null) {
                 return;
             }
+        } catch (IllegalArgumentException e) {
+            // status attribute not found
+            return;
+        }
 
-            if (status.equals(NOT_SET)) {
-                updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(NOT_SET));
-                return;
-            }
+        if (status.equals(NOT_SET)) {
+            updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(NOT_SET));
+            return;
+        }
 
-            if (status.requiresRsMaintainer()) {
-                final Set<CIString> mntBy = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
-                if (Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty()) {
-                    updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(status.toString()));
-                }
+        if (status.requiresRsMaintainer()) {
+            final Set<CIString> mntBy = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
+            if (Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty()) {
+                updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(status.toString()));
             }
-        } catch (IllegalArgumentException ignored) {
-            // status not set
         }
     }
 }
