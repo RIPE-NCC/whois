@@ -69,7 +69,7 @@ $update.diff
 
 THIS IS THE NEW VERSION OF THE OBJECT:
 
-$update.persistedObject
+$update.updatedObject
 
 #if ($update.showVersionInstruction)
 The old object can be seen in the history using the query options --list-versions and --show-version #if($update.versionId > 0)$update.versionId $update.PKey#end
@@ -98,7 +98,7 @@ $update.diff
 
 THIS IS THE NEW VERSION OF THE OBJECT:
 
-$update.persistedObject
+$update.updatedObject
 
 #if ($update.showVersionInstruction)
 The old object can be seen in the history using the query options --list-versions and --show-version #if($update.versionId > 0)$update.versionId $update.PKey#end

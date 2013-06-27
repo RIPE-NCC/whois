@@ -1,6 +1,7 @@
 package spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
+import org.joda.time.LocalDateTime
 import spec.domain.Message
 import spec.domain.SyncUpdate
 
@@ -395,6 +396,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "update, multiple objects, notif sent to notify"() {
       when:
+        setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
         def updates = """\
                     password: update
 
@@ -502,7 +504,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "phone:          +42 33 81394393\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "notify:         modify_person@ripe.net\n" +
-                "changed:        ripe@test.net\n" +
+                "changed:        ripe@test.net 20130625\n" +
                 "source:         TEST\n" +
                 "\n" +
                 "\n" +
@@ -561,6 +563,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create, multiple objects, notif to ref-nfy and notify"() {
       when:
+        setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
         def objects =
             """\
             organisation: AUTO-1
@@ -618,7 +621,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:         TEST-MNT\n" +
                 "descr:          description\n" +
                 "referral-by:    TEST-MNT\n" +
-                "changed:        ripe@test.net\n" +
+                "changed:        ripe@test.net 20130625\n" +
                 "notify:         same@test.net\n" +
                 "upd-to:         dbtest@ripe.net\n" +
                 "auth:           MD5-PW # Filtered\n" +
@@ -656,7 +659,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "phone:          +42 33 81394393\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "notify:         person@ripe.net\n" +
-                "changed:        ripe@test.net\n" +
+                "changed:        ripe@test.net 20130625\n" +
                 "source:         TEST"
         )
 
@@ -665,6 +668,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "update, organisation, multiple objects"() {
       when:
+      setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
         def objects =
             """\
             organisation: AUTO-1
@@ -769,7 +773,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "phone:          +42 33 81394393\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "notify:         person@ripe.net\n" +
-                "changed:        ripe@test.net\n" +
+                "changed:        ripe@test.net 20130625\n" +
                 "source:         TEST"
         )
 

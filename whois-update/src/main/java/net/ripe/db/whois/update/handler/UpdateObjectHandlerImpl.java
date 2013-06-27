@@ -5,10 +5,7 @@ import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
-import net.ripe.db.whois.common.domain.attrs.Changed;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -20,7 +17,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -56,35 +52,6 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
         }
     }
 
-    RpslObject updateLastChangedAttribute(final RpslObject submittedObject) {
-        final List<RpslAttribute> attributes = submittedObject.findAttributes(AttributeType.CHANGED);
-        if (attributes.isEmpty()) {
-            return submittedObject;
-        }
-
-        final RpslAttribute attributeToUpdate = getChangedAttributeToUpdate(attributes);
-        if (attributeToUpdate == null) {
-            return submittedObject;
-        }
-
-        final ArrayList<RpslAttribute> rpslAttributes = Lists.newArrayList(submittedObject.getAttributes());
-        final Changed newAttributeValue = new Changed(attributeToUpdate.getCleanValue(), dateTimeProvider.getCurrentDate());
-
-        rpslAttributes.set(rpslAttributes.indexOf(attributeToUpdate), new RpslAttribute(AttributeType.CHANGED, newAttributeValue.toString()));
-        return new RpslObject(submittedObject, rpslAttributes);
-    }
-
-    private RpslAttribute getChangedAttributeToUpdate(final List<RpslAttribute> attributes) {
-        for (final RpslAttribute attribute : attributes) {
-            final Changed changed = Changed.parse(attribute.getCleanValue());
-            if (changed.getDate() == null) {
-                return attribute;
-            }
-        }
-
-        return null;
-    }
-
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void execute(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -92,16 +59,12 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
             final RpslObjectUpdateInfo updateInfo;
             switch (update.getAction()) {
                 case CREATE:
-                    final RpslObject persistedObjectCreate = updateLastChangedAttribute(update.getUpdatedObject());
-                    updateInfo = rpslObjectUpdateDao.createObject(persistedObjectCreate);
+                    updateInfo = rpslObjectUpdateDao.createObject(update.getUpdatedObject());
                     updateContext.updateInfo(update, updateInfo);
-                    updateContext.addPersistedUpdate(update, persistedObjectCreate);
                     break;
                 case MODIFY:
-                    final RpslObject persistedObjectUpdate = updateLastChangedAttribute(update.getUpdatedObject());
-                    updateInfo = rpslObjectUpdateDao.updateObject(update.getReferenceObject().getObjectId(), persistedObjectUpdate);
+                    updateInfo = rpslObjectUpdateDao.updateObject(update.getReferenceObject().getObjectId(), update.getUpdatedObject());
                     updateContext.updateInfo(update, updateInfo);
-                    updateContext.addPersistedUpdate(update, persistedObjectUpdate);
                     break;
                 case DELETE:
                     final RpslObject object = update.getReferenceObject();

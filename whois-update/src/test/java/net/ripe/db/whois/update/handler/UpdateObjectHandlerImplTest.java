@@ -96,23 +96,6 @@ public class UpdateObjectHandlerImplTest {
     }
 
     @Test
-    public void updateLastChangedAttribute() {
-        when(dateTimeProvider.getCurrentDate()).thenReturn(LocalDate.now());
-        final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
-        final RpslObject databaseObject = RpslObject.parse(RIPE_NCC_BA_MNT_MAINTAINER + "\n" +
-                "changed: user@host.org 20120601\n" +
-                "changed: user@host.org\n" +
-                "remarks: changed");
-
-        final RpslObject updatedObject = subject.updateLastChangedAttribute(databaseObject);
-
-        final String currentDate = formatter.print(LocalDate.now());
-        final List<RpslAttribute> attributes = updatedObject.findAttributes(AttributeType.CHANGED);
-
-        assertThat(attributes.get(attributes.size() - 1).getCleanValue().toString(), endsWith(currentDate));
-    }
-
-    @Test
     public void delete_success() {
         RpslObject mntner = RpslObject.parse(1, "mntner: MNT\nmnt-by: MNT-BY");
         Update update = update(mntner, mntner, Operation.DELETE);

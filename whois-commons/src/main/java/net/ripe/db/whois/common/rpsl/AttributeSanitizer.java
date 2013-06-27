@@ -4,12 +4,15 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.domain.attrs.Changed;
 import net.ripe.db.whois.common.domain.attrs.NServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
@@ -21,9 +24,14 @@ import java.util.Set;
 public class AttributeSanitizer {
     private static final Logger LOGGER = LoggerFactory.getLogger(AttributeSanitizer.class);
     private static final Splitter LINE_SPLITTER = Splitter.on('\n').trimResults().omitEmptyStrings();
-    private static final Map<AttributeType, Sanitizer> SANITIZER_MAP;
 
-    static {
+    private final DateTimeProvider dateTimeProvider;
+    private final Map<AttributeType, Sanitizer> SANITIZER_MAP;
+
+    @Autowired
+    public AttributeSanitizer(DateTimeProvider dateTimeProvider) {
+        this.dateTimeProvider = dateTimeProvider;
+
         SANITIZER_MAP = Maps.newEnumMap(AttributeType.class);
         SANITIZER_MAP.put(AttributeType.DOMAIN, new DomainSanitizer());
         SANITIZER_MAP.put(AttributeType.INETNUM, new InetnumSanitizer());
@@ -33,25 +41,46 @@ public class AttributeSanitizer {
         SANITIZER_MAP.put(AttributeType.ROUTE, new RouteSanitizer());
         SANITIZER_MAP.put(AttributeType.ROUTE6, new Route6Sanitizer());
         SANITIZER_MAP.put(AttributeType.ALIAS, new AliasSanitizer());
+        SANITIZER_MAP.put(AttributeType.CHANGED, new ChangedSanitizer());
+
+        // add the default sanitizer for keys and primary attributes
+        final Set<AttributeType> alwaysSanitize = Sets.newHashSet();
+        for (ObjectTemplate objectTemplate : ObjectTemplate.getTemplates()) {
+            alwaysSanitize.addAll(objectTemplate.getKeyAttributes());
+            alwaysSanitize.add(objectTemplate.getAttributeTemplates().get(0).getAttributeType());
+        }
+
+        Sanitizer defaultSanitizer = new DefaultSanitizer();
+        for (AttributeType attributeType : alwaysSanitize) {
+            if (!SANITIZER_MAP.containsKey(attributeType)) {
+                SANITIZER_MAP.put(attributeType, defaultSanitizer);
+            }
+        }
     }
 
     public RpslObject sanitize(final RpslObject object, final ObjectMessages objectMessages) {
-        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(object.getType());
-
-        final Set<AttributeType> alwaysSanitize = Sets.newLinkedHashSet();
-        alwaysSanitize.addAll(objectTemplate.getKeyAttributes());
-        alwaysSanitize.add(objectTemplate.getAttributeTemplates().get(0).getAttributeType());
-
         final Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
         for (final RpslAttribute attribute : object.getAttributes()) {
-            final String valueReplacement = getValueReplacement(alwaysSanitize, object, attribute);
-            if (valueReplacement == null) {
+            final AttributeType type = attribute.getType();
+            String newValue = null;
+
+            Sanitizer sanitizer = SANITIZER_MAP.get(type);
+
+            if (sanitizer == null) {
+                continue;
+            }
+
+            try {
+                newValue = sanitizer.sanitize(object, attribute);
+            } catch (IllegalArgumentException ignored) {} // no break on syntactically broken objects
+
+            if (newValue == null) {
                 continue;
             }
 
             final List<Message> attributeMessages = Lists.newArrayList();
-            if (!attribute.getCleanValue().toString().equals(valueReplacement)) {
-                attributeMessages.add(ValidationMessages.attributeValueConverted(attribute.getCleanValue(), valueReplacement));
+            if (!sanitizer.silent() && !attribute.getCleanValue().toString().equals(newValue)) {
+                attributeMessages.add(ValidationMessages.attributeValueConverted(attribute.getCleanValue(), newValue));
             }
 
             if (attribute.getValue().indexOf('\n') != -1) {
@@ -62,7 +91,7 @@ public class AttributeSanitizer {
                 attributeMessages.add(ValidationMessages.remarksReformatted());
             }
 
-            final String replacement = valueReplacement + getCommentReplacement(attribute);
+            final String replacement = newValue + getCommentReplacement(attribute);
             final RpslAttribute transformed = new RpslAttribute(attribute.getKey(), replacement);
             replacements.put(attribute, transformed);
 
@@ -72,25 +101,6 @@ public class AttributeSanitizer {
         }
 
         return new RpslObjectFilter(object).replaceAttributes(replacements);
-    }
-
-    @CheckForNull
-    private String getValueReplacement(final Set<AttributeType> alwaysSanitize, final RpslObject object, final RpslAttribute attribute) {
-        final Sanitizer sanitizer = SANITIZER_MAP.get(attribute.getType());
-
-        if (sanitizer != null) {
-            try {
-                return sanitizer.sanitize(object, attribute);
-            } catch (IllegalArgumentException ignored) {
-                LOGGER.debug("Do nothing, error will be reported by syntax checker");
-            }
-        }
-
-        if (alwaysSanitize.contains(attribute.getType())) {
-            return attribute.getCleanValue().toString();
-        }
-
-        return null;
     }
 
     private String getCommentReplacement(final RpslAttribute attribute) {
@@ -114,12 +124,23 @@ public class AttributeSanitizer {
         return commentBuilder.toString();
     }
 
-    private interface Sanitizer {
+    private abstract class Sanitizer {
         @CheckForNull
-        String sanitize(RpslObject object, RpslAttribute attribute);
+        abstract String sanitize(RpslObject object, RpslAttribute attribute);
+
+        boolean silent() {
+            return false;
+        }
     }
 
-    private static class AliasSanitizer implements Sanitizer {
+    private class DefaultSanitizer extends Sanitizer {
+        @Override
+        public String sanitize(final RpslObject object, final RpslAttribute attribute) {
+            return attribute.getCleanValue().toString();
+        }
+    }
+
+    private class AliasSanitizer extends Sanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
             final String alias = attribute.getCleanValue().toString();
@@ -131,7 +152,23 @@ public class AttributeSanitizer {
         }
     }
 
-    private static class InetrtrSanitizer implements Sanitizer {
+    private class ChangedSanitizer extends Sanitizer {
+        @Override
+        public String sanitize(final RpslObject object, final RpslAttribute attribute) {
+            final Changed changed = Changed.parse(attribute.getCleanValue());
+            if (changed.getDate() == null) {
+                return new Changed(changed.getEmail(), dateTimeProvider.getCurrentDate()).toString();
+            }
+            return null;
+        }
+
+        @Override
+        public boolean silent() {
+            return true;
+        }
+    }
+
+    private class InetrtrSanitizer extends Sanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
             final String inet_rtr = attribute.getCleanValue().toString();
@@ -143,7 +180,7 @@ public class AttributeSanitizer {
         }
     }
 
-    private static class DomainSanitizer implements Sanitizer {
+    private class DomainSanitizer extends Sanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
             final String domain = attribute.getCleanValue().toString();
@@ -153,37 +190,38 @@ public class AttributeSanitizer {
 
             return null;
         }
+
     }
 
-    private static class InetnumSanitizer implements Sanitizer {
+    private class InetnumSanitizer extends Sanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
             return Ipv4Resource.parse(attribute.getCleanValue()).toRangeString();
         }
     }
 
-    private static class Inet6numSanitizer implements Sanitizer {
+    private class Inet6numSanitizer extends Sanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
             return Ipv6Resource.parse(attribute.getCleanValue()).toString();
         }
     }
 
-    private static class NServerSanitizer implements Sanitizer {
+    private class NServerSanitizer extends Sanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
             return NServer.parse(attribute.getCleanValue()).toString();
         }
     }
 
-    private static class RouteSanitizer implements Sanitizer {
+    private class RouteSanitizer extends Sanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
             return Ipv4Resource.parse(attribute.getCleanValue()).toString();
         }
     }
 
-    private static class Route6Sanitizer implements Sanitizer {
+    private class Route6Sanitizer extends Sanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
             return Ipv6Resource.parse(attribute.getCleanValue()).toString();

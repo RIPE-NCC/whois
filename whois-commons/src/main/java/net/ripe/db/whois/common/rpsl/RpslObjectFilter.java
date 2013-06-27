@@ -106,6 +106,7 @@ public class RpslObjectFilter {
         return new RpslObject(object, attributes);
     }
 
+    // TODO: [AH] turn this into an rpslobjectbuilder instead
     public RpslObject replaceAttributes(final Map<RpslAttribute, RpslAttribute> attributesToReplace) {
         if (attributesToReplace.isEmpty()) {
             return object;

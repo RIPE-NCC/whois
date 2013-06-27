@@ -1,10 +1,14 @@
 package net.ripe.db.whois.common.rpsl;
 
+import net.ripe.db.whois.common.DateTimeProvider;
+import org.joda.time.LocalDate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -12,10 +16,9 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AttributeSanitizerTest {
-    @Mock
-    ObjectMessages objectMessages;
-    @InjectMocks
-    AttributeSanitizer attributeSanitizer;
+    @Mock DateTimeProvider dateTimeProvider;
+    @Mock ObjectMessages objectMessages;
+    @InjectMocks AttributeSanitizer attributeSanitizer;
 
     @Test
     public void transform_domain_no_not() {
@@ -382,6 +385,21 @@ public class AttributeSanitizerTest {
         assertThat(result.getValueForAttribute(AttributeType.INETNUM).toString(), is("test.ripe.net"));
 
         verifyNoMoreInteractions(objectMessages);
+    }
+
+    @Test
+    public void transform_changed() {
+        when(dateTimeProvider.getCurrentDate()).thenReturn(new LocalDate(2013, 02, 25));
+        final RpslObject rpslObject = RpslObject.parse("inet6num: 2001::/16\n" +
+                "changed: user@host.org 20120601\n" +
+                "changed: user@host.org\n" +
+                "remarks: changed");
+
+        final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
+        final List<RpslAttribute> changed = result.findAttributes(AttributeType.CHANGED);
+        assertThat(changed.get(0).getCleanValue().toString(), is("user@host.org 20120601"));
+        assertThat(changed.get(1).getCleanValue().toString(), is("user@host.org 20130225"));
+        verifyZeroInteractions(objectMessages);
     }
 
     @Test

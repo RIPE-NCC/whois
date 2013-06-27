@@ -458,6 +458,10 @@ public class ObjectTemplate implements Comparable<ObjectTemplate> {
         return objectTemplate;
     }
 
+    public static Collection<ObjectTemplate> getTemplates() {
+        return TEMPLATE_MAP.values();
+    }
+
     public ObjectType getObjectType() {
         return objectType;
     }
