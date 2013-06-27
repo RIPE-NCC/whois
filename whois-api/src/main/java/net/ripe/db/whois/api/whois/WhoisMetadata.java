@@ -126,6 +126,8 @@ public class WhoisMetadata {
      *    }
      *  }
      * </pre>
+     *
+     * @return Returns all available sources.
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -144,7 +146,7 @@ public class WhoisMetadata {
      *
      * <div>Example querying for the template of PERSON:</div>
      * <pre>
-     * http://apps.db.ripe.net/whois-beta/metadata/templates/person
+     * http://apps.db.ripe.net/whois-beta/metadata/templates/person.xml
      * </pre>
      *
      * <div>Example response in XML:</div>
