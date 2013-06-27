@@ -110,12 +110,20 @@ public class VcardObjectHelper {
             return this;
         }
 
+        public VcardBuilder addAdr(AdrEntryValueType value) {
+            return addAdr(new HashMap(), value);
+        }
+
         public VcardBuilder setEmail(HashMap parameters, String value) {
             Email ev = vcardObjectFactory.createEmail();
             ev.setParameters(parameters);
             ev.setValue(value);
             setCheck(ev);
             return this;
+        }
+
+        public VcardBuilder setEmail(String value) {
+            return setEmail(new HashMap(), value);
         }
 
         public VcardBuilder setFn(String value) {
@@ -157,6 +165,11 @@ public class VcardObjectHelper {
             entityVcard.getVcardEntries().add(ev);
             return this;
         }
+
+        public VcardBuilder addTel(String value) {
+            return addTel(new HashMap(), value);
+        }
+
 
         public VcardBuilder setVersion() {
             entityVcard.getVcardEntries().add(vcardObjectFactory.createVersion());
