@@ -61,14 +61,14 @@ class NotificationResponse extends Response {
     }
 
     def authFailed(String operation, String type, String pkey) {
-        contents =~ "---\n${operation} REQUESTED FOR:\n+${type}:\\s*${pkey}"
-        contents =~ "\\*failed\\*"
+        contents =~ "\\*failed\\*" &&
+        contents =~ "---\n${operation} REQUESTED FOR:\n\n+${type}:\\s*${pkey}" &&
         contents =~ "the proper authorisation"
     }
 
     def pendingAuth(String operation, String type, String pkey) {
-        contents =~ "---\n${operation} REQUESTED FOR:\n+${type}:\\s*${pkey}"
-        contents =~ "\\*exactly as shown\\*"
+        contents =~ "\\*exactly as shown\\*" &&
+        contents =~ "---\n${operation} REQUESTED FOR:\n\n+${type}:\\s*${pkey}" &&
         contents =~ "This update must be completed within one week.\n"
     }
 

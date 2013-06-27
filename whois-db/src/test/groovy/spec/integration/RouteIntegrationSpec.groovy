@@ -1176,7 +1176,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create FAILED: \[route\] 212.166.64.0\/19AS456\n/
         response =~ /Authorisation for \[aut-num\] AS456 failed\n\s+using "mnt-routes:"\n\s+not authenticated by: ROUTES-MNT\n/
 
-        notificationFor("dbtest@ripe.net").authFailed("Create", "route", "212.166.64.0/19")
+        notificationFor("dbtest@ripe.net").authFailed("CREATE", "route", "212.166.64.0/19")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").isEmpty()
@@ -1198,7 +1198,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         pendInetnum =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123\n/
         pendInetnum =~ /not authenticated by: TEST-MNT2\n/
 
-        notificationFor("dbtest@ripe.net").authFailed("Create", "route", "197.0.0.0/24")
+        notificationFor("dbtest@ripe.net").authFailed("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").isEmpty()
@@ -1223,7 +1223,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         pendInetnum =~ /\*\*\*Warning:\s+This update has only passed one of the two required hierarchical/
         pendInetnum =~ /\*\*\*Info:\s+The route object 197.0.0.0\/24AS123 will be saved for one week/
 
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
@@ -1248,7 +1248,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         pendInetnum =~ /\*\*\*Warning:\s+This update has only passed one of the two required hierarchical/
         pendInetnum =~ /\*\*\*Info:\s+The route object 197.0.0.0\/24AS123 will be saved for one week/
 
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
@@ -1268,7 +1268,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
@@ -1308,7 +1308,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
@@ -1347,7 +1347,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
@@ -1386,7 +1386,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
@@ -1404,7 +1404,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         inetnumWithIpAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 2
@@ -1424,7 +1424,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
@@ -1479,7 +1479,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
@@ -1535,7 +1535,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         inetnumWithIpAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
@@ -1593,7 +1593,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
@@ -1631,7 +1631,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         inetnumWithIpAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route", "197.0.0.0/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
@@ -1681,8 +1681,8 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create PENDING: \[route\] 196.0.0.0\/24AS456\n/
 
         def notification = notificationFor("dbtest@ripe.net")
-        notification.pendingAuth("Create", "route", "195.0.0.0/24")
-        notification.pendingAuth("Create", "route", "196.0.0.0/24")
+        notification.pendingAuth("CREATE", "route", "195.0.0.0/24")
+        notification.pendingAuth("CREATE", "route", "196.0.0.0/24")
 
         noMoreMessages()
     }

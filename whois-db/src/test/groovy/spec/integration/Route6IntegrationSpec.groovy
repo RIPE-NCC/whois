@@ -1134,7 +1134,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /\*\*\*Error:   Authorisation for \[aut-num\] AS456 failed\n/
         response =~ /\*\*\*Error:   Authorisation for \[inet6num\] 5353::\/24 failed\n/
 
-        notificationFor("dbtest@ripe.net").authFailed("Create", "route6", "5353::/24AS456")
+        notificationFor("dbtest@ripe.net").authFailed("CREATE", "route6", "5353::/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").isEmpty()
@@ -1156,7 +1156,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create FAILED: \[route6\] 5353::\/24AS456\n/
         response =~ /not authenticated by: TEST-MNT2\n/
 
-        notificationFor("dbtest@ripe.net").authFailed("Create", "route6", "5353::/24AS456")
+        notificationFor("dbtest@ripe.net").authFailed("CREATE", "route6", "5353::/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").isEmpty()
@@ -1181,7 +1181,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         pendInetnum =~ /\*\*\*Warning:\s+This update has only passed one of the two required hierarchical/
         pendInetnum =~ /\*\*\*Info:\s+The route6 object 5353::\/24AS456 will be saved for one week/
 
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route6", "5353::0/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route6", "5353::/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
@@ -1266,7 +1266,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       then:
         inetnumWithAutnumAuth =~ /Create PENDING: \[route6\] 5353::\/24AS456\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("Create", "route6", "5353::/24")
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route6", "5353::/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
@@ -1316,8 +1316,8 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create PENDING: \[route6\] 5353::\/24AS456\n/
 
         def notification = notificationFor("dbtest@ripe.net")
-        notification.pendingAuth("Create", "route6", "dddd::/24")
-        notification.pendingAuth("Create", "route6", "5353::/24")
+        notification.pendingAuth("CREATE", "route6", "dddd::/24")
+        notification.pendingAuth("CREATE", "route6", "5353::/24")
 
         noMoreMessages()
     }
