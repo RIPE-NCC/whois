@@ -30,19 +30,15 @@ import net.ripe.db.whois.api.whois.rdap.VcardObject;
  *       &lt;sequence>
  *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="parameters" type="{}hashMapType" minOccurs="0"/>
- *         &lt;element name="type" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="value" minOccurs="0">
+ *         &lt;element name="type" minOccurs="0">
  *           &lt;simpleType>
  *             &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *               &lt;enumeration value=""/>
- *               &lt;enumeration value="M"/>
- *               &lt;enumeration value="F"/>
- *               &lt;enumeration value="O"/>
- *               &lt;enumeration value="N"/>
- *               &lt;enumeration value="U"/>
+ *               &lt;enumeration value="text"/>
+ *               &lt;enumeration value="uri"/>
  *             &lt;/restriction>
  *           &lt;/simpleType>
  *         &lt;/element>
+ *         &lt;element name="value" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -58,18 +54,17 @@ import net.ripe.db.whois.api.whois.rdap.VcardObject;
     "type",
     "value"
 })
-@XmlRootElement(name = "gender")
-public class Gender
+@XmlRootElement(name = "birth")
+public class Birth
     extends VcardObject
     implements Serializable
 {
 
-    @XmlElement(defaultValue = "gender")
+    @XmlElement(defaultValue = "birth")
     protected String name;
     protected HashMap parameters;
     @XmlElement(defaultValue = "text")
     protected String type;
-    @XmlElement(defaultValue = "")
     protected String value;
 
     /**
@@ -121,6 +116,18 @@ public class Gender
     }
 
     /**
+     * Gets the value of the value property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getValue() {
+        return value;
+    }
+
+    /**
      * Sets the value of the value property.
      * 
      * @param value
@@ -138,7 +145,7 @@ public class Gender
      */
     public String getName() {
         if (null == name) {
-            return "gender";
+            return "birth";
         }
         return name;
     }
@@ -152,17 +159,6 @@ public class Gender
             return "text";
         }
         return type;
-    }
-
-    /**
-     * Gets the value of the value property.
-     * 
-     */
-    public String getValue() {
-        if (null == value) {
-            return "";
-        }
-        return value;
     }
 
 }

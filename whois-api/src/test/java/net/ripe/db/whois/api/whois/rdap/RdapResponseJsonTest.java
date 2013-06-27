@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.Ostermiller.util.LineEnds;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
 import net.ripe.db.whois.api.whois.rdap.domain.*;
@@ -13,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -32,16 +33,16 @@ public class RdapResponseJsonTest {
 
     @Test
     public void entity_vcard_serialization_test() throws Exception {
-        VcardObjectHelper.EntityVcardBuilder builder = new VcardObjectHelper.EntityVcardBuilder();
+        VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
 
-        GregorianCalendar gc = new GregorianCalendar();
-        gc.setTimeInMillis(1372214924859L);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        String date = sdf.format(new Date(1372214924859L));
 
         builder.setVersion()
                 .setFn("Joe User")
-                .setN(builder.createNEntryValueType("User", "Joe", "", "", Lists.<String>newArrayList("ing. jr", "M.Sc.")))
+                .setN(builder.createNEntryValueType("User", "Joe", "", "", builder.createNEntryValueHonorifics("ing. jr", "M.Sc.")))
                 .setBday("--02-03")
-                .setAnniversary(dataTypeFactory.newXMLGregorianCalendar(gc))
+                .setAnniversary(date)
                 .setGender("M")
                 .setKind("individual")
                 .addLang(VcardObjectHelper.createHashMap(Maps.immutableEntry("pref", "1")), "fr")
@@ -75,7 +76,7 @@ public class RdapResponseJsonTest {
                 "}, \"text\", \"Joe User\" ], [ \"n\", {\n" +
                 "}, \"text\", [ \"User\", \"Joe\", \"\", \"\", [ \"ing. jr\", \"M.Sc.\" ] ] ], [ \"bday\", {\n" +
                 "}, \"date-and-or-time\", \"--02-03\" ], [ \"anniversary\", {\n" +
-                "}, \"date-and-or-time\", \"2013-06-26T02:48:44Z\" ], [ \"gender\", {\n" +
+                "}, \"date-and-or-time\", \"2013-06-26T12:48:44+1000\" ], [ \"gender\", {\n" +
                 "}, \"text\", \"M\" ], [ \"kind\", {\n" +
                 "}, \"text\", \"individual\" ], [ \"lang\", {\n" +
                 "  \"pref\" : \"1\"\n" +
@@ -91,18 +92,18 @@ public class RdapResponseJsonTest {
                 "  \"pref\" : \"1\"\n" +
                 "}, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
                 "  \"type\" : [ \"work\", \"voice\" ]\n" +
-                "}, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"tel\", {\n" +
+                "}, \"text\", \"tel:+1-555-555-1234;ext=102\" ], [ \"tel\", {\n" +
                 "  \"type\" : [ \"work\", \"cell\", \"voice\", \"video\", \"text\" ]\n" +
-                "}, \"uri\", \"tel:+1-555-555-4321\" ], [ \"email\", {\n" +
+                "}, \"text\", \"tel:+1-555-555-4321\" ], [ \"email\", {\n" +
                 "  \"type\" : \"work\"\n" +
                 "}, \"text\", \"joe.user@example.com\" ], [ \"geo\", {\n" +
                 "  \"type\" : \"work\"\n" +
                 "}, \"uri\", \"geo:46.772673,-71.282945\" ], [ \"key\", {\n" +
                 "  \"type\" : \"work\"\n" +
-                "}, \"uri\", \"http://www.example.com/joe.user/joe.asc\" ], [ \"tz\", {\n" +
+                "}, \"text\", \"http://www.example.com/joe.user/joe.asc\" ], [ \"tz\", {\n" +
                 "}, \"utc-offset\", \"-05:00\" ], [ \"key\", {\n" +
                 "  \"type\" : \"work\"\n" +
-                "}, \"uri\", \"http://example.org\" ] ] ]", result);
+                "}, \"text\", \"http://example.org\" ] ] ]", result);
     }
 
     @Test

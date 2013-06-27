@@ -7,8 +7,8 @@
     <xs:element name="vcard">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="vcard"/>
-                <xs:element name="vcardEntries" minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="name" type="xs:string" minOccurs="0" default="vcard"/>
+                <xs:element name="vcardEntries" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:annotation>
                             <xs:appinfo>
@@ -21,41 +21,46 @@
         </xs:complexType>
     </xs:element>
 
-
-    <xs:element name="version">
+    <xs:element name="adr">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="version"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="text">
+                <xs:element name="name" type="xs:string" minOccurs="0" default="adr"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" type="xs:string" minOccurs="0" default="text">
                 </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1" default="4.0">
+                <xs:element name="value" type="adrEntryValueType" minOccurs="0">
                 </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="fn">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="fn"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="text">
-                </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
-                </xs:element>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="adrEntryValueType">
+        <xs:sequence>
+            <xs:element name="pobox" type="xs:string" minOccurs="0" default=""/>
+            <xs:element name="ext" type="xs:string" minOccurs="0" default=""/>
+            <xs:element name="street" type="xs:string" minOccurs="0" default=""/>
+            <xs:element name="locality" type="xs:string" minOccurs="0" default=""/>
+            <xs:element name="region" type="xs:string" minOccurs="0" default=""/>
+            <xs:element name="code" type="xs:string" minOccurs="0" default=""/>
+            <xs:element name="country" type="xs:string" minOccurs="0" default=""/>
+        </xs:sequence>
+    </xs:complexType>
 
-    <xs:element name="n">
+
+    <xs:element name="anniversary">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="n"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="text">
+                <xs:element name="name" type="xs:string" minOccurs="0" default="anniversary"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="date-and-or-time">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="date-and-or-time"/>
+                            <xs:enumeration value="text"/>
+                        </xs:restriction>
+                    </xs:simpleType>
                 </xs:element>
-                <xs:element name="nEntryValue" type="nEntryValueType" maxOccurs="1" minOccurs="1">
+                <xs:element name="value" type="xs:string" minOccurs="0">
                 </xs:element>
             </xs:sequence>
         </xs:complexType>
@@ -64,24 +69,130 @@
     <xs:element name="bday">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="bday"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="date-and-or-time">
+                <xs:element name="name" type="xs:string" minOccurs="0" default="bday"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="date-and-or-time">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="date-and-or-time"/>
+                            <xs:enumeration value="text"/>
+                        </xs:restriction>
+                    </xs:simpleType>
                 </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
+                <xs:element name="value" type="xs:string" minOccurs="0">
                 </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="anniversary">
+    <xs:element name="birth">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="anniversary"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="date-and-or-time">
+                <xs:element name="name" type="xs:string" minOccurs="0" default="birth"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="text">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="text"/>
+                            <xs:enumeration value="uri"/>
+                        </xs:restriction>
+                    </xs:simpleType>
                 </xs:element>
-                <xs:element name="entryValue" type="xs:dateTime" maxOccurs="1" minOccurs="1">
+                <xs:element name="value" type="xs:string" minOccurs="0">
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:element name="caladruri">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0" default="caladruri"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="uri">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="uri"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="value" type="xs:anyURI" minOccurs="0">
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:element name="caluri">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0" default="caluri"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="uri">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="uri"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="value" type="xs:anyURI" minOccurs="0">
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:element name="categories">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0" default="categories"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="text">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="text"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="value" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:element name="email">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0" default="email"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="text">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="text"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="value" type="xs:string" minOccurs="0">
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="fn">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0" default="fn"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="text">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="text"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="value" type="xs:string" minOccurs="0">
                 </xs:element>
             </xs:sequence>
         </xs:complexType>
@@ -90,11 +201,61 @@
     <xs:element name="gender">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="gender"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="text">
+                <xs:element name="name" type="xs:string" minOccurs="0" default="gender"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" type="xs:string" minOccurs="0" default="text">
                 </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
+                <xs:element name="value" minOccurs="0" default="">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value=""/>
+                            <xs:enumeration value="M"/>
+                            <xs:enumeration value="F"/>
+                            <xs:enumeration value="O"/>
+                            <xs:enumeration value="N"/>
+                            <xs:enumeration value="U"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:element name="geo">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0" default="geo"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="uri">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="uri"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="value" type="xs:string" minOccurs="0">
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:element name="key">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0" default="key"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="text">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="text"/>
+                            <xs:enumeration value="uri"/>
+                            <xs:enumeration value="binary"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="value" type="xs:string" minOccurs="0">
                 </xs:element>
             </xs:sequence>
         </xs:complexType>
@@ -103,11 +264,25 @@
     <xs:element name="kind">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="kind"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="text">
+                <xs:element name="name" type="xs:string" minOccurs="0" default="kind"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="text">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="text"/>
+                        </xs:restriction>
+                    </xs:simpleType>
                 </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
+                <xs:element name="value" minOccurs="0">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="individual"/>
+                            <xs:enumeration value="group"/>
+                            <xs:enumeration value="org"/>
+                            <xs:enumeration value="location"/>
+                            <xs:enumeration value="thing"/>
+                        </xs:restriction>
+                    </xs:simpleType>
                 </xs:element>
             </xs:sequence>
         </xs:complexType>
@@ -116,12 +291,111 @@
     <xs:element name="lang">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="lang"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="language-tag">
+                <xs:element name="name" type="xs:string" minOccurs="0" default="lang"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="language-tag">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="language-tag"/>
+                        </xs:restriction>
+                    </xs:simpleType>
                 </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
+                <xs:element name="value" type="xs:string" minOccurs="0">
                 </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="logo">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0" default="logo"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="uri">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="uri"/>
+                            <xs:enumeration value="binary"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="value" type="xs:string" minOccurs="0">
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="n">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0" default="n"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" type="xs:string" minOccurs="0" default="text">
+                </xs:element>
+                <xs:element name="value" type="nValueType" minOccurs="0">
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:complexType name="nValueType">
+        <xs:sequence>
+            <xs:element name="surname" type="xs:string" minOccurs="0" default=""/>
+            <xs:element name="given" type="xs:string" minOccurs="0" default=""/>
+            <xs:element name="prefix" type="xs:string" minOccurs="0" default=""/>
+            <xs:element name="suffix" type="xs:string" minOccurs="0" default=""/>
+            <xs:element name="honorifics" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="prefix" type="xs:string" minOccurs="0" default=""/>
+                        <xs:element name="suffix" type="xs:string" minOccurs="0" default=""/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="nickname">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0" default="nickname"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="text">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="text"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="value" minOccurs="0">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="individual"/>
+                            <xs:enumeration value="group"/>
+                            <xs:enumeration value="org"/>
+                            <xs:enumeration value="location"/>
+                            <xs:enumeration value="thing"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="note">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0" default="note"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="text">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="text"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="value" type="xs:string" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -129,11 +403,47 @@
     <xs:element name="org">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="org"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="text">
+                <xs:element name="name" type="xs:string" minOccurs="0" default="org"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="text">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="text"/>
+                        </xs:restriction>
+                    </xs:simpleType>
                 </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
+                <xs:element name="value" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="tel">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0" default="tel"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="text">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="text"/>
+                            <xs:enumeration value="uri"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="value" minOccurs="0">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="work"/>
+                            <xs:enumeration value="home"/>
+                            <xs:enumeration value="text"/>
+                            <xs:enumeration value="voice"/>
+                            <xs:enumeration value="fax"/>
+                            <xs:enumeration value="cell"/>
+                            <xs:enumeration value="video"/>
+                            <xs:enumeration value="pager"/>
+                            <xs:enumeration value="textphone"/>
+                        </xs:restriction>
+                    </xs:simpleType>
                 </xs:element>
             </xs:sequence>
         </xs:complexType>
@@ -142,12 +452,16 @@
     <xs:element name="title">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="title"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="text">
+                <xs:element name="name" type="xs:string" minOccurs="0" default="title"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="text">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="text"/>
+                        </xs:restriction>
+                    </xs:simpleType>
                 </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
-                </xs:element>
+                <xs:element name="value" type="xs:string" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -155,91 +469,54 @@
     <xs:element name="role">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="role"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="text">
+                <xs:element name="name" type="xs:string" minOccurs="0" default="role"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="text">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="text"/>
+                        </xs:restriction>
+                    </xs:simpleType>
                 </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
-                </xs:element>
+                <xs:element name="value" type="xs:string" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
 
-
-    <xs:element name="adr">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="adr"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="text">
-                </xs:element>
-                <xs:element name="entryValue" type="adrEntryValueType" maxOccurs="1" minOccurs="1">
-                </xs:element>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="tel">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="tel"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="uri">
-                </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
-                </xs:element>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="email">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="email"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="text">
-                </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
-                </xs:element>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="geo">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="geo"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="uri">
-                </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
-                </xs:element>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="key">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="key"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="uri">
-                </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
-                </xs:element>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
 
     <xs:element name="tz">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="tz"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="utc-offset">
+                <xs:element name="name" type="xs:string" minOccurs="0" default="tz"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="utc-offset">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="utc-offset"/>
+                            <xs:enumeration value="text"/>
+                            <xs:enumeration value="uri"/>
+                        </xs:restriction>
+                    </xs:simpleType>
                 </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
+                <xs:element name="value" type="xs:string" minOccurs="0">
                 </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="version">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="0" default="version"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="text">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="text"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="value" type="xs:string" minOccurs="0" default="4.0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -247,39 +524,20 @@
     <xs:element name="url">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1" default="url"/>
-                <xs:element name="keyValues" type="hashMapType" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="entryType" type="xs:string" maxOccurs="1" minOccurs="1" default="uri">
+                <xs:element name="name" type="xs:string" minOccurs="0" default="url"/>
+                <xs:element name="parameters" type="hashMapType" minOccurs="0"/>
+                <xs:element name="type" minOccurs="0" default="uri">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="uri"/>
+                        </xs:restriction>
+                    </xs:simpleType>
                 </xs:element>
-                <xs:element name="entryValue" type="xs:string" maxOccurs="1" minOccurs="1">
+                <xs:element name="value" type="xs:string" minOccurs="0">
                 </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-
-
-    <xs:complexType name="nEntryValueType">
-        <xs:sequence>
-            <xs:element name="n1" type="xs:string" maxOccurs="1" minOccurs="1" default=""/>
-            <xs:element name="n2" type="xs:string" maxOccurs="1" minOccurs="1" default=""/>
-            <xs:element name="n3" type="xs:string" maxOccurs="1" minOccurs="1" default=""/>
-            <xs:element name="n4" type="xs:string" maxOccurs="1" minOccurs="1" default=""/>
-            <xs:element name="nPost" type="xs:string" maxOccurs="unbounded" minOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="adrEntryValueType">
-        <xs:sequence>
-            <xs:element name="adr1" type="xs:string" maxOccurs="1" minOccurs="1" default=""/>
-            <xs:element name="adr2" type="xs:string" maxOccurs="1" minOccurs="1" default=""/>
-            <xs:element name="adr3" type="xs:string" maxOccurs="1" minOccurs="1" default=""/>
-            <xs:element name="adr4" type="xs:string" maxOccurs="1" minOccurs="1" default=""/>
-            <xs:element name="adr5" type="xs:string" maxOccurs="1" minOccurs="1" default=""/>
-            <xs:element name="adr6" type="xs:string" maxOccurs="1" minOccurs="1" default=""/>
-            <xs:element name="adr7" type="xs:string" maxOccurs="1" minOccurs="1" default=""/>
-        </xs:sequence>
-    </xs:complexType>
-
 
     <xs:complexType name="hashMapType">
         <xs:annotation>

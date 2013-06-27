@@ -98,10 +98,7 @@ public class RdapObjectMapper {
     private void generateAndAddVCard(List<Object> vcardArray, RpslObject rpslObject) {
         vcardArray.add("vcard");
 
-        Version version = new Version();
-        version.setEntryType("text");
-        version.setEntryValue("4.0");
-        vcardArray.add(VcardObjectHelper.toObjects(version));
+        vcardArray.add(VcardObjectHelper.toObjects(new Version()));
 
         /*List<RpslAttribute> addressAttributes = rpslObject.findAttributes(AttributeType.ADDRESS);
         if (!addressAttributes.isEmpty()) {
@@ -114,8 +111,8 @@ public class RdapObjectMapper {
         if (!personAttributes.isEmpty()) {
             //vCard.setFormattedName(attributeListToString(personAttributes));
             Fn fn = new Fn();
-            fn.setEntryType("text");
-            fn.setEntryValue(attributeListToString(personAttributes));
+            fn.setType("text");
+            fn.setValue(attributeListToString(personAttributes));
             vcardArray.add(VcardObjectHelper.toObjects(fn));
         }
 
