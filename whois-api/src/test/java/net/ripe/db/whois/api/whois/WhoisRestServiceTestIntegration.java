@@ -91,35 +91,37 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_inet6num_without_prefix_length() throws Exception {
         databaseHelper.addObject(
-               "inet6num:       2001:2002:2003::/48\n" +
-               "netname:        RIPE-NCC\n" +
-               "descr:          Private Network\n" +
-               "country:        NL\n" +
-               "tech-c:         TP1-TEST\n" +
-               "status:         ASSIGNED PA\n" +
-               "mnt-by:         OWNER-MNT\n" +
-               "mnt-lower:      OWNER-MNT\n" +
-               "source:         TEST");
+                "inet6num:       2001:2002:2003::/48\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois-beta/lookup/test/inet6num/2001:2002:2003::").get(WhoisResources.class);
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        final RpslObject inet6num = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
-        assertThat(inet6num.getKey(), is(ciString("2001:2002:2003::/48")));
+        try {
+            final WhoisResources whoisResources = createResource(AUDIENCE, "whois-beta/lookup/test/inet6num/2001:2002:2003::").get(WhoisResources.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
     }
 
     @Test
     public void lookup_inet6num_with_prefix_length() throws Exception {
         databaseHelper.addObject(
-               "inet6num:       2001:2002:2003::/48\n" +
-               "netname:        RIPE-NCC\n" +
-               "descr:          Private Network\n" +
-               "country:        NL\n" +
-               "tech-c:         TP1-TEST\n" +
-               "status:         ASSIGNED PA\n" +
-               "mnt-by:         OWNER-MNT\n" +
-               "mnt-lower:      OWNER-MNT\n" +
-               "source:         TEST");
+                "inet6num:       2001:2002:2003::/48\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST");
         ipTreeUpdater.rebuild();
 
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois-beta/lookup/test/inet6num/2001:2002:2003::/48").get(WhoisResources.class);
@@ -988,8 +990,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Ignore
     public void schema_int() throws Exception {
         final String response = createResource(AUDIENCE, "whois-beta/xsd/int-docs/whois-resources.xsd")
-                    .accept(MediaType.APPLICATION_XML)
-                    .get(String.class);
+                .accept(MediaType.APPLICATION_XML)
+                .get(String.class);
         assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
     }
 
@@ -997,8 +999,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Ignore
     public void schema_ext() throws Exception {
         final String response = createResource(AUDIENCE, "whois-beta/xsd/ext-docs/whois-resources.xsd")
-                    .accept(MediaType.APPLICATION_XML)
-                    .get(String.class);
+                .accept(MediaType.APPLICATION_XML)
+                .get(String.class);
         assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
     }
 
@@ -1007,8 +1009,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_accept_application_xml() throws Exception {
         final String response = createResource(AUDIENCE, "whois-beta/lookup/test/person/TP1-TEST")
-                    .accept(MediaType.APPLICATION_XML)
-                    .get(String.class);
+                .accept(MediaType.APPLICATION_XML)
+                .get(String.class);
         assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
         assertThat(response, containsString("<whois-resources>"));
     }
@@ -1016,8 +1018,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_accept_text_xml() throws Exception {
         final String response = createResource(AUDIENCE, "whois-beta/lookup/test/person/TP1-TEST")
-                    .accept("text/xml")
-                    .get(String.class);
+                .accept("text/xml")
+                .get(String.class);
         assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
         assertThat(response, containsString("<whois-resources>"));
     }
@@ -1025,8 +1027,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_accept_application_json() throws Exception {
         final String response = createResource(AUDIENCE, "whois-beta/lookup/test/person/TP1-TEST")
-                    .accept(MediaType.APPLICATION_JSON)
-                    .get(String.class);
+                .accept(MediaType.APPLICATION_JSON)
+                .get(String.class);
         assertThat(response, containsString("\"whois-resources\""));
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"object\""));
@@ -1037,8 +1039,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_accept_text_json() throws Exception {
         final String response = createResource(AUDIENCE, "whois-beta/lookup/test/person/TP1-TEST")
-                    .accept("text/json")
-                    .get(String.class);
+                .accept("text/json")
+                .get(String.class);
         assertThat(response, containsString("\"whois-resources\""));
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"object\""));
@@ -1073,8 +1075,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
         final String response = createResource(AUDIENCE, "whois-beta/update/test/mntner/OWNER-MNT?password=test")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .put(String.class, update);
+                .accept(MediaType.APPLICATION_JSON)
+                .put(String.class, update);
 
         assertThat(response, containsString("\"whois-resources\""));
         assertThat(response, containsString("\"objects\""));
@@ -1098,8 +1100,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
         final String response = createResource(AUDIENCE, "whois-beta/modify/test/mntner/OWNER-MNT?password=test")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .post(String.class, update);
+                .accept(MediaType.APPLICATION_JSON)
+                .post(String.class, update);
 
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"name\" : \"remarks\""));
@@ -1120,8 +1122,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "source:      TEST");
 
         final String response = createResource(AUDIENCE, "whois-beta/lookup/test/mntner/TEST-MNT")
-                    .accept(MediaType.APPLICATION_XML)
-                    .get(String.class);
+                .accept(MediaType.APPLICATION_XML)
+                .get(String.class);
 
         assertThat(response, not(containsString("\u001b")));
         assertThat(response, not(containsString("<b>")));
@@ -1211,8 +1213,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
         try {
             createResource(AUDIENCE, "whois-beta/search?query-string=LP1-TEST&source=TEST&flags=show-tag-inforG")
-                .accept(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));

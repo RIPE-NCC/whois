@@ -244,13 +244,16 @@ public class WhoisRestService {
         return lookupObject(request, source, objectType, key);
     }
 
-    // TODO: [AH] hierarchical lookups return the encompassing range if no direct hit
     private Response lookupObject(
             final HttpServletRequest request,
             final String source,
             final String objectTypeString,
             final String key) {
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s",
+
+        checkForInvalidSource(source);
+
+        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s",
+                QueryFlag.EXACT.getLongFlag(),
                 QueryFlag.NO_GROUPING.getLongFlag(),
                 QueryFlag.NO_REFERENCED.getLongFlag(),
                 QueryFlag.SOURCES.getLongFlag(),
@@ -259,8 +262,6 @@ public class WhoisRestService {
                 objectTypeString,
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 key));
-
-        checkForInvalidSource(source);
 
         return handleQuery(query, source, key, request, null);
     }
