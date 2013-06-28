@@ -81,7 +81,7 @@ public class WhoisRestService {
      * <p/>
      * <p><div>Example query:</div>
      * http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT</p>
-     *
+     * <p/>
      * <p><div>Example XML response:</div>
      * <pre>
      * &lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
@@ -122,7 +122,7 @@ public class WhoisRestService {
      * &lt;/whois-resources&gt;
      * </pre>
      * </p>
-     *
+     * <p/>
      * <p><div>Example JSON response:</div>
      * <pre>
      * {
@@ -219,7 +219,7 @@ public class WhoisRestService {
      *      }
      *    }
      *  }
-     *}
+     * }
      * </pre>
      * </p>
      *
@@ -233,37 +233,15 @@ public class WhoisRestService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @Path("/lookup/{source}/{objectType}/{key:.*}")
     @StatusCodes({
-        @ResponseCode(code = 200, condition = "Object found for the specified key"),
-        @ResponseCode(code = 404, condition = "The query didn't return any valid object")
+            @ResponseCode(code = 200, condition = "Object found for the specified key"),
+            @ResponseCode(code = 404, condition = "The query didn't return any valid object")
     })
     public Response lookup(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key) {
-        return lookupObject(request, source, objectType, key, false);
-    }
-
-    /**
-     * <p>The grs-lookup interface returns the single object that satisfy the key conditions specified as path parameters via the grs-source and the primary-key arguments</p>
-     * <p/>
-     * <p><div>Example query:</div>
-     * http://apps.db.ripe.net/whois-beta/grs-lookup/apnic-grs/mntner/MAINT-APNIC-AP</p>
-     *
-     * @param source     Source
-     * @param objectType Object type for given object.
-     * @param key        Primary key of the given object.
-     */
-    @GET
-    @TypeHint(WhoisResources.class)
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
-    @Path("/grs-lookup/{source}/{objectType}/{key:.*}")
-    public Response grslookup(
-            @Context final HttpServletRequest request,
-            @PathParam("source") final String source,
-            @PathParam("objectType") final String objectType,
-            @PathParam("key") final String key) {
-        return lookupObject(request, source, objectType, key, true);
+        return lookupObject(request, source, objectType, key);
     }
 
     // TODO: [AH] hierarchical lookups return the encompassing range if no direct hit
@@ -271,8 +249,7 @@ public class WhoisRestService {
             final HttpServletRequest request,
             final String source,
             final String objectTypeString,
-            final String key,
-            final boolean isGrs) {
+            final String key) {
         final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s",
                 QueryFlag.NO_GROUPING.getLongFlag(),
                 QueryFlag.NO_REFERENCED.getLongFlag(),
@@ -283,7 +260,7 @@ public class WhoisRestService {
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 key));
 
-        checkForInvalidSource(source, isGrs);
+        checkForInvalidSource(source);
 
         return handleQuery(query, source, key, request, null);
     }
@@ -420,7 +397,7 @@ public class WhoisRestService {
 
     /**
      * <p>Create an object in the RIPE database.</p>
-     *
+     * <p/>
      * <p>Example XML request object:
      * <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      * &lt;whois-resources&gt;
@@ -441,7 +418,7 @@ public class WhoisRestService {
      * &lt;/objects&gt;
      * &lt;/whois-resources&gt;</pre></p>
      * <p/>
-     *
+     * <p/>
      * <p><div>Example JSON request object:</div>
      * <pre>
      *   {
@@ -510,7 +487,7 @@ public class WhoisRestService {
      * </pre></p>
      *
      * @param resources Request body.
-     * @param source RIPE or TEST.
+     * @param source    RIPE or TEST.
      * @param passwords One or more password values.
      * @return The response body will be empty.
      */
@@ -540,6 +517,8 @@ public class WhoisRestService {
 
         return getResponse(response);
     }
+
+    // TODO: [AH] drop this a couple of weeks after deployment
 
     /**
      * Create request without including source in URL is no longer allowed - use <a href="path__create_-source-.html">/create/source</a> instead.
@@ -579,7 +558,7 @@ public class WhoisRestService {
      * &lt;/whois-resources&gt;</pre>
      * </p>
      * <p/>
-     *
+     * <p/>
      * <p>Example of success XML response body:</p>
      * <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      * &lt;whois-resources service="lookup" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
@@ -605,7 +584,7 @@ public class WhoisRestService {
      * &lt;/attributes&gt;
      * &lt;/object&gt;
      * &lt;/objects&gt;</pre>
-     *
+     * <p/>
      * <p>Example of a JSON request body:</p>
      * <pre>
      *   {
@@ -630,7 +609,7 @@ public class WhoisRestService {
      *     }
      *  }
      * </pre>
-     *
+     * <p/>
      * <p>Example of a JSON success response:</p>
      * <pre>
      * {
@@ -709,7 +688,7 @@ public class WhoisRestService {
      *  }
      *  </pre>
      *
-     * @param resource Request body.
+     * @param resource   Request body.
      * @param source     RIPE or TEST.
      * @param objectType Object type for given object.
      * @param key        Primary key of the given object.
@@ -762,7 +741,7 @@ public class WhoisRestService {
      * <li>remove all attributes of a certain type</li>
      * <li>remove the Nth attribute</li>
      * </ul>
-     *
+     * <p/>
      * <p/>
      * <p><div>Examples</div><p/>
      * <ul>
@@ -778,7 +757,7 @@ public class WhoisRestService {
      *  &lt;/whois-modify&gt;
      *  </pre>
      *
-     *  <p>Example of XML response:</p>
+     * <p>Example of XML response:</p>
      * <pre>
      *     &lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      *      &lt;whois-resources service="lookup" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
@@ -811,9 +790,9 @@ public class WhoisRestService {
      *      &lt;/objects&gt;
      *      &lt;/whois-resources&gt;
      * </pre>
-     *
-     *  <div>Example of JSON request:</div>
-     *  <pre>
+     * <p/>
+     * <div>Example of JSON request:</div>
+     * <pre>
      *   {
      *   "add" : {
      *     "attributes" : {
@@ -825,8 +804,8 @@ public class WhoisRestService {
      *  }
      *  </pre>
      *
-     *  <p>Example of JSON response:</p>
-     *  <pre>
+     * <p>Example of JSON response:</p>
+     * <pre>
      *   {
      *   "whois-resources" : {
      *     "service" : "lookup",
@@ -896,10 +875,10 @@ public class WhoisRestService {
      *   }
      *  }
      *  </pre>
-     *  </li>
+     * </li>
      *
-     *  <li><div>Add new attributes starting at index N:</div>
-     *  <pre>
+     * <li><div>Add new attributes starting at index N:</div>
+     * <pre>
      *  &lt;whois-modify&gt;
      *      &lt;add index="6"&gt;
      *          &lt;attributes&gt;
@@ -910,8 +889,8 @@ public class WhoisRestService {
      *  &lt;/whois-modify&gt;
      *  </pre></li>
      *
-     *  <li><div>Replace all attributes of a certain type</div>
-     *  <pre>
+     * <li><div>Replace all attributes of a certain type</div>
+     * <pre>
      *       &lt;whois-modify&gt;
      *          &lt;replace attribute-type="address"&gt;
      *              &lt;attributes&gt;
@@ -924,31 +903,31 @@ public class WhoisRestService {
      *          &lt;/replace&gt;
      *      &lt;/whois-modify&gt;
      *  </pre>
-     *  </li>
+     * </li>
      *
-     *  <li><div>Remove all attributes of a certain type:</div>
-     *  <pre>
+     * <li><div>Remove all attributes of a certain type:</div>
+     * <pre>
      *      &lt;whois-modify&gt;
      *          &lt;remove attribute-type="remarks"/&gt;
      *      &lt;/whois-modify&gt;
      *  </pre>
-     *  </li>
+     * </li>
      *
-     *  <li><div>Remove the Nth attribute:</div>
-     *      <pre>
+     * <li><div>Remove the Nth attribute:</div>
+     * <pre>
      *          &lt;whois-modify&gt;
      *              &lt;remove index="6"/&gt;
      *          &lt;/whois-modify&gt;
      *      </pre>
-     *  </li>
+     * </li>
      *
      * </ul></p>
      *
      * @param whoisModify Request body.
-     * @param source     RIPE or TEST.
-     * @param objectType Object type of given object.
-     * @param key        Primary key of given object.
-     * @param passwords  One or more password values.
+     * @param source      RIPE or TEST.
+     * @param objectType  Object type of given object.
+     * @param key         Primary key of given object.
+     * @param passwords   One or more password values.
      * @return Returns the modified object.
      */
     @POST
@@ -1089,12 +1068,12 @@ public class WhoisRestService {
 
     /**
      * <p>Lists versions of an RPSL object</p>
-     *
+     * <p/>
      * <div>Example query:</div>
      * <pre>
      *  http://apps.db.ripe.net/whois-beta/versions/TEST/AS102
      * </pre>
-     *
+     * <p/>
      * <div>Example response in XML:</div>
      * <pre>
      *  &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
@@ -1116,7 +1095,7 @@ public class WhoisRestService {
      *     &lt;/versions&gt;
      * &lt;/whois-resources&gt;
      * </pre>
-     *
+     * <p/>
      * <div>Example response in JSON:</div>
      * <pre>
      * {
@@ -1168,12 +1147,12 @@ public class WhoisRestService {
 
     /**
      * <p>Show a specific version of an RPSL object</p>
-     *
+     * <p/>
      * <div>Example query:</div>
      * <pre>
      *  http://apps.db.ripe.net/whois-beta/version/TEST/2/AS102
      * </pre>
-     *
+     * <p/>
      * <div>Example response in XML:</div>
      * <pre>
      *  &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
@@ -1204,7 +1183,7 @@ public class WhoisRestService {
      * &lt;/objects&gt;
      * &lt;/whois-resources&gt;
      * </pre>
-     *
+     * <p/>
      * <div>Example response in JSON:</div>
      * <pre>
      *  {
@@ -1265,8 +1244,8 @@ public class WhoisRestService {
      *      } ]
      *    }
      *  }
-     *}
-     ** </pre>
+     * }
+     * * </pre>
      *
      * @param source  RIPE or TEST
      * @param version sought version
@@ -1329,7 +1308,7 @@ public class WhoisRestService {
      * </ul>
      * Further documentation on the standard Whois Database Query flags can be found on the RIPE Whois Database Query Reference Manual.</p>
      * <p/>
-     *
+     * <p/>
      * <div>Example of response in XML:</div>
      * <pre>
      *     &lt;?xml version='1.0' encoding='UTF-8'?&gt;
@@ -1374,7 +1353,7 @@ public class WhoisRestService {
      *         &lt;/objects&gt;
      *     &lt;/whois-resources&gt;
      * </pre>
-     *
+     * <p/>
      * <div>Example of response in JSON:</div>
      * <pre>
      *    {"whois-resources": {
@@ -1537,7 +1516,7 @@ public class WhoisRestService {
      *      }
      *  }}
      * </pre>
-     *
+     * <p/>
      * <p><div>The service URL must be:</div>
      * <div>'http://apps.db.ripe.net/whois-beta/search'</div>
      * and the following can be specified as HTTP parameters:</p>
@@ -1569,234 +1548,7 @@ public class WhoisRestService {
             @QueryParam("exclude") Set<String> exclude,
             @QueryParam("type-filter") Set<String> types,
             @QueryParam("flags") Set<String> flags) {
-        return doSearch(request, queryString, sources, inverseAttributes, include, exclude, types, flags, false);
-    }
-
-    /**
-     * <p>The grs-search interface has exactly the same features of the search, with the only difference that in the source parameter you will be specifying one or more GRS sources.
-     * The query will therefore be executed on the GRS sources that you specify and will return data from the respective mirrors maintained in the RIPE Database platform.</p>
-     * <p/>
-     * <p><div>The service URL is:</div>
-     * 'http://apps.db.ripe.net/whois-beta/grs-search'</p>
-     * <p/>
-     * <p><div>Example:</div>
-     * <ul>
-     * <li><div>Search for 193/8 on the ripe, apnic, arin, lacnic, radb GRS mirrors:</div>
-     * <pre>
-     *  http://apps.db.ripe.net/whois-beta/grs-search?flags=&source=apnic-grs&source=arin-grs&source=lacnic-grs&source=radb-grs&query-string=193%2F8</li>
-     * </pre>
-     *
-     * <div>Example response in XML:</div>
-     * <pre>
-     *     &lt;?xml version='1.0' encoding='UTF-8'?&gt;
-     &lt;whois-resources&gt;
-     &lt;parameters xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
-     &lt;inverse-lookup/&gt;
-     &lt;type-filters/&gt;
-     &lt;flags/&gt;
-     &lt;query-strings&gt;
-     &lt;query-string value="AS102"/&gt;
-     &lt;/query-strings&gt;
-     &lt;sources&gt;
-     &lt;source id="TEST-GRS"/&gt;
-     &lt;/sources&gt;
-     &lt;/parameters&gt;
-     &lt;objects&gt;
-     &lt;object xmlns:xlink="http://www.w3.org/1999/xlink"
-     type="aut-num"&gt;
-     &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test-grs/aut-num/AS102"/&gt;
-     &lt;source id="test-grs"/&gt;
-     &lt;primary-key&gt;
-     &lt;attribute name="aut-num" value="AS102"/&gt;
-     &lt;/primary-key&gt;
-     &lt;attributes&gt;
-     &lt;attribute name="aut-num" value="AS102"/&gt;
-     &lt;attribute name="as-name" value="End-User-2"/&gt;
-     &lt;attribute name="descr" value="description"/&gt;
-     &lt;attribute name="admin-c" value="DUMY-RIPE" referenced-type="person-role"&gt;
-     &lt;link xlink:type="locator"
-     xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test-grs/person-role/DUMY-RIPE"/&gt;
-     &lt;/attribute&gt;
-     &lt;attribute name="tech-c" value="DUMY-RIPE" referenced-type="person-role"&gt;
-     &lt;link xlink:type="locator"
-     xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test-grs/person-role/DUMY-RIPE"/&gt;
-     &lt;/attribute&gt;
-     &lt;attribute name="mnt-by" value="OWNER-MNT" referenced-type="mntner"&gt;
-     &lt;link xlink:type="locator"
-     xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test-grs/mntner/OWNER-MNT"/&gt;
-     &lt;/attribute&gt;
-     &lt;attribute name="source" value="TEST-GRS"/&gt;
-     &lt;attribute name="remarks" value="****************************"/&gt;
-     &lt;attribute name="remarks" value="* THIS OBJECT IS MODIFIED"/&gt;
-     &lt;attribute name="remarks" value="* Please note that all data that is generally regarded as personal"/&gt;
-     &lt;attribute name="remarks" value="* data has been removed from this object."/&gt;
-     &lt;attribute name="remarks" value="* To view the original object, please query the RIPE Database at:"/&gt;
-     &lt;attribute name="remarks" value="* http://www.ripe.net/whois"/&gt;
-     &lt;attribute name="remarks" value="****************************"/&gt;
-     &lt;/attributes&gt;
-     &lt;tags/&gt;
-     &lt;/object&gt;
-     &lt;/objects&gt;
-     &lt;/whois-resources&gt;
-     * </pre>
-     * <div>Example response in JSON:</div>
-     * <pre>
-     *{"whois-resources": {
-     *    "parameters": {
-     *        "inverse-lookup": {
-     *            "inverse-attribute": []
-     *        },
-     *        "type-filters": {
-     *            "type-filter": []
-     *        },
-     *        "flags": {
-     *            "flag": []
-     *        },
-     *        "query-strings": {
-     *            "query-string": [
-     *                {
-     *                    "value": "AS102"
-     *                }
-     *            ]
-     *        },
-     *        "sources": {
-     *            "source": [
-     *                {
-     *                    "id": "TEST-GRS"
-     *                }
-     *            ]
-     *        }
-     *    },
-     *    "objects": {
-     *        "object": {
-     *            "type": "aut-num",
-     *            "link": {
-     *                "xlink:type": "locator",
-     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test-grs/aut-num/AS102"
-     *            },
-     *            "source": {
-     *                "id": "test-grs"
-     *            },
-     *            "primary-key": {
-     *                "attribute": [
-     *                    {
-     *                        "name": "aut-num",
-     *                        "value": "AS102"
-     *                    }
-     *                ]
-     *            },
-     *            "attributes": {
-     *                "attribute": [
-     *                    {
-     *                        "name": "aut-num",
-     *                        "value": "AS102"
-     *                    },
-     *                    {
-     *                        "name": "as-name",
-     *                        "value": "End-User-2"
-     *                    },
-     *                    {
-     *                        "name": "descr",
-     *                        "value": "description"
-     *                    },
-     *                    {
-     *                        "link": {
-     *                            "xlink:type": "locator",
-     *                            "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test-grs/person-role/DUMY-RIPE"
-     *                        },
-     *                        "name": "admin-c",
-     *                        "value": "DUMY-RIPE",
-     *                        "referenced-type": "person-role"
-     *                    },
-     *                    {
-     *                        "link": {
-     *                            "xlink:type": "locator",
-     *                            "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test-grs/person-role/DUMY-RIPE"
-     *                        },
-     *                        "name": "tech-c",
-     *                        "value": "DUMY-RIPE",
-     *                        "referenced-type": "person-role"
-     *                    },
-     *                    {
-     *                        "link": {
-     *                            "xlink:type": "locator",
-     *                            "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test-grs/mntner/OWNER-MNT"
-     *                        },
-     *                        "name": "mnt-by",
-     *                        "value": "OWNER-MNT",
-     *                        "referenced-type": "mntner"
-     *                    },
-     *                    {
-     *                        "name": "source",
-     *                        "value": "TEST-GRS"
-     *                    },
-     *                    {
-     *                        "name": "remarks",
-     *                        "value": "****************************"
-     *                    },
-     *                    {
-     *                        "name": "remarks",
-     *                        "value": "* THIS OBJECT IS MODIFIED"
-     *                    },
-     *                    {
-     *                        "name": "remarks",
-     *                        "value": "* Please note that all data that is generally regarded as personal"
-     *                    },
-     *                    {
-     *                        "name": "remarks",
-     *                        "value": "* data has been removed from this object."
-     *                    },
-     *                    {
-     *                        "name": "remarks",
-     *                        "value": "* To view the original object, please query the RIPE Database at:"
-     *                    },
-     *                    {
-     *                        "name": "remarks",
-     *                        "value": "* http://www.ripe.net/whois"
-     *                    },
-     *                    {
-     *                        "name": "remarks",
-     *                        "value": "****************************"
-     *                    }
-     *                ]
-     *            },
-     *            "tags": {
-     *                "tag": []
-     *            }
-     *        }
-     *    }
-     *}}
-     * </pre>
-     * </ul></p>
-     *
-     * @param sources           Mandatory. It's possible to specify multiple sources.
-     * @param queryString       Mandatory.
-     * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
-     * @param include           Only show RPSL objects with given tags. Can be multiple.
-     * @param exclude           Only show RPSL objects that <i>do not</i> have given tags. Can be multiple.
-     * @param types             If specified the results will be filtered by object-type, multiple type-filters can be specified.
-     * @param flags             Optional query-flags.
-     * @return Returns the result of a grs query.
-     */
-    @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
-    @TypeHint(WhoisResources.class)
-    @Path("/grs-search")
-    @StatusCodes({
-            @ResponseCode(code = 200, condition = "Search successful"),
-            @ResponseCode(code = 400, condition = "Illegal input - incorrect value in one or more of the parameters"),
-            @ResponseCode(code = 404, condition = "Query rendered no results")
-    })
-    public Response grssearch(
-            @Context HttpServletRequest request,
-            @QueryParam("source") Set<String> sources,
-            @QueryParam("query-string") String queryString,
-            @QueryParam("inverse-attribute") Set<String> inverseAttributes,
-            @QueryParam("include") Set<String> include,
-            @QueryParam("exclude") Set<String> exclude,
-            @QueryParam("type-filter") Set<String> types,
-            @QueryParam("flags") Set<String> flags) {
-        return doSearch(request, queryString, sources, inverseAttributes, include, exclude, types, flags, true);
+        return doSearch(request, queryString, sources, inverseAttributes, include, exclude, types, flags);
     }
 
     private Response doSearch(
@@ -1807,13 +1559,12 @@ public class WhoisRestService {
             final Set<String> includeTags,
             final Set<String> excludeTags,
             final Set<String> types,
-            final Set<String> flags,
-            final boolean isGrs) {
+            final Set<String> flags) {
         if (sources == null || sources.isEmpty()) {
             throw new IllegalArgumentException("Argument 'source' is missing, you have to specify a valid RIR source for your search request");
         }
 
-        checkForInvalidSources(sources, isGrs);
+        checkForInvalidSources(sources);
         final Set<String> separateFlags = splitInputFlags(flags);
         checkForInvalidFlags(separateFlags);
 
@@ -1847,18 +1598,14 @@ public class WhoisRestService {
         return handleQuery(query, JOINER.join(sources), queryString, request, parameters);
     }
 
-    private void checkForInvalidSources(final Set<String> sources, final boolean isGrs) {
+    private void checkForInvalidSources(final Set<String> sources) {
         for (final String source : sources) {
-            checkForInvalidSource(source, isGrs);
+            checkForInvalidSource(source);
         }
     }
 
-    private void checkForInvalidSource(final String source, final boolean isGrs) {
-        if (isGrs) {
-            if (!sourceContext.getGrsSourceNames().contains(ciString(source))) {
-                throw new IllegalArgumentException(String.format("Invalid GRS source '%s'", source));
-            }
-        } else if (!sourceContext.getCurrentSource().getName().contains(ciString(source))) {
+    private void checkForInvalidSource(final String source) {
+        if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
             throw new IllegalArgumentException(String.format("Invalid source '%s'", source));
         }
     }

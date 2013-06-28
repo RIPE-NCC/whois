@@ -44,7 +44,7 @@ public class WhoisRestServiceTest {
     @Before
     public void setup() {
         when(sourceContext.getCurrentSource()).thenReturn(source);
-        when(source.getName()).thenReturn(CIString.ciString("TEST"));
+        when(sourceContext.getAllSourceNames()).thenReturn(CIString.ciSet("TEST", "TEST-GRS"));
     }
 
     @Test

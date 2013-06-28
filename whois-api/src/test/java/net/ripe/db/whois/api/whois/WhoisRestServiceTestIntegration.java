@@ -152,22 +152,21 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_object_wrong_source() throws Exception {
         try {
-            createResource(AUDIENCE, "whois-beta/lookup/test-grs/person/PP1-TEST").get(String.class);
+            createResource(AUDIENCE, "whois-beta/lookup/test-grs/person/TP1-TEST").get(String.class);
             fail();
         } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("Invalid source 'test-grs'"));
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
         }
     }
 
     @Test
     public void grs_lookup_object_wrong_source() throws Exception {
         try {
-            createResource(AUDIENCE, "whois-beta/grs-lookup/test/person/PP1-TEST").get(String.class);
+            createResource(AUDIENCE, "whois-beta/lookup/pez/person/PP1-TEST").get(String.class);
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("Invalid GRS source 'test'"));
+            assertThat(e.getResponse().getEntity(String.class), is("Invalid source 'pez'"));
         }
     }
 
@@ -1426,13 +1425,13 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void grs_search_invalid_source() {
         try {
-            createResource(AUDIENCE, "whois-beta/grs-search?query-string=AS102&source=INVALID")
+            createResource(AUDIENCE, "whois-beta/search?query-string=AS102&source=INVALID")
                     .accept(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("Invalid GRS source 'INVALID'"));
+            assertThat(e.getResponse().getEntity(String.class), is("Invalid source 'INVALID'"));
         }
     }
 
@@ -1569,7 +1568,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST-GRS\n");
 
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois-beta/grs-search?query-string=AS102&source=TEST-GRS")
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois-beta/search?query-string=AS102&source=TEST-GRS")
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
