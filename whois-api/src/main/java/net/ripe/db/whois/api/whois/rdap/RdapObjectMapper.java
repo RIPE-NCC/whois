@@ -1,24 +1,24 @@
 package net.ripe.db.whois.api.whois.rdap;
 
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.whois.TaggedRpslObject;
-import net.ripe.db.whois.api.whois.rdap.domain.Domain;
-import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Ip;
-import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
-import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
-import net.ripe.db.whois.api.whois.rdap.domain.vcard.Fn;
-import net.ripe.db.whois.api.whois.rdap.domain.vcard.Version;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
-import java.math.BigInteger;
 
 public class RdapObjectMapper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RdapObjectMapper.class);
+
+
     private TaggedRpslObject primaryTaggedRpslObject;
     private Queue<TaggedRpslObject> taggedRpslObjectQueue;
     private Object rdapResponse = new Object();
@@ -60,10 +60,7 @@ public class RdapObjectMapper {
 
             Entity entity = new ObjectFactory().createEntity();
             entity.setHandle(rpslObject.getKey().toString());
-
-            List<Object> vcardArray = (List<Object>) entity.getVcardArray();
-            generateAndAddVCard(vcardArray, rpslObject);
-
+            entity.setVcardArray(generateVcards(rpslObject));
             rdapResponse = entity;
 
         } else if (name.equals(ObjectType.ORGANISATION.getName())) {
@@ -89,7 +86,7 @@ public class RdapObjectMapper {
             Autnum an = new ObjectFactory().createAutnum();
             an.setHandle(rpslObject.getKey().toString());
 
-            RpslAttribute asn = 
+            RpslAttribute asn =
                 rpslObject.findAttribute(AttributeType.AUT_NUM);
             String asn_str = asn.getValue().replace("AS", "")
                                            .replace(" ", "");
@@ -113,55 +110,45 @@ public class RdapObjectMapper {
         RpslAttribute ra;
         while (iter.hasNext()) {
             ra = iter.next();
-            System.out.println(ra.getKey() + ":" + ra.getValue());
+            LOGGER.info(ra.getKey() + ":" + ra.getValue());
         }
     }
 
-    private void generateAndAddVCard(List<Object> vcardArray, RpslObject rpslObject) {
-        vcardArray.add("vcard");
+    private List<Object> generateVcards(RpslObject rpslObject) {
+        VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
+        builder.setVersion();
 
-        vcardArray.add(VcardObjectHelper.toObjects(new Version()));
-
-        /*List<RpslAttribute> addressAttributes = rpslObject.findAttributes(AttributeType.ADDRESS);
-        if (!addressAttributes.isEmpty()) {
-            AddressType at = new AddressType();
-            at.setExtendedAddress(attributeListToString(addressAttributes));
-            //vCard.addAddress(at);
-        }*/
-
-        List<RpslAttribute> personAttributes = rpslObject.findAttributes(AttributeType.PERSON);
-        if (!personAttributes.isEmpty()) {
-            //vCard.setFormattedName(attributeListToString(personAttributes));
-            Fn fn = new Fn();
-            fn.setType("text");
-            fn.setValue(attributeListToString(personAttributes));
-            vcardArray.add(VcardObjectHelper.toObjects(fn));
+       for (RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PERSON)) {
+            builder.setFn(attribute.getCleanValue().toString());
         }
 
-        /*List<RpslAttribute> phoneAttributes = rpslObject.findAttributes(AttributeType.PHONE);
-        if (!phoneAttributes.isEmpty()) {
-            TelephoneType tt = new TelephoneType(attributeListToString(phoneAttributes));
-            //vCard.addTelephoneNumber(tt);
+        for (RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ADDRESS)) {
+            builder.addAdr(VcardObjectHelper.createHashMap(Maps.immutableEntry("label", attribute.getCleanValue())), null);
         }
 
-        List<RpslAttribute> emailAttributes = rpslObject.findAttributes(AttributeType.E_MAIL);
-        if (!emailAttributes.isEmpty()) {
-            EmailType et = new EmailType(attributeListToString(emailAttributes));
-            //vCard.addEmail(et);
-        }*/
+        for (RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PHONE)) {
+            builder.addTel(attribute.getCleanValue().toString());
+        }
+
+        for (RpslAttribute attribute : rpslObject.findAttributes(AttributeType.E_MAIL)) {
+            // ?? Is it valid to have more than 1 email
+            builder.setEmail(attribute.getCleanValue().toString());
+        }
+
+        if (builder.isEmpty()) {
+            return null;
+        }
+
+        return builder.build();
     }
 
-    private String attributeListToString(List<RpslAttribute> rpslAttributes) {
-        Iterator<RpslAttribute> rpslAttributeIterator = rpslAttributes.iterator();
-
-        String output = "";
-
-        while (rpslAttributeIterator.hasNext()) {
-            output = output + " " + rpslAttributeIterator.next().getValue().trim();
-        }
-
-        return output.trim();
-    }
+//    private String attributeListToString(List<RpslAttribute> rpslAttributes) {
+//        StringBuilder ret = new StringBuilder();
+//        for (RpslAttribute rpslAttribute : rpslAttributes) {
+//            ret.append(rpslAttribute.getCleanValue()).append(" ");
+//        }
+//        return ret.toString().trim();
+//    }
 
 
 }

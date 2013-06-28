@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.whois;
 
+import com.Ostermiller.util.LineEnds;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
@@ -10,16 +12,24 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.plexus.util.StringInputStream;
+import org.codehaus.plexus.util.StringOutputStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 @Category(IntegrationTest.class)
 public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRdapServiceTestIntegration.class);
     private static final Audience AUDIENCE = Audience.RDAP;
     private static final String VERSION_DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}";
-
     private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
             "person:  Pauleth Palthen\n" +
             "address: Singel 258\n" +
@@ -30,7 +40,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             "changed: noreply@ripe.net 20120101\n" +
             "remarks: remark\n" +
             "source:  TEST\n");
-
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
             "descr:       Owner Maintainer\n" +
@@ -41,7 +50,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             "referral-by: OWNER-MNT\n" +
             "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
-
     private static final RpslObject TEST_PERSON = RpslObject.parse("" +
             "person:  Test Person\n" +
             "address: Singel 258\n" +
@@ -50,7 +58,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             "mnt-by:  OWNER-MNT\n" +
             "changed: dbtest@ripe.net 20120101\n" +
             "source:  TEST\n");
-
     private static final RpslObject TEST_DOMAIN = RpslObject.parse("" +
             "domain:  31.12.202.in-addr.arpa\n" +
             "descr:   Test domain\n" +
@@ -64,7 +71,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             "changed: test@test.net.au 20121121\n" +
             "mnt-by:  OWNER-MNT\n" +
             "source:  TEST\n");
-
 
     @Before
     public void setup() throws Exception {
@@ -85,15 +91,15 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_inet6num_with_prefix_length() throws Exception {
         databaseHelper.addObject(
-               "inet6num:       2001:2002:2003::/48\n" +
-               "netname:        RIPE-NCC\n" +
-               "descr:          Private Network\n" +
-               "country:        NL\n" +
-               "tech-c:         TP1-TEST\n" +
-               "status:         ASSIGNED PA\n" +
-               "mnt-by:         OWNER-MNT\n" +
-               "mnt-lower:      OWNER-MNT\n" +
-               "source:         TEST");
+                "inet6num:       2001:2002:2003::/48\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST");
         ipTreeUpdater.rebuild();
 
         createResource(AUDIENCE, "inet6num/2001:2002:2003::/48");
@@ -108,35 +114,55 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void lookup_object() throws Exception {
+    public void lookup_person_object() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
+        ClientResponse response = createResource(AUDIENCE, "person/PP1-TEST").accept(MediaType.APPLICATION_JSON_TYPE).get(ClientResponse.class);
+        assertEquals(200, response.getStatus());
+        String responseContent = response.getEntity(String.class);
+        LOGGER.info("Response:" + responseContent);
+        String textEntity = convertEOLToUnix(responseContent);
 
-        createResource(AUDIENCE, "person/PP1-TEST");
+        assertEquals("" +
+                "{\n" +
+                "  \"handle\" : \"PP1-TEST\",\n" +
+                "  \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +
+                "  }, \"text\", \"4.0\" ], [ \"fn\", {\n" +
+                "  }, \"text\", \"Pauleth Palthen\" ], [ \"adr\", {\n" +
+                "    \"label\" : \"Singel 258\"\n" +
+                "  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
+                "  }, \"uri\", \"+31-1234567890\" ] ] ]\n" +
+                "}", textEntity);
+    }
 
-        final WebResource resource = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa");
+    //@Test
+    public void lookup_domain_object() throws Exception {
+        databaseHelper.addObject(PAULETH_PALTHEN);
 
-        String foo = resource.toString();
+        ClientResponse response = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa").accept(MediaType.APPLICATION_JSON_TYPE).get(ClientResponse.class);
+        assertEquals(200, response.getStatus());
+        String responseContent = response.getEntity(String.class);
+        LOGGER.info("Response:" + responseContent);
+        String textEntity = convertEOLToUnix(responseContent);
 
-        System.out.println(foo);
-
-
-
-        /* blah */
-
-        /*final WhoisResources whoisResources = createResource(AUDIENCE, "person/PP1-TEST").get(WhoisResources.class);
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-
-        final RpslObject rpslObject = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
-        assertThat(rpslObject.getKey(), is(ciString("PP1-TEST")));
-          */
-        Thread.sleep(1500000);
+        assertEquals("" +
+                "{\n" +
+                "  \"handle\" : \"PP1-TEST\",\n" +
+                "  \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +
+                "  }, \"text\", \"4.0\" ], [ \"fn\", {\n" +
+                "  }, \"text\", \"Pauleth Palthen\" ] ] ]\n" +
+                "}", textEntity);
     }
 
     // helper methods
-
     @Override
     protected WebResource createResource(final Audience audience, final String path) {
         return client.resource(String.format("http://localhost:%s/%s", getPort(audience), path));
+    }
+
+    private String convertEOLToUnix(String str) throws IOException {
+        StringOutputStream resultStream = new StringOutputStream();
+        LineEnds.convert(new StringInputStream(str), resultStream, LineEnds.STYLE_UNIX);
+        return resultStream.toString();
     }
 }

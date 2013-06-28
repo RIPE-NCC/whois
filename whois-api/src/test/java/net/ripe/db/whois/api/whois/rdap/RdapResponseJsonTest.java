@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -67,7 +66,7 @@ public class RdapResponseJsonTest {
                 .setTz("-05:00")
                 .setUrl(VcardObjectHelper.createHashMap(Maps.immutableEntry("type", "work")), "http://example.org");
 
-        List<Object> objs = VcardObjectHelper.toObjects(builder.build());
+        List<Object> objs = builder.build();
         StringOutputStream serializer = streamObject(objs);
         String result = convertEOLToUnix(serializer);
 
@@ -265,7 +264,7 @@ public class RdapResponseJsonTest {
                 .addTel("tel:+1-555-555-1234;ext=102")
                 .setEmail("joe.user@example.com");
 
-        entity.setVcardArray(VcardObjectHelper.toObjects(builder.build()));
+        entity.setVcardArray(builder.build());
 
         StringOutputStream serializer = streamObject(ip);
         String result = convertEOLToUnix(serializer);

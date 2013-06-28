@@ -100,6 +100,21 @@ public class VcardObjectHelper {
         public VcardBuilder() {
         }
 
+        public boolean isEmpty() {
+            boolean ret = false;
+            if (entityVcard.getVcardEntries().size() == 0) {
+                ret = true;
+            }
+
+            if (entityVcard.getVcardEntries().size() == 1) {
+                if (entityVcard.getVcardEntries().get(0).getClass().getName().equals(Version.class.getName())) {
+                    ret = true;
+                }
+            }
+            return ret;
+
+        }
+
         public VcardBuilder addAdr(HashMap parameters, AdrEntryValueType value) {
             Adr ev = vcardObjectFactory.createAdr();
             ev.setParameters(parameters);
@@ -172,7 +187,9 @@ public class VcardObjectHelper {
 
 
         public VcardBuilder setVersion() {
-            entityVcard.getVcardEntries().add(vcardObjectFactory.createVersion());
+            Version ev = vcardObjectFactory.createVersion();
+            ev.setParameters(new HashMap());
+            setCheck(ev);
             return this;
         }
 
@@ -291,8 +308,8 @@ public class VcardObjectHelper {
             return ret;
         }
 
-        public Vcard build() {
-            return entityVcard;
+        public List<Object> build() {
+            return toObjects(entityVcard);
         }
 
         private void setCheck(VcardObject ev) {
