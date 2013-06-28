@@ -19,6 +19,8 @@ public class RdapObjectMapper {
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapObjectMapper.class);
 
 
+    ObjectFactory rdapObjectFactory = new ObjectFactory();
+
     private TaggedRpslObject primaryTaggedRpslObject;
     private Queue<TaggedRpslObject> taggedRpslObjectQueue;
     private Object rdapResponse = new Object();
@@ -53,30 +55,19 @@ public class RdapObjectMapper {
         ObjectType rpslObjectType = rpslObject.getType();
 
         debug(rpslObject);
-
         String name = rpslObjectType.getName();
 
         if (name.equals(ObjectType.PERSON.getName())) {
-
-            Entity entity = new ObjectFactory().createEntity();
-            entity.setHandle(rpslObject.getKey().toString());
-            entity.setVcardArray(generateVcards(rpslObject));
-            rdapResponse = entity;
-
+            rdapResponse = createPersonResponse(rpslObject);
         } else if (name.equals(ObjectType.ORGANISATION.getName())) {
-
+            // TODO
         } else if (name.equals(ObjectType.ROLE.getName())) {
-
+            // TODO
         } else if (name.equals(ObjectType.IRT.getName())) {
-
-        } else if (name.equals(ObjectType.DOMAIN.getName())) {
-
-            Domain domain = new ObjectFactory().createDomain();
-            domain.setHandle(rpslObject.getKey().toString());
-
-            rdapResponse = domain;
-        } else if (name.equals(ObjectType.INETNUM.getName())
-                || name.equals(ObjectType.INET6NUM.getName())) {
+            // TODO
+        } else if (rpslObjectType.getName().equals(ObjectType.DOMAIN.getName())) {
+            rdapResponse = createDomainResponse(rpslObject);
+        } else if (name.equals(ObjectType.INETNUM.getName()) || name.equals(ObjectType.INET6NUM.getName())) {
 
             Ip ip = new ObjectFactory().createIp();
             ip.setHandle(rpslObject.getKey().toString());
@@ -87,9 +78,9 @@ public class RdapObjectMapper {
             an.setHandle(rpslObject.getKey().toString());
 
             RpslAttribute asn =
-                rpslObject.findAttribute(AttributeType.AUT_NUM);
+                    rpslObject.findAttribute(AttributeType.AUT_NUM);
             String asn_str = asn.getValue().replace("AS", "")
-                                           .replace(" ", "");
+                    .replace(" ", "");
 
             an.setStartAutnum(new BigInteger(asn_str));
             an.setEndAutnum(new BigInteger(asn_str));
@@ -101,6 +92,66 @@ public class RdapObjectMapper {
 
             rdapResponse = an;
         }
+    }
+
+    private Person createPersonResponse(RpslObject rpslObject) {
+        Person person = RdapHelper.createPerson();
+        person.setHandle(rpslObject.getKey().toString());
+        person.setVcardArray(generateVcards(rpslObject));
+        return person;
+    }
+
+    private Domain createDomainResponse(RpslObject rpslObject) {
+        Domain domain = RdapHelper.createDomain();
+
+        domain.setHandle(rpslObject.getKey().toString());
+        domain.setLdhName(rpslObject.getKey().toString());
+
+        // Nameservers
+        for  (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.NSERVER)) {
+            Nameserver ns = rdapObjectFactory.createNameserver();
+            ns.setLdhName(rpslAttribute.getCleanValue().toString());
+            domain.getNameserver().add(ns);
+        }
+
+        // Remarks
+        for  (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.REMARKS)) {
+            Remarks remark = rdapObjectFactory.createRemarks();
+            remark.getDescription().add(rpslAttribute.getCleanValue().toString());
+            domain.getRemarks().add(remark);
+        }
+
+//        // Entities
+//        Entity entity = rdapObjectFactory.createEntity();
+//        entity.getEntities().add()
+
+
+//        "entities" :
+//
+//        //domain.setPort43();
+//        domain.getPublicIds();
+//        domain.getEntities();
+//        domain.getEvents()
+//        domain.getLinks()
+//        domain.getNameserver()
+//        domain.getRemarks()
+
+//        {
+//            "handle" : "XXX",
+//                "ldhName" : "blah.example.com",
+//            ...
+//            "nameServers" :
+//            [
+//            ...
+//            ],
+//            ...
+//            "entities" :
+//            [
+//            ...
+//            ]
+//        }
+        return domain;
+
     }
 
     private void debug(RpslObject rpslObject) {

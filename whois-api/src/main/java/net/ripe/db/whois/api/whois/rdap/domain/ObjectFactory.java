@@ -45,11 +45,27 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Remarks }
+     * Create an instance of {@link Events }
      * 
      */
-    public Remarks createRemarks() {
-        return new Remarks();
+    public Events createEvents() {
+        return new Events();
+    }
+
+    /**
+     * Create an instance of {@link Notices }
+     * 
+     */
+    public Notices createNotices() {
+        return new Notices();
+    }
+
+    /**
+     * Create an instance of {@link Nameserver }
+     * 
+     */
+    public Nameserver createNameserver() {
+        return new Nameserver();
     }
 
     /**
@@ -69,30 +85,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Notices }
-     * 
-     */
-    public Notices createNotices() {
-        return new Notices();
-    }
-
-    /**
-     * Create an instance of {@link Events }
-     * 
-     */
-    public Events createEvents() {
-        return new Events();
-    }
-
-    /**
-     * Create an instance of {@link Nameserver }
-     * 
-     */
-    public Nameserver createNameserver() {
-        return new Nameserver();
-    }
-
-    /**
      * Create an instance of {@link Domain }
      * 
      */
@@ -101,11 +93,27 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link Person }
+     * 
+     */
+    public Person createPerson() {
+        return new Person();
+    }
+
+    /**
      * Create an instance of {@link Nameserver.IpAddresses }
      * 
      */
     public Nameserver.IpAddresses createNameserverIpAddresses() {
         return new Nameserver.IpAddresses();
+    }
+
+    /**
+     * Create an instance of {@link Remarks }
+     * 
+     */
+    public Remarks createRemarks() {
+        return new Remarks();
     }
 
     /**

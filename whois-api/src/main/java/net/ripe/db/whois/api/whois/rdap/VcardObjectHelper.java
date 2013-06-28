@@ -92,6 +92,7 @@ public class VcardObjectHelper {
         return ret;
     }
 
+
     public static class VcardBuilder {
         ObjectFactory vcardObjectFactory = new ObjectFactory();
         Vcard entityVcard = vcardObjectFactory.createVcard();

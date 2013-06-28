@@ -72,12 +72,67 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             "mnt-by:  OWNER-MNT\n" +
             "source:  TEST\n");
 
+//    private static final RpslObject TEST_DOMAIN = RpslObject.parse("" +
+//            "domain:         31.12.202.in-addr.arpa\n" +
+//            "descr:          zone for 202.12.31.0/24\n" +
+//            "country:        AU\n" +
+//            "admin-c:        NO4-AP\n" +
+//            "tech-c:         AIC1-AP\n" +
+//            "zone-c:         NO4-AP\n" +
+//            "nserver:        sec3.apnic.net\n" +
+//            "nserver:        cumin.apnic.net\n" +
+//            "nserver:        tinnie.apnic.net\n" +
+//            "ds-rdata:       38744 5 1 ( 478d5e87d198a6f50808675fbeaa4c5883df2ba4 )\n" +
+//            "ds-rdata:       38744 5 2 ( ffd10dc264d800e70143d43cf35eb1d109a059b166ba76d5541972b6b670a2b8 )\n" +
+//            "mnt-by:         MAINT-APNIC-IS-AP\n" +
+//            "changed:        hm-changed@apnic.net 20120504\n" +
+//            "changed:        hm-changed@apnic.net 20120508\n" +
+//            "source:         APNIC\n" +
+//            "\n" +
+//            "role:           APNIC Infrastructure Contact\n" +
+//            "address:        6 Cordelia Street\n" +
+//            "address:        South Brisbane\n" +
+//            "address:        QLD 4101\n" +
+//            "country:        AU\n" +
+//            "phone:          +61 7 3858 3100\n" +
+//            "fax-no:         +61 7 3858 3199\n" +
+//            "e-mail:         helpdesk@apnic.net\n" +
+//            "admin-c:        DNS3-AP\n" +
+//            "tech-c:         NO4-AP\n" +
+//            "nic-hdl:        AIC1-AP\n" +
+//            "remarks:        Infrastructure Contact for APNICs own-use network blocks\n" +
+//            "notify:         dbmon@apnic.net\n" +
+//            "mnt-by:         MAINT-APNIC-IS-AP\n" +
+//            "changed:        hm-changed@apnic.net 20020211\n" +
+//            "changed:        hm-changed@apnic.net 20101217\n" +
+//            "changed:        hm-changed@apnic.net 20110704\n" +
+//            "source:         APNIC\n" +
+//            "\n" +
+//            "person:         APNIC Network Operations\n" +
+//            "address:        6 Cordelia Street\n" +
+//            "address:        South Brisbane\n" +
+//            "address:        QLD 4101\n" +
+//            "country:        AU\n" +
+//            "phone:          +61 7 3858 3100\n" +
+//            "fax-no:         +61 7 3858 3199\n" +
+//            "e-mail:         netops@apnic.net\n" +
+//            "nic-hdl:        NO4-AP\n" +
+//            "remarks:        Administrator for APNIC Network Operations\n" +
+//            "notify:         netops@apnic.net\n" +
+//            "mnt-by:         MAINT-APNIC-AP\n" +
+//            "changed:        netops@apnic.net 19981111\n" +
+//            "changed:        hostmaster@apnic.net 20020211\n" +
+//            "changed:        hm-changed@apnic.net 20081205\n" +
+//            "changed:        hm-changed@apnic.net 20101217\n" +
+//            "source:         APNIC\n");
+
     @Before
     public void setup() throws Exception {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.addObject(TEST_DOMAIN);
+        ipTreeUpdater.rebuild();
     }
 
     @Before
@@ -125,6 +180,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
         assertEquals("" +
                 "{\n" +
+                "  \"rdapConformance\" : [ \"rdap_level_0\" ],\n" +
                 "  \"handle\" : \"PP1-TEST\",\n" +
                 "  \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +
                 "  }, \"text\", \"4.0\" ], [ \"fn\", {\n" +
@@ -135,7 +191,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "}", textEntity);
     }
 
-    //@Test
+    @Test
     public void lookup_domain_object() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
@@ -147,10 +203,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
         assertEquals("" +
                 "{\n" +
-                "  \"handle\" : \"PP1-TEST\",\n" +
-                "  \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +
-                "  }, \"text\", \"4.0\" ], [ \"fn\", {\n" +
-                "  }, \"text\", \"Pauleth Palthen\" ] ] ]\n" +
+                "  \"rdapConformance\" : [ \"rdap_level_0\" ],\n" +
+                "  \"handle\" : \"31.12.202.in-addr.arpa\",\n" +
+                "  \"ldhName\" : \"31.12.202.in-addr.arpa\",\n" +
+                "  \"nameserver\" : [ {\n" +
+                "    \"ldhName\" : \"ns1.test.com.au\"\n" +
+                "  }, {\n" +
+                "    \"ldhName\" : \"ns2.test.com.au\"\n" +
+                "  } ]\n" +
                 "}", textEntity);
     }
 

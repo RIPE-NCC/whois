@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 
@@ -31,8 +32,8 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;sequence>
  *         &lt;element name="rdapConformance" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded"/>
  *         &lt;element name="handle" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="ldhName" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element ref="{}nameserver" maxOccurs="unbounded"/>
+ *         &lt;element name="vcardArray" type="{http://www.w3.org/2001/XMLSchema}anySimpleType" minOccurs="0"/>
+ *         &lt;element name="roles" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element name="publicIds" type="{}hashMapType" minOccurs="0"/>
  *         &lt;element name="entities" type="{}rdapEntityType" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element ref="{}remarks" maxOccurs="unbounded" minOccurs="0"/>
@@ -51,8 +52,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "", propOrder = {
     "rdapConformance",
     "handle",
-    "ldhName",
-    "nameserver",
+    "vcardArray",
+    "roles",
     "publicIds",
     "entities",
     "remarks",
@@ -60,8 +61,8 @@ import javax.xml.bind.annotation.XmlType;
     "port43",
     "events"
 })
-@XmlRootElement(name = "domain")
-public class Domain
+@XmlRootElement(name = "person")
+public class Person
     implements Serializable
 {
 
@@ -69,10 +70,9 @@ public class Domain
     protected List<String> rdapConformance;
     @XmlElement(required = true)
     protected String handle;
-    @XmlElement(required = true)
-    protected String ldhName;
-    @XmlElement(required = true)
-    protected List<Nameserver> nameserver;
+    @XmlSchemaType(name = "anySimpleType")
+    protected Object vcardArray;
+    protected List<String> roles;
     protected HashMap publicIds;
     protected List<Entity> entities;
     protected List<Remarks> remarks;
@@ -134,56 +134,56 @@ public class Domain
     }
 
     /**
-     * Gets the value of the ldhName property.
+     * Gets the value of the vcardArray property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link Object }
      *     
      */
-    public String getLdhName() {
-        return ldhName;
+    public Object getVcardArray() {
+        return vcardArray;
     }
 
     /**
-     * Sets the value of the ldhName property.
+     * Sets the value of the vcardArray property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link Object }
      *     
      */
-    public void setLdhName(String value) {
-        this.ldhName = value;
+    public void setVcardArray(Object value) {
+        this.vcardArray = value;
     }
 
     /**
-     * Gets the value of the nameserver property.
+     * Gets the value of the roles property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the nameserver property.
+     * This is why there is not a <CODE>set</CODE> method for the roles property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getNameserver().add(newItem);
+     *    getRoles().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link Nameserver }
+     * {@link String }
      * 
      * 
      */
-    public List<Nameserver> getNameserver() {
-        if (nameserver == null) {
-            nameserver = new ArrayList<Nameserver>();
+    public List<String> getRoles() {
+        if (roles == null) {
+            roles = new ArrayList<String>();
         }
-        return this.nameserver;
+        return this.roles;
     }
 
     /**

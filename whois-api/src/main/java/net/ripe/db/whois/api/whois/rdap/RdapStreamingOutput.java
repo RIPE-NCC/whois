@@ -16,7 +16,6 @@ import net.ripe.db.whois.query.query.Query;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -59,10 +58,7 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
             });
 
             RdapObjectMapper rdapObjectMapper = new RdapObjectMapper(taggedRpslObjectQueue);
-            Object rdapResponse;
-
-            rdapResponse = rdapObjectMapper.build();
-            streamObject(rdapResponse);
+            streamObject(rdapObjectMapper.build());
 
         } catch (QueryException e) {
             if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
