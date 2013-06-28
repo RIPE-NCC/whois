@@ -105,6 +105,14 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
     }
 
     @Test
+    public void noAutnum() throws Exception {
+        final ClientResponse cr = 
+            createResource(AUDIENCE, "autnum/1")
+                .get(ClientResponse.class);
+        assertThat(cr.getStatus(), equalTo(404));
+    }
+
+    @Test
     public void lookupSingleAutnum() throws Exception {
         final ClientResponse cr = 
             createResource(AUDIENCE, "autnum/12345")

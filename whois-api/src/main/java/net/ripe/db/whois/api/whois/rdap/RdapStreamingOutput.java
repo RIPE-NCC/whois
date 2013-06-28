@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.collect.Lists;
+import com.sun.jersey.api.NotFoundException;
 import net.ripe.db.whois.api.whois.ApiResponseHandler;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
 import net.ripe.db.whois.api.whois.TaggedRpslObject;
@@ -57,7 +58,12 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
                 }
             });
 
-            RdapObjectMapper rdapObjectMapper = new RdapObjectMapper(taggedRpslObjectQueue);
+            if (!found) {
+                throw new NotFoundException();
+            }
+
+            RdapObjectMapper rdapObjectMapper = 
+                new RdapObjectMapper(taggedRpslObjectQueue);
             streamObject(rdapObjectMapper.build());
 
         } catch (QueryException e) {
@@ -66,6 +72,8 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
             } else {
                 throw new RuntimeException("Unexpected result", e);
             }
+        } catch (NotFoundException nfe) {
+            throw nfe;
         } catch (Exception e) {
             throw new WebApplicationException(
                 Response.status(Response.Status.BAD_REQUEST)
