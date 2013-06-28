@@ -422,10 +422,9 @@ public class WhoisRestService {
     }
 
     /**
-     * <p>A successful create request creates an object in the RIPE Database or in the RIPE Test Database, depending on the source that you specify in the source element of your request XML. Source can be "ripe" or "test".</p>
-     * <p>One or more password values can be specified as HTTP parameters.</p>
-     * <p>The create interface is accessible using the HTTP POST method. The request must include a 'content-type: application/xml' header because your request body will contain an XML document describing the new object and the target source.</p>
-     * <p>An example of XML object:
+     * <p>Create an object in the RIPE database.</p>
+     *
+     * <p>Example XML request object:
      * <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      * &lt;whois-resources&gt;
      * &lt;objects&gt;
@@ -445,35 +444,88 @@ public class WhoisRestService {
      * &lt;/objects&gt;
      * &lt;/whois-resources&gt;</pre></p>
      * <p/>
-     * <p>Example<div>Create request using the CURL command:</div>
-     * <pre>curl -X POST -H 'Content-Type: application/xml' -d
-     * '&lt;whois-resources&gt;&lt;objects&gt;
-     * &lt;object-type="person"&gt;
-     * &lt;source-id="test"/&gt;
-     * &lt;attributes&gt;
-     * &lt;attribute name="person" value="Pauleth Palthen"/&gt;&lt;attribute name="address" value="Singel 258"/&gt;
-     * &lt;attribute name="phone" value="+31-1234567890"/&gt;&lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
-     * &lt;attribute name="mnt-by" value="PP-MNT" /&gt;&lt;attribute name="nic-hdl" value="AUTO-1" /&gt;
-     * &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;&lt;attribute name="source" value="TEST"/&gt;
-     * &lt;/attributes&gt;
-     * &lt;/object&gt;&lt;/objects&gt;&lt;/whois-resources&gt;'
-     * https://apps.db.ripe.net/whois-beta/create?password=123 -D headers.txt</pre></p>
-     * The HTTP headers for a success response:
+     *
+     * <p><div>Example JSON request object:</div>
      * <pre>
-     * HTTP/1.1 201 Created
-     * Date: Tue, 28 Dec 2010 14:17:28 GMT
-     * Server: Apache/2.2.3 (CentOS)
-     * X-Powered-By: Servlet 2.5; JBoss-5.0/JBossWeb-2.1
-     * Location: http://apps.db.ripe.net/whois-beta/lookup/test/person/PP16-TEST
-     * Content-Length: 0
-     * Connection: close
-     * Content-Type: text/plain; charset=UTF-8</pre>
-     * The response body will be empty.
+     *   {
+     *    "whois-resources": {
+     *      "objects": {
+     *        "object": {
+     *          "type": "person",
+     *          "link": {
+     *            "xlink:type": "locator",
+     *            "xlink:href": "http:\/\/apps.db.ripe.net\/whois-beta\/lookup\/test\/person\/PP1-TEST"
+     *          },
+     *          "source": {
+     *            "id": "test"
+     *          },
+     *          "primary-key": {
+     *            "attribute": [
+     *              {
+     *                "name": "nic-hdl",
+     *                "value": "PP1-TEST"
+     *              }
+     *            ]
+     *          },
+     *          "attributes": {
+     *            "attribute": [
+     *              {
+     *                "name": "person",
+     *                "value": "Pauleth Palthen"
+     *              },
+     *              {
+     *                "name": "address",
+     *                "value": "Singel 258"
+     *              },
+     *              {
+     *                "name": "phone",
+     *                "value": "+31-1234567890"
+     *              },
+     *              {
+     *                "link": {
+     *                  "xlink:type": "locator",
+     *                  "xlink:href": "http:\/\/apps.db.ripe.net\/whois-beta\/lookup\/test\/mntner\/OWNER-MNT"
+     *                },
+     *                "name": "mnt-by",
+     *                "value": "OWNER-MNT",
+     *                "referenced-type": "mntner"
+     *              },
+     *              {
+     *                "name": "nic-hdl",
+     *                "value": "PP1-TEST"
+     *              },
+     *              {
+     *                "name": "remarks",
+     *                "value": "remark"
+     *              },
+     *              {
+     *                "name": "source",
+     *                "value": "TEST",
+     *                "comment": "Filtered"
+     *              }
+     *            ]
+     *          }
+     *        }
+     *      }
+     *    }
+     *  }
+     *
+     * </pre></p>
+     *
+     * @param resources Request body.
+     * @param source RIPE or TEST.
+     * @param passwords One or more password values.
+     * @return The response body will be empty.
      */
     @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @TypeHint(WhoisResources.class)
     @Path("/create/{source}")
+    @StatusCodes({
+            @ResponseCode(code = 201, condition = "Successful create"),
+            @ResponseCode(code = 400, condition = "Incorrect value for source"),
+    })
     public Response create(
             final WhoisResources resources,
             @Context final HttpServletRequest request,
@@ -506,10 +558,10 @@ public class WhoisRestService {
     }
 
     /**
-     * <p>A successful update request replaces all of an object attributes with the new set of attributes described in the request. The target database can be ripe or test and is specified with the source element in the XML document sent with the request.</p>
-     * <p>The update interface is accessible using the HTTP PUT method. The request must include a 'content-type: application/xml' header because your request body will contain an XML document describing the object update and the target source.</p>
+     * <p>A successful update request replaces all of an object attributes with the new set of attributes described in
+     * the request. </p>
      * <p/>
-     * <p>An example of XML object:
+     * <p>Example of an XML request body:
      * <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      * &lt;whois-resources&gt;
      * &lt;objects&gt;
@@ -530,30 +582,8 @@ public class WhoisRestService {
      * &lt;/whois-resources&gt;</pre>
      * </p>
      * <p/>
-     * <p>An example of update request using the CURL command:
-     * <pre>curl -X PUT -H 'Content-Type: application/xml' -d '&lt;whois-resources&gt;&lt;objects&gt;
-     * &lt;object-type="person"&gt;&lt;source-id="test"/&gt;&lt;attributes&gt;
-     * &lt;attribute name="person" value="Pauleth Palthen"/&gt;
-     * &lt;attribute name="address" value="Singel 123"/&gt;
-     * &lt;attribute name="phone" value="+31-0987654321"/&gt;
-     * &lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
-     * &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;
-     * &lt;attribute name="mnt-by" value="PP-MNT" /&gt;
-     * &lt;attribute name="nic-hdl" value="PP16-TEST" /&gt;
-     * &lt;attribute name="source" value="TEST"/&gt;&lt;/attributes&gt;&lt;/object&gt;&lt;/objects&gt;&lt;/whois-resources&gt;'
-     * https://apps.db.ripe.net/whois-beta/update/test/person/pp16-test?password=123 -D headers.txt</pre></p>
-     * <p/>
-     * <p>The HTTP headers for a success response:
-     * <p/>
-     * <pre>HTTP/1.1 200 OK
-     * Date: Tue, 28 Dec 2010 15:24:35 GMT
-     * Server: Apache/2.2.3 (CentOS)
-     * X-Powered-By: Servlet 2.5; JBoss-5.0/JBossWeb-2.1
-     * Connection: close
-     * Transfer-Encoding: chunked
-     * Content-Type: application/xml</pre></p>
-     * <p/>
-     * The response body for a success response:
+     *
+     * <p>Example of success XML response body:</p>
      * <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      * &lt;whois-resources service="lookup" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
      * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person/PP3-TEST"/&gt;
@@ -579,16 +609,127 @@ public class WhoisRestService {
      * &lt;/object&gt;
      * &lt;/objects&gt;</pre>
      *
-     * @param source     Source.
+     * <p>Example of a JSON request body:</p>
+     * <pre>
+     *   {
+     *    "objects" : {
+     *        "object" : [ {
+     *          "source" : {
+     *            "id" : "test"
+     *          },
+     *          "attributes" : {
+     *            "attribute" : [
+     *              {"name":"mntner", "value":"OWNER-MNT"},
+     *              {"name":"descr", "value":"description"},
+     *              {"name":"admin-c", "value":"TP1-TEST"},
+     *              {"name":"upd-to", "value":"noreply@ripe.net"},
+     *              {"name":"auth", "value":"MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/"},
+     *              {"name":"mnt-by", "value":"OWNER-MNT"},
+     *              {"name":"referral-by", "value":"OWNER-MNT"},
+     *              {"name":"changed", "value":"dbtest@ripe.net 20120101"},
+     *              {"name":"source", "value":"TEST"}
+     *          ] }
+     *       }]
+     *     }
+     *  }
+     * </pre>
+     *
+     * <p>Example of a JSON success response:</p>
+     * <pre>
+     * {
+     *    "whois-resources" : {
+     *      "service" : "lookup",
+     *      "link" : {
+     *        "xlink:type" : "locator",
+     *        "xlink:href" : "http://localhost:51761/whois-beta/update/test/mntner/OWNER-MNT?password=test"
+     *      },
+     *      "objects" : {
+     *        "object" : [ {
+     *          "type" : "mntner",
+     *          "link" : {
+     *            "xlink:type" : "locator",
+     *            "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *          },
+     *          "source" : {
+     *            "id" : "test"
+     *          },
+     *          "primary-key" : {
+     *            "attribute" : [ {
+     *              "name" : "mntner",
+     *              "value" : "OWNER-MNT"
+     *            } ]
+     *          },
+     *          "attributes" : {
+     *            "attribute" : [ {
+     *              "name" : "mntner",
+     *              "value" : "OWNER-MNT"
+     *            }, {
+     *              "name" : "descr",
+     *              "value" : "description"
+     *            }, {
+     *              "link" : {
+     *                "xlink:type" : "locator",
+     *                "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
+     *              },
+     *              "name" : "admin-c",
+     *              "value" : "TP1-TEST",
+     *              "referenced-type" : "person-role"
+     *            }, {
+     *              "name" : "upd-to",
+     *              "value" : "noreply@ripe.net"
+     *            }, {
+     *              "name" : "auth",
+     *              "value" : "MD5-PW",
+     *              "comment" : "Filtered"
+     *            }, {
+     *              "link" : {
+     *                "xlink:type" : "locator",
+     *                "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *              },
+     *              "name" : "mnt-by",
+     *              "value" : "OWNER-MNT",
+     *              "referenced-type" : "mntner"
+     *            }, {
+     *              "link" : {
+     *                "xlink:type" : "locator",
+     *                "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *              },
+     *              "name" : "referral-by",
+     *              "value" : "OWNER-MNT",
+     *              "referenced-type" : "mntner"
+     *            }, {
+     *              "name" : "changed",
+     *              "value" : "dbtest@ripe.net 20120101"
+     *            }, {
+     *              "name" : "source",
+     *              "value" : "TEST",
+     *              "comment" : "Filtered"
+     *            } ]
+     *          }
+     *        } ]
+     *      }
+     *    }
+     *  }
+     *  </pre>
+     *
+     * @param resource Request body.
+     * @param source     RIPE or TEST.
      * @param objectType Object type for given object.
      * @param key        Primary key of the given object.
      * @param passwords  One or more password values.
+     * @return Response in appropriate format.
      */
     @PUT
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @TypeHint(WhoisResources.class)
     @Path("/update/{source}/{objectType}/{key:.*}")
+    @StatusCodes({
+            @ResponseCode(code = 200, condition = "Successful modification"),
+            @ResponseCode(code = 400, condition = "Incorrect value for source, objectType or key "),
+            @ResponseCode(code = 401, condition = "Incorrect password"),
+            @ResponseCode(code = 404, condition = "Object not found")
+    })
     public Response update(
             final WhoisResources resource,
             @Context final HttpServletRequest request,
@@ -616,37 +757,19 @@ public class WhoisRestService {
     }
 
     /**
-     * <p>The modify interface implements complex object manipulations that would otherwise require multiple client side operations, like:</p>
+     * <p>The modify service supports adding, removing or replacing individual attributes :</p>
      * <ul>
-     * <li>querying the Whois Database</li>
-     * <li>filtering from the query response the only object that need to be modified</li>
-     * <li>parsing the object RPSL (handling all the intricacies of RPSL)</li>
-     * <li>modifying specific attributes</li>
-     * <li>submitting the edited object</li>
-     * </ul>
-     * <p/>
-     * <p>With the modify interface this error prone processing of objects can be replaced with just one simple request.
-     * A client just needs to specify the type of operation to be applied, the primary key of an object and eventually a set of attributes.</p>
-     * <p/>
-     * <p>A request containing XML format content must include a "content-type: application/xml" HTTP header.</p>
-     * <p/>
-     * <p>Important, a modify request succeeds only if the final modified object satisfies the RPSL specification.
-     * For example a modify request resulting in an object missing mandatory attributes will fail.</p>
-     * <p/>
-     * <p>Different actions that can be executed by specifying one of 'add', 'remove' or 'replace':
-     * <p/>
-     * <ul>
-     * <li>replace attributes</li>
-     * <li>append new attributes</li>
-     * <li>add new attributes starting from the line at index N</li>
-     * <li>remove all attributes of a given type</li>
+     * <li>add new attributes</li>
+     * <li>add new attributes starting at index N (index starts at zero)</li>
+     * <li>replace all attributes of a certain type</li>
+     * <li>remove all attributes of a certain type</li>
      * <li>remove the Nth attribute</li>
-     * </ul></p>
+     * </ul>
+     *
      * <p/>
-     * <p><div>Examples</div>
-     * <p/>
+     * <p><div>Examples</div><p/>
      * <ul>
-     * <li><div>Add attributes request</div>
+     * <li><div>Add new attributes XML request:</div>
      * <pre>
      *  &lt;whois-modify&gt;
      *      &lt;add&gt;
@@ -656,28 +779,9 @@ public class WhoisRestService {
      *          &lt;/attributes&gt;
      *      &lt;/add&gt;
      *  &lt;/whois-modify&gt;
-     *  </pre></li>
+     *  </pre>
      *
-     * <li><div>Add attributes using CURL</div>
-     * <pre>curl -X POST -H 'Content-Type: application/xml' -d
-     * '&lt;whois-modify&gt;&lt;add&gt;&lt;attributes&gt;&lt;attribute name="phone" value="+31 20 535 4444"/&gt;
-     * &lt;attribute name="fax-no" value="+31 20 535 4445"/&gt;&lt;/attributes&gt;&lt;/add&gt;&lt;/whois-modify&gt;'
-     * https://apps.db.ripe.net/whois-beta/modify/test/person/pp16-test?password=123 -D headers.txt</pre>
-     * </li>
-     * </ul></p>
-     *
-     *
-     * The response headers may be:
-     * <pre>
-     * HTTP/1.1 200 OK
-     * Date: Wed, 29 Dec 2010 11:06:43 GMT
-     * Server: Apache/2.2.3 (CentOS)
-     * X-Powered-By: Servlet 2.5; JBoss-5.0/JBossWeb-2.1
-     * Connection: close
-     * Transfer-Encoding: chunked
-     * Content-Type: application/xml</pre>
-     *
-     * <p>The response body may be:</p>
+     *  <p>Example of XML response:</p>
      * <pre>
      *     &lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      *      &lt;whois-resources service="lookup" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
@@ -696,7 +800,8 @@ public class WhoisRestService {
      *      &lt;attribute name="address" value="1001 EB Amsterdam"/&gt;
      *      &lt;attribute name="address" value="The Netherlands"/&gt;
      *      &lt;attribute name="remarks" value="This is our new address!"/&gt;
-     *      &lt;attribute name="phone" value="+31-0987654321"/&gt;
+     *      &lt;attribute name="phone" value="+31 20 535 4444"/&gt;
+     *      &lt;attribute name="fax-no" value="+31 20 535 4445"/&gt;
      *      &lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
      *      &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;
      *      &lt;attribute name="mnt-by" value="PP-MNT" referenced-type="mntner"&gt;
@@ -710,15 +815,156 @@ public class WhoisRestService {
      *      &lt;/whois-resources&gt;
      * </pre>
      *
+     *  <div>Example of JSON request:</div>
+     *  <pre>
+     *   {
+     *   "add" : {
+     *     "attributes" : {
+     *           "attribute" : [
+     *                 {"name" : "phone", "value" : "+31 20 535 4444"},
+     *                 {"name" : "fax-no", "value" : "+31 20 535 4445"}
+     *         ] }
+     *   }
+     *  }
+     *  </pre>
+     *
+     *  <p>Example of JSON response:</p>
+     *  <pre>
+     *   {
+     *   "whois-resources" : {
+     *     "service" : "lookup",
+     *     "link" : {
+     *       "xlink:type" : "locator",
+     *       "xlink:href" : "http://apps.db.ripe.net:64499/whois-beta/modify/test/person/PP1-TEST?password=test"
+     *     },
+     *     "objects" : {
+     *       "object" : [ {
+     *         "type" : "person",
+     *         "link" : {
+     *           "xlink:type" : "locator",
+     *           "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/person/PP1-TEST"
+     *         },
+     *         "source" : {
+     *           "id" : "test"
+     *         },
+     *         "primary-key" : {
+     *           "attribute" : [ {
+     *             "name" : "nic-hdl",
+     *             "value" : "PP1-TEST"
+     *           } ]
+     *         },
+     *         "attributes" : {
+     *           "attribute" : [ {
+     *             "name" : "person",
+     *             "value" : "Pauleth Palthen"
+     *           }, {
+     *             "name" : "address",
+     *             "value" : "Singel 258"
+     *           }, {
+     *             "name" : "phone",
+     *             "value" : "+31-1234567890"
+     *           }, {
+     *             "name" : "phone",
+     *             "value" : "+31 20 535 4444"
+     *           }, {
+     *             "name" : "fax-no",
+     *             "value" : "+31 20 535 4445"
+     *           }, {
+     *             "name" : "e-mail",
+     *             "value" : "noreply@ripe.net"
+     *           }, {
+     *             "name" : "nic-hdl",
+     *             "value" : "PP1-TEST"
+     *           }, {
+     *             "name" : "remarks",
+     *             "value" : "remark"
+     *           }, {
+     *             "link" : {
+     *               "xlink:type" : "locator",
+     *               "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *             },
+     *             "name" : "mnt-by",
+     *             "value" : "OWNER-MNT",
+     *             "referenced-type" : "mntner"
+     *           }, {
+     *             "name" : "changed",
+     *             "value" : "noreply@ripe.net 20120101"
+     *           }, {
+     *             "name" : "source",
+     *             "value" : "TEST"
+     *           } ]
+     *         }
+     *       } ]
+     *     }
+     *   }
+     *  }
+     *  </pre>
+     *  </li>
+     *
+     *  <li><div>Add new attributes starting at index N:</div>
+     *  <pre>
+     *  &lt;whois-modify&gt;
+     *      &lt;add index="6"&gt;
+     *          &lt;attributes&gt;
+     *              &lt;attribute name="remarks" value="These remark lines will be added"/&gt;
+     *              &lt;attribute name="remarks" value="starting from index 6 (line 7) !"/&gt;
+     *          &lt;/attributes&gt;
+     *      &lt;/add&gt;
+     *  &lt;/whois-modify&gt;
+     *  </pre></li>
+     *
+     *  <li><div>Replace all attributes of a certain type</div>
+     *  <pre>
+     *       &lt;whois-modify&gt;
+     *          &lt;replace attribute-type="address"&gt;
+     *              &lt;attributes&gt;
+     *              &lt;attribute name="address" value="RIPE Network Coordination Centre (NCC)"/&gt;
+     *                  &lt;attribute name="address" value="P.O. Box 10096"/&gt;
+     *                  &lt;attribute name="address" value="1001 EB Amsterdam"/&gt;
+     *                  &lt;attribute name="address" value="The Netherlands"/&gt;
+     *                  &lt;attribute name="remarks" value="This is our new address!"/&gt;
+     *              &lt;/attributes&gt;
+     *          &lt;/replace&gt;
+     *      &lt;/whois-modify&gt;
+     *  </pre>
+     *  </li>
+     *
+     *  <li><div>Remove all attributes of a certain type:</div>
+     *  <pre>
+     *      &lt;whois-modify&gt;
+     *          &lt;remove attribute-type="remarks"/&gt;
+     *      &lt;/whois-modify&gt;
+     *  </pre>
+     *  </li>
+     *
+     *  <li><div>Remove the Nth attribute:</div>
+     *      <pre>
+     *          &lt;whois-modify&gt;
+     *              &lt;remove index="6"/&gt;
+     *          &lt;/whois-modify&gt;
+     *      </pre>
+     *  </li>
+     *
+     * </ul></p>
+     *
+     * @param whoisModify Request body.
      * @param source     RIPE or TEST.
      * @param objectType Object type of given object.
      * @param key        Primary key of given object.
      * @param passwords  One or more password values.
+     * @return Returns the modified object.
      */
     @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @TypeHint(WhoisResources.class)
     @Path("/modify/{source}/{objectType}/{key:.*}")
+    @StatusCodes({
+            @ResponseCode(code = 204, condition = "Successful modification"),
+            @ResponseCode(code = 400, condition = "Incorrect value for source, objectType or key (or when applicable, index)"),
+            @ResponseCode(code = 401, condition = "Incorrect password"),
+            @ResponseCode(code = 404, condition = "Object not found")
+    })
     public Response modify(
             final WhoisModify whoisModify,
             @Context final HttpServletRequest request,
@@ -799,34 +1045,31 @@ public class WhoisRestService {
     }
 
     /**
-     * <p>A successful delete request deletes an object from the RIPE Database or the RIPE Test Database. The target database for the delete service is specified directly as a URL parameter as well as the primary key and the object type of the object to be deleted.</p>
-     * <p/>
+     * <p>The delete service deletes a single object from the database.</p>
      * <p>The HTTP Request body must be empty.</p>
      * <p/>
      * <div>Example using CURL:</div>
      * <pre>
-     * curl -X DELETE https://apps.db.ripe.net/whois-beta/delete/test/person/pp16-test?password=123 -D headers.txt
+     * curl -X DELETE https://apps.db.ripe.net/whois-beta/delete/test/person/pp16-test?password=123
      * </pre>
      * <p/>
      *
-     * <p>The HTTP headers for a success response:
-     * <p/>
-     * <pre>HTTP/1.1 204 No Content
-     * Date: Wed, 29 Dec 2010 09:43:17 GMT
-     * Server: Apache/2.2.3 (CentOS)
-     * X-Powered-By: Servlet 2.5; JBoss-5.0/JBossWeb-2.1
-     * Content-Length: 0
-     * Connection: close
-     * Content-Type: text/plain; charset=UTF-8</pre></p>
-     *
-     * @param source     Source.
-     * @param objectType Object type of given object.
-     * @param key        Primary key for given object.
+     * @param source     RIPE or TEST. Mandatory.
+     * @param objectType Object type of given object. Mandatory.
+     * @param key        Primary key for given object. Mandatory.
      * @param reason     Reason for deleting given object. Optional.
-     * @param passwords  One or more password values.
+     * @param passwords  One or more password values. Mandatory.
+     * @return Returns only HTTP headers
      */
     @DELETE
     @Path("/delete/{source}/{objectType}/{key:.*}")
+    @Produces({})
+    @StatusCodes({
+            @ResponseCode(code = 204, condition = "Successful delete"),
+            @ResponseCode(code = 400, condition = "Incorrect value for source, objectType or key "),
+            @ResponseCode(code = 401, condition = "Incorrect password"),
+            @ResponseCode(code = 404, condition = "Object not found")
+    })
     public Response delete(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
@@ -913,6 +1156,11 @@ public class WhoisRestService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @TypeHint(WhoisResources.class)
     @Path("/versions/{source}/{key:.*}")
+    @StatusCodes({
+            @ResponseCode(code = 200, condition = "Versions were found"),
+            @ResponseCode(code = 400, condition = "Illegal input - incorrect source or key"),
+            @ResponseCode(code = 404, condition = "No versions found")
+    })
     public Response listVersions(
             @Context HttpServletRequest request,
             @PathParam("source") final String source,
@@ -1032,6 +1280,11 @@ public class WhoisRestService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @TypeHint(WhoisResources.class)
     @Path("/version/{source}/{version}/{key:.*}")
+    @StatusCodes({
+            @ResponseCode(code = 200, condition = "Version was found"),
+            @ResponseCode(code = 400, condition = "Illegal input - incorrect source or key"),
+            @ResponseCode(code = 404, condition = "Sought version not found")
+    })
     public Response showVersion(
             @Context HttpServletRequest request,
             @PathParam("source") final String source,
@@ -1305,6 +1558,11 @@ public class WhoisRestService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @TypeHint(WhoisResources.class)
     @Path("/search")
+    @StatusCodes({
+            @ResponseCode(code = 200, condition = "Search successful"),
+            @ResponseCode(code = 400, condition = "Illegal input - incorrect value in one or more of the parameters"),
+            @ResponseCode(code = 404, condition = "Query rendered no results")
+    })
     public Response search(
             @Context HttpServletRequest request,
             @QueryParam("source") Set<String> sources,
@@ -1527,6 +1785,11 @@ public class WhoisRestService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @TypeHint(WhoisResources.class)
     @Path("/grs-search")
+    @StatusCodes({
+            @ResponseCode(code = 200, condition = "Search successful"),
+            @ResponseCode(code = 400, condition = "Illegal input - incorrect value in one or more of the parameters"),
+            @ResponseCode(code = 404, condition = "Query rendered no results")
+    })
     public Response grssearch(
             @Context HttpServletRequest request,
             @QueryParam("source") Set<String> sources,
