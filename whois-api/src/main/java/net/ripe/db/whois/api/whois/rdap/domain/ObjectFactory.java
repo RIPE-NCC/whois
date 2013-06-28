@@ -37,11 +37,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Nameservers.IpAddresses }
+     * Create an instance of {@link Ip }
      * 
      */
-    public Nameservers.IpAddresses createNameserversIpAddresses() {
-        return new Nameservers.IpAddresses();
+    public Ip createIp() {
+        return new Ip();
     }
 
     /**
@@ -53,27 +53,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Ip }
+     * Create an instance of {@link Notices }
      * 
      */
-    public Ip createIp() {
-        return new Ip();
-    }
-
-    /**
-     * Create an instance of {@link Person }
-     * 
-     */
-    public Person createPerson() {
-        return new Person();
-    }
-
-    /**
-     * Create an instance of {@link Nameservers }
-     * 
-     */
-    public Nameservers createNameservers() {
-        return new Nameservers();
+    public Notices createNotices() {
+        return new Notices();
     }
 
     /**
@@ -82,6 +66,14 @@ public class ObjectFactory {
      */
     public Entity createEntity() {
         return new Entity();
+    }
+
+    /**
+     * Create an instance of {@link Person }
+     * 
+     */
+    public Person createPerson() {
+        return new Person();
     }
 
     /**
@@ -101,11 +93,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Notices }
+     * Create an instance of {@link Nameservers }
      * 
      */
-    public Notices createNotices() {
-        return new Notices();
+    public Nameservers createNameservers() {
+        return new Nameservers();
+    }
+
+    /**
+     * Create an instance of {@link Nameservers.IpAddresses }
+     * 
+     */
+    public Nameservers.IpAddresses createNameserversIpAddresses() {
+        return new Nameservers.IpAddresses();
     }
 
     /**

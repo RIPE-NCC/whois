@@ -37,54 +37,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Caluri }
-     * 
-     */
-    public Caluri createCaluri() {
-        return new Caluri();
-    }
-
-    /**
-     * Create an instance of {@link Geo }
-     * 
-     */
-    public Geo createGeo() {
-        return new Geo();
-    }
-
-    /**
-     * Create an instance of {@link Key }
-     * 
-     */
-    public Key createKey() {
-        return new Key();
-    }
-
-    /**
-     * Create an instance of {@link N }
-     * 
-     */
-    public N createN() {
-        return new N();
-    }
-
-    /**
-     * Create an instance of {@link Version }
-     * 
-     */
-    public Version createVersion() {
-        return new Version();
-    }
-
-    /**
-     * Create an instance of {@link Logo }
-     * 
-     */
-    public Logo createLogo() {
-        return new Logo();
-    }
-
-    /**
      * Create an instance of {@link Caladruri }
      * 
      */
@@ -93,83 +45,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Title }
+     * Create an instance of {@link Tz }
      * 
      */
-    public Title createTitle() {
-        return new Title();
+    public Tz createTz() {
+        return new Tz();
     }
 
     /**
-     * Create an instance of {@link Role }
+     * Create an instance of {@link Tel }
      * 
      */
-    public Role createRole() {
-        return new Role();
-    }
-
-    /**
-     * Create an instance of {@link Lang }
-     * 
-     */
-    public Lang createLang() {
-        return new Lang();
-    }
-
-    /**
-     * Create an instance of {@link Bday }
-     * 
-     */
-    public Bday createBday() {
-        return new Bday();
-    }
-
-    /**
-     * Create an instance of {@link Note }
-     * 
-     */
-    public Note createNote() {
-        return new Note();
-    }
-
-    /**
-     * Create an instance of {@link Anniversary }
-     * 
-     */
-    public Anniversary createAnniversary() {
-        return new Anniversary();
-    }
-
-    /**
-     * Create an instance of {@link Birth }
-     * 
-     */
-    public Birth createBirth() {
-        return new Birth();
-    }
-
-    /**
-     * Create an instance of {@link Categories }
-     * 
-     */
-    public Categories createCategories() {
-        return new Categories();
-    }
-
-    /**
-     * Create an instance of {@link Nickname }
-     * 
-     */
-    public Nickname createNickname() {
-        return new Nickname();
-    }
-
-    /**
-     * Create an instance of {@link Adr }
-     * 
-     */
-    public Adr createAdr() {
-        return new Adr();
+    public Tel createTel() {
+        return new Tel();
     }
 
     /**
@@ -181,19 +69,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Email }
+     * Create an instance of {@link Anniversary }
      * 
      */
-    public Email createEmail() {
-        return new Email();
+    public Anniversary createAnniversary() {
+        return new Anniversary();
     }
 
     /**
-     * Create an instance of {@link NValueType.Honorifics }
+     * Create an instance of {@link Version }
      * 
      */
-    public NValueType.Honorifics createNValueTypeHonorifics() {
-        return new NValueType.Honorifics();
+    public Version createVersion() {
+        return new Version();
     }
 
     /**
@@ -213,27 +101,59 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link AdrEntryValueType }
+     * Create an instance of {@link Caluri }
      * 
      */
-    public AdrEntryValueType createAdrEntryValueType() {
-        return new AdrEntryValueType();
+    public Caluri createCaluri() {
+        return new Caluri();
     }
 
     /**
-     * Create an instance of {@link Gender }
+     * Create an instance of {@link Birth }
      * 
      */
-    public Gender createGender() {
-        return new Gender();
+    public Birth createBirth() {
+        return new Birth();
     }
 
     /**
-     * Create an instance of {@link Fn }
+     * Create an instance of {@link Key }
      * 
      */
-    public Fn createFn() {
-        return new Fn();
+    public Key createKey() {
+        return new Key();
+    }
+
+    /**
+     * Create an instance of {@link NValueType.Honorifics }
+     * 
+     */
+    public NValueType.Honorifics createNValueTypeHonorifics() {
+        return new NValueType.Honorifics();
+    }
+
+    /**
+     * Create an instance of {@link Email }
+     * 
+     */
+    public Email createEmail() {
+        return new Email();
+    }
+
+    /**
+     * Create an instance of {@link Geo }
+     * 
+     */
+    public Geo createGeo() {
+        return new Geo();
+    }
+
+    /**
+     * Create an instance of {@link Title }
+     * 
+     */
+    public Title createTitle() {
+        return new Title();
     }
 
     /**
@@ -253,19 +173,99 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Tel }
+     * Create an instance of {@link N }
      * 
      */
-    public Tel createTel() {
-        return new Tel();
+    public N createN() {
+        return new N();
     }
 
     /**
-     * Create an instance of {@link Tz }
+     * Create an instance of {@link Bday }
      * 
      */
-    public Tz createTz() {
-        return new Tz();
+    public Bday createBday() {
+        return new Bday();
+    }
+
+    /**
+     * Create an instance of {@link Logo }
+     * 
+     */
+    public Logo createLogo() {
+        return new Logo();
+    }
+
+    /**
+     * Create an instance of {@link Nickname }
+     * 
+     */
+    public Nickname createNickname() {
+        return new Nickname();
+    }
+
+    /**
+     * Create an instance of {@link Gender }
+     * 
+     */
+    public Gender createGender() {
+        return new Gender();
+    }
+
+    /**
+     * Create an instance of {@link Categories }
+     * 
+     */
+    public Categories createCategories() {
+        return new Categories();
+    }
+
+    /**
+     * Create an instance of {@link Adr }
+     * 
+     */
+    public Adr createAdr() {
+        return new Adr();
+    }
+
+    /**
+     * Create an instance of {@link Lang }
+     * 
+     */
+    public Lang createLang() {
+        return new Lang();
+    }
+
+    /**
+     * Create an instance of {@link AdrEntryValueType }
+     * 
+     */
+    public AdrEntryValueType createAdrEntryValueType() {
+        return new AdrEntryValueType();
+    }
+
+    /**
+     * Create an instance of {@link Role }
+     * 
+     */
+    public Role createRole() {
+        return new Role();
+    }
+
+    /**
+     * Create an instance of {@link Fn }
+     * 
+     */
+    public Fn createFn() {
+        return new Fn();
+    }
+
+    /**
+     * Create an instance of {@link Note }
+     * 
+     */
+    public Note createNote() {
+        return new Note();
     }
 
 }
