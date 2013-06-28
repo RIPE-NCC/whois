@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -34,7 +33,6 @@ public class WhoisRestServiceTest {
     @Mock UpdateRequestHandler updateRequestHandler;
     @Mock LoggerContext loggerContext;
     @Mock RpslObjectDao rpslObjectDao;
-    @Mock RpslObjectUpdateDao rpslObjectUpdateDao;
     @Mock QueryHandler queryHandler;
     @Mock HttpServletRequest request;
 

@@ -11,7 +11,6 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.*;
@@ -60,7 +59,6 @@ public class WhoisRestService {
     private final UpdateRequestHandler updateRequestHandler;
     private final LoggerContext loggerContext;
     private final RpslObjectDao rpslObjectDao;
-    private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final SourceContext sourceContext;
     private final QueryHandler queryHandler;
 
@@ -69,12 +67,11 @@ public class WhoisRestService {
     private static final Set<QueryFlag> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(TEMPLATE, VERBOSE, CLIENT, NO_GROUPING, SOURCES, NO_TAG_INFO, SHOW_TAG_INFO, ALL_SOURCES, LIST_SOURCES_OR_VERSION, LIST_SOURCES, DIFF_VERSIONS, LIST_VERSIONS, SHOW_VERSION, PERSISTENT_CONNECTION);
 
     @Autowired
-    public WhoisRestService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final RpslObjectUpdateDao rpslObjectUpdateDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
+    public WhoisRestService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
         this.dateTimeProvider = dateTimeProvider;
         this.updateRequestHandler = updateRequestHandler;
         this.loggerContext = loggerContext;
         this.rpslObjectDao = rpslObjectDao;
-        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
     }
