@@ -29,10 +29,12 @@
                 <xs:element name="rdapConformance" type="xs:string" maxOccurs="unbounded" minOccurs="1"/>
                 <xs:element name="handle" type="xs:string" maxOccurs="1"  minOccurs="1"/>
                 <xs:element name="ldhName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
-                <xs:element ref="nameserver" maxOccurs="unbounded"  minOccurs="1"/>
-		        <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
-
+                <xs:element name="unicodeName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
+                <xs:element ref="nameservers" maxOccurs="unbounded"  minOccurs="1"/>
+                <!-- TODO secureDNS -->
                 <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType"/>
+                <xs:element name="status" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
                 <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element ref="links" minOccurs="0"	maxOccurs="unbounded"/>
                 <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
@@ -99,7 +101,7 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="nameserver">
+    <xs:element name="nameservers">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>

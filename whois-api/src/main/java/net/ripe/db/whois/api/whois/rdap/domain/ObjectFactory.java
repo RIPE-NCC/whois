@@ -37,51 +37,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Autnum }
+     * Create an instance of {@link Nameservers.IpAddresses }
      * 
      */
-    public Autnum createAutnum() {
-        return new Autnum();
-    }
-
-    /**
-     * Create an instance of {@link Events }
-     * 
-     */
-    public Events createEvents() {
-        return new Events();
-    }
-
-    /**
-     * Create an instance of {@link Notices }
-     * 
-     */
-    public Notices createNotices() {
-        return new Notices();
-    }
-
-    /**
-     * Create an instance of {@link Nameserver }
-     * 
-     */
-    public Nameserver createNameserver() {
-        return new Nameserver();
-    }
-
-    /**
-     * Create an instance of {@link Links }
-     * 
-     */
-    public Links createLinks() {
-        return new Links();
-    }
-
-    /**
-     * Create an instance of {@link Entity }
-     * 
-     */
-    public Entity createEntity() {
-        return new Entity();
+    public Nameservers.IpAddresses createNameserversIpAddresses() {
+        return new Nameservers.IpAddresses();
     }
 
     /**
@@ -93,6 +53,14 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link Ip }
+     * 
+     */
+    public Ip createIp() {
+        return new Ip();
+    }
+
+    /**
      * Create an instance of {@link Person }
      * 
      */
@@ -101,11 +69,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Nameserver.IpAddresses }
+     * Create an instance of {@link Nameservers }
      * 
      */
-    public Nameserver.IpAddresses createNameserverIpAddresses() {
-        return new Nameserver.IpAddresses();
+    public Nameservers createNameservers() {
+        return new Nameservers();
+    }
+
+    /**
+     * Create an instance of {@link Entity }
+     * 
+     */
+    public Entity createEntity() {
+        return new Entity();
     }
 
     /**
@@ -117,11 +93,35 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Ip }
+     * Create an instance of {@link Autnum }
      * 
      */
-    public Ip createIp() {
-        return new Ip();
+    public Autnum createAutnum() {
+        return new Autnum();
+    }
+
+    /**
+     * Create an instance of {@link Notices }
+     * 
+     */
+    public Notices createNotices() {
+        return new Notices();
+    }
+
+    /**
+     * Create an instance of {@link Events }
+     * 
+     */
+    public Events createEvents() {
+        return new Events();
+    }
+
+    /**
+     * Create an instance of {@link Links }
+     * 
+     */
+    public Links createLinks() {
+        return new Links();
     }
 
 }
