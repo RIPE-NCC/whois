@@ -48,12 +48,21 @@ public class WhoisRdapService extends WhoisService {
             @Context final HttpServletRequest request,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key) {
+        
+        /* RDAP object types do not map directly to whois object
+         * types, so translate accordingly here for the remaining
+         * object types as they are implemented. */
 
-        // Here we will need to eventually do a switch or whatever to
-        // turn rdap objectTypes into whois ones for passing off to the
-        // lookupObject method. But let's cross that bridge when we get to it
-
-        return lookupObject(request, this.sourceContext.getWhoisSlaveSource().getName().toString(), objectType, key, false);
+        String whoisObjectType =
+            objectType.equals("autnum") ? "aut-num"
+                                        : objectType;
+                            
+        return lookupObject(request, 
+                            this.sourceContext
+                                .getWhoisSlaveSource().getName().toString(), 
+                            whoisObjectType, 
+                            key, 
+                            false);
     }
 
     protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
