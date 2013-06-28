@@ -85,7 +85,7 @@ public class ChangedAttributeValidatorTest {
         final String dateString = new SimpleDateFormat("yyyyMMdd").format(tooFarInTheFutureDate.toDate());
 
         final RpslObject object = RpslObject.parse("mntner: MNT\nchanged: alpha@beta.com " + dateString );
-        when(update.getUpdatedObject()).thenReturn(object);
+        when(update.getSubmittedObject()).thenReturn(object);
 
         subject.validate(update, updateContext);
 
@@ -98,7 +98,7 @@ public class ChangedAttributeValidatorTest {
         final String dateString = new SimpleDateFormat("yyyyMMdd").format(tooFarInTheFutureDate.toDate());
 
         final RpslObject object = RpslObject.parse("mntner: MNT\nchanged: alpha@beta.com " + dateString );
-        when(update.getUpdatedObject()).thenReturn(object);
+        when(update.getSubmittedObject()).thenReturn(object);
 
         subject.validate(update, updateContext);
 
