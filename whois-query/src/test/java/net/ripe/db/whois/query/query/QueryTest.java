@@ -1,7 +1,6 @@
 package net.ripe.db.whois.query.query;
 
 import com.google.common.collect.Sets;
-import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
@@ -12,7 +11,6 @@ import org.junit.Test;
 
 import java.util.Set;
 
-import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -321,28 +319,6 @@ public class QueryTest {
     @Test(expected = QueryException.class)
     public void proxy_with_more_than_two_elements() {
         parse("-Vone,two,10.1.1.1");
-    }
-
-    @Test
-    public void add_proxy_flag() {
-        parse("foo");
-
-        Query newQuery = subject.addProxyFlag(InetAddresses.forString("10.0.0.1"));
-
-        assertTrue(newQuery.hasProxyWithIp());
-        assertThat(newQuery.getProxyIp(), is("10.0.0.1"));
-        assertThat(newQuery.toString(), stringMatchesRegexp("-V\\w*,10.0.0.1(.)*"));
-    }
-
-    @Test
-    public void add_proxy_flag_when_already_specified() {
-        parse("-VclientId,75.25.22.23 foo");
-
-        Query newQuery = subject.addProxyFlag(InetAddresses.forString("10.0.0.1"));
-
-        assertTrue(newQuery.hasProxyWithIp());
-        assertThat(newQuery.getProxyIp(), is("75.25.22.23"));
-        assertThat(newQuery.toString(), is("-VclientId,75.25.22.23 foo"));
     }
 
     @Test

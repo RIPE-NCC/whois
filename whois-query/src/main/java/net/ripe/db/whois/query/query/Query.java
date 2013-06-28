@@ -24,7 +24,6 @@ import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.QueryMessages;
 import org.apache.commons.lang.StringUtils;
 
-import java.net.InetAddress;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -456,18 +455,6 @@ public final class Query {
 
     public Set<String> getSources() {
         return sources;
-    }
-
-    public Query addProxyFlag(InetAddress inetAddress) {
-        if (!hasProxyWithIp()) {
-            return addProxiedFor(inetAddress);
-        }
-
-        return this;
-    }
-
-    private Query addProxiedFor(InetAddress inetAddress) {
-        return new Query(String.format("-VWhoisRDP,%s %s", inetAddress.getHostAddress(), originalStringQuery));
     }
 
     private Set<ObjectType> parseObjectTypes() {
