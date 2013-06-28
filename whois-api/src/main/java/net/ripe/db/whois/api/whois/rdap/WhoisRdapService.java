@@ -56,16 +56,17 @@ public class WhoisRdapService extends WhoisService {
         String whoisKey        = key;
         
         if (objectType.equals("autnum")) {
-            whoisObjectType = "aut-num";
-            whoisKey = "AS" + key;
+            whoisObjectType = "aut-num,as-block";
+            whoisKey        = "AS" + key;
         }
 
-        return lookupObject(request, 
-                            this.sourceContext
-                                .getWhoisSlaveSource().getName().toString(), 
-                            whoisObjectType, 
-                            whoisKey,
-                            false);
+        String source = this.sourceContext
+                            .getWhoisSlaveSource().getName().toString();
+
+        Response res = lookupObject(request, source, whoisObjectType, 
+                                    whoisKey, false);
+
+        return res;
     }
 
     protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {

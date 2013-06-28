@@ -57,17 +57,6 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
             "source:      TEST"
         );
 
-    private static final RpslObject ASN_ALL = 
-        RpslObject.parse(
-            "as-block:  AS1-AS4294967295\n" +
-            "descr:     The whole ASN space\n" +
-            "admin-c:   TP1-TEST\n" +
-            "tech-c:    TP1-TEST\n" +
-            "changed:   test@test.net.au 20010816\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n"
-        );
-
     private static final RpslObject ASN_RANGE =
         RpslObject.parse(
             "as-block:  AS1000-AS2000\n" +
@@ -98,7 +87,6 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
 
         List<RpslObject> objects = 
             new ArrayList<RpslObject>(Arrays.asList(
-                ASN_ALL,
                 ASN_RANGE,
                 ASN_SINGLE
             ));
@@ -123,6 +111,15 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
                 .get(ClientResponse.class);
         assertThat(cr.getEntity(String.class),
                    containsString("\"handle\" : \"AS12345\""));
+    }
+
+    @Test
+    public void lookupAutnumWithinBlock() throws Exception {
+        final ClientResponse cr = 
+            createResource(AUDIENCE, "autnum/1500")
+                .get(ClientResponse.class);
+        assertThat(cr.getEntity(String.class),
+                   containsString("\"handle\" : \"AS1000-AS2000\""));
     }
 
     @Override

@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,10 +42,6 @@ public class RdapObjectMapper {
         }
 
         add(primaryTaggedRpslObject);
-
-        /*while (!whoisObjectQueue.isEmpty()) {
-            add(whoisObjectQueue.poll());
-        }*/
 
         return rdapResponse;
     }
@@ -84,6 +81,24 @@ public class RdapObjectMapper {
 
             an.setStartAutnum(new BigInteger(asn_str));
             an.setEndAutnum(new BigInteger(asn_str));
+
+            an.setName("name");
+            an.setType("type");
+            an.setCountry("AU");
+            an.getStatus().add("ALLOCATED");
+
+            rdapResponse = an;
+        } else if (name.equals(ObjectType.AS_BLOCK.getName())) {
+            Autnum an = new ObjectFactory().createAutnum();
+            an.setHandle(rpslObject.getKey().toString());
+
+            RpslAttribute asn_range =
+                rpslObject.findAttribute(AttributeType.AS_BLOCK);
+            AsBlockRange abr = AsBlockRange.parse(asn_range.getValue()
+                                                           .replace(" ", ""));
+
+            an.setStartAutnum(BigInteger.valueOf(abr.getBegin()));
+            an.setEndAutnum(BigInteger.valueOf(abr.getEnd()));
 
             an.setName("name");
             an.setType("type");
