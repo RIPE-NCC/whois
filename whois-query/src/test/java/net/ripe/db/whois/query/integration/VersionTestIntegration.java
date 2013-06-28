@@ -193,6 +193,7 @@ public class VersionTestIntegration extends AbstractWhoisIntegrationTest {
         databaseHelper.addObject(object);
 
         String response = stripHeader(DummyWhoisClient.query(QueryServer.port, "--show-version 1 MAINT-ME"));
+        System.out.println(response);
         assertThat(response, containsFilteredVersion(object));
 
         response = stripHeader(DummyWhoisClient.query(QueryServer.port, "--show-version 1 -B MAINT-ME"));
