@@ -1443,16 +1443,6 @@ public class WhoisRestService  extends WhoisService {
         }
     }
 
-    private void checkForInvalidSource(final String source, final boolean isGrs) {
-        if (isGrs) {
-            if (!sourceContext.getGrsSourceNames().contains(ciString(source))) {
-                throw new IllegalArgumentException(String.format("Invalid GRS source '%s'", source));
-            }
-        } else if (!sourceContext.getCurrentSource().getName().contains(ciString(source))) {
-            throw new IllegalArgumentException(String.format("Invalid source '%s'", source));
-        }
-    }
-
     private Set<String> splitInputFlags(final Set<String> inputFlags) {
         final Set<String> separateFlags = Sets.newLinkedHashSet();  // reporting errors should happen in the same order
         for (final String flagParameter : inputFlags) {

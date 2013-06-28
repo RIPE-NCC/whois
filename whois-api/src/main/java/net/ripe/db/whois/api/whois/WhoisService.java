@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -150,4 +151,13 @@ public abstract class WhoisService {
         return new StreamingMarshalXml();
     }
 
+    protected void checkForInvalidSource(final String source, final boolean isGrs) {
+        if (isGrs) {
+            if (!sourceContext.getGrsSourceNames().contains(ciString(source))) {
+                throw new IllegalArgumentException(String.format("Invalid GRS source '%s'", source));
+            }
+        } else if (!sourceContext.getCurrentSource().getName().contains(ciString(source))) {
+            throw new IllegalArgumentException(String.format("Invalid source '%s'", source));
+        }
+    }
 }

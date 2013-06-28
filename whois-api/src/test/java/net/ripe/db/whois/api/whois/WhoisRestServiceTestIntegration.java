@@ -9,6 +9,7 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.whois.domain.Attribute;
+import net.ripe.db.whois.api.whois.domain.Flag;
 import net.ripe.db.whois.api.whois.domain.Flags;
 import net.ripe.db.whois.api.whois.domain.InverseAttributes;
 import net.ripe.db.whois.api.whois.domain.Link;
