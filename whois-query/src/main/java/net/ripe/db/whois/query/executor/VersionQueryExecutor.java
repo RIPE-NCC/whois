@@ -89,7 +89,7 @@ public class VersionQueryExecutor implements QueryExecutor {
         }
 
         final ObjectType objectType = res.getObjectType();
-        final String searchKey = query.getCleanSearchValue();
+        final String searchKey = query.getSearchValue();
         if (objectType == ObjectType.PERSON || objectType == ObjectType.ROLE) {
             return Collections.singletonList(new MessageObject(QueryMessages.versionPersonRole(objectType.getName().toUpperCase(), searchKey)));
         }
@@ -170,13 +170,13 @@ public class VersionQueryExecutor implements QueryExecutor {
             return query.getObjectTypes();
         }
 
-        return versionDao.getObjectType(query.getCleanSearchValue());
+        return versionDao.getObjectType(query.getSearchValue());
     }
 
     @CheckForNull
     public VersionLookupResult getVersionInfo(final Query query) {
         for (ObjectType type : getObjectType(query)) {
-            final VersionLookupResult found = versionDao.findByKey(type, query.getCleanSearchValue());
+            final VersionLookupResult found = versionDao.findByKey(type, query.getSearchValue());
             if (found != null) {
                 return found;
             }

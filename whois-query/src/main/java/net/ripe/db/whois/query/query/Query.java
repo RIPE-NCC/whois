@@ -14,7 +14,6 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
@@ -32,7 +31,6 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 public final class Query {
     public static final Pattern FLAG_PATTERN = Pattern.compile("(--?)([^-].*)");
-    public static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
 
     public static final int MAX_QUERY_ELEMENTS = 60;
 
@@ -348,15 +346,6 @@ public final class Query {
 
     public String getSearchValue() {
         return searchKey.getValue();
-    }
-
-    public String getCleanSearchValue() {
-        final IpInterval<?> ipKeyOrNull = getIpKeyOrNull();
-        if (ipKeyOrNull != null) {
-            return ipKeyOrNull instanceof Ipv4Resource ? ((Ipv4Resource) ipKeyOrNull).toRangeString() : ipKeyOrNull.toString();
-        }
-
-        return WHITESPACE_PATTERN.matcher(searchKey.getValue().trim()).replaceAll(" ");
     }
 
     public IpInterval<?> getIpKeyOrNull() {
