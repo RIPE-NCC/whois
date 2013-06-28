@@ -206,7 +206,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "  \"rdapConformance\" : [ \"rdap_level_0\" ],\n" +
                 "  \"handle\" : \"31.12.202.in-addr.arpa\",\n" +
                 "  \"ldhName\" : \"31.12.202.in-addr.arpa\",\n" +
-                "  \"nameserver\" : [ {\n" +
+                "  \"nameservers\" : [ {\n" +
                 "    \"ldhName\" : \"ns1.test.com.au\"\n" +
                 "  }, {\n" +
                 "    \"ldhName\" : \"ns2.test.com.au\"\n" +

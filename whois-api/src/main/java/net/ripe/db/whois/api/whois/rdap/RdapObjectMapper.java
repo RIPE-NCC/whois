@@ -109,9 +109,9 @@ public class RdapObjectMapper {
 
         // Nameservers
         for  (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.NSERVER)) {
-            Nameserver ns = rdapObjectFactory.createNameserver();
+            Nameservers ns = rdapObjectFactory.createNameservers();
             ns.setLdhName(rpslAttribute.getCleanValue().toString());
-            domain.getNameserver().add(ns);
+            domain.getNameservers().add(ns);
         }
 
         // Remarks
