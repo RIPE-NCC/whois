@@ -117,9 +117,9 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
     }
 
     @Test
-    public void lookupAutnum() throws Exception {
+    public void lookupSingleAutnum() throws Exception {
         final ClientResponse cr = 
-            createResource(AUDIENCE, "autnum/AS12345")
+            createResource(AUDIENCE, "autnum/12345")
                 .get(ClientResponse.class);
         assertThat(cr.getEntity(String.class),
                    containsString("\"handle\" : \"AS12345\""));
