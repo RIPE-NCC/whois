@@ -257,7 +257,7 @@ public final class Query {
 
     public int getObjectVersion() {
         if (hasOption(QueryFlag.SHOW_VERSION)) {
-            int version = Integer.parseInt(getOptionValue(QueryFlag.SHOW_VERSION));
+            final int version = Integer.parseInt(getOptionValue(QueryFlag.SHOW_VERSION));
             if (version < 1) {
                 throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("version flag number must be greater than 0"));
             }
