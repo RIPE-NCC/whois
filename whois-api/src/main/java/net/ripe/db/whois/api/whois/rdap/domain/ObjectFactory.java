@@ -37,51 +37,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Notices }
-     * 
-     */
-    public Notices createNotices() {
-        return new Notices();
-    }
-
-    /**
-     * Create an instance of {@link Ip }
-     * 
-     */
-    public Ip createIp() {
-        return new Ip();
-    }
-
-    /**
      * Create an instance of {@link Autnum }
      * 
      */
     public Autnum createAutnum() {
         return new Autnum();
-    }
-
-    /**
-     * Create an instance of {@link Links }
-     * 
-     */
-    public Links createLinks() {
-        return new Links();
-    }
-
-    /**
-     * Create an instance of {@link Domain }
-     * 
-     */
-    public Domain createDomain() {
-        return new Domain();
-    }
-
-    /**
-     * Create an instance of {@link Events }
-     * 
-     */
-    public Events createEvents() {
-        return new Events();
     }
 
     /**
@@ -93,11 +53,51 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link Links }
+     * 
+     */
+    public Links createLinks() {
+        return new Links();
+    }
+
+    /**
+     * Create an instance of {@link Entity }
+     * 
+     */
+    public Entity createEntity() {
+        return new Entity();
+    }
+
+    /**
+     * Create an instance of {@link Notices }
+     * 
+     */
+    public Notices createNotices() {
+        return new Notices();
+    }
+
+    /**
+     * Create an instance of {@link Events }
+     * 
+     */
+    public Events createEvents() {
+        return new Events();
+    }
+
+    /**
      * Create an instance of {@link Nameserver }
      * 
      */
     public Nameserver createNameserver() {
         return new Nameserver();
+    }
+
+    /**
+     * Create an instance of {@link Domain }
+     * 
+     */
+    public Domain createDomain() {
+        return new Domain();
     }
 
     /**
@@ -109,11 +109,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Entity }
+     * Create an instance of {@link Ip }
      * 
      */
-    public Entity createEntity() {
-        return new Entity();
+    public Ip createIp() {
+        return new Ip();
     }
 
 }
