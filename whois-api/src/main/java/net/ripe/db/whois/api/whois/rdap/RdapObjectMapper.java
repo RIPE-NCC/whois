@@ -54,7 +54,9 @@ public class RdapObjectMapper {
 
         debug(rpslObject);
 
-        if (rpslObjectType.getName().equals(ObjectType.PERSON.getName())) {
+        String name = rpslObjectType.getName();
+
+        if (name.equals(ObjectType.PERSON.getName())) {
 
             Entity entity = new ObjectFactory().createEntity();
             entity.setHandle(rpslObject.getKey().toString());
@@ -64,32 +66,33 @@ public class RdapObjectMapper {
 
             rdapResponse = entity;
 
-        } else if (rpslObjectType.equals(ObjectType.ORGANISATION.getName())) {
+        } else if (name.equals(ObjectType.ORGANISATION.getName())) {
 
-        } else if (rpslObjectType.equals(ObjectType.ROLE.getName())) {
+        } else if (name.equals(ObjectType.ROLE.getName())) {
 
-        } else if (rpslObjectType.equals(ObjectType.IRT.getName())) {
+        } else if (name.equals(ObjectType.IRT.getName())) {
 
-        } else if (rpslObjectType.equals(ObjectType.DOMAIN.getName())) {
+        } else if (name.equals(ObjectType.DOMAIN.getName())) {
 
             Domain domain = new ObjectFactory().createDomain();
             domain.setHandle(rpslObject.getKey().toString());
 
             rdapResponse = domain;
-        } else if (rpslObjectType.equals(ObjectType.INETNUM.getName())
-                || rpslObjectType.equals(ObjectType.INET6NUM.getName())) {
+        } else if (name.equals(ObjectType.INETNUM.getName())
+                || name.equals(ObjectType.INET6NUM.getName())) {
 
             Ip ip = new ObjectFactory().createIp();
             ip.setHandle(rpslObject.getKey().toString());
 
             rdapResponse = ip;
-        } else if (rpslObjectType.equals(ObjectType.AUT_NUM.getName())) {
+        } else if (name.equals(ObjectType.AUT_NUM.getName())) {
             Autnum an = new ObjectFactory().createAutnum();
             an.setHandle(rpslObject.getKey().toString());
 
             RpslAttribute asn = 
                 rpslObject.findAttribute(AttributeType.AUT_NUM);
-            String asn_str = asn.getValue().replace("AS", "");
+            String asn_str = asn.getValue().replace("AS", "")
+                                           .replace(" ", "");
 
             an.setStartAutnum(new BigInteger(asn_str));
             an.setEndAutnum(new BigInteger(asn_str));
@@ -97,6 +100,7 @@ public class RdapObjectMapper {
             an.setName("name");
             an.setType("type");
             an.setCountry("AU");
+            an.getStatus().add("ALLOCATED");
 
             rdapResponse = an;
         }

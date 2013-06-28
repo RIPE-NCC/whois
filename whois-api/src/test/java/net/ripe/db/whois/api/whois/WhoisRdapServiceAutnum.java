@@ -121,8 +121,8 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
         final ClientResponse cr = 
             createResource(AUDIENCE, "aut-num/AS12345")
                 .get(ClientResponse.class);
-    //    throw new RuntimeException("Entity content: " +
-    //                               cr.getEntity(String.class));
+        assertThat(cr.getEntity(String.class),
+                   containsString("\"handle\" : \"AS12345\""));
     }
 
     @Override

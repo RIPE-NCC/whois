@@ -37,6 +37,14 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link Notices }
+     * 
+     */
+    public Notices createNotices() {
+        return new Notices();
+    }
+
+    /**
      * Create an instance of {@link Ip }
      * 
      */
@@ -45,11 +53,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Events }
+     * Create an instance of {@link Autnum }
      * 
      */
-    public Events createEvents() {
-        return new Events();
+    public Autnum createAutnum() {
+        return new Autnum();
     }
 
     /**
@@ -69,19 +77,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Notices }
+     * Create an instance of {@link Events }
      * 
      */
-    public Notices createNotices() {
-        return new Notices();
-    }
-
-    /**
-     * Create an instance of {@link Autnum }
-     * 
-     */
-    public Autnum createAutnum() {
-        return new Autnum();
+    public Events createEvents() {
+        return new Events();
     }
 
     /**
@@ -93,11 +93,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Entity }
+     * Create an instance of {@link Nameserver }
      * 
      */
-    public Entity createEntity() {
-        return new Entity();
+    public Nameserver createNameserver() {
+        return new Nameserver();
     }
 
     /**
@@ -109,11 +109,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Nameserver }
+     * Create an instance of {@link Entity }
      * 
      */
-    public Nameserver createNameserver() {
-        return new Nameserver();
+    public Entity createEntity() {
+        return new Entity();
     }
 
 }
