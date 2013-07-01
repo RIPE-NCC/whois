@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap;
 
+import net.ripe.db.whois.api.whois.ApiResponseHandler;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
 import net.ripe.db.whois.api.whois.WhoisService;
 import net.ripe.db.whois.api.whois.domain.Parameters;
@@ -10,8 +11,11 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
+import net.ripe.db.whois.query.query.QueryFlag;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.codehaus.enunciate.jaxrs.TypeHint;
@@ -56,14 +60,11 @@ public class WhoisRdapService extends WhoisService {
         String whoisKey        = key;
         
         if (objectType.equals("autnum")) {
-            whoisObjectType = "aut-num,as-block";
-            whoisKey        = "AS" + key;
+            whoisObjectType = (asnExists(key)) ? "aut-num" : "as-block";
+            whoisKey = "AS" + key;
         }
 
-        String source = this.sourceContext
-                            .getWhoisSlaveSource().getName().toString();
-
-        Response res = lookupObject(request, source, whoisObjectType, 
+        Response res = lookupObject(request, source(), whoisObjectType, 
                                     whoisKey, false);
 
         return res;
@@ -75,5 +76,37 @@ public class WhoisRdapService extends WhoisService {
         RdapStreamingOutput rso = new RdapStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
 
         return Response.ok(rso).build();
+    }
+
+    private String source() {
+        return this.sourceContext
+                   .getWhoisSlaveSource().getName().toString();
+    }
+
+    private boolean asnExists(String asn) {
+        /* todo: There is probably an easier/better way to do this. */
+        final String qstring =
+            String.format("%s %s %s %s %s %s",
+                QueryFlag.SOURCES.getLongFlag(),       source(),
+                QueryFlag.SELECT_TYPES.getLongFlag(),  "aut-num",
+                QueryFlag.SHOW_TAG_INFO.getLongFlag(), "AS" + asn
+            );
+        final Query query = Query.parse(qstring);
+        final boolean[] found_asn = { false };
+        final int contextId = 
+            System.identityHashCode(Thread.currentThread());
+        queryHandler.streamResults(query, InetAddress.getLoopbackAddress(),
+                                   contextId, new ApiResponseHandler() {
+
+            @Override
+            public void handle(final ResponseObject responseObject) {
+                if ((responseObject instanceof RpslObject)
+                        && ((RpslObject) responseObject)
+                                .getType().getName().equals("aut-num")) {
+                    found_asn[0] = true;
+                }
+            }
+        });
+        return found_asn[0];
     }
 }

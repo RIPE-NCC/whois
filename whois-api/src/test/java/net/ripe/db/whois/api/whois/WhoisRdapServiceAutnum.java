@@ -57,9 +57,20 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
             "source:      TEST"
         );
 
-    private static final RpslObject ASN_RANGE =
+    private static final RpslObject ASN_RANGE_ONE =
         RpslObject.parse(
             "as-block:  AS1000-AS2000\n" +
+            "descr:     An ASN range\n" +
+            "admin-c:   TP1-TEST\n" +
+            "tech-c:    TP1-TEST\n" +
+            "changed:   test@test.net.au 20010816\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "source:    TEST\n"
+        );
+
+    private static final RpslObject ASN_RANGE_TWO =
+        RpslObject.parse(
+            "as-block:  AS10000-AS20000\n" +
             "descr:     An ASN range\n" +
             "admin-c:   TP1-TEST\n" +
             "tech-c:    TP1-TEST\n" +
@@ -87,7 +98,8 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
 
         List<RpslObject> objects = 
             new ArrayList<RpslObject>(Arrays.asList(
-                ASN_RANGE,
+                ASN_RANGE_ONE,
+                ASN_RANGE_TWO,
                 ASN_SINGLE
             ));
 
