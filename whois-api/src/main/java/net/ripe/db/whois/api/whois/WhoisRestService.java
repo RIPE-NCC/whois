@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.whois;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -64,7 +63,7 @@ public class WhoisRestService {
 
     private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
     private static final Joiner JOINER = Joiner.on(",");
-    private static final Set<QueryFlag> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(TEMPLATE, VERBOSE, CLIENT, NO_GROUPING, SOURCES, NO_TAG_INFO, SHOW_TAG_INFO, ALL_SOURCES, LIST_SOURCES_OR_VERSION, LIST_SOURCES, DIFF_VERSIONS, LIST_VERSIONS, SHOW_VERSION, PERSISTENT_CONNECTION);
+    private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet();
 
     @Autowired
     public WhoisRestService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
@@ -74,6 +73,24 @@ public class WhoisRestService {
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
+        initDisallowedQueryFlagCache();
+    }
+
+    private void initDisallowedQueryFlagCache() {
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(TEMPLATE.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(VERBOSE.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(CLIENT.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(NO_GROUPING.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(SOURCES.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(NO_TAG_INFO.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(SHOW_TAG_INFO.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(ALL_SOURCES.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(LIST_SOURCES_OR_VERSION.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(LIST_SOURCES.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(DIFF_VERSIONS.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(LIST_VERSIONS.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(SHOW_VERSION.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(PERSISTENT_CONNECTION.getFlags());
     }
 
     /**
@@ -1632,13 +1649,7 @@ public class WhoisRestService {
 
     private void checkForInvalidFlags(final Set<String> flags) {
         for (final String flag : flags) {
-            // TODO: [AH] cache this instead of executing fot each request
-            if (0 <= Iterables.indexOf(NOT_ALLOWED_SEARCH_QUERY_FLAGS, new Predicate<QueryFlag>() {
-                @Override
-                public boolean apply(final QueryFlag input) {
-                    return input.getFlags().contains(flag);
-                }
-            })) {
+            if (NOT_ALLOWED_SEARCH_QUERY_FLAGS.contains(flag)) {
                 throw new IllegalArgumentException(String.format("Disallowed option '%s'", flag));
             }
         }
