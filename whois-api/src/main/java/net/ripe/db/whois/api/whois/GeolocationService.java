@@ -84,12 +84,12 @@ public class GeolocationService {
     }
 
     /**
-     * <p>Lookup geolocation and language attributes for a particular ip address.</p>
+     * <p>Lookup geolocation and language attributes for a particular IPv4 or IPv6 address.</p>
      *
      * <p>The response format is specified using a HTTP Accept header. If not specified, the default response format is XML.</p>
      *
      * <p><div>Example request using the CURL command:</div>
-     * <pre>curl -H 'Content-Type: application/xml' https://apps.db.ripe.net/whois-beta/geolocation?source=test&ipkey=10.0.0.0</pre></p>
+     * <pre>curl https://apps.db.ripe.net/whois-beta/geolocation?source=test&ipkey=10.0.0.0</pre></p>
      *
      * <p><div>Example XML response:</div>
      * <pre>
