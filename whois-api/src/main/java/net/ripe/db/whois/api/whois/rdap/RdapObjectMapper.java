@@ -81,6 +81,15 @@ public class RdapObjectMapper {
         Person person = RdapHelper.createPerson();
         person.setHandle(rpslObject.getKey().toString());
         person.setVcardArray(generateVcards(rpslObject));
+
+        for (RpslAttribute rpslAttribute :
+                rpslObject.findAttributes(AttributeType.REMARKS)) {
+            Remarks remark = rdapObjectFactory.createRemarks();
+            String descr = rpslAttribute.getCleanValue().toString();
+            remark.getDescription().add(descr);
+            person.getRemarks().add(remark);
+        }
+
         return person;
     }
 
