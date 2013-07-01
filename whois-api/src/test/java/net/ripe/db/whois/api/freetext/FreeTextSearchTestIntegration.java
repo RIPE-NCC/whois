@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.freetext;
 
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.common.IntegrationTest;
@@ -19,7 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
@@ -30,6 +34,28 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
     @Before
     public void setUp() throws Exception {
         freeTextIndex.rebuild();
+    }
+
+    @Test
+    public void search_no_params() throws Exception {
+        try {
+            query("");
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(ClientResponse.Status.BAD_REQUEST.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), containsString("No query parameter."));
+        }
+    }
+
+    @Test
+    public void search_empty_query_param() throws Exception {
+        try {
+            query("q=");
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(ClientResponse.Status.BAD_REQUEST.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), containsString("Invalid query"));
+        }
     }
 
     @Test

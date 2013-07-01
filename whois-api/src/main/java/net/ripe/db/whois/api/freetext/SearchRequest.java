@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.freetext;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -30,6 +31,10 @@ class SearchRequest {
     }
 
     public static SearchRequest parse(final String query) {
+        if (StringUtils.isEmpty(query)) {
+            throw new IllegalArgumentException("No query parameter.");
+        }
+
         final Map<String, String> params = Maps.newHashMap();
 
         for (String param : PARAM_SPLITTER.split(query)) {
