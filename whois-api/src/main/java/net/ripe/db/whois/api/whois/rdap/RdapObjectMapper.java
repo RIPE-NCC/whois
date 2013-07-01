@@ -16,6 +16,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 public class RdapObjectMapper {
     private static final Logger LOGGER = 
@@ -62,7 +65,8 @@ public class RdapObjectMapper {
                 break;
             case AUT_NUM:
             case AS_BLOCK:
-                rdapResponse = createAutnumResponse(rpslObject);
+                rdapResponse = createAutnumResponse(rpslObject,
+                                                    taggedRpslObjectQueue);
                 break;
             case INETNUM:
             case INET6NUM:
@@ -93,7 +97,31 @@ public class RdapObjectMapper {
         return person;
     }
 
-    private Autnum createAutnumResponse(RpslObject rpslObject) {
+    private Entity createEntity(RpslObject rpslObject) {
+        /* todo: this is nearly the same as createPersonResponse. */
+        Entity entity = rdapObjectFactory.createEntity();
+        entity.setHandle(rpslObject.getKey().toString());
+        entity.setVcardArray(generateVcards(rpslObject));
+        
+        for (RpslAttribute rpslAttribute :
+                rpslObject.findAttributes(AttributeType.REMARKS)) {
+            Remarks remark = rdapObjectFactory.createRemarks();
+            String descr = rpslAttribute.getCleanValue().toString();
+            remark.getDescription().add(descr);
+            entity.getRemarks().add(remark);
+        }
+
+        return entity;
+    }
+
+    private Autnum createAutnumResponse(RpslObject rpslObject,
+                                        Queue<TaggedRpslObject> qtro) {
+        HashMap<String, RpslObject> mtro = new HashMap<String, RpslObject>();
+        for (TaggedRpslObject tro : qtro) {
+            mtro.put(tro.rpslObject.getKey().toString(),
+                     tro.rpslObject);
+        }
+
         Autnum an = RdapHelper.createAutnum();
         an.setHandle(rpslObject.getKey().toString());
 
@@ -153,6 +181,30 @@ public class RdapObjectMapper {
             String descr = rpslAttribute.getCleanValue().toString();
             remark.getDescription().add(descr);
             an.getRemarks().add(remark);
+        }
+
+        /* Load the admin-c and tech-c attributes, find the
+         * corresponding records in the queue (if possible), convert
+         * them into Entities and add them to the response. */
+        List<RpslAttribute> admin_cs =
+            rpslObject.findAttributes(AttributeType.ADMIN_C);
+        List<RpslAttribute> tech_cs =
+            rpslObject.findAttributes(AttributeType.TECH_C);
+        List<RpslAttribute> contacts = new ArrayList<RpslAttribute>();
+        contacts.addAll(admin_cs);
+        contacts.addAll(tech_cs);
+        Set<String> seen = new HashSet<String>();
+        for (RpslAttribute rpslAttribute : contacts) {
+            String key = rpslAttribute.getCleanValue().toString();
+            if (seen.contains(key)) {
+                continue;
+            }
+            seen.add(key);
+            RpslObject ro = mtro.get(key);
+            if (ro != null) {
+                Entity e = createEntity(ro);
+                an.getEntities().add(e);
+            }
         }
 
         return an;

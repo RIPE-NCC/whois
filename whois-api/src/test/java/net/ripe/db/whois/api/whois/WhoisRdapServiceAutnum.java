@@ -16,10 +16,12 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.math.BigInteger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -118,7 +120,7 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
     @Override
     public void setUpClient() throws Exception {
         ClientConfig cc = new DefaultClientConfig();
-        cc.getSingletons().add(new JacksonJaxbJsonProvider().configure(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE, true));
+        cc.getSingletons().add(new JacksonJaxbJsonProvider());
         client = Client.create(cc);
     }
 
@@ -135,13 +137,27 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
         final ClientResponse cr = 
             createResource(AUDIENCE, "autnum/12345")
                 .get(ClientResponse.class);
-        String res = cr.getEntity(String.class);
-        assertThat(res, containsString("\"handle\" : \"AS12345\""));
-        assertThat(res, containsString("\"startAutnum\" : 12345,"));
-        assertThat(res, containsString("\"endAutnum\" : 12345,"));
-        assertThat(res, containsString("\"name\" : \"AS-TEST\""));
-        assertThat(res, containsString("\"country\" : \"AU\""));
-        assertThat(res, containsString("\"type\" : \"DIRECT ALLOCATION\""));
+        final Autnum an = cr.getEntity(Autnum.class);
+
+        assertThat(an.getHandle(), equalTo("AS12345"));
+        assertThat(an.getStartAutnum(), 
+                   equalTo(BigInteger.valueOf((long) 12345)));
+        assertThat(an.getEndAutnum(),
+                   equalTo(BigInteger.valueOf((long) 12345)));
+        assertThat(an.getName(), equalTo("AS-TEST"));
+        assertThat(an.getCountry(), equalTo("AU"));
+        assertThat(an.getType(), equalTo("DIRECT ALLOCATION"));
+
+        /* No entities returned, at the moment. The queue passed to
+         * createAutnumResponse is empty, for some reason. */
+         
+        /*
+        List<Entity> entities = an.getEntities();
+        assertThat(entities.size(), equalTo(1));
+
+        Entity admin_c = entities.get(0);
+        assertThat(admin_c.getHandle(), equalTo("TP1-TEST"));
+        */
     }
 
     @Test
