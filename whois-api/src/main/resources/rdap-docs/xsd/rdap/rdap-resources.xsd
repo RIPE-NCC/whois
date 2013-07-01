@@ -67,6 +67,7 @@
     <xs:element name="autnum">
         <xs:complexType>
             <xs:sequence>
+                <xs:element name="rdapConformance" type="xs:string" maxOccurs="unbounded" minOccurs="1"/>
                 <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="startAutnum" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="endAutnum" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1"/>

@@ -85,7 +85,7 @@ public class RdapObjectMapper {
     }
 
     private Autnum createAutnumResponse(RpslObject rpslObject) {
-        Autnum an = new ObjectFactory().createAutnum();
+        Autnum an = RdapHelper.createAutnum();
         an.setHandle(rpslObject.getKey().toString());
 
         boolean is_autnum =
@@ -131,6 +131,14 @@ public class RdapObjectMapper {
         an.setType("DIRECT ALLOCATION");
         /* None of the statuses from [9.1] in json-response is
          * applicable here, so 'status' will be left empty for now. */
+ 
+        for (RpslAttribute rpslAttribute : 
+                rpslObject.findAttributes(AttributeType.REMARKS)) {
+            Remarks remark = rdapObjectFactory.createRemarks();
+            String descr = rpslAttribute.getCleanValue().toString();
+            remark.getDescription().add(descr);
+            an.getRemarks().add(remark);
+        } 
 
         return an;
     }

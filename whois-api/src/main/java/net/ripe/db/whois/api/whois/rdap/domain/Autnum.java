@@ -30,6 +30,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
+ *         &lt;element name="rdapConformance" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded"/>
  *         &lt;element name="handle" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="startAutnum" type="{http://www.w3.org/2001/XMLSchema}nonNegativeInteger"/>
  *         &lt;element name="endAutnum" type="{http://www.w3.org/2001/XMLSchema}nonNegativeInteger"/>
@@ -51,6 +52,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
+    "rdapConformance",
     "handle",
     "startAutnum",
     "endAutnum",
@@ -68,6 +70,8 @@ public class Autnum
     implements Serializable
 {
 
+    @XmlElement(required = true)
+    protected List<String> rdapConformance;
     @XmlElement(required = true)
     protected String handle;
     @XmlElement(required = true)
@@ -87,6 +91,35 @@ public class Autnum
     protected List<Links> links;
     protected List<Events> events;
     protected List<Entity> entities;
+
+    /**
+     * Gets the value of the rdapConformance property.
+     * 
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the rdapConformance property.
+     * 
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getRdapConformance().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link String }
+     * 
+     * 
+     */
+    public List<String> getRdapConformance() {
+        if (rdapConformance == null) {
+            rdapConformance = new ArrayList<String>();
+        }
+        return this.rdapConformance;
+    }
 
     /**
      * Gets the value of the handle property.

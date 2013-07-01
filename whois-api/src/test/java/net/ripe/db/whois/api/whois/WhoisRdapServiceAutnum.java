@@ -61,6 +61,8 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
         RpslObject.parse(
             "as-block:  AS1000-AS2000\n" +
             "descr:     An ASN range\n" +
+            "remarks:   a remark\n" +
+            "remarks:   another remark\n" +
             "admin-c:   TP1-TEST\n" +
             "tech-c:    TP1-TEST\n" +
             "country:   AU\n" +

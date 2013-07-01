@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.whois.rdap.domain.Domain;
 import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
 import net.ripe.db.whois.api.whois.rdap.domain.Person;
+import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
 
 import java.util.List;
 
@@ -22,6 +23,12 @@ public class RdapHelper {
         Person person = rdapObjectFactory.createPerson();
         person.getRdapConformance().addAll(RDAPCONFORMANCE);
         return person;
+    }
+
+    public static Autnum createAutnum() {
+        Autnum autnum = rdapObjectFactory.createAutnum();
+        autnum.getRdapConformance().addAll(RDAPCONFORMANCE);
+        return autnum;
     }
 
 }
