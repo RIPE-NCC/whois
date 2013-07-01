@@ -112,10 +112,25 @@ public class RdapObjectMapper {
         an.setStartAutnum(start);
         an.setEndAutnum(end);
 
-        an.setName("name");
-        an.setType("type");
-        an.setCountry("AU");
-        an.getStatus().add("ALLOCATED");
+        an.setCountry(rpslObject.findAttribute(AttributeType.COUNTRY)
+                                .getValue().replace(" ", ""));
+        
+        /* For as-blocks, use the range as the name, since they do not
+         * have an obvious 'name' attribute. */
+        AttributeType name =
+            (is_autnum)
+                ? AttributeType.AS_NAME
+                : AttributeType.AS_BLOCK; 
+        an.setName(rpslObject.findAttribute(name)
+                             .getValue().replace(" ", ""));
+        /* aut-num records don't have a 'type' or 'status' field, and
+         * each is allocated directly by the relevant RIR. 'DIRECT
+         * ALLOCATION' is the default value used in the response
+         * draft, and it makes sense to use it here too, at least for
+         * now. */
+        an.setType("DIRECT ALLOCATION");
+        /* None of the statuses from [9.1] in json-response is
+         * applicable here, so 'status' will be left empty for now. */
 
         return an;
     }

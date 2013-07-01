@@ -63,6 +63,7 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
             "descr:     An ASN range\n" +
             "admin-c:   TP1-TEST\n" +
             "tech-c:    TP1-TEST\n" +
+            "country:   AU\n" +
             "changed:   test@test.net.au 20010816\n" +
             "mnt-by:    OWNER-MNT\n" +
             "source:    TEST\n"
@@ -74,6 +75,7 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
             "descr:     An ASN range\n" +
             "admin-c:   TP1-TEST\n" +
             "tech-c:    TP1-TEST\n" +
+            "country:   AU\n" +
             "changed:   test@test.net.au 20010816\n" +
             "mnt-by:    OWNER-MNT\n" +
             "source:    TEST\n"
@@ -82,9 +84,11 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
     private static final RpslObject ASN_SINGLE =
         RpslObject.parse(
             "aut-num:   AS12345\n" +
+            "as-name:   AS-TEST\n" +
             "descr:     A single ASN\n" +
             "admin-c:   TP1-TEST\n" +
             "tech-c:    TP1-TEST\n" +
+            "country:   AU\n" +
             "changed:   test@test.net.au 20010816\n" +
             "mnt-by:    OWNER-MNT\n" +
             "source:    TEST\n"
@@ -129,8 +133,13 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
         final ClientResponse cr = 
             createResource(AUDIENCE, "autnum/12345")
                 .get(ClientResponse.class);
-        assertThat(cr.getEntity(String.class),
-                   containsString("\"handle\" : \"AS12345\""));
+        String res = cr.getEntity(String.class);
+        assertThat(res, containsString("\"handle\" : \"AS12345\""));
+        assertThat(res, containsString("\"startAutnum\" : 12345,"));
+        assertThat(res, containsString("\"endAutnum\" : 12345,"));
+        assertThat(res, containsString("\"name\" : \"AS-TEST\""));
+        assertThat(res, containsString("\"country\" : \"AU\""));
+        assertThat(res, containsString("\"type\" : \"DIRECT ALLOCATION\""));
     }
 
     @Test
@@ -138,8 +147,13 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
         final ClientResponse cr = 
             createResource(AUDIENCE, "autnum/1500")
                 .get(ClientResponse.class);
-        assertThat(cr.getEntity(String.class),
-                   containsString("\"handle\" : \"AS1000-AS2000\""));
+        String res = cr.getEntity(String.class);
+        assertThat(res, containsString("\"handle\" : \"AS1000-AS2000\""));
+        assertThat(res, containsString("\"startAutnum\" : 1000,"));
+        assertThat(res, containsString("\"endAutnum\" : 2000,"));
+        assertThat(res, containsString("\"name\" : \"AS1000-AS2000\""));
+        assertThat(res, containsString("\"country\" : \"AU\""));
+        assertThat(res, containsString("\"type\" : \"DIRECT ALLOCATION\""));
     }
 
     @Override
