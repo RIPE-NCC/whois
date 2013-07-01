@@ -64,48 +64,16 @@ public class RdapObjectMapper {
             // TODO
         } else if (rpslObjectType.getName().equals(ObjectType.DOMAIN.getName())) {
             rdapResponse = createDomainResponse(rpslObject);
-        } else if (name.equals(ObjectType.INETNUM.getName()) || name.equals(ObjectType.INET6NUM.getName())) {
+        } else if (name.equals(ObjectType.INETNUM.getName()) 
+                || name.equals(ObjectType.INET6NUM.getName())) {
 
             Ip ip = new ObjectFactory().createIp();
             ip.setHandle(rpslObject.getKey().toString());
 
             rdapResponse = ip;
-        } else if (name.equals(ObjectType.AUT_NUM.getName())) {
-            Autnum an = new ObjectFactory().createAutnum();
-            an.setHandle(rpslObject.getKey().toString());
-
-            RpslAttribute asn =
-                    rpslObject.findAttribute(AttributeType.AUT_NUM);
-            String asn_str = asn.getValue().replace("AS", "")
-                    .replace(" ", "");
-
-            an.setStartAutnum(new BigInteger(asn_str));
-            an.setEndAutnum(new BigInteger(asn_str));
-
-            an.setName("name");
-            an.setType("type");
-            an.setCountry("AU");
-            an.getStatus().add("ALLOCATED");
-
-            rdapResponse = an;
-        } else if (name.equals(ObjectType.AS_BLOCK.getName())) {
-            Autnum an = new ObjectFactory().createAutnum();
-            an.setHandle(rpslObject.getKey().toString());
-
-            RpslAttribute asn_range =
-                rpslObject.findAttribute(AttributeType.AS_BLOCK);
-            AsBlockRange abr = AsBlockRange.parse(asn_range.getValue()
-                                                           .replace(" ", ""));
-
-            an.setStartAutnum(BigInteger.valueOf(abr.getBegin()));
-            an.setEndAutnum(BigInteger.valueOf(abr.getEnd()));
-
-            an.setName("name");
-            an.setType("type");
-            an.setCountry("AU");
-            an.getStatus().add("ALLOCATED");
-
-            rdapResponse = an;
+        } else if (name.equals(ObjectType.AUT_NUM.getName())
+                || name.equals(ObjectType.AS_BLOCK.getName())) {
+            rdapResponse = createAutnumResponse(rpslObject);
         }
     }
 
@@ -114,6 +82,42 @@ public class RdapObjectMapper {
         person.setHandle(rpslObject.getKey().toString());
         person.setVcardArray(generateVcards(rpslObject));
         return person;
+    }
+
+    private Autnum createAutnumResponse(RpslObject rpslObject) {
+        Autnum an = new ObjectFactory().createAutnum();
+        an.setHandle(rpslObject.getKey().toString());
+
+        boolean is_autnum =
+            rpslObject.getType().getName().equals(
+                ObjectType.AUT_NUM.getName()
+            );
+
+        BigInteger start;
+        BigInteger end;
+        if (is_autnum) {
+            RpslAttribute asn =
+                rpslObject.findAttribute(AttributeType.AUT_NUM);
+            String asn_str = asn.getValue().replace("AS", "").replace(" ", "");
+            start = end = new BigInteger(asn_str);
+        } else {
+            RpslAttribute asn_range =
+                rpslObject.findAttribute(AttributeType.AS_BLOCK);
+            AsBlockRange abr = 
+                AsBlockRange.parse(asn_range.getValue().replace(" ", ""));
+            start = BigInteger.valueOf(abr.getBegin());
+            end   = BigInteger.valueOf(abr.getEnd());
+        }
+
+        an.setStartAutnum(start);
+        an.setEndAutnum(end);
+
+        an.setName("name");
+        an.setType("type");
+        an.setCountry("AU");
+        an.getStatus().add("ALLOCATED");
+
+        return an;
     }
 
     private Domain createDomainResponse(RpslObject rpslObject) {
