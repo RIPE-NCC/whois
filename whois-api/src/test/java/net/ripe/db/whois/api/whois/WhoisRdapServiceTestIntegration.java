@@ -187,8 +187,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "  }, \"text\", \"Pauleth Palthen\" ], [ \"adr\", {\n" +
                 "    \"label\" : \"Singel 258\"\n" +
                 "  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
-                "  }, \"uri\", \"+31-1234567890\" ] ] ]\n" +
+                "  }, \"uri\", \"+31-1234567890\" ] ] ],\n" +
+                "  \"remarks\" : [ {\n" +
+                "    \"description\" : [ \"remark\" ]\n" +
+                "  } ]\n" +
                 "}", textEntity);
+
+        //Thread.sleep(1500000);
     }
 
     @Test
