@@ -15,10 +15,11 @@ import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
+import java.util.ArrayList;
 
 public class RdapObjectMapper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RdapObjectMapper.class);
-
+    private static final Logger LOGGER = 
+        LoggerFactory.getLogger(RdapObjectMapper.class);
 
     ObjectFactory rdapObjectFactory = new ObjectFactory();
 
@@ -35,46 +36,45 @@ public class RdapObjectMapper {
             return rdapResponse;
         }
 
-        if (!taggedRpslObjectQueue.isEmpty()) {
-            primaryTaggedRpslObject = taggedRpslObjectQueue.poll();
-        } else {
-            throw new Exception("The rpsl queue is empty");
+        if (taggedRpslObjectQueue.isEmpty()) {
+            throw new Exception("The RPSL queue is empty.");
         }
 
-        add(primaryTaggedRpslObject);
+        TaggedRpslObject first = taggedRpslObjectQueue.poll();
+        add(first, taggedRpslObjectQueue);
 
         return rdapResponse;
     }
 
-    private void add(TaggedRpslObject taggedRpslObject) {
+    private void add(TaggedRpslObject taggedRpslObject,
+                     Queue<TaggedRpslObject> taggedRpslObjectQueue) {
         RpslObject rpslObject = taggedRpslObject.rpslObject;
-
         ObjectType rpslObjectType = rpslObject.getType();
 
         debug(rpslObject);
-        String name = rpslObjectType.getName();
 
-        if (name.equals(ObjectType.PERSON.getName())) {
-            rdapResponse = createPersonResponse(rpslObject);
-        } else if (name.equals(ObjectType.ORGANISATION.getName())) {
-            // TODO
-        } else if (name.equals(ObjectType.ROLE.getName())) {
-            // TODO
-        } else if (name.equals(ObjectType.IRT.getName())) {
-            // TODO
-        } else if (rpslObjectType.getName().equals(ObjectType.DOMAIN.getName())) {
-            rdapResponse = createDomainResponse(rpslObject);
-        } else if (name.equals(ObjectType.INETNUM.getName()) 
-                || name.equals(ObjectType.INET6NUM.getName())) {
-
-            Ip ip = new ObjectFactory().createIp();
-            ip.setHandle(rpslObject.getKey().toString());
-
-            rdapResponse = ip;
-        } else if (name.equals(ObjectType.AUT_NUM.getName())
-                || name.equals(ObjectType.AS_BLOCK.getName())) {
-            rdapResponse = createAutnumResponse(rpslObject);
-        }
+        switch (rpslObjectType) {
+            case PERSON:
+                rdapResponse = createPersonResponse(rpslObject);
+                break;
+            case DOMAIN:
+                rdapResponse = createDomainResponse(rpslObject);
+                break;
+            case AUT_NUM:
+            case AS_BLOCK:
+                rdapResponse = createAutnumResponse(rpslObject);
+                break;
+            case INETNUM:
+            case INET6NUM:
+                Ip ip = new ObjectFactory().createIp();
+                ip.setHandle(rpslObject.getKey().toString());
+                rdapResponse = ip;
+                break;
+            case ORGANISATION:
+            case ROLE:
+            case IRT:
+                break;
+        };
     }
 
     private Person createPersonResponse(RpslObject rpslObject) {
@@ -132,13 +132,19 @@ public class RdapObjectMapper {
         /* None of the statuses from [9.1] in json-response is
          * applicable here, so 'status' will be left empty for now. */
  
-        for (RpslAttribute rpslAttribute : 
-                rpslObject.findAttributes(AttributeType.REMARKS)) {
+        List<RpslAttribute> remarks =
+            rpslObject.findAttributes(AttributeType.REMARKS);
+        List<RpslAttribute> descrs =
+            rpslObject.findAttributes(AttributeType.DESCR);
+        List<RpslAttribute> all_remarks =  new ArrayList<RpslAttribute>();
+        all_remarks.addAll(remarks);
+        all_remarks.addAll(descrs);
+        for (RpslAttribute rpslAttribute : all_remarks) {
             Remarks remark = rdapObjectFactory.createRemarks();
             String descr = rpslAttribute.getCleanValue().toString();
             remark.getDescription().add(descr);
             an.getRemarks().add(remark);
-        } 
+        }
 
         return an;
     }
