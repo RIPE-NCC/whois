@@ -49,8 +49,6 @@ import static net.ripe.db.whois.query.query.QueryFlag.*;
 @Component
 @Path("/")
 public class WhoisRestService {
-    private static final int STATUS_TOO_MANY_REQUESTS = 429;
-
     private static final String TEXT_JSON = "text/json";
     private static final String TEXT_XML = "text/xml";
 
@@ -327,72 +325,9 @@ public class WhoisRestService {
     private Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
         final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
 
-        return Response.ok(new StreamingOutput() {
-            private boolean found;
+        RestStreamingOutput rso = new RestStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
 
-            @Override
-            public void write(final OutputStream output) throws IOException {
-                streamingMarshal.open(output);
-                streamingMarshal.start("whois-resources");
-
-                if (parameters != null) {
-                    streamingMarshal.write("parameters", parameters);
-                }
-
-                streamingMarshal.start("objects");
-
-                // TODO [AK] Crude way to handle tags, but working
-                final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
-                final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
-
-                try {
-                    queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
-
-                        @Override
-                        public void handle(final ResponseObject responseObject) {
-                            if (responseObject instanceof TagResponseObject) {
-                                tagResponseObjects.add((TagResponseObject) responseObject);
-                            } else if (responseObject instanceof RpslObject) {
-                                found = true;
-                                streamObject(rpslObjectQueue.poll(), tagResponseObjects);
-                                rpslObjectQueue.add((RpslObject) responseObject);
-                            }
-
-                            // TODO [AK] Handle related messages
-                        }
-                    });
-
-                    streamObject(rpslObjectQueue.poll(), tagResponseObjects);
-
-                    if (!found) {
-                        throw new WebApplicationException(Response.Status.NOT_FOUND);
-                    }
-                } catch (QueryException e) {
-                    if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                        throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
-                    } else {
-                        throw e;
-                    }
-                }
-
-                streamingMarshal.close();
-            }
-
-            private void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
-                if (rpslObject == null) {
-                    return;
-                }
-
-                final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject);
-
-                // TODO [AK] Fix mapper API
-                final List<WhoisTag> tags = WhoisObjectMapper.mapTags(tagResponseObjects).getTags();
-                whoisObject.setTags(tags);
-
-                streamingMarshal.write("object", whoisObject);
-                tagResponseObjects.clear();
-            }
-        }).build();
+        return Response.ok(rso).build();
     }
 
     private StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
