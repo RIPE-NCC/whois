@@ -1562,8 +1562,8 @@ public class WhoisRestService {
             @QueryParam("source") Set<String> sources,
             @QueryParam("query-string") String queryString,
             @QueryParam("inverse-attribute") Set<String> inverseAttributes,
-            @QueryParam("include") Set<String> include,
-            @QueryParam("exclude") Set<String> exclude,
+            @QueryParam("include-tag") Set<String> includeTags,
+            @QueryParam("exclude-tag") Set<String> excludeTags,
             @QueryParam("type-filter") Set<String> types,
             @QueryParam("flags") Set<String> flags) {
         return doSearch(request, queryString, sources, inverseAttributes, include, exclude, types, flags);
