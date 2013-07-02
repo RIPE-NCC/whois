@@ -161,13 +161,11 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
         /* No entities returned, at the moment. The queue passed to
          * createAutnumResponse is empty, for some reason. */
 
-        /*
         List<Entity> entities = an.getEntities();
         assertThat(entities.size(), equalTo(1));
 
         Entity admin_c = entities.get(0);
         assertThat(admin_c.getHandle(), equalTo("TP1-TEST"));
-        */
     }
 
     @Test

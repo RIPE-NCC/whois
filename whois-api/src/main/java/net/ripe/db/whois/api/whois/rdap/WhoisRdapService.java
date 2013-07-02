@@ -88,9 +88,8 @@ public class WhoisRdapService extends WhoisService {
             final String objectTypeString,
             final String key,
             final boolean isGrs) {
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s",
+        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s",
                 QueryFlag.NO_GROUPING.getLongFlag(),
-                QueryFlag.NO_REFERENCED.getLongFlag(),
                 QueryFlag.SOURCES.getLongFlag(),
                 source,
                 QueryFlag.SELECT_TYPES.getLongFlag(),
