@@ -5,14 +5,12 @@ import net.ripe.db.whois.api.whois.StreamingMarshal;
 import net.ripe.db.whois.api.whois.WhoisService;
 import net.ripe.db.whois.api.whois.domain.Parameters;
 import net.ripe.db.whois.api.whois.domain.WhoisResources;
-import net.ripe.db.whois.api.whois.rdap.RdapStreamingMarshalJson;
-import net.ripe.db.whois.api.whois.rdap.RdapStreamingOutput;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
@@ -81,6 +79,29 @@ public class WhoisRdapService extends WhoisService {
     private String source() {
         return this.sourceContext
                    .getWhoisSlaveSource().getName().toString();
+    }
+
+    // TODO: [AH] hierarchical lookups return the encompassing range if no direct hit
+    protected Response lookupObject(
+            final HttpServletRequest request,
+            final String source,
+            final String objectTypeString,
+            final String key,
+            final boolean isGrs) {
+        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s",
+                QueryFlag.NO_GROUPING.getLongFlag(),
+                QueryFlag.NO_REFERENCED.getLongFlag(),
+                QueryFlag.SOURCES.getLongFlag(),
+                source,
+                QueryFlag.SELECT_TYPES.getLongFlag(),
+                objectTypeString,
+                QueryFlag.SHOW_TAG_INFO.getLongFlag(),
+                QueryFlag.NO_FILTERING.getLongFlag(),
+                key));
+
+        checkForInvalidSource(source, isGrs);
+
+        return handleQuery(query, source, key, request, null);
     }
 
     private boolean asnExists(String asn) {

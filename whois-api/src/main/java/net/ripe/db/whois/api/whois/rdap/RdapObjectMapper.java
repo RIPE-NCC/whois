@@ -1,24 +1,35 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.collect.Maps;
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import net.ripe.db.whois.api.whois.TaggedRpslObject;
-import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
+import net.ripe.db.whois.api.whois.rdap.domain.Domain;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Events;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Nameservers;
+import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
+import net.ripe.db.whois.api.whois.rdap.domain.Person;
+import net.ripe.db.whois.api.whois.rdap.domain.Remarks;
+import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
-import java.util.HashSet;
 
 public class RdapObjectMapper {
     private static final Logger LOGGER = 
@@ -86,12 +97,51 @@ public class RdapObjectMapper {
         person.setHandle(rpslObject.getKey().toString());
         person.setVcardArray(generateVcards(rpslObject));
 
+        // Remarks
         for (RpslAttribute rpslAttribute :
                 rpslObject.findAttributes(AttributeType.REMARKS)) {
             Remarks remark = rdapObjectFactory.createRemarks();
             String descr = rpslAttribute.getCleanValue().toString();
             remark.getDescription().add(descr);
             person.getRemarks().add(remark);
+        }
+
+        // Events
+        int counter = 0;
+        List<RpslAttribute> changedList = rpslObject.findAttributes(AttributeType.CHANGED);
+        int listSize = changedList.size();
+
+        for (RpslAttribute rpslAttribute : changedList) {
+            Events event = rdapObjectFactory.createEvents();
+            String eventString = rpslAttribute.getValue();
+
+            // Split the string and make the event entry
+            eventString = eventString.trim();
+            String[] eventStringElements = eventString.split(" ");
+
+            String eventAction = "changed";
+            if (counter == 0) {
+                eventAction = "registration";
+            } else if (counter == (listSize - 1) ) {
+                eventAction = "last changed";
+            }
+
+            event.setEventAction(eventAction);
+            event.setEventActor(eventStringElements[0]);
+
+            int year = Integer.parseInt(eventStringElements[1].substring(0,4));
+            int month = Integer.parseInt(eventStringElements[1].substring(5,6)) - 1;
+            int day = Integer.parseInt(eventStringElements[1].substring(7,8));
+
+            GregorianCalendar gc = new GregorianCalendar(year,month,day);
+
+            XMLGregorianCalendar eventDate= new XMLGregorianCalendarImpl(gc);
+            eventDate.setTimezone(0);
+            event.setEventDate(eventDate);
+
+            person.getEvents().add(event);
+
+            counter++;
         }
 
         return person;
