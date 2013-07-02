@@ -85,7 +85,7 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
         streamingMarshal.close();
     }
 
-    protected void streamObject(Object rdapObject) {
+    private void streamObject(Object rdapObject) {
         if (rdapObject == null) {
             return;
         }

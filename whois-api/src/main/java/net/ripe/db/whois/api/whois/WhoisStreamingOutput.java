@@ -26,6 +26,4 @@ public abstract class WhoisStreamingOutput implements StreamingOutput {
         remoteAddress = ra;
         contextId = cid;
     }
-
-    protected abstract void streamObject(Object object);
 }

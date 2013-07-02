@@ -87,7 +87,7 @@ public class RestStreamingOutput extends WhoisStreamingOutput {
         return whoisObject;
     }
 
-    protected void streamObject(Object whoisObject) {
+    private void streamObject(Object whoisObject) {
         if (whoisObject == null) {
             return;
         }
