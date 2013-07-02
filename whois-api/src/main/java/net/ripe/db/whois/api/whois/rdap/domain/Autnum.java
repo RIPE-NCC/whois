@@ -86,9 +86,7 @@ public class Autnum
     @XmlElement(required = true)
     protected String country;
     protected List<String> status;
-    protected List<Remarks> remarks;
     protected List<Links> links;
-    protected List<Events> events;
     protected List<Entity> entities;
 
     /**
@@ -294,35 +292,6 @@ public class Autnum
     }
 
     /**
-     * Gets the value of the remarks property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the remarks property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getRemarks().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Remarks }
-     * 
-     * 
-     */
-    public List<Remarks> getRemarks() {
-        if (remarks == null) {
-            remarks = new ArrayList<Remarks>();
-        }
-        return this.remarks;
-    }
-
-    /**
      * Gets the value of the links property.
      * 
      * <p>
@@ -349,35 +318,6 @@ public class Autnum
             links = new ArrayList<Links>();
         }
         return this.links;
-    }
-
-    /**
-     * Gets the value of the events property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the events property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getEvents().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Events }
-     * 
-     * 
-     */
-    public List<Events> getEvents() {
-        if (events == null) {
-            events = new ArrayList<Events>();
-        }
-        return this.events;
     }
 
     /**

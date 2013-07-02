@@ -259,12 +259,7 @@ public class RdapObjectMapper {
             domain.getNameservers().add(ns);
         }
 
-        // Remarks
-        for  (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.REMARKS)) {
-            Remarks remark = rdapObjectFactory.createRemarks();
-            remark.getDescription().add(rpslAttribute.getCleanValue().toString());
-            domain.getRemarks().add(remark);
-        }
+        setRemarks(domain, rpslObject);
 
 //        // Entities
 //        Entity entity = rdapObjectFactory.createEntity();
