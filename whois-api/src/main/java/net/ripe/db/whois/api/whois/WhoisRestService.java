@@ -3,12 +3,14 @@ package net.ripe.db.whois.api.whois;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.api.whois.domain.*;
+import net.ripe.db.whois.api.whois.domain.Attribute;
+import net.ripe.db.whois.api.whois.domain.Link;
+import net.ripe.db.whois.api.whois.domain.Parameters;
+import net.ripe.db.whois.api.whois.domain.WhoisModify;
+import net.ripe.db.whois.api.whois.domain.WhoisResources;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -59,14 +61,25 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static net.ripe.db.whois.query.query.QueryFlag.*;
+import static net.ripe.db.whois.query.query.QueryFlag.ALL_SOURCES;
+import static net.ripe.db.whois.query.query.QueryFlag.CLIENT;
+import static net.ripe.db.whois.query.query.QueryFlag.DIFF_VERSIONS;
+import static net.ripe.db.whois.query.query.QueryFlag.LIST_SOURCES;
+import static net.ripe.db.whois.query.query.QueryFlag.LIST_SOURCES_OR_VERSION;
+import static net.ripe.db.whois.query.query.QueryFlag.LIST_VERSIONS;
+import static net.ripe.db.whois.query.query.QueryFlag.NO_GROUPING;
+import static net.ripe.db.whois.query.query.QueryFlag.NO_TAG_INFO;
+import static net.ripe.db.whois.query.query.QueryFlag.PERSISTENT_CONNECTION;
+import static net.ripe.db.whois.query.query.QueryFlag.SHOW_TAG_INFO;
+import static net.ripe.db.whois.query.query.QueryFlag.SHOW_VERSION;
+import static net.ripe.db.whois.query.query.QueryFlag.SOURCES;
+import static net.ripe.db.whois.query.query.QueryFlag.TEMPLATE;
+import static net.ripe.db.whois.query.query.QueryFlag.VERBOSE;
 
 @ExternallyManagedLifecycle
 @Component

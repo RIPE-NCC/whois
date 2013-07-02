@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.whois;
 
 import com.google.common.base.Splitter;
 import com.google.common.net.InetAddresses;
-import com.sun.jersey.api.NotFoundException;
 import net.ripe.db.whois.api.whois.domain.Parameters;
 import net.ripe.db.whois.api.whois.domain.WhoisObject;
 import net.ripe.db.whois.api.whois.domain.WhoisResources;
@@ -127,9 +126,9 @@ public abstract class WhoisService {
     protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
         final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
 
-        RestStreamingOutput dso = new RestStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
+        RestStreamingOutput rso = new RestStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
 
-        return Response.ok(dso).build();
+        return Response.ok(rso).build();
     }
 
     protected StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
