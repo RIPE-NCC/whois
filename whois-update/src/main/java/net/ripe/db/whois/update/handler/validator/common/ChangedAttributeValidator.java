@@ -34,7 +34,7 @@ public class ChangedAttributeValidator implements BusinessRuleValidator {
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         int missing = 0;
         List<LocalDate> localDateOrder = Lists.newArrayList();
-        for (RpslAttribute attribute : update.getUpdatedObject().findAttributes(AttributeType.CHANGED)) {
+        for (RpslAttribute attribute : update.getSubmittedObject().findAttributes(AttributeType.CHANGED)) {
             try {
                 final Changed changed = Changed.parse(attribute.getCleanValue());
                 final LocalDate date = changed.getDate();

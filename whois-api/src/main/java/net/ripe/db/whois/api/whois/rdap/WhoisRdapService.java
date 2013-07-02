@@ -39,7 +39,7 @@ public class WhoisRdapService extends WhoisService {
 
     @Autowired
     public WhoisRdapService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final RpslObjectUpdateDao rpslObjectUpdateDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
-        super(dateTimeProvider, updateRequestHandler,loggerContext, rpslObjectDao, rpslObjectUpdateDao, sourceContext, queryHandler);
+        super(dateTimeProvider, updateRequestHandler,loggerContext, rpslObjectDao, sourceContext, queryHandler);
     }
 
     @GET
@@ -99,7 +99,7 @@ public class WhoisRdapService extends WhoisService {
                 QueryFlag.NO_FILTERING.getLongFlag(),
                 key));
 
-        checkForInvalidSource(source, isGrs);
+        checkForInvalidSource(source);
 
         return handleQuery(query, source, key, request, null);
     }

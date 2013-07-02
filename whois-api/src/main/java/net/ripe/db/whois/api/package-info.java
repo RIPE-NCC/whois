@@ -5,14 +5,11 @@
  * These pages are auto-generated from the source code at compilation time, so should accurately describe
  * the current behaviour of the deployed code.</p>
  *
- * <p>In compliance with the REST paradigm these web services are invoked via HTTP requests,
- * using the HTTP method that is most appropriate for the given kind of request.
- * The HTTP response contains a status code denoting the success or failure of the operation,
- * some headers and finally the body data.</p>
+ * <p>These REST services are invoked via HTTP requests, using the HTTP method that is most appropriate.
+ * The HTTP response contains a status code, some headers and the body data.</p>
  *
- * <p><div>All the services are also accessible via HTTPS.</div>
- * As the update services use cleartext passwords for authentication, it is highly recommended to use HTTPS.
- * Access via HTTP may be deprecated in the future.</p>
+ * <p><div>All the services are accessible via HTTPS.</div>
+ * As the update services use cleartext passwords for authentication, it is highly recommended to use HTTPS.</p>
  *
  * <h3>Query Services</h3>
  *   <ul>

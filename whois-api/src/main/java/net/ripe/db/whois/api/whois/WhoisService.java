@@ -8,7 +8,6 @@ import net.ripe.db.whois.api.whois.domain.WhoisResources;
 import net.ripe.db.whois.api.whois.domain.WhoisVersions;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
@@ -43,19 +42,17 @@ public abstract class WhoisService {
     protected final UpdateRequestHandler updateRequestHandler;
     protected final LoggerContext loggerContext;
     protected final RpslObjectDao rpslObjectDao;
-    protected final RpslObjectUpdateDao rpslObjectUpdateDao;
     protected final QueryHandler queryHandler;
 
     @Autowired
     protected SourceContext sourceContext;
 
     @Autowired
-    public WhoisService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final RpslObjectUpdateDao rpslObjectUpdateDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
+    public WhoisService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
         this.dateTimeProvider = dateTimeProvider;
         this.updateRequestHandler = updateRequestHandler;
         this.loggerContext = loggerContext;
         this.rpslObjectDao = rpslObjectDao;
-        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
     }
@@ -65,9 +62,12 @@ public abstract class WhoisService {
             final HttpServletRequest request,
             final String source,
             final String objectTypeString,
-            final String key,
-            final boolean isGrs) {
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s",
+            final String key) {
+
+        checkForInvalidSource(source);
+
+        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s",
+                QueryFlag.EXACT.getLongFlag(),
                 QueryFlag.NO_GROUPING.getLongFlag(),
                 QueryFlag.NO_REFERENCED.getLongFlag(),
                 QueryFlag.SOURCES.getLongFlag(),
@@ -76,8 +76,6 @@ public abstract class WhoisService {
                 objectTypeString,
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 key));
-
-        checkForInvalidSource(source, isGrs);
 
         return handleQuery(query, source, key, request, null);
     }
@@ -150,12 +148,8 @@ public abstract class WhoisService {
         return new StreamingMarshalXml();
     }
 
-    protected void checkForInvalidSource(final String source, final boolean isGrs) {
-        if (isGrs) {
-            if (!sourceContext.getGrsSourceNames().contains(ciString(source))) {
-                throw new IllegalArgumentException(String.format("Invalid GRS source '%s'", source));
-            }
-        } else if (!sourceContext.getCurrentSource().getName().contains(ciString(source))) {
+    protected void checkForInvalidSource(final String source) {
+        if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
             throw new IllegalArgumentException(String.format("Invalid source '%s'", source));
         }
     }

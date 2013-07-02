@@ -6,18 +6,40 @@ import net.ripe.db.whois.common.domain.Ipv6Resource;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import net.ripe.db.whois.common.exception.AsBlockParseException;
 
-class SearchKey {
-    private final String value;
+import java.util.regex.Pattern;
 
-    private boolean initIpKey = true;
+class SearchKey {
+    public static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
+
+    private String value;
+
     private IpInterval<?> ipKey;
-    private boolean initIpKeyReverse = true;
     private IpInterval<?> ipKeyReverse;
-    private boolean initAsBlockRange = true;
     private AsBlockRange asBlockRange;
+    private boolean parsedAsBlockRange;
 
     SearchKey(final String value) {
-        this.value = value;
+        final String cleanValue = WHITESPACE_PATTERN.matcher(value.trim()).replaceAll(" ");
+
+        try {
+            ipKey = IpInterval.parse(cleanValue);
+            this.value = ipKey instanceof Ipv4Resource ? ((Ipv4Resource) ipKey).toRangeString() : ipKey.toString();
+            return;
+        } catch (RuntimeException e) {}
+
+        try {
+            ipKeyReverse = Ipv4Resource.parseReverseDomain(cleanValue);
+            this.value = IpInterval.removeTrailingDot(cleanValue);
+            return;
+        } catch (RuntimeException e) {}
+
+        try {
+            ipKeyReverse = Ipv6Resource.parseReverseDomain(cleanValue);
+            this.value = IpInterval.removeTrailingDot(cleanValue);
+            return;
+        } catch (RuntimeException e) {}
+
+        this.value = cleanValue;
     }
 
     public String getValue() {
@@ -25,45 +47,17 @@ class SearchKey {
     }
 
     public IpInterval<?> getIpKeyOrNull() {
-        if (initIpKey) {
-            initIpKey = false;
-
-            try {
-                ipKey = IpInterval.parse(value);
-            } catch (RuntimeException e) {
-                ipKey = null;
-            }
-        }
-
         return ipKey;
     }
 
     public IpInterval<?> getIpKeyOrNullReverse() {
-        if (initIpKeyReverse) {
-            initIpKeyReverse = false;
-
-            try {
-                ipKeyReverse = Ipv4Resource.parseReverseDomain(value);
-            } catch (IllegalArgumentException e) {
-                ipKeyReverse = null;
-            }
-
-            if (ipKeyReverse == null) {
-                try {
-                    ipKeyReverse = Ipv6Resource.parseReverseDomain(value);
-                } catch (IllegalArgumentException e) {
-                    ipKeyReverse = null;
-                }
-            }
-        }
-
         return ipKeyReverse;
     }
 
 
     public AsBlockRange getAsBlockRangeOrNull() {
-        if (initAsBlockRange) {
-            initAsBlockRange = false;
+        if (!parsedAsBlockRange) {
+            parsedAsBlockRange = true;
 
             try {
                 asBlockRange = AsBlockRange.parse(value);

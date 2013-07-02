@@ -10,9 +10,10 @@ import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.Source;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.QueryMessages;
-import net.ripe.db.whois.query.planner.VersionResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
@@ -21,11 +22,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.Matchers.*;
@@ -40,19 +41,14 @@ public class VersionQueryExecutorTest {
     @Mock VersionInfo versionInfo2;
     @Mock VersionInfo versionInfo3;
     @Mock VersionInfo versionInfo4;
-    @Mock VersionResponseDecorator versionResponseDecorator;
+    @Mock SourceContext sourceContext;
 
     @Mock VersionDao versionDao;
     @InjectMocks VersionQueryExecutor subject;
 
     @Before
-    public void setUp() {
-        when(versionResponseDecorator.getResponse(any(Iterable.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return invocationOnMock.getArguments()[0];
-            }
-        });
+    public void setup() {
+        when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
     }
 
     @Test
@@ -69,7 +65,7 @@ public class VersionQueryExecutorTest {
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(Query.parse("--list-versions IRT-THISONE"), responseHandler);
 
-        assertThat(responseHandler.getResponseObjects(), hasSize(0));
+        assertThat(responseHandler.getResponseObjects(), hasSize(1));
     }
 
     @Test
@@ -107,12 +103,14 @@ public class VersionQueryExecutorTest {
 
         final VersionLookupResult as2050 = new VersionLookupResult(Lists.newArrayList(versionInfo1, versionInfo2, versionInfo3), ObjectType.AUT_NUM, "AS2050");
         when(versionDao.findByKey(ObjectType.AUT_NUM, "AS2050")).thenReturn(as2050);
+        when(versionDao.getObjectType("AS2050")).thenReturn(Collections.singletonList(ObjectType.AUT_NUM));
 
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(Query.parse("--list-versions AS2050"), responseHandler);
-        for (final ResponseObject responseObject : responseHandler.getResponseObjects()) {
-            assertThat(new String(responseObject.toByteArray()), is(QueryMessages.versionDeleted("2012-04-25 06:55").toString()));
-        }
+
+        final List<ResponseObject> responseObjects = responseHandler.getResponseObjects();
+        assertThat(new String(responseObjects.get(0).toByteArray()), is(QueryMessages.versionListHeader(ObjectType.AUT_NUM.getName().toUpperCase(), "AS2050").toString()));
+        assertThat(new String(responseObjects.get(1).toByteArray()), is(QueryMessages.versionDeleted("2012-04-25 06:55").toString()));
     }
 
     @Test
@@ -129,9 +127,9 @@ public class VersionQueryExecutorTest {
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(Query.parse("--show-version 1 AS2050"), responseHandler);
 
-        for (final ResponseObject responseObject : responseHandler.getResponseObjects()) {
-            assertThat(new String(responseObject.toByteArray()), is(QueryMessages.versionDeleted("2012-04-10 13:58").toString()));
-        }
+        final List<ResponseObject> responseObjects = responseHandler.getResponseObjects();
+        assertThat(new String(responseObjects.get(0).toByteArray()), is(QueryMessages.versionListHeader(ObjectType.AUT_NUM.getName().toUpperCase(), "AS2050").toString()));
+        assertThat(new String(responseObjects.get(1).toByteArray()), is(QueryMessages.versionDeleted("2012-04-10 13:58").toString()));
     }
 
     @Test
