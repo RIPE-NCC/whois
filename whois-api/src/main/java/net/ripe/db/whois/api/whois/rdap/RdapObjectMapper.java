@@ -117,11 +117,11 @@ public class RdapObjectMapper {
                 rpslObject.findAttributes(AttributeType.REMARKS);
         List<RpslAttribute> descrs =
                 rpslObject.findAttributes(AttributeType.DESCR);
-        List<RpslAttribute> all_remarks =  new ArrayList<RpslAttribute>();
-        all_remarks.addAll(remarks);
-        all_remarks.addAll(descrs);
+        List<RpslAttribute> allRemarks =  new ArrayList<RpslAttribute>();
+        allRemarks.addAll(remarks);
+        allRemarks.addAll(descrs);
 
-        for (RpslAttribute rpslAttribute : all_remarks) {
+        for (RpslAttribute rpslAttribute : allRemarks) {
             Remarks remark = rdapObjectFactory.createRemarks();
             String descr = rpslAttribute.getCleanValue().toString();
             remark.getDescription().add(descr);
@@ -130,7 +130,6 @@ public class RdapObjectMapper {
     }
 
     private void setEvents (RdapObject rdapObject, RpslObject rpslObject) {
-        int counter = 0;
         List<RpslAttribute> changedAttributes = rpslObject.findAttributes(AttributeType.CHANGED);
         int listSize = changedAttributes.size();
 
@@ -158,42 +157,6 @@ public class RdapObjectMapper {
         event.setEventDate(eventDate);
 
         rdapObject.getEvents().add(event);
-
-        /*for (RpslAttribute rpslAttribute : changedAttributes) {
-            Events event = rdapObjectFactory.createEvents();
-            String eventString = rpslAttribute.getValue();
-
-            // Split the string and make the event entry
-            eventString = eventString.trim();
-            String[] eventStringElements = eventString.split(" ");
-
-            String eventAction = "changed";
-            if (counter == 0) {
-                eventAction = "registration";
-            } else if (counter == (listSize - 1) ) {
-                eventAction = "last changed";
-            }
-
-            event.setEventAction(eventAction);
-            event.setEventActor(eventStringElements[0]);
-
-            int year = Integer.parseInt(eventStringElements[1].substring(0,4));
-            int month = Integer.parseInt(eventStringElements[1].substring(5,6)) - 1;
-            int day = Integer.parseInt(eventStringElements[1].substring(7,8));
-
-            GregorianCalendar gc = new GregorianCalendar(year,month,day);
-
-            XMLGregorianCalendar eventDate= new XMLGregorianCalendarImpl(gc);
-
-            // and hack it coz the XMLGregorianCalendarImpl does weird stuff to it
-            eventDate.setTimezone(0);
-            event.setEventDate(eventDate);
-
-            rdapObject.getEvents().add(event);
-
-            counter++;
-        }*/
-
     }
 
     private Entity createEntity(RpslObject rpslObject) {
