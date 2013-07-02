@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.collect.Maps;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import net.ripe.db.whois.api.whois.TaggedRpslObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
 import net.ripe.db.whois.api.whois.rdap.domain.Domain;
@@ -21,7 +20,11 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.datatype.DatatypeConfigurationException;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -31,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Date;
 
 public class RdapObjectMapper {
     private static final Logger LOGGER = 
@@ -41,8 +45,10 @@ public class RdapObjectMapper {
     private TaggedRpslObject primaryTaggedRpslObject;
     private Queue<TaggedRpslObject> taggedRpslObjectQueue;
     private Object rdapResponse = new Object();
+    private DatatypeFactory dtf = DatatypeFactory.newInstance();
 
-    public RdapObjectMapper(Queue<TaggedRpslObject> taggedRpslObjectQueue) {
+    public RdapObjectMapper(Queue<TaggedRpslObject> taggedRpslObjectQueue)
+            throws DatatypeConfigurationException {
         this.taggedRpslObjectQueue = taggedRpslObjectQueue;
     }
 
@@ -62,7 +68,8 @@ public class RdapObjectMapper {
     }
 
     private void add(TaggedRpslObject taggedRpslObject,
-                     Queue<TaggedRpslObject> taggedRpslObjectQueue) {
+                     Queue<TaggedRpslObject> taggedRpslObjectQueue)
+            throws ParseException {
         RpslObject rpslObject = taggedRpslObject.rpslObject;
         ObjectType rpslObjectType = rpslObject.getType();
 
@@ -93,7 +100,8 @@ public class RdapObjectMapper {
         };
     }
 
-    private Person createPersonResponse(RpslObject rpslObject) {
+    private Person createPersonResponse(RpslObject rpslObject)
+            throws ParseException {
         Person person = RdapHelper.createPerson();
         person.setHandle(rpslObject.getKey().toString());
         person.setVcardArray(generateVcards(rpslObject));
@@ -121,8 +129,10 @@ public class RdapObjectMapper {
         }
     }
 
-    private void setEvents (RdapObject rdapObject, RpslObject rpslObject) {
-        List<RpslAttribute> changedAttributes = rpslObject.findAttributes(AttributeType.CHANGED);
+    private void setEvents (RdapObject rdapObject, RpslObject rpslObject) 
+            throws ParseException {
+        List<RpslAttribute> changedAttributes = 
+            rpslObject.findAttributes(AttributeType.CHANGED);
         int listSize = changedAttributes.size();
 
         RpslAttribute lastChanged = changedAttributes.get(listSize - 1);
@@ -130,22 +140,18 @@ public class RdapObjectMapper {
         Events event = rdapObjectFactory.createEvents();
         String eventString = lastChanged.getValue();
 
-        // Split the string and make the event entry
+        // Split the string and make the event entry.
         eventString = eventString.trim();
         String[] eventStringElements = eventString.split(" ");
         event.setEventAction("last changed");
         event.setEventActor(eventStringElements[0]);
 
-        int year = Integer.parseInt(eventStringElements[1].substring(0,4));
-        int month = Integer.parseInt(eventStringElements[1].substring(5,6)) - 1;
-        int day = Integer.parseInt(eventStringElements[1].substring(7,8));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+        Date date = formatter.parse(eventStringElements[1]);
+        GregorianCalendar gc = new GregorianCalendar();
+        gc.setTime(date);
+        XMLGregorianCalendar eventDate = dtf.newXMLGregorianCalendar(gc);
 
-        GregorianCalendar gc = new GregorianCalendar(year,month,day);
-
-        XMLGregorianCalendar eventDate= new XMLGregorianCalendarImpl(gc);
-
-        // and hack it coz the XMLGregorianCalendarImpl does weird stuff to it
-        eventDate.setTimezone(0);
         event.setEventDate(eventDate);
 
         rdapObject.getEvents().add(event);
@@ -163,7 +169,8 @@ public class RdapObjectMapper {
     }
 
     private Autnum createAutnumResponse(RpslObject rpslObject,
-                                        Queue<TaggedRpslObject> qtro) {
+                                        Queue<TaggedRpslObject> qtro)
+            throws ParseException {
         HashMap<String, RpslObject> mtro = new HashMap<String, RpslObject>();
         for (TaggedRpslObject tro : qtro) {
             mtro.put(tro.rpslObject.getKey().toString(),
@@ -217,8 +224,6 @@ public class RdapObjectMapper {
         /* None of the statuses from [9.1] in json-response is
          * applicable here, so 'status' will be left empty for now. */
  
-        setRemarks(an,rpslObject);
-
         /* Load the admin-c and tech-c attributes, find the
          * corresponding records in the queue (if possible), convert
          * them into Entities and add them to the response. */
@@ -242,6 +247,9 @@ public class RdapObjectMapper {
                 an.getEntities().add(e);
             }
         }
+
+        setRemarks(an, rpslObject);
+        setEvents(an, rpslObject);
 
         return an;
     }

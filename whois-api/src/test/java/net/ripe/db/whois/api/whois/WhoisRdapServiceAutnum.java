@@ -21,6 +21,8 @@ import net.ripe.db.whois.api.whois.rdap.domain.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.GregorianCalendar;
+import java.util.Date;
 import java.math.BigInteger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -144,13 +146,21 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
                    equalTo(BigInteger.valueOf((long) 12345)));
         assertThat(an.getEndAutnum(),
                    equalTo(BigInteger.valueOf((long) 12345)));
-        assertThat(an.getName(), equalTo("AS-TEST"));
+        assertThat(an.getName(),    equalTo("AS-TEST"));
         assertThat(an.getCountry(), equalTo("AU"));
-        assertThat(an.getType(), equalTo("DIRECT ALLOCATION"));
+        assertThat(an.getType(),    equalTo("DIRECT ALLOCATION"));
+
+        List<Events> events = an.getEvents();
+        assertThat(events.size(), equalTo(1));
+        Events event = events.get(0);
+        Date check = new GregorianCalendar(2001, 7, 16).getTime();
+        assertThat(event.getEventDate()
+                        .toGregorianCalendar()
+                        .getTime(), equalTo(check));
 
         /* No entities returned, at the moment. The queue passed to
          * createAutnumResponse is empty, for some reason. */
-         
+
         /*
         List<Entity> entities = an.getEntities();
         assertThat(entities.size(), equalTo(1));
@@ -165,13 +175,15 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
         final ClientResponse cr = 
             createResource(AUDIENCE, "autnum/1500")
                 .get(ClientResponse.class);
-        String res = cr.getEntity(String.class);
-        assertThat(res, containsString("\"handle\" : \"AS1000-AS2000\""));
-        assertThat(res, containsString("\"startAutnum\" : 1000,"));
-        assertThat(res, containsString("\"endAutnum\" : 2000,"));
-        assertThat(res, containsString("\"name\" : \"AS1000-AS2000\""));
-        assertThat(res, containsString("\"country\" : \"AU\""));
-        assertThat(res, containsString("\"type\" : \"DIRECT ALLOCATION\""));
+        final Autnum an = cr.getEntity(Autnum.class);
+        assertThat(an.getHandle(), equalTo("AS1000-AS2000"));
+        assertThat(an.getStartAutnum(),
+                   equalTo(BigInteger.valueOf((long) 1000)));
+        assertThat(an.getEndAutnum(),
+                   equalTo(BigInteger.valueOf((long) 2000)));
+        assertThat(an.getName(),    equalTo("AS1000-AS2000"));
+        assertThat(an.getCountry(), equalTo("AU"));
+        assertThat(an.getType(),    equalTo("DIRECT ALLOCATION"));
     }
 
     @Override
