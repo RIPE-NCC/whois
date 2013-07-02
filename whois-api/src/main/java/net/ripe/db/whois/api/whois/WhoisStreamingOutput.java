@@ -13,7 +13,6 @@ import java.util.List;
 
 public abstract class WhoisStreamingOutput implements StreamingOutput {
 
-    protected boolean found;
     protected static final int STATUS_TOO_MANY_REQUESTS = 429;
     protected StreamingMarshal streamingMarshal;
     protected QueryHandler queryHandler;
@@ -21,6 +20,7 @@ public abstract class WhoisStreamingOutput implements StreamingOutput {
     protected Query query;
     protected InetAddress remoteAddress;
     protected int contextId;
+    protected boolean found;
 
     public WhoisStreamingOutput(StreamingMarshal sm, QueryHandler qh, Parameters p, Query q, InetAddress ra, int cid) {
         streamingMarshal = sm;

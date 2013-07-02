@@ -48,16 +48,7 @@ import static net.ripe.db.whois.query.query.QueryFlag.*;
 @ExternallyManagedLifecycle
 @Component
 @Path("/")
-public class WhoisRestService {
-    private static final String TEXT_JSON = "text/json";
-    private static final String TEXT_XML = "text/xml";
-
-    private final DateTimeProvider dateTimeProvider;
-    private final UpdateRequestHandler updateRequestHandler;
-    private final LoggerContext loggerContext;
-    private final RpslObjectDao rpslObjectDao;
-    private final SourceContext sourceContext;
-    private final QueryHandler queryHandler;
+public class WhoisRestService extends WhoisService {
 
     private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
     private static final Joiner JOINER = Joiner.on(",");
@@ -65,12 +56,7 @@ public class WhoisRestService {
 
     @Autowired
     public WhoisRestService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
-        this.dateTimeProvider = dateTimeProvider;
-        this.updateRequestHandler = updateRequestHandler;
-        this.loggerContext = loggerContext;
-        this.rpslObjectDao = rpslObjectDao;
-        this.sourceContext = sourceContext;
-        this.queryHandler = queryHandler;
+        super(dateTimeProvider, updateRequestHandler,loggerContext, rpslObjectDao, sourceContext, queryHandler);
         initDisallowedQueryFlagCache();
     }
 
@@ -257,95 +243,6 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key) {
         return lookupObject(request, source, objectType, key);
-    }
-
-    private Response lookupObject(
-            final HttpServletRequest request,
-            final String source,
-            final String objectTypeString,
-            final String key) {
-
-        checkForInvalidSource(source);
-
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s",
-                QueryFlag.EXACT.getLongFlag(),
-                QueryFlag.NO_GROUPING.getLongFlag(),
-                QueryFlag.NO_REFERENCED.getLongFlag(),
-                QueryFlag.SOURCES.getLongFlag(),
-                source,
-                QueryFlag.SELECT_TYPES.getLongFlag(),
-                objectTypeString,
-                QueryFlag.SHOW_TAG_INFO.getLongFlag(),
-                key));
-
-        return handleQuery(query, source, key, request, null);
-    }
-
-    private Response handleQuery(final Query query, final String source, final String key, final HttpServletRequest request, @Nullable final Parameters parameters) {
-        final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
-        final int contextId = System.identityHashCode(Thread.currentThread());
-
-        if (query.isVersionList() || query.isObjectVersion()) {
-            return handleVersionQuery(query, source, key, remoteAddress, contextId);
-        }
-
-        return handleQueryAndStreamResponse(query, request, remoteAddress, contextId, parameters);
-    }
-
-    // TODO: [AH] refactor this spaghetti
-    private Response handleVersionQuery(final Query query, final String source, final String key, final InetAddress remoteAddress, final int contextId) {
-        final ApiResponseHandlerVersions apiResponseHandlerVersions = new ApiResponseHandlerVersions();
-        queryHandler.streamResults(query, remoteAddress, contextId, apiResponseHandlerVersions);
-
-        final VersionWithRpslResponseObject versionResponseObject = apiResponseHandlerVersions.getVersionWithRpslResponseObject();
-        final List<DeletedVersionResponseObject> deleted = apiResponseHandlerVersions.getDeletedObjects();
-        final List<VersionResponseObject> versions = apiResponseHandlerVersions.getVersionObjects();
-
-        if (versionResponseObject == null && versions.isEmpty()) {
-            if (deleted.isEmpty() || query.isObjectVersion()) {
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
-            }
-        }
-
-        final WhoisResources whoisResources = new WhoisResources();
-
-        if (versionResponseObject != null) {
-            final WhoisObject whoisObject = WhoisObjectMapper.map(versionResponseObject.getRpslObject());
-            whoisObject.setVersion(versionResponseObject.getVersion());
-            whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
-        } else {
-            final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
-            final WhoisVersions whoisVersions = new WhoisVersions(source, type, key, WhoisObjectMapper.mapVersions(deleted, versions));
-            whoisResources.setVersions(whoisVersions);
-        }
-
-        return Response.ok(whoisResources).build();
-    }
-
-    private Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
-        final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
-
-        RestStreamingOutput rso = new RestStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
-
-        return Response.ok(rso).build();
-    }
-
-    private StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
-        final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
-        for (final String accept : Splitter.on(',').split(acceptHeader)) {
-            try {
-                final MediaType mediaType = MediaType.valueOf(accept);
-                final String subtype = mediaType.getSubtype().toLowerCase();
-                if (subtype.equals("json") || subtype.endsWith("+json")) {
-                    return new StreamingMarshalJson();
-                } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
-                    return new StreamingMarshalXml();
-                }
-            } catch (IllegalArgumentException ignored) {
-            }
-        }
-
-        return new StreamingMarshalXml();
     }
 
     /**
@@ -1554,12 +1451,6 @@ public class WhoisRestService {
     private void checkForInvalidSources(final Set<String> sources) {
         for (final String source : sources) {
             checkForInvalidSource(source);
-        }
-    }
-
-    private void checkForInvalidSource(final String source) {
-        if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
-            throw new IllegalArgumentException(String.format("Invalid source '%s'", source));
         }
     }
 
