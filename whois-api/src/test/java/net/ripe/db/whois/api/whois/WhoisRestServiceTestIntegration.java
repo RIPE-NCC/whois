@@ -12,6 +12,7 @@ import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
@@ -21,6 +22,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -84,7 +86,10 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Override
     public void setUpClient() throws Exception {
         ClientConfig cc = new DefaultClientConfig();
-        cc.getSingletons().add(new JacksonJaxbJsonProvider().configure(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE, true));
+        final JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
+        provider.configure(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE, true);
+        provider.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        cc.getSingletons().add(provider);
         client = Client.create(cc);
     }
 
@@ -103,7 +108,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         try {
-            final WhoisResources whoisResources = createResource(AUDIENCE, "whois-beta/lookup/test/inet6num/2001:2002:2003::").get(WhoisResources.class);
+            createResource(AUDIENCE, "whois-beta/lookup/test/inet6num/2001:2002:2003::").get(WhoisResources.class);
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
@@ -139,6 +144,29 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
         final RpslObject rpslObject = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
         assertThat(rpslObject.getKey(), is(ciString("PP1-TEST")));
+    }
+
+    @Test
+    public void lookup_object_accept_json() {
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois-beta/lookup/TEST/person/TP1-TEST")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        final RpslObject rpslObject = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+        assertThat(rpslObject.getKey(), is(ciString("TP1-TEST")));
+    }
+
+    @Test
+    public void lookup_object_json_extension() {
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois-beta/lookup/TEST/person/TP1-TEST.json")
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        final RpslObject rpslObject = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+        assertThat(rpslObject.getKey(), is(ciString("TP1-TEST")));
     }
 
     @Test
@@ -373,9 +401,10 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void create_json_request() throws Exception {
-        createResource(AUDIENCE, "whois-beta/create/test?password=test")
+        final String response = createResource(AUDIENCE, "whois-beta/create/test?password=test")
                 .type(MediaType.APPLICATION_JSON)
                 .post(String.class, WhoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), false));
+        assertThat(response, isEmptyString());
     }
 
     // delete
@@ -384,6 +413,12 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void delete_succeeds() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
         createResource(AUDIENCE, "whois-beta/delete/test/person/PP1-TEST?password=test").delete();
+        try {
+            databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST");
+            fail();
+        } catch (EmptyResultDataAccessException ignored) {
+            // expected
+        }
     }
 
     @Test
@@ -1049,6 +1084,17 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void lookup_json_extension() throws Exception {
+        final String response = createResource(AUDIENCE, "whois-beta/lookup/test/person/TP1-TEST.json")
+                .get(String.class);
+        assertThat(response, containsString("\"whois-resources\""));
+        assertThat(response, containsString("\"objects\""));
+        assertThat(response, containsString("\"object\""));
+        assertThat(response, containsString("\"xlink:type\""));
+        assertThat(response, containsString("\"xlink:href\""));
+    }
+
+    @Test
     public void update_json_request_and_response_content() throws Exception {
         final String update =
                 "{\n" +
@@ -1177,6 +1223,28 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         ));
     }
 
+    @Test
+    public void search_accept_json() {
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois-beta/search?query-string=TP1-TEST&source=TEST")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        final RpslObject rpslObject = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+        assertThat(rpslObject.getKey(), is(ciString("TP1-TEST")));
+    }
+
+    @Test
+    public void search_json_extension() {
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois-beta/search.json?query-string=TP1-TEST&source=TEST")
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        final RpslObject rpslObject = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+        assertThat(rpslObject.getKey(), is(ciString("TP1-TEST")));
+    }
 
     @Test
     public void search_with_long_options() {
@@ -1421,6 +1489,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
             assertThat(e.getResponse().getEntity(String.class), is("Invalid source 'INVALID'"));
+            assertThat(e.getResponse().getEntity(String.class), not(containsString("Caused by:")));
         }
     }
 
@@ -1434,6 +1503,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
             assertThat(e.getResponse().getEntity(String.class), is("Invalid source 'INVALID'"));
+            assertThat(e.getResponse().getEntity(String.class), not(containsString("Caused by:")));
         }
     }
 
@@ -1637,6 +1707,21 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
             assertThat(e.getResponse().getEntity(String.class), not(containsString("Caused by:")));
+        }
+    }
+
+    @Ignore("TODO: [ES] don't set the content-type on an error response")
+    @Test
+    public void search_dont_set_content_type_on_error() {
+        try {
+            createResource(AUDIENCE, "whois-beta/search?query-string=TP1-TEST&source=INVALID")
+                    .get(String.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), containsString("Invalid source 'INVALID'"));
+            assertThat(e.getResponse().getEntity(String.class), not(containsString("Caused by:")));
+            assertThat(e.getResponse().getHeaders().get("Content-Type"), not(contains("application/xml"))); //is(empty()));
         }
     }
 
