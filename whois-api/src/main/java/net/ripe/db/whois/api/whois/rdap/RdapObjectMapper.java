@@ -98,14 +98,6 @@ public class RdapObjectMapper {
         person.setHandle(rpslObject.getKey().toString());
         person.setVcardArray(generateVcards(rpslObject));
 
-        List<RpslAttribute> remarks =
-                rpslObject.findAttributes(AttributeType.REMARKS);
-        List<RpslAttribute> descrs =
-                rpslObject.findAttributes(AttributeType.DESCR);
-        List<RpslAttribute> all_remarks =  new ArrayList<RpslAttribute>();
-        all_remarks.addAll(remarks);
-        all_remarks.addAll(descrs);
-
         setRemarks(person,rpslObject);
         setEvents(person,rpslObject);
 
