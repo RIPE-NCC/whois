@@ -25,6 +25,8 @@ import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.codehaus.enunciate.jaxrs.TypeHint;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -49,6 +51,7 @@ import static net.ripe.db.whois.query.query.QueryFlag.*;
 @Component
 @Path("/")
 public class WhoisRestService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRestService.class);
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
 
     private static final String TEXT_JSON = "text/json";
@@ -258,14 +261,6 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key) {
-        return lookupObject(request, source, objectType, key);
-    }
-
-    private Response lookupObject(
-            final HttpServletRequest request,
-            final String source,
-            final String objectTypeString,
-            final String key) {
 
         checkForInvalidSource(source);
 
@@ -276,7 +271,7 @@ public class WhoisRestService {
                 QueryFlag.SOURCES.getLongFlag(),
                 source,
                 QueryFlag.SELECT_TYPES.getLongFlag(),
-                objectTypeString,
+                objectType,
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 key));
 
@@ -368,6 +363,7 @@ public class WhoisRestService {
                         throw new WebApplicationException(Response.Status.NOT_FOUND);
                     }
                 } catch (QueryException e) {
+                    LOGGER.error(e.getMessage(), e);
                     if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
                         throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
                     } else {
@@ -1542,8 +1538,8 @@ public class WhoisRestService {
      * @param sources           Mandatory. It's possible to specify multiple sources.
      * @param queryString       Mandatory.
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
-     * @param include           Only show RPSL objects with given tags. Can be multiple.
-     * @param exclude           Only show RPSL objects that <i>do not</i> have given tags. Can be multiple.
+     * @param includeTags           Only show RPSL objects with given tags. Can be multiple.
+     * @param excludeTags           Only show RPSL objects that <i>do not</i> have given tags. Can be multiple.
      * @param types             If specified the results will be filtered by object-type, multiple type-filters can be specified.
      * @param flags             Optional query-flags. Use separate flags parameters for each option (see examples above)
      * @return Returns the query result.
@@ -1566,18 +1562,7 @@ public class WhoisRestService {
             @QueryParam("exclude-tag") Set<String> excludeTags,
             @QueryParam("type-filter") Set<String> types,
             @QueryParam("flags") Set<String> flags) {
-        return doSearch(request, queryString, sources, inverseAttributes, include, exclude, types, flags);
-    }
 
-    private Response doSearch(
-            final HttpServletRequest request,
-            final String queryString,
-            final Set<String> sources,
-            final Set<String> inverseAttributes,
-            final Set<String> includeTags,
-            final Set<String> excludeTags,
-            final Set<String> types,
-            final Set<String> flags) {
         if (sources == null || sources.isEmpty()) {
             throw new IllegalArgumentException("Argument 'source' is missing, you have to specify a valid RIR source for your search request");
         }
