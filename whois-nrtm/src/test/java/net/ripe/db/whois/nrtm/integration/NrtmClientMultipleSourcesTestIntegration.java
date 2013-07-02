@@ -61,8 +61,8 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
 
     @After
     public void after() throws Exception {
-        nrtmImporter.stop();
-        nrtmServer.stop();
+        nrtmImporter.stop(true);
+        nrtmServer.stop(true);
     }
 
     @Test
