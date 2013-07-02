@@ -195,14 +195,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "    \"description\" : [ \"remark\" ]\n" +
                 "  } ],\n" +
                 "  \"events\" : [ {\n" +
-                "    \"eventAction\" : \"registration\",\n" +
-                "    \"eventDate\" : \"2012-01-01T00:00:00Z\",\n" +
-                "    \"eventActor\" : \"noreply@ripe.net\"\n" +
-                "  }, {\n" +
-                "    \"eventAction\" : \"changed\",\n" +
-                "    \"eventDate\" : \"2012-01-02T00:00:00Z\",\n" +
-                "    \"eventActor\" : \"noreply@ripe.net\"\n" +
-                "  }, {\n" +
                 "    \"eventAction\" : \"last changed\",\n" +
                 "    \"eventDate\" : \"2012-01-03T00:00:00Z\",\n" +
                 "    \"eventActor\" : \"noreply@ripe.net\"\n" +

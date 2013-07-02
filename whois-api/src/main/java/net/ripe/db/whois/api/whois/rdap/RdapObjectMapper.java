@@ -134,7 +134,32 @@ public class RdapObjectMapper {
         List<RpslAttribute> changedAttributes = rpslObject.findAttributes(AttributeType.CHANGED);
         int listSize = changedAttributes.size();
 
-        for (RpslAttribute rpslAttribute : changedAttributes) {
+        RpslAttribute lastChanged = changedAttributes.get(listSize - 1);
+
+        Events event = rdapObjectFactory.createEvents();
+        String eventString = lastChanged.getValue();
+
+        // Split the string and make the event entry
+        eventString = eventString.trim();
+        String[] eventStringElements = eventString.split(" ");
+        event.setEventAction("last changed");
+        event.setEventActor(eventStringElements[0]);
+
+        int year = Integer.parseInt(eventStringElements[1].substring(0,4));
+        int month = Integer.parseInt(eventStringElements[1].substring(5,6)) - 1;
+        int day = Integer.parseInt(eventStringElements[1].substring(7,8));
+
+        GregorianCalendar gc = new GregorianCalendar(year,month,day);
+
+        XMLGregorianCalendar eventDate= new XMLGregorianCalendarImpl(gc);
+
+        // and hack it coz the XMLGregorianCalendarImpl does weird stuff to it
+        eventDate.setTimezone(0);
+        event.setEventDate(eventDate);
+
+        rdapObject.getEvents().add(event);
+
+        /*for (RpslAttribute rpslAttribute : changedAttributes) {
             Events event = rdapObjectFactory.createEvents();
             String eventString = rpslAttribute.getValue();
 
@@ -167,7 +192,8 @@ public class RdapObjectMapper {
             rdapObject.getEvents().add(event);
 
             counter++;
-        }
+        }*/
+
     }
 
     private Entity createEntity(RpslObject rpslObject) {
