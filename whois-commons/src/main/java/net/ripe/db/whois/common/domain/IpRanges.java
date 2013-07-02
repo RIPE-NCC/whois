@@ -26,7 +26,7 @@ public class IpRanges {
         return contains(ipResource, trusted);
     }
 
-    @Value("${ipranges.loadbalancers}")
+    @Value("${ipranges.loadbalancer}")
     public void setLoadbalancers(final String... loadbalancers) {
         this.loadbalancers = getIntervals(loadbalancers);
         LOGGER.info("Loadbalancer ranges: {}", this.loadbalancers);
