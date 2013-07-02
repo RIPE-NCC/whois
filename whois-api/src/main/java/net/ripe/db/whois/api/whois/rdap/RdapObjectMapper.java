@@ -11,6 +11,7 @@ import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.api.whois.rdap.domain.Nameservers;
 import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
 import net.ripe.db.whois.api.whois.rdap.domain.Person;
+import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Remarks;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -97,21 +98,43 @@ public class RdapObjectMapper {
         person.setHandle(rpslObject.getKey().toString());
         person.setVcardArray(generateVcards(rpslObject));
 
-        // Remarks
-        for (RpslAttribute rpslAttribute :
-                rpslObject.findAttributes(AttributeType.REMARKS)) {
+        List<RpslAttribute> remarks =
+                rpslObject.findAttributes(AttributeType.REMARKS);
+        List<RpslAttribute> descrs =
+                rpslObject.findAttributes(AttributeType.DESCR);
+        List<RpslAttribute> all_remarks =  new ArrayList<RpslAttribute>();
+        all_remarks.addAll(remarks);
+        all_remarks.addAll(descrs);
+
+        setRemarks(person,rpslObject);
+        setEvents(person,rpslObject);
+
+        return person;
+    }
+
+    private void setRemarks (RdapObject rdapObject, RpslObject rpslObject) {
+        List<RpslAttribute> remarks =
+                rpslObject.findAttributes(AttributeType.REMARKS);
+        List<RpslAttribute> descrs =
+                rpslObject.findAttributes(AttributeType.DESCR);
+        List<RpslAttribute> all_remarks =  new ArrayList<RpslAttribute>();
+        all_remarks.addAll(remarks);
+        all_remarks.addAll(descrs);
+
+        for (RpslAttribute rpslAttribute : all_remarks) {
             Remarks remark = rdapObjectFactory.createRemarks();
             String descr = rpslAttribute.getCleanValue().toString();
             remark.getDescription().add(descr);
-            person.getRemarks().add(remark);
+            rdapObject.getRemarks().add(remark);
         }
+    }
 
-        // Events
+    private void setEvents (RdapObject rdapObject, RpslObject rpslObject) {
         int counter = 0;
-        List<RpslAttribute> changedList = rpslObject.findAttributes(AttributeType.CHANGED);
-        int listSize = changedList.size();
+        List<RpslAttribute> changedAttributes = rpslObject.findAttributes(AttributeType.CHANGED);
+        int listSize = changedAttributes.size();
 
-        for (RpslAttribute rpslAttribute : changedList) {
+        for (RpslAttribute rpslAttribute : changedAttributes) {
             Events event = rdapObjectFactory.createEvents();
             String eventString = rpslAttribute.getValue();
 
@@ -141,12 +164,10 @@ public class RdapObjectMapper {
             eventDate.setTimezone(0);
             event.setEventDate(eventDate);
 
-            person.getEvents().add(event);
+            rdapObject.getEvents().add(event);
 
             counter++;
         }
-
-        return person;
     }
 
     private Entity createEntity(RpslObject rpslObject) {
@@ -155,13 +176,7 @@ public class RdapObjectMapper {
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVcardArray(generateVcards(rpslObject));
         
-        for (RpslAttribute rpslAttribute :
-                rpslObject.findAttributes(AttributeType.REMARKS)) {
-            Remarks remark = rdapObjectFactory.createRemarks();
-            String descr = rpslAttribute.getCleanValue().toString();
-            remark.getDescription().add(descr);
-            entity.getRemarks().add(remark);
-        }
+        setRemarks(entity,rpslObject);
 
         return entity;
     }
@@ -221,19 +236,7 @@ public class RdapObjectMapper {
         /* None of the statuses from [9.1] in json-response is
          * applicable here, so 'status' will be left empty for now. */
  
-        List<RpslAttribute> remarks =
-            rpslObject.findAttributes(AttributeType.REMARKS);
-        List<RpslAttribute> descrs =
-            rpslObject.findAttributes(AttributeType.DESCR);
-        List<RpslAttribute> all_remarks =  new ArrayList<RpslAttribute>();
-        all_remarks.addAll(remarks);
-        all_remarks.addAll(descrs);
-        for (RpslAttribute rpslAttribute : all_remarks) {
-            Remarks remark = rdapObjectFactory.createRemarks();
-            String descr = rpslAttribute.getCleanValue().toString();
-            remark.getDescription().add(descr);
-            an.getRemarks().add(remark);
-        }
+        setRemarks(an,rpslObject);
 
         /* Load the admin-c and tech-c attributes, find the
          * corresponding records in the queue (if possible), convert

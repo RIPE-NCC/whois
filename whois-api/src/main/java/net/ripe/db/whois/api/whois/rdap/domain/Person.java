@@ -14,7 +14,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,8 +62,7 @@ import java.util.List;
 })
 @XmlRootElement(name = "person")
 public class Person
-    implements Serializable
-{
+    extends RdapObject {
 
     @XmlElement(required = true)
     protected List<String> rdapConformance;
@@ -75,10 +73,10 @@ public class Person
     protected List<String> roles;
     protected HashMap publicIds;
     protected List<Entity> entities;
-    protected List<Remarks> remarks;
+   // protected List<Remarks> remarks;
     protected List<Links> links;
     protected String port43;
-    protected List<Events> events;
+   // protected List<Events> events;
 
     /**
      * Gets the value of the rdapConformance property.
