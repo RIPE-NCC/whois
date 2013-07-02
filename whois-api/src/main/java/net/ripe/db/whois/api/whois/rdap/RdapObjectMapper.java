@@ -11,6 +11,7 @@ import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.api.whois.rdap.domain.Nameservers;
 import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
 import net.ripe.db.whois.api.whois.rdap.domain.Person;
+import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Remarks;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -97,56 +98,57 @@ public class RdapObjectMapper {
         person.setHandle(rpslObject.getKey().toString());
         person.setVcardArray(generateVcards(rpslObject));
 
-        // Remarks
-        for (RpslAttribute rpslAttribute :
-                rpslObject.findAttributes(AttributeType.REMARKS)) {
+        setRemarks(person,rpslObject);
+        setEvents(person,rpslObject);
+
+        return person;
+    }
+
+    private void setRemarks (RdapObject rdapObject, RpslObject rpslObject) {
+        List<RpslAttribute> remarks =
+                rpslObject.findAttributes(AttributeType.REMARKS);
+        List<RpslAttribute> descrs =
+                rpslObject.findAttributes(AttributeType.DESCR);
+        List<RpslAttribute> allRemarks =  new ArrayList<RpslAttribute>();
+        allRemarks.addAll(remarks);
+        allRemarks.addAll(descrs);
+
+        for (RpslAttribute rpslAttribute : allRemarks) {
             Remarks remark = rdapObjectFactory.createRemarks();
             String descr = rpslAttribute.getCleanValue().toString();
             remark.getDescription().add(descr);
-            person.getRemarks().add(remark);
+            rdapObject.getRemarks().add(remark);
         }
+    }
 
-        // Events
-        int counter = 0;
-        List<RpslAttribute> changedList = rpslObject.findAttributes(AttributeType.CHANGED);
-        int listSize = changedList.size();
+    private void setEvents (RdapObject rdapObject, RpslObject rpslObject) {
+        List<RpslAttribute> changedAttributes = rpslObject.findAttributes(AttributeType.CHANGED);
+        int listSize = changedAttributes.size();
 
-        for (RpslAttribute rpslAttribute : changedList) {
-            Events event = rdapObjectFactory.createEvents();
-            String eventString = rpslAttribute.getValue();
+        RpslAttribute lastChanged = changedAttributes.get(listSize - 1);
 
-            // Split the string and make the event entry
-            eventString = eventString.trim();
-            String[] eventStringElements = eventString.split(" ");
+        Events event = rdapObjectFactory.createEvents();
+        String eventString = lastChanged.getValue();
 
-            String eventAction = "changed";
-            if (counter == 0) {
-                eventAction = "registration";
-            } else if (counter == (listSize - 1) ) {
-                eventAction = "last changed";
-            }
+        // Split the string and make the event entry
+        eventString = eventString.trim();
+        String[] eventStringElements = eventString.split(" ");
+        event.setEventAction("last changed");
+        event.setEventActor(eventStringElements[0]);
 
-            event.setEventAction(eventAction);
-            event.setEventActor(eventStringElements[0]);
+        int year = Integer.parseInt(eventStringElements[1].substring(0,4));
+        int month = Integer.parseInt(eventStringElements[1].substring(5,6)) - 1;
+        int day = Integer.parseInt(eventStringElements[1].substring(7,8));
 
-            int year = Integer.parseInt(eventStringElements[1].substring(0,4));
-            int month = Integer.parseInt(eventStringElements[1].substring(5,6)) - 1;
-            int day = Integer.parseInt(eventStringElements[1].substring(7,8));
+        GregorianCalendar gc = new GregorianCalendar(year,month,day);
 
-            GregorianCalendar gc = new GregorianCalendar(year,month,day);
+        XMLGregorianCalendar eventDate= new XMLGregorianCalendarImpl(gc);
 
-            XMLGregorianCalendar eventDate= new XMLGregorianCalendarImpl(gc);
+        // and hack it coz the XMLGregorianCalendarImpl does weird stuff to it
+        eventDate.setTimezone(0);
+        event.setEventDate(eventDate);
 
-            // and hack it coz the XMLGregorianCalendarImpl does weird stuff to it
-            eventDate.setTimezone(0);
-            event.setEventDate(eventDate);
-
-            person.getEvents().add(event);
-
-            counter++;
-        }
-
-        return person;
+        rdapObject.getEvents().add(event);
     }
 
     private Entity createEntity(RpslObject rpslObject) {
@@ -155,13 +157,7 @@ public class RdapObjectMapper {
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVcardArray(generateVcards(rpslObject));
         
-        for (RpslAttribute rpslAttribute :
-                rpslObject.findAttributes(AttributeType.REMARKS)) {
-            Remarks remark = rdapObjectFactory.createRemarks();
-            String descr = rpslAttribute.getCleanValue().toString();
-            remark.getDescription().add(descr);
-            entity.getRemarks().add(remark);
-        }
+        setRemarks(entity,rpslObject);
 
         return entity;
     }
@@ -221,19 +217,7 @@ public class RdapObjectMapper {
         /* None of the statuses from [9.1] in json-response is
          * applicable here, so 'status' will be left empty for now. */
  
-        List<RpslAttribute> remarks =
-            rpslObject.findAttributes(AttributeType.REMARKS);
-        List<RpslAttribute> descrs =
-            rpslObject.findAttributes(AttributeType.DESCR);
-        List<RpslAttribute> all_remarks =  new ArrayList<RpslAttribute>();
-        all_remarks.addAll(remarks);
-        all_remarks.addAll(descrs);
-        for (RpslAttribute rpslAttribute : all_remarks) {
-            Remarks remark = rdapObjectFactory.createRemarks();
-            String descr = rpslAttribute.getCleanValue().toString();
-            remark.getDescription().add(descr);
-            an.getRemarks().add(remark);
-        }
+        setRemarks(an,rpslObject);
 
         /* Load the admin-c and tech-c attributes, find the
          * corresponding records in the queue (if possible), convert
@@ -275,12 +259,7 @@ public class RdapObjectMapper {
             domain.getNameservers().add(ns);
         }
 
-        // Remarks
-        for  (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.REMARKS)) {
-            Remarks remark = rdapObjectFactory.createRemarks();
-            remark.getDescription().add(rpslAttribute.getCleanValue().toString());
-            domain.getRemarks().add(remark);
-        }
+        setRemarks(domain, rpslObject);
 
 //        // Entities
 //        Entity entity = rdapObjectFactory.createEntity();
