@@ -136,6 +136,8 @@ public class RdapObjectMapper {
             GregorianCalendar gc = new GregorianCalendar(year,month,day);
 
             XMLGregorianCalendar eventDate= new XMLGregorianCalendarImpl(gc);
+
+            // and hack it coz the XMLGregorianCalendarImpl does weird stuff to it
             eventDate.setTimezone(0);
             event.setEventDate(eventDate);
 
