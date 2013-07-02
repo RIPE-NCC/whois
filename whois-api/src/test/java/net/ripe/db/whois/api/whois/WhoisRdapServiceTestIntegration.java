@@ -180,7 +180,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         LOGGER.info("Response:" + responseContent);
         String textEntity = convertEOLToUnix(responseContent);
 
-        /*assertEquals("" +
+        assertEquals("" +
                 "{\n" +
                 "  \"rdapConformance\" : [ \"rdap_level_0\" ],\n" +
                 "  \"handle\" : \"PP1-TEST\",\n" +
@@ -189,11 +189,25 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "  }, \"text\", \"Pauleth Palthen\" ], [ \"adr\", {\n" +
                 "    \"label\" : \"Singel 258\"\n" +
                 "  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
-                "  }, \"uri\", \"+31-1234567890\" ] ] ],\n" +
+                "  }, \"uri\", \"+31-1234567890\" ], [ \"email\", {\n" +
+                "  }, \"text\", \"noreply@ripe.net\" ] ] ],\n" +
                 "  \"remarks\" : [ {\n" +
                 "    \"description\" : [ \"remark\" ]\n" +
+                "  } ],\n" +
+                "  \"events\" : [ {\n" +
+                "    \"eventAction\" : \"registration\",\n" +
+                "    \"eventDate\" : \"2012-01-01T00:00:00Z\",\n" +
+                "    \"eventActor\" : \"noreply@ripe.net\"\n" +
+                "  }, {\n" +
+                "    \"eventAction\" : \"changed\",\n" +
+                "    \"eventDate\" : \"2012-01-02T00:00:00Z\",\n" +
+                "    \"eventActor\" : \"noreply@ripe.net\"\n" +
+                "  }, {\n" +
+                "    \"eventAction\" : \"last changed\",\n" +
+                "    \"eventDate\" : \"2012-01-03T00:00:00Z\",\n" +
+                "    \"eventActor\" : \"noreply@ripe.net\"\n" +
                 "  } ]\n" +
-                "}", textEntity); */
+                "}", textEntity);
 
         //Thread.sleep(1500000);
     }
