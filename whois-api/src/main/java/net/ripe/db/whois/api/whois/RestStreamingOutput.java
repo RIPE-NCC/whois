@@ -77,7 +77,7 @@ public class RestStreamingOutput extends WhoisStreamingOutput {
         streamingMarshal.close();
     }
 
-    protected void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
+    private void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
         if (rpslObject == null) {
             return;
         }

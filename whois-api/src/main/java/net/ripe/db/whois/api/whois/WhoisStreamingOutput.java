@@ -30,7 +30,4 @@ public abstract class WhoisStreamingOutput implements StreamingOutput {
         remoteAddress = ra;
         contextId = cid;
     }
-
-    protected abstract void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects);
-
 }
