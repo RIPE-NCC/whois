@@ -3,12 +3,12 @@ package net.ripe.db.whois.api.whois;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.TagResponseObject;
-import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
@@ -60,15 +60,15 @@ public class WhoisObjectMapperTest {
 
     @Test
     public void map_rpsl_as_set_members_multiple_values() throws Exception {
-        final RpslObject rpslObject = RpslObject.parse(
+        final RpslObject rpslObject = RpslObject.parse("" +
                 "as-set:    AS-set-attendees\n" +
-                        "descr:     AS-set containing all attendees' ASNs.\n" + // TODO: on transform map to &apos;
-                        "tech-c:    TS1-TEST\n" +
-                        "admin-c:   TS1-TEST\n" +
-                        "members:   as1,as2,as3,\n" +
-                        "mnt-by:    TS1-MNT\n" +
-                        "changed:   hostmaster@ripe.net 20121115\n" +
-                        "source:    TEST");
+                "descr:     AS-set containing all attendees' ASNs.\n" + // TODO: on transform map to &apos;
+                "tech-c:    TS1-TEST\n" +
+                "admin-c:   TS1-TEST\n" +
+                "members:   as1,as2,as3,\n" +
+                "mnt-by:    TS1-MNT\n" +
+                "changed:   hostmaster@ripe.net 20121115\n" +
+                "source:    TEST");
 
         final WhoisObject subject = WhoisObjectMapper.map(rpslObject);
 
@@ -123,12 +123,12 @@ public class WhoisObjectMapperTest {
 
     @Test
     public void map_tags() {
-        final WhoisTags whoisTags = WhoisObjectMapper.mapTags(Lists.newArrayList(
+        final List<WhoisTag> tags = WhoisObjectMapper.map(RpslObject.parse("mntner: TEST-MNT\nsource: TEST"),
+                Lists.newArrayList(
                 new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("foo"),  "foo data"),
                 new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("bar"),  "bar data"),
-                new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("barf"),  "barf data")));
+                new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("barf"),  "barf data"))).getTags();
 
-        final List<WhoisTag> tags = whoisTags.getTags();
         assertThat(tags, hasSize(3));
         final WhoisTag tag1 = tags.get(0);
         assertThat(tag1.getId(), is("foo"));

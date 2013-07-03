@@ -379,11 +379,7 @@ public class WhoisRestService {
                     return;
                 }
 
-                final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject);
-
-                // TODO [AK] Fix mapper API
-                final List<WhoisTag> tags = WhoisObjectMapper.mapTags(tagResponseObjects).getTags();
-                whoisObject.setTags(tags);
+                final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject, tagResponseObjects);
 
                 streamingMarshal.write("object", whoisObject);
                 tagResponseObjects.clear();
@@ -1762,7 +1758,7 @@ public class WhoisRestService {
     }
 
     private String getRequestId(final String remoteAddress) {
-        return "rest_" + remoteAddress + "_" + System.nanoTime();
+        return String.format("rest_%s_%s", remoteAddress, System.nanoTime());
     }
 
     private boolean sourceMatchesContext(final String source) {
