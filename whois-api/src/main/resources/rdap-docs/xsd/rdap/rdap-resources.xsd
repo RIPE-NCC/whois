@@ -22,24 +22,6 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:element name="person">
-        <xs:complexType>
-            <xs:complexContent>
-                <xs:extension base="rdapObject">
-                    <xs:sequence>
-                        <xs:element name="handle" type="xs:string" maxOccurs="1" minOccurs="1"/>
-                        <xs:element name="vcardArray" type="xs:anySimpleType" maxOccurs="1" minOccurs="0"/>
-
-                        <xs:element name="roles" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
-                        <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
-
-                        <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    </xs:sequence>
-                </xs:extension>
-            </xs:complexContent>
-        </xs:complexType>
-    </xs:element>
-
     <xs:element name="domain">
         <xs:complexType>
             <xs:complexContent>

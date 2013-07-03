@@ -60,8 +60,7 @@ import javax.xml.bind.annotation.XmlType;
     Autnum.class,
     Domain.class,
     net.ripe.db.whois.api.whois.rdap.domain.Entity.class,
-    Nameservers.class,
-    Person.class
+    Nameservers.class
 })
 public class RdapObject
     implements Serializable

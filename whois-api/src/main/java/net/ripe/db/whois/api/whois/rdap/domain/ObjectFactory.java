@@ -37,43 +37,27 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Domain }
+     * Create an instance of {@link Nameservers.IpAddresses }
      * 
      */
-    public Domain createDomain() {
-        return new Domain();
+    public Nameservers.IpAddresses createNameserversIpAddresses() {
+        return new Nameservers.IpAddresses();
     }
 
     /**
-     * Create an instance of {@link Entity }
+     * Create an instance of {@link Links }
      * 
      */
-    public Entity createEntity() {
-        return new Entity();
+    public Links createLinks() {
+        return new Links();
     }
 
     /**
-     * Create an instance of {@link Remarks }
+     * Create an instance of {@link RdapObject }
      * 
      */
-    public Remarks createRemarks() {
-        return new Remarks();
-    }
-
-    /**
-     * Create an instance of {@link Person }
-     * 
-     */
-    public Person createPerson() {
-        return new Person();
-    }
-
-    /**
-     * Create an instance of {@link Autnum }
-     * 
-     */
-    public Autnum createAutnum() {
-        return new Autnum();
+    public RdapObject createRdapObject() {
+        return new RdapObject();
     }
 
     /**
@@ -93,27 +77,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link RdapObject }
+     * Create an instance of {@link Nameservers }
      * 
      */
-    public RdapObject createRdapObject() {
-        return new RdapObject();
-    }
-
-    /**
-     * Create an instance of {@link Nameservers.IpAddresses }
-     * 
-     */
-    public Nameservers.IpAddresses createNameserversIpAddresses() {
-        return new Nameservers.IpAddresses();
-    }
-
-    /**
-     * Create an instance of {@link Links }
-     * 
-     */
-    public Links createLinks() {
-        return new Links();
+    public Nameservers createNameservers() {
+        return new Nameservers();
     }
 
     /**
@@ -125,11 +93,35 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Nameservers }
+     * Create an instance of {@link Entity }
      * 
      */
-    public Nameservers createNameservers() {
-        return new Nameservers();
+    public Entity createEntity() {
+        return new Entity();
+    }
+
+    /**
+     * Create an instance of {@link Autnum }
+     * 
+     */
+    public Autnum createAutnum() {
+        return new Autnum();
+    }
+
+    /**
+     * Create an instance of {@link Domain }
+     * 
+     */
+    public Domain createDomain() {
+        return new Domain();
+    }
+
+    /**
+     * Create an instance of {@link Remarks }
+     * 
+     */
+    public Remarks createRemarks() {
+        return new Remarks();
     }
 
 }
