@@ -9,9 +9,24 @@ import java.util.Map;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 public enum OrgType {
-    IANA, RIR, NIR, LIR, WHITEPAGES, DIRECT_ASSIGNMENT, OTHER;
+    IANA("for Internet Assigned Numbers Authority"),
+    RIR("for Regional Internet Registries"),
+    NIR("for National Internet Registries (there are no NIRs in the RIPE NCC service region)"),
+    LIR("for Local Internet Registries"),
+    WHITEPAGES("for special links to industry people"),
+    DIRECT_ASSIGNMENT("for direct contract with RIPE NCC"),
+    OTHER("for all other organisations.");
 
     private static final Map<CIString, OrgType> ORG_TYPE_MAP;
+    private final String info;
+
+    private OrgType(final String info) {
+        this.info = info;
+    }
+
+    public String getInfo() {
+        return info;
+    }
 
     static {
         ORG_TYPE_MAP = Maps.newHashMap();
