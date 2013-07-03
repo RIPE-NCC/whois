@@ -12,11 +12,15 @@ import net.ripe.db.whois.api.whois.rdap.domain.Nameservers;
 import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
 import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Remarks;
+import net.ripe.db.whois.api.whois.rdap.domain.Links;
+import net.ripe.db.whois.api.whois.rdap.RdapUtilities;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.handler.QueryHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,10 +53,16 @@ public class RdapObjectMapper {
     private DatatypeFactory dtf = DatatypeFactory.newInstance();
     private static List<String> RDAPCONFORMANCE = 
         Lists.newArrayList("rdap_level_0");
+    private QueryHandler queryHandler;
+    private String source;
 
-    public RdapObjectMapper(Queue<TaggedRpslObject> taggedRpslObjectQueue)
+    public RdapObjectMapper(QueryHandler qh,
+                            SourceContext sc,
+                            Queue<TaggedRpslObject> taggedRpslObjectQueue)
             throws DatatypeConfigurationException {
         this.taggedRpslObjectQueue = taggedRpslObjectQueue;
+        this.queryHandler = qh;
+        this.source = sc.getWhoisSlaveSource().getName().toString();
     }
 
     public Object build() throws Exception {
@@ -259,6 +269,20 @@ public class RdapObjectMapper {
         eats.add(AttributeType.ADMIN_C);
         eats.add(AttributeType.TECH_C);
         setEntities(an, rpslObject, qtro, eats);
+
+        /* If this is an aut-num, and it has a parent as-block, add a
+         * link to it. */
+        if (is_autnum) {
+            RpslObject asb = 
+                RdapUtilities.fetchObject(queryHandler, "as-block",
+                                          "AS" + start.toString(),
+                                          source);
+            if (asb != null) {
+                Links ln = rdapObjectFactory.createLinks();
+                ln.setValue(asb.getKey().toString());
+                an.getLinks().add(ln);
+            }
+        }
 
         return an;
     }

@@ -16,6 +16,7 @@ import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
+import net.ripe.db.whois.api.whois.rdap.RdapUtilities;
 import org.codehaus.enunciate.jaxrs.TypeHint;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,13 @@ public class WhoisRdapService extends WhoisService {
         String whoisKey        = key;
         
         if (objectType.equals("autnum")) {
-            whoisObjectType = (asnExists(key)) ? "aut-num" : "as-block";
+            whoisObjectType = 
+                (RdapUtilities.fetchObject(queryHandler, 
+                                           "aut-num", 
+                                           "AS" + key,
+                                           source()) != null) 
+                    ? "aut-num" 
+                    : "as-block";
             whoisKey = "AS" + key;
         } else if (objectType.equals("entity")) {
             whoisObjectType = "person,role,organisation,irt";
@@ -79,7 +86,7 @@ public class WhoisRdapService extends WhoisService {
     protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
         final StreamingMarshal streamingMarshal = new RdapStreamingMarshalJson();
 
-        RdapStreamingOutput rso = new RdapStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
+        RdapStreamingOutput rso = new RdapStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId,sourceContext);
 
         return Response.ok(rso).build();
     }
@@ -111,32 +118,5 @@ public class WhoisRdapService extends WhoisService {
         checkForInvalidSource(source);
 
         return handleQuery(query, source, key, request, null);
-    }
-
-    private boolean asnExists(String asn) {
-        /* todo: There is probably an easier/better way to do this. */
-        final String qstring =
-            String.format("%s %s %s %s %s %s",
-                QueryFlag.SOURCES.getLongFlag(),       source(),
-                QueryFlag.SELECT_TYPES.getLongFlag(),  "aut-num",
-                QueryFlag.SHOW_TAG_INFO.getLongFlag(), "AS" + asn
-            );
-        final Query query = Query.parse(qstring);
-        final boolean[] found_asn = { false };
-        final int contextId = 
-            System.identityHashCode(Thread.currentThread());
-        queryHandler.streamResults(query, InetAddress.getLoopbackAddress(),
-                                   contextId, new ApiResponseHandler() {
-
-            @Override
-            public void handle(final ResponseObject responseObject) {
-                if ((responseObject instanceof RpslObject)
-                        && ((RpslObject) responseObject)
-                                .getType().getName().equals("aut-num")) {
-                    found_asn[0] = true;
-                }
-            }
-        });
-        return found_asn[0];
     }
 }

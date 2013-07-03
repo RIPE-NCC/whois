@@ -158,14 +158,17 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
                         .toGregorianCalendar()
                         .getTime(), equalTo(check));
 
-        /* No entities returned, at the moment. The queue passed to
-         * createAutnumResponse is empty, for some reason. */
-
         List<Entity> entities = an.getEntities();
         assertThat(entities.size(), equalTo(1));
 
         Entity admin_c = entities.get(0);
         assertThat(admin_c.getHandle(), equalTo("TP1-TEST"));
+
+        List<Links> links = an.getLinks();
+        assertThat(links.size(), equalTo(1));
+
+        Links ln = links.get(0);
+        assertThat(ln.getValue(), equalTo("AS10000-AS20000"));
     }
 
     @Test

@@ -14,6 +14,7 @@ import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
+import net.ripe.db.whois.common.source.SourceContext;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -25,9 +26,11 @@ import java.util.List;
 import java.util.Queue;
 
 public class RdapStreamingOutput extends WhoisStreamingOutput {
+    private SourceContext sourceContext;
 
-    public RdapStreamingOutput(StreamingMarshal sm, QueryHandler qh, Parameters p, Query q, InetAddress ra, int cid) {
+    public RdapStreamingOutput(StreamingMarshal sm, QueryHandler qh, Parameters p, Query q, InetAddress ra, int cid, SourceContext sc) {
         super(sm,qh,p,q,ra,cid);
+        sourceContext = sc;
     }
 
     @Override
@@ -63,7 +66,8 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
             }
 
             RdapObjectMapper rdapObjectMapper = 
-                new RdapObjectMapper(taggedRpslObjectQueue);
+                new RdapObjectMapper(queryHandler, sourceContext,
+                                     taggedRpslObjectQueue);
             streamObject(rdapObjectMapper.build());
 
         } catch (QueryException e) {
