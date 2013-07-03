@@ -14,7 +14,6 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
@@ -24,7 +23,6 @@ import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.QueryMessages;
 import org.apache.commons.lang.StringUtils;
 
-import java.net.InetAddress;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,7 +31,6 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 public final class Query {
     public static final Pattern FLAG_PATTERN = Pattern.compile("(--?)([^-].*)");
-    public static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
 
     public static final int MAX_QUERY_ELEMENTS = 60;
 
@@ -258,7 +255,7 @@ public final class Query {
 
     public int getObjectVersion() {
         if (hasOption(QueryFlag.SHOW_VERSION)) {
-            int version = Integer.parseInt(getOptionValue(QueryFlag.SHOW_VERSION));
+            final int version = Integer.parseInt(getOptionValue(QueryFlag.SHOW_VERSION));
             if (version < 1) {
                 throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("version flag number must be greater than 0"));
             }
@@ -349,15 +346,6 @@ public final class Query {
 
     public String getSearchValue() {
         return searchKey.getValue();
-    }
-
-    public String getCleanSearchValue() {
-        final IpInterval<?> ipKeyOrNull = getIpKeyOrNull();
-        if (ipKeyOrNull != null) {
-            return ipKeyOrNull instanceof Ipv4Resource ? ((Ipv4Resource) ipKeyOrNull).toRangeString() : ipKeyOrNull.toString();
-        }
-
-        return WHITESPACE_PATTERN.matcher(searchKey.getValue().trim()).replaceAll(" ");
     }
 
     public IpInterval<?> getIpKeyOrNull() {
@@ -456,18 +444,6 @@ public final class Query {
 
     public Set<String> getSources() {
         return sources;
-    }
-
-    public Query addProxyFlag(InetAddress inetAddress) {
-        if (!hasProxyWithIp()) {
-            return addProxiedFor(inetAddress);
-        }
-
-        return this;
-    }
-
-    private Query addProxiedFor(InetAddress inetAddress) {
-        return new Query(String.format("-VWhoisRDP,%s %s", inetAddress.getHostAddress(), originalStringQuery));
     }
 
     private Set<ObjectType> parseObjectTypes() {

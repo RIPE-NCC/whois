@@ -21,6 +21,9 @@ public class MaintenanceMode {
     private AccessType world = AccessType.FULL;
     private AccessType trusted = AccessType.FULL;
 
+    // TODO: [AH] this is only supported for non-http services at the moment (aka query, nrtm) for which one has to use a 'dumb' OSI layer2 load balancer
+    private long shutdownTime = 0;
+
     @Autowired
     public MaintenanceMode(final IpRanges ipRanges) {
         this.ipRanges = ipRanges;
@@ -47,11 +50,21 @@ public class MaintenanceMode {
         this.trusted = trusted;
     }
 
+    public void setShutdown() {
+        shutdownTime = System.currentTimeMillis();
+    }
+
+    public long shutdownInitiated() {
+        return System.currentTimeMillis() - shutdownTime;
+    }
+
+    /* for services where client IP address is not available/does not apply */
     public boolean allowRead() {
         return world != AccessType.NONE;
     }
 
     public boolean allowRead(Interval ipResource) {
+        if (shutdownTime > 0 && ipRanges.isLoadbalancer(ipResource)) return false;
         if (world != AccessType.NONE) return true;
 
         if (ipRanges.isTrusted(ipResource)) {
@@ -61,6 +74,7 @@ public class MaintenanceMode {
         return false;
     }
 
+    /* for services where client IP address is not available/does not apply */
     public boolean allowUpdate() {
         return world == AccessType.FULL;
     }

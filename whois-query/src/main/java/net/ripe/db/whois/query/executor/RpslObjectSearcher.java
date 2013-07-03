@@ -120,11 +120,8 @@ class RpslObjectSearcher {
 
     private Iterable<ResponseObject> domainLookup(final Query query) {
         String searchValue = query.getSearchValue().toLowerCase();
-        if (searchValue.endsWith(".")) {
-            searchValue = searchValue.substring(0, searchValue.length() - 1);
-        }
 
-        if (searchValue.contains("e164.arpa")) {
+        if (searchValue.endsWith("e164.arpa")) {
             return indexLookup(query, ObjectType.DOMAIN, searchValue);
         }
 

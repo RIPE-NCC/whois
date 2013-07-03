@@ -55,6 +55,10 @@ public class PreparedUpdate implements UpdateContainer {
         return updatedObject;
     }
 
+    public RpslObject getSubmittedObject() {
+        return update.getSubmittedObject();
+    }
+
     public Action getAction() {
         return action;
     }

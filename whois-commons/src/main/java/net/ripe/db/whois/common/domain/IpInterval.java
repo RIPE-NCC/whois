@@ -7,7 +7,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 
 public abstract class IpInterval<K extends Interval<K>> implements Interval<K> {
-    static String removeTrailingDot(final String address) {
+    public static String removeTrailingDot(final String address) {
         if (address.endsWith(".")) {
             return address.substring(0, address.length() - 1);
         }

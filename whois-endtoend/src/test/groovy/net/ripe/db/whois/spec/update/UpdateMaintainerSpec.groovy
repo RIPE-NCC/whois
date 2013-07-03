@@ -371,7 +371,7 @@ class UpdateMaintainerSpec extends BaseSpec {
         query_object_matches("-r -T mntner UPD-MNT", "mntner", "UPD-MNT", "remarks:\\s*added comment")
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
-        notif.added("mntner", "UPD-MNT", "remarks: added comment")
+        notif.added("mntner", "UPD-MNT", "remarks:        added comment")
     }
 
     def "update maintainer new keyword"() {

@@ -3,6 +3,7 @@ package net.ripe.db.whois.spec.update
 import net.ripe.db.whois.spec.BaseSpec
 import spec.domain.AckResponse
 import spec.domain.Message
+import spock.lang.Ignore
 
 class SyntaxSpec extends BaseSpec {
 
@@ -832,6 +833,7 @@ class SyntaxSpec extends BaseSpec {
         query_object_matches("-rBG -T person FP1-TEST", "person", "First Person", "4\\.\\.")
     }
 
+    @Ignore //TODO [AS] ignore this testcase until @ripe.net business rule is implemented
     def "create person with @ripe.net in notify: attr"() {
         given:
 

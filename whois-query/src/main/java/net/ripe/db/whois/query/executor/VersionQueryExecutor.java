@@ -1,5 +1,7 @@
 package net.ripe.db.whois.query.executor;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
@@ -10,8 +12,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.*;
-import net.ripe.db.whois.query.planner.VersionResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,17 +26,17 @@ import java.util.List;
 @Component
 public class VersionQueryExecutor implements QueryExecutor {
     private final VersionDao versionDao;
-    private final VersionResponseDecorator versionResponseDecorator;
     private final static String VERSION_HEADER = "rev#";
     private final static String DATE_HEADER = "Date";
     private final static String OPERATION_HEADER = "Op.";
     private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
+    private final SourceContext sourceContext;
 
     @Autowired
-    public VersionQueryExecutor(final VersionResponseDecorator versionResponseDecorator, final VersionDao versionDao) {
-        this.versionResponseDecorator = versionResponseDecorator;
+    public VersionQueryExecutor(final SourceContext sourceContext, final VersionDao versionDao) {
         this.versionDao = versionDao;
+        this.sourceContext = sourceContext;
     }
 
     @Override
@@ -52,14 +54,30 @@ public class VersionQueryExecutor implements QueryExecutor {
         final Iterable<? extends ResponseObject> responseObjects = getResponseObjects(query);
 
         // TODO: [AH] refactor this spaghetti
-        for (final ResponseObject responseObject : versionResponseDecorator.getResponse(responseObjects)) {
-            if (query.isObjectVersion() && responseObject instanceof RpslObject) {
-                final VersionWithRpslResponseObject withVersion = new VersionWithRpslResponseObject((RpslObject) responseObject, query.getObjectVersion());
-                responseHandler.handle(withVersion);
-            } else {
-                responseHandler.handle(responseObject);
-            }
+        for (final ResponseObject responseObject : decorate(query, responseObjects)) {
+            responseHandler.handle(responseObject);
         }
+    }
+
+    private Iterable<? extends ResponseObject> decorate(final Query query, Iterable<? extends ResponseObject> responseObjects) {
+        final Iterable<ResponseObject> objects = Iterables.transform(responseObjects, new Function<ResponseObject, ResponseObject>() {
+            @Override
+            public ResponseObject apply(final ResponseObject input) {
+                if (input instanceof RpslObject) {
+                    ResponseObject filtered = FILTER_EMAIL_FUNCTION.apply(FILTER_AUTH_FUNCTION.apply((RpslObject) input));
+                    if (query.isObjectVersion()) {
+                        filtered = new VersionWithRpslResponseObject((RpslObject) filtered, query.getObjectVersion());
+                    }
+                    return filtered;
+                }
+                return input;
+            }
+        });
+
+        if (Iterables.isEmpty(objects)) {
+            return Collections.singletonList(new MessageObject(QueryMessages.noResults(sourceContext.getCurrentSource().getName())));
+        }
+        return objects;
     }
 
     private Iterable<? extends ResponseObject> getResponseObjects(final Query query) {
@@ -71,7 +89,7 @@ public class VersionQueryExecutor implements QueryExecutor {
         }
 
         final ObjectType objectType = res.getObjectType();
-        final String searchKey = query.getCleanSearchValue();
+        final String searchKey = query.getSearchValue();
         if (objectType == ObjectType.PERSON || objectType == ObjectType.ROLE) {
             return Collections.singletonList(new MessageObject(QueryMessages.versionPersonRole(objectType.getName().toUpperCase(), searchKey)));
         }
@@ -79,7 +97,9 @@ public class VersionQueryExecutor implements QueryExecutor {
         final List<VersionInfo> versionInfos = res.getVersionInfos();
         final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
         if (versionInfos.isEmpty() && lastDeletionTimestamp != null) {
-            return Collections.singletonList(new DeletedVersionResponseObject(lastDeletionTimestamp, objectType, searchKey));
+            return Lists.newArrayList(
+                    new MessageObject(QueryMessages.versionListHeader(objectType.getName().toUpperCase(), searchKey)),
+                    new DeletedVersionResponseObject(lastDeletionTimestamp, objectType, searchKey));
         }
 
         final int version = query.getObjectVersion();
@@ -150,13 +170,13 @@ public class VersionQueryExecutor implements QueryExecutor {
             return query.getObjectTypes();
         }
 
-        return versionDao.getObjectType(query.getCleanSearchValue());
+        return versionDao.getObjectType(query.getSearchValue());
     }
 
     @CheckForNull
     public VersionLookupResult getVersionInfo(final Query query) {
         for (ObjectType type : getObjectType(query)) {
-            final VersionLookupResult found = versionDao.findByKey(type, query.getCleanSearchValue());
+            final VersionLookupResult found = versionDao.findByKey(type, query.getSearchValue());
             if (found != null) {
                 return found;
             }

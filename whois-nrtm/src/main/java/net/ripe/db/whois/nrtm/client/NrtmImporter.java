@@ -98,9 +98,10 @@ public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationServ
     }
 
     @Override
-    public void stop() {
+    public void stop(final boolean force) {
         if (executorService != null) {
             executorService.shutdownNow();
+            executorService = null;
         }
     }
 

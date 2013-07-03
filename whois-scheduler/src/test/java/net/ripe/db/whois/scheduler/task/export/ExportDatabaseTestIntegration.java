@@ -78,7 +78,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
 
     @After
     public void tearDownServer() {
-        queryServer.stop();
+        queryServer.stop(true);
     }
 
     @Test

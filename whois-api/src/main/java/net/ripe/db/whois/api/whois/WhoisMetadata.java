@@ -9,6 +9,8 @@ import net.ripe.db.whois.common.rpsl.AttributeTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceContext;
+import org.codehaus.enunciate.jaxrs.ResponseCode;
+import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -132,6 +134,9 @@ public class WhoisMetadata {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/sources")
+    @StatusCodes({
+            @ResponseCode(code = 200, condition = "Request successful"),
+    })
     public Response sources() {
         WhoisResources result = new WhoisResources()
             .setService("getSupportedDataSources")
@@ -272,6 +277,10 @@ public class WhoisMetadata {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/templates/{objectType}")
+    @StatusCodes({
+            @ResponseCode(code = 200, condition = "Request successful"),
+            @ResponseCode(code = 400, condition = "Illegal input - incorrect objectType")
+    })
     public Response templates(@PathParam("objectType") String objectType) {
         final Template template = ATTRIBUTE_TEMPLATES.get(objectType);
         if (template == null) {

@@ -33,7 +33,7 @@ public class WhoisShutdownTestIntegration extends AbstractWhoisIntegrationTest {
 
     @After
     public void tearDown() throws Exception {
-        queryServer.stop();
+        queryServer.stop(true);
     }
 
     @Test
@@ -49,7 +49,7 @@ public class WhoisShutdownTestIntegration extends AbstractWhoisIntegrationTest {
             new Thread() {
                 @Override
                 public void run() {
-                    queryServer.stop();
+                    queryServer.stop(true);
                     latch.countDown();
                 }
             }.start();

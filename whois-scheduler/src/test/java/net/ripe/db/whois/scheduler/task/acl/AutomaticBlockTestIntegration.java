@@ -53,7 +53,7 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
 
     @After
     public void shutdownServer() {
-        queryServer.stop();
+        queryServer.stop(true);
     }
 
     @Test

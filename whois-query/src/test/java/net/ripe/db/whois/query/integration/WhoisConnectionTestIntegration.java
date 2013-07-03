@@ -83,7 +83,7 @@ public class WhoisConnectionTestIntegration extends AbstractWhoisIntegrationTest
 
     @After
     public void tearDown() throws Exception {
-        queryServer.stop();
+        queryServer.stop(true);
     }
 
     @Test

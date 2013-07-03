@@ -101,6 +101,11 @@ class MntByAuthentication extends AuthenticationStrategyBase {
             throw originalAuthenticationException;
         }
 
+        final List<RpslObject> authenticatedMntDomains = authenticateMntDomains(update, updateContext, ipInterval);
+        if (!authenticatedMntDomains.isEmpty()) {
+            return authenticatedMntDomains;
+        }
+
         @SuppressWarnings("unchecked")
         final List<IpEntry> ipEntries = Lists.reverse(((List<IpEntry>) findExactAndAllLessSpecific(ipInterval)));
         for (final IpEntry ipEntry : ipEntries) {
@@ -121,12 +126,39 @@ class MntByAuthentication extends AuthenticationStrategyBase {
         throw originalAuthenticationException;
     }
 
+    private List<RpslObject> authenticateMntDomains(final PreparedUpdate update, final UpdateContext updateContext, final IpInterval ipInterval) {
+        if (update.getUpdatedObject().getType() == ObjectType.DOMAIN) {
+            final List<? extends IpEntry> exact = findExact(ipInterval);
+            for (final IpEntry ipEntry : exact) {
+                final RpslObject ipObject = rpslObjectDao.getById(ipEntry.getObjectId());
+                final List<RpslObject> candidates = rpslObjectDao.getByKeys(ObjectType.MNTNER, ipObject.getValuesForAttribute(AttributeType.MNT_DOMAINS));
+                final List<RpslObject> authenticated = credentialValidators.authenticate(update, updateContext, candidates);
+                if (!authenticated.isEmpty()) {
+                    return authenticated;
+                }
+            }
+        }
+
+        return Collections.emptyList();
+    }
+
     @SuppressWarnings("unchecked")
     private List<? extends IpEntry> findExactAndAllLessSpecific(final IpInterval ipInterval) {
         if (ipInterval instanceof Ipv4Resource) {
             return ipv4Tree.findExactAndAllLessSpecific((Ipv4Resource) ipInterval);
         } else if (ipInterval instanceof Ipv6Resource) {
             return ipv6Tree.findExactAndAllLessSpecific((Ipv6Resource) ipInterval);
+        }
+
+        throw new IllegalArgumentException("Unexpected ip object: " + ipInterval);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<? extends IpEntry> findExact(final IpInterval ipInterval) {
+        if (ipInterval instanceof Ipv4Resource) {
+            return ipv4Tree.findExact((Ipv4Resource) ipInterval);
+        } else if (ipInterval instanceof Ipv6Resource) {
+            return ipv6Tree.findExact((Ipv6Resource) ipInterval);
         }
 
         throw new IllegalArgumentException("Unexpected ip object: " + ipInterval);
