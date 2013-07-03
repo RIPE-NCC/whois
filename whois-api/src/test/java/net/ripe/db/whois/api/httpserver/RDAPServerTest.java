@@ -11,7 +11,7 @@ import java.net.URL;
 import static org.junit.Assert.assertEquals;
 
 @Category(IntegrationTest.class)
-public class RDAPServerTest extends AbstractRestClientTest {
+public class RdapServerTest extends AbstractRestClientTest {
     private static final Audience RDAP_AUDIENCE = Audience.RDAP;
 
     @Test
