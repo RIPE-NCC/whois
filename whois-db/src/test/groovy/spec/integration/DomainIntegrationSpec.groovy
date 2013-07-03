@@ -808,4 +808,80 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
         !dnsCheckedFor("0.0.193.in-addr.arpa")
     }
+
+    def "delete domain by mnt-domains"() {
+      when:
+        def mntnerResponse = syncUpdate new SyncUpdate(data: """\
+                mntner:         DMN-MNT
+                descr:          description
+                admin-c:        TEST-PN
+                mnt-by:         DMN-MNT
+                referral-by:    DMN-MNT
+                upd-to:         dbtest@ripe.net
+                auth:           MD5-PW \$1\$5aMDZg3w\$zL59TnpAszf6Ft.zs148X0 # update2
+                changed:        dbtest@ripe.net 20120707
+                source:         TEST
+                password:       update2
+            """.stripIndent())
+      then:
+        mntnerResponse.contains("Create SUCCEEDED: [mntner] DMN-MNT")
+
+      when:
+        def inetnumResponse = syncUpdate new SyncUpdate(data: """\
+                inetnum: 193.0.0.0 - 193.0.0.255
+                netname: RIPE-NCC
+                descr: description
+                country: DK
+                admin-c: TEST-PN
+                tech-c: TEST-PN
+                status: SUB-ALLOCATED PA
+                mnt-by: TEST-MNT
+                mnt-domains: DMN-MNT
+                changed: ripe@test.net 20120505
+                source: TEST
+                password: update
+                """.stripIndent())
+      then:
+        inetnumResponse.contains("Modify SUCCEEDED: [inetnum] 193.0.0.0 - 193.0.0.255")
+
+      when:
+        def insertResponse = syncUpdate new SyncUpdate(data: """\
+                domain:          0.0.193.in-addr.arpa
+                descr:           Test domain
+                admin-c:         TEST-PN
+                tech-c:          TEST-PN
+                zone-c:          TEST-PN
+                nserver:         ns.foo.net
+                nserver:         ns.bar.net
+                mnt-by:          TEST-MNT
+                changed:         test@ripe.net 20120505
+                source:          TEST
+                password:        update
+                password:        update2
+                """.stripIndent())
+
+      then:
+        insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
+        dnsCheckedFor "0.0.193.in-addr.arpa"
+
+      when:
+        def updateResponse = syncUpdate new SyncUpdate(data: """\
+                domain:          0.0.193.in-addr.arpa
+                descr:           Test domain
+                admin-c:         TEST-PN
+                tech-c:          TEST-PN
+                zone-c:          TEST-PN
+                nserver:         ns.foo.net
+                nserver:         ns.bar.net
+                mnt-by:          TEST-MNT
+                changed:         test@ripe.net 20120505
+                source:          TEST
+                password:        update2
+                delete:          reason
+                """.stripIndent())
+
+      then:
+        updateResponse.contains("Delete SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
+        !dnsCheckedFor("0.0.193.in-addr.arpa")
+    }
 }

@@ -29,7 +29,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
     @After
     public void after() {
-        nrtmServer.stop();
+        nrtmServer.stop(true);
     }
 
     @Test

@@ -60,7 +60,7 @@ public class AbuseCTestIntegration extends AbstractWhoisIntegrationTest {
 
     @After
     public void shutdownWhoisServer() {
-        queryServer.stop();
+        queryServer.stop(true);
     }
 
     @Test
