@@ -38,6 +38,7 @@ public class SourceContext {
 
     private final Map<Source, SourceConfiguration> sourceConfigurations = Maps.newLinkedHashMap();
 
+    private final Set<CIString> defaultSourceNames;
     private final Set<CIString> grsSourceNames;
     private final Set<CIString> grsSourceNamesForDummification;
     private final Set<CIString> allSourceNames;
@@ -48,6 +49,7 @@ public class SourceContext {
     @Autowired
     public SourceContext(
             @Value("${whois.source}") final String mainSourceNameString,
+            @Value("${whois.default.sources}") final String defaultSourceNames,
             @Value("${grs.sources}") final String grsSourceNames,
             @Value("${nrtm.import.sources}") final String nrtmSourceNames,
             @Value("${grs.sources.dummify}") final String grsSourceNamesForDummification,
@@ -65,6 +67,7 @@ public class SourceContext {
         this.mainMasterSource = Source.master(mainSourceName);
         this.mainSlaveSource = Source.slave(mainSourceName);
 
+        final Set<CIString> defaultSources = Sets.newLinkedHashSet();
         final Set<CIString> grsSources = Sets.newLinkedHashSet();
         final Map<CIString, CIString> aliases = Maps.newLinkedHashMap();
 
@@ -128,7 +131,31 @@ public class SourceContext {
             }
         })));
 
+        final Iterable<CIString> defaultSourceNameIterable = Iterables.transform(Splitter.on(',').omitEmptyStrings().split(defaultSourceNames), new Function<String, CIString>() {
+            @Nullable
+            @Override
+            public CIString apply(final String input) {
+                return ciString(input);
+            }
+        });
+
+        for (final CIString defaultSourceName : defaultSourceNameIterable) {
+            if (this.allSourceNames.contains(defaultSourceName)) {
+                defaultSources.add(defaultSourceName);
+            }
+            else {
+                LOGGER.warn("Default Source {} not found in configured sources}", defaultSourceName);
+
+                throw new IllegalSourceException(defaultSourceName.toString());
+            }
+        }
+
+        this.defaultSourceNames = Collections.unmodifiableSet(defaultSources);
+
         LOGGER.info("Using sources: {}", sourceConfigurations.keySet());
+        if (!defaultSources.isEmpty()) {
+            LOGGER.info("Default sources: {}", defaultSources);
+        }
     }
 
     private String createGrsUrl(final String baseUrl, final CIString sourceName) {
@@ -174,6 +201,10 @@ public class SourceContext {
 
     public Set<CIString> getGrsSourceNames() {
         return grsSourceNames;
+    }
+
+    public Set<CIString> getDefaultSourceNames() {
+        return defaultSourceNames;
     }
 
     @CheckForNull
