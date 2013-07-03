@@ -82,27 +82,35 @@ public class LogSearchService {
         return Response.ok(new StreamingOutput() {
             @Override
             public void write(final OutputStream output) throws IOException, WebApplicationException {
-                final Writer writer = new BufferedWriter(new OutputStreamWriter(output, Charsets.UTF_8));
-                if (updateIds.size() > 100) {
-                    writer.write(String.format("!!! Found %s update logs, limiting to %s", updateIds.size(), STREAM_RESULTS_LIMIT));
-                } else {
-                    writer.write(String.format("*** Found %s update log(s)", updateIds.size()));
-                }
-
-                int count = 1;
-                for (final Update updateId : updateIds) {
-                    writer.write(String.format("\n\n*** %03d ***\n\n%s %s\n\n", count, updateId.getHost(), updateId.getId()));
-
-                    if (host.name().equals(updateId.getHost())) {
-                        logFileSearch.writeLoggedUpdates(LoggedUpdateId.parse(updateId.getId()), writer);
+                try {
+                    final Writer writer = new BufferedWriter(new OutputStreamWriter(output, Charsets.UTF_8));
+                    if (updateIds.size() > 100) {
+                        writer.write(String.format("!!! Found %s update logs, limiting to %s", updateIds.size(), STREAM_RESULTS_LIMIT));
                     } else {
-                        writer.write(getRemoteUpdateLogs(updateId.getHost(), updateId.getId()));
+                        writer.write(String.format("*** Found %s update log(s)", updateIds.size()));
                     }
 
-                    writer.flush();
-                    if (++count > STREAM_RESULTS_LIMIT) {
-                        break;
+                    int count = 1;
+                    for (final Update updateId : updateIds) {
+                        writer.write(String.format("\n\n*** %03d ***\n\n%s %s\n\n", count, updateId.getHost(), updateId.getId()));
+
+                        if (host.name().equals(updateId.getHost())) {
+                            logFileSearch.writeLoggedUpdates(LoggedUpdateId.parse(updateId.getId()), writer);
+                        } else {
+                            writer.write(getRemoteUpdateLogs(updateId.getHost(), updateId.getId()));
+                        }
+
+                        writer.flush();
+                        if (++count > STREAM_RESULTS_LIMIT) {
+                            break;
+                        }
                     }
+                } catch (IOException e) {
+                    LOGGER.error(e.getMessage(), e);
+                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+                } catch (RuntimeException e) {
+                    LOGGER.error(e.getMessage(), e);
+                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
                 }
             }
         }).build();
@@ -314,7 +322,7 @@ public class LogSearchService {
                 }
                 catch (RuntimeException e) {
                     LOGGER.error(e.getMessage(), e);
-                    throw new WebApplicationException(Response.Status.BAD_REQUEST);
+                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
                 }
             }
         }).build();

@@ -359,11 +359,10 @@ public class WhoisRestService {
                         throw new WebApplicationException(Response.Status.NOT_FOUND);
                     }
                 } catch (QueryException e) {
-                    LOGGER.error(e.getMessage(), e);
                     if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
                         throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
                     } else {
-                        throw e;
+                        throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
                     }
                 }
 
