@@ -89,19 +89,11 @@ public class TagsTestIntegration extends AbstractWhoisIntegrationTest {
     }
 
     @Test
-    public void no_tag_info_help() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "help");
-        assertThat(response, not(containsString("" +
-                "%     --no-tag-info\n" +
-                "%           Switches off tagging information.\n")));
-    }
-
-    @Test
     public void show_tag_info_help() {
         final String response = DummyWhoisClient.query(QueryServer.port, "help");
-        assertThat(response, not(containsString("" +
+        assertThat(response, containsString("" +
                 "%     --show-tag-info\n" +
-                "%           Switches on tagging information.\n")));
+                "%           Switches on tagging information.\n"));
     }
 
     @Test
@@ -109,7 +101,6 @@ public class TagsTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "--no-tag-info --show-tag-info UNUSED-MNT");
         assertThat(response, containsString("ERROR:109: invalid combination of flags passed"));
     }
-
 
     @Test
     public void filterTag_include_applies() {

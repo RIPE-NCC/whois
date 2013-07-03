@@ -1320,7 +1320,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
 
         final WhoisResources whoisResources = createResource(AUDIENCE,
-                "whois-beta/lookup/TEST/aut-num/AS102?include=foobar&include=unref")
+                "whois-beta/lookup/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1348,7 +1348,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
 
         final WhoisResources whoisResources = createResource(AUDIENCE,
-                "whois-beta/search?source=TEST&query-string=AS102&include=foobar&include=unref")
+                "whois-beta/search?source=TEST&query-string=AS102&include-tag=foobar&include-tag=unref")
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1382,7 +1382,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
         try {
             createResource(AUDIENCE,
-                    "whois-beta/search?source=TEST&query-string=AS102&include=foobar")
+                    "whois-beta/search?source=TEST&query-string=AS102&include-tag=foobar")
                     .accept(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -1409,7 +1409,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
         try {
             createResource(AUDIENCE,
-                    "whois-beta/search?source=TEST&query-string=AS102&exclude=foobar&include=unref&include=other")
+                    "whois-beta/search?source=TEST&query-string=AS102&exclude-tag=foobar&include-tag=unref&include-tag=other")
                     .accept(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -1434,7 +1434,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
 
         final WhoisResources whoisResources = createResource(AUDIENCE,
-                "whois-beta/search?source=TEST&query-string=AS102&exclude=other&include=unref&include=foobar")
+                "whois-beta/search?source=TEST&query-string=AS102&exclude-tag=other&include-tag=unref&include-tag=foobar")
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
