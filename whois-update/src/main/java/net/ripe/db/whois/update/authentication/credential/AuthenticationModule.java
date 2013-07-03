@@ -65,7 +65,7 @@ public class AuthenticationModule {
     }
 
     private Credential getCredential(final CIString auth) {
-        if (auth.startsWith(ciString("MD5-PW"))) {
+        if (auth.startsWith(ciString("MD5-PW")) || auth.startsWith(ciString("CRYPT-PW"))) {
             return new PasswordCredential(auth.toString());
         }
 
