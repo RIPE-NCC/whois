@@ -133,11 +133,7 @@ public class RdapObjectMapper {
             remarkList.add(descr);
         }
 
-        //Object[] ObjectList = remarkList.toArray();
-        //String[] StringArray = Arrays.copyOf(ObjectList, ObjectList.length, String[].class);
-
         remark.getDescription().addAll(remarkList);
-        //remark.setDescription(remarkList.toArray(StringArray));
         rdapObject.getRemarks().add(remark);
     }
 
