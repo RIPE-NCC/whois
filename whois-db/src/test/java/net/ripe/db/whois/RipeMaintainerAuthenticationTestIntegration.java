@@ -78,7 +78,7 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
     public void rest_api_update_from_outside_ripe_network() throws IOException {
         ipRanges.setTrusted("53.67.0.1");
 
-        String url = "http://localhost:" + getPort(Audience.PUBLIC) + "/whois-beta/create?password=emptypassword";
+        String url = "http://localhost:" + getPort(Audience.PUBLIC) + "/whois/create?password=emptypassword";
         String person =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n" +
                         "<whois-resources>\n" +
@@ -107,7 +107,7 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
     public void rest_api_update_from_within_ripe_network() throws IOException {
         ipRanges.setTrusted("127.0.0.1", "::1");
 
-        String url = "http://localhost:" + getPort(Audience.PUBLIC) + "/whois-beta/create?password=emptypassword";
+        String url = "http://localhost:" + getPort(Audience.PUBLIC) + "/whois/create?password=emptypassword";
         String person =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n" +
                         "<whois-resources>\n" +

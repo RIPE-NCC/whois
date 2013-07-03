@@ -96,17 +96,17 @@ public class WhoisRestService {
      * <p><div>The lookup service returns a single object specified by the source, object type and primary-key arguments.</div>
      * <p/>
      * <p><div>Example query:</div>
-     * http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT</p>
+     * http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT</p>
      * <p/>
      * <p><div>Example XML response:</div>
      * <pre>
      * &lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
-     * &lt;whois-resources service="lookup" xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois-beta/xsd/whois-resources.xsd"
+     * &lt;whois-resources service="lookup" xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois/xsd/whois-resources.xsd"
      * xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
-     *  &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
+     *  &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
      *  &lt;objects&gt;
      *    &lt;object type="mntner"&gt;
-     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
      *      &lt;source id="ripe"/&gt;
      *      &lt;primary-key&gt;
      *        &lt;attribute name="mntner" value="RIPE-DBM-MNT"/&gt;
@@ -115,20 +115,20 @@ public class WhoisRestService {
      *        &lt;attribute name="mntner" value="RIPE-DBM-MNT"/&gt;
      *        &lt;attribute name="descr" value="Mntner for RIPE DBM objects."/&gt;
      *        &lt;attribute name="admin-c" value="RD132-RIPE" referenced-type="person-role"&gt;
-     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/person-role/RD132-RIPE"/&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/person-role/RD132-RIPE"/&gt;
      *        &lt;/attribute&gt;
      *        &lt;attribute name="tech-c" value="RD132-RIPE" referenced-type="person-role"&gt;
-     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/person-role/RD132-RIPE"/&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/person-role/RD132-RIPE"/&gt;
      *        &lt;/attribute&gt;
      *        &lt;attribute name="org" value="ORG-NCC1-RIPE" referenced-type="organisation"&gt;
-     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/organisation/ORG-NCC1-RIPE"/&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/organisation/ORG-NCC1-RIPE"/&gt;
      *        &lt;/attribute&gt;
      *        &lt;attribute name="auth" value="PGPKEY-1290F9D2" referenced-type="key-cert"&gt;
-     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/key-cert/PGPKEY-1290F9D2"/&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/key-cert/PGPKEY-1290F9D2"/&gt;
      *        &lt;/attribute&gt;
      *        &lt;attribute name="auth" value="MD5-PW" comment="Filtered"/&gt;
      *        &lt;attribute name="mnt-by" value="RIPE-DBM-MNT" referenced-type="mntner"&gt;
-     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
      *        &lt;/attribute&gt;
      *        &lt;attribute name="changed" value="hostmaster@ripe.net 20050830"/&gt;
      *        &lt;attribute name="source" value="RIPE" comment="Filtered"/&gt;
@@ -148,7 +148,7 @@ public class WhoisRestService {
      *        "type": "mntner",
      *        "link": {
      *          "xlink:type": "locator",
-     *          "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT"
+     *          "xlink:href": "http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT"
      *        },
      *        "source": {
      *          "id": "ripe"
@@ -174,7 +174,7 @@ public class WhoisRestService {
      *            {
      *              "link": {
      *                "xlink:type": "locator",
-     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/person-role/RD132-RIPE"
+     *                "xlink:href": "http://apps.db.ripe.net/whois/lookup/ripe/person-role/RD132-RIPE"
      *              },
      *              "name": "admin-c",
      *              "value": "RD132-RIPE",
@@ -183,7 +183,7 @@ public class WhoisRestService {
      *            {
      *              "link": {
      *                "xlink:type": "locator",
-     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/person-role/RD132-RIPE"
+     *                "xlink:href": "http://apps.db.ripe.net/whois/lookup/ripe/person-role/RD132-RIPE"
      *              },
      *              "name": "tech-c",
      *              "value": "RD132-RIPE",
@@ -192,7 +192,7 @@ public class WhoisRestService {
      *            {
      *              "link": {
      *                "xlink:type": "locator",
-     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/organisation/ORG-NCC1-RIPE"
+     *                "xlink:href": "http://apps.db.ripe.net/whois/lookup/ripe/organisation/ORG-NCC1-RIPE"
      *              },
      *              "name": "organisation",
      *              "value": "ORG-NCC1-RIPE",
@@ -201,7 +201,7 @@ public class WhoisRestService {
      *            {
      *              "link": {
      *                "xlink:type": "locator",
-     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/key-cert/PGPKEY-1290F9D2"
+     *                "xlink:href": "http://apps.db.ripe.net/whois/lookup/ripe/key-cert/PGPKEY-1290F9D2"
      *              },
      *              "name": "auth",
      *              "value": "PGPKEY-1290F9D2",
@@ -215,7 +215,7 @@ public class WhoisRestService {
      *            {
      *              "link": {
      *                "xlink:type": "locator",
-     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/OWNER-MNT"
+     *                "xlink:href": "http://apps.db.ripe.net/whois/lookup/ripe/mntner/OWNER-MNT"
      *              },
      *              "name": "mnt-by",
      *              "value": "RIPE-DBM-MNT",
@@ -434,7 +434,7 @@ public class WhoisRestService {
      *          "type": "person",
      *          "link": {
      *            "xlink:type": "locator",
-     *            "xlink:href": "http:\/\/apps.db.ripe.net\/whois-beta\/lookup\/test\/person\/PP1-TEST"
+     *            "xlink:href": "http:\/\/apps.db.ripe.net\/whois\/lookup\/test\/person\/PP1-TEST"
      *          },
      *          "source": {
      *            "id": "test"
@@ -464,7 +464,7 @@ public class WhoisRestService {
      *              {
      *                "link": {
      *                  "xlink:type": "locator",
-     *                  "xlink:href": "http:\/\/apps.db.ripe.net\/whois-beta\/lookup\/test\/mntner\/OWNER-MNT"
+     *                  "xlink:href": "http:\/\/apps.db.ripe.net\/whois\/lookup\/test\/mntner\/OWNER-MNT"
      *                },
      *                "name": "mnt-by",
      *                "value": "OWNER-MNT",
@@ -568,10 +568,10 @@ public class WhoisRestService {
      * <p>Example of success XML response body:</p>
      * <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      * &lt;whois-resources service="lookup" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person/PP3-TEST"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP3-TEST"/&gt;
      * &lt;objects&gt;
      * &lt;object type="person"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person/PP16-TEST"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST"/&gt;
      * &lt;source id="test"/&gt;
      * &lt;primary-key&gt;
      * &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
@@ -583,7 +583,7 @@ public class WhoisRestService {
      * &lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
      * &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;
      * &lt;attribute name="mnt-by" value="PP-MNT" referenced-type="mntner"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/mntner/PP-MNT"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/mntner/PP-MNT"/&gt;
      * &lt;/attribute&gt;
      * &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
      * &lt;attribute name="source" value="TEST"/&gt;
@@ -623,14 +623,14 @@ public class WhoisRestService {
      *      "service" : "lookup",
      *      "link" : {
      *        "xlink:type" : "locator",
-     *        "xlink:href" : "http://localhost:51761/whois-beta/update/test/mntner/OWNER-MNT?password=test"
+     *        "xlink:href" : "http://localhost:51761/whois/update/test/mntner/OWNER-MNT?password=test"
      *      },
      *      "objects" : {
      *        "object" : [ {
      *          "type" : "mntner",
      *          "link" : {
      *            "xlink:type" : "locator",
-     *            "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *            "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
      *          },
      *          "source" : {
      *            "id" : "test"
@@ -651,7 +651,7 @@ public class WhoisRestService {
      *            }, {
      *              "link" : {
      *                "xlink:type" : "locator",
-     *                "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
+     *                "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"
      *              },
      *              "name" : "admin-c",
      *              "value" : "TP1-TEST",
@@ -666,7 +666,7 @@ public class WhoisRestService {
      *            }, {
      *              "link" : {
      *                "xlink:type" : "locator",
-     *                "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *                "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
      *              },
      *              "name" : "mnt-by",
      *              "value" : "OWNER-MNT",
@@ -674,7 +674,7 @@ public class WhoisRestService {
      *            }, {
      *              "link" : {
      *                "xlink:type" : "locator",
-     *                "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *                "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
      *              },
      *              "name" : "referral-by",
      *              "value" : "OWNER-MNT",
@@ -767,10 +767,10 @@ public class WhoisRestService {
      * <pre>
      *     &lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      *      &lt;whois-resources service="lookup" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
-     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person/PP16-TEST"/&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST"/&gt;
      *      &lt;objects&gt;
      *      &lt;object type="person"&gt;
-     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person/PP16-TEST"/&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST"/&gt;
      *      &lt;source id="test"/&gt;
      *      &lt;primary-key&gt;
      *      &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
@@ -787,7 +787,7 @@ public class WhoisRestService {
      *      &lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
      *      &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;
      *      &lt;attribute name="mnt-by" value="PP-MNT" referenced-type="mntner"&gt;
-     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/mntner/PP-MNT"/&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/mntner/PP-MNT"/&gt;
      *      &lt;/attribute&gt;
      *      &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
      *      &lt;attribute name="source" value="TEST"/&gt;
@@ -817,14 +817,14 @@ public class WhoisRestService {
      *     "service" : "lookup",
      *     "link" : {
      *       "xlink:type" : "locator",
-     *       "xlink:href" : "http://apps.db.ripe.net:64499/whois-beta/modify/test/person/PP1-TEST?password=test"
+     *       "xlink:href" : "http://apps.db.ripe.net:64499/whois/modify/test/person/PP1-TEST?password=test"
      *     },
      *     "objects" : {
      *       "object" : [ {
      *         "type" : "person",
      *         "link" : {
      *           "xlink:type" : "locator",
-     *           "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/person/PP1-TEST"
+     *           "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/person/PP1-TEST"
      *         },
      *         "source" : {
      *           "id" : "test"
@@ -863,7 +863,7 @@ public class WhoisRestService {
      *           }, {
      *             "link" : {
      *               "xlink:type" : "locator",
-     *               "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *               "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
      *             },
      *             "name" : "mnt-by",
      *             "value" : "OWNER-MNT",
@@ -1032,7 +1032,7 @@ public class WhoisRestService {
      * <p/>
      * <div>Example using CURL:</div>
      * <pre>
-     * curl -X DELETE https://apps.db.ripe.net/whois-beta/delete/test/person/pp16-test?password=123
+     * curl -X DELETE https://apps.db.ripe.net/whois/delete/test/person/pp16-test?password=123
      * </pre>
      * <p/>
      *
@@ -1077,14 +1077,14 @@ public class WhoisRestService {
      * <p/>
      * <div>Example query:</div>
      * <pre>
-     *  http://apps.db.ripe.net/whois-beta/versions/TEST/AS102
+     *  http://apps.db.ripe.net/whois/versions/TEST/AS102
      * </pre>
      * <p/>
      * <div>Example response in XML:</div>
      * <pre>
      *  &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
      * &lt;whois-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     *                  xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois-beta/xsd/whois-resources.xsd"&gt;
+     *                  xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois/xsd/whois-resources.xsd"&gt;
      *     &lt;versions type="aut-num" key="AS102"&gt;
      *         &lt;source id="TEST"/&gt;
      *         &lt;version deleted="2013-06-27 13:22"/&gt;
@@ -1156,16 +1156,16 @@ public class WhoisRestService {
      * <p/>
      * <div>Example query:</div>
      * <pre>
-     *  http://apps.db.ripe.net/whois-beta/version/TEST/2/AS102
+     *  http://apps.db.ripe.net/whois/version/TEST/2/AS102
      * </pre>
      * <p/>
      * <div>Example response in XML:</div>
      * <pre>
      *  &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
-     * &lt;whois-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois-beta/xsd/whois-resources.xsd"&gt;
+     * &lt;whois-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois/xsd/whois-resources.xsd"&gt;
      * &lt;objects&gt;
      * &lt;object type="aut-num" version="1"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/AS102"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/aut-num/AS102"/&gt;
      * &lt;source id="test"/&gt;
      * &lt;primary-key&gt;
      * &lt;attribute name="aut-num" value="AS102"/&gt;
@@ -1175,13 +1175,13 @@ public class WhoisRestService {
      * &lt;attribute name="as-name" value="End-User-2"/&gt;
      * &lt;attribute name="descr" value="description"/&gt;
      * &lt;attribute name="admin-c" value="TP1-TEST" referenced-type="person-role"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"/&gt;
      * &lt;/attribute&gt;
      * &lt;attribute name="tech-c" value="TP1-TEST" referenced-type="person-role"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"/&gt;
      * &lt;/attribute&gt;
      * &lt;attribute name="mnt-by" value="OWNER-MNT" referenced-type="mntner"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"/&gt;
      * &lt;/attribute&gt;
      * &lt;attribute name="source" value="TEST"/&gt;
      * &lt;/attributes&gt;
@@ -1199,7 +1199,7 @@ public class WhoisRestService {
      *   "type" : "aut-num",
      *   "link" : {
      *   "xlink:type" : "locator",
-     *   "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/AS102"
+     *   "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/aut-num/AS102"
      *  },
      *  version" : 1,
      *  "source" : {
@@ -1223,21 +1223,21 @@ public class WhoisRestService {
      *          "value" : "description"
      *          }, {
      *          "link" : {
-     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
+     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"
      *          },
      *          "name" : "admin-c",
      *          "value" : "TP1-TEST",
      *          "referenced-type" : "person-role"
      *          }, {
      *          "link" : {
-     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
+     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"
      *          } ,
      *          "name" : "tech-c",
      *          "value" : "TP1-TEST",
      *          "referenced-type" : "person-role"
      *          } , {
      *          "link" : {
-     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
      *          },
      *          "name" : "mnt-by",
      *          "value" : "OWNER-MNT",
@@ -1290,25 +1290,25 @@ public class WhoisRestService {
      * <ul>
      * <li><div>Valid inverse lookup query on an org value, filtering by inetnum:</div>
      * <pre>
-     * http://apps.db.ripe.net/whois-beta/search?inverse-attribute=org&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE
+     * http://apps.db.ripe.net/whois/search?inverse-attribute=org&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE
      * </pre>
      * </li>
      * <li><div>Search for objects of type organisation on the same query-string and specifying a preference for non recursion:</div>
      * <pre>
-     * http://apps.db.ripe.net/whois-beta/search?inverse-attribute=org&flags=no-referenced&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE
+     * http://apps.db.ripe.net/whois/search?inverse-attribute=org&flags=no-referenced&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE
      * </pre>
      * </li>
      * <li><div>A search on multiple sources:</div>
      * <pre>
-     * http://apps.db.ripe.net/whois-beta/search?source=ripe&source=apnic&flags=no-referenced&flags=no-irt&query-string=MAINT-APNIC-AP
+     * http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&flags=no-referenced&flags=no-irt&query-string=MAINT-APNIC-AP
      * </pre>
      * </li>
      * <li><div>A search on multiple sources and multiple type-filters:</div>
-     * <pre>http://apps.db.ripe.net/whois-beta/search?source=ripe&source=apnic&query-string=google&type-filter=person&type-filter=organisation</pre>
+     * <pre>http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&query-string=google&type-filter=person&type-filter=organisation</pre>
      * </li>
      * <li><div>A search using multiple flags:</div>
      * <pre>
-     * http://apps.db.ripe.net/whois-beta/search?source=ripe&query-string=aardvark-mnt&flags=no-filtering&flags=brief&flags=no-referenced
+     * http://apps.db.ripe.net/whois/search?source=ripe&query-string=aardvark-mnt&flags=no-filtering&flags=brief&flags=no-referenced
      * </pre>
      * </li>
      * </ul>
@@ -1334,7 +1334,7 @@ public class WhoisRestService {
      *          &lt;/parameters&gt;
      *          &lt;objects&gt;
      *              &lt;object xmlns:xlink="http://www.w3.org/1999/xlink" type="aut-num"&gt;
-     *                  &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/AS102"/&gt;
+     *                  &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/aut-num/AS102"/&gt;
      *                  &lt;source id="test"/&gt;
      *                  &lt;primary-key&gt;
      *                      &lt;attribute name="aut-num" value="AS102"/&gt;
@@ -1344,13 +1344,13 @@ public class WhoisRestService {
      *                      &lt;attribute name="as-name" value="End-User-2"/&gt;
      *                      &lt;attribute name="descr" value="description"/&gt;
      *                      &lt;attribute name="admin-c" value="TP1-TEST" referenced-type="person-role"&gt;
-     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"/&gt;
+     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"/&gt;
      *                      &lt;/attribute&gt;
      *                      &lt;attribute name="tech-c" value="TP1-TEST" referenced-type="person-role"&gt;
-     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"/&gt;
+     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"/&gt;
      *                      &lt;/attribute&gt;
      *                      &lt;attribute name="mnt-by" value="OWNER-MNT" referenced-type="mntner"&gt;
-     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"/&gt;
+     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"/&gt;
      *                      &lt;/attribute&gt;
      *                     &lt;attribute name="source" value="TEST"/&gt;
      *                 &lt;/attributes&gt;
@@ -1397,7 +1397,7 @@ public class WhoisRestService {
      *              "type": "aut-num",
      *              "link": {
      *                  "xlink:type": "locator",
-     *                  "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/AS102"
+     *                  "xlink:href": "http://apps.db.ripe.net/whois/lookup/test/aut-num/AS102"
      *              },
      *              "source": {
      *                  "id": "test"
@@ -1427,7 +1427,7 @@ public class WhoisRestService {
      *                      {
      *                          "link": {
      *                              "xlink:type": "locator",
-     *                              "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
+     *                              "xlink:href": "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"
      *                          },
      *                          "name": "admin-c",
      *                          "value": "TP1-TEST",
@@ -1436,7 +1436,7 @@ public class WhoisRestService {
      *                      {
      *                          "link": {
      *                              "xlink:type": "locator",
-     *                              "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
+     *                              "xlink:href": "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"
      *                          },
      *                          "name": "tech-c",
      *                          "value": "TP1-TEST",
@@ -1445,7 +1445,7 @@ public class WhoisRestService {
      *                      {
      *                          "link": {
      *                              "xlink:type": "locator",
-     *                              "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *                              "xlink:href": "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
      *                          },
      *                          "name": "mnt-by",
      *                          "value": "OWNER-MNT",
@@ -1465,7 +1465,7 @@ public class WhoisRestService {
      *              "type": "person",
      *              "link": {
      *                  "xlink:type": "locator",
-     *                  "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/person/TP1-TEST"
+     *                  "xlink:href": "http://apps.db.ripe.net/whois/lookup/test/person/TP1-TEST"
      *              },
      *              "source": {
      *                  "id": "test"
@@ -1499,7 +1499,7 @@ public class WhoisRestService {
      *                      {
      *                          "link": {
      *                              "xlink:type": "locator",
-     *                              "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
+     *                              "xlink:href": "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
      *                          },
      *                          "name": "mnt-by",
      *                          "value": "OWNER-MNT",
@@ -1524,7 +1524,7 @@ public class WhoisRestService {
      * </pre>
      * <p/>
      * <p><div>The service URL must be:</div>
-     * <div>'http://apps.db.ripe.net/whois-beta/search'</div>
+     * <div>'http://apps.db.ripe.net/whois/search'</div>
      * and the following can be specified as HTTP parameters:</p>
      *
      * @param sources           Mandatory. It's possible to specify multiple sources.

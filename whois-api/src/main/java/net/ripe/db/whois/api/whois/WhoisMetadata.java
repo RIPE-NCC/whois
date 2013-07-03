@@ -80,7 +80,7 @@ public class WhoisMetadata {
      *
      * <div>Example:</div>
      * <pre>
-     *    http://apps.db.ripe.net/whois-beta/metadata/sources.json
+     *    http://apps.db.ripe.net/whois/metadata/sources.json
      * </pre>
      *
      * <div>Example response in XML:</div>
@@ -88,8 +88,8 @@ public class WhoisMetadata {
      *     &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?>
      *     &lt;whois-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink"
      *                      service="getSupportedDataSources"
-     *                      xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois-beta/xsd/whois-resources.xsd"&gt;
-     *         &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/metadata/sources"/&gt;
+     *                      xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois/xsd/whois-resources.xsd"&gt;
+     *         &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/metadata/sources"/&gt;
      *         &lt;sources&gt;
      *             &lt;source name="RIPE" id="ripe"/&gt;
      *             &lt;source name="TEST" id="test"/&gt;
@@ -107,7 +107,7 @@ public class WhoisMetadata {
      *      "service" : "getSupportedDataSources",
      *      "link" : {
      *        "xlink:type" : "locator",
-     *        "xlink:href" : "http://apps.db.ripe.net/whois-beta/metadata/sources"
+     *        "xlink:href" : "http://apps.db.ripe.net/whois/metadata/sources"
      *      },
      *      "sources" : {
      *        "source" : [ {
@@ -140,7 +140,7 @@ public class WhoisMetadata {
     public Response sources() {
         WhoisResources result = new WhoisResources()
             .setService("getSupportedDataSources")
-            .setLink(new Link("locator", "http://apps.db.ripe.net/whois-beta/metadata/sources"))
+            .setLink(new Link("locator", "http://apps.db.ripe.net/whois/metadata/sources"))
             .setSources(SOURCES)
             .setGrsSources(GRSSOURCES);
         return Response.ok(result).build();
@@ -151,14 +151,14 @@ public class WhoisMetadata {
      *
      * <div>Example querying for the template of PERSON:</div>
      * <pre>
-     * http://apps.db.ripe.net/whois-beta/metadata/templates/person.xml
+     * http://apps.db.ripe.net/whois/metadata/templates/person.xml
      * </pre>
      *
      * <div>Example response in XML:</div>
      * <pre>
      *  &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
      *  &lt;template-resources xmlns:xlink="http://www.w3.org/1999/xlink" service="getObjectTemplate"&gt;
-     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/metadata/templates/person"/&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/metadata/templates/person"/&gt;
      *      &lt;templates&gt;
      *          &lt;template type="person"&gt;
      *              &lt;source id="ripe"/&gt;
@@ -189,7 +189,7 @@ public class WhoisMetadata {
      *      "service" : "getObjectTemplate",
      *      "link" : {
      *        "xlink:type" : "locator",
-     *        "xlink:href" : "http://apps.db.ripe.net/whois-beta/metadata/templates/person"
+     *        "xlink:href" : "http://apps.db.ripe.net/whois/metadata/templates/person"
      *      },
      *      "templates" : {
      *        "template" : [ {
@@ -289,7 +289,7 @@ public class WhoisMetadata {
 
         TemplateResources result = new TemplateResources()
                 .setService("getObjectTemplate")
-                .setLink(new Link("locator", "http://apps.db.ripe.net/whois-beta/metadata/templates/"+objectType))
+                .setLink(new Link("locator", "http://apps.db.ripe.net/whois/metadata/templates/"+objectType))
                 .setTemplates(Collections.singletonList(template));
 
         return Response.ok(result).build();

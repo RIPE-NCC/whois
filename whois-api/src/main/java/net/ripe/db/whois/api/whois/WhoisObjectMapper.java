@@ -28,7 +28,7 @@ public class WhoisObjectMapper {
 
     private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)^[^#]*[#](.*)$");
 
-    private static final String BASE_URL = "http://apps.db.ripe.net/whois-beta/lookup";     // TODO: base url property
+    private static final String BASE_URL = "http://apps.db.ripe.net/whois/lookup";     // TODO: base url property
 
     private static final Set<AttributeType> CSV_ATTRIBUTES = Sets.immutableEnumSet(
             AttributeType.MNT_BY,
