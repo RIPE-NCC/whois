@@ -54,7 +54,7 @@ mkdir -p $GENERATED_PATH || true
 
 FILES_COPIED=
 for i in *Parser*.java; do
-	if ! diff -q --new-file $GENERATED_PATH/$i $i; then
+	if ! diff -q --new-file $GENERATED_PATH/$i $i >/dev/null; then
 		mv $i $GENERATED_PATH/
 		FILES_COPIED=1
 	else
