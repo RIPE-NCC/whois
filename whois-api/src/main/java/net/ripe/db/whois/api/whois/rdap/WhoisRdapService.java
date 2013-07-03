@@ -62,8 +62,11 @@ public class WhoisRdapService extends WhoisService {
             whoisKey = "AS" + key;
         } else if (objectType.equals("entity")) {
             whoisObjectType = "person,role,organisation,irt";
+        } else if (objectType.equals("domain")) {
+            whoisObjectType = "domain";
         } else {
-            Response.ResponseBuilder rb = Response.status(Response.Status.NOT_FOUND);
+            Response.ResponseBuilder rb = 
+                Response.status(Response.Status.NOT_FOUND);
             return rb.build();
         }
 
