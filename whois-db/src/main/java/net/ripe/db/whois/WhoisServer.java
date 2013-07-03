@@ -66,7 +66,11 @@ public class WhoisServer {
         final Stopwatch stopwatch = new Stopwatch().start();
 
         for (final ApplicationService applicationService : applicationServices) {
-            stopService(applicationService);
+            stopService(applicationService, false);
+        }
+
+        for (final ApplicationService applicationService : applicationServices) {
+            stopService(applicationService, true);
         }
 
         if (applicationContext instanceof Closeable) {
@@ -76,11 +80,12 @@ public class WhoisServer {
         LOGGER.info("Whois server stopped in {}", stopwatch.stop());
     }
 
-    private void stopService(final ApplicationService applicationService) {
+    private void stopService(final ApplicationService applicationService, boolean forced) {
         final Stopwatch stopwatch = new Stopwatch().start();
         try {
-            applicationService.stop();
-            LOGGER.info("Stopped {} in {}", applicationService, stopwatch.stop());
+            if (!forced) LOGGER.info("Preparing to shut down {}", applicationService);
+            applicationService.stop(forced);
+            if (forced) LOGGER.info("Stopped {} in {}", applicationService, stopwatch.stop());
         } catch (RuntimeException e) {
             LOGGER.error("Stopping: {}", applicationService, e);
         }

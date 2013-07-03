@@ -104,7 +104,7 @@ public class JettyBootstrap implements ApplicationService {
     }
 
     @Override
-    public void stop() {
+    public void stop(final boolean force) {
         for (final Server server : servers) {
             stopServer(server);
         }

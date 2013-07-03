@@ -24,7 +24,7 @@ public abstract class AbstractDaoTest extends AbstractDatabaseHelperTest {
     @After
     public void stopServer() throws Exception {
         for (final ApplicationService applicationService : applicationServices) {
-            applicationService.stop();
+            applicationService.stop(true);
         }
     }
 }

@@ -6,7 +6,6 @@ import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -46,7 +45,6 @@ public class MessageDequeue implements ApplicationService {
     private final UpdateRequestHandler messageHandler;
     private final LoggerContext loggerContext;
 
-    private volatile boolean running;
     private final AtomicInteger freeThreads = new AtomicInteger();
 
     private ExecutorService handlerExecutor;
@@ -87,11 +85,10 @@ public class MessageDequeue implements ApplicationService {
 
     @Override
     public void start() {
-        if (running) {
+        if (handlerExecutor != null || pollerExecutor != null) {
             throw new IllegalStateException("Already started");
         }
 
-        running = true;
         freeThreads.set(nrThreads);
 
         handlerExecutor = Executors.newFixedThreadPool(nrThreads);
@@ -101,50 +98,49 @@ public class MessageDequeue implements ApplicationService {
         LOGGER.info("Message dequeue started");
     }
 
-    @Override
-    public void stop() {
-        stop(false);
-    }
-
     @PreDestroy
     public void forceStopNow() {
         stop(true);
     }
 
-    private void stop(final boolean force) {
-        if (!running) {
-            return;
+    private boolean stopExecutor(ExecutorService executorService) {
+        if (executorService == null) {
+            return true;
         }
+        executorService.shutdownNow();
+        try {
+            executorService.awaitTermination(2, TimeUnit.HOURS);
+        } catch (Exception e) {
+            LOGGER.error("Awaiting termination", e);
+            return false;
+        }
+        return true;
+    }
 
-        running = false;
-
+    @Override
+    public void stop(final boolean force) {
         LOGGER.info("Message dequeue stopping (force: {})", force);
 
         if (force) {
-            pollerExecutor.shutdownNow();
-            handlerExecutor.shutdownNow();
+            if (stopExecutor(pollerExecutor)) {
+                pollerExecutor = null;
+            }
+
+            if (stopExecutor(handlerExecutor)) {
+                handlerExecutor = null;
+            }
+
+            LOGGER.info("Message dequeue stopped (force: {})", force);
         } else {
             pollerExecutor.shutdown();
             handlerExecutor.shutdown();
         }
-
-        try {
-            pollerExecutor.awaitTermination(2, TimeUnit.HOURS);
-            handlerExecutor.awaitTermination(2, TimeUnit.HOURS);
-        } catch (Exception e) {
-            LOGGER.error("Awaiting termination", e);
-        }
-
-        pollerExecutor = null;
-        handlerExecutor = null;
-
-        LOGGER.info("Message dequeue stopped (force: {})", force);
     }
 
     class MessagePoller implements Runnable {
         @Override
         public void run() {
-            while (running) {
+            for (;;) {
                 try {
                     String messageId = null;
                     if (maintenanceMode.allowUpdate()) {
@@ -153,7 +149,7 @@ public class MessageDequeue implements ApplicationService {
 
                     if (messageId == null) {
                         LOGGER.debug("No more messages");
-                        ServerHelper.sleep(intervalMs);
+                        Thread.sleep(intervalMs);
                         continue;
                     }
 
@@ -161,10 +157,12 @@ public class MessageDequeue implements ApplicationService {
                     freeThreads.decrementAndGet();
                     handlerExecutor.submit(new MessageHandler(messageId));
 
-                    while (freeThreads.get() == 0 && running) {
+                    while (freeThreads.get() == 0) {
                         LOGGER.debug("Postpone message claiming until free thread is available");
-                        ServerHelper.sleep(intervalMs);
+                        Thread.sleep(intervalMs);
                     }
+                } catch (InterruptedException e) {
+                    break;
                 } catch (RuntimeException e) {
                     LOGGER.error("Unexpected", e);
                 }
