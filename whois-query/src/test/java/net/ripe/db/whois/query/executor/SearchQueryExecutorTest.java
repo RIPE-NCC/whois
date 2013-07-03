@@ -203,8 +203,8 @@ public class SearchQueryExecutorTest {
         assertThat(responseHandler.getResponseObjects(), contains((ResponseObject) new MessageObject(QueryMessages.noResults("RIPE").toString())));
     }
 
-    public void query_default_sources() {
-        when(sourceContext.getDefaultSourceNames()).thenReturn(ciSet("RIPE", "APNIC-GRS", "ARIN-GRS"));
+    public void query_additional_sources() {
+        when(sourceContext.getAdditionalSourceNames()).thenReturn(ciSet("RIPE", "APNIC-GRS", "ARIN-GRS"));
 
         final Query query = Query.parse("10.0.0.0");
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
@@ -218,8 +218,8 @@ public class SearchQueryExecutorTest {
     }
 
     @Test
-    public void query_sources_not_defaults() {
-        when(sourceContext.getDefaultSourceNames()).thenReturn(ciSet("RIPE", "APNIC-GRS", "ARIN-GRS"));
+    public void query_sources_not_additional() {
+        when(sourceContext.getAdditionalSourceNames()).thenReturn(ciSet("RIPE", "APNIC-GRS", "ARIN-GRS"));
 
         final Query query = Query.parse("--sources APNIC-GRS,ARIN-GRS 10.0.0.0");
 

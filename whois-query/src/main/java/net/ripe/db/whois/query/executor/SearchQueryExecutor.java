@@ -125,8 +125,8 @@ public class SearchQueryExecutor implements QueryExecutor {
             }
         }
         else {
-            if (!sourceContext.getDefaultSourceNames().isEmpty()) {
-                sources.addAll(Sets.newLinkedHashSet(Iterables.transform(sourceContext.getDefaultSourceNames(), new Function<CIString, Source>() {
+            if (!sourceContext.getAdditionalSourceNames().isEmpty()) {
+                sources.addAll(Sets.newLinkedHashSet(Iterables.transform(sourceContext.getAdditionalSourceNames(), new Function<CIString, Source>() {
                     @Override
                     public Source apply(final CIString input) {
                         return Source.slave(input);
