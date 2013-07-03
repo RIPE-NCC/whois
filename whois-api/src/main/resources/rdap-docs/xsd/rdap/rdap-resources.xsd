@@ -4,126 +4,131 @@
            elementFormDefault="qualified"
            version="1.0">
 
+    <!-- RdapObject contains the attributes that are common to all
+         object types. It also includes a few that (it seems) should
+         only be present in the response, to limit the messiness of
+         the hierarchy. -->
+    <xs:complexType name="rdapObject">
+        <xs:sequence>
+            <xs:element name="status" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType"/>
+            <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="links" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="events" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:element name="lang" type="xs:string" maxOccurs="1" minOccurs="0"/>
+            <xs:element name="rdapConformance" type="xs:string" maxOccurs="unbounded" minOccurs="1"/>
+            <xs:element ref="notices" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
     <xs:element name="person">
         <xs:complexType>
-            <xs:sequence>
-                <xs:element name="rdapConformance" type="xs:string" maxOccurs="unbounded" minOccurs="1"/>
-                <xs:element name="handle" type="xs:string" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="vcardArray" type="xs:anySimpleType" maxOccurs="1" minOccurs="0"/>
+            <xs:complexContent>
+                <xs:extension base="rdapObject">
+                    <xs:sequence>
+                        <xs:element name="handle" type="xs:string" maxOccurs="1" minOccurs="1"/>
+                        <xs:element name="vcardArray" type="xs:anySimpleType" maxOccurs="1" minOccurs="0"/>
 
-                <xs:element name="roles" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
-                <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
+                        <xs:element name="roles" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+                        <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
 
-                <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType"/>
-                <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element ref="links" minOccurs="0"	maxOccurs="unbounded"/>
-                <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                <xs:element ref="events" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
+                        <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
         </xs:complexType>
     </xs:element>
 
     <xs:element name="domain">
-        <xs:complexType >
-            <xs:sequence>
-                <xs:element name="rdapConformance" type="xs:string" maxOccurs="unbounded" minOccurs="1"/>
-                <xs:element name="handle" type="xs:string" maxOccurs="1"  minOccurs="1"/>
-                <xs:element name="ldhName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
-                <xs:element name="unicodeName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
-                <xs:element ref="nameservers" maxOccurs="unbounded"  minOccurs="1"/>
-                <!-- TODO secureDNS -->
-                <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType"/>
-                <xs:element name="status" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
-                <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element ref="links" minOccurs="0"	maxOccurs="unbounded"/>
-                <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                <xs:element ref="events" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
-        </xs:complexType>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="rdapObject">
+                    <xs:sequence>
+                        <xs:element name="handle" type="xs:string" maxOccurs="1"  minOccurs="1"/>
+                        <xs:element name="ldhName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
+                        <xs:element name="unicodeName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
+                        <xs:element ref="nameservers" maxOccurs="unbounded"  minOccurs="1"/>
+                        <!-- TODO secureDNS, and variants -->
+                        <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
+                        <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexType>
     </xs:element>
 
     <xs:element name="ip">
-        <xs:complexType >
-            <xs:sequence>
-                <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="startAddress" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="endAddress" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="ipVersion" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="type" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="country" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="parentHandle" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="status" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-
-                <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType"/>
-                <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element ref="links" minOccurs="0"	maxOccurs="unbounded"/>
-                <xs:element ref="events" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="rdapObject">
+                    <xs:sequence>
+                        <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="startAddress" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="endAddress" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="ipVersion" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="type" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="country" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="parentHandle" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexContext>
         </xs:complexType>
     </xs:element>
 
     <xs:element name="autnum">
         <xs:complexType>
-            <xs:sequence>
-                <xs:element name="rdapConformance" type="xs:string" maxOccurs="unbounded" minOccurs="1"/>
-                <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="startAutnum" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="endAutnum" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="type" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="country" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="status" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element ref="links" minOccurs="0"	maxOccurs="unbounded"/>
-                <xs:element ref="events" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType" />
-            </xs:sequence>
+            <xs:complexContent>
+                <xs:extension base="rdapObject">
+                    <xs:sequence>
+                        <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="startAutnum" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="endAutnum" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="type" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="country" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexContext>
         </xs:complexType>
     </xs:element>
 
-
     <xs:element name="entity">
         <xs:complexType>
-            <xs:sequence>
-                <xs:element name="handle" type="xs:string" maxOccurs="1" minOccurs="1"/>
-                <xs:element name="vcardArray" type="xs:anySimpleType" maxOccurs="1" minOccurs="0"/>
-
-                <xs:element name="roles" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
-                <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
-
-                <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType"/>
-                <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element ref="links" minOccurs="0"	maxOccurs="unbounded"/>
-                <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                <xs:element ref="events" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
+            <xs:complexContent>
+                <xs:extension base="rdapObject">
+                    <xs:sequence>
+                        <xs:element name="handle" type="xs:string" maxOccurs="1" minOccurs="1"/>
+                        <xs:element name="vcardArray" type="xs:anySimpleType" maxOccurs="1" minOccurs="0"/>
+                        <xs:element name="roles" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+                        <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
+                        <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
         </xs:complexType>
     </xs:element>
 
     <xs:element name="nameservers">
         <xs:complexType>
-            <xs:sequence>
-                <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="ldhName" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                <xs:element name="unicodeName" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                <xs:element name="status" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="ipAddresses"  minOccurs="0" maxOccurs="1">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="ipv4" type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
-                            <xs:element name="ipv6"  type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-
-                <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType"/>
-                <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element ref="links" minOccurs="0"	maxOccurs="unbounded"/>
-                <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                <xs:element ref="events" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
+            <xs:complexContent>
+                <xs:extension base="rdapObject">
+                    <xs:sequence>
+                        <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="ldhName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                        <xs:element name="unicodeName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                        <xs:element name="ipAddresses"  minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="ipv4" type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
+                                    <xs:element name="ipv6"  type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
         </xs:complexType>
     </xs:element>
 
