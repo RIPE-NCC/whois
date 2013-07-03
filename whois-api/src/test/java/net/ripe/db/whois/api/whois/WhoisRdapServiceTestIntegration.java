@@ -249,6 +249,27 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         String responseContent = response.getEntity(String.class);
         LOGGER.info("Response:" + responseContent);
 
+        String textEntity = convertEOLToUnix(responseContent);
+
+        assertEquals("" +
+                "{\n" +
+                "  \"handle\" : \"ORG-TEST1-TEST\",\n" +
+                "  \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +
+                "  }, \"text\", \"4.0\" ], [ \"adr\", {\n" +
+                "    \"label\" : \"1 Fake St. Fauxville\"\n" +
+                "  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
+                "  }, \"uri\", \"+01-000-000-000\" ], [ \"email\", {\n" +
+                "  }, \"text\", \"org@test.com\" ] ] ],\n" +
+                "  \"remarks\" : [ {\n" +
+                "    \"description\" : [ \"Nice to deal with generally\", \"Drugs and gambling\" ]\n" +
+                "  } ],\n" +
+                "  \"events\" : [ {\n" +
+                "    \"eventAction\" : \"last changed\",\n" +
+                "    \"eventDate\" : \"2012-11-20T14:00:00Z\",\n" +
+                "    \"eventActor\" : \"test@test.net.au\"\n" +
+                "  } ]\n" +
+                "}", textEntity);
+
         // Thread.sleep(15000000);
     }
 
