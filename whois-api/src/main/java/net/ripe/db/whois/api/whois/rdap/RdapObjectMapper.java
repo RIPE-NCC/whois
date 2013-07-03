@@ -270,31 +270,11 @@ public class RdapObjectMapper {
         eats.add(AttributeType.TECH_C);
         setEntities(an, rpslObject, qtro, eats);
 
-        /* If this is an aut-num, and it has a parent as-block, add a
-         * link to it. */
-        if (is_autnum) {
-            RpslObject asb = 
-                RdapUtilities.fetchObject(queryHandler, "as-block",
-                                          "AS" + start.toString(),
-                                          source);
-            if (asb != null) {
-                Links ln = rdapObjectFactory.createLinks();
-                ln.setRel("up");
-                /* todo: how to link to an as-block? If each ASN
-                 * within the range has a corresponding aut-num
-                 * record, then there's no way to disambiguate. Maybe
-                 * this should point to another service. */
-                ln.setHref("/autnum/" + start.toString());
-                /* todo: investigate target and context IRIs. */
-                //ln.setValue();
-                ln.setMedia("screen");
-                ln.setType("application/json");
-                ln.getHreflang().add("en");
-                ln.getTitle().add("Parent block");
-                an.getLinks().add(ln);
-            }
-        }
-
+        /* Do not add a link to the parent as-block: if each ASN
+         * within the range has a corresponding aut-num record, then
+         * there's no way to disambiguate. It may be an idea to add a
+         * link to an external service at some later point, though. */
+        
         return an;
     }
 

@@ -163,9 +163,6 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
 
         Entity admin_c = entities.get(0);
         assertThat(admin_c.getHandle(), equalTo("TP1-TEST"));
-
-        List<Links> links = an.getLinks();
-        assertThat(links.size(), equalTo(1));
     }
 
     @Test
