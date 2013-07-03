@@ -73,6 +73,19 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             "changed: test@test.net.au 20121121\n" +
             "mnt-by:  OWNER-MNT\n" +
             "source:  TEST\n");
+    private static final RpslObject TEST_ORG = RpslObject.parse("" +
+            "organisation:  ORG-TEST1-TEST\n" +
+            "org-name:      Test organisation\n" +
+            "org-type:      OTHER\n" +
+            "descr:         Drugs and gambling\n" +
+            "remarks:       Nice to deal with generally\n" +
+            "address:       1 Fake St. Fauxville\n" +
+            "phone:         +01-000-000-000\n" +
+            "fax-no:        +01-000-000-000\n" +
+            "e-mail:        org@test.com\n" +
+            "mnt-by:        OWNER-MNT\n" +
+            "changed:       test@test.net.au 20121121\n" +
+            "source:        TEST\n");
 
 //    private static final RpslObject TEST_DOMAIN = RpslObject.parse("" +
 //            "domain:         31.12.202.in-addr.arpa\n" +
@@ -134,6 +147,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.addObject(TEST_DOMAIN);
+        System.out.println("HERE YO AM: " + databaseHelper.addObject(TEST_ORG));
         ipTreeUpdater.rebuild();
     }
 
@@ -174,7 +188,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_person_object() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
-        ClientResponse response = createResource(AUDIENCE, "person/PP1-TEST").accept(MediaType.APPLICATION_JSON_TYPE).get(ClientResponse.class);
+        ClientResponse response = createResource(AUDIENCE, "entity/PP1-TEST").accept(MediaType.APPLICATION_JSON_TYPE).get(ClientResponse.class);
         assertEquals(200, response.getStatus());
         String responseContent = response.getEntity(String.class);
         LOGGER.info("Response:" + responseContent);
@@ -196,7 +210,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "  } ],\n" +
                 "  \"events\" : [ {\n" +
                 "    \"eventAction\" : \"last changed\",\n" +
-                "    \"eventDate\" : \"2012-01-03T00:00:00Z\",\n" +
+                "    \"eventDate\" : \"2012-01-02T14:00:00Z\",\n" +
                 "    \"eventActor\" : \"noreply@ripe.net\"\n" +
                 "  } ]\n" +
                 "}", textEntity);
@@ -225,6 +239,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "    \"ldhName\" : \"ns2.test.com.au\"\n" +
                 "  } ]\n" +
                 "}", textEntity);
+    }
+
+    @Test
+    public void lookup_org_object() throws Exception {
+        //databaseHelper.addObject(TEST_ORG);
+
+        ClientResponse response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST").accept(MediaType.APPLICATION_JSON_TYPE).get(ClientResponse.class);
+        //assertEquals(200, response.getStatus());
+        String responseContent = response.getEntity(String.class);
+        LOGGER.info("Response:" + responseContent);
+
+        //Thread.sleep(15000000);
     }
 
     // helper methods
