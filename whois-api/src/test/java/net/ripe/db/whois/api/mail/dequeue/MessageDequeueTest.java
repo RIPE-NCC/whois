@@ -59,7 +59,7 @@ public class MessageDequeueTest {
 
     @After
     public void tearDown() throws Exception {
-        subject.stop();
+        subject.stop(true);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -72,7 +72,7 @@ public class MessageDequeueTest {
 
     @Test
     public void stop_not_running() throws InterruptedException {
-        subject.stop();
+        subject.stop(true);
     }
 
     @Test

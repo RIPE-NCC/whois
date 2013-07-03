@@ -52,7 +52,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractWhoisIntegrationTe
 
     @After
     public void tearDown() throws Exception {
-        queryServer.stop();
+        queryServer.stop(true);
     }
 
     @Test

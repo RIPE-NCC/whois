@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.pipeline;
 
-import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
@@ -15,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Handler that immediately closes a channel if the maximum number of open connections is reached for an IP address.
@@ -24,11 +23,11 @@ import java.util.Map;
 @ChannelHandler.Sharable
 public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionPerIpLimitHandler.class);
-    private static final Object CONNECTION_REFUSED = new Object();
+    private static final Integer INTEGER_ONE = Integer.valueOf(1);
 
     private final IpResourceConfiguration ipResourceConfiguration;
     private final WhoisLog whoisLog;
-    private final Map<InetAddress, Integer> connections = Maps.newHashMap();
+    private final ConcurrentHashMap<InetAddress, Integer> connections = new ConcurrentHashMap<>();
 
     @Value("${whois.limit.connectionsPerIp:3}") private volatile int maxConnectionsPerIp;
     @Value("${application.version}") private volatile String version;
@@ -48,17 +47,10 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
         final Channel channel = ctx.getChannel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
         final IpInterval remoteIp = IpInterval.asIpInterval(remoteAddress);
+        Integer count = incrementOrCreate(remoteAddress);
 
         if (limitConnections(remoteIp)) {
-            Integer count;
-            synchronized (connections) {
-                count = connections.get(remoteAddress);
-                count = count == null ? 1 : count + 1;
-                connections.put(remoteAddress, count);
-            }
-
-            if (count > maxConnectionsPerIp) {
-                ctx.setAttachment(CONNECTION_REFUSED);
+            if (count != null && count >= maxConnectionsPerIp) {
                 whoisLog.logQueryResult("QRY", 0, 0, QueryCompletionInfo.REJECTED, 0, remoteAddress, channel.getId(), "");
                 channel.write(QueryMessages.termsAndConditions());
                 channel.write(QueryMessages.connectionsExceeded(maxConnectionsPerIp));
@@ -72,24 +64,9 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        if (ctx.getAttachment() == CONNECTION_REFUSED) {
-            return;
-        }
-
         final Channel channel = ctx.getChannel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
-
-        synchronized (connections) {
-            final Integer num = this.connections.get(remoteAddress);
-            if (num != null) {
-                final Integer count = num - 1;
-                if (count <= 0) {
-                    this.connections.remove(remoteAddress);
-                } else {
-                    this.connections.put(remoteAddress, count);
-                }
-            }
-        }
+        decrementOrDrop(remoteAddress);
 
         super.channelClosed(ctx, e);
     }
@@ -107,4 +84,30 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
 
         return maxConnectionsPerIp > 0;
     }
+
+    private Integer incrementOrCreate(InetAddress remoteAddress) {
+        Integer count;
+        do {
+            count = connections.putIfAbsent(remoteAddress, INTEGER_ONE);
+        } while (count != null && !connections.replace(remoteAddress, count, count + 1));
+        return count;
+    }
+
+    private void decrementOrDrop(InetAddress remoteAddress) {
+        Integer count;
+        for (; ; ) {
+            count = connections.get(remoteAddress);
+
+            if (count == INTEGER_ONE) {
+                if (connections.remove(remoteAddress, INTEGER_ONE)) {
+                    break;
+                }
+            } else if (count == null) {
+                break;
+            } else if (connections.replace(remoteAddress, count, count - 1)) {
+                break;
+            }
+        }
+    }
+
 }

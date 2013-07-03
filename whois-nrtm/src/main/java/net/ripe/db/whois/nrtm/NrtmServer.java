@@ -1,6 +1,7 @@
 package net.ripe.db.whois.nrtm;
 
 import net.ripe.db.whois.common.ApplicationService;
+import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -28,10 +29,12 @@ public class NrtmServer implements ApplicationService {
     @Value("${nrtm.enabled}") private boolean nrtmEnabled;
     @Value("${port.nrtm}") private int nrtmPort;
     @Value("${port.nrtm.legacy}") private int nrtmPortLegacy;
+    @Value("${loadbalancer.nrtm.timeout:5000") private int markNodeFailedTimeout;
 
     private final NrtmChannelsRegistry nrtmChannelsRegistry;
     private final NrtmServerPipelineFactory nrtmServerPipelineFactory;
     private final LegacyNrtmServerPipelineFactory legacyNrtmServerPipelineFactory;
+    private final MaintenanceMode maintenanceMode;
     private Channel serverChannelLegacy;
     private Channel serverChannel;
 
@@ -39,10 +42,14 @@ public class NrtmServer implements ApplicationService {
     public static int legacyPort;
 
     @Autowired
-    public NrtmServer(final NrtmChannelsRegistry nrtmChannelsRegistry, final NrtmServerPipelineFactory whoisServerPipelineFactory, final LegacyNrtmServerPipelineFactory legacyNrtmServerPipelineFactory) {
+    public NrtmServer(final NrtmChannelsRegistry nrtmChannelsRegistry,
+                      final NrtmServerPipelineFactory whoisServerPipelineFactory,
+                      final LegacyNrtmServerPipelineFactory legacyNrtmServerPipelineFactory,
+                      final MaintenanceMode maintenanceMode) {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;
         this.nrtmServerPipelineFactory = whoisServerPipelineFactory;
         this.legacyNrtmServerPipelineFactory = legacyNrtmServerPipelineFactory;
+        this.maintenanceMode = maintenanceMode;
     }
 
     @Override
@@ -83,21 +90,25 @@ public class NrtmServer implements ApplicationService {
     }
 
     @Override
-    public void stop() {
+    public void stop(final boolean force) {
         if (nrtmEnabled) {
-            LOGGER.info("Shutting down");
+            if (force) {
+                LOGGER.info("Shutting down");
 
-            if (serverChannelLegacy != null) {
-                serverChannelLegacy.close();
-                serverChannelLegacy = null;
+                if (serverChannelLegacy != null) {
+                    serverChannelLegacy.close();
+                    serverChannelLegacy = null;
+                }
+
+                if (serverChannel != null) {
+                    serverChannel.close();
+                    serverChannel = null;
+                }
+
+                nrtmChannelsRegistry.closeChannels();
+            } else {
+                maintenanceMode.setShutdown();
             }
-
-            if (serverChannel != null) {
-                serverChannel.close();
-                serverChannel = null;
-            }
-
-            nrtmChannelsRegistry.closeChannels();
         }
     }
 }

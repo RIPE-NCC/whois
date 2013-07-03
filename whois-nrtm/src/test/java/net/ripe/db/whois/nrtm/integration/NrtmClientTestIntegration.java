@@ -54,8 +54,8 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
     @After
     public void after() throws Exception {
-        nrtmImporter.stop();
-        nrtmServer.stop();
+        nrtmImporter.stop(true);
+        nrtmServer.stop(true);
     }
 
     @Test
@@ -78,8 +78,8 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
                 "nic-hdl: OP1-TEST\n" +
                 "source: TEST");
 
-        nrtmImporter.stop();
-        nrtmServer.stop();
+        nrtmImporter.stop(true);
+        nrtmServer.stop(true);
 
         final RpslObject rpslObject = databaseHelper.addObject("mntner: MNT1");
         databaseHelper.getWhoisTemplate().update("delete from serials where object_id = ?", rpslObject.getObjectId());
@@ -149,8 +149,8 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         databaseHelper.addObject(person);
         objectExists(ObjectType.PERSON, "OP1-TEST", true);
 
-        nrtmImporter.stop();
-        nrtmServer.stop();
+        nrtmImporter.stop(true);
+        nrtmServer.stop(true);
 
         final RpslObject person2 = RpslObject.parse("" +
                 "person: Two Person\n" +

@@ -49,7 +49,7 @@ public class TagsTestIntegration extends AbstractWhoisIntegrationTest {
 
     @After
     public void shutdown() {
-        queryServer.stop();
+        queryServer.stop(true);
     }
 
     @Test

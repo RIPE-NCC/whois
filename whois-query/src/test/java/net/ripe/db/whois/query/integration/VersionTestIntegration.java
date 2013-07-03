@@ -83,7 +83,7 @@ public class VersionTestIntegration extends AbstractWhoisIntegrationTest {
 
     @After
     public void teardown() {
-        queryServer.stop();
+        queryServer.stop(true);
     }
 
     @Test
