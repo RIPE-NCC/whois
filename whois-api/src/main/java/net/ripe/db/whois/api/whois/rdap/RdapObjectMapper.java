@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.whois.TaggedRpslObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
 import net.ripe.db.whois.api.whois.rdap.domain.Domain;
@@ -9,7 +10,6 @@ import net.ripe.db.whois.api.whois.rdap.domain.Events;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.api.whois.rdap.domain.Nameservers;
 import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
-import net.ripe.db.whois.api.whois.rdap.domain.Person;
 import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Remarks;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
@@ -45,8 +45,10 @@ public class RdapObjectMapper {
 
     private TaggedRpslObject primaryTaggedRpslObject;
     private Queue<TaggedRpslObject> taggedRpslObjectQueue;
-    private Object rdapResponse = new Object();
+    private RdapObject rdapResponse;
     private DatatypeFactory dtf = DatatypeFactory.newInstance();
+    private static List<String> RDAPCONFORMANCE = 
+        Lists.newArrayList("rdap_level_0");
 
     public RdapObjectMapper(Queue<TaggedRpslObject> taggedRpslObjectQueue)
             throws DatatypeConfigurationException {
@@ -78,7 +80,7 @@ public class RdapObjectMapper {
 
         switch (rpslObjectType) {
             case PERSON:
-                rdapResponse = createPersonResponse(rpslObject);
+                rdapResponse = createEntity(rpslObject);
                 break;
             case DOMAIN:
                 rdapResponse = createDomainResponse(rpslObject);
@@ -101,18 +103,10 @@ public class RdapObjectMapper {
             case IRT:
                 break;
         };
-    }
 
-    private Person createPersonResponse(RpslObject rpslObject)
-            throws ParseException {
-        Person person = RdapHelper.createPerson();
-        person.setHandle(rpslObject.getKey().toString());
-        person.setVcardArray(generateVcards(rpslObject));
-
-        setRemarks(person,rpslObject);
-        setEvents(person,rpslObject);
-
-        return person;
+        if (rdapResponse != null) {
+            rdapResponse.getRdapConformance().addAll(RDAPCONFORMANCE);
+        }
     }
 
     private void setRemarks (RdapObject rdapObject, RpslObject rpslObject) {
@@ -191,7 +185,7 @@ public class RdapObjectMapper {
                      tro.rpslObject);
         }
 
-        Autnum an = RdapHelper.createAutnum();
+        Autnum an = rdapObjectFactory.createAutnum();
         an.setHandle(rpslObject.getKey().toString());
 
         boolean is_autnum =
@@ -269,7 +263,7 @@ public class RdapObjectMapper {
     }
 
     private Domain createDomainResponse(RpslObject rpslObject) {
-        Domain domain = RdapHelper.createDomain();
+        Domain domain = rdapObjectFactory.createDomain();
 
         domain.setHandle(rpslObject.getKey().toString());
         domain.setLdhName(rpslObject.getKey().toString());
