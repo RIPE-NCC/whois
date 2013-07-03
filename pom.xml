@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.67.3-SNAPSHOT</version>
+    <version>1.67.3</version>
     <packaging>pom</packaging>
 
     <organization>
