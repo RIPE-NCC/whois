@@ -249,7 +249,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         String responseContent = response.getEntity(String.class);
         LOGGER.info("Response:" + responseContent);
 
-        //Thread.sleep(15000000);
+        // Thread.sleep(15000000);
     }
 
     // helper methods
