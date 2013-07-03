@@ -26,12 +26,11 @@ import javax.xml.bind.annotation.XmlType;
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *     &lt;extension base="{}rdapObject">
  *       &lt;sequence>
  *         &lt;element name="handle" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="ldhName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="unicodeName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="status" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element name="ipAddresses" minOccurs="0">
  *           &lt;complexType>
  *             &lt;complexContent>
@@ -44,13 +43,9 @@ import javax.xml.bind.annotation.XmlType;
  *             &lt;/complexContent>
  *           &lt;/complexType>
  *         &lt;/element>
- *         &lt;element name="entities" type="{}rdapEntityType" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element ref="{}remarks" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element ref="{}links" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element name="port43" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element ref="{}events" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
- *     &lt;/restriction>
+ *     &lt;/extension>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
@@ -62,16 +57,12 @@ import javax.xml.bind.annotation.XmlType;
     "handle",
     "ldhName",
     "unicodeName",
-    "status",
     "ipAddresses",
-    "entities",
-    "remarks",
-    "links",
-    "port43",
-    "events"
+    "port43"
 })
 @XmlRootElement(name = "nameservers")
 public class Nameservers
+    extends RdapObject
     implements Serializable
 {
 
@@ -79,13 +70,8 @@ public class Nameservers
     protected String handle;
     protected String ldhName;
     protected String unicodeName;
-    protected List<String> status;
     protected Nameservers.IpAddresses ipAddresses;
-    protected List<Entity> entities;
-    protected List<Remarks> remarks;
-    protected List<Links> links;
     protected String port43;
-    protected List<Events> events;
 
     /**
      * Gets the value of the handle property.
@@ -160,35 +146,6 @@ public class Nameservers
     }
 
     /**
-     * Gets the value of the status property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the status property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getStatus().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link String }
-     * 
-     * 
-     */
-    public List<String> getStatus() {
-        if (status == null) {
-            status = new ArrayList<String>();
-        }
-        return this.status;
-    }
-
-    /**
      * Gets the value of the ipAddresses property.
      * 
      * @return
@@ -213,93 +170,6 @@ public class Nameservers
     }
 
     /**
-     * Gets the value of the entities property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the entities property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getEntities().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Entity }
-     * 
-     * 
-     */
-    public List<Entity> getEntities() {
-        if (entities == null) {
-            entities = new ArrayList<Entity>();
-        }
-        return this.entities;
-    }
-
-    /**
-     * Gets the value of the remarks property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the remarks property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getRemarks().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Remarks }
-     * 
-     * 
-     */
-    public List<Remarks> getRemarks() {
-        if (remarks == null) {
-            remarks = new ArrayList<Remarks>();
-        }
-        return this.remarks;
-    }
-
-    /**
-     * Gets the value of the links property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the links property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getLinks().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Links }
-     * 
-     * 
-     */
-    public List<Links> getLinks() {
-        if (links == null) {
-            links = new ArrayList<Links>();
-        }
-        return this.links;
-    }
-
-    /**
      * Gets the value of the port43 property.
      * 
      * @return
@@ -321,35 +191,6 @@ public class Nameservers
      */
     public void setPort43(String value) {
         this.port43 = value;
-    }
-
-    /**
-     * Gets the value of the events property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the events property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getEvents().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Events }
-     * 
-     * 
-     */
-    public List<Events> getEvents() {
-        if (events == null) {
-            events = new ArrayList<Events>();
-        }
-        return this.events;
     }
 
 

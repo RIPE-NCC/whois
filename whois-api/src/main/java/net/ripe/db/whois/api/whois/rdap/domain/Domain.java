@@ -8,14 +8,15 @@
 
 package net.ripe.db.whois.api.whois.rdap.domain;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 
 /**
@@ -26,22 +27,16 @@ import java.util.List;
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *     &lt;extension base="{}rdapObject">
  *       &lt;sequence>
- *         &lt;element name="rdapConformance" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded"/>
  *         &lt;element name="handle" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="ldhName" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="unicodeName" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element ref="{}nameservers" maxOccurs="unbounded"/>
- *         &lt;element name="entities" type="{}rdapEntityType" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="status" type="{http://www.w3.org/2001/XMLSchema}anyType" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element name="publicIds" type="{}hashMapType" minOccurs="0"/>
- *         &lt;element ref="{}remarks" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element ref="{}links" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element name="port43" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element ref="{}events" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
- *     &lt;/restriction>
+ *     &lt;/extension>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
@@ -50,26 +45,19 @@ import java.util.List;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "rdapConformance",
     "handle",
     "ldhName",
     "unicodeName",
     "nameservers",
-    "entities",
-    "status",
     "publicIds",
-    "remarks",
-    "links",
-    "port43",
-    "events"
+    "port43"
 })
 @XmlRootElement(name = "domain")
 public class Domain
     extends RdapObject
+    implements Serializable
 {
 
-    @XmlElement(required = true)
-    protected List<String> rdapConformance;
     @XmlElement(required = true)
     protected String handle;
     @XmlElement(required = true)
@@ -78,40 +66,8 @@ public class Domain
     protected String unicodeName;
     @XmlElement(required = true)
     protected List<Nameservers> nameservers;
-    protected List<Entity> entities;
-    protected List<Object> status;
     protected HashMap publicIds;
-    protected List<Links> links;
     protected String port43;
-
-    /**
-     * Gets the value of the rdapConformance property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the rdapConformance property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getRdapConformance().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link String }
-     * 
-     * 
-     */
-    public List<String> getRdapConformance() {
-        if (rdapConformance == null) {
-            rdapConformance = new ArrayList<String>();
-        }
-        return this.rdapConformance;
-    }
 
     /**
      * Gets the value of the handle property.
@@ -215,64 +171,6 @@ public class Domain
     }
 
     /**
-     * Gets the value of the entities property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the entities property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getEntities().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Entity }
-     * 
-     * 
-     */
-    public List<Entity> getEntities() {
-        if (entities == null) {
-            entities = new ArrayList<Entity>();
-        }
-        return this.entities;
-    }
-
-    /**
-     * Gets the value of the status property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the status property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getStatus().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Object }
-     * 
-     * 
-     */
-    public List<Object> getStatus() {
-        if (status == null) {
-            status = new ArrayList<Object>();
-        }
-        return this.status;
-    }
-
-    /**
      * Gets the value of the publicIds property.
      * 
      * @return
@@ -294,35 +192,6 @@ public class Domain
      */
     public void setPublicIds(HashMap value) {
         this.publicIds = value;
-    }
-
-    /**
-     * Gets the value of the links property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the links property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getLinks().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Links }
-     * 
-     * 
-     */
-    public List<Links> getLinks() {
-        if (links == null) {
-            links = new ArrayList<Links>();
-        }
-        return this.links;
     }
 
     /**
@@ -348,4 +217,5 @@ public class Domain
     public void setPort43(String value) {
         this.port43 = value;
     }
+
 }

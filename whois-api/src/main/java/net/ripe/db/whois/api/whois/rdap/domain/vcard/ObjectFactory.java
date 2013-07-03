@@ -37,38 +37,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Caladruri }
-     * 
-     */
-    public Caladruri createCaladruri() {
-        return new Caladruri();
-    }
-
-    /**
-     * Create an instance of {@link Tz }
-     * 
-     */
-    public Tz createTz() {
-        return new Tz();
-    }
-
-    /**
-     * Create an instance of {@link Tel }
-     * 
-     */
-    public Tel createTel() {
-        return new Tel();
-    }
-
-    /**
-     * Create an instance of {@link NValueType }
-     * 
-     */
-    public NValueType createNValueType() {
-        return new NValueType();
-    }
-
-    /**
      * Create an instance of {@link Anniversary }
      * 
      */
@@ -77,27 +45,35 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Version }
+     * Create an instance of {@link Lang }
      * 
      */
-    public Version createVersion() {
-        return new Version();
+    public Lang createLang() {
+        return new Lang();
     }
 
     /**
-     * Create an instance of {@link Vcard }
+     * Create an instance of {@link Birth }
      * 
      */
-    public Vcard createVcard() {
-        return new Vcard();
+    public Birth createBirth() {
+        return new Birth();
     }
 
     /**
-     * Create an instance of {@link Org }
+     * Create an instance of {@link AdrEntryValueType }
      * 
      */
-    public Org createOrg() {
-        return new Org();
+    public AdrEntryValueType createAdrEntryValueType() {
+        return new AdrEntryValueType();
+    }
+
+    /**
+     * Create an instance of {@link Logo }
+     * 
+     */
+    public Logo createLogo() {
+        return new Logo();
     }
 
     /**
@@ -109,11 +85,51 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Birth }
+     * Create an instance of {@link Fn }
      * 
      */
-    public Birth createBirth() {
-        return new Birth();
+    public Fn createFn() {
+        return new Fn();
+    }
+
+    /**
+     * Create an instance of {@link Caladruri }
+     * 
+     */
+    public Caladruri createCaladruri() {
+        return new Caladruri();
+    }
+
+    /**
+     * Create an instance of {@link N }
+     * 
+     */
+    public N createN() {
+        return new N();
+    }
+
+    /**
+     * Create an instance of {@link Vcard }
+     * 
+     */
+    public Vcard createVcard() {
+        return new Vcard();
+    }
+
+    /**
+     * Create an instance of {@link Tel }
+     * 
+     */
+    public Tel createTel() {
+        return new Tel();
+    }
+
+    /**
+     * Create an instance of {@link Tz }
+     * 
+     */
+    public Tz createTz() {
+        return new Tz();
     }
 
     /**
@@ -133,30 +149,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Email }
-     * 
-     */
-    public Email createEmail() {
-        return new Email();
-    }
-
-    /**
-     * Create an instance of {@link Geo }
-     * 
-     */
-    public Geo createGeo() {
-        return new Geo();
-    }
-
-    /**
-     * Create an instance of {@link Title }
-     * 
-     */
-    public Title createTitle() {
-        return new Title();
-    }
-
-    /**
      * Create an instance of {@link Url }
      * 
      */
@@ -173,14 +165,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link N }
-     * 
-     */
-    public N createN() {
-        return new N();
-    }
-
-    /**
      * Create an instance of {@link Bday }
      * 
      */
@@ -189,27 +173,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Logo }
+     * Create an instance of {@link NValueType }
      * 
      */
-    public Logo createLogo() {
-        return new Logo();
-    }
-
-    /**
-     * Create an instance of {@link Nickname }
-     * 
-     */
-    public Nickname createNickname() {
-        return new Nickname();
-    }
-
-    /**
-     * Create an instance of {@link Gender }
-     * 
-     */
-    public Gender createGender() {
-        return new Gender();
+    public NValueType createNValueType() {
+        return new NValueType();
     }
 
     /**
@@ -221,27 +189,35 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Adr }
+     * Create an instance of {@link Version }
      * 
      */
-    public Adr createAdr() {
-        return new Adr();
+    public Version createVersion() {
+        return new Version();
     }
 
     /**
-     * Create an instance of {@link Lang }
+     * Create an instance of {@link Note }
      * 
      */
-    public Lang createLang() {
-        return new Lang();
+    public Note createNote() {
+        return new Note();
     }
 
     /**
-     * Create an instance of {@link AdrEntryValueType }
+     * Create an instance of {@link Nickname }
      * 
      */
-    public AdrEntryValueType createAdrEntryValueType() {
-        return new AdrEntryValueType();
+    public Nickname createNickname() {
+        return new Nickname();
+    }
+
+    /**
+     * Create an instance of {@link Org }
+     * 
+     */
+    public Org createOrg() {
+        return new Org();
     }
 
     /**
@@ -253,19 +229,43 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Fn }
+     * Create an instance of {@link Email }
      * 
      */
-    public Fn createFn() {
-        return new Fn();
+    public Email createEmail() {
+        return new Email();
     }
 
     /**
-     * Create an instance of {@link Note }
+     * Create an instance of {@link Title }
      * 
      */
-    public Note createNote() {
-        return new Note();
+    public Title createTitle() {
+        return new Title();
+    }
+
+    /**
+     * Create an instance of {@link Gender }
+     * 
+     */
+    public Gender createGender() {
+        return new Gender();
+    }
+
+    /**
+     * Create an instance of {@link Adr }
+     * 
+     */
+    public Adr createAdr() {
+        return new Adr();
+    }
+
+    /**
+     * Create an instance of {@link Geo }
+     * 
+     */
+    public Geo createGeo() {
+        return new Geo();
     }
 
 }

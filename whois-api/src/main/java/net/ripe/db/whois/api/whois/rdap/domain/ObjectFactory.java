@@ -37,27 +37,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Ip }
-     * 
-     */
-    public Ip createIp() {
-        return new Ip();
-    }
-
-    /**
      * Create an instance of {@link Domain }
      * 
      */
     public Domain createDomain() {
         return new Domain();
-    }
-
-    /**
-     * Create an instance of {@link Notices }
-     * 
-     */
-    public Notices createNotices() {
-        return new Notices();
     }
 
     /**
@@ -69,19 +53,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Person }
-     * 
-     */
-    public Person createPerson() {
-        return new Person();
-    }
-
-    /**
      * Create an instance of {@link Remarks }
      * 
      */
     public Remarks createRemarks() {
         return new Remarks();
+    }
+
+    /**
+     * Create an instance of {@link Person }
+     * 
+     */
+    public Person createPerson() {
+        return new Person();
     }
 
     /**
@@ -93,11 +77,27 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Nameservers }
+     * Create an instance of {@link Notices }
      * 
      */
-    public Nameservers createNameservers() {
-        return new Nameservers();
+    public Notices createNotices() {
+        return new Notices();
+    }
+
+    /**
+     * Create an instance of {@link Ip }
+     * 
+     */
+    public Ip createIp() {
+        return new Ip();
+    }
+
+    /**
+     * Create an instance of {@link RdapObject }
+     * 
+     */
+    public RdapObject createRdapObject() {
+        return new RdapObject();
     }
 
     /**
@@ -109,6 +109,14 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link Links }
+     * 
+     */
+    public Links createLinks() {
+        return new Links();
+    }
+
+    /**
      * Create an instance of {@link Events }
      * 
      */
@@ -117,11 +125,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Links }
+     * Create an instance of {@link Nameservers }
      * 
      */
-    public Links createLinks() {
-        return new Links();
+    public Nameservers createNameservers() {
+        return new Nameservers();
     }
 
 }

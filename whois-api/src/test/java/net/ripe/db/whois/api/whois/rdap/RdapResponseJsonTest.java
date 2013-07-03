@@ -131,10 +131,7 @@ public class RdapResponseJsonTest {
         remarkList.add("She sells sea shells down by the sea shore.");
         remarkList.add("Originally written by Terry Sullivan.");
 
-        Object[] ObjectList = remarkList.toArray();
-        String[] StringArray = Arrays.copyOf(ObjectList, ObjectList.length, String[].class);
-
-        remarks1.setDescription(remarkList.toArray(StringArray));
+        remarks1.getDescription().addAll(remarkList);
         nameserver.getRemarks().add(remarks1);
 
 
@@ -214,10 +211,7 @@ public class RdapResponseJsonTest {
         remarkList.add("She sells sea shells down by the sea shore.");
         remarkList.add("Originally written by Terry Sullivan.");
 
-        Object[] ObjectList = remarkList.toArray();
-        String[] StringArray = Arrays.copyOf(ObjectList, ObjectList.length, String[].class);
-
-        remarks1.setDescription(remarkList.toArray(StringArray));
+        remarks1.getDescription().addAll(remarkList);
         ip.getRemarks().add(remarks1);
 
 

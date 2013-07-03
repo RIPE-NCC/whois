@@ -8,11 +8,13 @@
 
 package net.ripe.db.whois.api.whois.rdap.domain;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import java.io.Serializable;
 
 
 /**
@@ -43,7 +45,7 @@ public class Remarks
     implements Serializable
 {
 
-    protected String[] description;
+    protected List<String> description;
 
     /**
      * Gets the value of the description property.
@@ -67,15 +69,11 @@ public class Remarks
      * 
      * 
      */
-    public String[] getDescription() {
+    public List<String> getDescription() {
         if (description == null) {
-            description = new String[]{};
+            description = new ArrayList<String>();
         }
         return this.description;
     }
 
-
-    public String[] setDescription(String[] description) {
-        return this.description = description;
-    }
 }
