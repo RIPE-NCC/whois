@@ -166,9 +166,6 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
 
         List<Links> links = an.getLinks();
         assertThat(links.size(), equalTo(1));
-
-        Links ln = links.get(0);
-        assertThat(ln.getValue(), equalTo("AS10000-AS20000"));
     }
 
     @Test

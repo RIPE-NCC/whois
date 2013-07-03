@@ -279,7 +279,18 @@ public class RdapObjectMapper {
                                           source);
             if (asb != null) {
                 Links ln = rdapObjectFactory.createLinks();
-                ln.setValue(asb.getKey().toString());
+                ln.setRel("up");
+                /* todo: how to link to an as-block? If each ASN
+                 * within the range has a corresponding aut-num
+                 * record, then there's no way to disambiguate. Maybe
+                 * this should point to another service. */
+                ln.setHref("/autnum/" + start.toString());
+                /* todo: investigate target and context IRIs. */
+                //ln.setValue();
+                ln.setMedia("screen");
+                ln.setType("application/json");
+                ln.getHreflang().add("en");
+                ln.getTitle().add("Parent block");
                 an.getLinks().add(ln);
             }
         }
