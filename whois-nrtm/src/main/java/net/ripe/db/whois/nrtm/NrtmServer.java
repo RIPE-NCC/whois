@@ -29,7 +29,7 @@ public class NrtmServer implements ApplicationService {
     @Value("${nrtm.enabled}") private boolean nrtmEnabled;
     @Value("${port.nrtm}") private int nrtmPort;
     @Value("${port.nrtm.legacy}") private int nrtmPortLegacy;
-    @Value("${loadbalancer.nrtm.timeout:5000") private int markNodeFailedTimeout;
+    @Value("${loadbalancer.nrtm.timeout:5000}") private int markNodeFailedTimeout;
 
     private final NrtmChannelsRegistry nrtmChannelsRegistry;
     private final NrtmServerPipelineFactory nrtmServerPipelineFactory;
