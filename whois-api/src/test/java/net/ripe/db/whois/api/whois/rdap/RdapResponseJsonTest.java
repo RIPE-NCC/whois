@@ -3,7 +3,13 @@ package net.ripe.db.whois.api.whois.rdap;
 import com.Ostermiller.util.LineEnds;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
-import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Events;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Links;
+import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.whois.rdap.domain.Notices;
+import net.ripe.db.whois.api.whois.rdap.domain.Remarks;
 import org.codehaus.plexus.util.StringInputStream;
 import org.codehaus.plexus.util.StringOutputStream;
 import org.junit.Test;
@@ -13,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -118,9 +126,15 @@ public class RdapResponseJsonTest {
         ipAddresses.getIpv6().add("2001:db8::123");
         nameserver.setIpAddresses(ipAddresses);
 
+        List<String> remarkList = new ArrayList<>();
         Remarks remarks1 = new Remarks();
-        remarks1.getDescription().add("She sells sea shells down by the sea shore.");
-        remarks1.getDescription().add("Originally written by Terry Sullivan.");
+        remarkList.add("She sells sea shells down by the sea shore.");
+        remarkList.add("Originally written by Terry Sullivan.");
+
+        Object[] ObjectList = remarkList.toArray();
+        String[] StringArray = Arrays.copyOf(ObjectList, ObjectList.length, String[].class);
+
+        remarks1.setDescription(remarkList.toArray(StringArray));
         nameserver.getRemarks().add(remarks1);
 
 
@@ -195,9 +209,15 @@ public class RdapResponseJsonTest {
         ip.setCountry("AU");
         ip.getStatus().add("allocated");
 
+        List<String> remarkList = new ArrayList<>();
         Remarks remarks1 = new Remarks();
-        remarks1.getDescription().add("She sells sea shells down by the sea shore.");
-        remarks1.getDescription().add( "Originally written by Terry Sullivan.");
+        remarkList.add("She sells sea shells down by the sea shore.");
+        remarkList.add("Originally written by Terry Sullivan.");
+
+        Object[] ObjectList = remarkList.toArray();
+        String[] StringArray = Arrays.copyOf(ObjectList, ObjectList.length, String[].class);
+
+        remarks1.setDescription(remarkList.toArray(StringArray));
         ip.getRemarks().add(remarks1);
 
 

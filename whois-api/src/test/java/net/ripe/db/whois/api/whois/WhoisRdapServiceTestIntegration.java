@@ -147,7 +147,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.addObject(TEST_DOMAIN);
-        System.out.println("HERE YO AM: " + databaseHelper.addObject(TEST_ORG));
         ipTreeUpdater.rebuild();
     }
 
@@ -243,10 +242,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_org_object() throws Exception {
-        //databaseHelper.addObject(TEST_ORG);
+        databaseHelper.addObject(TEST_ORG);
 
         ClientResponse response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST").accept(MediaType.APPLICATION_JSON_TYPE).get(ClientResponse.class);
-        //assertEquals(200, response.getStatus());
+        assertEquals(200, response.getStatus());
         String responseContent = response.getEntity(String.class);
         LOGGER.info("Response:" + responseContent);
 
