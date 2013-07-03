@@ -79,9 +79,6 @@ public class RdapObjectMapper {
         debug(rpslObject);
 
         switch (rpslObjectType) {
-            case PERSON:
-                rdapResponse = createEntity(rpslObject);
-                break;
             case DOMAIN:
                 rdapResponse = createDomainResponse(rpslObject);
                 break;
@@ -96,6 +93,7 @@ public class RdapObjectMapper {
                 ip.setHandle(rpslObject.getKey().toString());
                 rdapResponse = ip;
                 break;
+            case PERSON:
             case ORGANISATION:
                 rdapResponse = createEntity(rpslObject);
                 break;
@@ -160,7 +158,6 @@ public class RdapObjectMapper {
     }
 
     private Entity createEntity(RpslObject rpslObject) {
-        /* todo: this is nearly the same as createPersonResponse. */
         Entity entity = rdapObjectFactory.createEntity();
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVcardArray(generateVcards(rpslObject));
@@ -176,14 +173,37 @@ public class RdapObjectMapper {
         return entity;
     }
 
-    private Autnum createAutnumResponse(RpslObject rpslObject,
-                                        Queue<TaggedRpslObject> qtro)
-            throws ParseException {
+    private void setEntities(RdapObject rdapObject,
+                             RpslObject rpslObject,
+                             Queue<TaggedRpslObject> qtro,
+                             Set<AttributeType> eats) {
         HashMap<String, RpslObject> mtro = new HashMap<String, RpslObject>();
         for (TaggedRpslObject tro : qtro) {
             mtro.put(tro.rpslObject.getKey().toString(),
                      tro.rpslObject);
         }
+        List<RpslAttribute> eas = new ArrayList<RpslAttribute>();
+        for (AttributeType eat : eats) {
+            eas.addAll(rpslObject.findAttributes(eat));
+        }
+        Set<String> seen = new HashSet<String>();
+        for (RpslAttribute ra : eas) {
+            String key = ra.getCleanValue().toString();
+            if (seen.contains(key)) {
+                continue;
+            }
+            seen.add(key);
+            RpslObject ro = mtro.get(key);
+            if (ro != null) {
+                Entity e = createEntity(ro);
+                rdapObject.getEntities().add(e);
+            }
+        }
+    }
+
+    private Autnum createAutnumResponse(RpslObject rpslObject,
+                                        Queue<TaggedRpslObject> qtro)
+            throws ParseException {
 
         Autnum an = rdapObjectFactory.createAutnum();
         an.setHandle(rpslObject.getKey().toString());
@@ -231,33 +251,14 @@ public class RdapObjectMapper {
         an.setType("DIRECT ALLOCATION");
         /* None of the statuses from [9.1] in json-response is
          * applicable here, so 'status' will be left empty for now. */
- 
-        /* Load the admin-c and tech-c attributes, find the
-         * corresponding records in the queue (if possible), convert
-         * them into Entities and add them to the response. */
-        List<RpslAttribute> admin_cs =
-            rpslObject.findAttributes(AttributeType.ADMIN_C);
-        List<RpslAttribute> tech_cs =
-            rpslObject.findAttributes(AttributeType.TECH_C);
-        List<RpslAttribute> contacts = new ArrayList<RpslAttribute>();
-        contacts.addAll(admin_cs);
-        contacts.addAll(tech_cs);
-        Set<String> seen = new HashSet<String>();
-        for (RpslAttribute rpslAttribute : contacts) {
-            String key = rpslAttribute.getCleanValue().toString();
-            if (seen.contains(key)) {
-                continue;
-            }
-            seen.add(key);
-            RpslObject ro = mtro.get(key);
-            if (ro != null) {
-                Entity e = createEntity(ro);
-                an.getEntities().add(e);
-            }
-        }
 
         setRemarks(an, rpslObject);
         setEvents(an, rpslObject);
+
+        Set<AttributeType> eats = new HashSet<AttributeType>();
+        eats.add(AttributeType.ADMIN_C);
+        eats.add(AttributeType.TECH_C);
+        setEntities(an, rpslObject, qtro, eats);
 
         return an;
     }
