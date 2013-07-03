@@ -11,14 +11,14 @@
     <xs:complexType name="rdapObject">
         <xs:sequence>
             <xs:element name="status" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="entities" minOccurs="0" maxOccurs="unbounded" type="rdapEntityType"/>
-            <xs:element ref="remarks" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="links" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="events" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="entities" type="entity" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="remarks" type="remark" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="links" type="link" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="events" type="event" minOccurs="0" maxOccurs="unbounded"/>
 
             <xs:element name="lang" type="xs:string" maxOccurs="1" minOccurs="0"/>
             <xs:element name="rdapConformance" type="xs:string" maxOccurs="unbounded" minOccurs="1"/>
-            <xs:element ref="notices" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="notices" type="notice" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -30,7 +30,7 @@
                         <xs:element name="handle" type="xs:string" maxOccurs="1"  minOccurs="1"/>
                         <xs:element name="ldhName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
                         <xs:element name="unicodeName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
-                        <xs:element ref="nameservers" maxOccurs="unbounded"  minOccurs="1"/>
+                        <xs:element name="nameservers" type="nameserver" maxOccurs="unbounded"  minOccurs="1"/>
                         <!-- TODO secureDNS, and variants -->
                         <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
                         <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
@@ -76,86 +76,80 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="entity">
-        <xs:complexType>
-            <xs:complexContent>
-                <xs:extension base="rdapObject">
-                    <xs:sequence>
-                        <xs:element name="handle" type="xs:string" maxOccurs="1" minOccurs="1"/>
-                        <xs:element name="vcardArray" type="xs:anySimpleType" maxOccurs="1" minOccurs="0"/>
-                        <xs:element name="roles" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
-                        <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
-                        <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    </xs:sequence>
-                </xs:extension>
-            </xs:complexContent>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="entity">
+        <xs:complexContent>
+            <xs:extension base="rdapObject">
+                <xs:sequence>
+                    <xs:element name="handle" type="xs:string" maxOccurs="1" minOccurs="1"/>
+                    <xs:element name="vcardArray" type="xs:anySimpleType" maxOccurs="1" minOccurs="0"/>
+                    <xs:element name="roles" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+                    <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
+                    <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="entity" type="entity" />
 
-    <xs:element name="nameservers">
-        <xs:complexType>
-            <xs:complexContent>
-                <xs:extension base="rdapObject">
-                    <xs:sequence>
-                        <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                        <xs:element name="ldhName" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                        <xs:element name="unicodeName" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                        <xs:element name="ipAddresses"  minOccurs="0" maxOccurs="1">
-                            <xs:complexType>
-                                <xs:sequence>
-                                    <xs:element name="ipv4" type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
-                                    <xs:element name="ipv6"  type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
-                                </xs:sequence>
-                            </xs:complexType>
-                        </xs:element>
-                        <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    </xs:sequence>
-                </xs:extension>
-            </xs:complexContent>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="nameserver">
+        <xs:complexContent>
+            <xs:extension base="rdapObject">
+                <xs:sequence>
+                    <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                    <xs:element name="ldhName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="unicodeName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="ipAddresses"  minOccurs="0" maxOccurs="1">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="ipv4" type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
+                                <xs:element name="ipv6"  type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="nameserver" type="nameserver" />
 
-    <xs:element name="events">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="eventAction" type="xs:string" maxOccurs="1" minOccurs="0"/>
-                <xs:element name="eventDate" type="xs:dateTime" maxOccurs="1" minOccurs="0"/>
-                <xs:element name="eventActor" type="xs:string" maxOccurs="1" minOccurs="0"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="event">
+        <xs:sequence>
+            <xs:element name="eventAction" type="xs:string" maxOccurs="1" minOccurs="0"/>
+            <xs:element name="eventDate" type="xs:dateTime" maxOccurs="1" minOccurs="0"/>
+            <xs:element name="eventActor" type="xs:string" maxOccurs="1" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="event" type="event" />
 
-    <xs:element name="remarks">
-        <xs:complexType>
-            <xs:sequence>
-		<xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="remark">
+        <xs:sequence>
+            <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="remark" type="remark" />
 
-    <xs:element name="notices">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="title" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
-                <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
-                <xs:element ref="links" minOccurs="0" maxOccurs="1"></xs:element>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="notice">
+        <xs:sequence>
+            <xs:element name="title" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+            <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
+            <xs:element name="links" type="link" minOccurs="0" maxOccurs="1"></xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="notice" type="notice" />
 
-    <xs:element name="links">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="value" type="xs:string" maxOccurs="1" minOccurs="0"/>
-                <xs:element name="rel" type="xs:string" maxOccurs="1" minOccurs="0"/>
-                <xs:element name="href" type="xs:string" maxOccurs="1" minOccurs="0"/>
-                <xs:element name="hreflang" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
-                <xs:element name="title" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
-                <xs:element name="media" type="xs:string" maxOccurs="1" minOccurs="0"/>
-                <xs:element name="type" type="xs:string" maxOccurs="1" minOccurs="0"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType name="link">
+        <xs:sequence>
+            <xs:element name="value" type="xs:string" maxOccurs="1" minOccurs="0"/>
+            <xs:element name="rel" type="xs:string" maxOccurs="1" minOccurs="0"/>
+            <xs:element name="href" type="xs:string" maxOccurs="1" minOccurs="0"/>
+            <xs:element name="hreflang" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="title" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="media" type="xs:string" maxOccurs="1" minOccurs="0"/>
+            <xs:element name="type" type="xs:string" maxOccurs="1" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="link" type="link" />
 
     <xs:complexType name="rdapEntityType">
         <xs:annotation>

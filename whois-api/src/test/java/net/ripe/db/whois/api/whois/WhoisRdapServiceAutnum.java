@@ -150,9 +150,9 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
         assertThat(an.getCountry(), equalTo("AU"));
         assertThat(an.getType(),    equalTo("DIRECT ALLOCATION"));
 
-        List<Events> events = an.getEvents();
+        List<Event> events = an.getEvents();
         assertThat(events.size(), equalTo(1));
-        Events event = events.get(0);
+        Event event = events.get(0);
         Date check = new GregorianCalendar(2001, 7, 16).getTime();
         assertThat(event.getEventDate()
                         .toGregorianCalendar()

@@ -6,13 +6,13 @@ import net.ripe.db.whois.api.whois.TaggedRpslObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
 import net.ripe.db.whois.api.whois.rdap.domain.Domain;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Events;
+import net.ripe.db.whois.api.whois.rdap.domain.Event;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
-import net.ripe.db.whois.api.whois.rdap.domain.Nameservers;
+import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
 import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.whois.rdap.domain.Remarks;
-import net.ripe.db.whois.api.whois.rdap.domain.Links;
+import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
 import net.ripe.db.whois.api.whois.rdap.RdapUtilities;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
@@ -127,7 +127,7 @@ public class RdapObjectMapper {
         allRemarks.addAll(descrs);
 
         List<String> remarkList = new ArrayList<>();
-        Remarks remark = rdapObjectFactory.createRemarks();
+        Remark remark = rdapObjectFactory.createRemark();
 
         for (RpslAttribute rpslAttribute : allRemarks) {
             String descr = rpslAttribute.getCleanValue().toString();
@@ -147,7 +147,7 @@ public class RdapObjectMapper {
 
         RpslAttribute lastChanged = changedAttributes.get(listSize - 1);
 
-        Events event = rdapObjectFactory.createEvents();
+        Event event = rdapObjectFactory.createEvent();
         String eventString = lastChanged.getValue();
 
         // Split the string and make the event entry.
@@ -286,7 +286,7 @@ public class RdapObjectMapper {
 
         // Nameservers
         for  (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.NSERVER)) {
-            Nameservers ns = rdapObjectFactory.createNameservers();
+            Nameserver ns = rdapObjectFactory.createNameserver();
             ns.setLdhName(rpslAttribute.getCleanValue().toString());
             domain.getNameservers().add(ns);
         }

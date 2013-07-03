@@ -4,12 +4,12 @@ import com.Ostermiller.util.LineEnds;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Events;
+import net.ripe.db.whois.api.whois.rdap.domain.Event;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
-import net.ripe.db.whois.api.whois.rdap.domain.Links;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
 import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
-import net.ripe.db.whois.api.whois.rdap.domain.Notices;
-import net.ripe.db.whois.api.whois.rdap.domain.Remarks;
+import net.ripe.db.whois.api.whois.rdap.domain.Notice;
+import net.ripe.db.whois.api.whois.rdap.domain.Remark;
 import org.codehaus.plexus.util.StringInputStream;
 import org.codehaus.plexus.util.StringOutputStream;
 import org.junit.Test;
@@ -127,7 +127,7 @@ public class RdapResponseJsonTest {
         nameserver.setIpAddresses(ipAddresses);
 
         List<String> remarkList = new ArrayList<>();
-        Remarks remarks1 = new Remarks();
+        Remark remarks1 = new Remark();
         remarkList.add("She sells sea shells down by the sea shore.");
         remarkList.add("Originally written by Terry Sullivan.");
 
@@ -135,7 +135,7 @@ public class RdapResponseJsonTest {
         nameserver.getRemarks().add(remarks1);
 
 
-        Links link = new Links();
+        Link link = new Link();
         link.setHref("http://example.net/nameserver/xxxx");
         link.setValue("http://example.net/nameserver/xxxx");
         link.setRel("self");
@@ -143,7 +143,7 @@ public class RdapResponseJsonTest {
 
         nameserver.setPort43("whois.example.net");
 
-        Events event1 = new Events();
+        Event event1 = new Event();
         event1.setEventAction("registration");
 
         GregorianCalendar gc = new GregorianCalendar();
@@ -153,7 +153,7 @@ public class RdapResponseJsonTest {
 
         nameserver.getEvents().add(event1);
 
-        Events event2 = new Events();
+        Event event2 = new Event();
         event2.setEventAction("last changed");
         event2.setEventDate(dataTypeFactory.newXMLGregorianCalendar(gc));
 
@@ -207,7 +207,7 @@ public class RdapResponseJsonTest {
         ip.getStatus().add("allocated");
 
         List<String> remarkList = new ArrayList<>();
-        Remarks remarks1 = new Remarks();
+        Remark remarks1 = new Remark();
         remarkList.add("She sells sea shells down by the sea shore.");
         remarkList.add("Originally written by Terry Sullivan.");
 
@@ -215,19 +215,19 @@ public class RdapResponseJsonTest {
         ip.getRemarks().add(remarks1);
 
 
-        Links link = new Links();
+        Link link = new Link();
         link.setHref("http://example.net/ip/2001:db8::/48");
         link.setValue("http://example.net/ip/2001:db8::/48");
         link.setRel("self");
         ip.getLinks().add(link);
 
-        Links uplink = new Links();
+        Link uplink = new Link();
         uplink.setHref("http://example.net/ip/2001:C00::/23");
         uplink.setValue("http://example.net/ip/2001:db8::/48");
         uplink.setRel("up");
         ip.getLinks().add(uplink);
 
-        Events event1 = new Events();
+        Event event1 = new Event();
         event1.setEventAction("registration");
 
         GregorianCalendar gc = new GregorianCalendar();
@@ -237,7 +237,7 @@ public class RdapResponseJsonTest {
 
         ip.getEvents().add(event1);
 
-        Events event2 = new Events();
+        Event event2 = new Event();
         event2.setEventAction("last changed");
         event2.setEventDate(dataTypeFactory.newXMLGregorianCalendar(gc));
         event2.setEventActor("joe@example.com");
@@ -254,7 +254,7 @@ public class RdapResponseJsonTest {
 
         ip.getEntities().add(entity);
 
-        Links entityLink = new Links();
+        Link entityLink = new Link();
         entityLink.setHref("http://example.net/entity/xxxx");
         entityLink.setValue("http://example.net/entity/xxxx");
         entityLink.setRel("self");
@@ -352,12 +352,12 @@ public class RdapResponseJsonTest {
     @Test
     public void notices_serialization_test() throws Exception {
 
-        Notices notices = new Notices();
+        Notice notices = new Notice();
         notices.setTitle("Beverage policy");
         notices.getDescription().add("Beverages with caffeine for keeping horses awake.");
         notices.getDescription().add("Very effective.");
 
-        Links link = new Links();
+        Link link = new Link();
         link.setValue("http://example.com/context_uri");
         link.setRel("self");
         link.setHref("http://example.com/target_uri_href");
