@@ -10,6 +10,7 @@ import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.plexus.util.StringInputStream;
@@ -25,11 +26,16 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 @Category(IntegrationTest.class)
 public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRdapServiceTestIntegration.class);
+    private static final Logger LOGGER = 
+        LoggerFactory.getLogger(WhoisRdapServiceTestIntegration.class);
     private static final Audience AUDIENCE = Audience.RDAP;
-    private static final String VERSION_DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}";
+    private static final String VERSION_DATE_PATTERN = 
+        "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}";
     private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
             "person:  Pauleth Palthen\n" +
             "address: Singel 258\n" +
@@ -154,7 +160,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Override
     public void setUpClient() throws Exception {
         ClientConfig cc = new DefaultClientConfig();
-        cc.getSingletons().add(new JacksonJaxbJsonProvider().configure(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE, true));
+        cc.getSingletons().add(new JacksonJaxbJsonProvider());
         client = Client.create(cc);
     }
 
@@ -162,14 +168,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_inet6num_with_prefix_length() throws Exception {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "descr:          Private Network\n" +
-                        "country:        NL\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "mnt-lower:      OWNER-MNT\n" +
-                        "source:         TEST");
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
         ipTreeUpdater.rebuild();
 
         createResource(AUDIENCE, "inet6num/2001:2002:2003::/48");
@@ -187,101 +193,101 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_person_object() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
-        ClientResponse response = createResource(AUDIENCE, "entity/PP1-TEST").accept(MediaType.APPLICATION_JSON_TYPE).get(ClientResponse.class);
+        ClientResponse response = 
+            createResource(AUDIENCE, "entity/PP1-TEST")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(ClientResponse.class);
         assertEquals(200, response.getStatus());
-        String responseContent = response.getEntity(String.class);
-        LOGGER.info("Response:" + responseContent);
-        String textEntity = convertEOLToUnix(responseContent);
+        final Entity en = response.getEntity(Entity.class);
 
-        assertEquals("" +
-                "{\n" +
-                "  \"rdapConformance\" : [ \"rdap_level_0\" ],\n" +
-                "  \"handle\" : \"PP1-TEST\",\n" +
-                "  \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +
-                "  }, \"text\", \"4.0\" ], [ \"fn\", {\n" +
-                "  }, \"text\", \"Pauleth Palthen\" ], [ \"adr\", {\n" +
-                "    \"label\" : \"Singel 258\"\n" +
-                "  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
-                "  }, \"uri\", \"+31-1234567890\" ], [ \"email\", {\n" +
-                "  }, \"text\", \"noreply@ripe.net\" ] ] ],\n" +
-                "  \"remarks\" : [ {\n" +
-                "    \"description\" : [ \"remark\" ]\n" +
-                "  } ],\n" +
-                "  \"events\" : [ {\n" +
-                "    \"eventAction\" : \"last changed\",\n" +
-                "    \"eventDate\" : \"2012-01-02T14:00:00Z\",\n" +
-                "    \"eventActor\" : \"noreply@ripe.net\"\n" +
-                "  } ]\n" +
-                "}", textEntity);
+        assertThat(en.getHandle(), equalTo("PP1-TEST"));
+        assertThat(en.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        /* todo: the remaining tests: vcards, remarks, events. As per
+         * the next commented section. */
 
-        //Thread.sleep(1500000);
+        /*
+        "  \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +
+        "  }, \"text\", \"4.0\" ], [ \"fn\", {\n" +
+        "  }, \"text\", \"Pauleth Palthen\" ], [ \"adr\", {\n" +
+        "    \"label\" : \"Singel 258\"\n" +
+        "  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
+        "  }, \"uri\", \"+31-1234567890\" ], [ \"email\", {\n" +
+        "  }, \"text\", \"noreply@ripe.net\" ] ] ],\n" +
+        "  \"remarks\" : [ {\n" +
+        "    \"description\" : [ \"remark\" ]\n" +
+        "  } ],\n" +
+        "  \"events\" : [ {\n" +
+        "    \"eventAction\" : \"last changed\",\n" +
+        "    \"eventDate\" : \"2012-01-02T14:00:00Z\",\n" +
+        "    \"eventActor\" : \"noreply@ripe.net\"\n" +
+        "  } ]\n" +
+        "}"
+        */
     }
 
     @Test
     public void lookup_domain_object() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
-        ClientResponse response = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa").accept(MediaType.APPLICATION_JSON_TYPE).get(ClientResponse.class);
+        ClientResponse response =
+            createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(ClientResponse.class);
         assertEquals(200, response.getStatus());
-        String responseContent = response.getEntity(String.class);
-        LOGGER.info("Response:" + responseContent);
-        String textEntity = convertEOLToUnix(responseContent);
+        final Domain dn = response.getEntity(Domain.class); 
 
-        assertEquals("" +
-                "{\n" +
-                "  \"rdapConformance\" : [ \"rdap_level_0\" ],\n" +
-                "  \"handle\" : \"31.12.202.in-addr.arpa\",\n" +
-                "  \"ldhName\" : \"31.12.202.in-addr.arpa\",\n" +
-                "  \"nameservers\" : [ {\n" +
-                "    \"ldhName\" : \"ns1.test.com.au\"\n" +
-                "  }, {\n" +
-                "    \"ldhName\" : \"ns2.test.com.au\"\n" +
-                "  } ]\n" +
-                "}", textEntity);
+        assertThat(dn.getHandle(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(dn.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(dn.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        /* todo: nameserver tests, as per the below. */
+
+        /*
+        "  \"nameservers\" : [ {\n" +
+        "    \"ldhName\" : \"ns1.test.com.au\"\n" +
+        "  }, {\n" +
+        "    \"ldhName\" : \"ns2.test.com.au\"\n" +
+        "  } ]\n" +
+        "}"
+        */
     }
 
     @Test
     public void lookup_org_object() throws Exception {
         databaseHelper.addObject(TEST_ORG);
 
-        ClientResponse response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST").accept(MediaType.APPLICATION_JSON_TYPE).get(ClientResponse.class);
+        ClientResponse response = 
+            createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(ClientResponse.class);
         assertEquals(200, response.getStatus());
-        String responseContent = response.getEntity(String.class);
-        LOGGER.info("Response:" + responseContent);
+        final Entity en = response.getEntity(Entity.class); 
 
-        String textEntity = convertEOLToUnix(responseContent);
+        assertThat(en.getHandle(), equalTo("ORG-TEST1-TEST"));
+        /* todo: additional tests, as per the below. */
 
-        assertEquals("" +
-                "{\n" +
-                "  \"handle\" : \"ORG-TEST1-TEST\",\n" +
-                "  \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +
-                "  }, \"text\", \"4.0\" ], [ \"adr\", {\n" +
-                "    \"label\" : \"1 Fake St. Fauxville\"\n" +
-                "  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
-                "  }, \"uri\", \"+01-000-000-000\" ], [ \"email\", {\n" +
-                "  }, \"text\", \"org@test.com\" ] ] ],\n" +
-                "  \"remarks\" : [ {\n" +
-                "    \"description\" : [ \"Nice to deal with generally\", \"Drugs and gambling\" ]\n" +
-                "  } ],\n" +
-                "  \"events\" : [ {\n" +
-                "    \"eventAction\" : \"last changed\",\n" +
-                "    \"eventDate\" : \"2012-11-20T14:00:00Z\",\n" +
-                "    \"eventActor\" : \"test@test.net.au\"\n" +
-                "  } ]\n" +
-                "}", textEntity);
-
-        // Thread.sleep(15000000);
+        /*
+        "{\n" +
+        "  \"handle\" : \"ORG-TEST1-TEST\",\n" +
+        "  \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +
+        "  }, \"text\", \"4.0\" ], [ \"adr\", {\n" +
+        "    \"label\" : \"1 Fake St. Fauxville\"\n" +
+        "  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
+        "  }, \"uri\", \"+01-000-000-000\" ], [ \"email\", {\n" +
+        "  }, \"text\", \"org@test.com\" ] ] ],\n" +
+        "  \"remarks\" : [ {\n" +
+        "    \"description\" : [ \"Nice to deal with generally\", \"Drugs and gambling\" ]\n" +
+        "  } ],\n" +
+        "  \"events\" : [ {\n" +
+        "    \"eventAction\" : \"last changed\",\n" +
+        "    \"eventDate\" : \"2012-11-20T14:00:00Z\",\n" +
+        "    \"eventActor\" : \"test@test.net.au\"\n" +
+        "  } ]\n" +
+        "}"
+        */
     }
 
-    // helper methods
     @Override
     protected WebResource createResource(final Audience audience, final String path) {
         return client.resource(String.format("http://localhost:%s/%s", getPort(audience), path));
-    }
-
-    private String convertEOLToUnix(String str) throws IOException {
-        StringOutputStream resultStream = new StringOutputStream();
-        LineEnds.convert(new StringInputStream(str), resultStream, LineEnds.STYLE_UNIX);
-        return resultStream.toString();
     }
 }
