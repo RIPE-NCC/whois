@@ -20,13 +20,15 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.datatype.DatatypeConfigurationException;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
 import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,7 +36,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.Date;
 
 public class RdapObjectMapper {
     private static final Logger LOGGER = 
@@ -94,6 +95,8 @@ public class RdapObjectMapper {
                 rdapResponse = ip;
                 break;
             case ORGANISATION:
+                rdapResponse = createEntity(rpslObject);
+                break;
             case ROLE:
             case IRT:
                 break;
@@ -121,12 +124,20 @@ public class RdapObjectMapper {
         allRemarks.addAll(remarks);
         allRemarks.addAll(descrs);
 
+        List<String> remarkList = new ArrayList<>();
+        Remarks remark = rdapObjectFactory.createRemarks();
+
         for (RpslAttribute rpslAttribute : allRemarks) {
-            Remarks remark = rdapObjectFactory.createRemarks();
             String descr = rpslAttribute.getCleanValue().toString();
-            remark.getDescription().add(descr);
-            rdapObject.getRemarks().add(remark);
+
+            remarkList.add(descr);
         }
+
+        Object[] ObjectList = remarkList.toArray();
+        String[] StringArray = Arrays.copyOf(ObjectList, ObjectList.length, String[].class);
+
+        remark.setDescription(remarkList.toArray(StringArray));
+        rdapObject.getRemarks().add(remark);
     }
 
     private void setEvents (RdapObject rdapObject, RpslObject rpslObject) 
@@ -164,6 +175,12 @@ public class RdapObjectMapper {
         entity.setVcardArray(generateVcards(rpslObject));
         
         setRemarks(entity,rpslObject);
+
+        try {
+            setEvents(entity,rpslObject);
+        } catch (ParseException p) {
+            // DIE!
+        }
 
         return entity;
     }

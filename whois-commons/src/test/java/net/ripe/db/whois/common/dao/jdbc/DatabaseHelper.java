@@ -274,6 +274,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     public RpslObject addObject(final RpslObject rpslObject) {
         final RpslObjectUpdateInfo objectUpdateInfo = rpslObjectUpdateDao.createObject(rpslObject);
+
+        System.out.println("OUI: " + objectUpdateInfo);
+
         return RpslObject.parse(objectUpdateInfo.getObjectId(), rpslObject.toByteArray());
     }
 

@@ -60,6 +60,11 @@ public class WhoisRdapService extends WhoisService {
         if (objectType.equals("autnum")) {
             whoisObjectType = (asnExists(key)) ? "aut-num" : "as-block";
             whoisKey = "AS" + key;
+        } else if (objectType.equals("entity")) {
+            whoisObjectType = "person,role,organisation,irt";
+        } else {
+            Response.ResponseBuilder rb = Response.status(Response.Status.NOT_FOUND);
+            return rb.build();
         }
 
         Response res = lookupObject(request, source(), whoisObjectType, 
@@ -88,6 +93,8 @@ public class WhoisRdapService extends WhoisService {
             final String objectTypeString,
             final String key,
             final boolean isGrs) {
+
+
         final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s",
                 QueryFlag.NO_GROUPING.getLongFlag(),
                 QueryFlag.SOURCES.getLongFlag(),
