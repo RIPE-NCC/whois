@@ -54,7 +54,8 @@
                         <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     </xs:sequence>
                 </xs:extension>
-            </xs:complexType>
+            </xs:complexContent>
+        </xs:complexType>
     </xs:element>
 
     <xs:element name="ip">
@@ -72,7 +73,7 @@
                         <xs:element name="parentHandle" type="xs:string" minOccurs="1" maxOccurs="1"/>
                     </xs:sequence>
                 </xs:extension>
-            </xs:complexContext>
+            </xs:complexContent>
         </xs:complexType>
     </xs:element>
 
@@ -89,7 +90,7 @@
                         <xs:element name="country" type="xs:string" minOccurs="1" maxOccurs="1"/>
                     </xs:sequence>
                 </xs:extension>
-            </xs:complexContext>
+            </xs:complexContent>
         </xs:complexType>
     </xs:element>
 
