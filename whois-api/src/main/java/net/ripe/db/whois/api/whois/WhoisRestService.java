@@ -53,6 +53,24 @@ import static net.ripe.db.whois.query.query.QueryFlag.*;
 public class WhoisRestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRestService.class);
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
+    private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
+    private static final Joiner JOINER = Joiner.on(",");
+    private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(Iterables.concat(
+            TEMPLATE.getFlags(),
+            VERBOSE.getFlags(),
+            CLIENT.getFlags(),
+            NO_GROUPING.getFlags(),
+            SOURCES.getFlags(),
+            NO_TAG_INFO.getFlags(),
+            SHOW_TAG_INFO.getFlags(),
+            ALL_SOURCES.getFlags(),
+            LIST_SOURCES_OR_VERSION.getFlags(),
+            LIST_SOURCES.getFlags(),
+            DIFF_VERSIONS.getFlags(),
+            LIST_VERSIONS.getFlags(),
+            SHOW_VERSION.getFlags(),
+            PERSISTENT_CONNECTION.getFlags()
+    ));
 
     private static final String TEXT_JSON = "text/json";
     private static final String TEXT_XML = "text/xml";
@@ -64,10 +82,6 @@ public class WhoisRestService {
     private final SourceContext sourceContext;
     private final QueryHandler queryHandler;
 
-    private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
-    private static final Joiner JOINER = Joiner.on(",");
-    private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet();
-
     @Autowired
     public WhoisRestService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
         this.dateTimeProvider = dateTimeProvider;
@@ -76,24 +90,6 @@ public class WhoisRestService {
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
-        initDisallowedQueryFlagCache();
-    }
-
-    private void initDisallowedQueryFlagCache() {
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(TEMPLATE.getFlags());
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(VERBOSE.getFlags());
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(CLIENT.getFlags());
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(NO_GROUPING.getFlags());
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(SOURCES.getFlags());
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(NO_TAG_INFO.getFlags());
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(SHOW_TAG_INFO.getFlags());
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(ALL_SOURCES.getFlags());
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(LIST_SOURCES_OR_VERSION.getFlags());
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(LIST_SOURCES.getFlags());
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(DIFF_VERSIONS.getFlags());
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(LIST_VERSIONS.getFlags());
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(SHOW_VERSION.getFlags());
-        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(PERSISTENT_CONNECTION.getFlags());
     }
 
     /**
@@ -1534,8 +1530,8 @@ public class WhoisRestService {
      * @param sources           Mandatory. It's possible to specify multiple sources.
      * @param queryString       Mandatory.
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
-     * @param includeTags           Only show RPSL objects with given tags. Can be multiple.
-     * @param excludeTags           Only show RPSL objects that <i>do not</i> have given tags. Can be multiple.
+     * @param includeTags       Only show RPSL objects with given tags. Can be multiple.
+     * @param excludeTags       Only show RPSL objects that <i>do not</i> have given tags. Can be multiple.
      * @param types             If specified the results will be filtered by object-type, multiple type-filters can be specified.
      * @param flags             Optional query-flags. Use separate flags parameters for each option (see examples above)
      * @return Returns the query result.
