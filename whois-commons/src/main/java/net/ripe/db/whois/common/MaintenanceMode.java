@@ -55,7 +55,10 @@ public class MaintenanceMode {
     }
 
     public long shutdownInitiated() {
-        return System.currentTimeMillis() - shutdownTime;
+        if (shutdownTime > 0) {
+            return System.currentTimeMillis() - shutdownTime;
+        }
+        return 0;
     }
 
     /* for services where client IP address is not available/does not apply */

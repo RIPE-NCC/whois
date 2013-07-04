@@ -59,6 +59,16 @@ class StreamingMarshalXml implements StreamingMarshal {
     }
 
     @Override
+    public void writeRaw(final String str) {
+        return;
+    }
+
+    @Override
+    public void writeObject(final Object o) {
+        return;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public <T> void write(final String name, final T t) {
         JAXBElement<T> element = new JAXBElement<>(QName.valueOf(name), (Class<T>) t.getClass(), t);

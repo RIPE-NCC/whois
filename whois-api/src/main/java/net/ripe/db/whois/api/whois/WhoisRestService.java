@@ -2,19 +2,23 @@ package net.ripe.db.whois.api.whois;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.api.whois.domain.*;
+import net.ripe.db.whois.api.whois.domain.Attribute;
+import net.ripe.db.whois.api.whois.domain.Link;
+import net.ripe.db.whois.api.whois.domain.Parameters;
+import net.ripe.db.whois.api.whois.domain.WhoisModify;
+import net.ripe.db.whois.api.whois.domain.WhoisResources;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.domain.*;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
@@ -25,88 +29,71 @@ import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.codehaus.enunciate.jaxrs.TypeHint;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetAddress;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.query.query.QueryFlag.*;
 
 @ExternallyManagedLifecycle
 @Component
 @Path("/")
-public class WhoisRestService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRestService.class);
-    private static final int STATUS_TOO_MANY_REQUESTS = 429;
+public class WhoisRestService extends WhoisService {
+
     private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
     private static final Joiner JOINER = Joiner.on(",");
-    private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(Iterables.concat(
-            TEMPLATE.getFlags(),
-            VERBOSE.getFlags(),
-            CLIENT.getFlags(),
-            NO_GROUPING.getFlags(),
-            SOURCES.getFlags(),
-            NO_TAG_INFO.getFlags(),
-            SHOW_TAG_INFO.getFlags(),
-            ALL_SOURCES.getFlags(),
-            LIST_SOURCES_OR_VERSION.getFlags(),
-            LIST_SOURCES.getFlags(),
-            DIFF_VERSIONS.getFlags(),
-            LIST_VERSIONS.getFlags(),
-            SHOW_VERSION.getFlags(),
-            PERSISTENT_CONNECTION.getFlags()
-    ));
-
-    private static final String TEXT_JSON = "text/json";
-    private static final String TEXT_XML = "text/xml";
-
-    private final DateTimeProvider dateTimeProvider;
-    private final UpdateRequestHandler updateRequestHandler;
-    private final LoggerContext loggerContext;
-    private final RpslObjectDao rpslObjectDao;
-    private final SourceContext sourceContext;
-    private final QueryHandler queryHandler;
+    private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet();
 
     @Autowired
     public WhoisRestService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
-        this.dateTimeProvider = dateTimeProvider;
-        this.updateRequestHandler = updateRequestHandler;
-        this.loggerContext = loggerContext;
-        this.rpslObjectDao = rpslObjectDao;
-        this.sourceContext = sourceContext;
-        this.queryHandler = queryHandler;
+        super(dateTimeProvider, updateRequestHandler,loggerContext, rpslObjectDao, sourceContext, queryHandler);
+        initDisallowedQueryFlagCache();
+    }
+
+    private void initDisallowedQueryFlagCache() {
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(TEMPLATE.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(VERBOSE.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(CLIENT.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(NO_GROUPING.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(SOURCES.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(NO_TAG_INFO.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(SHOW_TAG_INFO.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(ALL_SOURCES.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(LIST_SOURCES_OR_VERSION.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(LIST_SOURCES.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(DIFF_VERSIONS.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(LIST_VERSIONS.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(SHOW_VERSION.getFlags());
+        NOT_ALLOWED_SEARCH_QUERY_FLAGS.addAll(PERSISTENT_CONNECTION.getFlags());
     }
 
     /**
      * <p><div>The lookup service returns a single object specified by the source, object type and primary-key arguments.</div>
      * <p/>
      * <p><div>Example query:</div>
-     * http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT</p>
+     * http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT</p>
      * <p/>
      * <p><div>Example XML response:</div>
      * <pre>
      * &lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
-     * &lt;whois-resources service="lookup" xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois/xsd/whois-resources.xsd"
+     * &lt;whois-resources service="lookup" xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois-beta/xsd/whois-resources.xsd"
      * xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
-     *  &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
+     *  &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
      *  &lt;objects&gt;
      *    &lt;object type="mntner"&gt;
-     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
      *      &lt;source id="ripe"/&gt;
      *      &lt;primary-key&gt;
      *        &lt;attribute name="mntner" value="RIPE-DBM-MNT"/&gt;
@@ -115,20 +102,20 @@ public class WhoisRestService {
      *        &lt;attribute name="mntner" value="RIPE-DBM-MNT"/&gt;
      *        &lt;attribute name="descr" value="Mntner for RIPE DBM objects."/&gt;
      *        &lt;attribute name="admin-c" value="RD132-RIPE" referenced-type="person-role"&gt;
-     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/person-role/RD132-RIPE"/&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/person-role/RD132-RIPE"/&gt;
      *        &lt;/attribute&gt;
      *        &lt;attribute name="tech-c" value="RD132-RIPE" referenced-type="person-role"&gt;
-     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/person-role/RD132-RIPE"/&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/person-role/RD132-RIPE"/&gt;
      *        &lt;/attribute&gt;
      *        &lt;attribute name="org" value="ORG-NCC1-RIPE" referenced-type="organisation"&gt;
-     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/organisation/ORG-NCC1-RIPE"/&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/organisation/ORG-NCC1-RIPE"/&gt;
      *        &lt;/attribute&gt;
      *        &lt;attribute name="auth" value="PGPKEY-1290F9D2" referenced-type="key-cert"&gt;
-     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/key-cert/PGPKEY-1290F9D2"/&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/key-cert/PGPKEY-1290F9D2"/&gt;
      *        &lt;/attribute&gt;
      *        &lt;attribute name="auth" value="MD5-PW" comment="Filtered"/&gt;
      *        &lt;attribute name="mnt-by" value="RIPE-DBM-MNT" referenced-type="mntner"&gt;
-     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
+     *          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT"/&gt;
      *        &lt;/attribute&gt;
      *        &lt;attribute name="changed" value="hostmaster@ripe.net 20050830"/&gt;
      *        &lt;attribute name="source" value="RIPE" comment="Filtered"/&gt;
@@ -148,7 +135,7 @@ public class WhoisRestService {
      *        "type": "mntner",
      *        "link": {
      *          "xlink:type": "locator",
-     *          "xlink:href": "http://apps.db.ripe.net/whois/lookup/ripe/mntner/RIPE-DBM-MNT"
+     *          "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/RIPE-DBM-MNT"
      *        },
      *        "source": {
      *          "id": "ripe"
@@ -174,7 +161,7 @@ public class WhoisRestService {
      *            {
      *              "link": {
      *                "xlink:type": "locator",
-     *                "xlink:href": "http://apps.db.ripe.net/whois/lookup/ripe/person-role/RD132-RIPE"
+     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/person-role/RD132-RIPE"
      *              },
      *              "name": "admin-c",
      *              "value": "RD132-RIPE",
@@ -183,7 +170,7 @@ public class WhoisRestService {
      *            {
      *              "link": {
      *                "xlink:type": "locator",
-     *                "xlink:href": "http://apps.db.ripe.net/whois/lookup/ripe/person-role/RD132-RIPE"
+     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/person-role/RD132-RIPE"
      *              },
      *              "name": "tech-c",
      *              "value": "RD132-RIPE",
@@ -192,7 +179,7 @@ public class WhoisRestService {
      *            {
      *              "link": {
      *                "xlink:type": "locator",
-     *                "xlink:href": "http://apps.db.ripe.net/whois/lookup/ripe/organisation/ORG-NCC1-RIPE"
+     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/organisation/ORG-NCC1-RIPE"
      *              },
      *              "name": "organisation",
      *              "value": "ORG-NCC1-RIPE",
@@ -201,7 +188,7 @@ public class WhoisRestService {
      *            {
      *              "link": {
      *                "xlink:type": "locator",
-     *                "xlink:href": "http://apps.db.ripe.net/whois/lookup/ripe/key-cert/PGPKEY-1290F9D2"
+     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/key-cert/PGPKEY-1290F9D2"
      *              },
      *              "name": "auth",
      *              "value": "PGPKEY-1290F9D2",
@@ -215,7 +202,7 @@ public class WhoisRestService {
      *            {
      *              "link": {
      *                "xlink:type": "locator",
-     *                "xlink:href": "http://apps.db.ripe.net/whois/lookup/ripe/mntner/OWNER-MNT"
+     *                "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/ripe/mntner/OWNER-MNT"
      *              },
      *              "name": "mnt-by",
      *              "value": "RIPE-DBM-MNT",
@@ -257,147 +244,7 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key) {
-
-        checkForInvalidSource(source);
-
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s",
-                QueryFlag.EXACT.getLongFlag(),
-                QueryFlag.NO_GROUPING.getLongFlag(),
-                QueryFlag.NO_REFERENCED.getLongFlag(),
-                QueryFlag.SOURCES.getLongFlag(),
-                source,
-                QueryFlag.SELECT_TYPES.getLongFlag(),
-                objectType,
-                QueryFlag.SHOW_TAG_INFO.getLongFlag(),
-                key));
-
-        return handleQuery(query, source, key, request, null);
-    }
-
-    private Response handleQuery(final Query query, final String source, final String key, final HttpServletRequest request, @Nullable final Parameters parameters) {
-        final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
-        final int contextId = System.identityHashCode(Thread.currentThread());
-
-        if (query.isVersionList() || query.isObjectVersion()) {
-            return handleVersionQuery(query, source, key, remoteAddress, contextId);
-        }
-
-        return handleQueryAndStreamResponse(query, request, remoteAddress, contextId, parameters);
-    }
-
-    // TODO: [AH] refactor this spaghetti
-    private Response handleVersionQuery(final Query query, final String source, final String key, final InetAddress remoteAddress, final int contextId) {
-        final ApiResponseHandlerVersions apiResponseHandlerVersions = new ApiResponseHandlerVersions();
-        queryHandler.streamResults(query, remoteAddress, contextId, apiResponseHandlerVersions);
-
-        final VersionWithRpslResponseObject versionResponseObject = apiResponseHandlerVersions.getVersionWithRpslResponseObject();
-        final List<DeletedVersionResponseObject> deleted = apiResponseHandlerVersions.getDeletedObjects();
-        final List<VersionResponseObject> versions = apiResponseHandlerVersions.getVersionObjects();
-
-        if (versionResponseObject == null && versions.isEmpty()) {
-            if (deleted.isEmpty() || query.isObjectVersion()) {
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
-            }
-        }
-
-        final WhoisResources whoisResources = new WhoisResources();
-
-        if (versionResponseObject != null) {
-            final WhoisObject whoisObject = WhoisObjectMapper.map(versionResponseObject.getRpslObject());
-            whoisObject.setVersion(versionResponseObject.getVersion());
-            whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
-        } else {
-            final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
-            final WhoisVersions whoisVersions = new WhoisVersions(source, type, key, WhoisObjectMapper.mapVersions(deleted, versions));
-            whoisResources.setVersions(whoisVersions);
-        }
-
-        return Response.ok(whoisResources).build();
-    }
-
-    private Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
-        final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
-
-        return Response.ok(new StreamingOutput() {
-            private boolean found;
-
-            @Override
-            public void write(final OutputStream output) throws IOException {
-                streamingMarshal.open(output);
-                streamingMarshal.start("whois-resources");
-
-                if (parameters != null) {
-                    streamingMarshal.write("parameters", parameters);
-                }
-
-                streamingMarshal.start("objects");
-
-                // TODO [AK] Crude way to handle tags, but working
-                final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
-                final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
-
-                try {
-                    queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
-
-                        @Override
-                        public void handle(final ResponseObject responseObject) {
-                            if (responseObject instanceof TagResponseObject) {
-                                tagResponseObjects.add((TagResponseObject) responseObject);
-                            } else if (responseObject instanceof RpslObject) {
-                                found = true;
-                                streamObject(rpslObjectQueue.poll(), tagResponseObjects);
-                                rpslObjectQueue.add((RpslObject) responseObject);
-                            }
-
-                            // TODO [AK] Handle related messages
-                        }
-                    });
-
-                    streamObject(rpslObjectQueue.poll(), tagResponseObjects);
-
-                    if (!found) {
-                        throw new WebApplicationException(Response.Status.NOT_FOUND);
-                    }
-                } catch (QueryException e) {
-                    if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                        throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
-                    } else {
-                        throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
-                    }
-                }
-
-                streamingMarshal.close();
-            }
-
-            private void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
-                if (rpslObject == null) {
-                    return;
-                }
-
-                final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject, tagResponseObjects);
-
-                streamingMarshal.write("object", whoisObject);
-                tagResponseObjects.clear();
-            }
-        }).build();
-    }
-
-    private StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
-        final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
-        for (final String accept : Splitter.on(',').split(acceptHeader)) {
-            try {
-                final MediaType mediaType = MediaType.valueOf(accept);
-                final String subtype = mediaType.getSubtype().toLowerCase();
-                if (subtype.equals("json") || subtype.endsWith("+json")) {
-                    return new StreamingMarshalJson();
-                } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
-                    return new StreamingMarshalXml();
-                }
-            } catch (IllegalArgumentException ignored) {
-            }
-        }
-
-        return new StreamingMarshalXml();
+        return lookupObject(request, source, objectType, key);
     }
 
     /**
@@ -433,7 +280,7 @@ public class WhoisRestService {
      *          "type": "person",
      *          "link": {
      *            "xlink:type": "locator",
-     *            "xlink:href": "http:\/\/apps.db.ripe.net\/whois\/lookup\/test\/person\/PP1-TEST"
+     *            "xlink:href": "http:\/\/apps.db.ripe.net\/whois-beta\/lookup\/test\/person\/PP1-TEST"
      *          },
      *          "source": {
      *            "id": "test"
@@ -463,7 +310,7 @@ public class WhoisRestService {
      *              {
      *                "link": {
      *                  "xlink:type": "locator",
-     *                  "xlink:href": "http:\/\/apps.db.ripe.net\/whois\/lookup\/test\/mntner\/OWNER-MNT"
+     *                  "xlink:href": "http:\/\/apps.db.ripe.net\/whois-beta\/lookup\/test\/mntner\/OWNER-MNT"
      *                },
      *                "name": "mnt-by",
      *                "value": "OWNER-MNT",
@@ -567,10 +414,10 @@ public class WhoisRestService {
      * <p>Example of success XML response body:</p>
      * <pre>&lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      * &lt;whois-resources service="lookup" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP3-TEST"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person/PP3-TEST"/&gt;
      * &lt;objects&gt;
      * &lt;object type="person"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person/PP16-TEST"/&gt;
      * &lt;source id="test"/&gt;
      * &lt;primary-key&gt;
      * &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
@@ -582,7 +429,7 @@ public class WhoisRestService {
      * &lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
      * &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;
      * &lt;attribute name="mnt-by" value="PP-MNT" referenced-type="mntner"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/mntner/PP-MNT"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/mntner/PP-MNT"/&gt;
      * &lt;/attribute&gt;
      * &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
      * &lt;attribute name="source" value="TEST"/&gt;
@@ -622,14 +469,14 @@ public class WhoisRestService {
      *      "service" : "lookup",
      *      "link" : {
      *        "xlink:type" : "locator",
-     *        "xlink:href" : "http://localhost:51761/whois/update/test/mntner/OWNER-MNT?password=test"
+     *        "xlink:href" : "http://localhost:51761/whois-beta/update/test/mntner/OWNER-MNT?password=test"
      *      },
      *      "objects" : {
      *        "object" : [ {
      *          "type" : "mntner",
      *          "link" : {
      *            "xlink:type" : "locator",
-     *            "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
+     *            "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
      *          },
      *          "source" : {
      *            "id" : "test"
@@ -650,7 +497,7 @@ public class WhoisRestService {
      *            }, {
      *              "link" : {
      *                "xlink:type" : "locator",
-     *                "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"
+     *                "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
      *              },
      *              "name" : "admin-c",
      *              "value" : "TP1-TEST",
@@ -665,7 +512,7 @@ public class WhoisRestService {
      *            }, {
      *              "link" : {
      *                "xlink:type" : "locator",
-     *                "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
+     *                "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
      *              },
      *              "name" : "mnt-by",
      *              "value" : "OWNER-MNT",
@@ -673,7 +520,7 @@ public class WhoisRestService {
      *            }, {
      *              "link" : {
      *                "xlink:type" : "locator",
-     *                "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
+     *                "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
      *              },
      *              "name" : "referral-by",
      *              "value" : "OWNER-MNT",
@@ -766,10 +613,10 @@ public class WhoisRestService {
      * <pre>
      *     &lt;?xml version="1.0" encoding="UTF-8" standalone="no" ?&gt;
      *      &lt;whois-resources service="lookup" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
-     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST"/&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person/PP16-TEST"/&gt;
      *      &lt;objects&gt;
      *      &lt;object type="person"&gt;
-     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person/PP16-TEST"/&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person/PP16-TEST"/&gt;
      *      &lt;source id="test"/&gt;
      *      &lt;primary-key&gt;
      *      &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
@@ -786,7 +633,7 @@ public class WhoisRestService {
      *      &lt;attribute name="e-mail" value="ppalse@ripe.net"/&gt;
      *      &lt;attribute name="changed" value="ppalse@ripe.net 20101228"/&gt;
      *      &lt;attribute name="mnt-by" value="PP-MNT" referenced-type="mntner"&gt;
-     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/mntner/PP-MNT"/&gt;
+     *      &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/mntner/PP-MNT"/&gt;
      *      &lt;/attribute&gt;
      *      &lt;attribute name="nic-hdl" value="PP16-TEST"/&gt;
      *      &lt;attribute name="source" value="TEST"/&gt;
@@ -816,14 +663,14 @@ public class WhoisRestService {
      *     "service" : "lookup",
      *     "link" : {
      *       "xlink:type" : "locator",
-     *       "xlink:href" : "http://apps.db.ripe.net:64499/whois/modify/test/person/PP1-TEST?password=test"
+     *       "xlink:href" : "http://apps.db.ripe.net:64499/whois-beta/modify/test/person/PP1-TEST?password=test"
      *     },
      *     "objects" : {
      *       "object" : [ {
      *         "type" : "person",
      *         "link" : {
      *           "xlink:type" : "locator",
-     *           "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/person/PP1-TEST"
+     *           "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/person/PP1-TEST"
      *         },
      *         "source" : {
      *           "id" : "test"
@@ -862,7 +709,7 @@ public class WhoisRestService {
      *           }, {
      *             "link" : {
      *               "xlink:type" : "locator",
-     *               "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
+     *               "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
      *             },
      *             "name" : "mnt-by",
      *             "value" : "OWNER-MNT",
@@ -1031,7 +878,7 @@ public class WhoisRestService {
      * <p/>
      * <div>Example using CURL:</div>
      * <pre>
-     * curl -X DELETE https://apps.db.ripe.net/whois/delete/test/person/pp16-test?password=123
+     * curl -X DELETE https://apps.db.ripe.net/whois-beta/delete/test/person/pp16-test?password=123
      * </pre>
      * <p/>
      *
@@ -1076,14 +923,14 @@ public class WhoisRestService {
      * <p/>
      * <div>Example query:</div>
      * <pre>
-     *  http://apps.db.ripe.net/whois/versions/TEST/AS102
+     *  http://apps.db.ripe.net/whois-beta/versions/TEST/AS102
      * </pre>
      * <p/>
      * <div>Example response in XML:</div>
      * <pre>
      *  &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
      * &lt;whois-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     *                  xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois/xsd/whois-resources.xsd"&gt;
+     *                  xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois-beta/xsd/whois-resources.xsd"&gt;
      *     &lt;versions type="aut-num" key="AS102"&gt;
      *         &lt;source id="TEST"/&gt;
      *         &lt;version deleted="2013-06-27 13:22"/&gt;
@@ -1155,16 +1002,16 @@ public class WhoisRestService {
      * <p/>
      * <div>Example query:</div>
      * <pre>
-     *  http://apps.db.ripe.net/whois/version/TEST/2/AS102
+     *  http://apps.db.ripe.net/whois-beta/version/TEST/2/AS102
      * </pre>
      * <p/>
      * <div>Example response in XML:</div>
      * <pre>
      *  &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
-     * &lt;whois-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois/xsd/whois-resources.xsd"&gt;
+     * &lt;whois-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois-beta/xsd/whois-resources.xsd"&gt;
      * &lt;objects&gt;
      * &lt;object type="aut-num" version="1"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/aut-num/AS102"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/AS102"/&gt;
      * &lt;source id="test"/&gt;
      * &lt;primary-key&gt;
      * &lt;attribute name="aut-num" value="AS102"/&gt;
@@ -1174,13 +1021,13 @@ public class WhoisRestService {
      * &lt;attribute name="as-name" value="End-User-2"/&gt;
      * &lt;attribute name="descr" value="description"/&gt;
      * &lt;attribute name="admin-c" value="TP1-TEST" referenced-type="person-role"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"/&gt;
      * &lt;/attribute&gt;
      * &lt;attribute name="tech-c" value="TP1-TEST" referenced-type="person-role"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"/&gt;
      * &lt;/attribute&gt;
      * &lt;attribute name="mnt-by" value="OWNER-MNT" referenced-type="mntner"&gt;
-     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"/&gt;
+     * &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"/&gt;
      * &lt;/attribute&gt;
      * &lt;attribute name="source" value="TEST"/&gt;
      * &lt;/attributes&gt;
@@ -1198,7 +1045,7 @@ public class WhoisRestService {
      *   "type" : "aut-num",
      *   "link" : {
      *   "xlink:type" : "locator",
-     *   "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/aut-num/AS102"
+     *   "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/AS102"
      *  },
      *  version" : 1,
      *  "source" : {
@@ -1222,21 +1069,21 @@ public class WhoisRestService {
      *          "value" : "description"
      *          }, {
      *          "link" : {
-     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"
+     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
      *          },
      *          "name" : "admin-c",
      *          "value" : "TP1-TEST",
      *          "referenced-type" : "person-role"
      *          }, {
      *          "link" : {
-     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"
+     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
      *          } ,
      *          "name" : "tech-c",
      *          "value" : "TP1-TEST",
      *          "referenced-type" : "person-role"
      *          } , {
      *          "link" : {
-     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
+     *              "xlink:type" : "locator", "xlink:href" : "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
      *          },
      *          "name" : "mnt-by",
      *          "value" : "OWNER-MNT",
@@ -1289,25 +1136,25 @@ public class WhoisRestService {
      * <ul>
      * <li><div>Valid inverse lookup query on an org value, filtering by inetnum:</div>
      * <pre>
-     * http://apps.db.ripe.net/whois/search?inverse-attribute=org&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE
+     * http://apps.db.ripe.net/whois-beta/search?inverse-attribute=org&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE
      * </pre>
      * </li>
      * <li><div>Search for objects of type organisation on the same query-string and specifying a preference for non recursion:</div>
      * <pre>
-     * http://apps.db.ripe.net/whois/search?inverse-attribute=org&flags=no-referenced&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE
+     * http://apps.db.ripe.net/whois-beta/search?inverse-attribute=org&flags=no-referenced&type-filter=inetnum&source=ripe&query-string=ORG-NCC1-RIPE
      * </pre>
      * </li>
      * <li><div>A search on multiple sources:</div>
      * <pre>
-     * http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&flags=no-referenced&flags=no-irt&query-string=MAINT-APNIC-AP
+     * http://apps.db.ripe.net/whois-beta/search?source=ripe&source=apnic&flags=no-referenced&flags=no-irt&query-string=MAINT-APNIC-AP
      * </pre>
      * </li>
      * <li><div>A search on multiple sources and multiple type-filters:</div>
-     * <pre>http://apps.db.ripe.net/whois/search?source=ripe&source=apnic&query-string=google&type-filter=person&type-filter=organisation</pre>
+     * <pre>http://apps.db.ripe.net/whois-beta/search?source=ripe&source=apnic&query-string=google&type-filter=person&type-filter=organisation</pre>
      * </li>
      * <li><div>A search using multiple flags:</div>
      * <pre>
-     * http://apps.db.ripe.net/whois/search?source=ripe&query-string=aardvark-mnt&flags=no-filtering&flags=brief&flags=no-referenced
+     * http://apps.db.ripe.net/whois-beta/search?source=ripe&query-string=aardvark-mnt&flags=no-filtering&flags=brief&flags=no-referenced
      * </pre>
      * </li>
      * </ul>
@@ -1333,7 +1180,7 @@ public class WhoisRestService {
      *          &lt;/parameters&gt;
      *          &lt;objects&gt;
      *              &lt;object xmlns:xlink="http://www.w3.org/1999/xlink" type="aut-num"&gt;
-     *                  &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/aut-num/AS102"/&gt;
+     *                  &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/AS102"/&gt;
      *                  &lt;source id="test"/&gt;
      *                  &lt;primary-key&gt;
      *                      &lt;attribute name="aut-num" value="AS102"/&gt;
@@ -1343,13 +1190,13 @@ public class WhoisRestService {
      *                      &lt;attribute name="as-name" value="End-User-2"/&gt;
      *                      &lt;attribute name="descr" value="description"/&gt;
      *                      &lt;attribute name="admin-c" value="TP1-TEST" referenced-type="person-role"&gt;
-     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"/&gt;
+     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"/&gt;
      *                      &lt;/attribute&gt;
      *                      &lt;attribute name="tech-c" value="TP1-TEST" referenced-type="person-role"&gt;
-     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"/&gt;
+     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"/&gt;
      *                      &lt;/attribute&gt;
      *                      &lt;attribute name="mnt-by" value="OWNER-MNT" referenced-type="mntner"&gt;
-     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"/&gt;
+     *                          &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"/&gt;
      *                      &lt;/attribute&gt;
      *                     &lt;attribute name="source" value="TEST"/&gt;
      *                 &lt;/attributes&gt;
@@ -1396,7 +1243,7 @@ public class WhoisRestService {
      *              "type": "aut-num",
      *              "link": {
      *                  "xlink:type": "locator",
-     *                  "xlink:href": "http://apps.db.ripe.net/whois/lookup/test/aut-num/AS102"
+     *                  "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/AS102"
      *              },
      *              "source": {
      *                  "id": "test"
@@ -1426,7 +1273,7 @@ public class WhoisRestService {
      *                      {
      *                          "link": {
      *                              "xlink:type": "locator",
-     *                              "xlink:href": "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"
+     *                              "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
      *                          },
      *                          "name": "admin-c",
      *                          "value": "TP1-TEST",
@@ -1435,7 +1282,7 @@ public class WhoisRestService {
      *                      {
      *                          "link": {
      *                              "xlink:type": "locator",
-     *                              "xlink:href": "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST"
+     *                              "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST"
      *                          },
      *                          "name": "tech-c",
      *                          "value": "TP1-TEST",
@@ -1444,7 +1291,7 @@ public class WhoisRestService {
      *                      {
      *                          "link": {
      *                              "xlink:type": "locator",
-     *                              "xlink:href": "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
+     *                              "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
      *                          },
      *                          "name": "mnt-by",
      *                          "value": "OWNER-MNT",
@@ -1464,7 +1311,7 @@ public class WhoisRestService {
      *              "type": "person",
      *              "link": {
      *                  "xlink:type": "locator",
-     *                  "xlink:href": "http://apps.db.ripe.net/whois/lookup/test/person/TP1-TEST"
+     *                  "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/person/TP1-TEST"
      *              },
      *              "source": {
      *                  "id": "test"
@@ -1498,7 +1345,7 @@ public class WhoisRestService {
      *                      {
      *                          "link": {
      *                              "xlink:type": "locator",
-     *                              "xlink:href": "http://apps.db.ripe.net/whois/lookup/test/mntner/OWNER-MNT"
+     *                              "xlink:href": "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/OWNER-MNT"
      *                          },
      *                          "name": "mnt-by",
      *                          "value": "OWNER-MNT",
@@ -1523,14 +1370,14 @@ public class WhoisRestService {
      * </pre>
      * <p/>
      * <p><div>The service URL must be:</div>
-     * <div>'http://apps.db.ripe.net/whois/search'</div>
+     * <div>'http://apps.db.ripe.net/whois-beta/search'</div>
      * and the following can be specified as HTTP parameters:</p>
      *
      * @param sources           Mandatory. It's possible to specify multiple sources.
      * @param queryString       Mandatory.
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
-     * @param includeTags       Only show RPSL objects with given tags. Can be multiple.
-     * @param excludeTags       Only show RPSL objects that <i>do not</i> have given tags. Can be multiple.
+     * @param include           Only show RPSL objects with given tags. Can be multiple.
+     * @param exclude           Only show RPSL objects that <i>do not</i> have given tags. Can be multiple.
      * @param types             If specified the results will be filtered by object-type, multiple type-filters can be specified.
      * @param flags             Optional query-flags. Use separate flags parameters for each option (see examples above)
      * @return Returns the query result.
@@ -1549,11 +1396,22 @@ public class WhoisRestService {
             @QueryParam("source") Set<String> sources,
             @QueryParam("query-string") String queryString,
             @QueryParam("inverse-attribute") Set<String> inverseAttributes,
-            @QueryParam("include-tag") Set<String> includeTags,
-            @QueryParam("exclude-tag") Set<String> excludeTags,
+            @QueryParam("include") Set<String> include,
+            @QueryParam("exclude") Set<String> exclude,
             @QueryParam("type-filter") Set<String> types,
             @QueryParam("flags") Set<String> flags) {
+        return doSearch(request, queryString, sources, inverseAttributes, include, exclude, types, flags);
+    }
 
+    private Response doSearch(
+            final HttpServletRequest request,
+            final String queryString,
+            final Set<String> sources,
+            final Set<String> inverseAttributes,
+            final Set<String> includeTags,
+            final Set<String> excludeTags,
+            final Set<String> types,
+            final Set<String> flags) {
         if (sources == null || sources.isEmpty()) {
             throw new IllegalArgumentException("Argument 'source' is missing, you have to specify a valid RIR source for your search request");
         }
@@ -1595,12 +1453,6 @@ public class WhoisRestService {
     private void checkForInvalidSources(final Set<String> sources) {
         for (final String source : sources) {
             checkForInvalidSource(source);
-        }
-    }
-
-    private void checkForInvalidSource(final String source) {
-        if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
-            throw new IllegalArgumentException(String.format("Invalid source '%s'", source));
         }
     }
 
@@ -1753,7 +1605,7 @@ public class WhoisRestService {
     }
 
     private String getRequestId(final String remoteAddress) {
-        return String.format("rest_%s_%s", remoteAddress, System.nanoTime());
+        return "rest_" + remoteAddress + "_" + System.nanoTime();
     }
 
     private boolean sourceMatchesContext(final String source) {
