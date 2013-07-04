@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
@@ -9,6 +8,7 @@ import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.whois.rdap.domain.Domain;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
@@ -21,7 +21,6 @@ import javax.ws.rs.core.MediaType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
 
 @Category(IntegrationTest.class)
 public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
@@ -120,79 +119,47 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final ClientResponse response = createResource(AUDIENCE, "ip/2001:2002:2003::/48")
+        final Ip response = createResource(AUDIENCE, "ip/2001:2002:2003::/48")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(ClientResponse.class);
+                .get(Ip.class);
 
-        assertThat(response.getStatus(), is(200));
-        //TODO assert something
-
-
-//        "lang" : "en",
-//                "startAddress" : "192.0.2.0",
-//                "endAddress" : "192.0.2.255",
-//                "handle" : "XXXX-RIR",
-//                "ipVersion" : "v4",
-//                "name": "NET-RTR-1",
-//                "parentHandle" : "YYYY-RIR",
-//                "remarks" :
-//        [
-//        {
-//            "description" :
-//            [
-//            "She sells sea shells down by the sea shore.",
-//                    "Originally written by Terry Sullivan."
-//            ]
-//        }
-//        ]
+        assertThat(response.getHandle(), is("2001:2002:2003::/48"));
     }
 
     @Test
     public void lookup_person_object() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
-        ClientResponse response = createResource(AUDIENCE, "entity/PP1-TEST")
+        Entity response = createResource(AUDIENCE, "entity/PP1-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(ClientResponse.class);
+                .get(Entity.class);
 
-        assertEquals(200, response.getStatus());
-        final Entity en = response.getEntity(Entity.class);
-
-        assertThat(en.getHandle(), equalTo("PP1-TEST"));
-        assertThat(en.getRdapConformance().get(0), equalTo("rdap_level_0"));
-        //TODO complete
+        assertThat(response.getHandle(), equalTo("PP1-TEST"));
+        assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
     }
 
     @Test
     public void lookup_domain_object() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
-        ClientResponse response = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa")
+        Domain response = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(ClientResponse.class);
+                .get(Domain.class);
 
-        assertEquals(200, response.getStatus());
-        final Domain dn = response.getEntity(Domain.class);
-
-        assertThat(dn.getHandle(), equalTo("31.12.202.in-addr.arpa"));
-        assertThat(dn.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
-        assertThat(dn.getRdapConformance().get(0), equalTo("rdap_level_0"));
-        //TODO complete
+        assertThat(response.getHandle(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(response.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
     }
 
     @Test
     public void lookup_org_object() throws Exception {
         databaseHelper.addObject(TEST_ORG);
 
-        ClientResponse response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
+        Entity response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(ClientResponse.class);
+                .get(Entity.class);
 
-        assertEquals(200, response.getStatus());
-        final Entity en = response.getEntity(Entity.class);
-
-        assertThat(en.getHandle(), equalTo("ORG-TEST1-TEST"));
-        //TODO complete
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
     }
 
     @Override

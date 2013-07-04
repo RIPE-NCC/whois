@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.whois.rdap;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
 import net.ripe.db.whois.api.whois.WhoisService;
 import net.ripe.db.whois.api.whois.domain.Parameters;
-import net.ripe.db.whois.api.whois.domain.WhoisResources;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -13,7 +12,6 @@ import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.codehaus.enunciate.jaxrs.TypeHint;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,7 +38,6 @@ public class WhoisRdapService extends WhoisService {
     }
 
     @GET
-    @TypeHint(WhoisResources.class)
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{objectType}/{key:.*}")
     public Response lookup(@Context final HttpServletRequest request, @PathParam("objectType") final String objectType, @PathParam("key") final String key) {
@@ -51,16 +48,30 @@ public class WhoisRdapService extends WhoisService {
         String whoisObjectType = objectType;
         String whoisKey = key;
 
-        if (objectType.equals("autnum")) {
-            whoisObjectType = (RdapUtilities.fetchObject(queryHandler, "aut-num", "AS" + key, source()) != null) ? "aut-num" : "as-block";
-            whoisKey = "AS" + key;
-        } else if (objectType.equals("entity")) {
-            whoisObjectType = "person,role,organisation,irt";
-        } else if (objectType.equals("domain")) {
-            whoisObjectType = "domain";
-        } else {
-            Response.ResponseBuilder rb = Response.status(Response.Status.NOT_FOUND);
-            return rb.build();
+        switch (objectType) {
+            case "autnum":
+                whoisObjectType = (RdapUtilities.fetchObject(queryHandler, "aut-num", "AS" + key, source()) != null) ? "aut-num" : "as-block";
+                whoisKey = "AS" + key;
+                break;
+
+            case "entity":
+                whoisObjectType = "person,role,organisation,irt";
+                break;
+
+            case "domain":
+                whoisObjectType = "domain";
+                break;
+
+            case "ip":
+                if (key.contains(":")) {
+                    whoisObjectType = "inet6num";
+                } else {
+                    whoisObjectType = "inetnum";
+                }
+                break;
+
+            default:
+                return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         return lookupObject(request, source(), whoisObjectType, whoisKey, false);
