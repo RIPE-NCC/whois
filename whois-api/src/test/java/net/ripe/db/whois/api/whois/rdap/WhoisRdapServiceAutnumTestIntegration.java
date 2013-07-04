@@ -18,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
@@ -130,8 +129,8 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
         final Autnum autnum = clientResponse.getEntity(Autnum.class);
 
         assertThat(autnum.getHandle(), equalTo("AS12345"));
-        assertThat(autnum.getStartAutnum(), equalTo(BigInteger.valueOf((long) 12345)));
-        assertThat(autnum.getEndAutnum(), equalTo(BigInteger.valueOf((long) 12345)));
+        assertThat(autnum.getStartAutnum(), equalTo((long) 12345));
+        assertThat(autnum.getEndAutnum(), equalTo((long) 12345));
         assertThat(autnum.getName(), equalTo("AS-TEST"));
         assertThat(autnum.getCountry(), equalTo("AU"));
         assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
@@ -182,8 +181,8 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
         final Autnum autnum = clientResponse.getEntity(Autnum.class);
 
         assertThat(autnum.getHandle(), equalTo("AS1000-AS2000"));
-        assertThat(autnum.getStartAutnum(), equalTo(BigInteger.valueOf((long) 1000)));
-        assertThat(autnum.getEndAutnum(), equalTo(BigInteger.valueOf((long) 2000)));
+        assertThat(autnum.getStartAutnum(), equalTo((long) 1000));
+        assertThat(autnum.getEndAutnum(), equalTo((long) 2000));
         assertThat(autnum.getName(), equalTo("AS1000-AS2000"));
         assertThat(autnum.getCountry(), equalTo("AU"));
         assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));

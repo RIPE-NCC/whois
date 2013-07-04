@@ -2,43 +2,36 @@ package net.ripe.db.whois.api.whois.rdap.domain.vcard;
 
 import net.ripe.db.whois.api.whois.rdap.VcardObject;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.Map;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "name",
-    "parameters",
-    "type",
-    "value"
+        "name",
+        "parameters",
+        "type",
+        "value"
 })
 @XmlRootElement(name = "geo")
-public class Geo
-    extends VcardObject
-    implements Serializable
-{
+public class Geo extends VcardObject implements Serializable {
 
     @XmlElement(defaultValue = "geo")
     protected String name;
-    protected HashMap parameters;
+    protected Map parameters;
     @XmlElement(defaultValue = "uri")
     protected String type;
     protected String value;
 
-    public void setName(String value) {
+    public void setName(final String value) {
         this.name = value;
     }
 
-    public HashMap getParameters() {
+    public Map getParameters() {
         return parameters;
     }
 
-    public void setParameters(HashMap value) {
+    public void setParameters(final Map value) {
         this.parameters = value;
     }
 
@@ -67,5 +60,4 @@ public class Geo
         }
         return type;
     }
-
 }

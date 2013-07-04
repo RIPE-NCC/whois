@@ -1,38 +1,29 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.math.BigInteger;
 
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "handle",
-    "startAutnum",
-    "endAutnum",
-    "name",
-    "type",
-    "country"
+        "handle",
+        "startAutnum",
+        "endAutnum",
+        "name",
+        "type",
+        "country"
 })
 @XmlRootElement(name = "autnum")
-public class Autnum
-    extends RdapObject
-    implements Serializable
-{
+public class Autnum extends RdapObject implements Serializable {
 
     @XmlElement(required = true)
     protected String handle;
     @XmlElement(required = true)
     @XmlSchemaType(name = "nonNegativeInteger")
-    protected BigInteger startAutnum;
+    protected long startAutnum;
     @XmlElement(required = true)
     @XmlSchemaType(name = "nonNegativeInteger")
-    protected BigInteger endAutnum;
+    protected long endAutnum;
     @XmlElement(required = true)
     protected String name;
     @XmlElement(required = true)
@@ -44,23 +35,23 @@ public class Autnum
         return handle;
     }
 
-    public void setHandle(String value) {
+    public void setHandle(final String value) {
         this.handle = value;
     }
 
-    public BigInteger getStartAutnum() {
+    public long getStartAutnum() {
         return startAutnum;
     }
 
-    public void setStartAutnum(BigInteger value) {
+    public void setStartAutnum(final long value) {
         this.startAutnum = value;
     }
 
-    public BigInteger getEndAutnum() {
+    public long getEndAutnum() {
         return endAutnum;
     }
 
-    public void setEndAutnum(BigInteger value) {
+    public void setEndAutnum(final long value) {
         this.endAutnum = value;
     }
 
@@ -68,7 +59,7 @@ public class Autnum
         return name;
     }
 
-    public void setName(String value) {
+    public void setName(final String value) {
         this.name = value;
     }
 
@@ -76,7 +67,7 @@ public class Autnum
         return type;
     }
 
-    public void setType(String value) {
+    public void setType(final String value) {
         this.type = value;
     }
 
@@ -84,7 +75,7 @@ public class Autnum
         return country;
     }
 
-    public void setCountry(String value) {
+    public void setCountry(final String value) {
         this.country = value;
     }
 }

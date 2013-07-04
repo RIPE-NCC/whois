@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap;
 
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.*;
 import org.codehaus.plexus.util.StringUtils;
 
@@ -8,16 +9,15 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class VcardObjectHelper {
 
-    public static List<Object> toObjects(Object target) {
+    public static List<Object> toObjects(final Object target) {
 
         // Introspect the annotation field ordering
-        HashMap<String, Integer> order = new HashMap<>();
+        Map<String, Integer> order = Maps.newHashMap();
         if (target.getClass().isAnnotationPresent(XmlType.class)) {
             XmlType xmlType = target.getClass().getAnnotation(XmlType.class);
             Integer pos = 0;
@@ -41,8 +41,8 @@ public class VcardObjectHelper {
 
                         // TODO: Handle nulls if you like
                         if (o == null) {
-                            // Create an empty hashmap for null value
-                            if (method.getReturnType().isAssignableFrom(HashMap.class)) {
+                            // Create an empty Map for null value
+                            if (method.getReturnType().isAssignableFrom(Map.class)) {
                                 o = method.getReturnType().newInstance();
                             }
                         } else if (o instanceof List) {
@@ -87,8 +87,8 @@ public class VcardObjectHelper {
         return ret;
     }
 
-    public static <K, V> HashMap createHashMap(Map.Entry<K, V>... entries) {
-        HashMap<K, V> ret = new HashMap();
+    public static <K, V> Map createMap(final Map.Entry<K, V>... entries) {
+        final Map<K, V> ret = Maps.newHashMap();
         for (Map.Entry<K, V> entry : entries) {
             ret.put(entry.getKey(), entry.getValue());
         }
@@ -96,8 +96,8 @@ public class VcardObjectHelper {
     }
 
     public static class VcardBuilder {
-        Vcard entityVcard = new Vcard();
-        HashMap<String, VcardObject> settersMap = new HashMap<String, VcardObject>();
+        final Vcard entityVcard = new Vcard();
+        final Map<String, VcardObject> settersMap = Maps.newHashMap();
 
         public boolean isEmpty() {
             boolean ret = false;
@@ -113,170 +113,170 @@ public class VcardObjectHelper {
             return ret;
         }
 
-        public VcardBuilder addAdr(HashMap parameters, AdrEntryValueType value) {
-            Adr ev = new Adr();
-            ev.setParameters(parameters);
+        public VcardBuilder addAdr(final Map parameters, final AdrEntryValueType value) {
+            final Adr adr = new Adr();
+            adr.setParameters(parameters);
             if (value != null) {
-                ev.setValue(value);
+                adr.setValue(value);
             }
-            entityVcard.getVcardEntries().add(ev);
+            entityVcard.getVcardEntries().add(adr);
             return this;
         }
 
-        public VcardBuilder addAdr(AdrEntryValueType value) {
-            return addAdr(new HashMap(), value);
+        public VcardBuilder addAdr(final AdrEntryValueType value) {
+            return addAdr(Maps.newHashMap(), value);
         }
 
-        public VcardBuilder setEmail(HashMap parameters, String value) {
-            Email ev = new Email();
-            ev.setParameters(parameters);
-            ev.setValue(value);
-            setCheck(ev);
+        public VcardBuilder setEmail(final Map parameters, final String value) {
+            final Email email = new Email();
+            email.setParameters(parameters);
+            email.setValue(value);
+            setCheck(email);
             return this;
         }
 
-        public VcardBuilder setEmail(String value) {
-            return setEmail(new HashMap(), value);
+        public VcardBuilder setEmail(final String value) {
+            return setEmail(Maps.newHashMap(), value);
         }
 
-        public VcardBuilder setFn(String value) {
-            Fn ev = new Fn();
-            ev.setParameters(new HashMap());
-            ev.setValue(value);
-            setCheck(ev);
+        public VcardBuilder setFn(final String value) {
+            final Fn fn = new Fn();
+            fn.setParameters(Maps.newHashMap());
+            fn.setValue(value);
+            setCheck(fn);
             return this;
         }
 
-        public VcardBuilder setGeo(HashMap parameters, String value) {
-            Geo ev = new Geo();
-            ev.setParameters(parameters);
-            ev.setValue(value);
-            setCheck(ev);
+        public VcardBuilder setGeo(final Map parameters, final String value) {
+            final Geo geo = new Geo();
+            geo.setParameters(parameters);
+            geo.setValue(value);
+            setCheck(geo);
             return this;
         }
 
-        public VcardBuilder setKind(String value) {
-            Kind ev = new Kind();
-            ev.setParameters(new HashMap());
-            ev.setValue(value);
-            setCheck(ev);
+        public VcardBuilder setKind(final String value) {
+            final Kind kind = new Kind();
+            kind.setParameters(Maps.newHashMap());
+            kind.setValue(value);
+            setCheck(kind);
             return this;
         }
 
-        public VcardBuilder addLang(HashMap parameters, String value) {
-            Lang ev = new Lang();
-            ev.setParameters(parameters);
-            ev.setValue(value);
-            entityVcard.getVcardEntries().add(ev);
+        public VcardBuilder addLang(final Map parameters, final String value) {
+            final Lang lang = new Lang();
+            lang.setParameters(parameters);
+            lang.setValue(value);
+            entityVcard.getVcardEntries().add(lang);
             return this;
         }
 
-        public VcardBuilder addTel(HashMap parameters, String value) {
-            Tel ev = new Tel();
-            ev.setParameters(parameters);
-            ev.setValue(value);
-            entityVcard.getVcardEntries().add(ev);
+        public VcardBuilder addTel(final Map parameters, final String value) {
+            final Tel tel = new Tel();
+            tel.setParameters(parameters);
+            tel.setValue(value);
+            entityVcard.getVcardEntries().add(tel);
             return this;
         }
 
-        public VcardBuilder addTel(String value) {
-            return addTel(new HashMap(), value);
+        public VcardBuilder addTel(final String value) {
+            return addTel(Maps.newHashMap(), value);
         }
 
 
         public VcardBuilder setVersion() {
-            Version ev = new Version();
-            ev.setParameters(new HashMap());
-            setCheck(ev);
+            final Version version = new Version();
+            version.setParameters(Maps.newHashMap());
+            setCheck(version);
             return this;
         }
 
         // Other possibly useful vcard properties
 
-        public VcardBuilder setAnniversary(String value) {
-            Anniversary ev = new Anniversary();
-            ev.setParameters(new HashMap());
-            ev.setValue(value);
-            setCheck(ev);
+        public VcardBuilder setAnniversary(final String value) {
+            final Anniversary anniversary = new Anniversary();
+            anniversary.setParameters(Maps.newHashMap());
+            anniversary.setValue(value);
+            setCheck(anniversary);
             return this;
         }
 
-        public VcardBuilder setBday(String value) {
-            Bday ev = new Bday();
-            ev.setParameters(new HashMap());
-            ev.setValue(value);
-            setCheck(ev);
+        public VcardBuilder setBday(final String value) {
+            final Bday birthDay = new Bday();
+            birthDay.setParameters(Maps.newHashMap());
+            birthDay.setValue(value);
+            setCheck(birthDay);
             return this;
         }
 
-        public VcardBuilder setN(NValueType value) {
-            N ev = new N();
-            ev.setParameters(new HashMap());
+        public VcardBuilder setN(final NValueType value) {
+            final N n = new N();
+            n.setParameters(Maps.newHashMap());
             if (value != null) {
-                ev.setValue(value);
+                n.setValue(value);
             }
-            setCheck(ev);
+            setCheck(n);
             return this;
         }
 
-        public VcardBuilder setGender(String value) {
-            Gender ev = new Gender();
-            ev.setParameters(new HashMap());
-            ev.setValue(value);
-            setCheck(ev);
+        public VcardBuilder setGender(final String value) {
+            final Gender gender = new Gender();
+            gender.setParameters(Maps.newHashMap());
+            gender.setValue(value);
+            setCheck(gender);
             return this;
         }
 
-        public VcardBuilder setOrg(String value) {
-            Org ev = new Org();
-            ev.setParameters(new HashMap());
-            ev.setValue(value);
-            setCheck(ev);
+        public VcardBuilder setOrg(final String value) {
+            final Org org = new Org();
+            org.setParameters(Maps.newHashMap());
+            org.setValue(value);
+            setCheck(org);
             return this;
         }
 
-        public VcardBuilder setTitle(String value) {
-            Title ev = new Title();
-            ev.setParameters(new HashMap());
-            ev.setValue(value);
-            setCheck(ev);
+        public VcardBuilder setTitle(final String value) {
+            final Title title = new Title();
+            title.setParameters(Maps.newHashMap());
+            title.setValue(value);
+            setCheck(title);
             return this;
         }
 
-        public VcardBuilder setRole(String value) {
-            Role ev = new Role();
-            ev.setParameters(new HashMap());
-            ev.setValue(value);
-            setCheck(ev);
+        public VcardBuilder setRole(final String value) {
+            final Role role = new Role();
+            role.setParameters(Maps.newHashMap());
+            role.setValue(value);
+            setCheck(role);
             return this;
         }
 
-        public VcardBuilder setKey(HashMap parameters, String value) {
-            Key ev = new Key();
-            ev.setParameters(parameters);
-            ev.setValue(value);
-            setCheck(ev);
+        public VcardBuilder setKey(final Map parameters, final String value) {
+            final Key key = new Key();
+            key.setParameters(parameters);
+            key.setValue(value);
+            setCheck(key);
             return this;
         }
 
-        public VcardBuilder setTz(String value) {
-            Tz ev = new Tz();
-            ev.setParameters(new HashMap());
-            ev.setValue(value);
-            setCheck(ev);
+        public VcardBuilder setTz(final String value) {
+            final Tz tz = new Tz();
+            tz.setParameters(Maps.newHashMap());
+            tz.setValue(value);
+            setCheck(tz);
             return this;
         }
 
-        public VcardBuilder setUrl(HashMap parameters, String value) {
-            Key ev = new Key();
-            ev.setParameters(parameters);
-            ev.setValue(value);
-            setCheck(ev);
+        public VcardBuilder setUrl(final Map parameters, final String value) {
+            final Key key = new Key();
+            key.setParameters(parameters);
+            key.setValue(value);
+            setCheck(key);
             return this;
         }
 
-        public NValueType createNEntryValueType(String surname, String given, String prefix, String suffix, NValueType.Honorifics honorifics) {
-            NValueType ret = new NValueType();
+        public NValueType createNEntryValueType(final String surname, final String given, final String prefix, final String suffix, final NValueType.Honorifics honorifics) {
+            final NValueType ret = new NValueType();
             ret.setSurname(surname);
             ret.setGiven(given);
             ret.setPrefix(prefix);
@@ -285,41 +285,41 @@ public class VcardObjectHelper {
             return ret;
         }
 
-        public NValueType.Honorifics createNEntryValueHonorifics(String prefix, String suffix) {
-            NValueType.Honorifics ret = new NValueType.Honorifics();
-            ret.setPrefix(prefix);
-            ret.setSuffix(suffix);
-            return ret;
+        public NValueType.Honorifics createNEntryValueHonorifics(final String prefix, final String suffix) {
+            final NValueType.Honorifics honorifics = new NValueType.Honorifics();
+            honorifics.setPrefix(prefix);
+            honorifics.setSuffix(suffix);
+            return honorifics;
         }
 
-        public AdrEntryValueType createAdrEntryValueType(String pobox, String ext, String street, String locality, String region, String code, String country) {
-            AdrEntryValueType ret = new AdrEntryValueType();
-            ret.setPobox(pobox);
-            ret.setExt(ext);
-            ret.setStreet(street);
-            ret.setLocality(locality);
-            ret.setRegion(region);
-            ret.setCode(code);
-            ret.setCountry(country);
-            return ret;
+        public AdrEntryValueType createAdrEntryValueType(final String pobox, final String ext, final String street, final String locality, final String region, final String code, final String country) {
+            final AdrEntryValueType adressEntry = new AdrEntryValueType();
+            adressEntry.setPobox(pobox);
+            adressEntry.setExt(ext);
+            adressEntry.setStreet(street);
+            adressEntry.setLocality(locality);
+            adressEntry.setRegion(region);
+            adressEntry.setCode(code);
+            adressEntry.setCountry(country);
+            return adressEntry;
         }
 
         public List<Object> build() {
             return toObjects(entityVcard);
         }
 
-        private void setCheck(VcardObject ev) {
-            if (settersMap.get(ev.getClass().getName()) != null) {
+        private void setCheck(final VcardObject vcardObject) {
+            if (settersMap.get(vcardObject.getClass().getName()) != null) {
                 // Overwrite
                 int idx = 0;
-                for (VcardObject entry : entityVcard.getVcardEntries()) {
-                    if (ev.getClass().getName().equals(entry.getClass().getName())) {
-                        entityVcard.getVcardEntries().set(idx, ev);
+                for (final VcardObject entry : entityVcard.getVcardEntries()) {
+                    if (vcardObject.getClass().getName().equals(entry.getClass().getName())) {
+                        entityVcard.getVcardEntries().set(idx, vcardObject);
                         break;
                     }
                 }
             } else {
-                entityVcard.getVcardEntries().add(ev);
+                entityVcard.getVcardEntries().add(vcardObject);
             }
         }
     }

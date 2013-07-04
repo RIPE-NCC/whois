@@ -2,47 +2,40 @@ package net.ripe.db.whois.api.whois.rdap.domain.vcard;
 
 import net.ripe.db.whois.api.whois.rdap.VcardObject;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.Map;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "name",
-    "parameters",
-    "type",
-    "value"
+        "name",
+        "parameters",
+        "type",
+        "value"
 })
 @XmlRootElement(name = "adr")
-public class Adr
-    extends VcardObject
-    implements Serializable
-{
+public class Adr extends VcardObject implements Serializable {
 
     @XmlElement(defaultValue = "adr")
     protected String name;
-    protected HashMap parameters;
+    protected Map parameters;
     @XmlElement(defaultValue = "text")
     protected String type;
     protected AdrEntryValueType value = new AdrEntryValueType();
 
-    public void setName(String value) {
+    public void setName(final String value) {
         this.name = value;
     }
 
-    public HashMap getParameters() {
+    public Map getParameters() {
         return parameters;
     }
 
-    public void setParameters(HashMap value) {
+    public void setParameters(final Map value) {
         this.parameters = value;
     }
 
-    public void setType(String value) {
+    public void setType(final String value) {
         this.type = value;
     }
 
@@ -50,7 +43,7 @@ public class Adr
         return value;
     }
 
-    public void setValue(AdrEntryValueType value) {
+    public void setValue(final AdrEntryValueType value) {
         this.value = value;
     }
 
@@ -67,5 +60,4 @@ public class Adr
         }
         return type;
     }
-
 }

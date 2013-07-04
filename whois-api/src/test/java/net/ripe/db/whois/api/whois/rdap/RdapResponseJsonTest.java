@@ -20,7 +20,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import static com.google.common.collect.Maps.immutableEntry;
-import static net.ripe.db.whois.api.whois.rdap.VcardObjectHelper.createHashMap;
+import static net.ripe.db.whois.api.whois.rdap.VcardObjectHelper.createMap;
 import static org.junit.Assert.assertEquals;
 
 public class RdapResponseJsonTest {
@@ -50,26 +50,26 @@ public class RdapResponseJsonTest {
                 .setAnniversary(date)
                 .setGender("M")
                 .setKind("individual")
-                .addLang(createHashMap(immutableEntry("pref", "1")), "fr")
-                .addLang(createHashMap(immutableEntry("pref", "2")), "en")
+                .addLang(createMap(immutableEntry("pref", "1")), "fr")
+                .addLang(createMap(immutableEntry("pref", "2")), "en")
                 .setOrg("Example")
                 .setTitle("Research Scientist")
                 .setRole("Project Lead")
-                .addAdr(createHashMap(immutableEntry("type", "work")), builder.createAdrEntryValueType("",
+                .addAdr(createMap(immutableEntry("type", "work")), builder.createAdrEntryValueType("",
                         "Suite 1234",
                         "4321 Rue Somewhere",
                         "Quebec",
                         "QC",
                         "G1V 2M2",
                         "Canada"))
-                .addAdr(createHashMap(immutableEntry("pref", "1")), null)
-                .addTel(createHashMap(immutableEntry("type", new String[]{"work", "voice"})), "tel:+1-555-555-1234;ext=102")
-                .addTel(createHashMap(immutableEntry("type", new String[]{"work", "cell", "voice", "video", "text"})), "tel:+1-555-555-4321")
-                .setEmail(createHashMap(immutableEntry("type", "work")), "joe.user@example.com")
-                .setGeo(createHashMap(immutableEntry("type", "work")), "geo:46.772673,-71.282945")
-                .setKey(createHashMap(immutableEntry("type", "work")), "http://www.example.com/joe.user/joe.asc")
+                .addAdr(createMap(immutableEntry("pref", "1")), null)
+                .addTel(createMap(immutableEntry("type", new String[]{"work", "voice"})), "tel:+1-555-555-1234;ext=102")
+                .addTel(createMap(immutableEntry("type", new String[]{"work", "cell", "voice", "video", "text"})), "tel:+1-555-555-4321")
+                .setEmail(createMap(immutableEntry("type", "work")), "joe.user@example.com")
+                .setGeo(createMap(immutableEntry("type", "work")), "geo:46.772673,-71.282945")
+                .setKey(createMap(immutableEntry("type", "work")), "http://www.example.com/joe.user/joe.asc")
                 .setTz("-05:00")
-                .setUrl(createHashMap(immutableEntry("type", "work")), "http://example.org");
+                .setUrl(createMap(immutableEntry("type", "work")), "http://example.org");
 
         final List<Object> objects = builder.build();
         final String result = convertEOLToUnix(streamObject(objects));
