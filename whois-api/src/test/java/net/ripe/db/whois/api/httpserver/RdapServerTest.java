@@ -12,13 +12,13 @@ import static org.junit.Assert.assertEquals;
 
 @Category(IntegrationTest.class)
 public class RdapServerTest extends AbstractRestClientTest {
-    private static final Audience RDAP_AUDIENCE = Audience.RDAP;
+    private static final Audience AUDIENCE = Audience.PUBLIC;
 
     @Test
     public void rdapServerTest() throws Exception {
-        int rdapPort = getPort(RDAP_AUDIENCE);
-        URL url = new URL("http://localhost:" + rdapPort + "/index.html");
-        HttpURLConnection httpConnect = (HttpURLConnection)url.openConnection();
+        final URL url = new URL("http://localhost:" + getPort(AUDIENCE) + "/index.html");
+
+        final HttpURLConnection httpConnect = (HttpURLConnection)url.openConnection();
         httpConnect.connect();
 
         Thread.sleep(150000);

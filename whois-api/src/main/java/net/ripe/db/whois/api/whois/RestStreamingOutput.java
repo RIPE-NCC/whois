@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.sun.jersey.api.NotFoundException;
 import net.ripe.db.whois.api.whois.domain.Parameters;
 import net.ripe.db.whois.api.whois.domain.WhoisObject;
-import net.ripe.db.whois.api.whois.domain.WhoisTag;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
@@ -80,10 +79,10 @@ public class RestStreamingOutput extends WhoisStreamingOutput {
     }
 
     protected WhoisObject getWhoisObject (@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
-        final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject);
-        final List<WhoisTag> tags = WhoisObjectMapper.mapTags(tagResponseObjects).getTags();
-        whoisObject.setTags(tags);
+        final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject, tagResponseObjects);
+
         tagResponseObjects.clear();
+
         return whoisObject;
     }
 
