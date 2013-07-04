@@ -10,7 +10,6 @@ import net.ripe.db.whois.api.whois.rdap.domain.Event;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.api.whois.rdap.domain.Link;
 import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
-import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
 import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Remark;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
@@ -29,22 +28,11 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.Map;
+import java.util.*;
 
 public class RdapObjectMapper {
     private static final Logger LOGGER =
         LoggerFactory.getLogger(RdapObjectMapper.class);
-
-    ObjectFactory rdapObjectFactory = new ObjectFactory();
 
     private TaggedRpslObject primaryTaggedRpslObject;
     private Queue<TaggedRpslObject> taggedRpslObjectQueue;
@@ -110,7 +98,7 @@ public class RdapObjectMapper {
                 break;
             case INETNUM:
             case INET6NUM:
-                Ip ip = new ObjectFactory().createIp();
+                Ip ip = new Ip();
                 ip.setHandle(rpslObject.getKey().toString());
                 rdapResponse = ip;
                 break;
@@ -137,7 +125,7 @@ public class RdapObjectMapper {
         allRemarks.addAll(descrs);
 
         List<String> remarkList = new ArrayList<>();
-        Remark remark = rdapObjectFactory.createRemark();
+        Remark remark = new Remark();
 
         for (RpslAttribute rpslAttribute : allRemarks) {
             String descr = rpslAttribute.getCleanValue().toString();
@@ -155,7 +143,7 @@ public class RdapObjectMapper {
 
         RpslAttribute lastChanged = changedAttributes.get(listSize - 1);
 
-        Event event = rdapObjectFactory.createEvent();
+        Event event = new Event();
         String eventString = lastChanged.getValue();
 
         // Split the string and make the event entry.
@@ -179,14 +167,14 @@ public class RdapObjectMapper {
     }
 
     private Entity createEntity(RpslObject rpslObject) {
-        Entity entity = rdapObjectFactory.createEntity();
+        Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVcardArray(generateVcards(rpslObject));
 
         setRemarks(entity,rpslObject);
         setEvents(entity,rpslObject);
 
-        Link sf = rdapObjectFactory.createLink();
+        Link sf = new Link();
         sf.setRel("self");
         sf.setValue(requestUrl);
         sf.setHref(requestUrl);
@@ -248,7 +236,7 @@ public class RdapObjectMapper {
     private Autnum createAutnumResponse(RpslObject rpslObject,
                                         Queue<TaggedRpslObject> qtro) {
 
-        Autnum an = rdapObjectFactory.createAutnum();
+        Autnum an = new Autnum();
         an.setHandle(rpslObject.getKey().toString());
 
         boolean is_autnum =
@@ -312,7 +300,7 @@ public class RdapObjectMapper {
          * construct the link, because if this is an as-block, there
          * may be an aut-num record for that ASN, and the link will
          * not work as expected. */
-        Link sf = rdapObjectFactory.createLink();
+        Link sf = new Link();
         sf.setRel("self");
         sf.setValue(requestUrl);
         sf.setHref(requestUrl);
@@ -322,14 +310,14 @@ public class RdapObjectMapper {
     }
 
     private Domain createDomainResponse(RpslObject rpslObject) {
-        Domain domain = rdapObjectFactory.createDomain();
+        Domain domain = new Domain();
 
         domain.setHandle(rpslObject.getKey().toString());
         domain.setLdhName(rpslObject.getKey().toString());
 
         // Nameservers
         for  (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.NSERVER)) {
-            Nameserver ns = rdapObjectFactory.createNameserver();
+            Nameserver ns = new Nameserver();
             ns.setLdhName(rpslAttribute.getCleanValue().toString());
             domain.getNameservers().add(ns);
         }

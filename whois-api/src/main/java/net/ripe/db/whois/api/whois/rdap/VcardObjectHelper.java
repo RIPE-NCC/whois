@@ -94,8 +94,7 @@ public class VcardObjectHelper {
 
 
     public static class VcardBuilder {
-        ObjectFactory vcardObjectFactory = new ObjectFactory();
-        Vcard entityVcard = vcardObjectFactory.createVcard();
+        Vcard entityVcard = new Vcard();
         HashMap<String, VcardObject> settersMap = new HashMap<String, VcardObject>();
 
         public VcardBuilder() {
@@ -117,7 +116,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder addAdr(HashMap parameters, AdrEntryValueType value) {
-            Adr ev = vcardObjectFactory.createAdr();
+            Adr ev = new Adr();
             ev.setParameters(parameters);
             if (value != null) {
                 ev.setValue(value);
@@ -131,7 +130,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder setEmail(HashMap parameters, String value) {
-            Email ev = vcardObjectFactory.createEmail();
+            Email ev = new Email();
             ev.setParameters(parameters);
             ev.setValue(value);
             setCheck(ev);
@@ -143,7 +142,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder setFn(String value) {
-            Fn ev = vcardObjectFactory.createFn();
+            Fn ev = new Fn();
             ev.setParameters(new HashMap());
             ev.setValue(value);
             setCheck(ev);
@@ -151,7 +150,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder setGeo(HashMap parameters, String value) {
-            Geo ev = vcardObjectFactory.createGeo();
+            Geo ev = new Geo();
             ev.setParameters(parameters);
             ev.setValue(value);
             setCheck(ev);
@@ -159,7 +158,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder setKind(String value) {
-            Kind ev = vcardObjectFactory.createKind();
+            Kind ev = new Kind();
             ev.setParameters(new HashMap());
             ev.setValue(value);
             setCheck(ev);
@@ -167,7 +166,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder addLang(HashMap parameters, String value) {
-            Lang ev = vcardObjectFactory.createLang();
+            Lang ev = new Lang();
             ev.setParameters(parameters);
             ev.setValue(value);
             entityVcard.getVcardEntries().add(ev);
@@ -175,7 +174,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder addTel(HashMap parameters, String value) {
-            Tel ev = vcardObjectFactory.createTel();
+            Tel ev = new Tel();
             ev.setParameters(parameters);
             ev.setValue(value);
             entityVcard.getVcardEntries().add(ev);
@@ -188,7 +187,7 @@ public class VcardObjectHelper {
 
 
         public VcardBuilder setVersion() {
-            Version ev = vcardObjectFactory.createVersion();
+            Version ev = new Version();
             ev.setParameters(new HashMap());
             setCheck(ev);
             return this;
@@ -198,7 +197,7 @@ public class VcardObjectHelper {
         // Other possibly useful vcard properties
 
         public VcardBuilder setAnniversary(String value) {
-            Anniversary ev = vcardObjectFactory.createAnniversary();
+            Anniversary ev = new Anniversary();
             ev.setParameters(new HashMap());
             ev.setValue(value);
             setCheck(ev);
@@ -206,7 +205,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder setBday(String value) {
-            Bday ev = vcardObjectFactory.createBday();
+            Bday ev = new Bday();
             ev.setParameters(new HashMap());
             ev.setValue(value);
             setCheck(ev);
@@ -214,7 +213,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder setN(NValueType value) {
-            N ev = vcardObjectFactory.createN();
+            N ev = new N();
             ev.setParameters(new HashMap());
             if (value != null) {
                 ev.setValue(value);
@@ -224,7 +223,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder setGender(String value) {
-            Gender ev = vcardObjectFactory.createGender();
+            Gender ev = new Gender();
             ev.setParameters(new HashMap());
             ev.setValue(value);
             setCheck(ev);
@@ -232,7 +231,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder setOrg(String value) {
-            Org ev = vcardObjectFactory.createOrg();
+            Org ev = new Org();
             ev.setParameters(new HashMap());
             ev.setValue(value);
             setCheck(ev);
@@ -240,7 +239,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder setTitle(String value) {
-            Title ev = vcardObjectFactory.createTitle();
+            Title ev = new Title();
             ev.setParameters(new HashMap());
             ev.setValue(value);
             setCheck(ev);
@@ -248,7 +247,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder setRole(String value) {
-            Role ev = vcardObjectFactory.createRole();
+            Role ev = new Role();
             ev.setParameters(new HashMap());
             ev.setValue(value);
             setCheck(ev);
@@ -257,7 +256,7 @@ public class VcardObjectHelper {
 
 
         public VcardBuilder setKey(HashMap parameters, String value) {
-            Key ev = vcardObjectFactory.createKey();
+            Key ev = new Key();
             ev.setParameters(parameters);
             ev.setValue(value);
             setCheck(ev);
@@ -265,7 +264,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder setTz(String value) {
-            Tz ev = vcardObjectFactory.createTz();
+            Tz ev = new Tz();
             ev.setParameters(new HashMap());
             ev.setValue(value);
             setCheck(ev);
@@ -273,7 +272,7 @@ public class VcardObjectHelper {
         }
 
         public VcardBuilder setUrl(HashMap parameters, String value) {
-            Key ev = vcardObjectFactory.createKey();
+            Key ev = new Key();
             ev.setParameters(parameters);
             ev.setValue(value);
             setCheck(ev);
@@ -281,7 +280,7 @@ public class VcardObjectHelper {
         }
 
         public NValueType createNEntryValueType(String surname, String given, String prefix, String suffix, NValueType.Honorifics honorifics) {
-            NValueType ret = vcardObjectFactory.createNValueType();
+            NValueType ret = new NValueType();
             ret.setSurname(surname);
             ret.setGiven(given);
             ret.setPrefix(prefix);
@@ -291,14 +290,14 @@ public class VcardObjectHelper {
         }
 
         public NValueType.Honorifics createNEntryValueHonorifics(String prefix, String suffix) {
-            NValueType.Honorifics ret = vcardObjectFactory.createNValueTypeHonorifics();
+            NValueType.Honorifics ret = new NValueType.Honorifics();
             ret.setPrefix(prefix);
             ret.setSuffix(suffix);
             return ret;
         }
 
         public AdrEntryValueType createAdrEntryValueType(String pobox, String ext, String street, String locality, String region, String code, String country) {
-            AdrEntryValueType ret = vcardObjectFactory.createAdrEntryValueType();
+            AdrEntryValueType ret = new AdrEntryValueType();
             ret.setPobox(pobox);
             ret.setExt(ext);
             ret.setStreet(street);
