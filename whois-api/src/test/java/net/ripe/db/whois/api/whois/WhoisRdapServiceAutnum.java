@@ -188,6 +188,15 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
         assertThat(an.getName(),    equalTo("AS1000-AS2000"));
         assertThat(an.getCountry(), equalTo("AU"));
         assertThat(an.getType(),    equalTo("DIRECT ALLOCATION"));
+
+        List<Link> links = an.getLinks();
+        assertThat(links.size(), equalTo(1));
+
+        Link sf = links.get(0);
+        assertThat(sf.getRel(), equalTo("self"));
+        String ru = createResourceUrl(AUDIENCE, "autnum/1500");
+        assertThat(sf.getValue(), equalTo(ru));
+        assertThat(sf.getHref(), equalTo(ru));
     }
 
     private String createResourceUrl(final Audience audience,

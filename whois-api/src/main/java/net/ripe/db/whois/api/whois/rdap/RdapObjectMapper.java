@@ -279,11 +279,14 @@ public class RdapObjectMapper {
          * there's no way to disambiguate. It may be an idea to add a
          * link to an external service at some later point, though. */
 
-        /* Add a 'self' link. */
+        /* Add a 'self' link. Do not use the beginning ASN to
+         * construct the link, because if this is an as-block, there
+         * may be an aut-num record for that ASN, and the link will
+         * not work as expected. */
         Link sf = rdapObjectFactory.createLink();
         sf.setRel("self");
         sf.setValue(requestUrl);
-        sf.setHref(baseUrl + "/autnum/" + start.toString());
+        sf.setHref(requestUrl);
         an.getLinks().add(sf);
 
         return an;
