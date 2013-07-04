@@ -126,6 +126,25 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
         assertThat(response.getStatus(), is(200));
         //TODO assert something
+
+
+//        "lang" : "en",
+//                "startAddress" : "192.0.2.0",
+//                "endAddress" : "192.0.2.255",
+//                "handle" : "XXXX-RIR",
+//                "ipVersion" : "v4",
+//                "name": "NET-RTR-1",
+//                "parentHandle" : "YYYY-RIR",
+//                "remarks" :
+//        [
+//        {
+//            "description" :
+//            [
+//            "She sells sea shells down by the sea shore.",
+//                    "Originally written by Terry Sullivan."
+//            ]
+//        }
+//        ]
     }
 
     @Test

@@ -1,91 +1,68 @@
 package net.ripe.db.whois.api.whois.rdap;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.api.whois.TaggedRpslObject;
-import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
-import net.ripe.db.whois.api.whois.rdap.domain.Domain;
-import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Event;
-import net.ripe.db.whois.api.whois.rdap.domain.Ip;
-import net.ripe.db.whois.api.whois.rdap.domain.Link;
-import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
-import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+
+import com.google.common.collect.Sets;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.handler.QueryHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class RdapObjectMapper {
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(RdapObjectMapper.class);
+    private static List<String> RDAPCONFORMANCE = Lists.newArrayList("rdap_level_0");
+    private static final Splitter SPLITTER = Splitter.on(' ');
 
-    private TaggedRpslObject primaryTaggedRpslObject;
-    private Queue<TaggedRpslObject> taggedRpslObjectQueue;
+    private final Queue<RpslObject> objectQueue;
+    private final String requestUrl;
+
+    private final DatatypeFactory dataTypeFactory = createDatatypeFactory();
+
     private RdapObject rdapResponse;
-    private DatatypeFactory dtf = createDatatypeFactory();
-    private static List<String> RDAPCONFORMANCE =
-        Lists.newArrayList("rdap_level_0");
-    private QueryHandler queryHandler;
-    private String source;
-    private String baseUrl;
-    private String requestUrl;
 
     /* Map from attribute type to role name, for entities. */
     private static final Map<AttributeType, String> typeToRole;
+
     static {
-        typeToRole = new HashMap<AttributeType, String>();
+        typeToRole = Maps.newHashMap();
         typeToRole.put(AttributeType.ADMIN_C, "administrative");
-        typeToRole.put(AttributeType.TECH_C,  "technical");
-        typeToRole.put(AttributeType.MNT_BY,  "registrant");
+        typeToRole.put(AttributeType.TECH_C, "technical");
+        typeToRole.put(AttributeType.MNT_BY, "registrant");
     }
 
-    public RdapObjectMapper(String bu, String ru,
-                            QueryHandler qh, SourceContext sc,
-                            Queue<TaggedRpslObject> taggedRpslObjectQueue) {
-        this.taggedRpslObjectQueue = taggedRpslObjectQueue;
-        this.queryHandler = qh;
-        this.source = getSourceName(sc);
-        this.baseUrl = bu;
-        this.requestUrl = ru;
-
+    public RdapObjectMapper(final String requestUrl, final Queue<RpslObject> objectQueue) {
+        this.objectQueue = objectQueue;
+        this.requestUrl = requestUrl;
     }
 
     public Object build() {
-        if (taggedRpslObjectQueue == null) {
+        if (objectQueue == null) {
             return rdapResponse;
         }
 
-        if (taggedRpslObjectQueue.isEmpty()) {
+        if (objectQueue.isEmpty()) {
             throw new IllegalStateException("The RPSL queue is empty.");
         }
 
-        TaggedRpslObject first = taggedRpslObjectQueue.poll();
-        add(first, taggedRpslObjectQueue);
+        add(objectQueue.poll(), objectQueue);
 
         return rdapResponse;
     }
 
-    private void add(TaggedRpslObject taggedRpslObject,
-                     Queue<TaggedRpslObject> taggedRpslObjectQueue) {
-        RpslObject rpslObject = taggedRpslObject.rpslObject;
-        ObjectType rpslObjectType = rpslObject.getType();
-
-        debug(rpslObject);
+    private void add(final RpslObject rpslObject, final Queue<RpslObject> rpslObjectQueue) {
+        final ObjectType rpslObjectType = rpslObject.getType();
 
         switch (rpslObjectType) {
             case DOMAIN:
@@ -93,8 +70,7 @@ public class RdapObjectMapper {
                 break;
             case AUT_NUM:
             case AS_BLOCK:
-                rdapResponse = createAutnumResponse(rpslObject,
-                                                    taggedRpslObjectQueue);
+                rdapResponse = createAutnumResponse(rpslObject, rpslObjectQueue);
                 break;
             case INETNUM:
             case INET6NUM:
@@ -108,123 +84,105 @@ public class RdapObjectMapper {
             case IRT:
                 rdapResponse = createEntity(rpslObject);
                 break;
-        };
+        }
 
         if (rdapResponse != null) {
             rdapResponse.getRdapConformance().addAll(RDAPCONFORMANCE);
         }
     }
 
-    private void setRemarks (RdapObject rdapObject, RpslObject rpslObject) {
-        List<RpslAttribute> remarks =
-                rpslObject.findAttributes(AttributeType.REMARKS);
-        List<RpslAttribute> descrs =
-                rpslObject.findAttributes(AttributeType.DESCR);
-        List<RpslAttribute> allRemarks =  new ArrayList<RpslAttribute>();
-        allRemarks.addAll(remarks);
-        allRemarks.addAll(descrs);
+    private void setRemarks(final RdapObject rdapObject, final RpslObject rpslObject) {
+        final List<RpslAttribute> allRemarks = Lists.newArrayList();
+        allRemarks.addAll(rpslObject.findAttributes(AttributeType.REMARKS));
+        allRemarks.addAll(rpslObject.findAttributes(AttributeType.DESCR));
 
-        List<String> remarkList = new ArrayList<>();
-        Remark remark = new Remark();
-
-        for (RpslAttribute rpslAttribute : allRemarks) {
-            String descr = rpslAttribute.getCleanValue().toString();
-            remarkList.add(descr);
+        final List<String> remarkList = Lists.newArrayList();
+        for (final RpslAttribute rpslAttribute : allRemarks) {
+            remarkList.add(rpslAttribute.getCleanValue().toString());
         }
 
+        final Remark remark = new Remark();
         remark.getDescription().addAll(remarkList);
         rdapObject.getRemarks().add(remark);
     }
 
-    private void setEvents (RdapObject rdapObject, RpslObject rpslObject) {
-        List<RpslAttribute> changedAttributes =
-            rpslObject.findAttributes(AttributeType.CHANGED);
-        int listSize = changedAttributes.size();
+    private void setEvents(final RdapObject rdapObject, final RpslObject rpslObject) {
+        final List<RpslAttribute> changedAttributes = rpslObject.findAttributes(AttributeType.CHANGED);
+        final String eventString = changedAttributes.get(changedAttributes.size() - 1).getValue();
 
-        RpslAttribute lastChanged = changedAttributes.get(listSize - 1);
+        final Iterable<String> eventStringParts = SPLITTER.split(eventString.trim());
 
-        Event event = new Event();
-        String eventString = lastChanged.getValue();
-
-        // Split the string and make the event entry.
-        eventString = eventString.trim();
-        String[] eventStringElements = eventString.split(" ");
+        final Event event = new Event();
         event.setEventAction("last changed");
-        event.setEventActor(eventStringElements[0]);
+        event.setEventActor(Iterables.get(eventStringParts, 0));
 
         try {
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-            Date date = formatter.parse(eventStringElements[1]);
-            GregorianCalendar gc = new GregorianCalendar();
-            gc.setTime(date);
-            XMLGregorianCalendar eventDate = dtf.newXMLGregorianCalendar(gc);
-            event.setEventDate(eventDate);
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("Invalid event date: " + eventStringElements[1]);
+            final GregorianCalendar gc = new GregorianCalendar();
+            gc.setTime(new SimpleDateFormat("yyyyMMdd").parse(Iterables.get(eventStringParts, 1)));
+            event.setEventDate(dataTypeFactory.newXMLGregorianCalendar(gc));
+        } catch (final ParseException e) {
+            throw new IllegalArgumentException(String.format("Invalid event date: %s", Iterables.get(eventStringParts, 1)));
         }
 
         rdapObject.getEvents().add(event);
     }
 
-    private Entity createEntity(RpslObject rpslObject) {
-        Entity entity = new Entity();
+    private Entity createEntity(final RpslObject rpslObject) {
+        final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVcardArray(generateVcards(rpslObject));
 
-        setRemarks(entity,rpslObject);
-        setEvents(entity,rpslObject);
+        setRemarks(entity, rpslObject);
+        setEvents(entity, rpslObject);
 
-        Link sf = new Link();
-        sf.setRel("self");
-        sf.setValue(requestUrl);
-        sf.setHref(requestUrl);
-        entity.getLinks().add(sf);
+
+        Link selfLink = new Link();
+        selfLink.setRel("self");
+        selfLink.setValue(requestUrl);
+        selfLink.setHref(requestUrl);
+        entity.getLinks().add(selfLink);
 
         return entity;
     }
 
-    private void setEntities(RdapObject rdapObject,
-                             RpslObject rpslObject,
-                             Queue<TaggedRpslObject> qtro,
-                             Set<AttributeType> eats) {
+    private void setEntities(final RdapObject rdapObject, final RpslObject rpslObject, final Queue<RpslObject> queue, final Set<AttributeType> attributeTypes) {
         /* Construct a map for finding the entity objects in the query
          * results. */
-        Map<String, RpslObject> mtro = new HashMap<String, RpslObject>();
-        for (TaggedRpslObject tro : qtro) {
-            mtro.put(tro.rpslObject.getKey().toString(),
-                     tro.rpslObject);
+        final Map<CIString, RpslObject> objectMap = Maps.newHashMap();
+        for (final RpslObject tro : queue) {
+            objectMap.put(tro.getKey(), tro);
         }
         /* For each entity attribute type, load the attributes from
          * the object. */
-        List<RpslAttribute> eas = new ArrayList<RpslAttribute>();
-        for (AttributeType eat : eats) {
-            eas.addAll(rpslObject.findAttributes(eat));
+        final List<RpslAttribute> allAttributes = Lists.newArrayList();
+        for (final AttributeType attribute : attributeTypes) {
+            allAttributes.addAll(rpslObject.findAttributes(attribute));
         }
         /* Construct a map from attribute value to a list of the
          * attribute types against which it is recorded. (To handle
          * the case where a single person/role/similar occurs multiple
          * times in a record.) */
-        Map<String, Set<AttributeType>> valueToRoles =
-            new HashMap<String, Set<AttributeType>>();
-        for (RpslAttribute ra : eas) {
-            String key = ra.getCleanValue().toString();
-            Set<AttributeType> ats = valueToRoles.get(key);
-            if (ats != null) {
-                ats.add(ra.getType());
+        final Map<CIString, Set<AttributeType>> valueToRoles = Maps.newHashMap();
+        for (final RpslAttribute attribute : allAttributes) {
+            final CIString key = attribute.getCleanValue();
+            final Set<AttributeType> attributeType = valueToRoles.get(key);
+
+            if (attributeType != null) {
+                attributeType.add(attribute.getType());
             } else {
-                Set<AttributeType> newAts = new HashSet<AttributeType>();
-                newAts.add(ra.getType());
-                valueToRoles.put(key, newAts);
+                final Set<AttributeType> newAttributes = Sets.newHashSet();
+                newAttributes.add(attribute.getType());
+                valueToRoles.put(key, newAttributes);
             }
         }
 
-        for (String key : valueToRoles.keySet()) {
-            Set<AttributeType> ats = valueToRoles.get(key);
-            RpslObject ro = mtro.get(key);
+        for (final CIString key : valueToRoles.keySet()) {
+            final Set<AttributeType> attributes = valueToRoles.get(key);
+            RpslObject ro = objectMap.get(key);
             if (ro != null) {
                 Entity e = createEntity(ro);
                 List<String> roles = e.getRoles();
-                for (AttributeType at : ats) {
+                for (AttributeType at : attributes) {
                     String role = typeToRole.get(at);
                     roles.add(role);
                 }
@@ -233,47 +191,45 @@ public class RdapObjectMapper {
         }
     }
 
-    private Autnum createAutnumResponse(RpslObject rpslObject,
-                                        Queue<TaggedRpslObject> qtro) {
-
+    private Autnum createAutnumResponse(final RpslObject rpslObject, final Queue<RpslObject> qtro) {
         Autnum an = new Autnum();
         an.setHandle(rpslObject.getKey().toString());
 
         boolean is_autnum =
-            rpslObject.getType().getName().equals(
-                ObjectType.AUT_NUM.getName()
-            );
+                rpslObject.getType().getName().equals(
+                        ObjectType.AUT_NUM.getName()
+                );
 
         BigInteger start;
         BigInteger end;
         if (is_autnum) {
             RpslAttribute asn =
-                rpslObject.findAttribute(AttributeType.AUT_NUM);
+                    rpslObject.findAttribute(AttributeType.AUT_NUM);
             String asn_str = asn.getValue().replace("AS", "").replace(" ", "");
             start = end = new BigInteger(asn_str);
         } else {
             RpslAttribute asn_range =
-                rpslObject.findAttribute(AttributeType.AS_BLOCK);
+                    rpslObject.findAttribute(AttributeType.AS_BLOCK);
             AsBlockRange abr =
-                AsBlockRange.parse(asn_range.getValue().replace(" ", ""));
+                    AsBlockRange.parse(asn_range.getValue().replace(" ", ""));
             start = BigInteger.valueOf(abr.getBegin());
-            end   = BigInteger.valueOf(abr.getEnd());
+            end = BigInteger.valueOf(abr.getEnd());
         }
 
         an.setStartAutnum(start);
         an.setEndAutnum(end);
 
         an.setCountry(rpslObject.findAttribute(AttributeType.COUNTRY)
-                                .getValue().replace(" ", ""));
+                .getValue().replace(" ", ""));
 
         /* For as-blocks, use the range as the name, since they do not
          * have an obvious 'name' attribute. */
         AttributeType name =
-            (is_autnum)
-                ? AttributeType.AS_NAME
-                : AttributeType.AS_BLOCK;
+                (is_autnum)
+                        ? AttributeType.AS_NAME
+                        : AttributeType.AS_BLOCK;
         an.setName(rpslObject.findAttribute(name)
-                             .getValue().replace(" ", ""));
+                .getValue().replace(" ", ""));
         /* aut-num records don't have a 'type' or 'status' field, and
          * each is allocated directly by the relevant RIR. 'DIRECT
          * ALLOCATION' is the default value used in the response
@@ -286,7 +242,7 @@ public class RdapObjectMapper {
         setRemarks(an, rpslObject);
         setEvents(an, rpslObject);
 
-        Set<AttributeType> eats = new HashSet<AttributeType>();
+        final Set<AttributeType> eats = Sets.newHashSet();
         eats.add(AttributeType.ADMIN_C);
         eats.add(AttributeType.TECH_C);
         setEntities(an, rpslObject, qtro, eats);
@@ -316,7 +272,8 @@ public class RdapObjectMapper {
         domain.setLdhName(rpslObject.getKey().toString());
 
         // Nameservers
-        for  (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.NSERVER)) {
+
+        for (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.NSERVER)) {
             Nameserver ns = new Nameserver();
             ns.setLdhName(rpslAttribute.getCleanValue().toString());
             domain.getNameservers().add(ns);
@@ -357,22 +314,11 @@ public class RdapObjectMapper {
 
     }
 
-    private void debug(RpslObject rpslObject) {
-        List<RpslAttribute> rpslAttributes = rpslObject.getAttributes();
-
-        Iterator<RpslAttribute> iter = rpslAttributes.iterator();
-        RpslAttribute ra;
-        while (iter.hasNext()) {
-            ra = iter.next();
-            LOGGER.info(ra.getKey() + ":" + ra.getValue());
-        }
-    }
-
     private List<Object> generateVcards(RpslObject rpslObject) {
         VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
         builder.setVersion();
 
-       for (RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PERSON)) {
+        for (RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PERSON)) {
             builder.setFn(attribute.getCleanValue().toString());
         }
 
@@ -394,10 +340,6 @@ public class RdapObjectMapper {
         }
 
         return builder.build();
-    }
-
-    private String getSourceName(final SourceContext sourceContext) {
-        return sourceContext.getWhoisSlaveSource().getName().toString();
     }
 
     private DatatypeFactory createDatatypeFactory() {
