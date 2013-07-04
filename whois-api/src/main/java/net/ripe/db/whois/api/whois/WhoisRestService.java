@@ -7,29 +7,14 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.api.whois.domain.Attribute;
-import net.ripe.db.whois.api.whois.domain.Link;
-import net.ripe.db.whois.api.whois.domain.Parameters;
-import net.ripe.db.whois.api.whois.domain.WhoisModify;
-import net.ripe.db.whois.api.whois.domain.WhoisObject;
-import net.ripe.db.whois.api.whois.domain.WhoisResources;
-import net.ripe.db.whois.api.whois.domain.WhoisVersions;
+import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
-import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.domain.TagResponseObject;
-import net.ripe.db.whois.query.domain.VersionResponseObject;
-import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
+import net.ripe.db.whois.query.domain.*;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
@@ -40,8 +25,6 @@ import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.codehaus.enunciate.jaxrs.TypeHint;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -49,21 +32,13 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.ArrayDeque;
-import java.util.Collections;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,14 +49,12 @@ import static net.ripe.db.whois.query.query.QueryFlag.*;
 @Component
 @Path("/")
 public class WhoisRestService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRestService.class);
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
 
-    protected static final String TEXT_JSON = "text/json";
-    protected static final String TEXT_XML = "text/xml";
+    private static final String TEXT_JSON = "text/json";
+    private static final String TEXT_XML = "text/xml";
 
-    private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings();
-    private static final Joiner COMMA_JOINER = Joiner.on(",");
+    private static final Joiner JOINER = Joiner.on(",");
 
     private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
     private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(Iterables.concat(
@@ -1590,16 +1563,16 @@ public class WhoisRestService {
 
         final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s %s %s %s",
                 QueryFlag.SOURCES.getLongFlag(),
-                COMMA_JOINER.join(sources),
+                JOINER.join(sources),
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 (types == null || types.isEmpty()) ? "" : QueryFlag.SELECT_TYPES.getLongFlag(),
-                COMMA_JOINER.join(types),
+                JOINER.join(types),
                 (inverseAttributes == null || inverseAttributes.isEmpty()) ? "" : QueryFlag.INVERSE.getLongFlag(),
-                COMMA_JOINER.join(inverseAttributes),
+                JOINER.join(inverseAttributes),
                 (includeTags == null || includeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(),
-                COMMA_JOINER.join(includeTags),
+                JOINER.join(includeTags),
                 (excludeTags == null || excludeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(),
-                COMMA_JOINER.join(excludeTags),
+                JOINER.join(excludeTags),
                 Joiner.on(" ").join(Iterables.transform(separateFlags, new Function<String, String>() {
                     @Override
                     public String apply(String input) {
@@ -1615,7 +1588,7 @@ public class WhoisRestService {
         parameters.setTypeFilters(types);
         parameters.setFlags(separateFlags);
 
-        return handleQuery(query, COMMA_JOINER.join(sources), queryString, request, parameters);
+        return handleQuery(query, JOINER.join(sources), queryString, request, parameters);
     }
 
     private void checkForInvalidSources(final Set<String> sources) {
