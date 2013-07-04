@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.whois;
+package net.ripe.db.whois.api.whois.rdap;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;

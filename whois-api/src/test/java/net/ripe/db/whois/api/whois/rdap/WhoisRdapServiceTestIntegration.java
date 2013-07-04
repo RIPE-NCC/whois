@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.whois;
+package net.ripe.db.whois.api.whois.rdap;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -20,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 
 @Category(IntegrationTest.class)
@@ -107,19 +108,23 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_inet6num_with_prefix_length() throws Exception {
-        databaseHelper.addObject(
+        databaseHelper.addObject("" +
                 "inet6num:       2001:2002:2003::/48\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "descr:          Private Network\n" +
-                        "country:        NL\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "mnt-lower:      OWNER-MNT\n" +
-                        "source:         TEST");
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        createResource(AUDIENCE, "inet6num/2001:2002:2003::/48");
+        final ClientResponse response = createResource(AUDIENCE, "ip/2001:2002:2003::/48")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(ClientResponse.class);
+
+        assertThat(response.getStatus(), is(200));
         //TODO assert something
     }
 
@@ -173,6 +178,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Override
     protected WebResource createResource(final Audience audience, final String path) {
-        return client.resource(String.format("http://localhost:%s/%s", getPort(audience), path));
+        return client.resource(String.format("http://localhost:%s/rdap/%s", getPort(audience), path));
     }
 }
