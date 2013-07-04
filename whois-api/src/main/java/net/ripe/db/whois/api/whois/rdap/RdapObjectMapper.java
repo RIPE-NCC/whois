@@ -1,25 +1,24 @@
 package net.ripe.db.whois.api.whois.rdap;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.whois.TaggedRpslObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
 import net.ripe.db.whois.api.whois.rdap.domain.Domain;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.Event;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
 import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.whois.rdap.domain.ObjectFactory;
 import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Remark;
-import net.ripe.db.whois.api.whois.rdap.domain.Link;
-import net.ripe.db.whois.api.whois.rdap.RdapUtilities;
-import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,6 @@ import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -119,10 +117,9 @@ public class RdapObjectMapper {
                 break;
             case PERSON:
             case ORGANISATION:
-                rdapResponse = createEntity(rpslObject);
-                break;
             case ROLE:
             case IRT:
+                rdapResponse = createEntity(rpslObject);
                 break;
         };
 
@@ -181,18 +178,19 @@ public class RdapObjectMapper {
         rdapObject.getEvents().add(event);
     }
 
-    private Entity createEntity(RpslObject rpslObject) {
+    private Entity createEntity(RpslObject rpslObject) throws ParseException {
         Entity entity = rdapObjectFactory.createEntity();
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVcardArray(generateVcards(rpslObject));
         
         setRemarks(entity,rpslObject);
+        setEvents(entity,rpslObject);
 
-        try {
-            setEvents(entity,rpslObject);
-        } catch (ParseException p) {
-            // DIE!
-        }
+        Link sf = rdapObjectFactory.createLink();
+        sf.setRel("self");
+        sf.setValue(requestUrl);
+        sf.setHref(requestUrl);
+        entity.getLinks().add(sf);
 
         return entity;
     }
@@ -200,7 +198,8 @@ public class RdapObjectMapper {
     private void setEntities(RdapObject rdapObject,
                              RpslObject rpslObject,
                              Queue<TaggedRpslObject> qtro,
-                             Set<AttributeType> eats) {
+                             Set<AttributeType> eats)
+            throws ParseException {
         /* Construct a map for finding the entity objects in the query
          * results. */
         Map<String, RpslObject> mtro = new HashMap<String, RpslObject>();
