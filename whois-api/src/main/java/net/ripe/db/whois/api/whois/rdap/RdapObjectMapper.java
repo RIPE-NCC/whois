@@ -131,10 +131,8 @@ public class RdapObjectMapper {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVcardArray(generateVcards(rpslObject));
-
         setRemarks(entity, rpslObject);
         setEvents(entity, rpslObject);
-
 
         Link selfLink = new Link();
         selfLink.setRel("self");
@@ -192,60 +190,49 @@ public class RdapObjectMapper {
     }
 
     private Autnum createAutnumResponse(final RpslObject rpslObject, final Queue<RpslObject> qtro) {
-        Autnum an = new Autnum();
-        an.setHandle(rpslObject.getKey().toString());
+        Autnum autnum = new Autnum();
+        autnum.setHandle(rpslObject.getKey().toString());
 
-        boolean is_autnum =
-                rpslObject.getType().getName().equals(
-                        ObjectType.AUT_NUM.getName()
-                );
+        boolean isAutnum = rpslObject.getType().getName().equals(ObjectType.AUT_NUM.getName());
 
         BigInteger start;
         BigInteger end;
-        if (is_autnum) {
-            RpslAttribute asn =
-                    rpslObject.findAttribute(AttributeType.AUT_NUM);
+        if (isAutnum) {
+            RpslAttribute asn = rpslObject.findAttribute(AttributeType.AUT_NUM);
             String asn_str = asn.getValue().replace("AS", "").replace(" ", "");
             start = end = new BigInteger(asn_str);
         } else {
-            RpslAttribute asn_range =
-                    rpslObject.findAttribute(AttributeType.AS_BLOCK);
-            AsBlockRange abr =
-                    AsBlockRange.parse(asn_range.getValue().replace(" ", ""));
+            RpslAttribute asn_range = rpslObject.findAttribute(AttributeType.AS_BLOCK);
+            AsBlockRange abr = AsBlockRange.parse(asn_range.getValue().replace(" ", ""));
             start = BigInteger.valueOf(abr.getBegin());
             end = BigInteger.valueOf(abr.getEnd());
         }
 
-        an.setStartAutnum(start);
-        an.setEndAutnum(end);
+        autnum.setStartAutnum(start);
+        autnum.setEndAutnum(end);
 
-        an.setCountry(rpslObject.findAttribute(AttributeType.COUNTRY)
-                .getValue().replace(" ", ""));
+        autnum.setCountry(rpslObject.findAttribute(AttributeType.COUNTRY).getValue().replace(" ", ""));
 
         /* For as-blocks, use the range as the name, since they do not
          * have an obvious 'name' attribute. */
-        AttributeType name =
-                (is_autnum)
-                        ? AttributeType.AS_NAME
-                        : AttributeType.AS_BLOCK;
-        an.setName(rpslObject.findAttribute(name)
-                .getValue().replace(" ", ""));
+        AttributeType name = (isAutnum) ? AttributeType.AS_NAME : AttributeType.AS_BLOCK;
+        autnum.setName(rpslObject.findAttribute(name).getValue().replace(" ", ""));
         /* aut-num records don't have a 'type' or 'status' field, and
          * each is allocated directly by the relevant RIR. 'DIRECT
          * ALLOCATION' is the default value used in the response
          * draft, and it makes sense to use it here too, at least for
          * now. */
-        an.setType("DIRECT ALLOCATION");
+        autnum.setType("DIRECT ALLOCATION");
         /* None of the statuses from [9.1] in json-response is
          * applicable here, so 'status' will be left empty for now. */
 
-        setRemarks(an, rpslObject);
-        setEvents(an, rpslObject);
+        setRemarks(autnum, rpslObject);
+        setEvents(autnum, rpslObject);
 
         final Set<AttributeType> eats = Sets.newHashSet();
         eats.add(AttributeType.ADMIN_C);
         eats.add(AttributeType.TECH_C);
-        setEntities(an, rpslObject, qtro, eats);
+        setEntities(autnum, rpslObject, qtro, eats);
 
         /* Do not add a link to the parent as-block: if each ASN
          * within the range has a corresponding aut-num record, then
@@ -260,9 +247,9 @@ public class RdapObjectMapper {
         sf.setRel("self");
         sf.setValue(requestUrl);
         sf.setHref(requestUrl);
-        an.getLinks().add(sf);
+        autnum.getLinks().add(sf);
 
-        return an;
+        return autnum;
     }
 
     private Domain createDomainResponse(RpslObject rpslObject) {
@@ -270,8 +257,6 @@ public class RdapObjectMapper {
 
         domain.setHandle(rpslObject.getKey().toString());
         domain.setLdhName(rpslObject.getKey().toString());
-
-        // Nameservers
 
         for (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.NSERVER)) {
             Nameserver ns = new Nameserver();
@@ -281,37 +266,7 @@ public class RdapObjectMapper {
 
         setRemarks(domain, rpslObject);
 
-//        // Entities
-//        Entity entity = rdapObjectFactory.createEntity();
-//        entity.getEntities().add()
-
-
-//        "entities" :
-//
-//        //domain.setPort43();
-//        domain.getPublicIds();
-//        domain.getEntities();
-//        domain.getEvents()
-//        domain.getLinks()
-//        domain.getNameserver()
-//        domain.getRemarks()
-
-//        {
-//            "handle" : "XXX",
-//                "ldhName" : "blah.example.com",
-//            ...
-//            "nameServers" :
-//            [
-//            ...
-//            ],
-//            ...
-//            "entities" :
-//            [
-//            ...
-//            ]
-//        }
         return domain;
-
     }
 
     private List<Object> generateVcards(RpslObject rpslObject) {
@@ -331,7 +286,7 @@ public class RdapObjectMapper {
         }
 
         for (RpslAttribute attribute : rpslObject.findAttributes(AttributeType.E_MAIL)) {
-            // ?? Is it valid to have more than 1 email
+            // TODO ?? Is it valid to have more than 1 email
             builder.setEmail(attribute.getCleanValue().toString());
         }
 

@@ -23,15 +23,16 @@ public class RdapStreamingMarshalJson implements StreamingMarshal {
     static {
         final ObjectMapper objectMapper = new ObjectMapper();
 
-        objectMapper.setAnnotationIntrospector(new AnnotationIntrospector.Pair(
-                new JacksonAnnotationIntrospector(),
-                new JaxbAnnotationIntrospector()));
+        objectMapper.setAnnotationIntrospector(
+                new AnnotationIntrospector.Pair(
+                        new JacksonAnnotationIntrospector(),
+                        new JaxbAnnotationIntrospector()));
 
         objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 
         objectMapper.configure(SerializationConfig.Feature.WRITE_EMPTY_JSON_ARRAYS, true);
 
-        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");     // TODO: use Joda time
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
         objectMapper.setDateFormat(df);
         jsonFactory = objectMapper.getJsonFactory();

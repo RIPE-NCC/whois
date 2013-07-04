@@ -36,106 +36,72 @@ public class WhoisRdapService extends WhoisService {
 
     @Autowired
     public WhoisRdapService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final RpslObjectUpdateDao rpslObjectUpdateDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
-        super(dateTimeProvider, updateRequestHandler,loggerContext, rpslObjectDao, sourceContext, queryHandler);
+        super(dateTimeProvider, updateRequestHandler, loggerContext, rpslObjectDao, sourceContext, queryHandler);
     }
 
     @GET
     @TypeHint(WhoisResources.class)
-    @Produces({MediaType.APPLICATION_JSON})//,MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
     @Path("/{objectType}/{key:.*}")
-    public Response lookup(
-            @Context final HttpServletRequest request,
-            @PathParam("objectType") final String objectType,
-            @PathParam("key") final String key) {
+    public Response lookup(@Context final HttpServletRequest request, @PathParam("objectType") final String objectType, @PathParam("key") final String key) {
         /* RDAP object types do not map directly to whois object
          * types, so translate accordingly here for the remaining
          * object types as they are implemented. */
 
         String whoisObjectType = objectType;
-        String whoisKey        = key;
+        String whoisKey = key;
 
         if (objectType.equals("autnum")) {
-            whoisObjectType =
-                (RdapUtilities.fetchObject(queryHandler,
-                                           "aut-num",
-                                           "AS" + key,
-                                           source()) != null)
-                    ? "aut-num"
-                    : "as-block";
+            whoisObjectType = (RdapUtilities.fetchObject(queryHandler, "aut-num", "AS" + key, source()) != null) ? "aut-num" : "as-block";
             whoisKey = "AS" + key;
         } else if (objectType.equals("entity")) {
             whoisObjectType = "person,role,organisation,irt";
         } else if (objectType.equals("domain")) {
             whoisObjectType = "domain";
         } else {
-            Response.ResponseBuilder rb =
-                Response.status(Response.Status.NOT_FOUND);
+            Response.ResponseBuilder rb = Response.status(Response.Status.NOT_FOUND);
             return rb.build();
         }
 
-        Response res = lookupObject(request, source(), whoisObjectType,
-                                    whoisKey, false);
-
-        return res;
+        return lookupObject(request, source(), whoisObjectType, whoisKey, false);
     }
 
     protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
-        final StreamingMarshal streamingMarshal =
-            new RdapStreamingMarshalJson();
+        final StreamingMarshal streamingMarshal = new RdapStreamingMarshalJson();
 
         String queryString = request.getQueryString();
-        String requestUrl  = request.getRequestURL().toString() +
-                             ((queryString != null) ? "?" + queryString : "");
+        String requestUrl = request.getRequestURL().toString() + ((queryString != null) ? "?" + queryString : "");
 
-        /* A bit awkward; there should be a better way to determine
-         * this. */
+        // TODO: A bit awkward; there should be a better way to determine this.
         String baseUrl = requestUrl;
         int pathIndex = 0;
         int count = 3;
         while ((count--) != 0) {
             pathIndex = baseUrl.indexOf('/', pathIndex + 1);
         }
-        String contextPath = request.getContextPath();
-        baseUrl = baseUrl.substring(0, pathIndex) +
-                  request.getContextPath();
 
-        RdapStreamingOutput rso =
-            new RdapStreamingOutput(streamingMarshal,
-                                    queryHandler,
-                                    parameters,
-                                    query,
-                                    remoteAddress,
-                                    contextId,
-                                    sourceContext,
-                                    baseUrl,
-                                    requestUrl);
+        baseUrl = baseUrl.substring(0, pathIndex) + request.getContextPath();
+
+        RdapStreamingOutput rso = new RdapStreamingOutput(streamingMarshal, queryHandler, parameters, query, remoteAddress, contextId, sourceContext, baseUrl, requestUrl);
 
         return Response.ok(rso).build();
     }
 
     private String source() {
-        return this.sourceContext
-                   .getWhoisSlaveSource().getName().toString();
+        return this.sourceContext.getWhoisSlaveSource().getName().toString();
     }
 
     // TODO: [AH] hierarchical lookups return the encompassing range if no direct hit
-    protected Response lookupObject(
-            final HttpServletRequest request,
-            final String source,
-            final String objectTypeString,
-            final String key,
-            final boolean isGrs) {
-
-
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s",
-                QueryFlag.NO_GROUPING.getLongFlag(),
-                QueryFlag.SOURCES.getLongFlag(),
-                source,
-                QueryFlag.SELECT_TYPES.getLongFlag(),
-                objectTypeString,
-                QueryFlag.SHOW_TAG_INFO.getLongFlag(),
-                QueryFlag.NO_FILTERING.getLongFlag(),
-                key));
+    protected Response lookupObject(final HttpServletRequest request, final String source, final String objectTypeString, final String key, final boolean isGrs) {
+        final Query query = Query.parse(
+                String.format("%s %s %s %s %s %s %s %s",
+                        QueryFlag.NO_GROUPING.getLongFlag(),
+                        QueryFlag.SOURCES.getLongFlag(), source,
+                        QueryFlag.SELECT_TYPES.getLongFlag(),
+                        objectTypeString,
+                        QueryFlag.SHOW_TAG_INFO.getLongFlag(),
+                        QueryFlag.NO_FILTERING.getLongFlag(),
+                        key));
 
         checkForInvalidSource(source);
 

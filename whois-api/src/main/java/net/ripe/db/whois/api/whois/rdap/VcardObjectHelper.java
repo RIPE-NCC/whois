@@ -6,28 +6,31 @@ import org.codehaus.plexus.util.StringUtils;
 import javax.xml.bind.annotation.XmlType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class VcardObjectHelper {
 
     public static List<Object> toObjects(Object target) {
 
         // Introspect the annotation field ordering
-        HashMap<String, Integer> order = new HashMap<String, Integer>();
+        HashMap<String, Integer> order = new HashMap<>();
         if (target.getClass().isAnnotationPresent(XmlType.class)) {
             XmlType xmlType = target.getClass().getAnnotation(XmlType.class);
             Integer pos = 0;
             for (String fieldName : xmlType.propOrder()) {
-                order.put(fieldName,pos++);
+                order.put(fieldName, pos++);
             }
-
         }
 
         // Reflect class getters and populate our Object List
         Method[] methods = target.getClass().getMethods();
 
         Object[] result = new Object[methods.length];
-        List<Object> unordered = new ArrayList<Object>();
+        List<Object> unordered = new ArrayList<>();
 
         for (Method method : methods) {
             Integer pos = null;
@@ -36,7 +39,7 @@ public class VcardObjectHelper {
                     try {
                         Object o = method.invoke(target, null);
 
-                        // Handle nulls if you like
+                        // TODO: Handle nulls if you like
                         if (o == null) {
                             // Create an empty hashmap for null value
                             if (method.getReturnType().isAssignableFrom(HashMap.class)) {
@@ -45,7 +48,7 @@ public class VcardObjectHelper {
                         } else if (o instanceof List) {
                             // Convert any VcardObject list to object arrays
                             List listConversion = new ArrayList();
-                            for (Object entry : ((List)o)) {
+                            for (Object entry : ((List) o)) {
                                 if (entry instanceof VcardObject) {
                                     listConversion.add(toObjects(entry));
                                 } else {
@@ -77,28 +80,24 @@ public class VcardObjectHelper {
                 }
             }
         }
-        List<Object> ret = new ArrayList<Object>(Arrays.asList(result)).subList(0, order.size());
+
+        List<Object> ret = new ArrayList(Arrays.asList(result)).subList(0, order.size());
         // Add unordered/no-annotated getters values to the end of our list
         ret.addAll(unordered);
         return ret;
     }
 
-
     public static <K, V> HashMap createHashMap(Map.Entry<K, V>... entries) {
-        HashMap <K, V> ret = new HashMap <K, V>();
-        for (Map.Entry<K, V>entry : entries) {
+        HashMap<K, V> ret = new HashMap();
+        for (Map.Entry<K, V> entry : entries) {
             ret.put(entry.getKey(), entry.getValue());
         }
         return ret;
     }
 
-
     public static class VcardBuilder {
         Vcard entityVcard = new Vcard();
         HashMap<String, VcardObject> settersMap = new HashMap<String, VcardObject>();
-
-        public VcardBuilder() {
-        }
 
         public boolean isEmpty() {
             boolean ret = false;
@@ -107,12 +106,11 @@ public class VcardObjectHelper {
             }
 
             if (entityVcard.getVcardEntries().size() == 1) {
-                if (entityVcard.getVcardEntries().get(0).getClass().getName().equals(Version.class.getName())) {
+                if (entityVcard.getVcardEntries().get(0).getClass().getName().equals(Version.class.getName())) {        // TODO
                     ret = true;
                 }
             }
             return ret;
-
         }
 
         public VcardBuilder addAdr(HashMap parameters, AdrEntryValueType value) {
@@ -193,7 +191,6 @@ public class VcardObjectHelper {
             return this;
         }
 
-
         // Other possibly useful vcard properties
 
         public VcardBuilder setAnniversary(String value) {
@@ -253,7 +250,6 @@ public class VcardObjectHelper {
             setCheck(ev);
             return this;
         }
-
 
         public VcardBuilder setKey(HashMap parameters, String value) {
             Key ev = new Key();
@@ -325,8 +321,6 @@ public class VcardObjectHelper {
             } else {
                 entityVcard.getVcardEntries().add(ev);
             }
-
         }
-
     }
 }

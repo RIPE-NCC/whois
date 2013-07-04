@@ -24,8 +24,8 @@ import java.util.Queue;
 
 public class RestStreamingOutput extends WhoisStreamingOutput {
 
-    public RestStreamingOutput(StreamingMarshal sm, QueryHandler qh, Parameters p, Query q, InetAddress ra, int cid) {
-        super(sm,qh,p,q,ra,cid);
+    public RestStreamingOutput(StreamingMarshal streamingMarshal, QueryHandler queryHandler, Parameters parameters, Query query, InetAddress remoteAddress, int contextId) {
+        super(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId);
     }
 
     @Override

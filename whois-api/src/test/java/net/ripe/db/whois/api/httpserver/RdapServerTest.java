@@ -21,7 +21,7 @@ public class RdapServerTest extends AbstractRestClientTest {
         final HttpURLConnection httpConnect = (HttpURLConnection)url.openConnection();
         httpConnect.connect();
 
-        Thread.sleep(150000);
+        Thread.sleep(150000);       // TODO
 
         assertEquals(httpConnect.getResponseCode(), 200);
         httpConnect.disconnect();

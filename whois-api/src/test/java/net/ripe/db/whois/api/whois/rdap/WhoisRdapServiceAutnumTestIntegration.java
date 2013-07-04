@@ -42,8 +42,7 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
             "mnt-by:  OWNER-MNT\n" +
             "nic-hdl: TP1-TEST\n" +
             "changed: noreply@ripe.net 20120101\n" +
-            "source:  TEST\n"
-    );
+            "source:  TEST\n");
 
     private static final RpslObject TP2_TEST = RpslObject.parse("" +
             "person:  Test Person2\n" +
@@ -53,8 +52,7 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
             "mnt-by:  OWNER-MNT\n" +
             "nic-hdl: TP2-TEST\n" +
             "changed: noreply@ripe.net 20120101\n" +
-            "source:  TEST\n"
-    );
+            "source:  TEST\n");
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
@@ -65,8 +63,7 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
             "mnt-by:      OWNER-MNT\n" +
             "referral-by: OWNER-MNT\n" +
             "changed:     dbtest@ripe.net 20120101\n" +
-            "source:      TEST"
-    );
+            "source:      TEST");
 
     private static final RpslObject ASN_RANGE_ONE = RpslObject.parse("" +
             "as-block:  AS1000-AS2000\n" +
@@ -78,8 +75,7 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
             "country:   AU\n" +
             "changed:   test@test.net.au 20010816\n" +
             "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n"
-    );
+            "source:    TEST\n");
 
     private static final RpslObject ASN_RANGE_TWO = RpslObject.parse("" +
             "as-block:  AS10000-AS20000\n" +
@@ -89,8 +85,7 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
             "country:   AU\n" +
             "changed:   test@test.net.au 20010816\n" +
             "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n"
-    );
+            "source:    TEST\n");
 
     private static final RpslObject ASN_SINGLE = RpslObject.parse("" +
             "aut-num:   AS12345\n" +
@@ -101,15 +96,13 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
             "country:   AU\n" +
             "changed:   test@test.net.au 20010816\n" +
             "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n"
-    );
+            "source:    TEST\n");
 
     @Before
     public void setup() throws Exception {
         databaseHelper.addObject(TP1_TEST_BOOT);
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TP1_TEST);
-
         databaseHelper.addObject(TP2_TEST);
         databaseHelper.addObject(ASN_RANGE_ONE);
         databaseHelper.addObject(ASN_RANGE_TWO);
@@ -147,7 +140,7 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
         assertThat(events.size(), equalTo(1));
 
         final Event event = events.get(0);
-        assertThat(event.getEventDate().toGregorianCalendar().getTime(), equalTo(new GregorianCalendar(2001, 7, 16).getTime()));
+        assertThat(event.getEventDate().toGregorianCalendar().getTime(), equalTo(new GregorianCalendar(2001, 7, 16).getTime()));    // TODO: use Joda time
 
         final List<Entity> entities = autnum.getEntities();
         assertThat(entities.size(), equalTo(2));

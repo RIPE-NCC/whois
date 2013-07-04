@@ -31,16 +31,7 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
 
     private boolean found;
 
-    public RdapStreamingOutput(
-            final StreamingMarshal streamingMarshal,
-            final QueryHandler queryHandler,
-            final Parameters parameters,
-            final Query query,
-            final InetAddress remoteAddress,
-            final int contextId,
-            final SourceContext sourceContext,
-            final String baseUrl,
-            final String requestUrl) {
+    public RdapStreamingOutput(final StreamingMarshal streamingMarshal, final QueryHandler queryHandler, final Parameters parameters, final Query query, final InetAddress remoteAddress, final int contextId, final SourceContext sourceContext, final String baseUrl, final String requestUrl) {
         super(streamingMarshal, queryHandler, parameters, query, remoteAddress, contextId);
         this.sourceContext = sourceContext;
         this.baseUrl = baseUrl;
@@ -57,7 +48,6 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
 
         try {
             queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
-
                 @Override
                 public void handle(final ResponseObject responseObject) {
                     if (responseObject instanceof RpslObject) {
@@ -82,11 +72,7 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
         } catch (NotFoundException nfe) {
             throw nfe;
         } catch (RuntimeException e) {
-            throw new WebApplicationException(
-                    Response.status(Response.Status.BAD_REQUEST)
-                            .entity(e.toString())
-                            .build()
-            );
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.toString()).build());
         }
 
         streamingMarshal.close();
