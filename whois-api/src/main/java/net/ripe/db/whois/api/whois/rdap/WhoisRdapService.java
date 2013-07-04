@@ -32,6 +32,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
+import java.lang.StringBuffer;
 
 @ExternallyManagedLifecycle
 @Component
@@ -84,9 +85,35 @@ public class WhoisRdapService extends WhoisService {
     }
 
     protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
-        final StreamingMarshal streamingMarshal = new RdapStreamingMarshalJson();
+        final StreamingMarshal streamingMarshal = 
+            new RdapStreamingMarshalJson();
 
-        RdapStreamingOutput rso = new RdapStreamingOutput(streamingMarshal,queryHandler,parameters,query,remoteAddress,contextId,sourceContext);
+        String queryString = request.getQueryString();
+        String requestUrl  = request.getRequestURL().toString() +
+                             ((queryString != null) ? "?" + queryString : "");
+
+        /* A bit awkward; there should be a better way to determine
+         * this. */
+        String baseUrl = requestUrl;
+        int pathIndex = 0;
+        int count = 3;
+        while ((count--) != 0) {
+            pathIndex = baseUrl.indexOf('/', pathIndex + 1);
+        }
+        String contextPath = request.getContextPath();
+        baseUrl = baseUrl.substring(0, pathIndex) +
+                  request.getContextPath();
+
+        RdapStreamingOutput rso = 
+            new RdapStreamingOutput(streamingMarshal,
+                                    queryHandler,
+                                    parameters,
+                                    query,
+                                    remoteAddress,
+                                    contextId,
+                                    sourceContext,
+                                    baseUrl,
+                                    requestUrl);
 
         return Response.ok(rso).build();
     }

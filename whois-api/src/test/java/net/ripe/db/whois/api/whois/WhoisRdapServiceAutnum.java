@@ -163,6 +163,15 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
 
         Entity admin_c = entities.get(0);
         assertThat(admin_c.getHandle(), equalTo("TP1-TEST"));
+
+        List<Link> links = an.getLinks();
+        assertThat(links.size(), equalTo(1));
+        
+        Link sf = links.get(0);
+        assertThat(sf.getRel(), equalTo("self"));
+        String ru = createResourceUrl(AUDIENCE, "autnum/12345");
+        assertThat(sf.getValue(), equalTo(ru));
+        assertThat(sf.getHref(), equalTo(ru));
     }
 
     @Test
@@ -181,8 +190,15 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
         assertThat(an.getType(),    equalTo("DIRECT ALLOCATION"));
     }
 
+    private String createResourceUrl(final Audience audience,
+                                     final String path) {
+        return String.format("http://localhost:%s/%s",
+                             getPort(audience),
+                             path);
+    }
+
     @Override
     protected WebResource createResource(final Audience audience, final String path) {
-        return client.resource(String.format("http://localhost:%s/%s", getPort(audience), path));
+        return client.resource(createResourceUrl(audience, path));
     }
 }

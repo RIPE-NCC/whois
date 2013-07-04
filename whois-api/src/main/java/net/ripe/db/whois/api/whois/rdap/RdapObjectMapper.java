@@ -55,14 +55,18 @@ public class RdapObjectMapper {
         Lists.newArrayList("rdap_level_0");
     private QueryHandler queryHandler;
     private String source;
+    private String baseUrl;
+    private String requestUrl;
 
-    public RdapObjectMapper(QueryHandler qh,
-                            SourceContext sc,
+    public RdapObjectMapper(String bu, String ru,
+                            QueryHandler qh, SourceContext sc,
                             Queue<TaggedRpslObject> taggedRpslObjectQueue)
             throws DatatypeConfigurationException {
         this.taggedRpslObjectQueue = taggedRpslObjectQueue;
         this.queryHandler = qh;
         this.source = sc.getWhoisSlaveSource().getName().toString();
+        this.baseUrl = bu;
+        this.requestUrl = ru;
     }
 
     public Object build() throws Exception {
@@ -274,7 +278,14 @@ public class RdapObjectMapper {
          * within the range has a corresponding aut-num record, then
          * there's no way to disambiguate. It may be an idea to add a
          * link to an external service at some later point, though. */
-        
+
+        /* Add a 'self' link. */
+        Link sf = rdapObjectFactory.createLink();
+        sf.setRel("self");
+        sf.setValue(requestUrl);
+        sf.setHref(baseUrl + "/autnum/" + start.toString());
+        an.getLinks().add(sf);
+
         return an;
     }
 

@@ -24,13 +24,18 @@ import java.net.InetAddress;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
+import java.lang.StringBuffer;
 
 public class RdapStreamingOutput extends WhoisStreamingOutput {
     private SourceContext sourceContext;
+    private String baseUrl;
+    private String requestUrl;
 
-    public RdapStreamingOutput(StreamingMarshal sm, QueryHandler qh, Parameters p, Query q, InetAddress ra, int cid, SourceContext sc) {
+    public RdapStreamingOutput(StreamingMarshal sm, QueryHandler qh, Parameters p, Query q, InetAddress ra, int cid, SourceContext sc, String bu, String ru) {
         super(sm,qh,p,q,ra,cid);
         sourceContext = sc;
+        baseUrl = bu;
+        requestUrl = ru;
     }
 
     @Override
@@ -66,7 +71,8 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
             }
 
             RdapObjectMapper rdapObjectMapper = 
-                new RdapObjectMapper(queryHandler, sourceContext,
+                new RdapObjectMapper(baseUrl, requestUrl, 
+                                     queryHandler, sourceContext,
                                      taggedRpslObjectQueue);
             streamObject(rdapObjectMapper.build());
 
