@@ -35,17 +35,14 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 @ExternallyManagedLifecycle
 public abstract class WhoisService {
 
-    protected static final String TEXT_JSON = "text/json";
-    protected static final String TEXT_XML = "text/xml";
+    private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings();
 
     protected final DateTimeProvider dateTimeProvider;
     protected final UpdateRequestHandler updateRequestHandler;
     protected final LoggerContext loggerContext;
     protected final RpslObjectDao rpslObjectDao;
+    protected final SourceContext sourceContext;
     protected final QueryHandler queryHandler;
-
-    @Autowired
-    protected SourceContext sourceContext;
 
     @Autowired
     public WhoisService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
@@ -132,7 +129,7 @@ public abstract class WhoisService {
     protected StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
         final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
 
-        for (final String accept : Splitter.on(',').split(acceptHeader)) {
+        for (final String accept : COMMA_SPLITTER.split(acceptHeader)) {
             try {
                 final MediaType mediaType = MediaType.valueOf(accept);
                 final String subtype = mediaType.getSubtype().toLowerCase();

@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.whois.rdap;
 
-import net.ripe.db.whois.api.whois.ApiResponseHandler;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
 import net.ripe.db.whois.api.whois.WhoisService;
 import net.ripe.db.whois.api.whois.domain.Parameters;
@@ -8,15 +7,12 @@ import net.ripe.db.whois.api.whois.domain.WhoisResources;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
-import net.ripe.db.whois.api.whois.rdap.RdapUtilities;
 import org.codehaus.enunciate.jaxrs.TypeHint;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +28,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
-import java.lang.StringBuffer;
 
 @ExternallyManagedLifecycle
 @Component
@@ -55,17 +50,17 @@ public class WhoisRdapService extends WhoisService {
         /* RDAP object types do not map directly to whois object
          * types, so translate accordingly here for the remaining
          * object types as they are implemented. */
-        
+
         String whoisObjectType = objectType;
         String whoisKey        = key;
-        
+
         if (objectType.equals("autnum")) {
-            whoisObjectType = 
-                (RdapUtilities.fetchObject(queryHandler, 
-                                           "aut-num", 
+            whoisObjectType =
+                (RdapUtilities.fetchObject(queryHandler,
+                                           "aut-num",
                                            "AS" + key,
-                                           source()) != null) 
-                    ? "aut-num" 
+                                           source()) != null)
+                    ? "aut-num"
                     : "as-block";
             whoisKey = "AS" + key;
         } else if (objectType.equals("entity")) {
@@ -73,19 +68,19 @@ public class WhoisRdapService extends WhoisService {
         } else if (objectType.equals("domain")) {
             whoisObjectType = "domain";
         } else {
-            Response.ResponseBuilder rb = 
+            Response.ResponseBuilder rb =
                 Response.status(Response.Status.NOT_FOUND);
             return rb.build();
         }
 
-        Response res = lookupObject(request, source(), whoisObjectType, 
+        Response res = lookupObject(request, source(), whoisObjectType,
                                     whoisKey, false);
 
         return res;
     }
 
     protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
-        final StreamingMarshal streamingMarshal = 
+        final StreamingMarshal streamingMarshal =
             new RdapStreamingMarshalJson();
 
         String queryString = request.getQueryString();
@@ -104,7 +99,7 @@ public class WhoisRdapService extends WhoisService {
         baseUrl = baseUrl.substring(0, pathIndex) +
                   request.getContextPath();
 
-        RdapStreamingOutput rso = 
+        RdapStreamingOutput rso =
             new RdapStreamingOutput(streamingMarshal,
                                     queryHandler,
                                     parameters,
