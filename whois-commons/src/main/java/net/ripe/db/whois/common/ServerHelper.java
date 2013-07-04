@@ -51,6 +51,10 @@ public class ServerHelper {
     }
 
     public static void sleep(long millisecs) {
+        if (millisecs <= 0) {
+            return;
+        }
+
         try {
             Thread.sleep(millisecs);
         } catch (InterruptedException ignored) {}

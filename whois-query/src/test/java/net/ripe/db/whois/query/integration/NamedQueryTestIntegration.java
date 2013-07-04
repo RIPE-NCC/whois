@@ -30,7 +30,7 @@ public class NamedQueryTestIntegration extends AbstractWhoisIntegrationTest {
     }
 
     @Test
-    public void objDoc() throws Exception {
+    public void objDoc() throws Exception {     // TODO: rewrite test
         String response;
         /*response = DummyWhoisClient.query(QueryServer.port, "-v person");
         System.out.println(response);

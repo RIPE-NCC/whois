@@ -41,6 +41,7 @@ public class SourceContext {
     private final Set<CIString> grsSourceNames;
     private final Set<CIString> grsSourceNamesForDummification;
     private final Set<CIString> allSourceNames;
+    private final Set<CIString> additionalSourceNames;
     private final Map<CIString, CIString> aliases;
 
     private ThreadLocal<SourceConfiguration> current = new ThreadLocal<>();
@@ -48,6 +49,7 @@ public class SourceContext {
     @Autowired
     public SourceContext(
             @Value("${whois.source}") final String mainSourceNameString,
+            @Value("${whois.additional.sources}") final String additionalSourceNames,
             @Value("${grs.sources}") final String grsSourceNames,
             @Value("${nrtm.import.sources}") final String nrtmSourceNames,
             @Value("${grs.sources.dummify}") final String grsSourceNamesForDummification,
@@ -65,6 +67,7 @@ public class SourceContext {
         this.mainMasterSource = Source.master(mainSourceName);
         this.mainSlaveSource = Source.slave(mainSourceName);
 
+        final Set<CIString> additionalSources = Sets.newLinkedHashSet();
         final Set<CIString> grsSources = Sets.newLinkedHashSet();
         final Map<CIString, CIString> aliases = Maps.newLinkedHashMap();
 
@@ -117,6 +120,8 @@ public class SourceContext {
             }
         }
 
+        LOGGER.info("Using sources: {}", sourceConfigurations.keySet());
+
         this.grsSourceNames = Collections.unmodifiableSet(grsSources);
         this.grsSourceNamesForDummification = ciSet(COMMA_SPLITTER.split(grsSourceNamesForDummification));
         this.aliases = Collections.unmodifiableMap(aliases);
@@ -128,7 +133,21 @@ public class SourceContext {
             }
         })));
 
-        LOGGER.info("Using sources: {}", sourceConfigurations.keySet());
+        for (final CIString sourceName : CIString.ciSet(COMMA_SPLITTER.split(additionalSourceNames))) {
+            if (this.allSourceNames.contains(sourceName)) {
+                additionalSources.add(sourceName);
+            }
+            else {
+                LOGGER.error("Additional source {} not found in configured sources", sourceName);
+                throw new IllegalSourceException(sourceName.toString());
+            }
+        }
+
+        this.additionalSourceNames = Collections.unmodifiableSet(additionalSources);
+
+        if (!additionalSources.isEmpty()) {
+            LOGGER.info("Additional sources: {}", additionalSources);
+        }
     }
 
     private String createGrsUrl(final String baseUrl, final CIString sourceName) {
@@ -174,6 +193,10 @@ public class SourceContext {
 
     public Set<CIString> getGrsSourceNames() {
         return grsSourceNames;
+    }
+
+    public Set<CIString> getAdditionalSourceNames() {
+        return additionalSourceNames;
     }
 
     @CheckForNull

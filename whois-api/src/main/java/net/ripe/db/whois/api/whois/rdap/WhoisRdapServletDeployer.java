@@ -30,12 +30,13 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
 
     @Override
     public Audience getAudience() {
-        return Audience.RDAP;
+        return Audience.PUBLIC;
     }
 
     @Override
-    public void deploy(WebAppContext context) {
-        final ServletHolder servlet = new ServletHolder("Whois RDAP REST API", new ServletContainer(new Application() {
+    public void deploy(final WebAppContext context) {
+
+        context.addServlet(new ServletHolder("Whois RDAP REST API", new ServletContainer(new Application() {
             @Override
             public Set<Object> getSingletons() {
                 final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
@@ -45,9 +46,6 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
                         defaultExceptionMapper,
                         jaxbJsonProvider));
             }
-        }));
-
-        servlet.setInitParameter("com.sun.jersey.config.property.packages", "net.ripe.db");
-        context.addServlet(servlet, "/*");
+        })), "/rdap/*");
     }
 }

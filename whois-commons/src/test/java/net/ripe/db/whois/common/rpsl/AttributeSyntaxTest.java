@@ -922,6 +922,19 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "WHITEPAGES");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "DIRECT_ASSIGNMENT");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "OTHER");
+
+        final AttributeSyntax.OrgTypeSyntax orgTypeSyntax = new AttributeSyntax.OrgTypeSyntax();
+        final String description = orgTypeSyntax.getDescription(ObjectType.ORGANISATION);
+        assertThat(description, is("" +
+                "org-type can have one of these values:\n" +
+                "\n" +
+                "o 'IANA' for Internet Assigned Numbers Authority\n" +
+                "o 'RIR' for Regional Internet Registries\n" +
+                "o 'NIR' for National Internet Registries (there are no NIRs in the RIPE NCC service region)\n" +
+                "o 'LIR' for Local Internet Registries\n" +
+                "o 'WHITEPAGES' for special links to industry people\n" +
+                "o 'DIRECT_ASSIGNMENT' for direct contract with RIPE NCC\n" +
+                "o 'OTHER' for all other organisations.\n\n"));
     }
 
     @Test

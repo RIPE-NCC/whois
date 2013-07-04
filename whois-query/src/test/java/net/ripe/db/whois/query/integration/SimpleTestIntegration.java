@@ -74,7 +74,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     }
 
     @Test
-    public void testDoc() {
+    public void testDoc() {         // TODO: add assertion
         final String response = DummyWhoisClient.query(QueryServer.port, "-v mntner");
 
         System.out.println(response);

@@ -28,7 +28,7 @@ public class WhoisObjectMapper {
 
     private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)^[^#]*[#](.*)$");
 
-    private static final String BASE_URL = "http://apps.db.ripe.net/whois-beta/lookup";     // TODO: base url property
+    private static final String BASE_URL = "http://apps.db.ripe.net/whois/lookup";     // TODO: base url property
 
     private static final Set<AttributeType> CSV_ATTRIBUTES = Sets.immutableEnumSet(
             AttributeType.MNT_BY,
@@ -87,6 +87,17 @@ public class WhoisObjectMapper {
 
     public static WhoisObject map(final RpslObject rpslObject) {
         return map(rpslObject, true);
+    }
+
+    public static WhoisObject map(final RpslObject rpslObject, final List<TagResponseObject> tags) {
+        final WhoisObject object = map(rpslObject);
+
+        final List<WhoisTag> whoisTags = Lists.newArrayListWithExpectedSize(tags.size());
+        for (final TagResponseObject tag : tags) {
+            whoisTags.add(new WhoisTag(tag.getType().toString(), tag.getValue()));
+        }
+        object.setTags(whoisTags);
+        return object;
     }
 
     public static WhoisObject map(final RpslObject rpslObject, final boolean filter) {
@@ -195,13 +206,5 @@ public class WhoisObjectMapper {
         }
 
         return whoisVersions;
-    }
-
-    public static WhoisTags mapTags(final List<TagResponseObject> tags) {
-        final List<WhoisTag> whoisTags = Lists.newArrayListWithExpectedSize(tags.size());
-        for (final TagResponseObject tag : tags) {
-            whoisTags.add(new WhoisTag(tag.getType().toString(), tag.getValue()));
-        }
-        return new WhoisTags(whoisTags);
     }
 }
