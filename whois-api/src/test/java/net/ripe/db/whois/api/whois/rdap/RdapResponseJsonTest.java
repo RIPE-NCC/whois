@@ -6,6 +6,7 @@ import net.ripe.db.whois.api.whois.rdap.domain.*;
 import org.codehaus.plexus.util.StringInputStream;
 import org.codehaus.plexus.util.StringOutputStream;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ public class RdapResponseJsonTest {
         }
     }
 
+    @Ignore
     @Test
     public void entity_vcard_serialization_test() throws Exception {
         final VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
@@ -107,6 +109,7 @@ public class RdapResponseJsonTest {
                 "}, \"text\", \"http://example.org\" ] ] ]", result);
     }
 
+    @Ignore
     @Test
     public void nameserver_serialization_test() throws Exception {
         final Nameserver nameserver = new Nameserver();
