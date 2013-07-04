@@ -20,7 +20,6 @@ import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -163,16 +162,19 @@ public class RdapResponseJsonTest {
         StringOutputStream serializer = streamObject(nameserver);
         String result = convertEOLToUnix(serializer);
 
+        System.out.println(result);
+
         assertEquals("" +
                 "{\n" +
                 "  \"handle\" : \"handle\",\n" +
                 "  \"ldhName\" : \"ns1.xn--fo-5ja.example\",\n" +
                 "  \"unicodeName\" : \"foo.example\",\n" +
-                "  \"status\" : [ \"active\" ],\n" +
                 "  \"ipAddresses\" : {\n" +
                 "    \"ipv4\" : [ \"192.0.2.1\", \"192.0.2.2\" ],\n" +
                 "    \"ipv6\" : [ \"2001:db8::123\" ]\n" +
                 "  },\n" +
+                "  \"port43\" : \"whois.example.net\",\n" +
+                "  \"status\" : [ \"active\" ],\n" +
                 "  \"remarks\" : [ {\n" +
                 "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
                 "  } ],\n" +
@@ -181,7 +183,6 @@ public class RdapResponseJsonTest {
                 "    \"rel\" : \"self\",\n" +
                 "    \"href\" : \"http://example.net/nameserver/xxxx\"\n" +
                 "  } ],\n" +
-                "  \"port43\" : \"whois.example.net\",\n" +
                 "  \"events\" : [ {\n" +
                 "    \"eventAction\" : \"registration\",\n" +
                 "    \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
