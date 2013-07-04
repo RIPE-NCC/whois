@@ -21,6 +21,8 @@ import net.ripe.db.whois.api.whois.rdap.domain.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.Date;
 import java.math.BigInteger;
@@ -44,6 +46,18 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
             "e-mail:  noreply@ripe.net\n" +
             "mnt-by:  OWNER-MNT\n" +
             "nic-hdl: TP1-TEST\n" +
+            "changed: noreply@ripe.net 20120101\n" +
+            "source:  TEST\n"
+        );
+
+    private static final RpslObject TP2_TEST = 
+        RpslObject.parse(
+            "person:  Test Person2\n" +
+            "address: Test Address\n" +
+            "phone:   +61-1234-1234\n" +
+            "e-mail:  noreply@ripe.net\n" +
+            "mnt-by:  OWNER-MNT\n" +
+            "nic-hdl: TP2-TEST\n" +
             "changed: noreply@ripe.net 20120101\n" +
             "source:  TEST\n"
         );
@@ -80,7 +94,7 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
             "as-block:  AS10000-AS20000\n" +
             "descr:     An ASN range\n" +
             "admin-c:   TP1-TEST\n" +
-            "tech-c:    TP1-TEST\n" +
+            "tech-c:    TP2-TEST\n" +
             "country:   AU\n" +
             "changed:   test@test.net.au 20010816\n" +
             "mnt-by:    OWNER-MNT\n" +
@@ -93,7 +107,7 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
             "as-name:   AS-TEST\n" +
             "descr:     A single ASN\n" +
             "admin-c:   TP1-TEST\n" +
-            "tech-c:    TP1-TEST\n" +
+            "tech-c:    TP2-TEST\n" +
             "country:   AU\n" +
             "changed:   test@test.net.au 20010816\n" +
             "mnt-by:    OWNER-MNT\n" +
@@ -108,6 +122,7 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
 
         List<RpslObject> objects = 
             new ArrayList<RpslObject>(Arrays.asList(
+                TP2_TEST,
                 ASN_RANGE_ONE,
                 ASN_RANGE_TWO,
                 ASN_SINGLE
@@ -159,10 +174,24 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
                         .getTime(), equalTo(check));
 
         List<Entity> entities = an.getEntities();
-        assertThat(entities.size(), equalTo(1));
+        assertThat(entities.size(), equalTo(2));
+        Collections.sort(entities, new Comparator<Entity>() {
+            public int compare(Entity e1, Entity e2) {
+                return e1.getHandle().compareTo(e2.getHandle());
+            }
+        });
 
-        Entity admin_c = entities.get(0);
-        assertThat(admin_c.getHandle(), equalTo("TP1-TEST"));
+        Entity e = entities.get(0);
+        assertThat(e.getHandle(), equalTo("TP1-TEST"));
+        List<String> roles = e.getRoles();
+        assertThat(roles.size(), equalTo(1));
+        assertThat(roles.get(0), equalTo("administrative"));
+
+        e = entities.get(1);
+        assertThat(e.getHandle(), equalTo("TP2-TEST"));
+        roles = e.getRoles();
+        assertThat(roles.size(), equalTo(1));
+        assertThat(roles.get(0), equalTo("technical"));
 
         List<Link> links = an.getLinks();
         assertThat(links.size(), equalTo(1));
@@ -197,6 +226,15 @@ public class WhoisRdapServiceAutnum extends AbstractRestClientTest {
         String ru = createResourceUrl(AUDIENCE, "autnum/1500");
         assertThat(sf.getValue(), equalTo(ru));
         assertThat(sf.getHref(), equalTo(ru));
+
+        List<Entity> entities = an.getEntities();
+        assertThat(entities.size(), equalTo(1));
+        Entity e = entities.get(0);
+        List<String> roles = e.getRoles();
+        assertThat(roles.size(), equalTo(2));
+        java.util.Collections.sort(roles);
+        assertThat(roles.get(0), equalTo("administrative"));
+        assertThat(roles.get(1), equalTo("technical"));
     }
 
     private String createResourceUrl(final Audience audience,

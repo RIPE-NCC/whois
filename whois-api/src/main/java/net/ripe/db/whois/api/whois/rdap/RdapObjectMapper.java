@@ -40,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Map;
 
 public class RdapObjectMapper {
     private static final Logger LOGGER = 
@@ -57,6 +58,15 @@ public class RdapObjectMapper {
     private String source;
     private String baseUrl;
     private String requestUrl;
+
+    /* Map from attribute type to role name, for entities. */
+    private static final Map<AttributeType, String> typeToRole;
+    static {
+        typeToRole = new HashMap<AttributeType, String>();
+        typeToRole.put(AttributeType.ADMIN_C, "administrative");
+        typeToRole.put(AttributeType.TECH_C,  "technical");
+        typeToRole.put(AttributeType.MNT_BY,  "registrant");
+    }
 
     public RdapObjectMapper(String bu, String ru,
                             QueryHandler qh, SourceContext sc,
@@ -191,25 +201,47 @@ public class RdapObjectMapper {
                              RpslObject rpslObject,
                              Queue<TaggedRpslObject> qtro,
                              Set<AttributeType> eats) {
-        HashMap<String, RpslObject> mtro = new HashMap<String, RpslObject>();
+        /* Construct a map for finding the entity objects in the query
+         * results. */
+        Map<String, RpslObject> mtro = new HashMap<String, RpslObject>();
         for (TaggedRpslObject tro : qtro) {
             mtro.put(tro.rpslObject.getKey().toString(),
                      tro.rpslObject);
         }
+        /* For each entity attribute type, load the attributes from
+         * the object. */
         List<RpslAttribute> eas = new ArrayList<RpslAttribute>();
         for (AttributeType eat : eats) {
             eas.addAll(rpslObject.findAttributes(eat));
         }
-        Set<String> seen = new HashSet<String>();
+        /* Construct a map from attribute value to a list of the
+         * attribute types against which it is recorded. (To handle
+         * the case where a single person/role/similar occurs multiple
+         * times in a record.) */
+        Map<String, Set<AttributeType>> valueToRoles =
+            new HashMap<String, Set<AttributeType>>();
         for (RpslAttribute ra : eas) {
             String key = ra.getCleanValue().toString();
-            if (seen.contains(key)) {
-                continue;
+            Set<AttributeType> ats = valueToRoles.get(key);
+            if (ats != null) {
+                ats.add(ra.getType());
+            } else {
+                Set<AttributeType> newAts = new HashSet<AttributeType>();
+                newAts.add(ra.getType());
+                valueToRoles.put(key, newAts);
             }
-            seen.add(key);
+        }
+
+        for (String key : valueToRoles.keySet()) {
+            Set<AttributeType> ats = valueToRoles.get(key);
             RpslObject ro = mtro.get(key);
             if (ro != null) {
                 Entity e = createEntity(ro);
+                List<String> roles = e.getRoles();
+                for (AttributeType at : ats) {
+                    String role = typeToRole.get(at);
+                    roles.add(role);
+                }
                 rdapObject.getEntities().add(e);
             }
         }
