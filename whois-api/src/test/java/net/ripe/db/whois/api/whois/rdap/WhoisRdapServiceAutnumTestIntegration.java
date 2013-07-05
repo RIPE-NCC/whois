@@ -14,13 +14,16 @@ import net.ripe.db.whois.api.whois.rdap.domain.Link;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -139,7 +142,10 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
         assertThat(events.size(), equalTo(1));
 
         final Event event = events.get(0);
-        assertThat(event.getEventDate().toGregorianCalendar().getTime(), equalTo(new GregorianCalendar(2001, 7, 16).getTime()));    // TODO: use Joda time
+        DateTime eventDateTime = new DateTime(event.getEventDate().toGregorianCalendar());
+        LocalTime checkTime = new LocalTime(0, 0, 0);
+        DateTime checkDate = DateTimeFormat.forPattern("yyyyMMdd").parseLocalDate("20010816").toDateTime(checkTime);
+        assertThat(eventDateTime.toString(), equalTo(checkDate.toString()));
 
         final List<Entity> entities = autnum.getEntities();
         assertThat(entities.size(), equalTo(2));
@@ -175,41 +181,8 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
         assertThat(selfLink.getHref(), equalTo(ru));
     }
 
-    @Test
-    public void lookupAutnumWithinBlock() throws Exception {
-        final ClientResponse clientResponse = createResource(AUDIENCE, "autnum/1500").get(ClientResponse.class);
-        final Autnum autnum = clientResponse.getEntity(Autnum.class);
-
-        assertThat(autnum.getHandle(), equalTo("AS1000-AS2000"));
-        assertThat(autnum.getStartAutnum(), equalTo((long) 1000));
-        assertThat(autnum.getEndAutnum(), equalTo((long) 2000));
-        assertThat(autnum.getName(), equalTo("AS1000-AS2000"));
-        assertThat(autnum.getCountry(), equalTo("AU"));
-        assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
-
-        final List<Link> links = autnum.getLinks();
-        assertThat(links.size(), equalTo(1));
-
-        final Link self = links.get(0);
-        assertThat(self.getRel(), equalTo("self"));
-
-        final String selfUrl = createResource(AUDIENCE, "autnum/1500").toString();
-        assertThat(self.getValue(), equalTo(selfUrl));
-        assertThat(self.getHref(), equalTo(selfUrl));
-
-        final List<Entity> entities = autnum.getEntities();
-        assertThat(entities.size(), equalTo(1));
-
-        final List<String> roles = entities.get(0).getRoles();
-        assertThat(roles.size(), equalTo(2));
-
-        java.util.Collections.sort(roles);
-        assertThat(roles.get(0), equalTo("administrative"));
-        assertThat(roles.get(1), equalTo("technical"));
-    }
-
     @Override
     protected WebResource createResource(final Audience audience, final String path) {
-        return client.resource(String.format("http://localhost:%s/%s", getPort(audience), path));
+        return client.resource(String.format("http://localhost:%s/rdap/%s", getPort(audience), path));
     }
 }
