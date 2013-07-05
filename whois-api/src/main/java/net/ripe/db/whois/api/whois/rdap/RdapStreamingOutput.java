@@ -70,7 +70,7 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
                 throw new RuntimeException("Unexpected result", e);
             }
         } catch (NotFoundException nfe) {
-            throw nfe;
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("").build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.toString()).build());
         }

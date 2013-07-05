@@ -124,6 +124,7 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
         final ClientResponse clientResponse = createResource(AUDIENCE, "autnum/1").get(ClientResponse.class);
 
         assertThat(clientResponse.getStatus(), equalTo(404));
+        assertThat(clientResponse.getEntity(String.class), equalTo(""));
     }
 
     @Test
