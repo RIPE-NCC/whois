@@ -33,19 +33,35 @@
                         <xs:element name="nameservers" type="nameserver" maxOccurs="unbounded"  minOccurs="1"/>
                         <!-- TODO secureDNS, and variants -->
                         <xs:element name="secureDNS" maxOccurs="1" minOccurs="0">
-                            <xs:sequence>
-                                <xs:element name="zoneSigned" type="xs:boolean" maxOccurs="1"  minOccurs="1"/>
-                                <xs:element name="delegationSigned" type="xs:boolean" maxOccurs="1" minOccurs="1"/>
-                                <xs:element name="maxSigLife" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
-                                <xs:element name="dsData" maxOccurs="unbounded" minOccurs="0">
-                                    <xs:sequence>
-                                        <xs:element name="keyTag" type="xs:nonNegativeInteger" maxOccurs="1"  minOccurs="1"/>
-                                        <xs:element name="algorithm" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
-                                        <xs:element name="maxSigLife" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
-                                        <xs:element name="events" type="event" minOccurs="0" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                </xs:element>
-                            </xs:sequence>
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="zoneSigned" type="xs:boolean" maxOccurs="1"  minOccurs="1"/>
+                                    <xs:element name="delegationSigned" type="xs:boolean" maxOccurs="1" minOccurs="1"/>
+                                    <xs:element name="maxSigLife" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
+                                    <xs:element name="dsData" maxOccurs="unbounded" minOccurs="0">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="keyTag" type="xs:nonNegativeInteger" maxOccurs="1"  minOccurs="1"/>
+                                                <xs:element name="algorithm" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
+                                                <xs:element name="digest" type="xs:string"  maxOccurs="1" minOccurs="1"/>
+                                                <xs:element name="digestType" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
+                                                <xs:element name="events" type="event" minOccurs="0" maxOccurs="unbounded"/>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                    <xs:element name="keyData" maxOccurs="unbounded" minOccurs="0">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="flags" type="xs:string" maxOccurs="1"  minOccurs="1"/>
+                                                <xs:element name="protocol" type="xs:string" maxOccurs="1" minOccurs="1"/>
+                                                <xs:element name="publicKey" type="xs:string"  maxOccurs="1" minOccurs="1"/>
+                                                <xs:element name="algorithm" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
+                                                <xs:element name="events" type="event" minOccurs="0" maxOccurs="unbounded"/>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
                         </xs:element>
                         <xs:element name="publicIds" type="hashMapType" maxOccurs="1" minOccurs="0"/>
                         <xs:element name="port43" type="xs:string" minOccurs="0" maxOccurs="1"/>
