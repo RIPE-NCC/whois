@@ -2,12 +2,19 @@ package net.ripe.db.whois.api.whois.rdap;
 
 import com.Ostermiller.util.LineEnds;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
-import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Event;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
+import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.whois.rdap.domain.Notice;
+import net.ripe.db.whois.api.whois.rdap.domain.Remark;
 import org.codehaus.plexus.util.StringInputStream;
 import org.codehaus.plexus.util.StringOutputStream;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +28,6 @@ import java.util.List;
 
 import static com.google.common.collect.Maps.immutableEntry;
 import static net.ripe.db.whois.api.whois.rdap.VcardObjectHelper.createMap;
-import static org.junit.Assert.assertEquals;
 
 public class RdapResponseJsonTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapResponseJsonTest.class);
@@ -74,7 +80,7 @@ public class RdapResponseJsonTest {
         final List<Object> objects = builder.build();
         final String result = convertEOLToUnix(streamObject(objects));
 
-        assertEquals("" +
+        String expectedString = "" +
                 "[ \"vcard\", [ [ \"version\", {\n" +
                 "}, \"text\", \"4.0\" ], [ \"fn\", {\n" +
                 "}, \"text\", \"Joe User\" ], [ \"n\", {\n" +
@@ -106,7 +112,9 @@ public class RdapResponseJsonTest {
                 "}, \"text\", \"http://www.example.com/joe.user/joe.asc\" ], [ \"tz\", {\n" +
                 "}, \"utc-offset\", \"-05:00\" ], [ \"key\", {\n" +
                 "  \"type\" : \"work\"\n" +
-                "}, \"text\", \"http://example.org\" ] ] ]", result);
+                "}, \"text\", \"http://example.org\" ] ] ]";
+
+        JSONAssert.assertEquals(expectedString,result,true);
     }
 
     @Ignore
@@ -160,11 +168,8 @@ public class RdapResponseJsonTest {
 
         final String result = convertEOLToUnix(streamObject(nameserver));
 
-        System.out.println(result);
-
-        assertEquals("" +
+        String expectedString = "" +
                 "{\n" +
-                "  \"handle\" : \"handle\",\n" +
                 "  \"ldhName\" : \"ns1.xn--fo-5ja.example\",\n" +
                 "  \"unicodeName\" : \"foo.example\",\n" +
                 "  \"ipAddresses\" : {\n" +
@@ -188,8 +193,12 @@ public class RdapResponseJsonTest {
                 "    \"eventAction\" : \"last changed\",\n" +
                 "    \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
-                "  } ]\n" +
-                "}", result);
+                "  } ],\n" +
+                "  \"handle\" : \"handle\"\n" +
+                "}";
+
+        JSONAssert.assertEquals(expectedString,result,true);
+
     }
 
     @Test
@@ -281,7 +290,7 @@ public class RdapResponseJsonTest {
 
         final String result = convertEOLToUnix(streamObject(ip));
 
-        assertEquals("" +
+        String expectedString = "" +
                 "{\n" +
                 "  \"handle\" : \"XXXX-RIR\",\n" +
                 "  \"startAddress\" : \"2001:db8::0\",\n" +
@@ -342,7 +351,9 @@ public class RdapResponseJsonTest {
                 "    \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ]\n" +
-                "}", result);
+                "}";
+
+        JSONAssert.assertEquals(expectedString,result,true);
     }
 
 
@@ -367,7 +378,7 @@ public class RdapResponseJsonTest {
 
         String result = convertEOLToUnix(streamObject(notices));
 
-        assertEquals("" +
+        String expectedString = "" +
                 "{\n" +
                 "  \"title\" : \"Beverage policy\",\n" +
                 "  \"description\" : [ \"Beverages with caffeine for keeping horses awake.\", \"Very effective.\" ],\n" +
@@ -380,7 +391,9 @@ public class RdapResponseJsonTest {
                 "    \"media\" : \"screen\",\n" +
                 "    \"type\" : \"application/json\"\n" +
                 "  }\n" +
-                "}", result);
+                "}";
+
+        JSONAssert.assertEquals(expectedString,result,true);
     }
 
 
