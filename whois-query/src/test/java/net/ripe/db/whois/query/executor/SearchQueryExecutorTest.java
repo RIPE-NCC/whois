@@ -206,6 +206,7 @@ public class SearchQueryExecutorTest {
     @Test
     public void query_additional_sources() {
         when(sourceContext.getAdditionalSourceNames()).thenReturn(ciSet("APNIC-GRS", "ARIN-GRS"));
+        when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
 
         final Query query = Query.parse("10.0.0.0");
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
