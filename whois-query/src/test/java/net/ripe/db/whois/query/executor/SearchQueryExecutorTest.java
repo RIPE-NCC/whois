@@ -203,6 +203,7 @@ public class SearchQueryExecutorTest {
         assertThat(responseHandler.getResponseObjects(), contains((ResponseObject) new MessageObject(QueryMessages.noResults("RIPE").toString())));
     }
 
+    @Test
     public void query_additional_sources() {
         when(sourceContext.getAdditionalSourceNames()).thenReturn(ciSet("APNIC-GRS", "ARIN-GRS"));
 
