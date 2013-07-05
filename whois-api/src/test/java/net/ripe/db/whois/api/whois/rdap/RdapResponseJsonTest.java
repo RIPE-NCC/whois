@@ -43,7 +43,6 @@ public class RdapResponseJsonTest {
         }
     }
 
-    @Ignore
     @Test
     public void entity_vcard_serialization_test() throws Exception {
         final VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
@@ -117,7 +116,6 @@ public class RdapResponseJsonTest {
         JSONAssert.assertEquals(expectedString,result,true);
     }
 
-    @Ignore
     @Test
     public void nameserver_serialization_test() throws Exception {
         final Nameserver nameserver = new Nameserver();
