@@ -252,8 +252,16 @@ class RdapObjectMapper {
         VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
         builder.setVersion();
 
-        for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PERSON)) {
-            builder.setFn(attribute.getCleanValue().toString());
+        final ObjectType rpslObjectType = rpslObject.getType();
+
+        if (rpslObjectType == ObjectType.PERSON)  {
+            for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PERSON)) {
+                builder.setFn(attribute.getCleanValue().toString());
+            }
+        } else if (rpslObjectType == ObjectType.ORGANISATION) {
+            for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ORG_NAME)) {
+                builder.setFn(attribute.getCleanValue().toString());
+            }
         }
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ADDRESS)) {
