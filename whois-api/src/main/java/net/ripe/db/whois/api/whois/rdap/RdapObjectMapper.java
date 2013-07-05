@@ -10,14 +10,17 @@ import net.ripe.db.whois.api.whois.rdap.domain.Event;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.api.whois.rdap.domain.Link;
 import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.whois.rdap.domain.Notice;
 import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.attrs.Changed;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.domain.QueryMessages;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -152,7 +155,22 @@ class RdapObjectMapper {
         selfLink.setHref(requestUrl);
         entity.getLinks().add(selfLink);
 
+        entity.getNotices().add(createNotice());
+
         return entity;
+    }
+
+    private Notice createNotice () {
+
+        // TODO: make this use the appropriate variant and perhaps be more dynamic, just returns TNC now
+
+        Message noticeMessage = QueryMessages.termsAndConditions();
+
+        Notice notice = new Notice();
+        notice.setTitle("Terms and conditions");
+        notice.getDescription().add(noticeMessage.toString());
+
+        return notice;
     }
 
     private void setEntities(final RdapObject rdapObject, final RpslObject rpslObject, final Queue<RpslObject> rpslObjectQueue, final Set<AttributeType> attributeTypes) {
@@ -230,6 +248,9 @@ class RdapObjectMapper {
         setEntities(autnum, rpslObject, queue, contactAttributeTypes);
 
         autnum.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(requestUrl));
+
+        autnum.getNotices().add(createNotice());
+
         return autnum;
     }
 
@@ -245,6 +266,9 @@ class RdapObjectMapper {
         }
 
         domain.getRemarks().add(createRemark(rpslObject));
+
+        domain.getNotices().add(createNotice());
+
         return domain;
     }
 
@@ -252,8 +276,16 @@ class RdapObjectMapper {
         VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
         builder.setVersion();
 
-        for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PERSON)) {
-            builder.setFn(attribute.getCleanValue().toString());
+        final ObjectType rpslObjectType = rpslObject.getType();
+
+        if (rpslObjectType == ObjectType.PERSON)  {
+            for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PERSON)) {
+                builder.setFn(attribute.getCleanValue().toString());
+            }
+        } else if (rpslObjectType == ObjectType.ORGANISATION) {
+            for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ORG_NAME)) {
+                builder.setFn(attribute.getCleanValue().toString());
+            }
         }
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ADDRESS)) {

@@ -94,6 +94,12 @@
             <artifactId>ez-vcard</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+
         <!-- Solr -->
         <dependency>
             <groupId>org.apache.solr</groupId>
