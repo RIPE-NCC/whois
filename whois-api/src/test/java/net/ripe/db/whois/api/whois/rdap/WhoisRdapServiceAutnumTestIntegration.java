@@ -143,8 +143,7 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
 
         final Event event = events.get(0);
         DateTime eventDateTime = new DateTime(event.getEventDate().toGregorianCalendar());
-        LocalTime checkTime = new LocalTime(0, 0, 0);
-        DateTime checkDate = DateTimeFormat.forPattern("yyyyMMdd").parseLocalDate("20010816").toDateTime(checkTime);
+        DateTime checkDate = DateTimeFormat.forPattern("yyyyMMdd").parseLocalDate("20010816").toDateTime(new LocalTime(0, 0, 0));
         assertThat(eventDateTime.toString(), equalTo(checkDate.toString()));
 
         final List<Entity> entities = autnum.getEntities();

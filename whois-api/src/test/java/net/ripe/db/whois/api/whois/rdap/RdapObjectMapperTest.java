@@ -4,6 +4,10 @@ import com.google.common.collect.Queues;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -58,7 +62,9 @@ public class RdapObjectMapperTest {
         assertThat(result.getEvents(), hasSize(1));
         assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
         assertThat(result.getEvents().get(0).getEventActor(), is("first@last.org"));
-        assertThat(result.getEvents().get(0).getEventDate().toString(), is("2012-02-20T00:00:00.000+01:00"));
+
+        DateTime checkDate = DateTimeFormat.forPattern("yyyyMMdd").parseLocalDate("20120220").toDateTime(new LocalTime(0, 0, 0));
+        assertThat(result.getEvents().get(0).getEventDate().toString(), is(checkDate.toString()));
     }
 
     @Test
