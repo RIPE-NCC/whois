@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.whois.rdap;
 
 import com.Ostermiller.util.LineEnds;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
+import net.ripe.db.whois.api.whois.rdap.domain.Domain;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.Event;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
@@ -197,6 +198,211 @@ public class RdapResponseJsonTest {
 
         JSONAssert.assertEquals(expectedString,result,true);
 
+    }
+
+    @Ignore
+    @Test
+    public void domain_serialization_test() throws Exception {
+        final Domain domain = new Domain();
+
+        domain.setHandle("XXXX");
+        domain.setLdhName("192.in-addr.arpa");
+
+        final List<String> remarkList = new ArrayList<>();
+        final Remark remark = new Remark();
+        remarkList.add("She sells sea shells down by the sea shore.");
+        remarkList.add("Originally written by Terry Sullivan.");
+
+        remark.getDescription().addAll(remarkList);
+        domain.getRemarks().add(remark);
+
+        final Event registrationEvent = new Event();
+        registrationEvent.setEventAction("registration");
+
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(1372214924859L);
+
+        registrationEvent.setEventDate(dataTypeFactory.newXMLGregorianCalendar(calendar));
+
+        domain.getEvents().add(registrationEvent);
+
+        final Event lastChangedEvent = new Event();
+        lastChangedEvent.setEventAction("last changed");
+        lastChangedEvent.setEventDate(dataTypeFactory.newXMLGregorianCalendar(calendar));
+        lastChangedEvent.setEventActor("joe@example.com");
+        domain.getEvents().add(lastChangedEvent);
+
+        final Entity entity = new Entity();
+        entity.setHandle("XXXX");
+        entity.getRoles().add("registrant");
+
+        entity.getRemarks().add(remark);
+
+        entity.getEvents().add(registrationEvent);
+        entity.getEvents().add(lastChangedEvent);
+
+        domain.getEntities().add(entity);
+
+        final Link entityLink = new Link();
+        entityLink.setHref("http://example.net/entity/xxxx");
+        entityLink.setValue("http://example.net/entity/xxxx");
+        entityLink.setRel("self");
+        entity.getLinks().add(entityLink);
+
+        final VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
+
+        builder.setVersion()
+                .setFn("Joe User")
+                .setKind("individual")
+                .setOrg("Example")
+                .setTitle("Research Scientist")
+                .setRole("Project Lead")
+                .addAdr(builder.createAdrEntryValueType("",
+                        "Suite 1234",
+                        "4321 Rue Somewhere",
+                        "Quebec",
+                        "QC",
+                        "G1V 2M2",
+                        "Canada"))
+                .addTel("tel:+1-555-555-1234;ext=102")
+                .setEmail("joe.user@example.com");
+
+        entity.setVcardArray(builder.build());
+
+        final String result = convertEOLToUnix(streamObject(domain));
+
+        String expectedString = "" +
+                "{\n" +
+                " \"handle\" : \"XXXX\",\n" +
+                " \"ldhName\" : \"192.in-addr.arpa\",\n" +
+                " \"nameServers\" :\n" +
+                " [\n" +
+                "   { \"ldhName\" : \"ns1.rir.example\" },\n" +
+                "   { \"ldhName\" : \"ns2.rir.example\" }\n" +
+                " ],\n" +
+                " \"secureDNS\":\n" +
+                " {\n" +
+                "   \"delegationSigned\": true,\n" +
+                "   \"dsData\":\n" +
+                "   [\n" +
+                "     {\n" +
+                "       \"keyTag\": 12345,\n" +
+                "       \"algorithm\": 3,\n" +
+                "       \"digestType\": 1,\n" +
+                "       \"digest\": \"49FD46E6C4B45C55D4AC\"\n" +
+                "     }\n" +
+                "   ]\n" +
+                " },\n" +
+                " \"remarks\" :\n" +
+                " [\n" +
+                "   {\n" +
+                "     \"description\" :\n" +
+                "     [\n" +
+                "       \"She sells sea shells down by the sea shore.\",\n" +
+                "       \"Originally written by Terry Sullivan.\"\n" +
+                "     ]\n" +
+                "   }\n" +
+                " ],\n" +
+                " \"links\" :\n" +
+                " [\n" +
+                "   {\n" +
+                "     \"value\": \"http://example.net/domain/XXXX\",\n" +
+                "     \"rel\" : \"self\",\n" +
+                "     \"href\" : \"http://example.net/domain/XXXXX\"\n" +
+                "   }\n" +
+                " ],\n" +
+                " \"events\" :\n" +
+                " [\n" +
+                "   {\n" +
+                "     \"eventAction\" : \"registration\",\n" +
+                "     \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
+                "   },\n" +
+                "   {\n" +
+                "     \"eventAction\" : \"last changed\",\n" +
+                "     \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
+                "     \"eventActor\" : \"joe@example.com\"\n" +
+                "   }\n" +
+                " ],\n" +
+                " \"entities\" :\n" +
+                " [\n" +
+                "   {\n" +
+                "     \"handle\" : \"XXXX\",\n" +
+                "     \"vcardArray\":[\n" +
+                "       \"vcard\",\n" +
+                "       [\n" +
+                "         [\"version\", {}, \"text\", \"4.0\"],\n" +
+                "         [\"fn\", {}, \"text\", \"Joe User\"],\n" +
+                "         [\"kind\", {}, \"text\", \"individual\"],\n" +
+                "         [\"lang\", {\n" +
+                "           \"pref\":\"1\"\n" +
+                "         }, \"language-tag\", \"fr\"],\n" +
+                "         [\"lang\", {\n" +
+                "           \"pref\":\"2\"\n" +
+                "         }, \"language-tag\", \"en\"],\n" +
+                "         [\"org\", {\n" +
+                "           \"type\":\"work\"\n" +
+                "         }, \"text\", \"Example\"],\n" +
+                "         [\"title\", {}, \"text\", \"Research Scientist\"],\n" +
+                "         [\"role\", {}, \"text\", \"Project Lead\"],\n" +
+                "         [\"adr\",\n" +
+                "           { \"type\":\"work\" },\n" +
+                "           \"text\",\n" +
+                "           [\n" +
+                "             \"\",\n" +
+                "             \"Suite 1234\",\n" +
+                "             \"4321 Rue Somewhere\",\n" +
+                "             \"Quebec\",\n" +
+                "             \"QC\",\n" +
+                "             \"G1V 2M2\",\n" +
+                "             \"Canada\"\n" +
+                "           ]\n" +
+                "         ],\n" +
+                "         [\"tel\",\n" +
+                "           { \"type\":[\"work\", \"voice\"], \"pref\":\"1\" },\n" +
+                "           \"uri\", \"tel:+1-555-555-1234;ext=102\"\n" +
+                "         ],\n" +
+                "         [\"email\",\n" +
+                "           { \"type\":\"work\" },\n" +
+                "           \"text\", \"joe.user@example.com\"\n" +
+                "         ]\n" +
+                "       ]\n" +
+                "     ],\n" +
+                "     \"roles\" : [ \"registrant\" ],\n" +
+                "     \"remarks\" :\n" +
+                "     [\n" +
+                "       {\n" +
+                "         \"description\" :\n" +
+                "         [\n" +
+                "           \"She sells sea shells down by the sea shore.\",\n" +
+                "           \"Originally written by Terry Sullivan.\"\n" +
+                "         ]\n" +
+                "       }\n" +
+                "     ],\n" +
+                "     \"links\" :\n" +
+                "     [\n" +
+                "       {\n" +
+                "         \"value\": \"http://example.net/entity/xxxx\",\n" +
+                "         \"rel\" : \"self\",\n" +
+                "         \"href\" : \"http://example.net/entity/xxxx\"\n" +
+                "       }\n" +
+                "     ],\n" +
+                "     \"events\" :\n" +
+                "     [\n" +
+                "       {\n" +
+                "         \"eventAction\" : \"registration\",\n" +
+                "         \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
+                "       },\n" +
+                "       {\n" +
+                "         \"eventAction\" : \"last changed\",\n" +
+                "         \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
+                "         \"eventActor\" : \"joe@example.com\"\n" +
+                "       }\n" +
+                "     ]\n" +
+                "   }\n" +
+                " ]\n" +
+                "}\n";
+
+        JSONAssert.assertEquals(expectedString,result,true);
     }
 
     @Test
