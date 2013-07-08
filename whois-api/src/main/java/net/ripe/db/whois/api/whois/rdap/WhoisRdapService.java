@@ -126,23 +126,27 @@ public class WhoisRdapService {
     protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request) {
         final StreamingMarshal streamingMarshal = new RdapStreamingMarshalJson();
 
-        final String queryString = request.getQueryString();
-        final String requestUrl = request.getRequestURL().toString() + ((queryString != null) ? "?" + queryString : "");
         final int contextId = System.identityHashCode(Thread.currentThread());
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
 
-        // TODO: A bit awkward; there should be a better way to determine this.
-        String baseUrl = requestUrl;
-        int pathIndex = 0;
-        int count = 3;
-        while ((count--) != 0) {
-            pathIndex = baseUrl.indexOf('/', pathIndex + 1);
-        }
-
-        baseUrl = baseUrl.substring(0, pathIndex) + request.getContextPath();
-
-        RdapStreamingOutput rso = new RdapStreamingOutput(streamingMarshal, queryHandler, null, query, remoteAddress, contextId, sourceContext, baseUrl, requestUrl);
+        RdapStreamingOutput rso = new RdapStreamingOutput(
+                streamingMarshal,
+                queryHandler,
+                null,
+                query,
+                remoteAddress,
+                contextId,
+                getRequestUrl(request));
 
         return Response.ok(rso).build();
+    }
+
+    private String getRequestUrl(final HttpServletRequest request) {
+        final StringBuffer buffer = request.getRequestURL();
+        if (request.getQueryString() != null) {
+            buffer.append('?');
+            buffer.append(request.getQueryString());
+        }
+        return buffer.toString();
     }
 }

@@ -7,7 +7,6 @@ import net.ripe.db.whois.api.whois.WhoisStreamingOutput;
 import net.ripe.db.whois.api.whois.domain.Parameters;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.handler.QueryHandler;
@@ -25,16 +24,12 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
 
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
 
-    private final SourceContext sourceContext;
-    private final String baseUrl;
     private final String requestUrl;
 
     private boolean found;
 
-    public RdapStreamingOutput(final StreamingMarshal streamingMarshal, final QueryHandler queryHandler, final Parameters parameters, final Query query, final InetAddress remoteAddress, final int contextId, final SourceContext sourceContext, final String baseUrl, final String requestUrl) {
+    public RdapStreamingOutput(final StreamingMarshal streamingMarshal, final QueryHandler queryHandler, final Parameters parameters, final Query query, final InetAddress remoteAddress, final int contextId, final String requestUrl) {
         super(streamingMarshal, queryHandler, parameters, query, remoteAddress, contextId);
-        this.sourceContext = sourceContext;
-        this.baseUrl = baseUrl;
         this.requestUrl = requestUrl;
     }
 
