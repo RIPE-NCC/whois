@@ -308,4 +308,17 @@ public class Ipv4ResourceTest {
         assertThat(Ipv4Resource.parsePrefixWithLength(0xDEADBEEF, 13).toString(), is("222.168.0.0/13"));
         assertThat(Ipv4Resource.parsePrefixWithLength(0xCAFEBABE, 26).toString(), is("202.254.186.128/26"));
     }
+
+    @Test
+    public void begin() {
+        final Ipv4Resource subject = Ipv4Resource.parse("192.255/16");
+        assertThat(subject.beginAsInetAddress().getHostAddress(), is("192.255.0.0"));
+    }
+
+    @Test
+    public void end() {
+        final Ipv4Resource subject = Ipv4Resource.parse("192.0/16");
+        assertThat(subject.endAsInetAddress().getHostAddress(), is("192.0.255.255"));
+    }
+
 }
