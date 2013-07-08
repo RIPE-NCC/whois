@@ -388,4 +388,16 @@ public class Ipv6ResourceTest {
     public void invalid_prefix_length() {
         Ipv6Resource.parse("2001::/129");
     }
+
+    @Test
+    public void begin() {
+        final Ipv6Resource subject = Ipv6Resource.parse("2001:2002:2003::/48");
+        assertThat(subject.beginAsInetAddress().getHostAddress(), is("2001:2002:2003:0:0:0:0:0"));
+    }
+
+    @Test
+    public void end() {
+        final Ipv6Resource subject = Ipv6Resource.parse("2001:2002:2003::/48");
+        assertThat(subject.endAsInetAddress().getHostAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff"));
+    }
 }
