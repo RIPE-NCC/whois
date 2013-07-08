@@ -262,7 +262,7 @@ class RdapObjectMapper {
         for (final RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.NSERVER)) {
             final Nameserver ns = new Nameserver();
             ns.setLdhName(rpslAttribute.getCleanValue().toString());
-            domain.getNameservers().add(ns);
+            domain.getNameServers().add(ns);
         }
 
         domain.getRemarks().add(createRemark(rpslObject));

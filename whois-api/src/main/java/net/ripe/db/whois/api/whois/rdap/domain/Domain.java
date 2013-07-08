@@ -1,3 +1,5 @@
+
+
 package net.ripe.db.whois.api.whois.rdap.domain;
 
 import java.io.Serializable;
@@ -17,7 +19,7 @@ import javax.xml.bind.annotation.XmlType;
     "handle",
     "ldhName",
     "unicodeName",
-    "nameservers",
+    "nameServers",
     "secureDNS",
     "publicIds",
     "port43"
@@ -35,7 +37,7 @@ public class Domain
     @XmlElement(required = true)
     protected String unicodeName;
     @XmlElement(required = true)
-    protected List<Nameserver> nameservers;
+    protected List<Nameserver> nameServers;
     protected Domain.SecureDNS secureDNS;
     protected HashMap publicIds;
     protected String port43;
@@ -64,11 +66,11 @@ public class Domain
         this.unicodeName = value;
     }
 
-    public List<Nameserver> getNameservers() {
-        if (nameservers == null) {
-            nameservers = new ArrayList<Nameserver>();
+    public List<Nameserver> getNameServers() {
+        if (nameServers == null) {
+            nameServers = new ArrayList<Nameserver>();
         }
-        return this.nameservers;
+        return this.nameServers;
     }
 
     public Domain.SecureDNS getSecureDNS() {
@@ -108,27 +110,26 @@ public class Domain
         implements Serializable
     {
 
-        protected boolean zoneSigned;
-        protected boolean delegationSigned;
-        @XmlElement(required = true)
+        protected Boolean zoneSigned;
+        protected Boolean delegationSigned;
         @XmlSchemaType(name = "nonNegativeInteger")
         protected BigInteger maxSigLife;
         protected List<Domain.SecureDNS.DsData> dsData;
         protected List<Domain.SecureDNS.KeyData> keyData;
 
-        public boolean isZoneSigned() {
+        public Boolean isZoneSigned() {
             return zoneSigned;
         }
 
-        public void setZoneSigned(boolean value) {
+        public void setZoneSigned(Boolean value) {
             this.zoneSigned = value;
         }
 
-        public boolean isDelegationSigned() {
+        public Boolean isDelegationSigned() {
             return delegationSigned;
         }
 
-        public void setDelegationSigned(boolean value) {
+        public void setDelegationSigned(Boolean value) {
             this.delegationSigned = value;
         }
 

@@ -30,14 +30,14 @@
                         <xs:element name="handle" type="xs:string" maxOccurs="1"  minOccurs="1"/>
                         <xs:element name="ldhName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
                         <xs:element name="unicodeName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
-                        <xs:element name="nameservers" type="nameserver" maxOccurs="unbounded"  minOccurs="1"/>
+                        <xs:element name="nameServers" type="nameserver" maxOccurs="unbounded"  minOccurs="1"/>
                         <!-- TODO secureDNS, and variants -->
                         <xs:element name="secureDNS" maxOccurs="1" minOccurs="0">
                             <xs:complexType>
                                 <xs:sequence>
-                                    <xs:element name="zoneSigned" type="xs:boolean" maxOccurs="1"  minOccurs="1"/>
-                                    <xs:element name="delegationSigned" type="xs:boolean" maxOccurs="1" minOccurs="1"/>
-                                    <xs:element name="maxSigLife" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
+                                    <xs:element name="zoneSigned" type="xs:boolean" maxOccurs="1"  minOccurs="0"/>
+                                    <xs:element name="delegationSigned" type="xs:boolean" maxOccurs="1" minOccurs="0"/>
+                                    <xs:element name="maxSigLife" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="0"/>
                                     <xs:element name="dsData" maxOccurs="unbounded" minOccurs="0">
                                         <xs:complexType>
                                             <xs:sequence>

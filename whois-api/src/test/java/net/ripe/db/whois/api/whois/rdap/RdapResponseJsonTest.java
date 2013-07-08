@@ -13,14 +13,13 @@ import net.ripe.db.whois.api.whois.rdap.domain.Remark;
 import org.codehaus.plexus.util.StringInputStream;
 import org.codehaus.plexus.util.StringOutputStream;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,6 +28,8 @@ import java.util.List;
 
 import static com.google.common.collect.Maps.immutableEntry;
 import static net.ripe.db.whois.api.whois.rdap.VcardObjectHelper.createMap;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 public class RdapResponseJsonTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapResponseJsonTest.class);
@@ -114,7 +115,7 @@ public class RdapResponseJsonTest {
                 "  \"type\" : \"work\"\n" +
                 "}, \"text\", \"http://example.org\" ] ] ]";
 
-        JSONAssert.assertEquals(expectedString,result,true);
+        assertThat(expectedString,sameJSONAs(result));
     }
 
     @Test
@@ -196,17 +197,25 @@ public class RdapResponseJsonTest {
                 "  \"handle\" : \"handle\"\n" +
                 "}";
 
-        JSONAssert.assertEquals(expectedString,result,true);
+        assertThat(expectedString,sameJSONAs(result));
 
     }
 
-    @Ignore
     @Test
     public void domain_serialization_test() throws Exception {
         final Domain domain = new Domain();
 
         domain.setHandle("XXXX");
         domain.setLdhName("192.in-addr.arpa");
+
+
+        final Nameserver nameserver1 = new Nameserver();
+        nameserver1.setLdhName("ns1.rir.example");
+        domain.getNameServers().add(nameserver1);
+
+        final Nameserver nameserver2 = new Nameserver();
+        nameserver2.setLdhName("ns2.rir.example");
+        domain.getNameServers().add(nameserver2);
 
         final List<String> remarkList = new ArrayList<>();
         final Remark remark = new Remark();
@@ -215,6 +224,12 @@ public class RdapResponseJsonTest {
 
         remark.getDescription().addAll(remarkList);
         domain.getRemarks().add(remark);
+
+        final Link link = new Link();
+        link.setHref("http://example.net/domain/XXXXX");
+        link.setValue("http://example.net/domain/XXXX");
+        link.setRel("self");
+        domain.getLinks().add(link);
 
         final Event registrationEvent = new Event();
         registrationEvent.setEventAction("registration");
@@ -268,6 +283,20 @@ public class RdapResponseJsonTest {
                 .setEmail("joe.user@example.com");
 
         entity.setVcardArray(builder.build());
+
+        final Domain.SecureDNS secureDNS = new Domain.SecureDNS();
+
+        secureDNS.setDelegationSigned(new Boolean(true));
+
+        final Domain.SecureDNS.DsData dsData = new Domain.SecureDNS.DsData();
+        dsData.setKeyTag(BigInteger.valueOf(12345L));
+        dsData.setAlgorithm(BigInteger.valueOf(3));
+        dsData.setDigestType(BigInteger.valueOf(1));
+        dsData.setDigest("49FD46E6C4B45C55D4AC");
+
+        secureDNS.getDsData().add(dsData);
+
+        domain.setSecureDNS(secureDNS);
 
         final String result = convertEOLToUnix(streamObject(domain));
 
@@ -327,46 +356,16 @@ public class RdapResponseJsonTest {
                 " [\n" +
                 "   {\n" +
                 "     \"handle\" : \"XXXX\",\n" +
-                "     \"vcardArray\":[\n" +
-                "       \"vcard\",\n" +
-                "       [\n" +
-                "         [\"version\", {}, \"text\", \"4.0\"],\n" +
-                "         [\"fn\", {}, \"text\", \"Joe User\"],\n" +
-                "         [\"kind\", {}, \"text\", \"individual\"],\n" +
-                "         [\"lang\", {\n" +
-                "           \"pref\":\"1\"\n" +
-                "         }, \"language-tag\", \"fr\"],\n" +
-                "         [\"lang\", {\n" +
-                "           \"pref\":\"2\"\n" +
-                "         }, \"language-tag\", \"en\"],\n" +
-                "         [\"org\", {\n" +
-                "           \"type\":\"work\"\n" +
-                "         }, \"text\", \"Example\"],\n" +
-                "         [\"title\", {}, \"text\", \"Research Scientist\"],\n" +
-                "         [\"role\", {}, \"text\", \"Project Lead\"],\n" +
-                "         [\"adr\",\n" +
-                "           { \"type\":\"work\" },\n" +
-                "           \"text\",\n" +
-                "           [\n" +
-                "             \"\",\n" +
-                "             \"Suite 1234\",\n" +
-                "             \"4321 Rue Somewhere\",\n" +
-                "             \"Quebec\",\n" +
-                "             \"QC\",\n" +
-                "             \"G1V 2M2\",\n" +
-                "             \"Canada\"\n" +
-                "           ]\n" +
-                "         ],\n" +
-                "         [\"tel\",\n" +
-                "           { \"type\":[\"work\", \"voice\"], \"pref\":\"1\" },\n" +
-                "           \"uri\", \"tel:+1-555-555-1234;ext=102\"\n" +
-                "         ],\n" +
-                "         [\"email\",\n" +
-                "           { \"type\":\"work\" },\n" +
-                "           \"text\", \"joe.user@example.com\"\n" +
-                "         ]\n" +
-                "       ]\n" +
-                "     ],\n" +
+                "    \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +
+                "    }, \"text\", \"4.0\" ], [ \"fn\", {\n" +
+                "    }, \"text\", \"Joe User\" ], [ \"kind\", {\n" +
+                "    }, \"text\", \"individual\" ], [ \"org\", {\n" +
+                "    }, \"text\", \"Example\" ], [ \"title\", {\n" +
+                "    }, \"text\", \"Research Scientist\" ], [ \"role\", {\n" +
+                "    }, \"text\", \"Project Lead\" ], [ \"adr\", {\n" +
+                "    }, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ], [ \"tel\", {\n" +
+                "    }, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"email\", {\n" +
+                "    }, \"text\", \"joe.user@example.com\" ] ] ],\n" +
                 "     \"roles\" : [ \"registrant\" ],\n" +
                 "     \"remarks\" :\n" +
                 "     [\n" +
@@ -402,7 +401,7 @@ public class RdapResponseJsonTest {
                 " ]\n" +
                 "}\n";
 
-        JSONAssert.assertEquals(expectedString,result,true);
+        assertThat(expectedString, sameJSONAs(result));
     }
 
     @Test
@@ -557,7 +556,7 @@ public class RdapResponseJsonTest {
                 "  } ]\n" +
                 "}";
 
-        JSONAssert.assertEquals(expectedString,result,true);
+        assertThat(expectedString,sameJSONAs(result));
     }
 
 
@@ -597,7 +596,7 @@ public class RdapResponseJsonTest {
                 "  }\n" +
                 "}";
 
-        JSONAssert.assertEquals(expectedString,result,true);
+        assertThat(expectedString,sameJSONAs(result));
     }
 
 
