@@ -119,6 +119,8 @@ class RdapObjectMapper {
         ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
         ip.setCountry(rpslObject.getValueForAttribute(AttributeType.COUNTRY).toString());
         ip.setLang(Joiner.on(",").join(rpslObject.getValuesForAttribute(AttributeType.LANGUAGE)));
+
+        //TODO [AS] is parentHandle optional or not?
         return ip;
     }
 
