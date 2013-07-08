@@ -4,8 +4,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.Serializable;
+import java.util.GregorianCalendar;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "event", propOrder = {
@@ -18,7 +18,7 @@ public class Event
 {
     protected String eventAction;
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar eventDate;
+    protected GregorianCalendar eventDate;
     protected String eventActor;
 
     public String getEventAction() {
@@ -29,11 +29,11 @@ public class Event
         this.eventAction = value;
     }
 
-    public XMLGregorianCalendar getEventDate() {
+    public GregorianCalendar getEventDate() {
         return eventDate;
     }
 
-    public void setEventDate(XMLGregorianCalendar value) {
+    public void setEventDate(GregorianCalendar value) {
         this.eventDate = value;
     }
 
