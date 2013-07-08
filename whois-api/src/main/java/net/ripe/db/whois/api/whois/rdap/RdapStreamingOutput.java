@@ -61,7 +61,7 @@ public class RdapStreamingOutput extends WhoisStreamingOutput {
                 throw new NotFoundException();
             }
 
-            streamObject(new RdapObjectMapper(requestUrl, rpslObjectQueue).build());
+            streamObject(new RdapObjectMapper(baseUrl, requestUrl, rpslObjectQueue).build());
 
         } catch (QueryException e) {
             if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {

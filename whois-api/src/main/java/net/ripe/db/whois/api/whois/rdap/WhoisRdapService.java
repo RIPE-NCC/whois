@@ -83,7 +83,7 @@ public class WhoisRdapService extends WhoisService {
         String queryString = request.getQueryString();
         String requestUrl = request.getRequestURL().toString() + ((queryString != null) ? "?" + queryString : "");
 
-        // TODO: A bit awkward; there should be a better way to determine this.
+        // TODO: A bit awkward; there should be a better way to determine this. Also, baseUrl will have to be a configuration option anyway, because the internal and external URL schemes may differ.
         String baseUrl = requestUrl;
         int pathIndex = 0;
         int count = 3;
@@ -91,7 +91,7 @@ public class WhoisRdapService extends WhoisService {
             pathIndex = baseUrl.indexOf('/', pathIndex + 1);
         }
 
-        baseUrl = baseUrl.substring(0, pathIndex) + request.getContextPath();
+        baseUrl = baseUrl.substring(0, pathIndex) + request.getServletPath() + request.getContextPath();
 
         RdapStreamingOutput rso = new RdapStreamingOutput(streamingMarshal, queryHandler, parameters, query, remoteAddress, contextId, sourceContext, baseUrl, requestUrl);
 

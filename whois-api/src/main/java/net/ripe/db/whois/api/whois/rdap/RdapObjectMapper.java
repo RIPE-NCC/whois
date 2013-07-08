@@ -38,6 +38,7 @@ class RdapObjectMapper {
     private static List<String> RDAPCONFORMANCE = Lists.newArrayList("rdap_level_0");
 
     private final Queue<RpslObject> rpslObjectQueue;
+    private final String baseUrl;
     private final String requestUrl;
 
     private final DatatypeFactory dataTypeFactory = createDatatypeFactory();
@@ -54,8 +55,9 @@ class RdapObjectMapper {
         typeToRole.put(AttributeType.MNT_BY, "registrant");
     }
 
-    public RdapObjectMapper(final String requestUrl, final Queue<RpslObject> rpslObjectQueue) {
+    public RdapObjectMapper(final String baseUrl, final String requestUrl, final Queue<RpslObject> rpslObjectQueue) {
         this.rpslObjectQueue = rpslObjectQueue;
+        this.baseUrl = baseUrl;
         this.requestUrl = requestUrl;
     }
 
@@ -164,7 +166,7 @@ class RdapObjectMapper {
         final Link selfLink = new Link();
         selfLink.setRel("self");
         selfLink.setValue(requestUrl);
-        selfLink.setHref(requestUrl);
+        selfLink.setHref(baseUrl + "/entity/" + entity.getHandle());
         entity.getLinks().add(selfLink);
 
         if (rpslObject.getType() == ObjectType.ORGANISATION) {
@@ -263,7 +265,7 @@ class RdapObjectMapper {
         contactAttributeTypes.add(AttributeType.TECH_C);
         setEntities(autnum, rpslObject, queue, contactAttributeTypes);
 
-        autnum.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(requestUrl));
+        autnum.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(baseUrl + "/autnum/" + new Long(startAndEnd).toString()));
 
         return autnum;
     }
