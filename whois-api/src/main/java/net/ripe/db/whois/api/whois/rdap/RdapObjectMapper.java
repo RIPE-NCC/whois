@@ -90,7 +90,7 @@ class RdapObjectMapper {
             case ORGANISATION:
             case ROLE:
             case IRT:
-                rdapResponse = createEntity(rpslObject);
+                rdapResponse = createEntity(rpslObject, rpslObjectQueue);
                 break;
         }
 
@@ -142,7 +142,7 @@ class RdapObjectMapper {
         return result;
     }
 
-    private Entity createEntity(final RpslObject rpslObject) {
+    private Entity createEntity(final RpslObject rpslObject, final Queue<RpslObject> queue) {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVcardArray(createVcards(rpslObject));
@@ -156,6 +156,13 @@ class RdapObjectMapper {
         entity.getLinks().add(selfLink);
 
         entity.getNotices().add(createNotice());
+
+        if (rpslObject.getType() == ObjectType.ORGANISATION) {
+            final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
+            contactAttributeTypes.add(AttributeType.ADMIN_C);
+            contactAttributeTypes.add(AttributeType.TECH_C);
+            setEntities(entity, rpslObject, queue, contactAttributeTypes);
+        }
 
         return entity;
     }
@@ -203,7 +210,7 @@ class RdapObjectMapper {
             final Set<AttributeType> attributes = valueToRoles.get(key);
             final RpslObject object = objectMap.get(key);
             if (object != null) {
-                final Entity entity = createEntity(object);
+                final Entity entity = createEntity(object, rpslObjectQueue);
                 final List<String> roles = entity.getRoles();
                 for (final AttributeType at : attributes) {
                     roles.add(typeToRole.get(at));
