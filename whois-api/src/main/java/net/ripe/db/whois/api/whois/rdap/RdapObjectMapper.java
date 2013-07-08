@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -28,11 +29,9 @@ import net.ripe.db.whois.query.domain.QueryMessages;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
+
+import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
 class RdapObjectMapper {
     private static List<String> RDAPCONFORMANCE = Lists.newArrayList("rdap_level_0");
@@ -83,14 +82,11 @@ class RdapObjectMapper {
                 rdapResponse = createDomain(rpslObject);
                 break;
             case AUT_NUM:
-            case AS_BLOCK:
                 rdapResponse = createAutnumResponse(rpslObject, rpslObjectQueue);
                 break;
             case INETNUM:
             case INET6NUM:
-                Ip ip = new Ip();
-                ip.setHandle(rpslObject.getKey().toString());
-                rdapResponse = ip;
+                rdapResponse = createIp(rpslObject);
                 break;
             case PERSON:
             case ORGANISATION:
@@ -104,6 +100,26 @@ class RdapObjectMapper {
             rdapResponse.getRdapConformance().addAll(RDAPCONFORMANCE);
             rdapResponse.getNotices().add(createNotice());
         }
+    }
+
+    private Ip createIp(final RpslObject rpslObject) {
+        final Ip ip = new Ip();
+        ip.setHandle(rpslObject.getKey().toString());
+        IpInterval ipInterval;
+        if (rpslObject.getType() == INET6NUM) {
+            ipInterval = Ipv6Resource.parse(rpslObject.getKey());
+            ip.setIpVersion("v6");
+        } else {
+            ipInterval = Ipv4Resource.parse(rpslObject.getKey());
+            ip.setIpVersion("v4");
+        }
+        ip.setStartAddress(IpInterval.asIpInterval(ipInterval.beginAsInetAddress()).toString());
+        ip.setEndAddress(IpInterval.asIpInterval(ipInterval.endAsInetAddress()).toString());
+
+        ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
+        ip.setCountry(rpslObject.getValueForAttribute(AttributeType.COUNTRY).toString());
+        ip.setLang(Joiner.on(",").join(rpslObject.getValuesForAttribute(AttributeType.LANGUAGE)));
+        return ip;
     }
 
     private Remark createRemark(final RpslObject rpslObject) {
@@ -234,10 +250,6 @@ class RdapObjectMapper {
     private Autnum createAutnumResponse(final RpslObject rpslObject, final Queue<RpslObject> queue) {
         final Autnum autnum = new Autnum();
         autnum.setHandle(rpslObject.getKey().toString());
-
-        if (!rpslObject.getType().getName().equals(ObjectType.AUT_NUM.getName())) {
-            throw new IllegalArgumentException("as-blocks are not allowed for rdap queries");
-        }
 
         final CIString autnumAttributeValue = rpslObject.getValueForAttribute(AttributeType.AUT_NUM);
         final long startAndEnd = Long.valueOf(autnumAttributeValue.toString().replace("AS", "").replace(" ", ""));
