@@ -100,6 +100,7 @@ class RdapObjectMapper {
 
         if (rdapResponse != null) {
             rdapResponse.getRdapConformance().addAll(RDAPCONFORMANCE);
+            rdapResponse.getNotices().add(createNotice());
         }
     }
 
@@ -159,8 +160,6 @@ class RdapObjectMapper {
         selfLink.setHref(requestUrl);
         entity.getLinks().add(selfLink);
 
-        entity.getNotices().add(createNotice());
-
         if (rpslObject.getType() == ObjectType.ORGANISATION) {
             final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
             contactAttributeTypes.add(AttributeType.ADMIN_C);
@@ -171,9 +170,8 @@ class RdapObjectMapper {
         return entity;
     }
 
-    private Notice createNotice () {
-
-        // TODO: make this use the appropriate variant and perhaps be more dynamic, just returns TNC now
+    private Notice createNotice() {
+        // TODO: make this use the appropriate variant and perhaps be more dynamic, just returns TNC now.
 
         Message noticeMessage = QueryMessages.termsAndConditions();
 
@@ -260,8 +258,6 @@ class RdapObjectMapper {
 
         autnum.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(requestUrl));
 
-        autnum.getNotices().add(createNotice());
-
         return autnum;
     }
 
@@ -288,8 +284,6 @@ class RdapObjectMapper {
         }
 
         domain.getRemarks().add(createRemark(rpslObject));
-
-        domain.getNotices().add(createNotice());
 
         return domain;
     }
