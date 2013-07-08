@@ -15,7 +15,11 @@ import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Remark;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.IpInterval;
+import net.ripe.db.whois.common.domain.Ipv4Resource;
+import net.ripe.db.whois.common.domain.Ipv6Resource;
 import net.ripe.db.whois.common.domain.attrs.Changed;
+import net.ripe.db.whois.common.domain.attrs.NServer;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -260,9 +264,20 @@ class RdapObjectMapper {
         domain.setLdhName(rpslObject.getKey().toString());
 
         for (final RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.NSERVER)) {
-            final Nameserver ns = new Nameserver();
-            ns.setLdhName(rpslAttribute.getCleanValue().toString());
-            domain.getNameServers().add(ns);
+            final NServer nserver = NServer.parse(rpslAttribute.getCleanValue().toString());
+            final Nameserver nameserver = new Nameserver();
+            nameserver.setLdhName(String.valueOf(nserver.getHostname()));
+            final IpInterval ipInterval = nserver.getIpInterval();
+            if (ipInterval != null) {
+                final Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
+                if (ipInterval instanceof Ipv4Resource) {
+                    ipAddresses.getIpv4().add(ipInterval.beginAsInetAddress().toString());
+                } else if (ipInterval instanceof Ipv6Resource) {
+                    ipAddresses.getIpv6().add(ipInterval.beginAsInetAddress().toString());
+                }
+                nameserver.setIpAddresses(ipAddresses);
+            }
+            domain.getNameServers().add(nameserver);
         }
 
         domain.getRemarks().add(createRemark(rpslObject));

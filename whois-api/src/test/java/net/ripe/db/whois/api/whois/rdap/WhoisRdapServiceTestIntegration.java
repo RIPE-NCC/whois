@@ -67,8 +67,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             "tech-c:  TP1-TEST\n" +
             "zone-c:  TP1-TEST\n" +
             "notify:  notify@test.net.au\n" +
-            "nserver: ns1.test.com.au\n" +
-            "nserver: ns2.test.com.au\n" +
+            "nserver: ns1.test.com.au 10.0.0.1\n" +
+            "nserver: ns2.test.com.au 2001:10::2\n" +
             "changed: test@test.net.au 20010816\n" +
             "changed: test@test.net.au 20121121\n" +
             "mnt-by:  OWNER-MNT\n" +
