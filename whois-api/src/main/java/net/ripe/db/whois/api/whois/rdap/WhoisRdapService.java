@@ -4,9 +4,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.whois.StreamingMarshal;
-import net.ripe.db.whois.api.whois.WhoisService;
-import net.ripe.db.whois.api.whois.domain.Parameters;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -20,7 +19,6 @@ import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -38,12 +36,26 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.*;
 @ExternallyManagedLifecycle
 @Component
 @Path("/")
-public class WhoisRdapService extends WhoisService {
+public class WhoisRdapService {
+
+    protected final DateTimeProvider dateTimeProvider;
+    protected final UpdateRequestHandler updateRequestHandler;
+    protected final LoggerContext loggerContext;
+    protected final RpslObjectDao rpslObjectDao;
+    protected final SourceContext sourceContext;
+    protected final QueryHandler queryHandler;
 
     @Autowired
     public WhoisRdapService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
-        super(dateTimeProvider, updateRequestHandler, loggerContext, rpslObjectDao, sourceContext, queryHandler);
+        this.dateTimeProvider = dateTimeProvider;
+        this.updateRequestHandler = updateRequestHandler;
+        this.loggerContext = loggerContext;
+        this.rpslObjectDao = rpslObjectDao;
+        this.sourceContext = sourceContext;
+        this.queryHandler = queryHandler;
     }
+
+    // TODO: [ES] drop streaming support - only one object returned. but, must implement logging, blocking etc.
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
@@ -88,27 +100,7 @@ public class WhoisRdapService extends WhoisService {
         return key;
     }
 
-    protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
-        final StreamingMarshal streamingMarshal = new RdapStreamingMarshalJson();
-
-        String queryString = request.getQueryString();
-        String requestUrl = request.getRequestURL().toString() + ((queryString != null) ? "?" + queryString : "");
-
-        // TODO: A bit awkward; there should be a better way to determine this.
-        String baseUrl = requestUrl;
-        int pathIndex = 0;
-        int count = 3;
-        while ((count--) != 0) {
-            pathIndex = baseUrl.indexOf('/', pathIndex + 1);
-        }
-
-        baseUrl = baseUrl.substring(0, pathIndex) + request.getContextPath();
-
-        RdapStreamingOutput rso = new RdapStreamingOutput(streamingMarshal, queryHandler, parameters, query, remoteAddress, contextId, sourceContext, baseUrl, requestUrl);
-
-        return Response.ok(rso).build();
-    }
-
+    // TODO: [AH] hierarchical lookups return the encompassing range if no direct hit
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
         final String source = sourceContext.getWhoisSlaveSource().getName().toString();
         final String objectTypesString = Joiner.on(",").join(Iterables.transform(objectTypes, new Function<ObjectType, String>() {
@@ -128,6 +120,29 @@ public class WhoisRdapService extends WhoisService {
                         QueryFlag.NO_FILTERING.getLongFlag(),
                         key));
 
-        return handleQuery(query, source, key, request, null);
+        return handleQueryAndStreamResponse(query, request);
+    }
+
+    protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request) {
+        final StreamingMarshal streamingMarshal = new RdapStreamingMarshalJson();
+
+        final String queryString = request.getQueryString();
+        final String requestUrl = request.getRequestURL().toString() + ((queryString != null) ? "?" + queryString : "");
+        final int contextId = System.identityHashCode(Thread.currentThread());
+        final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
+
+        // TODO: A bit awkward; there should be a better way to determine this.
+        String baseUrl = requestUrl;
+        int pathIndex = 0;
+        int count = 3;
+        while ((count--) != 0) {
+            pathIndex = baseUrl.indexOf('/', pathIndex + 1);
+        }
+
+        baseUrl = baseUrl.substring(0, pathIndex) + request.getContextPath();
+
+        RdapStreamingOutput rso = new RdapStreamingOutput(streamingMarshal, queryHandler, null, query, remoteAddress, contextId, sourceContext, baseUrl, requestUrl);
+
+        return Response.ok(rso).build();
     }
 }
