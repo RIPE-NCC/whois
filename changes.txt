@@ -1,3 +1,8 @@
+## 1.67.3
+[all] Added support for graceful shutdown for layer 2 load balancers
+[query] Configure a list of default sources to query (contributed by APNIC)
+[all] Whois REST API has /whois root URI
+
 ## 1.67.2
 [api] /grs-search and /grs-lookup removed
 [api] tags included in /search
