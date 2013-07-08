@@ -16,6 +16,7 @@ import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +29,7 @@ public class WhoisObjectMapper {
 
     private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)^[^#]*[#](.*)$");
 
-    private static final String BASE_URL = "http://apps.db.ripe.net/whois-beta/lookup";     // TODO: base url property
+    private static final String BASE_URL = "http://apps.db.ripe.net/whois/lookup";     // TODO: base url property
 
     private static final Set<AttributeType> CSV_ATTRIBUTES = Sets.immutableEnumSet(
             AttributeType.MNT_BY,
@@ -43,6 +44,7 @@ public class WhoisObjectMapper {
 
     private static final Splitter CSV_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
+    // TODO: [AH] converting between object by parse(toString()) is the most inefficient; reimplement using direct translation
     public static RpslObject map(final WhoisObject whoisObject) {
         final StringBuilder builder = new StringBuilder();
         for (Attribute attribute : whoisObject.getAttributes()) {
@@ -51,9 +53,9 @@ public class WhoisObjectMapper {
 
             AttributeType attributeType = AttributeType.getByName(attribute.getName());
             if (CSV_ATTRIBUTES.contains(attributeType)) {
-                values = CSV_SPLITTER.split(attribute.getValue());
+                values = CSV_SPLITTER.split(attribute.getValue());  // TODO: [AH] don't do this! see getCleanValues()
             } else {
-                values = Lists.newArrayList(attribute.getValue());
+                values = Collections.singletonList(attribute.getValue());
             }
 
             for (String value : values) {
@@ -87,6 +89,17 @@ public class WhoisObjectMapper {
 
     public static WhoisObject map(final RpslObject rpslObject) {
         return map(rpslObject, true);
+    }
+
+    public static WhoisObject map(final RpslObject rpslObject, final List<TagResponseObject> tags) {
+        final WhoisObject object = map(rpslObject);
+
+        final List<WhoisTag> whoisTags = Lists.newArrayListWithExpectedSize(tags.size());
+        for (final TagResponseObject tag : tags) {
+            whoisTags.add(new WhoisTag(tag.getType().toString(), tag.getValue()));
+        }
+        object.setTags(whoisTags);
+        return object;
     }
 
     public static WhoisObject map(final RpslObject rpslObject, final boolean filter) {
@@ -195,13 +208,5 @@ public class WhoisObjectMapper {
         }
 
         return whoisVersions;
-    }
-
-    public static WhoisTags mapTags(final List<TagResponseObject> tags) {
-        final List<WhoisTag> whoisTags = Lists.newArrayListWithExpectedSize(tags.size());
-        for (final TagResponseObject tag : tags) {
-            whoisTags.add(new WhoisTag(tag.getType().toString(), tag.getValue()));
-        }
-        return new WhoisTags(whoisTags);
     }
 }

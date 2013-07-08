@@ -54,7 +54,7 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
     }
 
     private String getUrl(final String command) {
-        return "http://localhost:" + getPort(Audience.PUBLIC) + "/whois-beta/metadata/" + command;
+        return "http://localhost:" + getPort(Audience.PUBLIC) + "/whois/metadata/" + command;
     }
 
 }

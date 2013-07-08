@@ -3,12 +3,12 @@ package net.ripe.db.whois.api.whois;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.TagResponseObject;
-import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class WhoisObjectMapperTest {
         assertThat(subject.getType(), is("mntner"));
         assertThat(subject.getSource().getId(), is("test"));
         assertThat(subject.getLink().getType(), is("locator"));
-        assertThat(subject.getLink().getHref(), is("http://apps.db.ripe.net/whois-beta/lookup/test/mntner/TST-MNT"));
+        assertThat(subject.getLink().getHref(), is("http://apps.db.ripe.net/whois/lookup/test/mntner/TST-MNT"));
         assertThat(subject.getPrimaryKey(), hasSize(1));
         final Attribute primaryKeyAttribute = subject.getPrimaryKey().get(0);
         assertThat(primaryKeyAttribute.getName(), is("mntner"));
@@ -47,12 +47,12 @@ public class WhoisObjectMapperTest {
         assertThat(subject.getAttributes(), contains(
                 new Attribute("mntner", "TST-MNT", null, null, null),
                 new Attribute("descr", "MNTNER for test", null, null, null),
-                new Attribute("admin-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TP1-TEST")),
+                new Attribute("admin-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST")),
                 new Attribute("upd-to", "dbtest@ripe.net", null, null, null),
                 new Attribute("auth", "MD5-PW", "Filtered", null, null),
-                new Attribute("auth", "PGPKEY-28F6CD6C", null, "key-cert", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/key-cert/PGPKEY-28F6CD6C")),
-                new Attribute("mnt-by", "TST-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/TST-MNT")),
-                new Attribute("referral-by", "TST-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/TST-MNT")),
+                new Attribute("auth", "PGPKEY-28F6CD6C", null, "key-cert", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/key-cert/PGPKEY-28F6CD6C")),
+                new Attribute("mnt-by", "TST-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/mntner/TST-MNT")),
+                new Attribute("referral-by", "TST-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/mntner/TST-MNT")),
                 new Attribute("changed", "dbtest@ripe.net", null, null, null),
                 new Attribute("source", "TEST", "Filtered", null, null)
         ));
@@ -60,22 +60,22 @@ public class WhoisObjectMapperTest {
 
     @Test
     public void map_rpsl_as_set_members_multiple_values() throws Exception {
-        final RpslObject rpslObject = RpslObject.parse(
+        final RpslObject rpslObject = RpslObject.parse("" +
                 "as-set:    AS-set-attendees\n" +
-                        "descr:     AS-set containing all attendees' ASNs.\n" + // TODO: on transform map to &apos;
-                        "tech-c:    TS1-TEST\n" +
-                        "admin-c:   TS1-TEST\n" +
-                        "members:   as1,as2,as3,\n" +
-                        "mnt-by:    TS1-MNT\n" +
-                        "changed:   hostmaster@ripe.net 20121115\n" +
-                        "source:    TEST");
+                "descr:     AS-set containing all attendees' ASNs.\n" + // TODO: on transform map to &apos;
+                "tech-c:    TS1-TEST\n" +
+                "admin-c:   TS1-TEST\n" +
+                "members:   as1,as2,as3,\n" +
+                "mnt-by:    TS1-MNT\n" +
+                "changed:   hostmaster@ripe.net 20121115\n" +
+                "source:    TEST");
 
         final WhoisObject subject = WhoisObjectMapper.map(rpslObject);
 
         assertThat(subject.getType(), is("as-set"));
         assertThat(subject.getSource().getId(), is("test"));
         assertThat(subject.getLink().getType(), is("locator"));
-        assertThat(subject.getLink().getHref(), is("http://apps.db.ripe.net/whois-beta/lookup/test/as-set/AS-set-attendees"));
+        assertThat(subject.getLink().getHref(), is("http://apps.db.ripe.net/whois/lookup/test/as-set/AS-set-attendees"));
         assertThat(subject.getPrimaryKey(), hasSize(1));
         final Attribute primaryKeyAttribute = subject.getPrimaryKey().get(0);
         assertThat(primaryKeyAttribute.getName(), is("as-set"));
@@ -83,12 +83,12 @@ public class WhoisObjectMapperTest {
         assertThat(subject.getAttributes(), containsInAnyOrder(
                 new Attribute("as-set", "AS-set-attendees", null, null, null),
                 new Attribute("descr", "AS-set containing all attendees' ASNs.", null, null, null),
-                new Attribute("tech-c", "TS1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TS1-TEST")),
-                new Attribute("admin-c", "TS1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/person-role/TS1-TEST")),
-                new Attribute("members", "as1", null, "aut-num", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/as1")),
-                new Attribute("members", "as2", null, "aut-num", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/as2")),
-                new Attribute("members", "as3", null, "aut-num", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/aut-num/as3")),
-                new Attribute("mnt-by", "TS1-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois-beta/lookup/test/mntner/TS1-MNT")),
+                new Attribute("tech-c", "TS1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/person-role/TS1-TEST")),
+                new Attribute("admin-c", "TS1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/person-role/TS1-TEST")),
+                new Attribute("members", "as1", null, "aut-num", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/aut-num/as1")),
+                new Attribute("members", "as2", null, "aut-num", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/aut-num/as2")),
+                new Attribute("members", "as3", null, "aut-num", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/aut-num/as3")),
+                new Attribute("mnt-by", "TS1-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/mntner/TS1-MNT")),
                 new Attribute("changed", "hostmaster@ripe.net 20121115", null, null, null),
                 new Attribute("source", "TEST", null, null, null)
         ));
@@ -123,12 +123,12 @@ public class WhoisObjectMapperTest {
 
     @Test
     public void map_tags() {
-        final WhoisTags whoisTags = WhoisObjectMapper.mapTags(Lists.newArrayList(
+        final List<WhoisTag> tags = WhoisObjectMapper.map(RpslObject.parse("mntner: TEST-MNT\nsource: TEST"),
+                Lists.newArrayList(
                 new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("foo"),  "foo data"),
                 new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("bar"),  "bar data"),
-                new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("barf"),  "barf data")));
+                new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("barf"),  "barf data"))).getTags();
 
-        final List<WhoisTag> tags = whoisTags.getTags();
         assertThat(tags, hasSize(3));
         final WhoisTag tag1 = tags.get(0);
         assertThat(tag1.getId(), is("foo"));

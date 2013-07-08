@@ -742,25 +742,20 @@ interface AttributeSyntax extends Documented {
         }
 
         @Override
-        public String getDescription(final ObjectType objectType) { // TODO [AK] Generate possible values from OrgType
-            return "" +
-                    "org-type can have one of these values:\n" +
-                    "\n" +
-                    "o IANA\n" +
-                    "o RIR\n" +
-                    "o NIR (There are no NIRs in the RIPE NCC service region.)\n" +
-                    "o LIR\n" +
-                    "o WHITEPAGES\n" +
-                    "o DIRECT_ASSIGNMENT\n" +
-                    "o OTHER\n" +
-                    "\n" +
-                    "    'IANA' for Internet Assigned Numbers Authority\n" +
-                    "    'RIR' for Regional Internet Registries\n" +
-                    "    'NIR' for National Internet Registries\n" +
-                    "    'LIR' for Local Internet Registries\n" +
-                    "    'WHITEPAGES' for special links to industry people\n" +
-                    "    'DIRECT_ASSIGNMENT' for direct contract with RIPE NCC\n" +
-                    "    'OTHER' for all other organisations.\n";
+        public String getDescription(final ObjectType objectType) {
+            final StringBuilder builder = new StringBuilder();
+            builder.append("org-type can have one of these values:\n\n");
+
+            for (final OrgType orgType : OrgType.values()) {
+                builder.append("o '")
+                        .append(orgType)
+                        .append("' ")
+                        .append(orgType.getInfo())
+                        .append("\n");
+            }
+
+            builder.append("\n");
+            return builder.toString();
         }
     }
 
