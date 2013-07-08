@@ -120,6 +120,13 @@ class RdapObjectMapper {
         return remark;
     }
 
+    private void setRemarks(final RdapObject rdapObject, final RpslObject rpslObject) {
+        final Remark remark = createRemark(rpslObject);
+        if (remark.getDescription().size() > 0) {
+            rdapObject.getRemarks().add(remark);
+        }
+    }
+
     private Event createEvent(final RpslObject rpslObject) {
         final Changed latestChanged = findLatestChangedAttribute(rpslObject);
 
@@ -151,7 +158,7 @@ class RdapObjectMapper {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVcardArray(createVcards(rpslObject));
-        entity.getRemarks().add(createRemark(rpslObject));
+        setRemarks(entity, rpslObject);
         entity.getEvents().add(createEvent(rpslObject));
 
         final Link selfLink = new Link();
@@ -248,7 +255,7 @@ class RdapObjectMapper {
         /* None of the statuses from [9.1] in json-response is
          * applicable here, so 'status' will be left empty for now. */
 
-        autnum.getRemarks().add(createRemark(rpslObject));
+        setRemarks(autnum, rpslObject);
         autnum.getEvents().add(createEvent(rpslObject));
 
         final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
@@ -283,7 +290,7 @@ class RdapObjectMapper {
             domain.getNameServers().add(nameserver);
         }
 
-        domain.getRemarks().add(createRemark(rpslObject));
+        setRemarks(domain, rpslObject);
 
         return domain;
     }
