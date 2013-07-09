@@ -14,7 +14,6 @@ import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.whois.rdap.domain.Notice;
 import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Remark;
-import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
@@ -25,11 +24,14 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.domain.QueryMessages;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import java.util.*;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
@@ -98,7 +100,7 @@ class RdapObjectMapper {
 
         if (rdapResponse != null) {
             rdapResponse.getRdapConformance().addAll(RDAPCONFORMANCE);
-            rdapResponse.getNotices().add(createNotice());
+            rdapResponse.getNotices().add(createTnC());
         }
     }
 
@@ -197,24 +199,17 @@ class RdapObjectMapper {
         return entity;
     }
 
-    private Notice createNotice() {
+    private Notice createTnC() {
         // TODO: make this use the appropriate variant and perhaps be more dynamic, just returns TNC now.
-
-        Message noticeMessage = QueryMessages.rdapTermsAndConditions();
-
         Notice notice = new Notice();
-        notice.setTitle(noticeMessage.getTitle());
-
-        List<String> description = noticeMessage.getDescription();
-
-        for (int i = 0; i < description.size(); i++) {
-            notice.getDescription().add(description.get(i));
-        }
-
-        List<String> links = noticeMessage.getLinks();
+        notice.setTitle("Terms and Conditions");
+        notice.getDescription().add("This is the RIPE Database query service.");
+        notice.getDescription().add("The objects are in RDAP format.");
 
         Link link = new Link();
-        link.setValue(links.get(0));
+        link.setValue("http://www.ripe.net/db/support/db-terms-conditions.pdf");
+        link.setHref("http://www.ripe.net/db/support/db-terms-conditions.pdf");
+        link.setType("application/pdf");
         notice.setLinks(link);
 
         return notice;
