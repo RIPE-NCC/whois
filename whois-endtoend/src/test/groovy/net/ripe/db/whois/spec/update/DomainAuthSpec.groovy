@@ -2615,6 +2615,44 @@ class DomainAuthSpec extends BaseSpec {
         queryObject("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
     }
 
+    def "create reverse domain, valid glue, IPv6 and IPv4 addresses, same host"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
+        queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
+
+        expect:
+        queryObjectNotFound("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
+
+        when:
+        def message = syncUpdate("""\
+                domain:         0.0.193.in-addr.arpa
+                descr:          reverse domain
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net.0.0.193.in-addr.arpa 81.20.133.177
+                nserver:        pri.authdns.ripe.net.0.0.193.in-addr.arpa 2001:600::1
+                mnt-by:         owner-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password:   owner
+                password:   lir2
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
+
+        queryObject("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
+    }
+
     def "create forward domain"() {
       expect:
         queryObjectNotFound("-rGBT domain mydomain.net", "domain", "mydomain.net")
