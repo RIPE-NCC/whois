@@ -44,7 +44,7 @@
                                                 <xs:element name="keyTag" type="xs:nonNegativeInteger" maxOccurs="1"  minOccurs="1"/>
                                                 <xs:element name="algorithm" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
                                                 <xs:element name="digest" type="xs:string"  maxOccurs="1" minOccurs="1"/>
-                                                <xs:element name="digestType" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
+                                                <xs:element name="digestType" type="xs:string" maxOccurs="1" minOccurs="1"/>
                                                 <xs:element name="events" type="event" minOccurs="0" maxOccurs="unbounded"/>
                                             </xs:sequence>
                                         </xs:complexType>
