@@ -1,10 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -19,10 +15,7 @@ import java.io.Serializable;
     "parentHandle"
 })
 @XmlRootElement(name = "ip")
-public class Ip
-    extends RdapObject
-    implements Serializable
-{
+public class Ip extends RdapObject implements Serializable {
     @XmlElement(required = true)
     protected String handle;
     @XmlElement(required = true)

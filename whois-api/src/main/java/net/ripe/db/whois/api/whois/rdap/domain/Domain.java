@@ -1,14 +1,10 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -20,10 +16,7 @@ import java.util.List;
     "port43"
 })
 @XmlRootElement(name = "domain")
-public class Domain
-    extends RdapObject
-    implements Serializable
-{
+public class Domain extends RdapObject implements Serializable {
 
     @XmlElement(required = true)
     protected String handle;
@@ -33,14 +26,14 @@ public class Domain
     protected String unicodeName;
     @XmlElement(required = true)
     protected List<Nameserver> nameservers;
-    protected HashMap publicIds;
+    protected Map publicIds;
     protected String port43;
 
     public String getHandle() {
         return handle;
     }
 
-    public void setHandle(String value) {
+    public void setHandle(final String value) {
         this.handle = value;
     }
 
@@ -48,7 +41,7 @@ public class Domain
         return ldhName;
     }
 
-    public void setLdhName(String value) {
+    public void setLdhName(final String value) {
         this.ldhName = value;
     }
 
@@ -56,22 +49,22 @@ public class Domain
         return unicodeName;
     }
 
-    public void setUnicodeName(String value) {
+    public void setUnicodeName(final String value) {
         this.unicodeName = value;
     }
 
     public List<Nameserver> getNameservers() {
         if (nameservers == null) {
-            nameservers = new ArrayList<Nameserver>();
+            nameservers = new ArrayList<>();
         }
         return this.nameservers;
     }
 
-    public HashMap getPublicIds() {
+    public Map getPublicIds() {
         return publicIds;
     }
 
-    public void setPublicIds(HashMap value) {
+    public void setPublicIds(final Map value) {
         this.publicIds = value;
     }
 
@@ -79,7 +72,7 @@ public class Domain
         return port43;
     }
 
-    public void setPort43(String value) {
+    public void setPort43(final String value) {
         this.port43 = value;
     }
 }

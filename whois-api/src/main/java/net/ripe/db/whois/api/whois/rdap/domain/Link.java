@@ -49,7 +49,7 @@ public class Link implements Serializable {
         return href;
     }
 
-    public Link setHref(String value) {
+    public Link setHref(final String value) {
         this.href = value;
         return this;
     }
@@ -72,7 +72,7 @@ public class Link implements Serializable {
         return media;
     }
 
-    public void setMedia(String value) {
+    public void setMedia(final String value) {
         this.media = value;
     }
 
@@ -80,7 +80,7 @@ public class Link implements Serializable {
         return type;
     }
 
-    public void setType(String value) {
+    public void setType(final String value) {
         this.type = value;
     }
 }

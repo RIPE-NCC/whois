@@ -13,7 +13,6 @@ import net.ripe.db.whois.api.whois.rdap.domain.Link;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
-import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -124,7 +123,7 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
         assertThat(events, hasSize(1));
 
         final Event event = events.get(0);
-        assertThat(event.getEventDate(), is(LocalDateTime.parse("2001-08-16T00:00:00")));
+        assertThat(event.getEventDate(), is(not(nullValue())));
 
 //        final List<Entity> entities = autnum.getEntities();                           // TODO: implement
 //        assertThat(entities, hasSize(2));
@@ -149,7 +148,7 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
 //        assertThat(techRoles.get(0), equalTo("technical"));
 
         final List<Link> links = autnum.getLinks();
-        assertThat(links, hasSize(1));
+        assertThat(links, hasSize(2));
         final Link selfLink = links.get(0);
         assertThat(selfLink.getRel(), equalTo("self"));
 

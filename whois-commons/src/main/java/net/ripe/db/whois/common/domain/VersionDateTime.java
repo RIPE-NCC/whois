@@ -18,6 +18,10 @@ public class VersionDateTime implements Comparable<VersionDateTime> {
         this(new LocalDateTime(timestamp * 1000L));
     }
 
+    public LocalDateTime toLocalDateTime() {
+        return timestamp;
+    }
+
     @Override
     public String toString() {
         return formatter.print(timestamp);

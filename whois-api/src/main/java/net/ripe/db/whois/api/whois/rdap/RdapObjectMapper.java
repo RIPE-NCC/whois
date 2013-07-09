@@ -5,37 +5,39 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.common.dao.VersionInfo;
+import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Ipv6Resource;
-import net.ripe.db.whois.common.domain.attrs.Changed;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.*;
 
 
 class RdapObjectMapper {
-    private static String RDAP_CONFORMANCE_LEVEL = "rdap_level_0";
+    private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
+    private static Link COPYRIGHT_LINK = new Link().setRel("copyright").setValue(TERMS_AND_CONDITIONS).setHref(TERMS_AND_CONDITIONS);
 
-    public static Object map(final String requestUrl, final RpslObject rpslObject) {
-        RdapObject rdapResponse = null;
+    public static Object map(final String requestUrl, final RpslObject rpslObject, final VersionLookupResult versionLookupResult) {
+        RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
+        final List<VersionInfo> versions = (versionLookupResult == null || rpslObjectType == PERSON || rpslObjectType == ROLE) ? Collections.<VersionInfo>emptyList() : versionLookupResult.getVersionInfos();
 
         switch (rpslObjectType) {
             case DOMAIN:
                 rdapResponse = createDomain(rpslObject);
                 break;
             case AUT_NUM:
-                rdapResponse = createAutnumResponse(requestUrl, rpslObject);
+                rdapResponse = createAutnumResponse(rpslObject);
                 break;
             case INETNUM:
             case INET6NUM:
@@ -45,15 +47,18 @@ class RdapObjectMapper {
             case ORGANISATION:
             case ROLE:
             case IRT:
-                rdapResponse = createEntity(requestUrl, rpslObject);
+                rdapResponse = createEntity(rpslObject);
                 break;
             default:
                 throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
         }
 
-        if (rdapResponse != null) {
-            rdapResponse.getRdapConformance().add(RDAP_CONFORMANCE_LEVEL);
-        }
+        rdapResponse.getRdapConformance().add("rdap_level_0");
+        rdapResponse.getRemarks().add(createRemark(rpslObject));
+        rdapResponse.getEvents().addAll(createEvents(versions));
+
+        rdapResponse.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(requestUrl));
+        rdapResponse.getLinks().add(COPYRIGHT_LINK);
 
         return rdapResponse;
     }
@@ -75,70 +80,42 @@ class RdapObjectMapper {
         ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
         ip.setCountry(rpslObject.getValueForAttribute(AttributeType.COUNTRY).toString());
         ip.setLang(Joiner.on(",").join(rpslObject.getValuesForAttribute(AttributeType.LANGUAGE)));
+        ip.setType(rpslObject.getValueForAttribute(AttributeType.STATUS).toString());
 
-        //TODO [AS] is parentHandle optional or not?
+//        ip.getLinks().add(new Link().setRel("up")... //TODO parent (first less specific) - do parentHandle at the same time
+
         return ip;
     }
 
     private static Remark createRemark(final RpslObject rpslObject) {
-        final List<String> descriptions = Lists.newArrayList();
-
-        for (RpslAttribute attribute : rpslObject.findAttributes(AttributeType.REMARKS)) {
-            descriptions.add(attribute.getCleanValue().toString());
-        }
-
-        for (RpslAttribute attribute : rpslObject.findAttributes(AttributeType.DESCR)) {
-            descriptions.add(attribute.getCleanValue().toString());
-        }
-
         final Remark remark = new Remark();
-        remark.getDescription().addAll(descriptions);
+        for (final CIString descriptionValue : rpslObject.getValuesForAttribute(AttributeType.DESCR)) {
+            remark.getDescription().add(descriptionValue.toString());
+        }
+
         return remark;
     }
 
-    private static Event createEvent(final RpslObject rpslObject) {
-        final Changed latestChanged = findLatestChangedAttribute(rpslObject);
-
-        final Event event = new Event();
-        event.setEventAction("last changed");
-        event.setEventActor(latestChanged.getEmail());
-
-        final LocalDate eventDate = latestChanged.getDate();
-        if (eventDate != null) {
-            event.setEventDate(eventDate.toLocalDateTime(new LocalTime(0, 0, 0)));
+    private static List<Event> createEvents(final List<VersionInfo> versions) {
+        final List<Event> events = Lists.newArrayList();
+        for (final VersionInfo version : versions) {
+            final Event event = new Event();
+            event.setEventAction(version.getOperation().toString());
+            event.setEventDate(version.getTimestamp().toLocalDateTime());
+            events.add(event);
         }
-
-        return event;
+        return events;
     }
 
-    private static Changed findLatestChangedAttribute(final RpslObject rpslObject) {
-        Changed result = null;
-        for (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.CHANGED)) {
-            final Changed changed = Changed.parse(rpslAttribute.getCleanValue());
-            if ((result == null) || (changed.getDate().isAfter(result.getDate()))) {
-                result = changed;
-            }
-        }
-        return result;
-    }
-
-    private static Entity createEntity(final String requestUrl, final RpslObject rpslObject) {
+    private static Entity createEntity(final RpslObject rpslObject) {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVcardArray(createVcards(rpslObject));
-        entity.getRemarks().add(createRemark(rpslObject));
-        entity.getEvents().add(createEvent(rpslObject));
-
-        final Link selfLink = new Link();
-        selfLink.setRel("self");
-        selfLink.setValue(requestUrl);
-        selfLink.setHref(requestUrl);
-        entity.getLinks().add(selfLink);
 
         return entity;
     }
 
-    private static Autnum createAutnumResponse(final String requestUrl, final RpslObject rpslObject) {
+    private static Autnum createAutnumResponse(final RpslObject rpslObject) {
         final Autnum autnum = new Autnum();
         autnum.setHandle(rpslObject.getKey().toString());
 
@@ -160,19 +137,15 @@ class RdapObjectMapper {
         /* None of the statuses from [9.1] in json-response is
          * applicable here, so 'status' will be left empty for now. */
 
-        autnum.getRemarks().add(createRemark(rpslObject));
-        autnum.getEvents().add(createEvent(rpslObject));
-
         final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
         contactAttributeTypes.add(AttributeType.ADMIN_C);
         contactAttributeTypes.add(AttributeType.TECH_C);
 
-        autnum.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(requestUrl));
         return autnum;
     }
 
-    private static Domain createDomain(RpslObject rpslObject) {
-        Domain domain = new Domain();
+    private static Domain createDomain(final RpslObject rpslObject) {
+        final Domain domain = new Domain();
         domain.setHandle(rpslObject.getKey().toString());
         domain.setLdhName(rpslObject.getKey().toString());
 
@@ -182,12 +155,11 @@ class RdapObjectMapper {
             domain.getNameservers().add(ns);
         }
 
-        domain.getRemarks().add(createRemark(rpslObject));
         return domain;
     }
 
-    private static List<Object> createVcards(RpslObject rpslObject) {
-        VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
+    private static List<Object> createVcards(final RpslObject rpslObject) {
+        final VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
         builder.setVersion();
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PERSON)) {
