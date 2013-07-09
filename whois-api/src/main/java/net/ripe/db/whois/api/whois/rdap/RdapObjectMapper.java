@@ -20,6 +20,7 @@ import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Ipv6Resource;
 import net.ripe.db.whois.common.domain.attrs.Changed;
+import net.ripe.db.whois.common.domain.attrs.DsRdata;
 import net.ripe.db.whois.common.domain.attrs.NServer;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -79,7 +80,7 @@ class RdapObjectMapper {
 
         switch (rpslObjectType) {
             case DOMAIN:
-                rdapResponse = createDomain(rpslObject);
+                rdapResponse = createDomain(rpslObject, rpslObjectQueue);
                 break;
             case AUT_NUM:
                 rdapResponse = createAutnumResponse(rpslObject, rpslObjectQueue);
@@ -295,7 +296,7 @@ class RdapObjectMapper {
         return autnum;
     }
 
-    private Domain  createDomain(RpslObject rpslObject) {
+    private Domain  createDomain(RpslObject rpslObject, Queue<RpslObject> queue) {
         Domain domain = new Domain();
         domain.setHandle(rpslObject.getKey().toString());
         domain.setLdhName(rpslObject.getKey().toString());
@@ -308,16 +309,45 @@ class RdapObjectMapper {
             if (ipInterval != null) {
                 final Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
                 if (ipInterval instanceof Ipv4Resource) {
-                    ipAddresses.getIpv4().add(ipInterval.beginAsInetAddress().toString());
+                    ipAddresses.getIpv4().add(IpInterval.asIpInterval(ipInterval.beginAsInetAddress()).toString());
                 } else if (ipInterval instanceof Ipv6Resource) {
-                    ipAddresses.getIpv6().add(ipInterval.beginAsInetAddress().toString());
+                    ipAddresses.getIpv6().add(IpInterval.asIpInterval(ipInterval.beginAsInetAddress()).toString());
                 }
                 nameserver.setIpAddresses(ipAddresses);
             }
             domain.getNameServers().add(nameserver);
         }
 
+        final Domain.SecureDNS secureDNS = new Domain.SecureDNS();
+
+        for (final CIString rdata : rpslObject.getValuesForAttribute(AttributeType.DS_RDATA)) {
+            final DsRdata dsRdata = DsRdata.parse(rdata);
+
+            secureDNS.setDelegationSigned(true);
+
+            final Domain.SecureDNS.DsData dsData = new Domain.SecureDNS.DsData();
+            dsData.setKeyTag(dsRdata.getKeyTag());
+            dsData.setAlgorithm(dsRdata.getAlgorithm());
+            dsData.setDigestType(dsRdata.getDigestType().toString());
+            dsData.setDigest(dsRdata.getDigest().toString());
+
+            secureDNS.getDsData().add(dsData);
+        }
+
+        if (secureDNS.isDelegationSigned()) {
+            domain.setSecureDNS(secureDNS);
+        }
+
         setRemarks(domain, rpslObject);
+        domain.getEvents().add(createEvent(rpslObject));
+
+        final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
+        contactAttributeTypes.add(AttributeType.ADMIN_C);
+        contactAttributeTypes.add(AttributeType.TECH_C);
+        setEntities(domain, rpslObject, queue, contactAttributeTypes);
+
+        domain.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(baseUrl + "/domain/" + domain.getHandle()));
+
 
         return domain;
     }

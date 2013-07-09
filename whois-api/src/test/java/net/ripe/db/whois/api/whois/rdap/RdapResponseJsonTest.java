@@ -289,9 +289,9 @@ public class RdapResponseJsonTest {
         secureDNS.setDelegationSigned(new Boolean(true));
 
         final Domain.SecureDNS.DsData dsData = new Domain.SecureDNS.DsData();
-        dsData.setKeyTag(BigInteger.valueOf(12345L));
-        dsData.setAlgorithm(BigInteger.valueOf(3));
-        dsData.setDigestType(BigInteger.valueOf(1));
+        dsData.setKeyTag(12345L);
+        dsData.setAlgorithm((short) 3);
+        dsData.setDigestType(String.valueOf(1));
         dsData.setDigest("49FD46E6C4B45C55D4AC");
 
         secureDNS.getDsData().add(dsData);

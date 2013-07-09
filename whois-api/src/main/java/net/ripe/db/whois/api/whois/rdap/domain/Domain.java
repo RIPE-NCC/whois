@@ -3,7 +3,6 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -112,8 +111,7 @@ public class Domain
 
         protected Boolean zoneSigned;
         protected Boolean delegationSigned;
-        @XmlSchemaType(name = "nonNegativeInteger")
-        protected BigInteger maxSigLife;
+        protected Long maxSigLife;
         protected List<Domain.SecureDNS.DsData> dsData;
         protected List<Domain.SecureDNS.KeyData> keyData;
 
@@ -133,11 +131,11 @@ public class Domain
             this.delegationSigned = value;
         }
 
-        public BigInteger getMaxSigLife() {
+        public Long getMaxSigLife() {
             return maxSigLife;
         }
 
-        public void setMaxSigLife(BigInteger value) {
+        public void setMaxSigLife(Long value) {
             this.maxSigLife = value;
         }
 
@@ -168,32 +166,29 @@ public class Domain
             implements Serializable
         {
 
-            @XmlElement(required = true)
-            @XmlSchemaType(name = "nonNegativeInteger")
-            protected BigInteger keyTag;
-            @XmlElement(required = true)
-            @XmlSchemaType(name = "nonNegativeInteger")
-            protected BigInteger algorithm;
+            @XmlSchemaType(name = "unsignedInt")
+            protected long keyTag;
+            @XmlSchemaType(name = "unsignedByte")
+            protected short algorithm;
             @XmlElement(required = true)
             protected String digest;
             @XmlElement(required = true)
-            @XmlSchemaType(name = "nonNegativeInteger")
-            protected BigInteger digestType;
+            protected String digestType;
             protected List<Event> events;
 
-            public BigInteger getKeyTag() {
+            public long getKeyTag() {
                 return keyTag;
             }
 
-            public void setKeyTag(BigInteger value) {
+            public void setKeyTag(long value) {
                 this.keyTag = value;
             }
 
-            public BigInteger getAlgorithm() {
+            public short getAlgorithm() {
                 return algorithm;
             }
 
-            public void setAlgorithm(BigInteger value) {
+            public void setAlgorithm(short value) {
                 this.algorithm = value;
             }
 
@@ -205,11 +200,11 @@ public class Domain
                 this.digest = value;
             }
 
-            public BigInteger getDigestType() {
+            public String getDigestType() {
                 return digestType;
             }
 
-            public void setDigestType(BigInteger value) {
+            public void setDigestType(String value) {
                 this.digestType = value;
             }
 
@@ -242,8 +237,7 @@ public class Domain
             @XmlElement(required = true)
             protected String publicKey;
             @XmlElement(required = true)
-            @XmlSchemaType(name = "nonNegativeInteger")
-            protected BigInteger algorithm;
+            protected String algorithm;
             protected List<Event> events;
 
             public String getFlags() {
@@ -270,11 +264,11 @@ public class Domain
                 this.publicKey = value;
             }
 
-            public BigInteger getAlgorithm() {
+            public String getAlgorithm() {
                 return algorithm;
             }
 
-            public void setAlgorithm(BigInteger value) {
+            public void setAlgorithm(String value) {
                 this.algorithm = value;
             }
 

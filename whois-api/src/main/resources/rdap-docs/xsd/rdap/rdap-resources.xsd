@@ -37,12 +37,12 @@
                                 <xs:sequence>
                                     <xs:element name="zoneSigned" type="xs:boolean" maxOccurs="1"  minOccurs="0"/>
                                     <xs:element name="delegationSigned" type="xs:boolean" maxOccurs="1" minOccurs="0"/>
-                                    <xs:element name="maxSigLife" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="0"/>
+                                    <xs:element name="maxSigLife" type="xs:long" maxOccurs="1" minOccurs="0"/>
                                     <xs:element name="dsData" maxOccurs="unbounded" minOccurs="0">
                                         <xs:complexType>
                                             <xs:sequence>
-                                                <xs:element name="keyTag" type="xs:nonNegativeInteger" maxOccurs="1"  minOccurs="1"/>
-                                                <xs:element name="algorithm" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
+                                                <xs:element name="keyTag" type="xs:unsignedInt" maxOccurs="1"  minOccurs="1"/>
+                                                <xs:element name="algorithm" type="xs:unsignedByte" maxOccurs="1" minOccurs="1"/>
                                                 <xs:element name="digest" type="xs:string"  maxOccurs="1" minOccurs="1"/>
                                                 <xs:element name="digestType" type="xs:string" maxOccurs="1" minOccurs="1"/>
                                                 <xs:element name="events" type="event" minOccurs="0" maxOccurs="unbounded"/>
@@ -55,7 +55,7 @@
                                                 <xs:element name="flags" type="xs:string" maxOccurs="1"  minOccurs="1"/>
                                                 <xs:element name="protocol" type="xs:string" maxOccurs="1" minOccurs="1"/>
                                                 <xs:element name="publicKey" type="xs:string"  maxOccurs="1" minOccurs="1"/>
-                                                <xs:element name="algorithm" type="xs:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
+                                                <xs:element name="algorithm" type="xs:string" maxOccurs="1" minOccurs="1"/>
                                                 <xs:element name="events" type="event" minOccurs="0" maxOccurs="unbounded"/>
                                             </xs:sequence>
                                         </xs:complexType>
@@ -96,8 +96,8 @@
                 <xs:extension base="rdapObject">
                     <xs:sequence>
                         <xs:element name="handle" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                        <xs:element name="startAutnum" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1"/>
-                        <xs:element name="endAutnum" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="startAutnum" type="xs:long" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="endAutnum" type="xs:long" minOccurs="1" maxOccurs="1"/>
                         <xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1"/>
                         <xs:element name="type" type="xs:string" minOccurs="1" maxOccurs="1"/>
                         <xs:element name="country" type="xs:string" minOccurs="1" maxOccurs="1"/>

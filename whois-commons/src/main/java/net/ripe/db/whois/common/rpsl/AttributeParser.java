@@ -131,4 +131,11 @@ public interface AttributeParser<T> {
             return NServer.parse(s);
         }
     }
+
+    final class DsRdataParser implements AttributeParser<DsRdata> {
+        @Override
+        public DsRdata parse(final String s) {
+            return DsRdata.parse(s);
+        }
+    }
 }

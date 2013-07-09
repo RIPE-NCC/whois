@@ -63,18 +63,21 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             "source:  TEST\n");
 
     private static final RpslObject TEST_DOMAIN = RpslObject.parse("" +
-            "domain:  31.12.202.in-addr.arpa\n" +
-            "descr:   Test domain\n" +
-            "admin-c: TP1-TEST\n" +
-            "tech-c:  TP1-TEST\n" +
-            "zone-c:  TP1-TEST\n" +
-            "notify:  notify@test.net.au\n" +
-            "nserver: ns1.test.com.au 10.0.0.1\n" +
-            "nserver: ns2.test.com.au 2001:10::2\n" +
-            "changed: test@test.net.au 20010816\n" +
-            "changed: test@test.net.au 20121121\n" +
-            "mnt-by:  OWNER-MNT\n" +
-            "source:  TEST\n");
+            "domain:   31.12.202.in-addr.arpa\n" +
+            "descr:    Test domain\n" +
+            "admin-c:  TP1-TEST\n" +
+            "tech-c:   TP1-TEST\n" +
+            "zone-c:   TP1-TEST\n" +
+            "notify:   notify@test.net.au\n" +
+            "nserver:  ns1.test.com.au 10.0.0.1\n" +
+            "nserver:  ns2.test.com.au 2001:10::2\n" +
+            "ds-rdata: 52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
+            "ds-rdata: 17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
+            "ds-rdata: 17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
+            "changed:  test@test.net.au 20010816\n" +
+            "changed:  test@test.net.au 20121121\n" +
+            "mnt-by:   OWNER-MNT\n" +
+            "source:   TEST\n");
 
     private static final RpslObject TEST_ORG = RpslObject.parse("" +
             "organisation:  ORG-TEST1-TEST\n" +
