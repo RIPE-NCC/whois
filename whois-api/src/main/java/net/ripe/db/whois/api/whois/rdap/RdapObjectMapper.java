@@ -304,6 +304,7 @@ class RdapObjectMapper {
         domain.setHandle(rpslObject.getKey().toString());
         domain.setLdhName(rpslObject.getKey().toString());
 
+	// TODO: [RL] Support multiple glue records for the one hostname
         for (final RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.NSERVER)) {
             final NServer nserver = NServer.parse(rpslAttribute.getCleanValue().toString());
             final Nameserver nameserver = new Nameserver();
