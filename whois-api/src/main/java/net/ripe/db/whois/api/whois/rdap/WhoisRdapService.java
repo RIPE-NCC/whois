@@ -110,7 +110,6 @@ public class WhoisRdapService {
         return key;
     }
 
-    // TODO: [AH] hierarchical lookups return the encompassing range if no direct hit
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
         final String source = sourceContext.getWhoisSlaveSource().getName().toString();
         final String objectTypesString = Joiner.on(",").join(Iterables.transform(objectTypes, new Function<ObjectType, String>() {
@@ -121,8 +120,7 @@ public class WhoisRdapService {
         }));
 
         final Query query = Query.parse(
-                String.format("%s %s %s %s %s %s %s %s %s",
-                        (objectTypes.contains(ObjectType.INETNUM) || objectTypes.contains(INET6NUM)) ? QueryFlag.EXACT.getLongFlag() : "",
+                String.format("%s %s %s %s %s %s %s %s",
                         QueryFlag.NO_GROUPING.getLongFlag(),
                         QueryFlag.NO_REFERENCED.getLongFlag(),
                         QueryFlag.SOURCES.getLongFlag(),

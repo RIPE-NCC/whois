@@ -107,34 +107,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         client = Client.create(cc);
     }
 
-    @Test
-    public void lookup_inet6num_with_prefix_length() throws Exception {
-        databaseHelper.addObject("" +
-                "inet6num:       2001:2002:2003::/48\n" +
-                "netname:        RIPE-NCC\n" +
-                "descr:          Private Network\n" +
-                "country:        NL\n" +
-                "tech-c:         TP1-TEST\n" +
-                "status:         ASSIGNED PA\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "mnt-lower:      OWNER-MNT\n" +
-                "source:         TEST");
-        ipTreeUpdater.rebuild();
-
-        final Ip response = createResource(AUDIENCE, "ip/2001:2002:2003::/48")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(Ip.class);
-
-        assertThat(response.getHandle(), is("2001:2002:2003::/48"));
-        assertThat(response.getIpVersion(), is("v6"));
-        assertThat(response.getCountry(), is("NL"));
-        assertThat(response.getStartAddress(), is("2001:2002:2003::/128"));
-        assertThat(response.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
-        assertThat(response.getName(), is("RIPE-NCC"));
-    }
+    // inetnum
 
     @Test
-    public void lookup_inetnum() {
+    public void lookup_inetnum_range() {
         databaseHelper.addObject("" +
                 "inetnum:      192.0.0.0 - 192.255.255.255\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -151,6 +127,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         final Ip response = createResource(AUDIENCE, "ip/192.0.0.0/8")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
+
         assertThat(response.getHandle(), is("192.0.0.0 - 192.255.255.255"));
         assertThat(response.getIpVersion(), is("v4"));
         assertThat(response.getLang(), is("en"));
@@ -188,18 +165,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_inetnum_not_found() {
-        databaseHelper.addObject("" +
-                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
-                "netname:      TEST-NET-NAME\n" +
-                "descr:        TEST network\n" +
-                "country:      NL\n" +
-                "tech-c:       TP1-TEST\n" +
-                "status:       OTHER\n" +
-                "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20020101\n" +
-                "source:       TEST");
-        ipTreeUpdater.rebuild();
-
         try {
             createResource(AUDIENCE, "ip/193.0.0.0")
                     .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -209,8 +174,38 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         }
     }
 
+    // inet6num
+
     @Test
-    public void lookup_person_object() throws Exception {
+    public void lookup_inet6num_with_prefix_length() throws Exception {
+        databaseHelper.addObject("" +
+                "inet6num:       2001:2002:2003::/48\n" +
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip response = createResource(AUDIENCE, "ip/2001:2002:2003::/48")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(response.getHandle(), is("2001:2002:2003::/48"));
+        assertThat(response.getIpVersion(), is("v6"));
+        assertThat(response.getCountry(), is("NL"));
+        assertThat(response.getStartAddress(), is("2001:2002:2003::/128"));
+        assertThat(response.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
+        assertThat(response.getName(), is("RIPE-NCC"));
+    }
+
+    // entity
+
+    @Test
+    public void lookup_person_entity() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
         final Entity response = createResource(AUDIENCE, "entity/PP1-TEST")
@@ -220,6 +215,41 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(response.getHandle(), equalTo("PP1-TEST"));
         assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
     }
+
+    @Test
+    public void lookup_org_entity() throws Exception {
+        databaseHelper.addObject(TEST_ORG);
+
+        final Entity response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+    }
+
+    @Test
+    public void lookup_entity_not_found() throws Exception {
+        try {
+            createResource(AUDIENCE, "entity/nonexistant")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+        } catch (final UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
+    }
+
+    @Test
+    public void lookup_entity_no_accept_header() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final Entity response = createResource(AUDIENCE, "entity/PP1-TEST")
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("PP1-TEST"));
+        assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
+    }
+
+    // domain
 
     @Test
     public void lookup_domain_object() throws Exception {
@@ -232,17 +262,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(response.getHandle(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(response.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
-    }
-
-    @Test
-    public void lookup_org_object() throws Exception {
-        databaseHelper.addObject(TEST_ORG);
-
-        final Entity response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(Entity.class);
-
-        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
     }
 
     @Override
