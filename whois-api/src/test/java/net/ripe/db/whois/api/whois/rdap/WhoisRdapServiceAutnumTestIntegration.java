@@ -8,7 +8,6 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
-import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.Event;
 import net.ripe.db.whois.api.whois.rdap.domain.Link;
 import net.ripe.db.whois.common.IntegrationTest;
@@ -16,13 +15,11 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -34,31 +31,12 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
 
     private static final Audience AUDIENCE = Audience.PUBLIC;
 
-    private static final RpslObject TP1_TEST_BOOT = RpslObject.parse("" +
+    @Before
+    public void setup() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
             "person: Test Person\n" +
-            "nic-hdl: TP1-TEST");
-
-    private static final RpslObject TP1_TEST = RpslObject.parse("" +
-            "person:  Test Person\n" +
-            "address: Test Address\n" +
-            "phone:   +61-1234-1234\n" +
-            "e-mail:  noreply@ripe.net\n" +
-            "mnt-by:  OWNER-MNT\n" +
-            "nic-hdl: TP1-TEST\n" +
-            "changed: noreply@ripe.net 20120101\n" +
-            "source:  TEST\n");
-
-    private static final RpslObject TP2_TEST = RpslObject.parse("" +
-            "person:  Test Person2\n" +
-            "address: Test Address\n" +
-            "phone:   +61-1234-1234\n" +
-            "e-mail:  noreply@ripe.net\n" +
-            "mnt-by:  OWNER-MNT\n" +
-            "nic-hdl: TP2-TEST\n" +
-            "changed: noreply@ripe.net 20120101\n" +
-            "source:  TEST\n");
-
-    private static final RpslObject OWNER_MNT = RpslObject.parse("" +
+            "nic-hdl: TP1-TEST"));
+        databaseHelper.addObject(RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
             "descr:       Owner Maintainer\n" +
             "admin-c:     TP1-TEST\n" +
@@ -67,9 +45,26 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
             "mnt-by:      OWNER-MNT\n" +
             "referral-by: OWNER-MNT\n" +
             "changed:     dbtest@ripe.net 20120101\n" +
-            "source:      TEST");
-
-    private static final RpslObject ASN_RANGE_ONE = RpslObject.parse("" +
+            "source:      TEST"));
+        databaseHelper.updateObject(RpslObject.parse("" +
+            "person:    Test Person\n" +
+            "address:   Test Address\n" +
+            "phone:     +61-1234-1234\n" +
+            "e-mail:    noreply@ripe.net\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "nic-hdl:   TP1-TEST\n" +
+            "changed:   noreply@ripe.net 20120101\n" +
+            "source:    TEST\n"));
+        databaseHelper.addObject(RpslObject.parse("" +
+            "person:  Test Person2\n" +
+            "address: Test Address\n" +
+            "phone:   +61-1234-1234\n" +
+            "e-mail:  noreply@ripe.net\n" +
+            "mnt-by:  OWNER-MNT\n" +
+            "nic-hdl: TP2-TEST\n" +
+            "changed: noreply@ripe.net 20120101\n" +
+            "source:  TEST\n"));
+        databaseHelper.addObject(RpslObject.parse("" +
             "as-block:  AS1000-AS2000\n" +
             "descr:     An ASN range\n" +
             "remarks:   a remark\n" +
@@ -79,19 +74,8 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
             "country:   AU\n" +
             "changed:   test@test.net.au 20010816\n" +
             "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n");
-
-    private static final RpslObject ASN_RANGE_TWO = RpslObject.parse("" +
-            "as-block:  AS10000-AS20000\n" +
-            "descr:     An ASN range\n" +
-            "admin-c:   TP1-TEST\n" +
-            "tech-c:    TP2-TEST\n" +
-            "country:   AU\n" +
-            "changed:   test@test.net.au 20010816\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n");
-
-    private static final RpslObject ASN_SINGLE = RpslObject.parse("" +
+            "source:    TEST\n"));
+        databaseHelper.addObject(RpslObject.parse("" +
             "aut-num:   AS123\n" +
             "as-name:   AS-TEST\n" +
             "descr:     A single ASN\n" +
@@ -100,17 +84,7 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
             "country:   AU\n" +
             "changed:   test@test.net.au 20010816\n" +
             "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n");
-
-    @Before
-    public void setup() throws Exception {
-        databaseHelper.addObject(TP1_TEST_BOOT);
-        databaseHelper.addObject(OWNER_MNT);
-        databaseHelper.updateObject(TP1_TEST);
-        databaseHelper.addObject(TP2_TEST);
-        databaseHelper.addObject(ASN_RANGE_ONE);
-        databaseHelper.addObject(ASN_RANGE_TWO);
-        databaseHelper.addObject(ASN_SINGLE);
+            "source:    TEST\n"));
     }
 
     @Before
@@ -184,37 +158,16 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
         assertThat(selfLink.getHref(), equalTo(ru));
     }
 
-    @Ignore("TODO: how to handle as-block response?")
     @Test
     public void lookup_autnum_within_block() throws Exception {
-        final Autnum autnum = createResource(AUDIENCE, "autnum/1500")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(Autnum.class);
-
-        assertThat(autnum.getHandle(), equalTo("AS1000-AS2000"));
-        assertThat(autnum.getStartAutnum(), equalTo(1000L));
-        assertThat(autnum.getEndAutnum(), equalTo(2000L));
-        assertThat(autnum.getName(), equalTo("AS1000-AS2000"));
-        assertThat(autnum.getCountry(), equalTo("AU"));
-        assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
-
-        final List<Link> links = autnum.getLinks();
-        assertThat(links, hasSize(1));
-        final Link self = links.get(0);
-        assertThat(self.getRel(), equalTo("self"));
-
-        final String selfUrl = createResource(AUDIENCE, "autnum/1500").toString();
-        assertThat(self.getValue(), equalTo(selfUrl));
-        assertThat(self.getHref(), equalTo(selfUrl));
-
-        final List<Entity> entities = autnum.getEntities();
-        assertThat(entities, hasSize(1));
-
-        final List<String> roles = entities.get(0).getRoles();
-        assertThat(roles, hasSize(2));
-        Collections.sort(roles);
-        assertThat(roles.get(0), equalTo("administrative"));
-        assertThat(roles.get(1), equalTo("technical"));
+        try {
+            createResource(AUDIENCE, "autnum/1500")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Autnum.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
     }
 
     @Override
