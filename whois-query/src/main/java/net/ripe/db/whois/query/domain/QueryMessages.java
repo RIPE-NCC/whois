@@ -31,20 +31,6 @@ public final class QueryMessages {
                 + "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n");
     }
 
-    public static Message rdapTermsAndConditions() {
-        List<String> links = new ArrayList<String>();
-        links.add("http://www.ripe.net/db/support/db-terms-conditions.pdf");
-
-        List<String> description = new ArrayList<String>();
-        description.add("This is the RIPE Database query service.");
-        description.add("The objects are in RDAP format.");
-
-        return new Message(Type.INFO,
-                "Terms and Conditions",
-                links,
-                description);
-    }
-
     public static Message termsAndConditionsDump() {
         return new Message(Type.INFO, "" +
                 "#\n" +

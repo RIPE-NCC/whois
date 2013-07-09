@@ -15,7 +15,6 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
