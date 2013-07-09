@@ -79,28 +79,35 @@ class RdapObjectMapper {
     private void add(final RpslObject rpslObject, final Queue<RpslObject> rpslObjectQueue) {
         final ObjectType rpslObjectType = rpslObject.getType();
 
+        String noticeValue = baseUrl;
+
         switch (rpslObjectType) {
             case DOMAIN:
                 rdapResponse = createDomain(rpslObject);
+                noticeValue = noticeValue + "/domain/";
                 break;
             case AUT_NUM:
                 rdapResponse = createAutnumResponse(rpslObject, rpslObjectQueue);
+                noticeValue = noticeValue + "/autnum/";
                 break;
             case INETNUM:
             case INET6NUM:
                 rdapResponse = createIp(rpslObject);
+                noticeValue = noticeValue + "/ip/";
                 break;
             case PERSON:
             case ORGANISATION:
             case ROLE:
             case IRT:
                 rdapResponse = createEntity(rpslObject, rpslObjectQueue);
+                noticeValue = noticeValue + "/entity/";
                 break;
         }
 
         if (rdapResponse != null) {
+            noticeValue = noticeValue + rpslObject.getKey();
             rdapResponse.getRdapConformance().addAll(RDAPCONFORMANCE);
-            rdapResponse.getNotices().add(createTnC());
+            rdapResponse.getNotices().add(createTnC(noticeValue));
         }
     }
 
@@ -199,7 +206,7 @@ class RdapObjectMapper {
         return entity;
     }
 
-    private Notice createTnC() {
+    private Notice createTnC(String noticeValue) {
         // TODO: make this use the appropriate variant and perhaps be more dynamic, just returns TNC now.
         Notice notice = new Notice();
         notice.setTitle("Terms and Conditions");
@@ -207,7 +214,8 @@ class RdapObjectMapper {
         notice.getDescription().add("The objects are in RDAP format.");
 
         Link link = new Link();
-        link.setValue("http://www.ripe.net/db/support/db-terms-conditions.pdf");
+        link.setValue(noticeValue);
+        link.setRel("copyright");
         link.setHref("http://www.ripe.net/db/support/db-terms-conditions.pdf");
         link.setType("application/pdf");
         notice.setLinks(link);
