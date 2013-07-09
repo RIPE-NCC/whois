@@ -180,11 +180,22 @@ class RdapObjectMapper {
     private Notice createNotice() {
         // TODO: make this use the appropriate variant and perhaps be more dynamic, just returns TNC now.
 
-        Message noticeMessage = QueryMessages.termsAndConditions();
+        Message noticeMessage = QueryMessages.rdapTermsAndConditions();
 
         Notice notice = new Notice();
-        notice.setTitle("Terms and conditions");
-        notice.getDescription().add(noticeMessage.toString());
+        notice.setTitle(noticeMessage.getTitle());
+
+        List<String> description = noticeMessage.getDescription();
+
+        for (int i = 0; i < description.size(); i++) {
+            notice.getDescription().add(description.get(i));
+        }
+
+        List<String> links = noticeMessage.getLinks();
+
+        Link link = new Link();
+        link.setValue(links.get(0));
+        notice.setLinks(link);
 
         return notice;
     }
@@ -268,7 +279,7 @@ class RdapObjectMapper {
         return autnum;
     }
 
-    private Domain createDomain(RpslObject rpslObject) {
+    private Domain  createDomain(RpslObject rpslObject) {
         Domain domain = new Domain();
         domain.setHandle(rpslObject.getKey().toString());
         domain.setLdhName(rpslObject.getKey().toString());

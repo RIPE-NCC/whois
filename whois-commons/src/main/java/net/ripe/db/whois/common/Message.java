@@ -1,15 +1,26 @@
 package net.ripe.db.whois.common;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.List;
 
 @Immutable
 public final class Message {
     private final Messages.Type type;
-    private final String value;
+    private String value;
+    private List<String> links;
+    private String title;
+    private List<String> description;
 
     public Message(final Messages.Type type, final String value, final Object... args) {
         this.type = type;
         this.value = args.length == 0 ? value : String.format(value, args);
+    }
+
+    public Message (final Messages.Type type, final String title, final List<String> links, final List<String> description) {
+        this.type = type;
+        this.links = links;
+        this.title = title;
+        this.description = description;
     }
 
     @Override
@@ -38,11 +49,23 @@ public final class Message {
         return result;
     }
 
+    public List<String> getLinks () {
+        return links;
+    }
+
+    public String getTitle () {
+        return title;
+    }
+
     public Messages.Type getType() {
         return type;
     }
 
     public String getValue() {
         return value;
+    }
+
+    public List<String> getDescription() {
+        return description;
     }
 }
