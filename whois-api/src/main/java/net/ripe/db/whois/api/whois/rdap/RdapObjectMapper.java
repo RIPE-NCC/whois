@@ -215,7 +215,7 @@ class RdapObjectMapper {
 
         Link link = new Link();
         link.setValue(noticeValue);
-        link.setRel("copyright");
+        link.setRel("terms-of-service");
         link.setHref("http://www.ripe.net/db/support/db-terms-conditions.pdf");
         link.setType("application/pdf");
         notice.setLinks(link);
