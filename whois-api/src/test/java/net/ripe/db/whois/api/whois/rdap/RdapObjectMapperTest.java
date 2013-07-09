@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.whois.rdap;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.joda.time.LocalDateTime;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
@@ -12,7 +13,7 @@ public class RdapObjectMapperTest {
 
     @Test
     public void ip() {
-        Ip result = (Ip) map((RpslObject.parse(
+        Ip result = (Ip) map((RpslObject.parse("" +
                 "inetnum:        10.0.0.0 - 10.255.255.255\n" +
                 "netname:        RIPE-NCC\n" +
                 "descr:          some descr\n" +
@@ -35,7 +36,7 @@ public class RdapObjectMapperTest {
 
     @Test
     public void person() {
-        Entity result = (Entity) map(RpslObject.parse(
+        final Entity result = (Entity) map(RpslObject.parse("" +
                 "person:        First Last\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 20 123456\n" +
@@ -53,12 +54,12 @@ public class RdapObjectMapperTest {
         assertThat(result.getEvents(), hasSize(1));
         assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
         assertThat(result.getEvents().get(0).getEventActor(), is("first@last.org"));
-        assertThat(result.getEvents().get(0).getEventDate().toString(), is("2012-02-20T00:00:00.000+01:00"));
+        assertThat(result.getEvents().get(0).getEventDate(), is(LocalDateTime.parse("2012-02-20T00:00:00")));
     }
 
     @Test
     public void person_no_changed_date() {
-        Entity result = (Entity) map(RpslObject.parse(
+        Entity result = (Entity) map(RpslObject.parse("" +
                 "person:        First Last\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 20 123456\n" +

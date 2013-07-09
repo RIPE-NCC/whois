@@ -1,11 +1,13 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
+import org.joda.time.LocalDateTime;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
-import java.util.GregorianCalendar;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "event", propOrder = {
@@ -13,35 +15,34 @@ import java.util.GregorianCalendar;
     "eventDate",
     "eventActor"
 })
-public class Event
-    implements Serializable
-{
+public class Event implements Serializable {
     protected String eventAction;
     @XmlSchemaType(name = "dateTime")
-    protected GregorianCalendar eventDate;
+    @XmlJavaTypeAdapter(DateTimeAdapter.class)
+    protected LocalDateTime eventDate;
     protected String eventActor;
 
     public String getEventAction() {
         return eventAction;
     }
 
-    public void setEventAction(String value) {
+    public void setEventAction(final String value) {
         this.eventAction = value;
     }
 
-    public GregorianCalendar getEventDate() {
+    public LocalDateTime getEventDate() {
         return eventDate;
     }
 
-    public void setEventDate(GregorianCalendar value) {
-        this.eventDate = value;
+    public void setEventDate(final LocalDateTime eventDate) {
+        this.eventDate = eventDate;
     }
 
     public String getEventActor() {
         return eventActor;
     }
 
-    public void setEventActor(String value) {
+    public void setEventActor(final String value) {
         this.eventActor = value;
     }
 }

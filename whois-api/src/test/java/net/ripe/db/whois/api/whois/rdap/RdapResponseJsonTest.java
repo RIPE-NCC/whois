@@ -2,13 +2,8 @@ package net.ripe.db.whois.api.whois.rdap;
 
 import com.sun.jersey.api.json.JSONJAXBContext;
 import com.sun.jersey.api.json.JSONMarshaller;
-import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Event;
-import net.ripe.db.whois.api.whois.rdap.domain.Ip;
-import net.ripe.db.whois.api.whois.rdap.domain.Link;
-import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
-import net.ripe.db.whois.api.whois.rdap.domain.Notice;
-import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
+import org.joda.time.LocalDateTime;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -16,32 +11,29 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import static com.google.common.collect.Maps.immutableEntry;
 import static net.ripe.db.whois.api.whois.rdap.VcardObjectHelper.createMap;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class RdapResponseJsonTest {
-
+    private static LocalDateTime LOCAL_DATE_TIME = LocalDateTime.parse("2013-06-26T04:48:44");
     private JSONMarshaller marshaller = createJaxbMarshaller();
 
     @Ignore     // TODO: subList error
     @Test
     public void entity_vcard_serialization_test() throws Exception {
         final VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
-        final String date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date(1372214924859L));
 
         builder.setVersion()
                 .setFn("Joe User")
                 .setN(builder.createNEntryValueType("User", "Joe", "", "", builder.createNEntryValueHonorifics("ing. jr", "M.Sc.")))
                 .setBday("--02-03")
-                .setAnniversary(date)
+//                .setAnniversary()
                 .setGender("M")
                 .setKind("individual")
                 .addLang(createMap(immutableEntry("pref", "1")), "fr")
@@ -135,18 +127,17 @@ public class RdapResponseJsonTest {
 
         final Event registrationEvent = new Event();
         registrationEvent.setEventAction("registration");
-        final GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTimeInMillis(1372214924859L);                               // TODO: refactor date
-        registrationEvent.setEventDate(calendar);
+        registrationEvent.setEventDate(LOCAL_DATE_TIME);
+
         nameserver.getEvents().add(registrationEvent);
 
         final Event lastChangedEvent = new Event();
         lastChangedEvent.setEventAction("last changed");
-        lastChangedEvent.setEventDate(calendar);
+        lastChangedEvent.setEventDate(LOCAL_DATE_TIME);
         lastChangedEvent.setEventActor("joe@example.com");
         nameserver.getEvents().add(lastChangedEvent);
 
-        assertThat(marshal(nameserver), is(
+        assertThat(marshal(nameserver), equalTo("" +
                 "{" +
                 "\"status\":{" +                                                                                // TODO: status: ["active"]
                 "\"@type\":\"xs:string\"," +
@@ -160,10 +151,10 @@ public class RdapResponseJsonTest {
                 "}," +
                 "\"events\":[{" +
                 "\"eventAction\":\"registration\"," +
-                "\"eventDate\":\"2013-06-26T04:48:44.859+02:00\"" +                                             // TODO: date format 2013-06-26T02:48:44Z
+                "\"eventDate\":\"2013-06-26T04:48:44Z\"" +                                             // TODO: date format 2013-06-26T02:48:44Z
                 "},{" +
                 "\"eventAction\":\"last changed\"," +
-                "\"eventDate\":\"2013-06-26T04:48:44.859+02:00\"," +                                            // TODO: date format 2013-06-26T02:48:44Z
+                "\"eventDate\":\"2013-06-26T04:48:44Z\"," +                                            // TODO: date format 2013-06-26T02:48:44Z
                 "\"eventActor\":\"joe@example.com\"" +
                 "}]," +
                 "\"handle\":\"handle\"," +
@@ -211,14 +202,12 @@ public class RdapResponseJsonTest {
 
         final Event registrationEvent = new Event();
         registrationEvent.setEventAction("registration");
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTimeInMillis(1372214924859L);                       // TODO: refactor
-        registrationEvent.setEventDate(calendar);
+        registrationEvent.setEventDate(LOCAL_DATE_TIME);
         ip.getEvents().add(registrationEvent);
 
         final Event lastChangedEvent = new Event();
         lastChangedEvent.setEventAction("last changed");
-        lastChangedEvent.setEventDate(calendar);
+        lastChangedEvent.setEventDate(LOCAL_DATE_TIME);
         lastChangedEvent.setEventActor("joe@example.com");
         ip.getEvents().add(lastChangedEvent);
 
@@ -254,7 +243,7 @@ public class RdapResponseJsonTest {
 //                .setEmail("joe.user@example.com");
 //        entity.setVcardArray(builder.build());
 
-        assertThat(marshal(ip), is(
+        assertThat(marshal(ip), equalTo("" +
                 "{\"" +
                 "status\":{\"@type\":\"xs:string\",\"$\":\"allocated\"}," +                                     // TODO: fix type
                 "\"entities\":{" +
@@ -266,10 +255,10 @@ public class RdapResponseJsonTest {
                 "\"href\":\"http://example.net/entity/xxxx\"}," +
                 "\"events\":[{" +
                 "\"eventAction\":\"registration\"," +
-                "\"eventDate\":\"2013-06-26T04:48:44.859+02:00\"" +
+                "\"eventDate\":\"2013-06-26T04:48:44Z\"" +
                 "},{" +
                 "\"eventAction\":\"last changed\"," +
-                "\"eventDate\":\"2013-06-26T04:48:44.859+02:00\"," +
+                "\"eventDate\":\"2013-06-26T04:48:44Z\"," +
                 "\"eventActor\":\"joe@example.com\"" +
                 "}]," +
                 "\"handle\":\"XXXX\"," +
@@ -286,9 +275,9 @@ public class RdapResponseJsonTest {
                 "\"href\":\"http://example.net/ip/2001:C00::/23\"}]," +
                 "\"events\":[{" +
                 "\"eventAction\":\"registration\"," +
-                "\"eventDate\":\"2013-06-26T04:48:44.859+02:00\"}," +
+                "\"eventDate\":\"2013-06-26T04:48:44Z\"}," +
                 "{\"eventAction\":\"last changed\"," +
-                "\"eventDate\":\"2013-06-26T04:48:44.859+02:00\"," +            // TODO: fix date format
+                "\"eventDate\":\"2013-06-26T04:48:44Z\"," +            // TODO: fix date format
                 "\"eventActor\":\"joe@example.com\"}]," +
                 "\"handle\":\"XXXX-RIR\"," +
                 "\"startAddress\":\"2001:db8::0\"," +
@@ -385,18 +374,18 @@ public class RdapResponseJsonTest {
 
         assertThat(marshal(notices), is(
                 "{" +
-                "\"title\":\"Beverage policy\"," +
-                "\"description\":[\"Beverages with caffeine for keeping horses awake.\",\"Very effective.\"]," +
-                "\"links\":{" +
-                "\"value\":\"http://example.com/context_uri\"," +
-                "\"rel\":\"self\"," +
-                "\"href\":\"http://example.com/target_uri_href\"," +
-                "\"hreflang\":[\"en\",\"ch\"]," +
-                "\"title\":[\"title1\",\"title2\"]," +
-                "\"media\":\"screen\"," +
-                "\"type\":\"application/json\"" +
-                "}" +
-                "}"));
+                        "\"title\":\"Beverage policy\"," +
+                        "\"description\":[\"Beverages with caffeine for keeping horses awake.\",\"Very effective.\"]," +
+                        "\"links\":{" +
+                        "\"value\":\"http://example.com/context_uri\"," +
+                        "\"rel\":\"self\"," +
+                        "\"href\":\"http://example.com/target_uri_href\"," +
+                        "\"hreflang\":[\"en\",\"ch\"]," +
+                        "\"title\":[\"title1\",\"title2\"]," +
+                        "\"media\":\"screen\"," +
+                        "\"type\":\"application/json\"" +
+                        "}" +
+                        "}"));
     }
 
     private String marshal(final Object object) {

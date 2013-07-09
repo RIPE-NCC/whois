@@ -20,11 +20,11 @@ import org.junit.experimental.categories.Category;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.core.Is.is;
 
 @Category(IntegrationTest.class)
 public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTest {
@@ -129,8 +129,8 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
         final Autnum autnum = clientResponse.getEntity(Autnum.class);
 
         assertThat(autnum.getHandle(), equalTo("AS12345"));
-        assertThat(autnum.getStartAutnum(), equalTo((long) 12345));
-        assertThat(autnum.getEndAutnum(), equalTo((long) 12345));
+        assertThat(autnum.getStartAutnum(), equalTo(12345l));
+        assertThat(autnum.getEndAutnum(), equalTo(12345l));
         assertThat(autnum.getName(), equalTo("AS-TEST"));
         assertThat(autnum.getCountry(), equalTo("AU"));
         assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
@@ -139,7 +139,7 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
         assertThat(events.size(), equalTo(1));
 
         final Event event = events.get(0);
-        assertThat(event.getEventDate().toGregorianCalendar().getTime(), equalTo(new GregorianCalendar(2001, 7, 16).getTime()));    // TODO: use Joda time
+        assertThat(event.getEventDate().toString(), is("2001-08-16T00:00:00Z")); //TODO
 
         final List<Entity> entities = autnum.getEntities();
         assertThat(entities.size(), equalTo(2));
@@ -181,8 +181,8 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
         final Autnum autnum = clientResponse.getEntity(Autnum.class);
 
         assertThat(autnum.getHandle(), equalTo("AS1000-AS2000"));
-        assertThat(autnum.getStartAutnum(), equalTo((long) 1000));
-        assertThat(autnum.getEndAutnum(), equalTo((long) 2000));
+        assertThat(autnum.getStartAutnum(), equalTo(1000l));
+        assertThat(autnum.getEndAutnum(), equalTo(2000l));
         assertThat(autnum.getName(), equalTo("AS1000-AS2000"));
         assertThat(autnum.getCountry(), equalTo("AU"));
         assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
@@ -210,6 +210,6 @@ public class WhoisRdapServiceAutnumTestIntegration extends AbstractRestClientTes
 
     @Override
     protected WebResource createResource(final Audience audience, final String path) {
-        return client.resource(String.format("http://localhost:%s/%s", getPort(audience), path));
+        return client.resource(String.format("http://localhost:%s/rdap/%s", getPort(audience), path));
     }
 }
