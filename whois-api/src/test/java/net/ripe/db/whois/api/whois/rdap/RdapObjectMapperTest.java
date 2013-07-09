@@ -91,7 +91,7 @@ public class RdapObjectMapperTest {
     }
 
     private Object build(final RpslObject... rpslObjects) {
-        final RdapObjectMapper subject = new RdapObjectMapper("http://localhost/", Queues.newArrayDeque(Arrays.asList(rpslObjects)));
+        final RdapObjectMapper subject = new RdapObjectMapper("http://localhost/", "http://localhost/", Queues.newArrayDeque(Arrays.asList(rpslObjects)));
         return subject.build();
     }
 }

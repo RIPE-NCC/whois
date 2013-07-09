@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -124,13 +126,94 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Ip.class);
 
         assertThat(response.getHandle(), is("2001:2002:2003::/48"));
+        assertThat(response.getIpVersion(), is("v6"));
+        assertThat(response.getCountry(), is("NL"));
+        assertThat(response.getStartAddress(), is("2001:2002:2003::/128"));
+        assertThat(response.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
+        assertThat(response.getName(), is("RIPE-NCC"));
+    }
+
+    @Test
+    public void lookup_inetnum() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "changed:      dbtest@ripe.net 20020101\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip response = createResource(AUDIENCE, "ip/192.0.0.0/8")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+        assertThat(response.getHandle(), is("192.0.0.0 - 192.255.255.255"));
+        assertThat(response.getIpVersion(), is("v4"));
+        assertThat(response.getLang(), is("en"));
+        assertThat(response.getCountry(), is("NL"));
+        assertThat(response.getStartAddress(), is("192.0.0.0/32"));
+        assertThat(response.getEndAddress(), is("192.255.255.255/32"));
+        assertThat(response.getName(), is("TEST-NET-NAME"));
+    }
+
+    @Test
+    public void lookup_inetnum_single_address() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "changed:      dbtest@ripe.net 20020101\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip response = createResource(AUDIENCE, "ip/192.0.0.255")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(response.getHandle(), is("192.0.0.0 - 192.255.255.255"));
+        assertThat(response.getIpVersion(), is("v4"));
+        assertThat(response.getCountry(), is("NL"));
+        assertThat(response.getStartAddress(), is("192.0.0.0/32"));
+        assertThat(response.getEndAddress(), is("192.255.255.255/32"));
+        assertThat(response.getName(), is("TEST-NET-NAME"));
+    }
+
+    @Test
+    public void lookup_inetnum_not_found() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "changed:      dbtest@ripe.net 20020101\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        try {
+            createResource(AUDIENCE, "ip/193.0.0.0")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+        } catch (final UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
     }
 
     @Test
     public void lookup_person_object() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
-        Entity response = createResource(AUDIENCE, "entity/PP1-TEST")
+        final Entity response = createResource(AUDIENCE, "entity/PP1-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
@@ -142,7 +225,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_domain_object() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
-        Domain response = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa")
+        final Domain response = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
@@ -155,7 +238,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_org_object() throws Exception {
         databaseHelper.addObject(TEST_ORG);
 
-        Entity response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
+        final Entity response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 

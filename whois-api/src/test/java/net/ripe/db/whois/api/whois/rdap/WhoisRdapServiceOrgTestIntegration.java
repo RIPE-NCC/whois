@@ -73,11 +73,12 @@ public class WhoisRdapServiceOrgTestIntegration extends AbstractRestClientTest {
             "org-type:      LIR\n" +
             "address:       One Org Street\n" +
             "e-mail:        test@ripe.net\n" +
-            "admin-c:       TP1-TEST\n" +
+            "admin-c:       TP2-TEST\n" +
+            "tech-c:        TP1-TEST\n" +
             "tech-c:        TP2-TEST\n" +
             "mnt-ref:       OWNER-MNT\n" +
             "mnt-by:        OWNER-MNT\n" +
-            "changed:       test@test.net.au 20010816\n" +
+            "changed:       test@test.net.au 20000228\n" +
             "source:        TEST\n");
 
     @Before
@@ -112,6 +113,63 @@ public class WhoisRdapServiceOrgTestIntegration extends AbstractRestClientTest {
         assertThat(clientResponse.getStatus(), equalTo(200));
         final Entity entity = clientResponse.getEntity(Entity.class);
         assertThat(entity.getHandle(), equalTo("ORG-ONE-TEST"));
+
+        final List<Event> events = entity.getEvents();
+        assertThat(events.size(), equalTo(1));
+
+        final Event event = events.get(0);
+        DateTime eventDateTime = new DateTime(event.getEventDate().toGregorianCalendar());
+        DateTime checkDate = DateTimeFormat.forPattern("yyyyMMdd").parseLocalDate("20000228").toDateTime(new LocalTime(0, 0, 0));
+        assertThat(eventDateTime.toString(), equalTo(checkDate.toString()));
+
+        final List<Entity> entities = entity.getEntities();
+        assertThat(entities.size(), equalTo(2));
+
+        Collections.sort(entities, new Comparator<Entity>() {
+            public int compare(final Entity e1, final Entity e2) {
+                return e1.getHandle().compareTo(e2.getHandle());
+            }
+        });
+
+        final Entity entityTp1 = entities.get(0);
+        assertThat(entityTp1.getHandle(), equalTo("TP1-TEST"));
+
+        final List<String> tp1Roles = entityTp1.getRoles();
+        assertThat(tp1Roles.size(), equalTo(1));
+        assertThat(tp1Roles.get(0), equalTo("technical"));
+
+        final Entity entityTp2 = entities.get(1);
+        assertThat(entityTp2.getHandle(), equalTo("TP2-TEST"));
+
+        final List<String> tp2Roles = entityTp2.getRoles();
+        Collections.sort(tp2Roles);
+        assertThat(tp2Roles.size(), equalTo(2));
+        assertThat(tp2Roles.get(0), equalTo("administrative"));
+        assertThat(tp2Roles.get(1), equalTo("technical"));
+
+        final String linkValue = createResource(AUDIENCE, "entity/ORG-ONE-TEST").toString();
+        final String tp1Link = createResource(AUDIENCE, "entity/TP1-TEST").toString();
+        final String tp2Link = createResource(AUDIENCE, "entity/TP2-TEST").toString();
+
+        final List<Link> tp1Links = entityTp1.getLinks();
+        assertThat(tp1Links.size(), equalTo(1));
+        assertThat(tp1Links.get(0).getRel(), equalTo("self"));
+        assertThat(tp1Links.get(0).getValue(), equalTo(linkValue));
+        assertThat(tp1Links.get(0).getHref(), equalTo(tp1Link));
+
+        final List<Link> tp2Links = entityTp2.getLinks();
+        assertThat(tp2Links.size(), equalTo(1));
+        assertThat(tp2Links.get(0).getRel(), equalTo("self"));
+        assertThat(tp2Links.get(0).getValue(), equalTo(linkValue));
+        assertThat(tp2Links.get(0).getHref(), equalTo(tp2Link));
+
+        final List<Link> links = entity.getLinks();
+        assertThat(links.size(), equalTo(1));
+
+        final Link selfLink = links.get(0);
+        assertThat(selfLink.getRel(), equalTo("self"));
+        assertThat(selfLink.getValue(), equalTo(linkValue));
+        assertThat(selfLink.getHref(), equalTo(linkValue)); 
     }
 
     @Override
