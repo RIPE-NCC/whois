@@ -331,7 +331,7 @@ class RdapObjectMapper {
             final Domain.SecureDNS.DsData dsData = new Domain.SecureDNS.DsData();
             dsData.setKeyTag(dsRdata.getKeyTag());
             dsData.setAlgorithm(dsRdata.getAlgorithm());
-            dsData.setDigestType(dsRdata.getDigestType().toString());
+            dsData.setDigestType(dsRdata.getDigestTypeAsInteger());
             dsData.setDigest(dsRdata.getDigest().toString());
 
             secureDNS.getDsData().add(dsData);

@@ -172,8 +172,9 @@ public class Domain
             protected short algorithm;
             @XmlElement(required = true)
             protected String digest;
+            @XmlSchemaType(name = "unsignedInt")
             @XmlElement(required = true)
-            protected String digestType;
+            protected int digestType;
             protected List<Event> events;
 
             public long getKeyTag() {
@@ -200,11 +201,11 @@ public class Domain
                 this.digest = value;
             }
 
-            public String getDigestType() {
+            public int getDigestType() {
                 return digestType;
             }
 
-            public void setDigestType(String value) {
+            public void setDigestType(int value) {
                 this.digestType = value;
             }
 
@@ -236,8 +237,9 @@ public class Domain
             protected String protocol;
             @XmlElement(required = true)
             protected String publicKey;
+            @XmlSchemaType(name = "unsignedInt")
             @XmlElement(required = true)
-            protected String algorithm;
+            protected int algorithm;
             protected List<Event> events;
 
             public String getFlags() {
@@ -264,11 +266,11 @@ public class Domain
                 this.publicKey = value;
             }
 
-            public String getAlgorithm() {
+            public int getAlgorithm() {
                 return algorithm;
             }
 
-            public void setAlgorithm(String value) {
+            public void setAlgorithm(int value) {
                 this.algorithm = value;
             }
 

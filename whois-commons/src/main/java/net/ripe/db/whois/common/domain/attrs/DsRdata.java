@@ -36,6 +36,11 @@ public class DsRdata {
         return digestType;
     }
 
+    public int getDigestTypeAsInteger() {
+        // TODO: [RL] map string values to their integer equivalents
+        return Integer.valueOf(digestType.toString());
+    }
+
     public CIString getDigest() {
         return digest;
     }

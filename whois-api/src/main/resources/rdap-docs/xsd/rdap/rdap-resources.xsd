@@ -44,7 +44,7 @@
                                                 <xs:element name="keyTag" type="xs:unsignedInt" maxOccurs="1"  minOccurs="1"/>
                                                 <xs:element name="algorithm" type="xs:unsignedByte" maxOccurs="1" minOccurs="1"/>
                                                 <xs:element name="digest" type="xs:string"  maxOccurs="1" minOccurs="1"/>
-                                                <xs:element name="digestType" type="xs:string" maxOccurs="1" minOccurs="1"/>
+                                                <xs:element name="digestType" type="xs:unsignedInt" maxOccurs="1" minOccurs="1"/>
                                                 <xs:element name="events" type="event" minOccurs="0" maxOccurs="unbounded"/>
                                             </xs:sequence>
                                         </xs:complexType>
@@ -55,7 +55,7 @@
                                                 <xs:element name="flags" type="xs:string" maxOccurs="1"  minOccurs="1"/>
                                                 <xs:element name="protocol" type="xs:string" maxOccurs="1" minOccurs="1"/>
                                                 <xs:element name="publicKey" type="xs:string"  maxOccurs="1" minOccurs="1"/>
-                                                <xs:element name="algorithm" type="xs:string" maxOccurs="1" minOccurs="1"/>
+                                                <xs:element name="algorithm" type="xs:unsignedInt" maxOccurs="1" minOccurs="1"/>
                                                 <xs:element name="events" type="event" minOccurs="0" maxOccurs="unbounded"/>
                                             </xs:sequence>
                                         </xs:complexType>
