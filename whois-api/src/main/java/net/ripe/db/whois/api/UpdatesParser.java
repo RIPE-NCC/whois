@@ -70,7 +70,7 @@ public class UpdatesParser {
         if (objectMatcher.find()) {
             final String rpslObjectString = objectMatcher.group(0);
             try {
-                return RpslObject.parseFully(rpslObjectString);
+                return RpslObject.parse(rpslObjectString);
             } catch (IllegalArgumentException e) {
                 LOGGER.debug("Unable to parse {}", rpslObjectString);
             }

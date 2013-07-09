@@ -82,6 +82,16 @@ public class RpslObjectTest {
         parseAndAssign("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-:");
     }
 
+    @Test
+    public void checkThatSpecialCharactersGetThrough() {
+        parseAndAssign("person:  New Test Person\n" +
+                "address: Flughafenstraße 120\n" +
+                "address: D - 40474 Düsseldorf\n" +
+                "nic-hdl: ABC-RIPE\n");
+        assertThat(subject.toString(), containsString("Flughafenstraße"));
+        assertThat(subject.toString(), containsString("Düsseldorf"));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void parseInValidMultiKeyObject() {
         parseAndAssign("k:\nk");
@@ -145,7 +155,7 @@ public class RpslObjectTest {
     }
 
     private byte[] bytesFrom(String input) {
-        return input.getBytes(Charsets.UTF_8);
+        return input.getBytes(Charsets.ISO_8859_1);
     }
 
     private void parseAndAssign(String input) {

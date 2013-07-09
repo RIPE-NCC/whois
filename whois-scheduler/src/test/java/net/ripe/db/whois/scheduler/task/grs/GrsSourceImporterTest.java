@@ -2,7 +2,10 @@ package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
+import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
 import org.junit.Rule;
@@ -153,7 +156,7 @@ public class GrsSourceImporterTest {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 final ObjectHandler objectHandler = (ObjectHandler) invocationOnMock.getArguments()[1];
-                objectHandler.handle(RpslObjectBase.parse("" +
+                objectHandler.handle(RpslObject.parse("" +
                         "aut-num:       AS1263\n" +
                         "as-name:       NSN-TEST-AS\n" +
                         "descr:         NSN-TEST-AS\n" +
@@ -183,29 +186,6 @@ public class GrsSourceImporterTest {
     }
 
     @Test
-    public void handle_object_create_unknown_type() throws IOException {
-        when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                final ObjectHandler objectHandler = (ObjectHandler) invocationOnMock.getArguments()[1];
-                objectHandler.handle(RpslObjectBase.parse("" +
-                        "unknown:       SOME\n" +
-                        "changed:       DB-admin@merit.edu 19950201\n" +
-                        "source:        RIPE"
-                ));
-                return null;
-            }
-        }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
-
-        subject.grsImport(grsSource, false);
-
-        verify(grsDao, never()).createObject(any(RpslObject.class));
-        verify(sanitizer, never()).sanitize(any(RpslObject.class), any(ObjectMessages.class));
-    }
-
-    @Test
     public void handle_object_create_syntax_errors() throws IOException {
         when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
 
@@ -213,9 +193,10 @@ public class GrsSourceImporterTest {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 final ObjectHandler objectHandler = (ObjectHandler) invocationOnMock.getArguments()[1];
-                objectHandler.handle(RpslObjectBase.parse("" +
-                        "unknown:       SOME\n" +
+                objectHandler.handle(RpslObject.parse("" +
+                        "mntner:        SOME\n" +
                         "changed:       DB-admin@merit.edu 19950201\n" +
+                        "unknown:       unknown" +
                         "source:        RIPE"
                 ));
 
@@ -226,7 +207,7 @@ public class GrsSourceImporterTest {
         subject.grsImport(grsSource, false);
 
         verify(grsDao, never()).createObject(any(RpslObject.class));
-        verify(sanitizer, never()).sanitize(any(RpslObject.class), any(ObjectMessages.class));
+        verify(sanitizer).sanitize(any(RpslObject.class), any(ObjectMessages.class));
     }
 
     @Test
@@ -307,7 +288,7 @@ public class GrsSourceImporterTest {
             public Object answer(final InvocationOnMock invocation) throws Throwable {
                 final ObjectHandler objectHandler = (ObjectHandler) invocation.getArguments()[1];
 
-                objectHandler.handle(RpslObjectBase.parse("" +
+                objectHandler.handle(RpslObject.parse("" +
                         "person: Ninja Person\n" +
                         "nic-hdl: NI124-RIPE\n"));
 
@@ -336,15 +317,15 @@ public class GrsSourceImporterTest {
             public Object answer(final InvocationOnMock invocation) throws Throwable {
                 final ObjectHandler objectHandler = (ObjectHandler) invocation.getArguments()[1];
 
-                objectHandler.handle(RpslObjectBase.parse("" +
+                objectHandler.handle(RpslObject.parse("" +
                         "mntner: MODIFY-MNT\n" +
                         "mnt-by: CREATE-MNT\n"));
 
-                objectHandler.handle(RpslObjectBase.parse("" +
+                objectHandler.handle(RpslObject.parse("" +
                         "mntner: CREATE-MNT\n" +
                         "mnt-by: CREATE-MNT\n"));
 
-                objectHandler.handle(RpslObjectBase.parse("" +
+                objectHandler.handle(RpslObject.parse("" +
                         "mntner: NOOP-MNT\n"));
 
                 return null;

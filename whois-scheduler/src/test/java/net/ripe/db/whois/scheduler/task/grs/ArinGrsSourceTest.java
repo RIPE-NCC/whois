@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.jdbc.DataSourceFactory;
-import net.ripe.db.whois.common.rpsl.RpslObjectBase;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class ArinGrsSourceTest {
         assertThat(objectHandler.getLines(), hasSize(0));
         assertThat(objectHandler.getObjects(), hasSize(4));
         assertThat(objectHandler.getObjects(), contains(
-                RpslObjectBase.parse("" +
+                RpslObject.parse("" +
                         "aut-num:        AS0\n" +
                         "org:            IANA\n" +
                         "as-name:        IANA-RSVD-0\n" +
@@ -52,7 +52,7 @@ public class ArinGrsSourceTest {
                         "changed:        unread@ripe.net 20020913\n" +
                         "source:         ARIN\n"),
 
-                RpslObjectBase.parse("" +
+                RpslObject.parse("" +
                         "inetnum:        192.104.33.0 - 192.104.33.255\n" +
                         "org:            THESPI\n" +
                         "netname:        SPINK\n" +
@@ -60,7 +60,7 @@ public class ArinGrsSourceTest {
                         "changed:        unread@ripe.net 19910409\n" +
                         "source:         ARIN\n"),
 
-                RpslObjectBase.parse("" +
+                RpslObject.parse("" +
                         "inet6num:       2001:4d0::/32\n" +
                         "org:            NASA\n" +
                         "netname:        NASA-PCCA-V6\n" +
@@ -69,7 +69,7 @@ public class ArinGrsSourceTest {
                         "tech-c:         ZN7-ARIN\n" +
                         "source:         ARIN\n"),
 
-                RpslObjectBase.parse("" +
+                RpslObject.parse("" +
                         "inet6num:       2001:468:400::/40\n" +
                         "org:            V6IU\n" +
                         "netname:        ABILENE-IU-V6\n" +

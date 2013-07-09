@@ -48,7 +48,7 @@ public class RestoreRemovedAbuseCAttributes {
                 System.err.println("Deleted: "+orgEntry.get("pkey"));
                 continue;
             }
-            final RpslObjectBase rpslObject = RpslObjectBase.parse(orgObject);
+            final RpslObject rpslObject = RpslObject.parse(orgObject);
 
             // check for org-type
             if (!rpslObject.getValueForAttribute(AttributeType.ORG_TYPE).equals(ciString("lir"))) {
@@ -75,7 +75,7 @@ public class RestoreRemovedAbuseCAttributes {
                         }
                     }
 
-                    final RpslObjectBase newEntry = new RpslObjectBase(attributes);
+                    final RpslObject newEntry = new RpslObject(attributes);
                     System.out.println(newEntry.toString().trim());
                     System.out.println("override:agoston,XXX,restoring override {notify=false}");
                     System.out.println();
