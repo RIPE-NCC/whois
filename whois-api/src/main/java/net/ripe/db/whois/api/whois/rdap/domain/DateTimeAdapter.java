@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -12,7 +11,7 @@ public class DateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
 
     @Override
     public LocalDateTime unmarshal(final String v) throws Exception {
-        throw new NotImplementedException();
+        return DATE_TIME_FORMATTER.parseLocalDateTime(v);
     }
 
     @Override

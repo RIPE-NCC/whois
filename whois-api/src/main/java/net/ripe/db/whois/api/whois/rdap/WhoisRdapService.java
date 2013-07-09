@@ -122,7 +122,7 @@ public class WhoisRdapService {
 
         final Query query = Query.parse(
                 String.format("%s %s %s %s %s %s %s %s %s",
-                        QueryFlag.EXACT.getLongFlag(),
+                        (objectTypes.contains(ObjectType.INETNUM) || objectTypes.contains(INET6NUM)) ? QueryFlag.EXACT.getLongFlag() : "",
                         QueryFlag.NO_GROUPING.getLongFlag(),
                         QueryFlag.NO_REFERENCED.getLongFlag(),
                         QueryFlag.SOURCES.getLongFlag(),
