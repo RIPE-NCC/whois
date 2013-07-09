@@ -1,23 +1,18 @@
 package net.ripe.db.whois.api.whois.rdap;
 
-import com.google.common.collect.Queues;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Test;
 
-import java.util.Arrays;
-
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class RdapObjectMapperTest {
 
     @Test
     public void ip() {
-        Ip result = (Ip)build((RpslObject.parse(
+        Ip result = (Ip) map((RpslObject.parse(
                 "inetnum:        10.0.0.0 - 10.255.255.255\n" +
                 "netname:        RIPE-NCC\n" +
                 "descr:          some descr\n" +
@@ -40,7 +35,7 @@ public class RdapObjectMapperTest {
 
     @Test
     public void person() {
-        Entity result = (Entity)build(RpslObject.parse(
+        Entity result = (Entity) map(RpslObject.parse(
                 "person:        First Last\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 20 123456\n" +
@@ -63,7 +58,7 @@ public class RdapObjectMapperTest {
 
     @Test
     public void person_no_changed_date() {
-        Entity result = (Entity)build(RpslObject.parse(
+        Entity result = (Entity) map(RpslObject.parse(
                 "person:        First Last\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 20 123456\n" +
@@ -84,8 +79,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getEvents().get(0).getEventDate(), is(nullValue()));
     }
 
-    private Object build(final RpslObject... rpslObjects) {
-        final RdapObjectMapper subject = new RdapObjectMapper("http://localhost/", Queues.newArrayDeque(Arrays.asList(rpslObjects)));
-        return subject.build();
+    private Object map(final RpslObject rpslObject) {
+        return RdapObjectMapper.map("http://localhost/", rpslObject);
     }
 }
