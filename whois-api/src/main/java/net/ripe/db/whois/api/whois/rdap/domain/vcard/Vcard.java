@@ -1,10 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap.domain.vcard;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.List;
 
@@ -14,8 +10,7 @@ import java.util.List;
     "properties"
 })
 @XmlRootElement(name = "vcard")
-public class VCard implements Serializable
-{
+public class VCard implements Serializable {
     @XmlElement(defaultValue = "vcard")
     protected String name;
     protected List<VCardProperty> properties;
