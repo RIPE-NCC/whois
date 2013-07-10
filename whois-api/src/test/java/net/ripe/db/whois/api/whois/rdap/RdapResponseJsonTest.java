@@ -218,6 +218,24 @@ public class RdapResponseJsonTest {
 
         Entity entity = new Entity();
         entity.setHandle("XXXX");
+
+        VCardBuilder builder = new VCardBuilder();
+        builder.addVersion()
+                .addFn("Joe User")
+                .addKind("individual")
+                .addOrg("Example")
+                .addTitle("Research Scientist")
+                .addRole("Project Lead")
+                .addAdr(builder.createAdrEntryValueType("",
+                        "Suite 1234",
+                        "4321 Rue Somewhere",
+                        "Quebec",
+                        "QC",
+                        "G1V 2M2",
+                        "Canada"))
+                .addTel("tel:+1-555-555-1234;ext=102")
+                .addEmail("joe.user@example.com");
+        entity.setVcardArray(builder.build());
         entity.getRoles().add("registrant");
         entity.getRemarks().add(remark);
         entity.getEvents().add(registrationEvent);
@@ -243,16 +261,16 @@ public class RdapResponseJsonTest {
                 "  \"status\" : [ \"allocated\" ],\n" +
                 "  \"entities\" : [ {\n" +
                 "    \"handle\" : \"XXXX\",\n" +
-//                "    \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +                    // TODO: missing
-//                "    }, \"text\", \"4.0\" ], [ \"fn\", {\n" +
-//                "    }, \"text\", \"Joe User\" ], [ \"kind\", {\n" +
-//                "    }, \"text\", \"individual\" ], [ \"org\", {\n" +
-//                "    }, \"text\", \"Example\" ], [ \"title\", {\n" +
-//                "    }, \"text\", \"Research Scientist\" ], [ \"role\", {\n" +
-//                "    }, \"text\", \"Project Lead\" ], [ \"adr\", {\n" +
-//                "    }, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ], [ \"tel\", {\n" +
-//                "    }, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"email\", {\n" +
-//                "    }, \"text\", \"joe.user@example.com\" ] ] ],\n" +
+                "    \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +
+                "    }, \"text\", \"4.0\" ], [ \"fn\", {\n" +
+                "    }, \"text\", \"Joe User\" ], [ \"kind\", {\n" +
+                "    }, \"text\", \"individual\" ], [ \"org\", {\n" +
+                "    }, \"text\", \"Example\" ], [ \"title\", {\n" +
+                "    }, \"text\", \"Research Scientist\" ], [ \"role\", {\n" +
+                "    }, \"text\", \"Project Lead\" ], [ \"adr\", {\n" +
+                "    }, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ], [ \"tel\", {\n" +
+                "    }, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"email\", {\n" +
+                "    }, \"text\", \"joe.user@example.com\" ] ] ],\n" +
                 "    \"roles\" : [ \"registrant\" ],\n" +
                 "    \"remarks\" : [ {\n" +
                 "      \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
