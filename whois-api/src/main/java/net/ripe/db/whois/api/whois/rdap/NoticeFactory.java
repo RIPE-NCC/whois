@@ -2,86 +2,69 @@ package net.ripe.db.whois.api.whois.rdap;
 
 import net.ripe.db.whois.api.whois.rdap.domain.Link;
 import net.ripe.db.whois.api.whois.rdap.domain.Notice;
+import org.apache.commons.lang.SerializationUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
+
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 @Component
 public class NoticeFactory {
 
-    private String tncTitle;
-    private String tncDescription;
-    private String tncLinkRel;
-    private String tncLinkHref;
-    private String tncLinkType;
+    @Value("${rdap.tnc.title}")
+    private String rdap_tnc_title;
+
+    @Value("${rdap.tnc.description}")
+    private String rdap_tnc_description;
+
+    @Value("${rdap.tnc.linkrel}")
+    private String rdap_tnc_linkrel;
+
+    @Value("${rdap.tnc.linkhref}")
+    private String rdap_tnc_linkhref;
+
+    @Value("${rdap.tnc.linktype}")
+    private String rdap_tnc_linktype;
 
     private static NoticeFactory noticeFactory;
-
-    List<Notice> notices = new ArrayList<Notice>();
-
-    public void setTncTitle(@Value("${tncTitle}") final String tncTitle) {
-        this.tncTitle = tncTitle;
-    }
-
-    public void setTncDescription(@Value("${tncDescription}") final String tncDescription) {
-        this.tncDescription = tncDescription;
-    }
-
-    public void setTncLinkRel(@Value("${tncLinkRel}") final String tncLinkRel) {
-        this.tncLinkRel = tncLinkRel;
-    }
-
-    public void setTncLinkHref(@Value("${tncLinkHref}") final String tncLinkHref) {
-        this.tncLinkHref = tncLinkHref;
-    }
-
-    public void setTncLinkType(@Value("${tncLinkType}") final String tncLinkType) {
-        this.tncLinkType = tncLinkType;
-    }
+    private static Notice noticeTemplate;
 
     public NoticeFactory () {
+    }
+
+    @PostConstruct
+    public void init() {
         if (noticeFactory == null) {
             noticeFactory = this;
         }
 
-        /*
-        Notice notice = new Notice();
-        notice.setTitle(tncTitle);
-        notice.getDescription().add("This is the RIPE Database query service.");
-        notice.getDescription().add("The objects are in RDAP format.");
+        // setup the tnc once
+        noticeTemplate = new Notice();
+        noticeTemplate.setTitle(noticeFactory.rdap_tnc_title);
+        noticeTemplate.getDescription().add(noticeFactory.rdap_tnc_description);
 
         Link link = new Link();
-        link.setValue(self);
-        link.setRel("terms-of-service");
-        link.setHref("http://www.ripe.net/db/support/db-terms-conditions.pdf");
-        link.setType("application/pdf");
-        notice.setLinks(link);
-        */
+        link.setRel(noticeFactory.rdap_tnc_linkrel);
+        link.setHref(noticeFactory.rdap_tnc_linkhref);
+        link.setType(noticeFactory.rdap_tnc_linktype);
+        noticeTemplate.setLinks(link);
     }
 
     /*public static NoticeFactory (RpslObject rpslObject) {
         // add the tnc
-
     }*/
 
     public static List<Notice> generateNotices (String selfLink) {
         List<Notice> notices = new ArrayList<Notice>();
-
-        // setup the tnc
-        Notice tnc = new Notice();
-        tnc.setTitle(noticeFactory.tncTitle);
-        tnc.getDescription().add(noticeFactory.tncDescription);
-
-        Link link = new Link();
-        link.setValue(selfLink);
-        link.setRel(noticeFactory.tncLinkRel);
-        link.setHref(noticeFactory.tncLinkHref);
-        link.setType(noticeFactory.tncLinkType);
-        tnc.setLinks(link);
-
-        notices.add(tnc);
+        Notice notice = (Notice)SerializationUtils.clone(noticeTemplate);
+        notice.getLinks().setValue(selfLink);
+        notices.add(notice);
 
         // add more here
 
