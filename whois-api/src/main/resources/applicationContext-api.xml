@@ -2,15 +2,28 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:oxm="http://www.springframework.org/schema/oxm"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                         http://www.springframework.org/schema/beans/spring-beans.xsd
                         http://www.springframework.org/schema/oxm
-                        http://www.springframework.org/schema/oxm/spring-oxm.xsd">
+                        http://www.springframework.org/schema/oxm/spring-oxm.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
     <import resource="applicationContext-commons.xml"/>
     <import resource="applicationContext-query.xml"/>
     <import resource="applicationContext-update.xml"/>
     <import resource="applicationContext-nrtm.xml"/>
+
+    <!--context:property-placeholder
+            location="classpath:rdap.properties" local-override="true"/-->
+
+    <!--bean id="noticeFactory" class="net.ripe.db.whois.api.whois.rdap.NoticeFactory">
+        <property name="tncTitle" value="${tncTitle}"/>
+        <property name="tncDescription" value="${tncDescription}"/>
+        <property name="tncLinkHref" value="${tncLinkHref}"/>
+        <property name="tncLinkRel" value="${tncLinkRel}"/>
+        <property name="tncLinkType" value="${tncLinkType}"/>
+    </bean-->
 
     <oxm:jaxb2-marshaller id="marshaller">
         <oxm:class-to-be-bound name="net.ripe.db.whois.api.freetext.SearchResponse"/>
