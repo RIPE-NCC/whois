@@ -14,8 +14,10 @@ import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObjectBase;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.source.SourceContext;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -80,17 +82,16 @@ class ArinGrsSource extends GrsSource {
             handleLines(reader, new LineHandler() {
                 @Override
                 public void handleLines(final List<String> lines) {
-                    if (lines.isEmpty() || IGNORED_OBJECTS.contains(ciString(RpslObjectBase.parse(lines.get(0)).getTypeAttribute().getKey()))) {
+                    if (lines.isEmpty() || IGNORED_OBJECTS.contains(ciString(StringUtils.substringBefore(lines.get(0), ":")))) {
                         logger.debug("Ignoring:\n\n{}\n", lines);
                         return;
                     }
 
                     final String rpslObjectString = Joiner.on("").join(lines);
-                    final RpslObjectBase rpslObjectBase = RpslObjectBase.parse(rpslObjectString);
-
+                    RpslObjectBuilder rpslObjectBuilder = new RpslObjectBuilder(rpslObjectString);
 
                     final List<RpslAttribute> newAttributes = Lists.newArrayList();
-                    for (RpslAttribute attribute : rpslObjectBase.getAttributes()) {
+                    for (RpslAttribute attribute : rpslObjectBuilder.getAttributes()) {
                         final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
                         if (transformFunction != null) {
                             attribute = transformFunction.apply(attribute);
@@ -106,7 +107,7 @@ class ArinGrsSource extends GrsSource {
                         }
                     }
 
-                    handler.handle(new RpslObjectBase(newAttributes));
+                    handler.handle(new RpslObject(newAttributes));
                 }
             });
         } finally {

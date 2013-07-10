@@ -105,7 +105,7 @@ abstract class GrsSource implements InitializingBean {
             try {
                 lineHandler.handleLines(lines);
             } catch (RuntimeException e) {
-                logger.warn("Unexpected error handling lines starting with {}: {}", lines.isEmpty() ? "" : lines.get(0), e.getMessage());
+                logger.warn("Unexpected error handling lines starting with {}: {}", lines.isEmpty() ? "" : lines.get(0), e.getMessage(), e);
             }
         }
     }

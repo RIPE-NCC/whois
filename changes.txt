@@ -1,4 +1,21 @@
-## next
+## 1.67.3
+[all] Added support for graceful shutdown for layer 2 load balancers
+[query] Configure a list of default sources to query (contributed by APNIC)
+[all] Whois REST API has /whois root URI
+
+## 1.67.2
+[api] /grs-search and /grs-lookup removed
+[api] tags included in /search
+[api] completing rest api documentation
+[update] disable diff keyword for this release
+[update] disable pending updates for this release
+[update] generated changed attribute value shown in notification and dry-run
+
+## 1.67.1
+[api] support for long options
+[update] reserved words for mntner attributes no longer allowed
+[query] --show-version and -B cannot be used together
+[query] filter auth and email attributes from --diff-versions output
 [all] added maintenance mode (-Dmaintenance=none,none)
 [all] fixes for index regeneration (pre-production tests)
 [query] All GRS sources are now filtered on AuthoritativeResource regardless of --resource flag

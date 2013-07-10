@@ -16,6 +16,7 @@ import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +44,7 @@ public class WhoisObjectMapper {
 
     private static final Splitter CSV_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
+    // TODO: [AH] converting between object by parse(toString()) is the most inefficient; reimplement using direct translation
     public static RpslObject map(final WhoisObject whoisObject) {
         final StringBuilder builder = new StringBuilder();
         for (Attribute attribute : whoisObject.getAttributes()) {
@@ -51,9 +53,9 @@ public class WhoisObjectMapper {
 
             AttributeType attributeType = AttributeType.getByName(attribute.getName());
             if (CSV_ATTRIBUTES.contains(attributeType)) {
-                values = CSV_SPLITTER.split(attribute.getValue());
+                values = CSV_SPLITTER.split(attribute.getValue());  // TODO: [AH] don't do this! see getCleanValues()
             } else {
-                values = Lists.newArrayList(attribute.getValue());
+                values = Collections.singletonList(attribute.getValue());
             }
 
             for (String value : values) {

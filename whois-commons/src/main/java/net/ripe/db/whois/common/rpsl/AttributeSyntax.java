@@ -669,11 +669,11 @@ interface AttributeSyntax extends Documented {
                     return validateRouteSetWithRange(objectType, value);
 
                 case RTR_SET:
-                    if (allowIpv6 && IPV6_SYNTAX.matches(objectType, value)) {
-                        return true;
-                    }
+                    return allowIpv6 && IPV6_SYNTAX.matches(objectType, value) ||
+                            INET_RTR_SYNTAX.matches(objectType, value) ||
+                            RTR_SET_SYNTAX.matches(objectType, value) ||
+                            IPV4_SYNTAX.matches(objectType, value);
 
-                    return INET_RTR_SYNTAX.matches(objectType, value) || RTR_SET_SYNTAX.matches(objectType, value) || IPV4_SYNTAX.matches(objectType, value);
                 default:
                     return false;
             }
