@@ -132,8 +132,8 @@ public class MessageDequeue implements ApplicationService {
 
             LOGGER.info("Message dequeue stopped (force: {})", force);
         } else {
-            pollerExecutor.shutdown();
-            handlerExecutor.shutdown();
+            if (pollerExecutor != null) pollerExecutor.shutdown();
+            if (handlerExecutor != null) handlerExecutor.shutdown();
         }
     }
 
