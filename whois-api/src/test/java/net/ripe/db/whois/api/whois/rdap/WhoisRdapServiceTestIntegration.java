@@ -11,14 +11,17 @@ import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
+import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.HttpURLConnection;
 import java.util.List;
 
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
@@ -41,72 +44,77 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             "remarks: remark\n" +
             "source:  TEST\n");
 
-    private static final RpslObject OWNER_MNT = RpslObject.parse("" +
-            "mntner:      OWNER-MNT\n" +
-            "descr:       Owner Maintainer\n" +
-            "admin-c:     TP1-TEST\n" +
-            "upd-to:      noreply@ripe.net\n" +
-            "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-            "mnt-by:      OWNER-MNT\n" +
-            "referral-by: OWNER-MNT\n" +
-            "changed:     dbtest@ripe.net 20120101\n" +
-            "source:      TEST");
-
-    private static final RpslObject TEST_PERSON = RpslObject.parse("" +
-            "person:  Test Person\n" +
-            "address: Singel 258\n" +
-            "phone:   +31 6 12345678\n" +
-            "nic-hdl: TP1-TEST\n" +
-            "mnt-by:  OWNER-MNT\n" +
-            "changed: dbtest@ripe.net 20120101\n" +
-            "source:  TEST\n");
-
-    private static final RpslObject TEST_DOMAIN = RpslObject.parse("" +
-            "domain:  31.12.202.in-addr.arpa\n" +
-            "descr:   Test domain\n" +
-            "admin-c: TP1-TEST\n" +
-            "tech-c:  TP1-TEST\n" +
-            "zone-c:  TP1-TEST\n" +
-            "notify:  notify@test.net.au\n" +
-            "nserver: ns1.test.com.au\n" +
-            "nserver: ns2.test.com.au\n" +
-            "changed: test@test.net.au 20010816\n" +
-            "changed: test@test.net.au 20121121\n" +
-            "mnt-by:  OWNER-MNT\n" +
-            "source:  TEST\n");
-
-    private static final RpslObject TEST_ORG = RpslObject.parse("" +
-            "organisation:  ORG-TEST1-TEST\n" +
-            "org-name:      Test organisation\n" +
-            "org-type:      OTHER\n" +
-            "descr:         Drugs and gambling\n" +
-            "remarks:       Nice to deal with generally\n" +
-            "address:       1 Fake St. Fauxville\n" +
-            "phone:         +01-000-000-000\n" +
-            "fax-no:        +01-000-000-000\n" +
-            "e-mail:        org@test.com\n" +
-            "mnt-by:        OWNER-MNT\n" +
-            "changed:       test@test.net.au 20121121\n" +
-            "source:        TEST\n");
-
-    private static final RpslObject AUTNUM_123 = RpslObject.parse("" +
-            "aut-num:   AS123\n" +
-            "as-name:   AS-TEST\n" +
-            "descr:     A single ASN\n" +
-            "admin-c:   TP1-TEST\n" +
-            "tech-c:    TP1-TEST\n" +
-            "country:   AU\n" +
-            "changed:   test@test.net.au 20010816\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n");
 
     @Before
     public void setup() throws Exception {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
-        databaseHelper.addObject(OWNER_MNT);
-        databaseHelper.updateObject(TEST_PERSON);
-        databaseHelper.addObject(TEST_DOMAIN);
-        databaseHelper.addObject(AUTNUM_123);
+        databaseHelper.addObject("" +
+                "mntner:        OWNER-MNT\n" +
+                "descr:         Owner Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "referral-by:   OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST");
+
+        databaseHelper.updateObject("" +
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST\n");
+
+        databaseHelper.addObject("" +
+                "domain:        31.12.202.in-addr.arpa\n" +
+                "descr:         Test domain\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "zone-c:        TP1-TEST\n" +
+                "notify:        notify@test.net.au\n" +
+                "nserver:       ns1.test.com.au\n" +
+                "nserver:       ns2.test.com.au\n" +
+                "changed:       test@test.net.au 20010816\n" +
+                "changed:       test@test.net.au 20121121\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST\n");
+
+        databaseHelper.addObject("" +
+                "aut-num:       AS123\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "changed:       test@test.net.au 20010816\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST\n");
+
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TEST1-TEST\n" +
+                "org-name:      Test organisation\n" +
+                "org-type:      OTHER\n" +
+                "descr:         Drugs and gambling\n" +
+                "remarks:       Nice to deal with generally\n" +
+                "address:       1 Fake St. Fauxville\n" +
+                "phone:         +01-000-000-000\n" +
+                "fax-no:        +01-000-000-000\n" +
+                "e-mail:        org@test.com\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       test@test.net.au 20121121\n" +
+                "source:        TEST\n");
+
+        databaseHelper.addObject("" +
+                "as-block:       AS100 - AS200\n" +
+                "descr:          ARIN ASN block\n" +
+                "org:            ORG-TEST1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "changed:        dbtest@ripe.net   20121214\n" +
+                "source:         TEST\n" +
+                "password:       test\n");
+
         ipTreeUpdater.rebuild();
     }
 
@@ -229,8 +237,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_org_entity() throws Exception {
-        databaseHelper.addObject(TEST_ORG);
-
         final Entity response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
@@ -290,6 +296,63 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void multiple_modification_gives_correct_events() throws Exception {
+        final String start = "" +
+                "aut-num:   AS123\n" +
+                "as-name:   AS-TEST\n" +
+                "descr:     Modified ASN\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "changed:   test@test.net.au 20010816\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n" +
+                "password:  test\n";
+        final String response = doPostOrPutRequest(getUrl("test", ""), "POST", "DATA=" + encode(start), MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
+        assertThat(response, containsString("Modify SUCCEEDED: [aut-num] AS123"));
+
+        final String deleteString = "" +
+                "aut-num:   AS123\n" +
+                "as-name:   AS-TEST\n" +
+                "descr:     Modified ASN\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "changed:   test@test.net.au 20010816\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n" +
+                "delete:    reason\n" +
+                "password:  test\n";
+
+        final String delete = doPostOrPutRequest(getUrl("test", ""), "POST", "DATA=" + encode(deleteString), MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
+        assertThat(delete, containsString("Delete SUCCEEDED: [aut-num] AS123"));
+
+        final String recreate = doPostOrPutRequest(getUrl("test", ""), "POST", "DATA=" + encode(start) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
+        assertThat(recreate, containsString("Create SUCCEEDED: [aut-num] AS123"));
+
+        final String modifiedAgain = "" +
+                "aut-num:   AS123\n" +
+                "as-name:   AS-TEST\n" +
+                "descr:     Final version ASN\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "changed:   test@test.net.au 20010816\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n" +
+                "password:  test\n";
+        final String last = doPostOrPutRequest(getUrl("test", ""), "POST", "DATA=" + encode(modifiedAgain), MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
+        assertThat(last, containsString("Modify SUCCEEDED: [aut-num] AS123"));
+
+        final Autnum autnum = createResource(AUDIENCE, "autnum/123")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        final List<Event> events = autnum.getEvents();
+        assertThat(events, hasSize(2));
+
+        assertThat(events.get(0).getEventAction(), is("registration"));
+        assertThat(events.get(1).getEventAction(), is("last changed"));
+    }
+
+    @Test
     public void lookup_single_autnum() throws Exception {
         final Autnum autnum = createResource(AUDIENCE, "autnum/123")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -299,14 +362,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(autnum.getStartAutnum(), equalTo(123L));
         assertThat(autnum.getEndAutnum(), equalTo(123L));
         assertThat(autnum.getName(), equalTo("AS-TEST"));
-        assertThat(autnum.getCountry(), equalTo("AU"));
         assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
 
         final List<Event> events = autnum.getEvents();
-        assertThat(events, hasSize(1));
+        assertThat(events, hasSize(2));
 
-        final Event event = events.get(0);
-        assertThat(event.getEventDate(), is(not(nullValue())));
+        final Event firstEvent = events.get(0);
+        assertTrue(firstEvent.getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(firstEvent.getEventAction(), is("registration"));
+
+        final Event lastEvent = events.get(1);
+        assertTrue(lastEvent.getEventDate().isAfter(firstEvent.getEventDate()) || lastEvent.getEventDate().equals(firstEvent.getEventDate()));
+        assertThat(lastEvent.getEventAction(), is("last changed"));
 
 //        final List<Entity> entities = autnum.getEntities();                           // TODO: implement
 //        assertThat(entities, hasSize(2));
@@ -318,7 +385,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 //
 //        final Entity entityTp1 = entities.get(0);
 //        assertThat(entityTp1.getHandle(), equalTo("TP1-TEST"));
-//
+
 //        final List<String> adminRoles = entityTp1.getRoles();
 //        assertThat(adminRoles, hasSize(1));
 //        assertThat(adminRoles.get(0), equalTo("administrative"));
@@ -338,6 +405,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         final String ru = createResource(AUDIENCE, "autnum/123").toString();
         assertThat(selfLink.getValue(), equalTo(ru));
         assertThat(selfLink.getHref(), equalTo(ru));
+
+        final List<Remark> remarks = autnum.getRemarks();
+        assertThat(remarks, hasSize(1));
+        assertThat(remarks.get(0).getDescription().get(0), is("A single ASN"));
     }
 
     @Test
@@ -355,5 +426,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Override
     protected WebResource createResource(final Audience audience, final String path) {
         return client.resource(String.format("http://localhost:%s/rdap/%s", getPort(audience), path));
+    }
+
+    private String getUrl(final String instance, final String command) {
+        return "http://localhost:" + getPort(Audience.PUBLIC) + String.format("/whois/syncupdates/%s?%s", instance, command);
     }
 }

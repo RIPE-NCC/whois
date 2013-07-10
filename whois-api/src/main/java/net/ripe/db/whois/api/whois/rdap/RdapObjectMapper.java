@@ -98,11 +98,18 @@ class RdapObjectMapper {
 
     private static List<Event> createEvents(final List<VersionInfo> versions) {
         final List<Event> events = Lists.newArrayList();
-        for (final VersionInfo version : versions) {
-            final Event event = new Event();
-            event.setEventAction(version.getOperation().toString());
-            event.setEventDate(version.getTimestamp().toLocalDateTime());
-            events.add(event);
+        if (!versions.isEmpty()) {
+            final VersionInfo first = versions.get(0);
+            final Event registrationEvent = new Event();
+            registrationEvent.setEventAction("registration");
+            registrationEvent.setEventDate(first.getTimestamp().toLocalDateTime());
+            events.add(registrationEvent);
+
+            final VersionInfo last = versions.get(versions.size() - 1);
+            final Event lastChangedEvent = new Event();
+            lastChangedEvent.setEventAction("last changed");
+            lastChangedEvent.setEventDate(last.getTimestamp().toLocalDateTime());
+            events.add(lastChangedEvent);
         }
         return events;
     }
@@ -124,7 +131,6 @@ class RdapObjectMapper {
         autnum.setStartAutnum(startAndEnd);
         autnum.setEndAutnum(startAndEnd);
 
-        autnum.setCountry(rpslObject.findAttribute(AttributeType.COUNTRY).getValue().replace(" ", ""));
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
 
         /* aut-num records don't have a 'type' or 'status' field, and
