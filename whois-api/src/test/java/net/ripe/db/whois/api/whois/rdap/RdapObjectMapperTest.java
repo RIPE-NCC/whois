@@ -101,7 +101,10 @@ public class RdapObjectMapperTest {
                 "zone-c:   TP1-TEST\n" +
                 "notify:   notify@test.net.au\n" +
                 "nserver:  ns1.test.com.au 10.0.0.1\n" +
+                "nserver:  ns1.test.com.au 2001:10::1\n" +
+                "nserver:  ns2.test.com.au 10.0.0.2\n" +
                 "nserver:  ns2.test.com.au 2001:10::2\n" +
+                "nserver:  ns3.test.com.au\n" +
                 "ds-rdata: 52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
                 "ds-rdata: 17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
                 "ds-rdata: 17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
