@@ -233,7 +233,7 @@ class RdapObjectMapper {
         }
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ADDRESS)) {
-            builder.addAdr(VcardObjectHelper.createHashMap(Maps.immutableEntry("label", attribute.getCleanValue())), null);
+            builder.addAdr(VCardObjectHelper.createHashMap(Maps.immutableEntry("label", attribute.getCleanValue())), null);
         }
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PHONE)) {

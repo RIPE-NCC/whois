@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class VcardObjectHelper {
+public class VCardObjectHelper {
 
     public static List<Object> toObjects(final Object target) {
 

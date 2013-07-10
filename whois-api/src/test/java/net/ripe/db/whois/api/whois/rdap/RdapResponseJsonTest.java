@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import static com.google.common.collect.Maps.immutableEntry;
-import static net.ripe.db.whois.api.whois.rdap.VcardObjectHelper.createHashMap;
+import static net.ripe.db.whois.api.whois.rdap.VCardObjectHelper.createHashMap;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -167,7 +167,7 @@ public class RdapResponseJsonTest {
                 "    \"eventDate\" : \"" + DATE_TIME + "\"\n" +
                 "  }, {\n" +
                 "    \"eventAction\" : \"last changed\",\n" +
-                "    \"eventDate\" : \""+ DATE_TIME + "\",\n" +
+                "    \"eventDate\" : \"" + DATE_TIME + "\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ]\n" +
                 "}"));

@@ -208,6 +208,6 @@ public class VCardBuilder {
 
     public List<Object> build() {
         VCard entityVcard = new VCard("vcard", properties);
-        return VcardObjectHelper.toObjects(entityVcard);
+        return VCardObjectHelper.toObjects(entityVcard);
     }
 }
