@@ -374,10 +374,16 @@ class RdapObjectMapper {
             for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PERSON)) {
                 builder.setFn(attribute.getCleanValue().toString());
             }
+
+            builder.setKind("individual");
         } else if (rpslObjectType == ObjectType.ORGANISATION) {
             for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ORG_NAME)) {
                 builder.setFn(attribute.getCleanValue().toString());
             }
+
+            builder.setKind("org");
+        } else if (rpslObjectType == ObjectType.ROLE || rpslObjectType == ObjectType.IRT) {
+            builder.setKind("group");
         }
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ADDRESS)) {
