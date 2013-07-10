@@ -17,6 +17,7 @@ import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,6 +54,13 @@ public class WhoisRdapService {
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
+    }
+
+    private String baseUrl;
+
+    @Value("${rdap.public.baseUrl:}")
+    public void setBaseUrl(final String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
     // TODO: [ES] drop streaming support - only one object returned. but, must implement logging, blocking etc.
@@ -130,15 +138,18 @@ public class WhoisRdapService {
         final int contextId = System.identityHashCode(Thread.currentThread());
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
 
-        // TODO: A bit awkward; there should be a better way to determine this. Also, baseUrl will have to be a configuration option anyway, because the internal and external URL schemes may differ.
-        String baseUrl = requestUrl;
-        int pathIndex = 0;
-        int count = 3;
-        while ((count--) != 0) {
-            pathIndex = baseUrl.indexOf('/', pathIndex + 1);
-        }
 
-        baseUrl = baseUrl.substring(0, pathIndex) + request.getServletPath() + request.getContextPath();
+        // TODO: A bit awkward; there should be a better way to determine this. Also, baseUrl will have to be a configuration option anyway, because the internal and external URL schemes may differ.
+        if (baseUrl.isEmpty()) {
+            baseUrl = requestUrl;
+            int pathIndex = 0;
+            int count = 3;
+            while ((count--) != 0) {
+                pathIndex = baseUrl.indexOf('/', pathIndex + 1);
+            }
+
+            baseUrl = baseUrl.substring(0, pathIndex) + request.getServletPath() + request.getContextPath();
+        }
 
         RdapStreamingOutput rso = new RdapStreamingOutput(streamingMarshal, queryHandler, null, query, remoteAddress, contextId, sourceContext, baseUrl, requestUrl);
 

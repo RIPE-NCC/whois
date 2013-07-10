@@ -246,8 +246,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
-
-        Thread.sleep(1000000);
     }
 
     @Override
