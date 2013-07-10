@@ -1,3 +1,7 @@
+## next
+[update] removed unused and incorrect text aliases for specifying ds-rdata digest/algorithm
+[query] fixed verbose help for route-set member: attribute
+
 ## 1.67.3
 [all] Added support for graceful shutdown for layer 2 load balancers
 [query] Configure a list of default sources to query (contributed by APNIC)
