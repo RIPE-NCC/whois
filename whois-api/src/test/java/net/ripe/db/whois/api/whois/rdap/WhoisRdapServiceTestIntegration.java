@@ -44,7 +44,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             "remarks: remark\n" +
             "source:  TEST\n");
 
-
     @Before
     public void setup() throws Exception {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
@@ -157,7 +156,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void lookup_inetnum_single_address() {
+    public void lookup_inetnum_less_specific() {
         databaseHelper.addObject("" +
                 "inetnum:      192.0.0.0 - 192.255.255.255\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -221,6 +220,32 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(response.getName(), is("RIPE-NCC"));
     }
 
+    @Test
+    public void lookup_inet6num_less_specific() throws Exception {
+        databaseHelper.addObject("" +
+                "inet6num:       2001:2002:2003::/48\n" +
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip response = createResource(AUDIENCE, "ip/2001:2002:2003:2004::")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(response.getHandle(), is("2001:2002:2003::/48"));
+        assertThat(response.getIpVersion(), is("v6"));
+        assertThat(response.getCountry(), is("NL"));
+        assertThat(response.getStartAddress(), is("2001:2002:2003::/128"));
+        assertThat(response.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
+        assertThat(response.getName(), is("RIPE-NCC"));
+    }
+
     // entity
 
     @Test
@@ -270,8 +295,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_domain_object() throws Exception {
-        databaseHelper.addObject(PAULETH_PALTHEN);
-
         final Domain response = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
