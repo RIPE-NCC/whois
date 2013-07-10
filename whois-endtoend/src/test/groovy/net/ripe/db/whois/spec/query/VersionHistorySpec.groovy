@@ -1728,4 +1728,63 @@ class VersionHistorySpec extends BaseSpec {
         queryLineMatches("--diff-versions 2:3 192.168.0.0 - 192.169.255.255", "\\+remarks:\\s*version 3")
     }
 
+    def "query --dif-versions 3:2, 3 versions"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
+
+        expect:
+        // "ALLOC-PA"
+        queryObject("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                remarks:      version 2
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                override:  override1
+
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                remarks:      version 3
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                override:  override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 2
+        ack.summary.assertSuccess(2, 0, 2, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 2)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+
+        queryLineMatches("--show-version 1 192.168.0.0 - 192.169.255.255", "^% Version 1 of object \"192.168.0.0 - 192.169.255.255\"")
+        queryLineMatches("--show-version 1 192.168.0.0 - 192.169.255.255", "^% This version was a UPDATE operation on ")
+        queryLineMatches("--diff-versions 3:2 192.168.0.0 - 192.169.255.255", "\\+remarks:\\s*version 2")
+        queryLineMatches("--diff-versions 3:2 192.168.0.0 - 192.169.255.255", "-remarks:\\s*version 3")
+    }
+
 }

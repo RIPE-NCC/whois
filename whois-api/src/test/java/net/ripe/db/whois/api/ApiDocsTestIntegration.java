@@ -28,7 +28,7 @@ public class ApiDocsTestIntegration extends AbstractRestClientTest {
         final String index = createStaticResource(Audience.PUBLIC, "api-doc").get(String.class);
 
         assertThat(index, containsString("<html"));
-        assertThat(index, containsString("<title>RIPE WHOIS API (beta)</title>"));
+        assertThat(index, containsString("<title>RIPE WHOIS API</title>"));
         assertThat(index, not(containsString(">/acl/bans/{prefix}<")));
         assertThat(index, not(containsString(">/logs/current<")));
         assertThat(index, containsString(">/metadata/sources<"));

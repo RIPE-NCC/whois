@@ -15,11 +15,9 @@
  *   <ul>
  *       <li><a href="path__geolocation.html">geolocation</a></li>
  *       <li><a href="path__lookup_-source-_-objectType-_-key-.html">lookup</a></li>
- *       <li><a href="path__grs-lookup_-source-_-objectType-_-key-.html">grs-lookup</a></li>
  *       <li><a href="path__metadata_sources.html">metadata (list sources)</a></li>
  *       <li><a href="path__metadata_templates_-objectType-.html">metadata (object template for given object type)</a></li>
  *       <li><a href="path__search.html">search</a></li>
- *       <li><a href="path__grs-search.html">grs-search</a></li>
  *       <li><a href="path__versions_-source-_-key-.html">versions</a></li>
  *       <li><a href="path__version_-source-_-version-_-key-.html">version</a></li>
  *   </ul>

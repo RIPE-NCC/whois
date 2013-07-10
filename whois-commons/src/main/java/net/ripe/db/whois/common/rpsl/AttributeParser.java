@@ -75,6 +75,12 @@ public interface AttributeParser<T> {
         }
     }
 
+    final class DsRdataParser implements AttributeParser<DsRdata> {
+        @Override
+        public DsRdata parse(final String s) {
+            return DsRdata.parse(s);
+        }
+    }
     final class DomainParser implements AttributeParser<Domain> {
         @Override
         public Domain parse(final String s) {

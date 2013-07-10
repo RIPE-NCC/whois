@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+// TODO: [AH] add tests (as/if possible)
 @Component
 public class MaintenanceMode {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseMaintenanceJmx.class);

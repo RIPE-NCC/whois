@@ -109,14 +109,13 @@ interface AttributeSyntax extends Documented {
             "254 characters (octets).\n");
 
     AttributeSyntax DS_RDATA_SYNTAX = new AttributeSyntaxParser(new AttributeParser.DsRdataParser(), "" +
-            "<Keytag> | <Algorithm> | <Digest type> | <Digest> | ; <Comment>\n" +
+            "<Keytag> <Algorithm> <Digest type> <Digest>\n" +
             "\n" +
             "Keytag is represented by an unsigned decimal integer (0-65535).\n" +
             "\n" +
-            "Algorithm is represented by an unsigned decimal integer (0-255) or one of the following mnemonics:\n" +
-            "RSAMD5, DH, DSA, ECC, RSASHA1, INDIRECT, PRIVATEDNS, PRIVATEOID.\n" +
+            "Algorithm is represented by an unsigned decimal integer (0-255).\n" +
             "\n" +
-            "Digest type may be represented by a unsigned decimal integer (0-255) and is usually 1, which stands for SHA-1.\n" +
+            "Digest type is represented by a unsigned decimal integer (0-255).\n" +
             "\n" +
             "Digest is a digest in hexadecimal representation (case insensitive). Its length varies for various digest types.\n" +
             "For digest type SHA-1 digest is represented by 20 octets (40 characters, plus possible spaces).\n" +
@@ -668,11 +667,11 @@ interface AttributeSyntax extends Documented {
                     return validateRouteSetWithRange(objectType, value);
 
                 case RTR_SET:
-                    if (allowIpv6 && IPV6_SYNTAX.matches(objectType, value)) {
-                        return true;
-                    }
+                    return allowIpv6 && IPV6_SYNTAX.matches(objectType, value) ||
+                            INET_RTR_SYNTAX.matches(objectType, value) ||
+                            RTR_SET_SYNTAX.matches(objectType, value) ||
+                            IPV4_SYNTAX.matches(objectType, value);
 
-                    return INET_RTR_SYNTAX.matches(objectType, value) || RTR_SET_SYNTAX.matches(objectType, value) || IPV4_SYNTAX.matches(objectType, value);
                 default:
                     return false;
             }
@@ -687,11 +686,19 @@ interface AttributeSyntax extends Documented {
                             "<as-number> or\n" +
                             "<as-set-name>\n";
                 case ROUTE_SET:
-                    return "" +
-                            "list of\n" +
-                            "<address-prefix-range> or\n" +
-                            "<route-set-name> or\n" +
-                            "<route-set-name><range-operator>.\n";
+                    if (allowIpv6) {
+                        return "" +
+                                "list of\n" +
+                                "<address-prefix-range> or\n" +
+                                "<route-set-name> or\n" +
+                                "<route-set-name><range-operator>.\n";
+                    } else {
+                        return "" +
+                                "list of\n" +
+                                "<ipv4-address-prefix-range> or\n" +
+                                "<route-set-name> or\n" +
+                                "<route-set-name><range-operator>.\n";
+                    }
 
                 case RTR_SET:
                     return allowIpv6 ? "" +

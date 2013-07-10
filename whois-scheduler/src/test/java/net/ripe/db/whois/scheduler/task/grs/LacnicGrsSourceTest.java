@@ -3,7 +3,7 @@ package net.ripe.db.whois.scheduler.task.grs;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.io.Downloader;
-import net.ripe.db.whois.common.rpsl.RpslObjectBase;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class LacnicGrsSourceTest {
         assertThat(objectHandler.getLines(), hasSize(0));
         assertThat(objectHandler.getObjects(), hasSize(3));
         assertThat(objectHandler.getObjects(), contains(
-                RpslObjectBase.parse("" +
+                RpslObject.parse("" +
                         "aut-num:        AS278\n" +
                         "descr:          Description\n" +
                         "country:        MX\n" +
@@ -50,7 +50,7 @@ public class LacnicGrsSourceTest {
                         "changed:        unread@ripe.net 20110503 # changed\n" +
                         "source:         LACNIC\n"),
 
-                RpslObjectBase.parse("" +
+                RpslObject.parse("" +
                         "inetnum:        24.232.16/24\n" +
                         "status:         reallocated\n" +
                         "descr:          Description\n" +
@@ -60,7 +60,7 @@ public class LacnicGrsSourceTest {
                         "changed:        unread@ripe.net 19990312 # changed\n" +
                         "source:         LACNIC\n"),
 
-                RpslObjectBase.parse("" +
+                RpslObject.parse("" +
                         "inet6num:       2001:1200:2000::/48\n" +
                         "status:         reallocated\n" +
                         "descr:          Description\n" +

@@ -2,7 +2,10 @@ package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import difflib.DiffUtils;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
@@ -10,71 +13,59 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.io.ByteArrayOutput;
 import org.apache.commons.lang.Validate;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
-// TODO [AK] This should be moved to whois queries, something like RpslObjectResponse
 @Immutable
-public class RpslObject implements ResponseObject, Identifiable {
+public class RpslObject implements Identifiable, ResponseObject {
     private static final Splitter LINE_SPLITTER = Splitter.on('\n').trimResults();
 
-    private final Integer objectId;
-    private final RpslObjectBase base;
+    private final ObjectType type;
+    private final RpslAttribute typeAttribute;
+    private Integer objectId;
+
+    private List<RpslAttribute> attributes;
+    private Map<AttributeType, List<RpslAttribute>> typeCache;
+    private int hash;
+    private CIString key;
 
     public RpslObject(final RpslObject oldObject, final List<RpslAttribute> attributes) {
         this(oldObject.objectId, attributes);
     }
 
-    public RpslObject(final RpslObjectBase rpslObjectBase) {
-        this(-1, rpslObjectBase);
-    }
-
     public RpslObject(final Integer objectId, final List<RpslAttribute> attributes) {
-        this.base = new RpslObjectBase(attributes);
+        this(attributes);
         this.objectId = objectId;
-
-        Validate.notNull(getType(), "Type cannot be null");
-        Validate.notNull(getKey(), "Key cannot be null");
-        Validate.notEmpty(getKey().toString(), "Key cannot be empty");
     }
 
-    private RpslObject(final Integer objectId, final RpslObjectBase base) {
-        this.objectId = objectId;
-        this.base = base;
+    public RpslObject(final List<RpslAttribute> attributes) {
+        Validate.notEmpty(attributes);
 
-        Validate.notNull(getType(), "Type cannot be null");
+        this.typeAttribute = attributes.get(0);
+        this.type = ObjectType.getByNameOrNull(typeAttribute.getKey());
+        this.attributes = Collections.unmodifiableList(attributes);
+
+        Validate.notNull(type, "Type cannot be null");
         Validate.notNull(getKey(), "Key cannot be null");
         Validate.notEmpty(getKey().toString(), "Key cannot be empty");
     }
 
     public static RpslObject parse(final String input) {
-        return parse(input.getBytes(Charsets.ISO_8859_1));
+        return new RpslObject(RpslObjectBuilder.getAttributes(input));
+    }
+
+    public static RpslObject parse(final byte[] input) {
+        return new RpslObject(RpslObjectBuilder.getAttributes(input));
     }
 
     public static RpslObject parse(final Integer objectId, final String input) {
-        return parse(objectId, input.getBytes(Charsets.ISO_8859_1));
-    }
-
-    public static RpslObject parseFully(final String input) {
-        final RpslObject rpslObject = parse(input.getBytes(Charsets.ISO_8859_1));
-        rpslObject.base.getOrCreateCache();
-        return rpslObject;
-    }
-
-    static RpslObject parse(final byte[] input) {
-        return parse(null, input);
+        return new RpslObject(objectId, RpslObjectBuilder.getAttributes(input));
     }
 
     public static RpslObject parse(final Integer objectId, final byte[] input) {
-        Validate.notNull(input, "input cannot be null");
-        Validate.isTrue(input.length > 0, "input cannot be empty");
-        return new RpslObject(objectId, new RpslObjectBase(input));
+        return new RpslObject(objectId, RpslObjectBuilder.getAttributes(input));
     }
 
     @Override
@@ -82,8 +73,39 @@ public class RpslObject implements ResponseObject, Identifiable {
         return objectId;
     }
 
+    @CheckForNull
+    public ObjectType getType() {
+        return type;
+    }
+
     public List<RpslAttribute> getAttributes() {
-        return base.getAttributes();
+        return attributes;
+    }
+
+    public CIString getKey() {
+        if (key == null) {
+            final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(type);
+            final Iterator<AttributeType> keyAttributeIterator = objectTemplate.getKeyAttributes().iterator();
+
+            CIString tmpKey = findAttribute(keyAttributeIterator.next()).getCleanValue();
+            while (keyAttributeIterator.hasNext()) {
+                tmpKey = tmpKey.append(findAttribute(keyAttributeIterator.next()).getCleanValue());
+            }
+
+            key = tmpKey;
+        }
+
+        return key;
+    }
+
+    public String getFormattedKey() {
+        switch (type) {
+            case PERSON:
+            case ROLE:
+                return String.format("[%s] %s   %s", type.getName(), getKey(), getAttributes().get(0).getCleanValue());
+            default:
+                return String.format("[%s] %s", type.getName(), getKey());
+        }
     }
 
     @Override
@@ -97,61 +119,119 @@ public class RpslObject implements ResponseObject, Identifiable {
         }
 
         final RpslObject other = (RpslObject) obj;
-        return base.equals(other.base);
+        return Iterables.elementsEqual(getAttributes(), other.getAttributes());
     }
 
     @Override
     public int hashCode() {
-        return base.hashCode();
-    }
+        if (hash == 0) {
+            int result = getAttributes().hashCode();
+            if (result == 0) {
+                result--;
+            }
+            hash = result;
+        }
 
-    public ObjectType getType() {
-        return base.getType();
+        return hash;
     }
 
     public RpslAttribute getTypeAttribute() {
-        return base.getTypeAttribute();
+        return getAttributes().get(0);
+    }
+
+    Map<AttributeType, List<RpslAttribute>> getOrCreateCache() {
+        if (typeCache == null) {
+            final EnumMap<AttributeType, List<RpslAttribute>> map = Maps.newEnumMap(AttributeType.class);
+
+            for (final RpslAttribute attribute : getAttributes()) {
+                final AttributeType attributeType = attribute.getType();
+                if (attributeType == null) {
+                    continue;
+                }
+
+                List<RpslAttribute> list = map.get(attributeType);
+                if (list == null) {
+                    list = Lists.newArrayList();
+                    map.put(attributeType, list);
+                }
+
+                list.add(attribute);
+            }
+
+            typeCache = Collections.unmodifiableMap(map);
+        }
+
+        return typeCache;
     }
 
     public RpslAttribute findAttribute(final AttributeType attributeType) {
-        return base.findAttribute(attributeType);
+        final List<RpslAttribute> attributes = findAttributes(attributeType);
+        switch (attributes.size()) {
+            case 0:
+                throw new IllegalArgumentException("No attribute of type: " + attributeType);
+            case 1:
+                return attributes.get(0);
+            default:
+                throw new IllegalArgumentException("Multiple attributes of type: " + attributeType);
+        }
     }
 
     public List<RpslAttribute> findAttributes(final AttributeType attributeType) {
-        return base.findAttributes(attributeType);
+        final List<RpslAttribute> list = getOrCreateCache().get(attributeType);
+        return list == null ? Collections.<RpslAttribute>emptyList() : Collections.unmodifiableList(list);
     }
 
     public List<RpslAttribute> findAttributes(final Iterable<AttributeType> attributeTypes) {
-        return base.findAttributes(attributeTypes);
+        final List<RpslAttribute> result = Lists.newArrayList();
+
+        for (final AttributeType attributeType : attributeTypes) {
+            findCachedAttributes(result, attributeType);
+        }
+
+        return result;
     }
 
     public List<RpslAttribute> findAttributes(final AttributeType... attributeTypes) {
-        return base.findAttributes(attributeTypes);
+        final List<RpslAttribute> result = Lists.newArrayList();
+
+        for (AttributeType attributeType : attributeTypes) {
+            findCachedAttributes(result, attributeType);
+        }
+
+        return result;
+    }
+
+    private void findCachedAttributes(List<RpslAttribute> result, AttributeType attributeType) {
+        final List<RpslAttribute> list = getOrCreateCache().get(attributeType);
+        if (list != null) {
+            result.addAll(list);
+        }
     }
 
     public boolean containsAttributes(final Collection<AttributeType> attributeTypes) {
-        return base.containsAttributes(attributeTypes);
+        for (AttributeType attributeType : attributeTypes) {
+            if (containsAttribute(attributeType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean containsAttribute(final AttributeType attributeType) {
-        return base.containsAttribute(attributeType);
-    }
-
-    public CIString getKey() {
-        return base.getKey();
-    }
-
-    public String getFormattedKey() {
-        return base.getFormattedKey();
+        return getOrCreateCache().containsKey(attributeType);
     }
 
     @Override
     public void writeTo(final OutputStream out) throws IOException {
-        base.writeTo(new OutputStreamWriter(out, Charsets.ISO_8859_1));
+        writeTo(new OutputStreamWriter(out, Charsets.ISO_8859_1));
     }
 
     public void writeTo(final Writer writer) throws IOException {
-        base.writeTo(writer);
+        for (final RpslAttribute attribute : getAttributes()) {
+            attribute.writeTo(writer);
+        }
+
+        writer.flush();
     }
 
     @Override
@@ -167,15 +247,34 @@ public class RpslObject implements ResponseObject, Identifiable {
 
     @Override
     public String toString() {
-        return base.toString();
+        try {
+            final StringWriter writer = new StringWriter();
+            for (final RpslAttribute attribute : getAttributes()) {
+                attribute.writeTo(writer);
+            }
+
+            return writer.toString();
+        } catch (IOException e) {
+            throw new IllegalStateException("Should never occur", e);
+        }
     }
 
     public CIString getValueForAttribute(final AttributeType attributeType) {
-        return base.getValueForAttribute(attributeType);
+        return findAttribute(attributeType).getCleanValue();
     }
 
     public Set<CIString> getValuesForAttribute(final AttributeType attributeType) {
-        return base.getValuesForAttribute(attributeType);
+        final List<RpslAttribute> attributeList = findAttributes(attributeType);
+        if (attributeList.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        final Set<CIString> values = Sets.newLinkedHashSet();
+        for (final RpslAttribute attribute : attributeList) {
+            values.addAll(attribute.getCleanValues());
+        }
+
+        return values;
     }
 
     public void forAttributes(final AttributeType attributeType, final AttributeCallback attributeCallback) {
@@ -206,4 +305,5 @@ public class RpslObject implements ResponseObject, Identifiable {
 
         return builder.toString();
     }
+
 }

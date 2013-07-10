@@ -203,8 +203,10 @@ public class SearchQueryExecutorTest {
         assertThat(responseHandler.getResponseObjects(), contains((ResponseObject) new MessageObject(QueryMessages.noResults("RIPE").toString())));
     }
 
+    @Test
     public void query_additional_sources() {
-        when(sourceContext.getAdditionalSourceNames()).thenReturn(ciSet("RIPE", "APNIC-GRS", "ARIN-GRS"));
+        when(sourceContext.getAdditionalSourceNames()).thenReturn(ciSet("APNIC-GRS", "ARIN-GRS"));
+        when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
 
         final Query query = Query.parse("10.0.0.0");
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();

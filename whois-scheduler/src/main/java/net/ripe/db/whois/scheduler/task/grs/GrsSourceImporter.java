@@ -117,9 +117,9 @@ class GrsSourceImporter {
                     public void handle(final List<String> lines) {
                         final String rpslObjectString = LINE_JOINER.join(lines);
 
-                        final RpslObjectBase rpslObject;
+                        final RpslObject rpslObject;
                         try {
-                            rpslObject = RpslObjectBase.parse(rpslObjectString);
+                            rpslObject = RpslObject.parse(rpslObjectString);
                         } catch (RuntimeException e) {
                             logger.warn("Unable to parse input as object:\n\n{}\n", rpslObjectString);
                             return;
@@ -129,26 +129,26 @@ class GrsSourceImporter {
                     }
 
                     @Override
-                    public void handle(final RpslObjectBase rpslObjectBase) {
-                        if (rpslObjectBase.getType() == null) {
-                            logger.debug("Unknown type: \n\n{}\n", rpslObjectBase);
+                    public void handle(final RpslObject rpslObject) {
+                        if (rpslObject.getType() == null) {
+                            logger.debug("Unknown type: \n\n{}\n", rpslObject);
                             nrIgnored++;
                         } else {
                             final ObjectMessages messages = new ObjectMessages();
-                            final RpslObject filteredObject = new RpslObject(filterObject(rpslObjectBase));
-                            final RpslObject rpslObject = sanitizer.sanitize(filteredObject, messages);
-                            final RpslAttribute typeAttribute = rpslObject.getTypeAttribute();
-                            typeAttribute.validateSyntax(rpslObject.getType(), messages);
+                            final RpslObject filteredObject = filterObject(rpslObject);
+                            final RpslObject cleanObject = sanitizer.sanitize(filteredObject, messages);
+                            final RpslAttribute typeAttribute = cleanObject.getTypeAttribute();
+                            typeAttribute.validateSyntax(cleanObject.getType(), messages);
                             if (messages.hasErrors()) {
                                 logger.debug("Errors for object with key {}: {}", typeAttribute, messages);
                                 nrIgnored++;
-                            } else if (authoritativeData.isMaintainedInRirSpace(rpslObject)) {
-                                createOrUpdate(rpslObject);
+                            } else if (authoritativeData.isMaintainedInRirSpace(cleanObject)) {
+                                createOrUpdate(cleanObject);
                             }
                         }
                     }
 
-                    private RpslObjectBase filterObject(final RpslObjectBase rpslObject) {
+                    private RpslObject filterObject(final RpslObject rpslObject) {
                         final RpslAttribute sourceAttribute = new RpslAttribute(AttributeType.SOURCE, grsSource.getName().toUpperCase());
 
                         final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
@@ -177,7 +177,7 @@ class GrsSourceImporter {
                             newAttributes.add(sourceAttribute);
                         }
 
-                        return new RpslObjectBase(newAttributes);
+                        return new RpslObject(newAttributes);
                     }
 
                     @Transactional

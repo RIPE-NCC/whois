@@ -14,7 +14,7 @@ import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObjectBase;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
@@ -81,7 +81,7 @@ class LacnicGrsSource extends GrsSource {
                 @Override
                 public void handleLines(final List<String> lines) {
                     final String rpslObjectString = Joiner.on("").join(lines);
-                    final RpslObjectBase rpslObjectBase = RpslObjectBase.parse(rpslObjectString);
+                    final RpslObject rpslObjectBase = RpslObject.parse(rpslObjectString);
 
                     final List<RpslAttribute> newAttributes = Lists.newArrayList();
                     for (RpslAttribute attribute : rpslObjectBase.getAttributes()) {
@@ -95,7 +95,7 @@ class LacnicGrsSource extends GrsSource {
                         }
                     }
 
-                    handler.handle(new RpslObjectBase(newAttributes));
+                    handler.handle(new RpslObject(newAttributes));
                 }
             });
         } finally {
