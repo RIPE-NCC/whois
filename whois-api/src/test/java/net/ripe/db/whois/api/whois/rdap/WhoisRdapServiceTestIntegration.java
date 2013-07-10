@@ -88,6 +88,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             "address:       1 Fake St. Fauxville\n" +
             "phone:         +01-000-000-000\n" +
             "fax-no:        +01-000-000-000\n" +
+            "admin-c:       PP1-TEST\n" +
             "e-mail:        org@test.com\n" +
             "mnt-by:        OWNER-MNT\n" +
             "changed:       test@test.net.au 20121121\n" +
@@ -99,6 +100,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.addObject(TEST_DOMAIN);
+        databaseHelper.addObject(PAULETH_PALTHEN);
         ipTreeUpdater.rebuild();
     }
 

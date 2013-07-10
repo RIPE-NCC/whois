@@ -2,7 +2,10 @@ package net.ripe.db.whois.api.whois.rdap;
 
 import net.ripe.db.whois.api.whois.rdap.domain.Link;
 import net.ripe.db.whois.api.whois.rdap.domain.Notice;
-import org.apache.commons.lang.SerializationUtils;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -32,8 +35,22 @@ public class NoticeFactory {
     @Value("${rdap.tnc.linktype}")
     private String rdap_tnc_linktype;
 
+    @Value("${rdap.filter.isfiltered}")
+    private String rdap_filter_is_filtered;
+
+    @Value("${rdap.filter.description}")
+    private String rdap_filter_description;
+
+    @Value("${rdap.filter.title}")
+    private String rdap_filter_title;
+
+    @Value("${rdap.source.description}")
+    private String rdap_source_description;
+
+    @Value("${rdap.source.title}")
+    private String rdap_source_title;
+
     private static NoticeFactory noticeFactory;
-    private static Notice noticeTemplate;
 
     public NoticeFactory () {
     }
@@ -43,31 +60,42 @@ public class NoticeFactory {
         if (noticeFactory == null) {
             noticeFactory = this;
         }
-
-        // setup the tnc once
-        noticeTemplate = new Notice();
-        noticeTemplate.setTitle(noticeFactory.rdap_tnc_title);
-        noticeTemplate.getDescription().add(noticeFactory.rdap_tnc_description);
-
-        Link link = new Link();
-        link.setRel(noticeFactory.rdap_tnc_linkrel);
-        link.setHref(noticeFactory.rdap_tnc_linkhref);
-        link.setType(noticeFactory.rdap_tnc_linktype);
-        noticeTemplate.setLinks(link);
     }
 
-    /*public static NoticeFactory (RpslObject rpslObject) {
-        // add the tnc
-    }*/
-
-    public static List<Notice> generateNotices (String selfLink) {
+    public static List<Notice> generateNotices (String selfLink, RpslObject rpslObject) {
         List<Notice> notices = new ArrayList<Notice>();
-        if (noticeTemplate != null) {
-            Notice notice = (Notice)SerializationUtils.clone(noticeTemplate);
-            notice.getLinks().setValue(selfLink);
-            notices.add(notice);
 
-            // add more here
+        if (noticeFactory != null) {
+            // setup the tnc once
+            Notice tnc = new Notice();
+            tnc.setTitle(noticeFactory.rdap_tnc_title);
+            tnc.getDescription().add(noticeFactory.rdap_tnc_description);
+
+            Link link = new Link();
+            link.setRel(noticeFactory.rdap_tnc_linkrel);
+            link.setHref(noticeFactory.rdap_tnc_linkhref);
+            link.setType(noticeFactory.rdap_tnc_linktype);
+            link.setValue(selfLink);
+            tnc.setLinks(link);
+
+            notices.add(tnc);
+
+            if (noticeFactory.rdap_filter_is_filtered.equals("true")) {
+                Notice filtered = new Notice();
+                filtered.setTitle(noticeFactory.rdap_filter_title);
+                filtered.getDescription().add(noticeFactory.rdap_filter_description);
+
+                notices.add(filtered);
+            }
+
+            List<RpslAttribute> rpslAttributeList = rpslObject.findAttributes(AttributeType.SOURCE);
+            CIString sourceName = rpslAttributeList.get(0).getCleanValue();
+            Notice source = new Notice();
+            source.setTitle(noticeFactory.rdap_source_title);
+            source.getDescription().add(noticeFactory.rdap_source_description);
+            source.getDescription().add(sourceName.toString());
+
+            notices.add(source);
         }
         return notices;
     }

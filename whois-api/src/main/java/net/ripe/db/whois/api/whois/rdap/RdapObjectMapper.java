@@ -108,8 +108,7 @@ class RdapObjectMapper {
         if (rdapResponse != null) {
             noticeValue = noticeValue + rpslObject.getKey();
             rdapResponse.getRdapConformance().addAll(RDAPCONFORMANCE);
-            //rdapResponse.getNotices().add(createTnC(noticeValue));
-            rdapResponse.getNotices().addAll(NoticeFactory.generateNotices(noticeValue));
+            rdapResponse.getNotices().addAll(NoticeFactory.generateNotices(noticeValue,rpslObject));
         }
     }
 
@@ -375,10 +374,16 @@ class RdapObjectMapper {
             for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PERSON)) {
                 builder.setFn(attribute.getCleanValue().toString());
             }
+
+            builder.setKind("individual");
         } else if (rpslObjectType == ObjectType.ORGANISATION) {
             for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ORG_NAME)) {
                 builder.setFn(attribute.getCleanValue().toString());
             }
+
+            builder.setKind("org");
+        } else if (rpslObjectType == ObjectType.ROLE || rpslObjectType == ObjectType.IRT) {
+            builder.setKind("group");
         }
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ADDRESS)) {
