@@ -29,6 +29,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -304,21 +305,46 @@ class RdapObjectMapper {
         domain.setHandle(rpslObject.getKey().toString());
         domain.setLdhName(rpslObject.getKey().toString());
 
-	// TODO: [RL] Support multiple glue records for the one hostname
+        final HashMap<CIString,Set<IpInterval>> hostnameMap = new HashMap<>();
+
         for (final RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.NSERVER)) {
             final NServer nserver = NServer.parse(rpslAttribute.getCleanValue().toString());
-            final Nameserver nameserver = new Nameserver();
-            nameserver.setLdhName(String.valueOf(nserver.getHostname()));
+
+            final CIString hostname = nserver.getHostname();
+
+            final Set<IpInterval> ipIntervalSet;
+            if (hostnameMap.containsKey(hostname)) {
+                ipIntervalSet = hostnameMap.get(hostname);
+            }
+            else {
+                ipIntervalSet = Sets.newHashSet();
+                hostnameMap.put(hostname, ipIntervalSet);
+            }
+
             final IpInterval ipInterval = nserver.getIpInterval();
             if (ipInterval != null) {
+                ipIntervalSet.add(ipInterval);
+            }
+        }
+
+        for (final CIString hostname : hostnameMap.keySet()) {
+            final Nameserver nameserver = new Nameserver();
+            nameserver.setLdhName(hostname.toString());
+
+            final Set<IpInterval> ipIntervals = hostnameMap.get(hostname);
+            if (!ipIntervals.isEmpty()) {
+
                 final Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
-                if (ipInterval instanceof Ipv4Resource) {
-                    ipAddresses.getIpv4().add(IpInterval.asIpInterval(ipInterval.beginAsInetAddress()).toString());
-                } else if (ipInterval instanceof Ipv6Resource) {
-                    ipAddresses.getIpv6().add(IpInterval.asIpInterval(ipInterval.beginAsInetAddress()).toString());
+                for (IpInterval ipInterval : ipIntervals) {
+                    if (ipInterval instanceof Ipv4Resource) {
+                        ipAddresses.getIpv4().add(IpInterval.asIpInterval(ipInterval.beginAsInetAddress()).toString());
+                    } else if (ipInterval instanceof Ipv6Resource) {
+                        ipAddresses.getIpv6().add(IpInterval.asIpInterval(ipInterval.beginAsInetAddress()).toString());
+                    }
                 }
                 nameserver.setIpAddresses(ipAddresses);
             }
+
             domain.getNameServers().add(nameserver);
         }
 
@@ -331,8 +357,8 @@ class RdapObjectMapper {
 
             final Domain.SecureDNS.DsData dsData = new Domain.SecureDNS.DsData();
             dsData.setKeyTag(dsRdata.getKeyTag());
-            dsData.setAlgorithm(dsRdata.getAlgorithm());
-            dsData.setDigestType(dsRdata.getDigestTypeAsInteger());
+            dsData.setAlgorithm(dsRdata.getAlgorithmNumber());
+            dsData.setDigestType(dsRdata.getDigestType());
             dsData.setDigest(dsRdata.getDigest().toString());
 
             secureDNS.getDsData().add(dsData);
