@@ -7,9 +7,7 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.whois.rdap.domain.Domain;
-import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
@@ -19,10 +17,11 @@ import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
@@ -90,12 +89,24 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             "changed:       test@test.net.au 20121121\n" +
             "source:        TEST\n");
 
+    private static final RpslObject AUTNUM_123 = RpslObject.parse("" +
+            "aut-num:   AS123\n" +
+            "as-name:   AS-TEST\n" +
+            "descr:     A single ASN\n" +
+            "admin-c:   TP1-TEST\n" +
+            "tech-c:    TP1-TEST\n" +
+            "country:   AU\n" +
+            "changed:   test@test.net.au 20010816\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "source:    TEST\n");
+
     @Before
     public void setup() throws Exception {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.addObject(TEST_DOMAIN);
+        databaseHelper.addObject(AUTNUM_123);
         ipTreeUpdater.rebuild();
     }
 
@@ -262,6 +273,83 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(response.getHandle(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(response.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
+    }
+
+    // autnum
+
+    @Test
+    public void autnum_not_found() throws Exception {
+        try {
+            createResource(AUDIENCE, "autnum/1")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Autnum.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
+    }
+
+    @Test
+    public void lookup_single_autnum() throws Exception {
+        final Autnum autnum = createResource(AUDIENCE, "autnum/123")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(autnum.getHandle(), equalTo("AS123"));
+        assertThat(autnum.getStartAutnum(), equalTo(123L));
+        assertThat(autnum.getEndAutnum(), equalTo(123L));
+        assertThat(autnum.getName(), equalTo("AS-TEST"));
+        assertThat(autnum.getCountry(), equalTo("AU"));
+        assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
+
+        final List<Event> events = autnum.getEvents();
+        assertThat(events, hasSize(1));
+
+        final Event event = events.get(0);
+        assertThat(event.getEventDate(), is(not(nullValue())));
+
+//        final List<Entity> entities = autnum.getEntities();                           // TODO: implement
+//        assertThat(entities, hasSize(2));
+//        Collections.sort(entities, new Comparator<Entity>() {
+//            public int compare(final Entity e1, final Entity e2) {
+//                return e1.getHandle().compareTo(e2.getHandle());
+//            }
+//        });
+//
+//        final Entity entityTp1 = entities.get(0);
+//        assertThat(entityTp1.getHandle(), equalTo("TP1-TEST"));
+//
+//        final List<String> adminRoles = entityTp1.getRoles();
+//        assertThat(adminRoles, hasSize(1));
+//        assertThat(adminRoles.get(0), equalTo("administrative"));
+//
+//        final Entity entityTp2 = entities.get(1);
+//        assertThat(entityTp2.getHandle(), equalTo("TP2-TEST"));
+//
+//        final List<String> techRoles = entityTp2.getRoles();
+//        assertThat(techRoles, hasSize(1));
+//        assertThat(techRoles.get(0), equalTo("technical"));
+
+        final List<Link> links = autnum.getLinks();
+        assertThat(links, hasSize(2));
+        final Link selfLink = links.get(0);
+        assertThat(selfLink.getRel(), equalTo("self"));
+
+        final String ru = createResource(AUDIENCE, "autnum/123").toString();
+        assertThat(selfLink.getValue(), equalTo(ru));
+        assertThat(selfLink.getHref(), equalTo(ru));
+    }
+
+    @Test
+    public void lookup_autnum_within_block() throws Exception {
+        try {
+            createResource(AUDIENCE, "autnum/1500")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Autnum.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
     }
 
     @Override
