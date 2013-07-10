@@ -11,7 +11,6 @@ import net.ripe.db.whois.api.whois.rdap.domain.Event;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.api.whois.rdap.domain.Link;
 import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
-import net.ripe.db.whois.api.whois.rdap.domain.Notice;
 import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.whois.rdap.domain.Remark;
 import net.ripe.db.whois.common.domain.CIString;
@@ -109,7 +108,8 @@ class RdapObjectMapper {
         if (rdapResponse != null) {
             noticeValue = noticeValue + rpslObject.getKey();
             rdapResponse.getRdapConformance().addAll(RDAPCONFORMANCE);
-            rdapResponse.getNotices().add(createTnC(noticeValue));
+            //rdapResponse.getNotices().add(createTnC(noticeValue));
+            rdapResponse.getNotices().addAll(NoticeFactory.generateNotices(noticeValue));
         }
     }
 
@@ -206,23 +206,6 @@ class RdapObjectMapper {
         }
 
         return entity;
-    }
-
-    private Notice createTnC(String noticeValue) {
-        // TODO: make this use the appropriate variant and perhaps be more dynamic, just returns TNC now.
-        Notice notice = new Notice();
-        notice.setTitle("Terms and Conditions");
-        notice.getDescription().add("This is the RIPE Database query service.");
-        notice.getDescription().add("The objects are in RDAP format.");
-
-        Link link = new Link();
-        link.setValue(noticeValue);
-        link.setRel("terms-of-service");
-        link.setHref("http://www.ripe.net/db/support/db-terms-conditions.pdf");
-        link.setType("application/pdf");
-        notice.setLinks(link);
-
-        return notice;
     }
 
     private void setEntities(final RdapObject rdapObject, final RpslObject rpslObject, final Queue<RpslObject> rpslObjectQueue, final Set<AttributeType> attributeTypes) {
