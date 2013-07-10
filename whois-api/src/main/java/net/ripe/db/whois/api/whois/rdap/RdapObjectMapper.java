@@ -108,8 +108,7 @@ class RdapObjectMapper {
         if (rdapResponse != null) {
             noticeValue = noticeValue + rpslObject.getKey();
             rdapResponse.getRdapConformance().addAll(RDAPCONFORMANCE);
-            //rdapResponse.getNotices().add(createTnC(noticeValue));
-            rdapResponse.getNotices().addAll(NoticeFactory.generateNotices(noticeValue));
+            rdapResponse.getNotices().addAll(NoticeFactory.generateNotices(noticeValue,rpslObject));
         }
     }
 

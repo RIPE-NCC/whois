@@ -6,16 +6,13 @@ import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Test;
 
 import java.util.Arrays;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class RdapObjectMapperTest {
@@ -113,7 +110,6 @@ public class RdapObjectMapperTest {
         assertThat(result.getHandle(), is("31.12.202.in-addr.arpa"));
 
     }
-
 
     private Object build(final RpslObject... rpslObjects) {
         final RdapObjectMapper subject = new RdapObjectMapper("http://localhost/", "http://localhost/", Queues.newArrayDeque(Arrays.asList(rpslObjects)));
