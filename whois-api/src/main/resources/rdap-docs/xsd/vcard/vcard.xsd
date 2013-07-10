@@ -12,7 +12,7 @@
                     <xs:complexType>
                         <xs:annotation>
                             <xs:appinfo>
-                                <jaxb:class ref="net.ripe.db.whois.api.whois.rdap.VcardObject"/>
+                                <jaxb:class ref="net.ripe.db.whois.api.whois.rdap.VCardProperty"/>
                             </xs:appinfo>
                         </xs:annotation>
                     </xs:complexType>

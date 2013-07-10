@@ -48,15 +48,15 @@ public class VcardObjectHelper {
                         } else if (o instanceof List) {
                             // Convert any VcardObject list to object arrays
                             List listConversion = new ArrayList();
-                            for (Object entry : ((List) o)) {
-                                if (entry instanceof VcardObject) {
+                            for (Object entry : ((List)o)) {
+                                if (entry instanceof VCardProperty) {
                                     listConversion.add(toObjects(entry));
                                 } else {
                                     listConversion.add(entry);
                                 }
                             }
                             o = listConversion;
-                        } else if (o instanceof VcardObject) {
+                        } else if (o instanceof VCardProperty) {
                             // Convert any VcardObject to object array
                             o = toObjects(o);
                         }

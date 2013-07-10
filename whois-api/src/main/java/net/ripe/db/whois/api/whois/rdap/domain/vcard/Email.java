@@ -1,8 +1,12 @@
 package net.ripe.db.whois.api.whois.rdap.domain.vcard;
 
-import net.ripe.db.whois.api.whois.rdap.VcardObject;
+import net.ripe.db.whois.api.whois.rdap.VCardProperty;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -13,18 +17,31 @@ import java.util.Map;
         "type",
         "value"
 })
-@XmlRootElement(name = "email")
-public class Email extends VcardObject implements Serializable {
-
-    @XmlElement(defaultValue = "email")
+@XmlRootElement
+public class Email extends VCardProperty implements Serializable {
+    @XmlElement
     protected String name;
+    @XmlElement
     protected Map parameters;
-    @XmlElement(defaultValue = "text")
+    @XmlElement
     protected String type;
+    @XmlElement
     protected String value;
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(final String value) {
+        this.value = value;
+    }
 
     public void setName(final String value) {
         this.name = value;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public Map getParameters() {
@@ -39,25 +56,7 @@ public class Email extends VcardObject implements Serializable {
         this.type = value;
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(final String value) {
-        this.value = value;
-    }
-
-    public String getName() {
-        if (null == name) {
-            return "email";
-        }
-        return name;
-    }
-
     public String getType() {
-        if (null == type) {
-            return "text";
-        }
         return type;
     }
 }

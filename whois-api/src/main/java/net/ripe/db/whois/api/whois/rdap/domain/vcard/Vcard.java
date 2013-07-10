@@ -1,43 +1,41 @@
 package net.ripe.db.whois.api.whois.rdap.domain.vcard;
 
+import net.ripe.db.whois.api.whois.rdap.VCardProperty;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "name",
-    "vcardEntries"
+    "properties"
 })
 @XmlRootElement(name = "vcard")
-public class Vcard
-    extends net.ripe.db.whois.api.whois.rdap.VcardObject
-    implements Serializable
+public class VCard implements Serializable
 {
     @XmlElement(defaultValue = "vcard")
     protected String name;
-    protected List<net.ripe.db.whois.api.whois.rdap.VcardObject> vcardEntries;
+    protected List<VCardProperty> properties;
 
-    public void setName(String value) {
-        this.name = value;
+    public VCard(final String name, final List<VCardProperty> properties) {
+        this.name = name;
+        this.properties = properties;
     }
 
-    public List<net.ripe.db.whois.api.whois.rdap.VcardObject> getVcardEntries() {
-        if (vcardEntries == null) {
-            vcardEntries = new ArrayList<>();
-        }
-        return this.vcardEntries;
+    public VCard() {
+        // required no-arg constructor
+    }
+
+    public List<VCardProperty> getProperties() {
+        return properties;
     }
 
     public String getName() {
-        if (null == name) {
-            return "vcard";
-        }
         return name;
     }
 }

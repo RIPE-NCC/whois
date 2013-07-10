@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap.domain.vcard;
 
-import net.ripe.db.whois.api.whois.rdap.VcardObject;
+import net.ripe.db.whois.api.whois.rdap.VCardProperty;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -21,7 +21,7 @@ import java.util.List;
 })
 @XmlRootElement(name = "categories")
 public class Categories
-    extends VcardObject
+    extends VCardProperty
     implements Serializable
 {
 
