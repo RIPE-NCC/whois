@@ -1,123 +1,130 @@
 package net.ripe.db.whois.api.whois.rdap;
 
-import com.sun.jersey.api.json.JSONJAXBContext;
-import com.sun.jersey.api.json.JSONMarshaller;
-import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Event;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
+import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.whois.rdap.domain.Notice;
+import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.map.AnnotationIntrospector;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.introspect.JacksonAnnotationIntrospector;
+import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
+import org.codehaus.plexus.util.StringOutputStream;
 import org.joda.time.LocalDateTime;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import java.io.StringWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import static com.google.common.collect.Maps.immutableEntry;
-import static net.ripe.db.whois.api.whois.rdap.VcardObjectHelper.createMap;
+import static net.ripe.db.whois.api.whois.rdap.VcardObjectHelper.createHashMap;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class RdapResponseJsonTest {
-    private static LocalDateTime LOCAL_DATE_TIME = LocalDateTime.parse("2013-06-26T04:48:44");
-    private JSONMarshaller marshaller = createJaxbMarshaller();
 
-    @Ignore     // TODO: subList error
+    private static final String DATE_TIME = "2013-06-26T04:48:44Z";
+    private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.parse("2013-06-26T04:48:44");
+
     @Test
     public void entity_vcard_serialization_test() throws Exception {
-        final VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
+        VCardBuilder builder = new VCardBuilder();
 
-        builder.setVersion()
-                .setFn("Joe User")
-                .setN(builder.createNEntryValueType("User", "Joe", "", "", builder.createNEntryValueHonorifics("ing. jr", "M.Sc.")))
-                .setBday("--02-03")
-//                .setAnniversary()
-                .setGender("M")
-                .setKind("individual")
-                .addLang(createMap(immutableEntry("pref", "1")), "fr")
-                .addLang(createMap(immutableEntry("pref", "2")), "en")
-                .setOrg("Example")
-                .setTitle("Research Scientist")
-                .setRole("Project Lead")
-                .addAdr(createMap(immutableEntry("type", "work")), builder.createAdrEntryValueType("",
+        builder.addVersion()
+                .addFn("Joe User")
+                .addN(builder.createNEntryValueType("User", "Joe", "", "", builder.createNEntryValueHonorifics("ing. jr", "M.Sc.")))
+                .addBday("--02-03")
+                .addAnniversary("20130101")
+                .addGender("M")
+                .addKind("individual")
+                .addLang(createHashMap(immutableEntry("pref", "1")), "fr")
+                .addLang(createHashMap(immutableEntry("pref", "2")), "en")
+                .addOrg("Example")
+                .addTitle("Research Scientist")
+                .addRole("Project Lead")
+                .addAdr(createHashMap(immutableEntry("type", "work")), builder.createAdrEntryValueType("",
                         "Suite 1234",
                         "4321 Rue Somewhere",
                         "Quebec",
                         "QC",
                         "G1V 2M2",
                         "Canada"))
-                .addAdr(createMap(immutableEntry("pref", "1")), null)
-                .addTel(createMap(immutableEntry("type", new String[]{"work", "voice"})), "tel:+1-555-555-1234;ext=102")
-                .addTel(createMap(immutableEntry("type", new String[]{"work", "cell", "voice", "video", "text"})), "tel:+1-555-555-4321")
-                .setEmail(createMap(immutableEntry("type", "work")), "joe.user@example.com")
-                .setGeo(createMap(immutableEntry("type", "work")), "geo:46.772673,-71.282945")
-                .setKey(createMap(immutableEntry("type", "work")), "http://www.example.com/joe.user/joe.asc")
-                .setTz("-05:00")
-                .setUrl(createMap(immutableEntry("type", "work")), "http://example.org");
+                .addAdr(createHashMap(immutableEntry("pref", "1")), null)
+                .addTel(createHashMap(immutableEntry("type", new String[]{"work", "voice"})), "tel:+1-555-555-1234;ext=102")                      // TODO
+                .addTel(createHashMap(immutableEntry("type", new String[]{"work", "cell", "voice", "video", "text"})), "tel:+1-555-555-4321")     // TODO
+                .addEmail(createHashMap(immutableEntry("type", "work")), "joe.user@example.com")
+                .addGeo(createHashMap(immutableEntry("type", "work")), "geo:46.772673,-71.282945")
+                .addKey(createHashMap(immutableEntry("type", "work")), "http://www.example.com/joe.user/joe.asc")
+                .addTz("-05:00")
+                .addUrl(createHashMap(immutableEntry("type", "work")), "http://example.org");
 
-        final List<Object> objects = builder.build();
-
-        assertThat(marshal(objects), is(""));
-
-//        assertEquals("" +
-//                "[ \"vcard\", [ [ \"version\", {\n" +
-//                "}, \"text\", \"4.0\" ], [ \"fn\", {\n" +
-//                "}, \"text\", \"Joe User\" ], [ \"n\", {\n" +
-//                "}, \"text\", [ \"User\", \"Joe\", \"\", \"\", [ \"ing. jr\", \"M.Sc.\" ] ] ], [ \"bday\", {\n" +
-//                "}, \"date-and-or-time\", \"--02-03\" ], [ \"anniversary\", {\n" +
-//                "}, \"date-and-or-time\", \"2013-06-26T12:48:44+1000\" ], [ \"gender\", {\n" +
-//                "}, \"text\", \"M\" ], [ \"kind\", {\n" +
-//                "}, \"text\", \"individual\" ], [ \"lang\", {\n" +
-//                "  \"pref\" : \"1\"\n" +
-//                "}, \"language-tag\", \"fr\" ], [ \"lang\", {\n" +
-//                "  \"pref\" : \"2\"\n" +
-//                "}, \"language-tag\", \"en\" ], [ \"org\", {\n" +
-//                "}, \"text\", \"Example\" ], [ \"title\", {\n" +
-//                "}, \"text\", \"Research Scientist\" ], [ \"role\", {\n" +
-//                "}, \"text\", \"Project Lead\" ], [ \"adr\", {\n" +
-//                "  \"type\" : \"work\"\n" +
-//                "}, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ], [ \"adr\", {\n" +
-//                "  \"pref\" : \"1\"\n" +
-//                "}, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
-//                "  \"type\" : [ \"work\", \"voice\" ]\n" +
-//                "}, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"tel\", {\n" +
-//                "  \"type\" : [ \"work\", \"cell\", \"voice\", \"video\", \"text\" ]\n" +
-//                "}, \"uri\", \"tel:+1-555-555-4321\" ], [ \"email\", {\n" +
-//                "  \"type\" : \"work\"\n" +
-//                "}, \"text\", \"joe.user@example.com\" ], [ \"geo\", {\n" +
-//                "  \"type\" : \"work\"\n" +
-//                "}, \"uri\", \"geo:46.772673,-71.282945\" ], [ \"key\", {\n" +
-//                "  \"type\" : \"work\"\n" +
-//                "}, \"text\", \"http://www.example.com/joe.user/joe.asc\" ], [ \"tz\", {\n" +
-//                "}, \"utc-offset\", \"-05:00\" ], [ \"key\", {\n" +
-//                "  \"type\" : \"work\"\n" +
-//                "}, \"text\", \"http://example.org\" ] ] ]", result);
+        assertThat(marshal(builder.build()), equalTo("" +
+                "[ \"vcard\", [ [ \"version\", {\n" +
+                "}, \"text\", \"4.0\" ], [ \"fn\", {\n" +
+                "}, \"text\", \"Joe User\" ], [ \"n\", {\n" +
+                "}, \"text\", [ \"User\", \"Joe\", \"\", \"\", [ \"ing. jr\", \"M.Sc.\" ] ] ], [ \"bday\", {\n" +
+                "}, \"date-and-or-time\", \"--02-03\" ], [ \"anniversary\", {\n" +
+                "}, \"date-and-or-time\", \"20130101\" ], [ \"gender\", {\n" +
+                "}, \"text\", \"M\" ], [ \"kind\", {\n" +
+                "}, \"text\", \"individual\" ], [ \"lang\", {\n" +
+                "  \"pref\" : \"1\"\n" +
+                "}, \"language-tag\", \"fr\" ], [ \"lang\", {\n" +
+                "  \"pref\" : \"2\"\n" +
+                "}, \"language-tag\", \"en\" ], [ \"org\", {\n" +
+                "}, \"text\", \"Example\" ], [ \"title\", {\n" +
+                "}, \"text\", \"Research Scientist\" ], [ \"role\", {\n" +
+                "}, \"text\", \"Project Lead\" ], [ \"adr\", {\n" +
+                "  \"type\" : \"work\"\n" +
+                "}, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ], [ \"adr\", {\n" +
+                "  \"pref\" : \"1\"\n" +
+                "}, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
+                "  \"type\" : [ \"work\", \"voice\" ]\n" +
+                "}, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"tel\", {\n" +
+                "  \"type\" : [ \"work\", \"cell\", \"voice\", \"video\", \"text\" ]\n" +
+                "}, \"uri\", \"tel:+1-555-555-4321\" ], [ \"email\", {\n" +
+                "  \"type\" : \"work\"\n" +
+                "}, \"text\", \"joe.user@example.com\" ], [ \"geo\", {\n" +
+                "  \"type\" : \"work\"\n" +
+                "}, \"uri\", \"geo:46.772673,-71.282945\" ], [ \"key\", {\n" +
+                "  \"type\" : \"work\"\n" +
+                "}, \"text\", \"http://www.example.com/joe.user/joe.asc\" ], [ \"tz\", {\n" +
+                "}, \"utc-offset\", \"-05:00\" ], [ \"key\", {\n" +
+                "  \"type\" : \"work\"\n" +
+                "}, \"text\", \"http://example.org\" ] ] ]"));
     }
 
     @Test
     public void nameserver_serialization_test() throws Exception {
-        final Nameserver nameserver = new Nameserver();
+        Nameserver nameserver = new Nameserver();
         nameserver.setHandle("handle");
         nameserver.setLdhName("ns1.xn--fo-5ja.example");
         nameserver.setUnicodeName("foo.example");
         nameserver.getStatus().add("active");
-
-        final Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
+        Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
         ipAddresses.getIpv4().add("192.0.2.1");
         ipAddresses.getIpv4().add("192.0.2.2");
         ipAddresses.getIpv6().add("2001:db8::123");
         nameserver.setIpAddresses(ipAddresses);
 
-        final List<String> remarkList = new ArrayList<>();
-        final Remark remarks1 = new Remark();
+        List<String> remarkList = new ArrayList<>();
+        Remark remarks1 = new Remark();
         remarkList.add("She sells sea shells down by the sea shore.");
         remarkList.add("Originally written by Terry Sullivan.");
+
         remarks1.getDescription().addAll(remarkList);
         nameserver.getRemarks().add(remarks1);
 
-        final Link link = new Link();
+        Link link = new Link();
         link.setHref("http://example.net/nameserver/xxxx");
         link.setValue("http://example.net/nameserver/xxxx");
         link.setRel("self");
@@ -128,7 +135,6 @@ public class RdapResponseJsonTest {
         final Event registrationEvent = new Event();
         registrationEvent.setEventAction("registration");
         registrationEvent.setEventDate(LOCAL_DATE_TIME);
-
         nameserver.getEvents().add(registrationEvent);
 
         final Event lastChangedEvent = new Event();
@@ -138,39 +144,38 @@ public class RdapResponseJsonTest {
         nameserver.getEvents().add(lastChangedEvent);
 
         assertThat(marshal(nameserver), equalTo("" +
-                "{" +
-                "\"status\":{" +                                                                                // TODO: status: ["active"]
-                "\"@type\":\"xs:string\"," +
-                "\"$\":\"active\"}," +
-                "\"remarks\":{" +
-                "\"description\":[\"She sells sea shells down by the sea shore.\",\"Originally written by Terry Sullivan.\"]}," +
-                "\"links\":{" +                                                                                 // TODO: array w/one element
-                "\"value\":\"http://example.net/nameserver/xxxx\"," +
-                "\"rel\":\"self\"," +
-                "\"href\":\"http://example.net/nameserver/xxxx\"" +
-                "}," +
-                "\"events\":[{" +
-                "\"eventAction\":\"registration\"," +
-                "\"eventDate\":\"2013-06-26T04:48:44Z\"" +                                             // TODO: date format 2013-06-26T02:48:44Z
-                "},{" +
-                "\"eventAction\":\"last changed\"," +
-                "\"eventDate\":\"2013-06-26T04:48:44Z\"," +                                            // TODO: date format 2013-06-26T02:48:44Z
-                "\"eventActor\":\"joe@example.com\"" +
-                "}]," +
-                "\"handle\":\"handle\"," +
-                "\"ldhName\":\"ns1.xn--fo-5ja.example\"," +
-                "\"unicodeName\":\"foo.example\"," +
-                "\"ipAddresses\":{" +
-                "\"ipv4\":[\"192.0.2.1\",\"192.0.2.2\"]," +
-                "\"ipv6\":\"2001:db8::123\"" +
-                "}," +
-                "\"port43\":\"whois.example.net\"" +
+                "{\n" +
+                "  \"handle\" : \"handle\",\n" +
+                "  \"ldhName\" : \"ns1.xn--fo-5ja.example\",\n" +
+                "  \"unicodeName\" : \"foo.example\",\n" +
+                "  \"ipAddresses\" : {\n" +
+                "    \"ipv4\" : [ \"192.0.2.1\", \"192.0.2.2\" ],\n" +
+                "    \"ipv6\" : [ \"2001:db8::123\" ]\n" +
+                "  },\n" +
+                "  \"port43\" : \"whois.example.net\",\n" +
+                "  \"status\" : [ \"active\" ],\n" +
+                "  \"remarks\" : [ {\n" +
+                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "  } ],\n" +
+                "  \"links\" : [ {\n" +
+                "    \"value\" : \"http://example.net/nameserver/xxxx\",\n" +
+                "    \"rel\" : \"self\",\n" +
+                "    \"href\" : \"http://example.net/nameserver/xxxx\"\n" +
+                "  } ],\n" +
+                "  \"events\" : [ {\n" +
+                "    \"eventAction\" : \"registration\",\n" +
+                "    \"eventDate\" : \"" + DATE_TIME + "\"\n" +
+                "  }, {\n" +
+                "    \"eventAction\" : \"last changed\",\n" +
+                "    \"eventDate\" : \""+ DATE_TIME + "\",\n" +
+                "    \"eventActor\" : \"joe@example.com\"\n" +
+                "  } ]\n" +
                 "}"));
     }
 
     @Test
     public void ip_serialization_test() throws Exception {
-        final Ip ip = new Ip();
+        Ip ip = new Ip();
         ip.setHandle("XXXX-RIR");
         ip.setParentHandle("YYYY-RIR");
         ip.setStartAddress("2001:db8::0");
@@ -181,20 +186,20 @@ public class RdapResponseJsonTest {
         ip.setCountry("AU");
         ip.getStatus().add("allocated");
 
-        final List<String> remarkList = new ArrayList<>();
-        final Remark remark = new Remark();
+        List<String> remarkList = new ArrayList<>();
+        Remark remark = new Remark();
         remarkList.add("She sells sea shells down by the sea shore.");
         remarkList.add("Originally written by Terry Sullivan.");
         remark.getDescription().addAll(remarkList);
         ip.getRemarks().add(remark);
 
-        final Link link = new Link();
+        Link link = new Link();
         link.setHref("http://example.net/ip/2001:db8::/48");
         link.setValue("http://example.net/ip/2001:db8::/48");
         link.setRel("self");
         ip.getLinks().add(link);
 
-        final Link uplink = new Link();
+        Link uplink = new Link();
         uplink.setHref("http://example.net/ip/2001:C00::/23");
         uplink.setValue("http://example.net/ip/2001:db8::/48");
         uplink.setRel("up");
@@ -211,7 +216,7 @@ public class RdapResponseJsonTest {
         lastChangedEvent.setEventActor("joe@example.com");
         ip.getEvents().add(lastChangedEvent);
 
-        final Entity entity = new Entity();
+        Entity entity = new Entity();
         entity.setHandle("XXXX");
         entity.getRoles().add("registrant");
         entity.getRemarks().add(remark);
@@ -219,89 +224,26 @@ public class RdapResponseJsonTest {
         entity.getEvents().add(lastChangedEvent);
         ip.getEntities().add(entity);
 
-        final Link entityLink = new Link();
+        Link entityLink = new Link();
         entityLink.setHref("http://example.net/entity/xxxx");
         entityLink.setValue("http://example.net/entity/xxxx");
         entityLink.setRel("self");
         entity.getLinks().add(entityLink);
 
-//        final VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();                          // TODO: fix marshal exception
-//        builder.setVersion()
-//                .setFn("Joe User")
-//                .setKind("individual")
-//                .setOrg("Example")
-//                .setTitle("Research Scientist")
-//                .setRole("Project Lead")
-//                .addAdr(builder.createAdrEntryValueType("",
-//                        "Suite 1234",
-//                        "4321 Rue Somewhere",
-//                        "Quebec",
-//                        "QC",
-//                        "G1V 2M2",
-//                        "Canada"))
-//                .addTel("tel:+1-555-555-1234;ext=102")
-//                .setEmail("joe.user@example.com");
-//        entity.setVcardArray(builder.build());
-
         assertThat(marshal(ip), equalTo("" +
-                "{\"" +
-                "status\":{\"@type\":\"xs:string\",\"$\":\"allocated\"}," +                                     // TODO: fix type
-                "\"entities\":{" +
-                "\"remarks\":{" +
-                "\"description\":[\"She sells sea shells down by the sea shore.\",\"Originally written by Terry Sullivan.\"]}," +
-                "\"links\":{" +
-                "\"value\":\"http://example.net/entity/xxxx\"," +
-                "\"rel\":\"self\"," +
-                "\"href\":\"http://example.net/entity/xxxx\"}," +
-                "\"events\":[{" +
-                "\"eventAction\":\"registration\"," +
-                "\"eventDate\":\"2013-06-26T04:48:44Z\"" +
-                "},{" +
-                "\"eventAction\":\"last changed\"," +
-                "\"eventDate\":\"2013-06-26T04:48:44Z\"," +
-                "\"eventActor\":\"joe@example.com\"" +
-                "}]," +
-                "\"handle\":\"XXXX\"," +
-                "\"roles\":\"registrant\"" +
-                "}," +
-                "\"remarks\":{" +
-                "\"description\":[\"She sells sea shells down by the sea shore.\",\"Originally written by Terry Sullivan.\"]}," +
-                "\"links\":[{" +
-                "\"value\":\"http://example.net/ip/2001:db8::/48\"," +
-                "\"rel\":\"self\"," +
-                "\"href\":\"http://example.net/ip/2001:db8::/48\"}," +
-                "{\"value\":\"http://example.net/ip/2001:db8::/48\"," +
-                "\"rel\":\"up\"," +
-                "\"href\":\"http://example.net/ip/2001:C00::/23\"}]," +
-                "\"events\":[{" +
-                "\"eventAction\":\"registration\"," +
-                "\"eventDate\":\"2013-06-26T04:48:44Z\"}," +
-                "{\"eventAction\":\"last changed\"," +
-                "\"eventDate\":\"2013-06-26T04:48:44Z\"," +            // TODO: fix date format
-                "\"eventActor\":\"joe@example.com\"}]," +
-                "\"handle\":\"XXXX-RIR\"," +
-                "\"startAddress\":\"2001:db8::0\"," +
-                "\"endAddress\":\"2001:db8::0:FFFF:FFFF:FFFF:FFFF:FFFF\"," +
-                "\"ipVersion\":\"v6\"," +
-                "\"name\":\"NET-RTR-1\"," +
-                "\"type\":\"DIRECT ALLOCATION\"," +
-                "\"country\":\"AU\"," +
-                "\"parentHandle\":\"YYYY-RIR\"}"));
-
-//        assertEquals("" +
-//                "{\n" +
-//                "  \"handle\" : \"XXXX-RIR\",\n" +
-//                "  \"startAddress\" : \"2001:db8::0\",\n" +
-//                "  \"endAddress\" : \"2001:db8::0:FFFF:FFFF:FFFF:FFFF:FFFF\",\n" +
-//                "  \"ipVersion\" : \"v6\",\n" +
-//                "  \"name\" : \"NET-RTR-1\",\n" +
-//                "  \"type\" : \"DIRECT ALLOCATION\",\n" +
-//                "  \"country\" : \"AU\",\n" +
-//                "  \"parentHandle\" : \"YYYY-RIR\",\n" +
-//                "  \"status\" : [ \"allocated\" ],\n" +
-//                "  \"entities\" : [ {\n" +
-//                "    \"handle\" : \"XXXX\",\n" +
-//                "    \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +
+                "{\n" +
+                "  \"handle\" : \"XXXX-RIR\",\n" +
+                "  \"startAddress\" : \"2001:db8::0\",\n" +
+                "  \"endAddress\" : \"2001:db8::0:FFFF:FFFF:FFFF:FFFF:FFFF\",\n" +
+                "  \"ipVersion\" : \"v6\",\n" +
+                "  \"name\" : \"NET-RTR-1\",\n" +
+                "  \"type\" : \"DIRECT ALLOCATION\",\n" +
+                "  \"country\" : \"AU\",\n" +
+                "  \"parentHandle\" : \"YYYY-RIR\",\n" +
+                "  \"status\" : [ \"allocated\" ],\n" +
+                "  \"entities\" : [ {\n" +
+                "    \"handle\" : \"XXXX\",\n" +
+//                "    \"vcardArray\" : [ \"vcard\", [ [ \"version\", {\n" +                    // TODO: missing
 //                "    }, \"text\", \"4.0\" ], [ \"fn\", {\n" +
 //                "    }, \"text\", \"Joe User\" ], [ \"kind\", {\n" +
 //                "    }, \"text\", \"individual\" ], [ \"org\", {\n" +
@@ -311,56 +253,54 @@ public class RdapResponseJsonTest {
 //                "    }, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ], [ \"tel\", {\n" +
 //                "    }, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"email\", {\n" +
 //                "    }, \"text\", \"joe.user@example.com\" ] ] ],\n" +
-//                "    \"roles\" : [ \"registrant\" ],\n" +
-//                "    \"remarks\" : [ {\n" +
-//                "      \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
-//                "    } ],\n" +
-//                "    \"links\" : [ {\n" +
-//                "      \"value\" : \"http://example.net/entity/xxxx\",\n" +
-//                "      \"rel\" : \"self\",\n" +
-//                "      \"href\" : \"http://example.net/entity/xxxx\"\n" +
-//                "    } ],\n" +
-//                "    \"events\" : [ {\n" +
-//                "      \"eventAction\" : \"registration\",\n" +
-//                "      \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
-//                "    }, {\n" +
-//                "      \"eventAction\" : \"last changed\",\n" +
-//                "      \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
-//                "      \"eventActor\" : \"joe@example.com\"\n" +
-//                "    } ]\n" +
-//                "  } ],\n" +
-//                "  \"remarks\" : [ {\n" +
-//                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
-//                "  } ],\n" +
-//                "  \"links\" : [ {\n" +
-//                "    \"value\" : \"http://example.net/ip/2001:db8::/48\",\n" +
-//                "    \"rel\" : \"self\",\n" +
-//                "    \"href\" : \"http://example.net/ip/2001:db8::/48\"\n" +
-//                "  }, {\n" +
-//                "    \"value\" : \"http://example.net/ip/2001:db8::/48\",\n" +
-//                "    \"rel\" : \"up\",\n" +
-//                "    \"href\" : \"http://example.net/ip/2001:C00::/23\"\n" +
-//                "  } ],\n" +
-//                "  \"events\" : [ {\n" +
-//                "    \"eventAction\" : \"registration\",\n" +
-//                "    \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
-//                "  }, {\n" +
-//                "    \"eventAction\" : \"last changed\",\n" +
-//                "    \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
-//                "    \"eventActor\" : \"joe@example.com\"\n" +
-//                "  } ]\n" +
-//                "}", result);
+                "    \"roles\" : [ \"registrant\" ],\n" +
+                "    \"remarks\" : [ {\n" +
+                "      \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "    } ],\n" +
+                "    \"links\" : [ {\n" +
+                "      \"value\" : \"http://example.net/entity/xxxx\",\n" +
+                "      \"rel\" : \"self\",\n" +
+                "      \"href\" : \"http://example.net/entity/xxxx\"\n" +
+                "    } ],\n" +
+                "    \"events\" : [ {\n" +
+                "      \"eventAction\" : \"registration\",\n" +
+                "      \"eventDate\" : \"" + DATE_TIME + "\"\n" +
+                "    }, {\n" +
+                "      \"eventAction\" : \"last changed\",\n" +
+                "      \"eventDate\" : \"" + DATE_TIME + "\",\n" +
+                "      \"eventActor\" : \"joe@example.com\"\n" +
+                "    } ]\n" +
+                "  } ],\n" +
+                "  \"remarks\" : [ {\n" +
+                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "  } ],\n" +
+                "  \"links\" : [ {\n" +
+                "    \"value\" : \"http://example.net/ip/2001:db8::/48\",\n" +
+                "    \"rel\" : \"self\",\n" +
+                "    \"href\" : \"http://example.net/ip/2001:db8::/48\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"http://example.net/ip/2001:db8::/48\",\n" +
+                "    \"rel\" : \"up\",\n" +
+                "    \"href\" : \"http://example.net/ip/2001:C00::/23\"\n" +
+                "  } ],\n" +
+                "  \"events\" : [ {\n" +
+                "    \"eventAction\" : \"registration\",\n" +
+                "    \"eventDate\" : \"" + DATE_TIME + "\"\n" +
+                "  }, {\n" +
+                "    \"eventAction\" : \"last changed\",\n" +
+                "    \"eventDate\" : \"" + DATE_TIME + "\",\n" +
+                "    \"eventActor\" : \"joe@example.com\"\n" +
+                "  } ]\n" +
+                "}"));
     }
-
 
     @Test
     public void notices_serialization_test() throws Exception {
-        final Notice notices = new Notice();
+        Notice notices = new Notice();
         notices.setTitle("Beverage policy");
         notices.getDescription().add("Beverages with caffeine for keeping horses awake.");
         notices.getDescription().add("Very effective.");
-
-        final Link link = new Link();
+        Link link = new Link();
         link.setValue("http://example.com/context_uri");
         link.setRel("self");
         link.setHref("http://example.com/target_uri_href");
@@ -372,40 +312,50 @@ public class RdapResponseJsonTest {
         link.setType("application/json");
         notices.setLinks(link);
 
-        assertThat(marshal(notices), is(
-                "{" +
-                        "\"title\":\"Beverage policy\"," +
-                        "\"description\":[\"Beverages with caffeine for keeping horses awake.\",\"Very effective.\"]," +
-                        "\"links\":{" +
-                        "\"value\":\"http://example.com/context_uri\"," +
-                        "\"rel\":\"self\"," +
-                        "\"href\":\"http://example.com/target_uri_href\"," +
-                        "\"hreflang\":[\"en\",\"ch\"]," +
-                        "\"title\":[\"title1\",\"title2\"]," +
-                        "\"media\":\"screen\"," +
-                        "\"type\":\"application/json\"" +
-                        "}" +
-                        "}"));
+        assertThat(marshal(notices), equalTo("" +
+                "{\n" +
+                "  \"title\" : \"Beverage policy\",\n" +
+                "  \"description\" : [ \"Beverages with caffeine for keeping horses awake.\", \"Very effective.\" ],\n" +
+                "  \"links\" : {\n" +
+                "    \"value\" : \"http://example.com/context_uri\",\n" +
+                "    \"rel\" : \"self\",\n" +
+                "    \"href\" : \"http://example.com/target_uri_href\",\n" +
+                "    \"hreflang\" : [ \"en\", \"ch\" ],\n" +
+                "    \"title\" : [ \"title1\", \"title2\" ],\n" +
+                "    \"media\" : \"screen\",\n" +
+                "    \"type\" : \"application/json\"\n" +
+                "  }\n" +
+                "}"));
     }
 
-    private String marshal(final Object object) {
-        try {
-            StringWriter stringWriter = new StringWriter();
-            marshaller.marshallToJSON(object, stringWriter);
-            return stringWriter.toString();
-        } catch (JAXBException e) {
-            throw new IllegalStateException(e);
-        }
+    // helper methods
+
+    private String marshal(Object o) throws IOException {
+        final StringOutputStream outputStream = new StringOutputStream();
+
+        final JsonFactory jsonFactory = createJsonFactory();
+        JsonGenerator generator = jsonFactory.createJsonGenerator(outputStream).useDefaultPrettyPrinter();
+        generator.writeObject(o);
+        generator.close();
+
+        return outputStream.toString();
     }
 
-    private JSONMarshaller createJaxbMarshaller() {
-        try {
-            JAXBContext context = JSONJAXBContext.newInstance(Notice.class, Link.class, Ip.class);
-            JSONMarshaller marshaller = JSONJAXBContext.getJSONMarshaller(context.createMarshaller(), context);
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            return marshaller;
-        } catch (JAXBException e) {
-            throw new IllegalStateException(e);
-        }
+    private JsonFactory createJsonFactory() {
+        final ObjectMapper objectMapper = new ObjectMapper();
+
+        objectMapper.setAnnotationIntrospector(
+                new AnnotationIntrospector.Pair(
+                        new JacksonAnnotationIntrospector(),
+                        new JaxbAnnotationIntrospector()));
+
+        objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+        objectMapper.configure(SerializationConfig.Feature.WRITE_EMPTY_JSON_ARRAYS, true);
+
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+        objectMapper.setDateFormat(df);
+
+        return objectMapper.getJsonFactory();
     }
 }

@@ -4,7 +4,15 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
+import net.ripe.db.whois.api.whois.rdap.domain.Domain;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Event;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
+import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.whois.rdap.domain.Remark;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.CIString;
@@ -17,7 +25,9 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.*;
@@ -27,8 +37,17 @@ class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static Link COPYRIGHT_LINK = new Link().setRel("copyright").setValue(TERMS_AND_CONDITIONS).setHref(TERMS_AND_CONDITIONS);
 
+    private static final Map<AttributeType, String> typeToRole;
+    static {
+        typeToRole = new HashMap<AttributeType, String>();
+        typeToRole.put(AttributeType.ADMIN_C, "administrative");
+        typeToRole.put(AttributeType.TECH_C,  "technical");
+        typeToRole.put(AttributeType.MNT_BY,  "registrant");
+    }
+
+
     public static Object map(final String requestUrl, final RpslObject rpslObject, final VersionLookupResult versionLookupResult) {
-        RdapObject rdapResponse;
+        RdapObject rdapResponse = null;
         final ObjectType rpslObjectType = rpslObject.getType();
         final List<VersionInfo> versions = (versionLookupResult == null || rpslObjectType == PERSON || rpslObjectType == ROLE) ? Collections.<VersionInfo>emptyList() : versionLookupResult.getVersionInfos();
 
@@ -114,11 +133,51 @@ class RdapObjectMapper {
         return events;
     }
 
+    private static void setEntities(final RdapObject rdapObject, final RpslObject rpslObject, final Set<AttributeType> attributeTypes) {
+        /* Construct a map for finding the entity objects in the query
+         * results. */
+        final Map<CIString, RpslObject> objectMap = Maps.newHashMap();
+
+//        for (final RpslObject object : rpslObjectQueue) {                         // TODO
+//            objectMap.put(object.getKey(), object);
+//        }
+
+        /* Construct a map from attribute value to a list of the
+         * attribute types against which it is recorded. (To handle
+         * the case where a single person/role/similar occurs multiple
+         * times in a record.) */
+        final Map<CIString, Set<AttributeType>> valueToRoles = Maps.newHashMap();
+        for (final RpslAttribute attribute : rpslObject.findAttributes(attributeTypes)) {
+            final CIString key = attribute.getCleanValue();
+            final Set<AttributeType> roleAttributeTypes = valueToRoles.get(key);
+
+            if (roleAttributeTypes != null) {
+                roleAttributeTypes.add(attribute.getType());
+            } else {
+                final Set<AttributeType> newAttributes = Sets.newHashSet();
+                newAttributes.add(attribute.getType());
+                valueToRoles.put(key, newAttributes);
+            }
+        }
+
+        for (final CIString key : valueToRoles.keySet()) {
+            final Set<AttributeType> attributes = valueToRoles.get(key);
+            final RpslObject object = objectMap.get(key);
+            if (object != null) {
+                final Entity entity = createEntity(object);
+                final List<String> roles = entity.getRoles();
+                for (final AttributeType at : attributes) {
+                    roles.add(typeToRole.get(at));
+                }
+                rdapObject.getEntities().add(entity);
+            }
+        }
+    }
+
     private static Entity createEntity(final RpslObject rpslObject) {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVcardArray(createVcards(rpslObject));
-
         return entity;
     }
 
@@ -146,6 +205,7 @@ class RdapObjectMapper {
         final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
         contactAttributeTypes.add(AttributeType.ADMIN_C);
         contactAttributeTypes.add(AttributeType.TECH_C);
+        setEntities(autnum, rpslObject, contactAttributeTypes);
 
         return autnum;
     }
@@ -165,15 +225,15 @@ class RdapObjectMapper {
     }
 
     private static List<Object> createVcards(final RpslObject rpslObject) {
-        final VcardObjectHelper.VcardBuilder builder = new VcardObjectHelper.VcardBuilder();
-        builder.setVersion();
+        VCardBuilder builder = new VCardBuilder();
+        builder.addVersion();
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PERSON)) {
-            builder.setFn(attribute.getCleanValue().toString());
+            builder.addFn(attribute.getCleanValue().toString());
         }
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ADDRESS)) {
-            builder.addAdr(VcardObjectHelper.createMap(Maps.immutableEntry("label", attribute.getCleanValue())), null);
+            builder.addAdr(VcardObjectHelper.createHashMap(Maps.immutableEntry("label", attribute.getCleanValue())), null);
         }
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PHONE)) {
@@ -182,11 +242,7 @@ class RdapObjectMapper {
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.E_MAIL)) {
             // TODO ?? Is it valid to have more than 1 email
-            builder.setEmail(attribute.getCleanValue().toString());
-        }
-
-        if (builder.isEmpty()) {
-            return null;
+            builder.addEmail(attribute.getCleanValue().toString());
         }
 
         return builder.build();
