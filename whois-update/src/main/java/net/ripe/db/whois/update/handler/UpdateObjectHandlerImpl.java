@@ -89,8 +89,7 @@ class UpdateObjectHandlerImpl implements UpdateObjectHandler {
         final Map<ObjectType, List<BusinessRuleValidator>> validatorsByType = validatorsByActionAndType.get(action);
 
         final ObjectType type = update.getType();
-        final List<BusinessRuleValidator> validators = validatorsByType.get(type);
-        for (final BusinessRuleValidator businessRuleValidator : validators) {
+        for (final BusinessRuleValidator businessRuleValidator : validatorsByType.get(type)) {
             businessRuleValidator.validate(update, updateContext);
         }
 

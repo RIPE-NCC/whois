@@ -41,7 +41,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     private static final int MID_RANGE = 21486049;  // 21486050 is a person in nrtm_sample.sql
     private static final int MAX_RANGE = 21486100;
 
-    private static CountDownLatch countDownLatch;
+    private CountDownLatch countDownLatch;
 
     @BeforeClass
     public static void setInterval() {
@@ -171,7 +171,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
         whoisTemplate.execute("TRUNCATE TABLE last");
     }
 
-    static class NrtmTestThread extends Thread {
+    class NrtmTestThread extends Thread {
         volatile String error;
         volatile int addCount;
         volatile int delCount;
