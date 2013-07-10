@@ -62,12 +62,13 @@ public class NoticeFactory {
 
     public static List<Notice> generateNotices (String selfLink) {
         List<Notice> notices = new ArrayList<Notice>();
-        Notice notice = (Notice)SerializationUtils.clone(noticeTemplate);
-        notice.getLinks().setValue(selfLink);
-        notices.add(notice);
+        if (noticeTemplate != null) {
+            Notice notice = (Notice)SerializationUtils.clone(noticeTemplate);
+            notice.getLinks().setValue(selfLink);
+            notices.add(notice);
 
-        // add more here
-
+            // add more here
+        }
         return notices;
     }
 }
