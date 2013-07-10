@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap;
 
+import net.ripe.db.whois.api.whois.rdap.domain.vcard.VCardProperty;
 import org.codehaus.plexus.util.StringUtils;
 
 import javax.xml.bind.annotation.XmlType;

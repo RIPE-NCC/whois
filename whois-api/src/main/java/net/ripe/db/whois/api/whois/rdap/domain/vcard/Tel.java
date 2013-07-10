@@ -1,7 +1,5 @@
 package net.ripe.db.whois.api.whois.rdap.domain.vcard;
 
-import net.ripe.db.whois.api.whois.rdap.VCardProperty;
-
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.Map;
