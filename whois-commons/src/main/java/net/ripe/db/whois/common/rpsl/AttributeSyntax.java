@@ -686,11 +686,19 @@ interface AttributeSyntax extends Documented {
                             "<as-number> or\n" +
                             "<as-set-name>\n";
                 case ROUTE_SET:
-                    return "" +
-                            "list of\n" +
-                            "<address-prefix-range> or\n" +
-                            "<route-set-name> or\n" +
-                            "<route-set-name><range-operator>.\n";
+                    if (allowIpv6) {
+                        return "" +
+                                "list of\n" +
+                                "<address-prefix-range> or\n" +
+                                "<route-set-name> or\n" +
+                                "<route-set-name><range-operator>.\n";
+                    } else {
+                        return "" +
+                                "list of\n" +
+                                "<ipv4-address-prefix-range> or\n" +
+                                "<route-set-name> or\n" +
+                                "<route-set-name><range-operator>.\n";
+                    }
 
                 case RTR_SET:
                     return allowIpv6 ? "" +
