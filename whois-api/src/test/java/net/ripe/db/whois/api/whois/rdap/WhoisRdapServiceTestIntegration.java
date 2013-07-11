@@ -216,8 +216,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_person_object() throws Exception {
-        databaseHelper.addObject(PAULETH_PALTHEN);
-
         final Entity response = createResource(AUDIENCE, "entity/PP1-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
@@ -228,8 +226,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_domain_object() throws Exception {
-        databaseHelper.addObject(PAULETH_PALTHEN);
-
         final Domain response = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
