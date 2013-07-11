@@ -331,6 +331,7 @@ class RdapObjectMapper {
         }
 
         final Domain.SecureDNS secureDNS = new Domain.SecureDNS();
+        secureDNS.setDelegationSigned(false);
 
         for (final CIString rdata : rpslObject.getValuesForAttribute(AttributeType.DS_RDATA)) {
             final DsRdata dsRdata = DsRdata.parse(rdata);

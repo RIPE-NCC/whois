@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -111,6 +112,53 @@ public class RdapObjectMapperTest {
                 "source:   TEST\n"));
 
         assertThat(result.getHandle(), is("31.12.202.in-addr.arpa"));
+
+    }
+
+    @Test
+    public void domain_102_130_in_addr_arpa() {
+        final Domain result = (Domain)build(RpslObject.parse("" +
+                "domain:         102.130.in-addr.arpa\n" +
+                "descr:          domain object for 130.102.0.0 - 130.102.255.255\n" +
+                "country:        AU\n" +
+                "admin-c:        HM53-AP\n" +
+                "tech-c:         HM53-AP\n" +
+                "zone-c:         HM53-AP\n" +
+                "nserver:        NS1.UQ.EDU.AU\n" +
+                "nserver:        NS2.UQ.EDU.AU\n" +
+                "nserver:        NS3.UQ.EDU.AU\n" +
+                "nserver:        ns4.uqconnect.net\n" +
+                "notify:         hostmaster@uq.edu.au\n" +
+                "mnt-by:         MAINT-AU-UQ\n" +
+                "changed:        hm-changed@apnic.net 20031020\n" +
+                "changed:        hm-changed@apnic.net 20040319\n" +
+                "changed:        d.thomas@its.uq.edu.au 20070226\n" +
+                "source:         APNIC\n"));
+
+        assertThat(result.getHandle(), is("102.130.in-addr.arpa"));
+
+    }
+
+    @Ignore
+    @Test
+    public void domain_29_12_202_in_addr_arpa() {
+        final Domain result = (Domain)build(RpslObject.parse("" +
+                "domain:         29.12.202.in-addr.arpa\n" +
+                "descr:          zone for 202.12.29.0/24\n" +
+                "admin-c:        NO4-AP\n" +
+                "tech-c:         AIC1-AP\n" +
+                "zone-c:         NO4-AP\n" +
+                "nserver:        cumin.apnic.net\n" +
+                "nserver:        tinnie.apnic.net\n" +
+                "nserver:        tinnie.arin.net\n" +
+                "ds-rdata:       55264 5 1 ( 8bb4b233cbcf8593c6f153fccd4d805179b972a4 )\n" +
+                "ds-rdata:       55264 5 2 ( b44b18643775f9fdc76ee312667c2b350c1e02f3e43f8027f2c55777a429095a )\n" +
+                "mnt-by:         MAINT-APNIC-IS-AP\n" +
+                "changed:        hm-changed@apnic.net 20120504\n" +
+                "changed:        hm-changed@apnic.net 20120508\n" +
+                "source:         APNIC\n"));
+
+        assertThat(result.getHandle(), is("29.12.202.in-addr.arpa"));
 
     }
 
