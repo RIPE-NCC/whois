@@ -54,9 +54,8 @@ class RdapObjectMapper {
                 rdapResponse = createIp(rpslObject);
                 break;
             case PERSON:
-            case ORGANISATION:
             case ROLE:
-            case IRT:
+//            case ORGANISATION:
                 rdapResponse = createEntity(rpslObject);
                 break;
             default:
