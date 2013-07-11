@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static net.ripe.db.whois.common.rpsl.ObjectType.*;
 
 @ExternallyManagedLifecycle
@@ -79,9 +80,11 @@ public class WhoisRdapService {
             case "entity":
                 whoisObjectTypes.add(PERSON);
                 whoisObjectTypes.add(ROLE);
-                whoisObjectTypes.add(ORGANISATION);
-                whoisObjectTypes.add(IRT);
+//                whoisObjectTypes.add(ORGANISATION);  //TODO Denis will look into if this should be used or not
                 break;
+
+            case "nameserver" :
+                return Response.status(NOT_FOUND).build();
 
             default:
                 return Response.status(BAD_REQUEST).build();

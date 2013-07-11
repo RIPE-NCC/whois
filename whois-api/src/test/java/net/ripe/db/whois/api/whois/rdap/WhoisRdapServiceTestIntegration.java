@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -261,6 +262,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    @Ignore //TODO Denis will look into if this should be used or not
     public void lookup_org_entity() throws Exception {
         final Entity response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
