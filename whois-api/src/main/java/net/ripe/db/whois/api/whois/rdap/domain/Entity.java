@@ -3,11 +3,7 @@ package net.ripe.db.whois.api.whois.rdap.domain;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.VCard;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +20,7 @@ public class Entity extends RdapObject implements Serializable {
     @XmlElement(required = true)
     protected String handle;
     @XmlSchemaType(name = "anySimpleType")
-    protected Object vcardArray;
+    protected List<Object> vcardArray;
     protected List<String> roles;
     protected Map publicIds;
     protected String port43;
@@ -37,17 +33,16 @@ public class Entity extends RdapObject implements Serializable {
         this.handle = value;
     }
 
-    public Object getVCardArray() {
+    public List<Object> getVCardArray() {
         return vcardArray;
     }
 
     public void setVCardArray(final VCard... vCards) {
-        List<Object> list = Lists.newArrayList();
-        list.add("vcard");
+        this.vcardArray = Lists.newArrayList();
+        this.vcardArray.add("vcard");
         for (VCard next : vCards) {
-            list.add(next.getValues());
+            this.vcardArray.add(next.getValues());
         }
-        this.vcardArray = list;
     }
 
     public List<String> getRoles() {
