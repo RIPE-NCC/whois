@@ -108,16 +108,14 @@ interface AttributeSyntax extends Documented {
             "without trailing dot (\".\").  The total length should not exceed\n" +
             "254 characters (octets).\n");
 
-    AttributeSyntax DS_RDATA_SYNTAX = new AttributeSyntaxRegexp(255,
-            Pattern.compile("(?i)^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-4])( ([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))( ([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|RSAMD5|DH|DSA|ECC|RSASHA1|INDIRECT|PRIVATEDNS|PRIVATEOID)([ 0-9a-fA-F]{1,128})$"), "" +
-            "<Keytag> | <Algorithm> | <Digest type> | <Digest> | ; <Comment>\n" +
+    AttributeSyntax DS_RDATA_SYNTAX = new AttributeSyntaxParser(new AttributeParser.DsRdataParser(), "" +
+            "<Keytag> <Algorithm> <Digest type> <Digest>\n" +
             "\n" +
             "Keytag is represented by an unsigned decimal integer (0-65535).\n" +
             "\n" +
-            "Algorithm is represented by an unsigned decimal integer (0-255) or one of the following mnemonics:\n" +
-            "RSAMD5, DH, DSA, ECC, RSASHA1, INDIRECT, PRIVATEDNS, PRIVATEOID.\n" +
+            "Algorithm is represented by an unsigned decimal integer (0-255).\n" +
             "\n" +
-            "Digest type may be represented by a unsigned decimal integer (0-255) and is usually 1, which stands for SHA-1.\n" +
+            "Digest type is represented by a unsigned decimal integer (0-255).\n" +
             "\n" +
             "Digest is a digest in hexadecimal representation (case insensitive). Its length varies for various digest types.\n" +
             "For digest type SHA-1 digest is represented by 20 octets (40 characters, plus possible spaces).\n" +
@@ -688,11 +686,19 @@ interface AttributeSyntax extends Documented {
                             "<as-number> or\n" +
                             "<as-set-name>\n";
                 case ROUTE_SET:
-                    return "" +
-                            "list of\n" +
-                            "<address-prefix-range> or\n" +
-                            "<route-set-name> or\n" +
-                            "<route-set-name><range-operator>.\n";
+                    if (allowIpv6) {
+                        return "" +
+                                "list of\n" +
+                                "<address-prefix-range> or\n" +
+                                "<route-set-name> or\n" +
+                                "<route-set-name><range-operator>.\n";
+                    } else {
+                        return "" +
+                                "list of\n" +
+                                "<ipv4-address-prefix-range> or\n" +
+                                "<route-set-name> or\n" +
+                                "<route-set-name><range-operator>.\n";
+                    }
 
                 case RTR_SET:
                     return allowIpv6 ? "" +
