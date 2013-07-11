@@ -1,7 +1,14 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Event;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
+import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.whois.rdap.domain.Notice;
+import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import net.ripe.db.whois.api.whois.rdap.domain.vcard.VCard;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.AnnotationIntrospector;
@@ -20,7 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
 import static com.google.common.collect.Maps.immutableEntry;
-import static net.ripe.db.whois.api.whois.rdap.VCardObjectHelper.createHashMap;
+import static net.ripe.db.whois.api.whois.rdap.VCardHelper.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -30,70 +37,90 @@ public class RdapResponseJsonTest {
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.parse("2013-06-26T04:48:44");
 
     @Test
+    public void entity() throws Exception {
+        VCardBuilder builder = new VCardBuilder();
+        VCard vcard = builder
+                .addVersion()
+                .addFn("Joe User")
+                .addN(createList("User", "Joe", "", createList("ing. jr", "M.Sc.")))
+                .addGender("M")
+                .addLang(createMap(immutableEntry("pref", "1")), "fr")
+                .build();
+
+        Entity entity = new Entity();
+        entity.setHandle("XXXX");
+        entity.setVCardArray(vcard);
+
+        assertThat(marshal(entity), equalTo("" +
+                "{\n  \"handle\" : \"XXXX\",\n" +
+                "  \"vcardArray\" :" +
+                " [ \"vcard\", [" +
+                " [ \"version\", {\n  }, \"text\", \"4.0\" ]," +
+                " [ \"fn\", {\n  }, \"text\", \"Joe User\" ]," +
+                " [ \"n\", {\n  }, \"text\", [ \"User\", \"Joe\", \"\", [ \"ing. jr\", \"M.Sc.\" ] ] ]," +
+                " [ \"gender\", {\n  }, \"text\", \"M\" ], [ \"lang\", {\n    \"pref\" : \"1\"\n  }, \"language-tag\", \"fr\" ]" +
+                " ] ]\n}"));
+    }
+
+    @Test
     public void entity_vcard_serialization_test() throws Exception {
         final VCardBuilder builder = new VCardBuilder();
 
         builder.addVersion()
                 .addFn("Joe User")
-                .addN(builder.createNEntryValueType("User", "Joe", "", "", builder.createNEntryValueHonorifics("ing. jr", "M.Sc.")))
+                .addN(createName("User", "Joe", "", "", createHonorifics("ing. jr", "M.Sc.")))
                 .addBday("--02-03")
                 .addAnniversary("20130101")
                 .addGender("M")
                 .addKind("individual")
-                .addLang(createHashMap(immutableEntry("pref", "1")), "fr")
-                .addLang(createHashMap(immutableEntry("pref", "2")), "en")
+                .addLang(createMap(immutableEntry("pref", "1")), "fr")
+                .addLang(createMap(immutableEntry("pref", "2")), "en")
                 .addOrg("Example")
                 .addTitle("Research Scientist")
                 .addRole("Project Lead")
-                .addAdr(createHashMap(immutableEntry("type", "work")), builder.createAdrEntryValueType("",
-                        "Suite 1234",
-                        "4321 Rue Somewhere",
-                        "Quebec",
-                        "QC",
-                        "G1V 2M2",
-                        "Canada"))
-                .addAdr(createHashMap(immutableEntry("pref", "1")), null)
-                .addTel(createHashMap(immutableEntry("type", new String[]{"work", "voice"})), "tel:+1-555-555-1234;ext=102")                      // TODO
-                .addTel(createHashMap(immutableEntry("type", new String[]{"work", "cell", "voice", "video", "text"})), "tel:+1-555-555-4321")     // TODO
-                .addEmail(createHashMap(immutableEntry("type", "work")), "joe.user@example.com")
-                .addGeo(createHashMap(immutableEntry("type", "work")), "geo:46.772673,-71.282945")
-                .addKey(createHashMap(immutableEntry("type", "work")), "http://www.example.com/joe.user/joe.asc")
+                .addAdr(createMap(immutableEntry("type", "work")), VCardHelper.createAddress("", "Suite 1234", "4321 Rue Somewhere", "Quebec", "QC", "G1V 2M2", "Canada"))
+                .addAdr(createMap(immutableEntry("pref", "1")), VCardHelper.createAddress("", "", "", "", "", "", ""))
+                .addTel(createMap(immutableEntry("type", new String[]{"work", "voice"})), "tel:+1-555-555-1234;ext=102")
+                .addTel(createMap(immutableEntry("type", new String[]{"work", "cell", "voice", "video", "text"})), "tel:+1-555-555-4321")
+                .addEmail(createMap(immutableEntry("type", "work")), "joe.user@example.com")
+                .addGeo(createMap(immutableEntry("type", "work")), "geo:46.772673,-71.282945")
+                .addKey(createMap(immutableEntry("type", "work")), "http://www.example.com/joe.user/joe.asc")
                 .addTz("-05:00")
-                .addUrl(createHashMap(immutableEntry("type", "work")), "http://example.org");
+                .addKey(createMap(immutableEntry("type", "work")), "http://example.org");
 
         assertThat(marshal(builder.build()), equalTo("" +
-                "[ \"vcard\", [ [ \"version\", {\n" +
-                "}, \"text\", \"4.0\" ], [ \"fn\", {\n" +
-                "}, \"text\", \"Joe User\" ], [ \"n\", {\n" +
-                "}, \"text\", [ \"User\", \"Joe\", \"\", \"\", [ \"ing. jr\", \"M.Sc.\" ] ] ], [ \"bday\", {\n" +
-                "}, \"date-and-or-time\", \"--02-03\" ], [ \"anniversary\", {\n" +
-                "}, \"date-and-or-time\", \"20130101\" ], [ \"gender\", {\n" +
-                "}, \"text\", \"M\" ], [ \"kind\", {\n" +
-                "}, \"text\", \"individual\" ], [ \"lang\", {\n" +
-                "  \"pref\" : \"1\"\n" +
-                "}, \"language-tag\", \"fr\" ], [ \"lang\", {\n" +
-                "  \"pref\" : \"2\"\n" +
-                "}, \"language-tag\", \"en\" ], [ \"org\", {\n" +
-                "}, \"text\", \"Example\" ], [ \"title\", {\n" +
-                "}, \"text\", \"Research Scientist\" ], [ \"role\", {\n" +
-                "}, \"text\", \"Project Lead\" ], [ \"adr\", {\n" +
-                "  \"type\" : \"work\"\n" +
-                "}, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ], [ \"adr\", {\n" +
-                "  \"pref\" : \"1\"\n" +
-                "}, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
-                "  \"type\" : [ \"work\", \"voice\" ]\n" +
-                "}, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"tel\", {\n" +
-                "  \"type\" : [ \"work\", \"cell\", \"voice\", \"video\", \"text\" ]\n" +
-                "}, \"uri\", \"tel:+1-555-555-4321\" ], [ \"email\", {\n" +
-                "  \"type\" : \"work\"\n" +
-                "}, \"text\", \"joe.user@example.com\" ], [ \"geo\", {\n" +
-                "  \"type\" : \"work\"\n" +
-                "}, \"uri\", \"geo:46.772673,-71.282945\" ], [ \"key\", {\n" +
-                "  \"type\" : \"work\"\n" +
-                "}, \"text\", \"http://www.example.com/joe.user/joe.asc\" ], [ \"tz\", {\n" +
-                "}, \"utc-offset\", \"-05:00\" ], [ \"key\", {\n" +
-                "  \"type\" : \"work\"\n" +
-                "}, \"text\", \"http://example.org\" ] ] ]"));
+                "{\n  \"vcard\" : [ [ \"version\", {\n" +
+                "  }, \"text\", \"4.0\" ], [ \"fn\", {\n" +
+                "  }, \"text\", \"Joe User\" ], [ \"n\", {\n" +
+                "  }, \"text\", [ \"User\", \"Joe\", \"\", \"\", [ \"ing. jr\", \"M.Sc.\" ] ] ], [ \"bday\", {\n" +
+                "  }, \"date-and-or-time\", \"--02-03\" ], [ \"anniversary\", {\n" +
+                "  }, \"date-and-or-time\", \"20130101\" ], [ \"gender\", {\n" +
+                "  }, \"text\", \"M\" ], [ \"kind\", {\n" +
+                "  }, \"text\", \"individual\" ], [ \"lang\", {\n" +
+                "    \"pref\" : \"1\"\n" +
+                "  }, \"language-tag\", \"fr\" ], [ \"lang\", {\n" +
+                "    \"pref\" : \"2\"\n" +
+                "  }, \"language-tag\", \"en\" ], [ \"org\", {\n" +
+                "  }, \"text\", \"Example\" ], [ \"title\", {\n" +
+                "  }, \"text\", \"Research Scientist\" ], [ \"role\", {\n" +
+                "  }, \"text\", \"Project Lead\" ], [ \"adr\", {\n" +
+                "    \"type\" : \"work\"\n" +
+                "  }, \"text\", [ \"\", \"Suite 1234\", \"4321 Rue Somewhere\", \"Quebec\", \"QC\", \"G1V 2M2\", \"Canada\" ] ], [ \"adr\", {\n" +
+                "    \"pref\" : \"1\"\n" +
+                "  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
+                "    \"type\" : [ \"work\", \"voice\" ]\n" +
+                "  }, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"tel\", {\n" +
+                "    \"type\" : [ \"work\", \"cell\", \"voice\", \"video\", \"text\" ]\n" +
+                "  }, \"uri\", \"tel:+1-555-555-4321\" ], [ \"email\", {\n" +
+                "    \"type\" : \"work\"\n" +
+                "  }, \"text\", \"joe.user@example.com\" ], [ \"geo\", {\n" +
+                "    \"type\" : \"work\"\n" +
+                "  }, \"uri\", \"geo:46.772673,-71.282945\" ], [ \"key\", {\n" +
+                "    \"type\" : \"work\"\n" +
+                "  }, \"text\", \"http://www.example.com/joe.user/joe.asc\" ], [ \"tz\", {\n" +
+                "  }, \"utc-offset\", \"-05:00\" ], [ \"key\", {\n" +
+                "    \"type\" : \"work\"\n" +
+                "  }, \"text\", \"http://example.org\" ] ]\n}"));
     }
 
     @Test
@@ -213,16 +240,10 @@ public class RdapResponseJsonTest {
                 .addOrg("Example")
                 .addTitle("Research Scientist")
                 .addRole("Project Lead")
-                .addAdr(builder.createAdrEntryValueType("",
-                        "Suite 1234",
-                        "4321 Rue Somewhere",
-                        "Quebec",
-                        "QC",
-                        "G1V 2M2",
-                        "Canada"))
+                .addAdr(createAddress("", "Suite 1234", "4321 Rue Somewhere", "Quebec", "QC", "G1V 2M2", "Canada"))
                 .addTel("tel:+1-555-555-1234;ext=102")
                 .addEmail("joe.user@example.com");
-        entity.setVcardArray(builder.build());
+        entity.setVCardArray(builder.build());
         entity.getRoles().add("registrant");
         entity.getRemarks().add(remark);
         entity.getEvents().add(registrationEvent);

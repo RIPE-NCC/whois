@@ -2,7 +2,8 @@ package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.api.whois.rdap.domain.vcard.*;
+import net.ripe.db.whois.api.whois.rdap.domain.vcard.VCard;
+import net.ripe.db.whois.api.whois.rdap.domain.vcard.VCardProperty;
 
 import java.util.List;
 import java.util.Map;
@@ -11,27 +12,32 @@ public class VCardBuilder {
 
     private final List<VCardProperty> properties = Lists.newArrayList();
 
-    public VCardBuilder addAdr(final Map parameters, final AdrEntryValueType value) {
-        final Adr adr = new Adr();
-        adr.setParameters(parameters);
-        if (value != null) {
-            adr.setValue(value);
-        }
-        properties.add(adr);
+    public VCardBuilder addAdr(final Map parameters, final List values) {
+        properties.add(new VCardProperty("adr", parameters, "text", values));
         return this;
     }
 
-    public VCardBuilder addAdr(final AdrEntryValueType value) {
-        return addAdr(Maps.newHashMap(), value);
+    public VCardBuilder addAdr(final List values) {
+        return addAdr(Maps.newHashMap(), values);
+    }
+
+    public VCardBuilder addCaluri(final String value) {
+        properties.add(new VCardProperty("caluri", Maps.newHashMap(), "uri", value));
+        return this;
+    }
+
+    public VCardBuilder addCaladuri(final String value) {
+        properties.add(new VCardProperty("caladuri", Maps.newHashMap(), "uri", value));
+        return this;
+    }
+
+    public VCardBuilder addCategories(final List values) {
+        properties.add(new VCardProperty("categories", Maps.newHashMap(), "text", values));
+        return this;
     }
 
     public VCardBuilder addEmail(final Map parameters, final String value) {
-        final Email email = new Email();
-        email.setName("email");
-        email.setParameters(parameters);
-        email.setValue(value);
-        email.setType("text");
-        properties.add(email);
+        properties.add(new VCardProperty("email", parameters, "text", value));
         return this;
     }
 
@@ -40,42 +46,42 @@ public class VCardBuilder {
     }
 
     public VCardBuilder addFn(final String value) {
-        final Fn fn = new Fn();
-        fn.setParameters(Maps.newHashMap());
-        fn.setValue(value);
-        properties.add(fn);
+        properties.add(new VCardProperty("fn", Maps.newHashMap(), "text", value));
         return this;
     }
 
     public VCardBuilder addGeo(final Map parameters, final String value) {
-        final Geo geo = new Geo();
-        geo.setParameters(parameters);
-        geo.setValue(value);
-        properties.add(geo);
+        properties.add(new VCardProperty("geo", parameters, "uri", value));
         return this;
     }
 
     public VCardBuilder addKind(final String value) {
-        final Kind kind = new Kind();
-        kind.setParameters(Maps.newHashMap());
-        kind.setValue(value);
-        properties.add(kind);
+        properties.add(new VCardProperty("kind", Maps.newHashMap(), "text", value));
+        return this;
+    }
+
+    public VCardBuilder addLogo(final String value) {
+        properties.add(new VCardProperty("logo", Maps.newHashMap(), "uri", value));
         return this;
     }
 
     public VCardBuilder addLang(final Map parameters, final String value) {
-        final Lang lang = new Lang();
-        lang.setParameters(parameters);
-        lang.setValue(value);
-        properties.add(lang);
+        properties.add(new VCardProperty("lang", parameters, "language-tag", value));
+        return this;
+    }
+
+    public VCardBuilder addNickname(final String value) {
+        properties.add(new VCardProperty("nickname", Maps.newHashMap(), "text", value));
+        return this;
+    }
+
+    public VCardBuilder addNote(final String value) {
+        properties.add(new VCardProperty("note", Maps.newHashMap(), "text", value));
         return this;
     }
 
     public VCardBuilder addTel(final Map parameters, final String value) {
-        final Tel tel = new Tel();
-        tel.setParameters(parameters);
-        tel.setValue(value);
-        properties.add(tel);
+        properties.add(new VCardProperty("tel", parameters, "uri", value));
         return this;
     }
 
@@ -84,130 +90,61 @@ public class VCardBuilder {
     }
 
     public VCardBuilder addVersion() {
-        final Version version = new Version();
-        version.setParameters(Maps.newHashMap());
-        properties.add(version);
+        properties.add(new VCardProperty("version", Maps.newHashMap(), "text", "4.0"));
         return this;
     }
 
-    // Other possibly useful vcard properties
-
     public VCardBuilder addAnniversary(final String value) {
-        final Anniversary anniversary = new Anniversary();
-        anniversary.setParameters(Maps.newHashMap());
-        anniversary.setValue(value);
-        properties.add(anniversary);
+        properties.add(new VCardProperty("anniversary", Maps.newHashMap(), "date-and-or-time", value));
         return this;
     }
 
     public VCardBuilder addBday(final String value) {
-        final Bday birthDay = new Bday();
-        birthDay.setParameters(Maps.newHashMap());
-        birthDay.setValue(value);
-        properties.add(birthDay);
+        properties.add(new VCardProperty("bday", Maps.newHashMap(), "date-and-or-time", value));
         return this;
     }
 
-    public VCardBuilder addN(final NValueType value) {
-        final N n = new N();
-        n.setParameters(Maps.newHashMap());
-        if (value != null) {
-            n.setValue(value);
-        }
-        properties.add(n);
+    public VCardBuilder addN(final List values) {
+        properties.add(new VCardProperty("n", Maps.newHashMap(), "text", values));
         return this;
     }
 
     public VCardBuilder addGender(final String value) {
-        final Gender gender = new Gender();
-        gender.setParameters(Maps.newHashMap());
-        gender.setValue(value);
-        properties.add(gender);
+        properties.add(new VCardProperty("gender", Maps.newHashMap(), "text", value));
         return this;
     }
 
     public VCardBuilder addOrg(final String value) {
-        final Org org = new Org();
-        org.setParameters(Maps.newHashMap());
-        org.setValue(value);
-        properties.add(org);
+        properties.add(new VCardProperty("org", Maps.newHashMap(), "text", value));
         return this;
     }
 
     public VCardBuilder addTitle(final String value) {
-        final Title title = new Title();
-        title.setParameters(Maps.newHashMap());
-        title.setValue(value);
-        properties.add(title);
+        properties.add(new VCardProperty("title", Maps.newHashMap(), "text", value));
         return this;
     }
 
     public VCardBuilder addRole(final String value) {
-        final Role role = new Role();
-        role.setParameters(Maps.newHashMap());
-        role.setValue(value);
-        properties.add(role);
+        properties.add(new VCardProperty("role", Maps.newHashMap(), "text", value));
         return this;
     }
 
     public VCardBuilder addKey(final Map parameters, final String value) {
-        final Key key = new Key();
-        key.setParameters(parameters);
-        key.setValue(value);
-        properties.add(key);
+        properties.add(new VCardProperty("key", parameters, "text", value));
         return this;
     }
 
     public VCardBuilder addTz(final String value) {
-        final Tz tz = new Tz();
-        tz.setParameters(Maps.newHashMap());
-        tz.setValue(value);
-        properties.add(tz);
+        properties.add(new VCardProperty("tz", Maps.newHashMap(), "utc-offset", value));
         return this;
     }
 
     public VCardBuilder addUrl(final Map parameters, final String value) {
-        final Key key = new Key();
-        key.setParameters(parameters);
-        key.setValue(value);
-        properties.add(key);
+        properties.add(new VCardProperty("url", parameters, "uri", value));
         return this;
     }
 
-    // TODO: refactor
-    public NValueType createNEntryValueType(final String surname, final String given, final String prefix, final String suffix, final NValueType.Honorifics honorifics) {
-        final NValueType ret = new NValueType();
-        ret.setSurname(surname);
-        ret.setGiven(given);
-        ret.setPrefix(prefix);
-        ret.setSuffix(suffix);
-        ret.setHonorifics(honorifics);
-        return ret;
-    }
-
-    // TODO: refactor
-    public NValueType.Honorifics createNEntryValueHonorifics(final String prefix, final String suffix) {
-        final NValueType.Honorifics honorifics = new NValueType.Honorifics();
-        honorifics.setPrefix(prefix);
-        honorifics.setSuffix(suffix);
-        return honorifics;
-    }
-
-    // TODO: refactor
-    public AdrEntryValueType createAdrEntryValueType(final String pobox, final String ext, final String street, final String locality, final String region, final String code, final String country) {
-        final AdrEntryValueType adressEntry = new AdrEntryValueType();
-        adressEntry.setPobox(pobox);
-        adressEntry.setExt(ext);
-        adressEntry.setStreet(street);
-        adressEntry.setLocality(locality);
-        adressEntry.setRegion(region);
-        adressEntry.setCode(code);
-        adressEntry.setCountry(country);
-        return adressEntry;
-    }
-
-    public List<Object> build() {
-        VCard entityVcard = new VCard("vcard", properties);
-        return VCardObjectHelper.toObjects(entityVcard);
+    public VCard build() {
+        return new VCard(properties);
     }
 }

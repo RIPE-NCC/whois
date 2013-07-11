@@ -120,10 +120,10 @@ public class WhoisRdapService {
                         QueryFlag.NO_FILTERING.getLongFlag(),
                         key));
 
-        return handleQueryAndStreamResponse(query, request);
+        return handleQuery(query, request);
     }
 
-    protected Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request) {
+    protected Response handleQuery(final Query query, final HttpServletRequest request) {
 
         final int contextId = System.identityHashCode(Thread.currentThread());
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());

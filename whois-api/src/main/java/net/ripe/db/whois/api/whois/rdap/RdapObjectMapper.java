@@ -4,7 +4,16 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
+import net.ripe.db.whois.api.whois.rdap.domain.Domain;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Event;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
+import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import net.ripe.db.whois.api.whois.rdap.domain.vcard.VCard;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.CIString;
@@ -128,10 +137,6 @@ class RdapObjectMapper {
          * results. */
         final Map<CIString, RpslObject> objectMap = Maps.newHashMap();
 
-//        for (final RpslObject object : rpslObjectQueue) {                         // TODO
-//            objectMap.put(object.getKey(), object);
-//        }
-
         /* Construct a map from attribute value to a list of the
          * attribute types against which it is recorded. (To handle
          * the case where a single person/role/similar occurs multiple
@@ -167,7 +172,7 @@ class RdapObjectMapper {
     private static Entity createEntity(final RpslObject rpslObject) {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
-        entity.setVcardArray(createVcards(rpslObject));
+        entity.setVCardArray(createVCard(rpslObject));
         return entity;
     }
 
@@ -208,7 +213,7 @@ class RdapObjectMapper {
         return domain;
     }
 
-    private static List<Object> createVcards(final RpslObject rpslObject) {
+    private static VCard createVCard(final RpslObject rpslObject) {
         VCardBuilder builder = new VCardBuilder();
         builder.addVersion();
 
@@ -217,7 +222,7 @@ class RdapObjectMapper {
         }
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ADDRESS)) {
-            builder.addAdr(VCardObjectHelper.createHashMap(Maps.immutableEntry("label", attribute.getCleanValue())), null);
+            builder.addAdr(VCardHelper.createMap(Maps.immutableEntry("label", attribute.getCleanValue())), null);
         }
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PHONE)) {
