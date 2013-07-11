@@ -149,6 +149,6 @@ public class RdapObjectMapperTest {
     }
 
     private Object map(final RpslObject rpslObject, final VersionLookupResult versionLookupResult) {
-        return RdapObjectMapper.map("http://localhost/", rpslObject, versionLookupResult);
+        return RdapObjectMapper.map("http://localhost/", rpslObject, versionLookupResult, Lists.<RpslObject>newArrayList());
     }
 }

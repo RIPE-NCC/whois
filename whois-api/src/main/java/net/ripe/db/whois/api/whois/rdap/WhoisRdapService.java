@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.handler.QueryHandler;
+import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
@@ -47,12 +48,14 @@ public class WhoisRdapService {
     private final SourceContext sourceContext;
     private final QueryHandler queryHandler;
     private final VersionDao versionDao;
+    private final AbuseCFinder abuseCFinder;
 
     @Autowired
-    public WhoisRdapService(final SourceContext sourceContext, final QueryHandler queryHandler, final VersionDao versionDao) {
+    public WhoisRdapService(final SourceContext sourceContext, final QueryHandler queryHandler, final VersionDao versionDao, final AbuseCFinder abuseCFinder) {
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
         this.versionDao = versionDao;
+        this.abuseCFinder = abuseCFinder;
     }
 
     @GET
@@ -83,7 +86,7 @@ public class WhoisRdapService {
 //                whoisObjectTypes.add(ORGANISATION);  //TODO Denis will look into if this should be used or not
                 break;
 
-            case "nameserver" :
+            case "nameserver":
                 return Response.status(NOT_FOUND).build();
 
             default:
@@ -149,7 +152,11 @@ public class WhoisRdapService {
             }
 
             final RpslObject resultObject = result.get(0);
-            return Response.ok(RdapObjectMapper.map(getRequestUrl(request), resultObject, versionDao.findByKey(resultObject.getType(), resultObject.getKey().toString()))).build();
+            return Response.ok(RdapObjectMapper.map(
+                    getRequestUrl(request),
+                    resultObject,
+                    versionDao.findByKey(resultObject.getType(), resultObject.getKey().toString()),
+                    abuseCFinder.findAbuseContacts(resultObject))).build();
 
         } catch (final QueryException e) {
             if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {

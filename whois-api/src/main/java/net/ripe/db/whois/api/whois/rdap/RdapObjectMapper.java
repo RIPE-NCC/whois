@@ -4,15 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
-import net.ripe.db.whois.api.whois.rdap.domain.Domain;
-import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Event;
-import net.ripe.db.whois.api.whois.rdap.domain.Ip;
-import net.ripe.db.whois.api.whois.rdap.domain.Link;
-import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
-import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.VCard;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
@@ -46,7 +38,7 @@ class RdapObjectMapper {
     }
 
 
-    public static Object map(final String requestUrl, final RpslObject rpslObject, final VersionLookupResult versionLookupResult) {
+    public static Object map(final String requestUrl, final RpslObject rpslObject, final VersionLookupResult versionLookupResult, final List<RpslObject> abuseContacts) {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
         final List<VersionInfo> versions = (versionLookupResult == null || rpslObjectType == PERSON || rpslObjectType == ROLE) ? Collections.<VersionInfo>emptyList() : versionLookupResult.getVersionInfos();
@@ -77,6 +69,10 @@ class RdapObjectMapper {
 
         rdapResponse.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(requestUrl));
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
+
+        for (final RpslObject abuseContact : abuseContacts) {
+            rdapResponse.getEntities().add(createEntity(abuseContact));
+        }
 
         return rdapResponse;
     }
@@ -214,24 +210,28 @@ class RdapObjectMapper {
     }
 
     private static VCard createVCard(final RpslObject rpslObject) {
-        VCardBuilder builder = new VCardBuilder();
+        final VCardBuilder builder = new VCardBuilder();
         builder.addVersion();
 
-        for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PERSON)) {
-            builder.addFn(attribute.getCleanValue().toString());
+        for (final CIString person : rpslObject.getValuesForAttribute(AttributeType.PERSON)) {
+            builder.addFn(person.toString());
         }
 
-        for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ADDRESS)) {
-            builder.addAdr(VCardHelper.createMap(Maps.immutableEntry("label", attribute.getCleanValue())), null);
+        for (final CIString address : rpslObject.getValuesForAttribute(AttributeType.ADDRESS)) {
+            builder.addAdr(VCardHelper.createMap(Maps.immutableEntry("label", address)), null);
         }
 
-        for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PHONE)) {
-            builder.addTel(attribute.getCleanValue().toString());
+        for (final CIString phone : rpslObject.getValuesForAttribute(AttributeType.PHONE)) {
+            builder.addTel(phone.toString());
         }
 
-        for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.E_MAIL)) {
+        for (final CIString email : rpslObject.getValuesForAttribute(AttributeType.E_MAIL)) {
             // TODO ?? Is it valid to have more than 1 email
-            builder.addEmail(attribute.getCleanValue().toString());
+            builder.addEmail(email.toString());
+        }
+
+        for (final CIString org : rpslObject.getValuesForAttribute(AttributeType.ORG)) {
+            builder.addOrg(org.toString());
         }
 
         return builder.build();

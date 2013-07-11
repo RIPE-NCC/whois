@@ -348,63 +348,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void multiple_modification_gives_correct_events() throws Exception {
-        final String start = "" +
-                "aut-num:   AS123\n" +
-                "as-name:   AS-TEST\n" +
-                "descr:     Modified ASN\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "changed:   test@test.net.au 20010816\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "source:    TEST\n" +
-                "password:  test\n";
-        final String response = doPostOrPutRequest(getUrl("test", ""), "POST", "DATA=" + encode(start), MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
-        assertThat(response, containsString("Modify SUCCEEDED: [aut-num] AS123"));
-
-        final String deleteString = "" +
-                "aut-num:   AS123\n" +
-                "as-name:   AS-TEST\n" +
-                "descr:     Modified ASN\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "changed:   test@test.net.au 20010816\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "source:    TEST\n" +
-                "delete:    reason\n" +
-                "password:  test\n";
-
-        final String delete = doPostOrPutRequest(getUrl("test", ""), "POST", "DATA=" + encode(deleteString), MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
-        assertThat(delete, containsString("Delete SUCCEEDED: [aut-num] AS123"));
-
-        final String recreate = doPostOrPutRequest(getUrl("test", ""), "POST", "DATA=" + encode(start) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
-        assertThat(recreate, containsString("Create SUCCEEDED: [aut-num] AS123"));
-
-        final String modifiedAgain = "" +
-                "aut-num:   AS123\n" +
-                "as-name:   AS-TEST\n" +
-                "descr:     Final version ASN\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "changed:   test@test.net.au 20010816\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "source:    TEST\n" +
-                "password:  test\n";
-        final String last = doPostOrPutRequest(getUrl("test", ""), "POST", "DATA=" + encode(modifiedAgain), MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
-        assertThat(last, containsString("Modify SUCCEEDED: [aut-num] AS123"));
-
-        final Autnum autnum = createResource(AUDIENCE, "autnum/123")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(Autnum.class);
-
-        final List<Event> events = autnum.getEvents();
-        assertThat(events, hasSize(2));
-
-        assertThat(events.get(0).getEventAction(), is("registration"));
-        assertThat(events.get(1).getEventAction(), is("last changed"));
-    }
-
-    @Test
     public void lookup_single_autnum() throws Exception {
         final Autnum autnum = createResource(AUDIENCE, "autnum/123")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -473,6 +416,124 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
         }
+    }
+
+    // general
+    @Test
+    public void multiple_modification_gives_correct_events() throws Exception {
+        final String start = "" +
+                "aut-num:   AS123\n" +
+                "as-name:   AS-TEST\n" +
+                "descr:     Modified ASN\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "changed:   test@test.net.au 20010816\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n" +
+                "password:  test\n";
+        final String response = doPostOrPutRequest(getUrl("test", ""), "POST", "DATA=" + encode(start), MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
+        assertThat(response, containsString("Modify SUCCEEDED: [aut-num] AS123"));
+
+        final String deleteString = "" +
+                "aut-num:   AS123\n" +
+                "as-name:   AS-TEST\n" +
+                "descr:     Modified ASN\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "changed:   test@test.net.au 20010816\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n" +
+                "delete:    reason\n" +
+                "password:  test\n";
+
+        final String delete = doPostOrPutRequest(getUrl("test", ""), "POST", "DATA=" + encode(deleteString), MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
+        assertThat(delete, containsString("Delete SUCCEEDED: [aut-num] AS123"));
+
+        final String recreate = doPostOrPutRequest(getUrl("test", ""), "POST", "DATA=" + encode(start) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
+        assertThat(recreate, containsString("Create SUCCEEDED: [aut-num] AS123"));
+
+        final String modifiedAgain = "" +
+                "aut-num:   AS123\n" +
+                "as-name:   AS-TEST\n" +
+                "descr:     Final version ASN\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "changed:   test@test.net.au 20010816\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n" +
+                "password:  test\n";
+        final String last = doPostOrPutRequest(getUrl("test", ""), "POST", "DATA=" + encode(modifiedAgain), MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
+        assertThat(last, containsString("Modify SUCCEEDED: [aut-num] AS123"));
+
+        final Autnum autnum = createResource(AUDIENCE, "autnum/123")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        final List<Event> events = autnum.getEvents();
+        assertThat(events, hasSize(2));
+
+        assertThat(events.get(0).getEventAction(), is("registration"));
+        assertThat(events.get(1).getEventAction(), is("last changed"));
+    }
+
+    @Test
+    public void abuseContact_as_vcard() {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       AB-TEST\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST\n");
+
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TO2-TEST\n" +
+                "org-name:      Test organisation\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       AB-TEST\n" +
+                "descr:         Drugs and gambling\n" +
+                "remarks:       Nice to deal with generally\n" +
+                "address:       1 Fake St. Fauxville\n" +
+                "phone:         +01-000-000-000\n" +
+                "fax-no:        +01-000-000-000\n" +
+                "e-mail:        org@test.com\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       test@test.net.au 20121121\n" +
+                "source:        TEST\n");
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TO2-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "changed:      dbtest@ripe.net 20020101\n" +
+                "source:       TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.0.0.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "changed:      dbtest@ripe.net 20020101\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource(AUDIENCE, "ip/192.0.0.128")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getEntities().get(0).getHandle(), is("AB-TEST"));
+        assertThat(ip.getEntities().get(0).getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(ip.getEntities().get(0).getVCardArray().get(1).toString(), is("[[version, {}, text, 4.0], [adr, {label=Singel 258}, text, null], [tel, {}, uri, +31 6 12345678]]"));
     }
 
     @Override
