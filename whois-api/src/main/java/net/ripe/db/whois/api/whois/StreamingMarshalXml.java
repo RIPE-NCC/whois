@@ -18,7 +18,9 @@ class StreamingMarshalXml implements StreamingMarshal {
 
     static {
         try {
-            final JAXBContext context = JAXBContext.newInstance(WhoisResources.class.getPackage().getName());
+            String wtf = WhoisResources.class.getPackage().getName();
+
+            final JAXBContext context = JAXBContext.newInstance(wtf);
             marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
 

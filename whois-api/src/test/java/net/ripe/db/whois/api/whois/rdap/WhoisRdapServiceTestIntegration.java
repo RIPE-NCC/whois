@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.whois.rdap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -17,7 +18,6 @@ import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.api.whois.rdap.domain.Link;
 import net.ripe.db.whois.api.whois.rdap.domain.Remark;
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
@@ -29,6 +29,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -41,19 +43,6 @@ import static org.junit.Assert.fail;
 public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     private static final Audience AUDIENCE = Audience.PUBLIC;
-
-    private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
-            "person:  Pauleth Palthen\n" +
-            "address: Singel 258\n" +
-            "phone:   +31-1234567890\n" +
-            "e-mail:  noreply@ripe.net\n" +
-            "mnt-by:  OWNER-MNT\n" +
-            "nic-hdl: PP1-TEST\n" +
-            "changed: noreply@ripe.net 20120101\n" +
-            "changed: noreply@ripe.net 20120102\n" +
-            "changed: noreply@ripe.net 20120103\n" +
-            "remarks: remark\n" +
-            "source:  TEST\n");
 
     @Before
     public void setup() throws Exception {
@@ -81,6 +70,29 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n");
 
+        databaseHelper.updateObject("" +
+                "person:        Test Person2\n" +
+                "address:       Test Address\n" +
+                "phone:         +61-1234-1234\n" +
+                "e-mail:        noreply@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "nic-hdl:       TP2-TEST\n" +
+                "changed:       noreply@ripe.net 20120101\n" +
+                "source:        TEST\n");
+
+        databaseHelper.updateObject("" +
+                "person:        Pauleth Palthen\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31-1234567890\n" +
+                "e-mail:        noreply@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "nic-hdl:       PP1-TEST\n" +
+                "changed:       noreply@ripe.net 20120101\n" +
+                "changed:       noreply@ripe.net 20120102\n" +
+                "changed:       noreply@ripe.net 20120103\n" +
+                "remarks:       remark\n" +
+                "source:        TEST\n");
+
         databaseHelper.addObject("" +
                 "domain:        31.12.202.in-addr.arpa\n" +
                 "descr:         Test domain\n" +
@@ -88,8 +100,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "tech-c:        TP1-TEST\n" +
                 "zone-c:        TP1-TEST\n" +
                 "notify:        notify@test.net.au\n" +
-                "nserver:       ns1.test.com.au\n" +
-                "nserver:       ns2.test.com.au\n" +
+                "nserver:       ns1.test.com.au 10.0.0.1\n" +
+                "nserver:       ns2.test.com.au 2001:10::2\n" +
+                "ds-rdata:      52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
+                "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
+                "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
                 "changed:       test@test.net.au 20010816\n" +
                 "changed:       test@test.net.au 20121121\n" +
                 "mnt-by:        OWNER-MNT\n" +
@@ -114,9 +129,24 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "address:       1 Fake St. Fauxville\n" +
                 "phone:         +01-000-000-000\n" +
                 "fax-no:        +01-000-000-000\n" +
+                "admin-c:       PP1-TEST\n" +
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "changed:       test@test.net.au 20121121\n" +
+                "source:        TEST\n");
+
+        databaseHelper.addObject("" +
+                "organisation:  ORG-ONE-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "admin-c:       TP2-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "tech-c:        TP2-TEST\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       test@test.net.au 20000228\n" +
                 "source:        TEST\n");
 
         databaseHelper.addObject("" +
@@ -260,12 +290,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(response.getName(), is("RIPE-NCC"));
     }
 
-    // entity
+    // person entity
 
     @Test
     public void lookup_person_entity() throws Exception {
-        databaseHelper.addObject(PAULETH_PALTHEN);
-
         final Entity response = createResource(AUDIENCE, "entity/PP1-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
@@ -289,16 +317,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    @Ignore //TODO Denis will look into if this should be used or not
-    public void lookup_org_entity() throws Exception {
-        final Entity response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(Entity.class);
-
-        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
     public void lookup_entity_not_found() throws Exception {
         try {
             createResource(AUDIENCE, "entity/nonexistant")
@@ -311,7 +329,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_entity_no_accept_header() {
-        databaseHelper.addObject(PAULETH_PALTHEN);
 
         final Entity response = createResource(AUDIENCE, "entity/PP1-TEST")
                 .get(Entity.class);
@@ -419,6 +436,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     // general
+
     @Test
     public void multiple_modification_gives_correct_events() throws Exception {
         final String start = "" +
@@ -534,6 +552,94 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(ip.getEntities().get(0).getHandle(), is("AB-TEST"));
         assertThat(ip.getEntities().get(0).getVCardArray().get(0).toString(), is("vcard"));
         assertThat(ip.getEntities().get(0).getVCardArray().get(1).toString(), is("[[version, {}, text, 4.0], [adr, {label=Singel 258}, text, null], [tel, {}, uri, +31 6 12345678]]"));
+    }
+
+    // organisation entity
+
+    // TODO Denis will look into if this should be used or not
+
+    @Test
+    @Ignore
+    public void lookup_org_entity() throws Exception {
+        final Entity response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+    }
+
+    @Test
+    @Ignore
+    public void noOrg() throws Exception {
+        final ClientResponse clientResponse = createResource(AUDIENCE, "entity/ORG-NONE-TEST").get(ClientResponse.class);
+
+        assertThat(clientResponse.getStatus(), equalTo(404));
+        assertThat(clientResponse.getEntity(String.class), equalTo(""));
+    }
+
+    @Test
+    @Ignore
+    public void lookupOrg() throws Exception {
+        final ClientResponse clientResponse = createResource(AUDIENCE, "entity/ORG-ONE-TEST").accept(MediaType.APPLICATION_JSON_TYPE).get(ClientResponse.class);
+
+        assertThat(clientResponse.getStatus(), equalTo(200));
+        final Entity entity = clientResponse.getEntity(Entity.class);
+        assertThat(entity.getHandle(), equalTo("ORG-ONE-TEST"));
+
+        final List<Event> events = entity.getEvents();
+        assertThat(events.size(), equalTo(1));
+
+        final Event event = events.get(0);
+        assertThat(event.getEventDate().toString(), equalTo(""));
+
+        final List<Entity> entities = entity.getEntities();
+        assertThat(entities.size(), equalTo(2));
+
+        Collections.sort(entities, new Comparator<Entity>() {
+            public int compare(final Entity e1, final Entity e2) {
+                return e1.getHandle().compareTo(e2.getHandle());
+            }
+        });
+
+        final Entity entityTp1 = entities.get(0);
+        assertThat(entityTp1.getHandle(), equalTo("TP1-TEST"));
+
+        final List<String> tp1Roles = entityTp1.getRoles();
+        assertThat(tp1Roles.size(), equalTo(1));
+        assertThat(tp1Roles.get(0), equalTo("technical"));
+
+        final Entity entityTp2 = entities.get(1);
+        assertThat(entityTp2.getHandle(), equalTo("TP2-TEST"));
+
+        final List<String> tp2Roles = entityTp2.getRoles();
+        Collections.sort(tp2Roles);
+        assertThat(tp2Roles.size(), equalTo(2));
+        assertThat(tp2Roles.get(0), equalTo("administrative"));
+        assertThat(tp2Roles.get(1), equalTo("technical"));
+
+        final String linkValue = createResource(AUDIENCE, "entity/ORG-ONE-TEST").toString();
+        final String tp1Link = createResource(AUDIENCE, "entity/TP1-TEST").toString();
+        final String tp2Link = createResource(AUDIENCE, "entity/TP2-TEST").toString();
+
+        final List<Link> tp1Links = entityTp1.getLinks();
+        assertThat(tp1Links.size(), equalTo(1));
+        assertThat(tp1Links.get(0).getRel(), equalTo("self"));
+        assertThat(tp1Links.get(0).getValue(), equalTo(linkValue));
+        assertThat(tp1Links.get(0).getHref(), equalTo(tp1Link));
+
+        final List<Link> tp2Links = entityTp2.getLinks();
+        assertThat(tp2Links.size(), equalTo(1));
+        assertThat(tp2Links.get(0).getRel(), equalTo("self"));
+        assertThat(tp2Links.get(0).getValue(), equalTo(linkValue));
+        assertThat(tp2Links.get(0).getHref(), equalTo(tp2Link));
+
+        final List<Link> links = entity.getLinks();
+        assertThat(links.size(), equalTo(1));
+
+        final Link selfLink = links.get(0);
+        assertThat(selfLink.getRel(), equalTo("self"));
+        assertThat(selfLink.getValue(), equalTo(linkValue));
+        assertThat(selfLink.getHref(), equalTo(linkValue));
     }
 
     @Override

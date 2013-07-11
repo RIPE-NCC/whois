@@ -22,6 +22,7 @@ import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,13 +50,15 @@ public class WhoisRdapService {
     private final QueryHandler queryHandler;
     private final VersionDao versionDao;
     private final AbuseCFinder abuseCFinder;
+    private final String baseUrl;
 
     @Autowired
-    public WhoisRdapService(final SourceContext sourceContext, final QueryHandler queryHandler, final VersionDao versionDao, final AbuseCFinder abuseCFinder) {
+    public WhoisRdapService(final SourceContext sourceContext, final QueryHandler queryHandler, final VersionDao versionDao, final AbuseCFinder abuseCFinder, @Value("${rdap.public.baseUrl:}") final String baseUrl) {
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
         this.versionDao = versionDao;
         this.abuseCFinder = abuseCFinder;
+        this.baseUrl = baseUrl;
     }
 
     @GET
@@ -113,7 +116,7 @@ public class WhoisRdapService {
         }));
 
         final Query query = Query.parse(
-                String.format("%s %s %s %s %s %s %s %s",
+                String.format("%s %s %s %s %s %s %s",
                         QueryFlag.NO_GROUPING.getLongFlag(),
                         QueryFlag.NO_REFERENCED.getLongFlag(),
                         QueryFlag.SOURCES.getLongFlag(),
@@ -152,11 +155,14 @@ public class WhoisRdapService {
             }
 
             final RpslObject resultObject = result.get(0);
-            return Response.ok(RdapObjectMapper.map(
-                    getRequestUrl(request),
-                    resultObject,
-                    versionDao.findByKey(resultObject.getType(), resultObject.getKey().toString()),
-                    abuseCFinder.findAbuseContacts(resultObject))).build();
+
+            return Response.ok(
+                    RdapObjectMapper.map(
+                        getRequestUrl(request),
+                        getBaseUrl(request),
+                        resultObject,
+                        versionDao.findByKey(resultObject.getType(), resultObject.getKey().toString()),
+                        abuseCFinder.findAbuseContacts(resultObject))).build();
 
         } catch (final QueryException e) {
             if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
@@ -166,6 +172,17 @@ public class WhoisRdapService {
                 throw e;
             }
         }
+    }
+
+    private String getBaseUrl(final HttpServletRequest request) {
+        if (!this.baseUrl.isEmpty()) {
+            return this.baseUrl;
+        }
+
+        final StringBuffer buffer = request.getRequestURL();
+        buffer.setLength(buffer.length() - request.getRequestURI().length());
+
+        return buffer.toString();
     }
 
     private String getRequestUrl(final HttpServletRequest request) {
