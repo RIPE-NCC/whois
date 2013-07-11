@@ -1,12 +1,9 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import com.google.common.collect.Lists;
+
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -82,14 +79,14 @@ public class Nameserver
 
         public List<String> getIpv4() {
             if (ipv4 == null) {
-                ipv4 = new ArrayList<String>();
+                ipv4 = Lists.newArrayList();
             }
             return this.ipv4;
         }
 
         public List<String> getIpv6() {
             if (ipv6 == null) {
-                ipv6 = new ArrayList<String>();
+                ipv6 = Lists.newArrayList();
             }
             return this.ipv6;
         }

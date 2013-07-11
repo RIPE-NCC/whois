@@ -1,11 +1,12 @@
 package net.ripe.db.whois.api.whois.rdap.domain.vcard;
 
+import com.google.common.collect.Lists;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -49,7 +50,7 @@ public class NEntryValueType
 
     public List<String> getNPost() {
         if (nPost == null) {
-            nPost = new ArrayList<String>();
+            nPost = Lists.newArrayList();
         }
         return this.nPost;
     }

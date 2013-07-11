@@ -1,12 +1,9 @@
 package net.ripe.db.whois.api.whois.rdap.domain.vcard;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import com.google.common.collect.Lists;
+
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -48,7 +45,7 @@ public class Categories
 
     public List<String> getValue() {
         if (value == null) {
-            value = new ArrayList<String>();
+            value = Lists.newArrayList();
         }
         return this.value;
     }

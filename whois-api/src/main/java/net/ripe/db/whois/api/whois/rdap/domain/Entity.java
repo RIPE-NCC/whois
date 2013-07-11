@@ -1,8 +1,9 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
+import com.google.common.collect.Lists;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ public class Entity extends RdapObject implements Serializable {
 
     public List<String> getRoles() {
         if (roles == null) {
-            roles = new ArrayList<>();
+            roles = Lists.newArrayList();
         }
         return this.roles;
     }

@@ -1,12 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap;
 
-import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Event;
-import net.ripe.db.whois.api.whois.rdap.domain.Ip;
-import net.ripe.db.whois.api.whois.rdap.domain.Link;
-import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
-import net.ripe.db.whois.api.whois.rdap.domain.Notice;
-import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.AnnotationIntrospector;
@@ -22,8 +17,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.TimeZone;
 
 import static com.google.common.collect.Maps.immutableEntry;
@@ -38,7 +31,7 @@ public class RdapResponseJsonTest {
 
     @Test
     public void entity_vcard_serialization_test() throws Exception {
-        VCardBuilder builder = new VCardBuilder();
+        final VCardBuilder builder = new VCardBuilder();
 
         builder.addVersion()
                 .addFn("Joe User")
@@ -105,29 +98,26 @@ public class RdapResponseJsonTest {
 
     @Test
     public void nameserver_serialization_test() throws Exception {
-        Nameserver nameserver = new Nameserver();
+        final Nameserver nameserver = new Nameserver();
         nameserver.setHandle("handle");
         nameserver.setLdhName("ns1.xn--fo-5ja.example");
         nameserver.setUnicodeName("foo.example");
         nameserver.getStatus().add("active");
-        Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
+
+        final Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
         ipAddresses.getIpv4().add("192.0.2.1");
         ipAddresses.getIpv4().add("192.0.2.2");
         ipAddresses.getIpv6().add("2001:db8::123");
         nameserver.setIpAddresses(ipAddresses);
 
-        List<String> remarkList = new ArrayList<>();
-        Remark remarks1 = new Remark();
-        remarkList.add("She sells sea shells down by the sea shore.");
-        remarkList.add("Originally written by Terry Sullivan.");
+        final Remark remark = new Remark();
+        remark.getDescription().addAll(Lists.newArrayList("She sells sea shells down by the sea shore.", "Originally written by Terry Sullivan."));
+        nameserver.getRemarks().add(remark);
 
-        remarks1.getDescription().addAll(remarkList);
-        nameserver.getRemarks().add(remarks1);
-
-        Link link = new Link();
-        link.setHref("http://example.net/nameserver/xxxx");
-        link.setValue("http://example.net/nameserver/xxxx");
-        link.setRel("self");
+        final Link link = new Link()
+                .setHref("http://example.net/nameserver/xxxx")
+                .setValue("http://example.net/nameserver/xxxx")
+                .setRel("self");
         nameserver.getLinks().add(link);
 
         nameserver.setPort43("whois.example.net");
@@ -186,23 +176,20 @@ public class RdapResponseJsonTest {
         ip.setCountry("AU");
         ip.getStatus().add("allocated");
 
-        List<String> remarkList = new ArrayList<>();
-        Remark remark = new Remark();
-        remarkList.add("She sells sea shells down by the sea shore.");
-        remarkList.add("Originally written by Terry Sullivan.");
-        remark.getDescription().addAll(remarkList);
+        final Remark remark = new Remark();
+        remark.getDescription().addAll(Lists.newArrayList("She sells sea shells down by the sea shore.", "Originally written by Terry Sullivan."));
         ip.getRemarks().add(remark);
 
-        Link link = new Link();
-        link.setHref("http://example.net/ip/2001:db8::/48");
-        link.setValue("http://example.net/ip/2001:db8::/48");
-        link.setRel("self");
+        final Link link = new Link()
+                .setHref("http://example.net/ip/2001:db8::/48")
+                .setValue("http://example.net/ip/2001:db8::/48")
+                .setRel("self");
         ip.getLinks().add(link);
 
-        Link uplink = new Link();
-        uplink.setHref("http://example.net/ip/2001:C00::/23");
-        uplink.setValue("http://example.net/ip/2001:db8::/48");
-        uplink.setRel("up");
+        final Link uplink = new Link()
+                .setHref("http://example.net/ip/2001:C00::/23")
+                .setValue("http://example.net/ip/2001:db8::/48")
+                .setRel("up");
         ip.getLinks().add(uplink);
 
         final Event registrationEvent = new Event();
@@ -216,10 +203,10 @@ public class RdapResponseJsonTest {
         lastChangedEvent.setEventActor("joe@example.com");
         ip.getEvents().add(lastChangedEvent);
 
-        Entity entity = new Entity();
+        final Entity entity = new Entity();
         entity.setHandle("XXXX");
 
-        VCardBuilder builder = new VCardBuilder();
+        final VCardBuilder builder = new VCardBuilder();
         builder.addVersion()
                 .addFn("Joe User")
                 .addKind("individual")
@@ -242,10 +229,10 @@ public class RdapResponseJsonTest {
         entity.getEvents().add(lastChangedEvent);
         ip.getEntities().add(entity);
 
-        Link entityLink = new Link();
-        entityLink.setHref("http://example.net/entity/xxxx");
-        entityLink.setValue("http://example.net/entity/xxxx");
-        entityLink.setRel("self");
+        final Link entityLink = new Link()
+                .setHref("http://example.net/entity/xxxx")
+                .setValue("http://example.net/entity/xxxx")
+                .setRel("self");
         entity.getLinks().add(entityLink);
 
         assertThat(marshal(ip), equalTo("" +
@@ -314,14 +301,15 @@ public class RdapResponseJsonTest {
 
     @Test
     public void notices_serialization_test() throws Exception {
-        Notice notices = new Notice();
+        final Notice notices = new Notice();
         notices.setTitle("Beverage policy");
         notices.getDescription().add("Beverages with caffeine for keeping horses awake.");
         notices.getDescription().add("Very effective.");
-        Link link = new Link();
-        link.setValue("http://example.com/context_uri");
-        link.setRel("self");
-        link.setHref("http://example.com/target_uri_href");
+
+        final Link link = new Link()
+                .setValue("http://example.com/context_uri")
+                .setRel("self")
+                .setHref("http://example.com/target_uri_href");
         link.getHreflang().add("en");
         link.getHreflang().add("ch");
         link.getTitle().add("title1");
@@ -348,11 +336,11 @@ public class RdapResponseJsonTest {
 
     // helper methods
 
-    private String marshal(Object o) throws IOException {
+    private String marshal(final Object o) throws IOException {
         final StringOutputStream outputStream = new StringOutputStream();
 
         final JsonFactory jsonFactory = createJsonFactory();
-        JsonGenerator generator = jsonFactory.createJsonGenerator(outputStream).useDefaultPrettyPrinter();
+        final JsonGenerator generator = jsonFactory.createJsonGenerator(outputStream).useDefaultPrettyPrinter();
         generator.writeObject(o);
         generator.close();
 

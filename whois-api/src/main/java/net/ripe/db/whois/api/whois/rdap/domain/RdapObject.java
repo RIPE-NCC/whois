@@ -1,8 +1,9 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
+import com.google.common.collect.Lists;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -36,35 +37,35 @@ public class RdapObject implements Serializable {
 
     public List<Object> getStatus() {
         if (status == null) {
-            status = new ArrayList<>();
+            status = Lists.newArrayList();
         }
         return this.status;
     }
 
     public List<Entity> getEntities() {
         if (entities == null) {
-            entities = new ArrayList<>();
+            entities = Lists.newArrayList();
         }
         return this.entities;
     }
 
     public List<Remark> getRemarks() {
         if (remarks == null) {
-            remarks = new ArrayList<>();
+            remarks = Lists.newArrayList();
         }
         return this.remarks;
     }
 
     public List<Link> getLinks() {
         if (links == null) {
-            links = new ArrayList<>();
+            links = Lists.newArrayList();
         }
         return this.links;
     }
 
     public List<Event> getEvents() {
         if (events == null) {
-            events = new ArrayList<>();
+            events = Lists.newArrayList();
         }
         return this.events;
     }
@@ -79,14 +80,14 @@ public class RdapObject implements Serializable {
 
     public List<String> getRdapConformance() {
         if (rdapConformance == null) {
-            rdapConformance = new ArrayList<>();
+            rdapConformance = Lists.newArrayList();
         }
         return this.rdapConformance;
     }
 
     public List<Notice> getNotices() {
         if (notices == null) {
-            notices = new ArrayList<>();
+            notices = Lists.newArrayList();
         }
         return this.notices;
     }

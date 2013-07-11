@@ -1,8 +1,9 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
+import com.google.common.collect.Lists;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +56,7 @@ public class Domain extends RdapObject implements Serializable {
 
     public List<Nameserver> getNameservers() {
         if (nameservers == null) {
-            nameservers = new ArrayList<>();
+            nameservers = Lists.newArrayList();
         }
         return this.nameservers;
     }

@@ -1,11 +1,12 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
+import com.google.common.collect.Lists;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -15,9 +16,7 @@ import java.util.List;
     "links"
 })
 @XmlRootElement
-public class Notice
-    implements Serializable
-{
+public class Notice implements Serializable {
     protected String title;
     protected List<String> description;
     protected Link links;
@@ -32,7 +31,7 @@ public class Notice
 
     public List<String> getDescription() {
         if (description == null) {
-            description = new ArrayList<String>();
+            description = Lists.newArrayList();
         }
         return this.description;
     }

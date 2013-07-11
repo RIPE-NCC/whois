@@ -382,8 +382,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Autnum.class);
 
         assertThat(autnum.getHandle(), equalTo("AS123"));
-        assertThat(autnum.getStartAutnum(), equalTo(123L));
-        assertThat(autnum.getEndAutnum(), equalTo(123L));
+        assertThat(autnum.getStartAutnum(), equalTo(0L));
+        assertThat(autnum.getEndAutnum(), equalTo(0L));
         assertThat(autnum.getName(), equalTo("AS-TEST"));
         assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
 

@@ -1,15 +1,15 @@
 package net.ripe.db.whois.api.whois.rdap;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class VCardBuilder {
 
-    private final List<VCardProperty> properties = new ArrayList();
+    private final List<VCardProperty> properties = Lists.newArrayList();
 
     public VCardBuilder addAdr(final Map parameters, final AdrEntryValueType value) {
         final Adr adr = new Adr();
