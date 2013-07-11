@@ -8,10 +8,7 @@ import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +43,11 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     @BeforeClass
     public static void setInterval() {
         System.setProperty("nrtm.update.interval", "1");
+    }
+
+    @AfterClass
+    public static void resetInterval() {
+        System.clearProperty("nrtm.update.interval");
     }
 
     @Before
