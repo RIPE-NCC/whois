@@ -39,5 +39,7 @@ public abstract class IpInterval<K extends Interval<K>> implements Interval<K> {
 
     public abstract InetAddress beginAsInetAddress();
 
+    public abstract InetAddress endAsInetAddress();
+
     public abstract int getPrefixLength();
 }

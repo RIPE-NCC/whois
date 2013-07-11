@@ -11,5 +11,7 @@ var*/
 /.idea
 pom.xml.*Backup
 *.iml
+*.ipr
+*.iws
 *qrylog*
 logs

@@ -18,7 +18,9 @@ class StreamingMarshalXml implements StreamingMarshal {
 
     static {
         try {
-            final JAXBContext context = JAXBContext.newInstance(WhoisResources.class.getPackage().getName());
+            String wtf = WhoisResources.class.getPackage().getName();
+
+            final JAXBContext context = JAXBContext.newInstance(wtf);
             marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
 
@@ -56,6 +58,16 @@ class StreamingMarshalXml implements StreamingMarshal {
         } catch (XMLStreamException e) {
             throw new StreamingException(e);
         }
+    }
+
+    @Override
+    public void writeRaw(final String str) {
+        return;
+    }
+
+    @Override
+    public void writeObject(final Object o) {
+        return;
     }
 
     @Override

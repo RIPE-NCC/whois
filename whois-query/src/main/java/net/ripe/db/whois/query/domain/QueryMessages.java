@@ -9,6 +9,8 @@ import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.query.query.QueryFlag;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

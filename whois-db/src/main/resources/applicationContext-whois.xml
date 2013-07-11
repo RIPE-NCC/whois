@@ -10,6 +10,7 @@
             location="
                 classpath:version.properties,
                 classpath:whois.properties,
+                classpath:rdap.properties,
                 file:${whois.config}"/>
 
     <import resource="applicationContext-whois-base.xml"/>

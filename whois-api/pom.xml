@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
@@ -7,10 +8,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>net.ripe.db</groupId>
     <artifactId>whois-api</artifactId>
-    <version>1.68-SNAPSHOT</version>
-    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -44,6 +42,12 @@
         <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
+	    </dependency>
+
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-json</artifactId>
+            <version>1.17</version>
         </dependency>
 
         <dependency>
@@ -82,6 +86,17 @@
             <artifactId>lucene-facet</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.googlecode.ez-vcard</groupId>
+            <artifactId>ez-vcard</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+
         <!-- Solr -->
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -106,6 +121,17 @@
             <artifactId>whois-update</artifactId>
             <type>test-jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.ostermiller</groupId>
+            <artifactId>utils</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.co.datumedge</groupId>
+            <artifactId>hamcrest-json</artifactId>
+            <version>0.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -164,6 +190,21 @@
                             <packageDir>${project.build.directory}/enunciate/package-int</packageDir>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>RDAP</id>
+                        <goals>
+                            <goal>docs</goal>
+                        </goals>
+                        <configuration>
+                            <configFile>enunciate-rdap.xml</configFile>
+                            <docsDir>${project.build.directory}/generated-sources/enunciate/rdap-docs</docsDir>
+                            <buildDir>${project.build.directory}/enunciate/build-rdap</buildDir>
+                            <compileDir>${project.build.directory}/enunciate/compile-rdap</compileDir>
+                            <scratchDir>${project.build.directory}/enunciate-scratch-rdap</scratchDir>
+                            <generateDir>${project.build.directory}/enunciate/generate-rdap</generateDir>
+                            <packageDir>${project.build.directory}/enunciate/package-rdap</packageDir>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -180,6 +221,65 @@
                             <artifactId>whois-commons</artifactId>
                         </aspectLibrary>
                     </aspectLibraries>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-xjc-plugin</artifactId>
+                <version>2.6.1</version>
+                <executions>
+                    <execution>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <extensions>
+                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.6.1</extension>
+                    </extensions>
+                    <sourceRoot>${project.build.sourceDirectory}</sourceRoot>
+                    <xsdOptions>
+                        <xsdOption>
+                            <xsd>${basedir}/src/main/resources/rdap-docs/xsd/rdap/rdap-resources.xsd</xsd>
+                            <bindingFile>${basedir}/src/main/resources/rdap-docs/xsd/rdap/rdap-resources.xjb</bindingFile>
+                            <packagename>net.ripe.db.whois.api.whois.rdap.domain</packagename>
+                            <extension>true</extension>
+                            <extensionArgs>
+                                <arg>-Xdv</arg>
+                            </extensionArgs>
+                        </xsdOption>
+                        <xsdOption>
+                            <xsd>${basedir}/src/main/resources/rdap-docs/xsd/vcard/vcard.xsd</xsd>
+                            <bindingFile>${basedir}/src/main/resources/rdap-docs/xsd/vcard/vcard.xjb</bindingFile>
+                            <packagename>net.ripe.db.whois.api.whois.rdap.domain.vcard</packagename>
+                            <extension>true</extension>
+                            <extensionArgs>
+                                <arg>-Xdv</arg>
+                            </extensionArgs>
+                        </xsdOption>
+                    </xsdOptions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>maven-replacer-plugin</artifactId>
+                <version>1.4.1</version>
+                <executions>
+                    <execution>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <basedir>${project.build.sourceDirectory}/net/ripe/db/whois/api/whois/rdap/domain</basedir>
+                    <filesToInclude>**/*.java</filesToInclude>
+                    <regex>true</regex>
+                    <token>^// Generated on: 20.*$</token>
+                    <value>// Generated on: stripped</value>
+                    <regexFlags>
+                        <regexFlag>MULTILINE</regexFlag>
+                    </regexFlags>
                 </configuration>
             </plugin>
         </plugins>

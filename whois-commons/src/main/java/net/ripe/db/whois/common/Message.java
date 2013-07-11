@@ -5,7 +5,7 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class Message {
     private final Messages.Type type;
-    private final String value;
+    private String value;
 
     public Message(final Messages.Type type, final String value, final Object... args) {
         this.type = type;

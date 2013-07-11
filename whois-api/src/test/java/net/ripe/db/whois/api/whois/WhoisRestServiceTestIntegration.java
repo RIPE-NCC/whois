@@ -11,11 +11,7 @@ import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.rpsl.*;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.junit.Before;
@@ -1687,12 +1683,16 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         final Flags flags = parameters.getFlags();
         assertThat(flags.getFlags().get(0).getValue(), is("r"));
         assertThat(flags.getFlags().get(1).getValue(), is("B"));
+
         final InverseAttributes inverseAttributes = parameters.getInverseLookup();
         assertThat(inverseAttributes.getInverseAttributes().get(0).getValue(), is("person"));
+
         final TypeFilters typeFilters = parameters.getTypeFilters();
         assertThat(typeFilters.getTypeFilters().get(0).getId(), is("aut-num"));
+
         final Sources sources = parameters.getSources();
         assertThat(sources.getSources().get(0).getId(), is("test"));
+
         final QueryStrings queryStrings = parameters.getQueryStrings();
         assertThat(queryStrings.getQueryStrings().get(0).getValue(), is("TP1-TEST"));
     }

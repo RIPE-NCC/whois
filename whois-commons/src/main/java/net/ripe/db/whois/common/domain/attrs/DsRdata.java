@@ -20,6 +20,22 @@ public class DsRdata {
         this.digestHexString = digestHexString;
     }
 
+    public int getKeytag() {
+        return keytag;
+    }
+
+    public int getAlgorithm() {
+        return algorithm;
+    }
+
+    public int getDigestType() {
+        return digestType;
+    }
+
+    public String getDigestHexString() {
+        return digestHexString;
+    }
+
     @Override
     public String toString() {
         return String.format("%d %d %d %s", keytag, algorithm, digestType, digestHexString);

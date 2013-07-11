@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 class StreamingMarshalJson implements StreamingMarshal {
-    private static JsonFactory jsonFactory;
+    protected static JsonFactory jsonFactory;
 
     static {
         final ObjectMapper objectMapper = new ObjectMapper();
@@ -23,7 +23,7 @@ class StreamingMarshalJson implements StreamingMarshal {
         jsonFactory = objectMapper.getJsonFactory();
     }
 
-    private JsonGenerator generator;
+    protected JsonGenerator generator;
 
     @Override
     public void open(final OutputStream outputStream) {
@@ -60,6 +60,16 @@ class StreamingMarshalJson implements StreamingMarshal {
         } catch (IOException e) {
             throw new StreamingException(e);
         }
+    }
+
+    @Override
+    public void writeRaw(final String str) {
+        return;
+    }
+
+    @Override
+    public void writeObject(final Object o) {
+        return;
     }
 
     @Override

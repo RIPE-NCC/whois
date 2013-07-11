@@ -25,8 +25,6 @@ import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.codehaus.enunciate.jaxrs.TypeHint;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,10 +49,14 @@ import static net.ripe.db.whois.query.query.QueryFlag.*;
 @Component
 @Path("/")
 public class WhoisRestService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRestService.class);
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
-    private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
+
+    private static final String TEXT_JSON = "text/json";
+    private static final String TEXT_XML = "text/xml";
+
     private static final Joiner JOINER = Joiner.on(",");
+
+    private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
     private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(Iterables.concat(
             TEMPLATE.getFlags(),
             VERBOSE.getFlags(),
@@ -71,9 +73,6 @@ public class WhoisRestService {
             SHOW_VERSION.getFlags(),
             PERSISTENT_CONNECTION.getFlags()
     ));
-
-    private static final String TEXT_JSON = "text/json";
-    private static final String TEXT_XML = "text/xml";
 
     private final DateTimeProvider dateTimeProvider;
     private final UpdateRequestHandler updateRequestHandler;

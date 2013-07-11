@@ -123,7 +123,7 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
         if (slashIndex > 0) {
             int prefixLength = Integer.parseInt(trimmedPrefixOrAddress.substring(slashIndex + 1));
             if (prefixLength < 0 || prefixLength > 128) {
-                throw new IllegalArgumentException("Invalid prefix length: "+prefixOrAddress);
+                throw new IllegalArgumentException("Invalid prefix length: " + prefixOrAddress);
             }
             return parse(InetAddresses.forString(trimmedPrefixOrAddress.substring(0, slashIndex)), prefixLength);
         } else {
@@ -256,8 +256,21 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
     @Override
     public InetAddress beginAsInetAddress() {
         byte[] bytes = new byte[16];
-        System.arraycopy(Longs.toByteArray(beginMsb), 0, bytes, 8, 8);
-        System.arraycopy(Longs.toByteArray(beginLsb), 0, bytes, 0, 8);
+        System.arraycopy(Longs.toByteArray(beginMsb), 0, bytes, 0, 8);
+        System.arraycopy(Longs.toByteArray(beginLsb), 0, bytes, 8, 8);
+        try {
+            return Inet6Address.getByAddress(bytes);
+        } catch (UnknownHostException e) {
+            // this will never happen
+            return null;
+        }
+    }
+
+    @Override
+    public InetAddress endAsInetAddress() {
+        byte[] bytes = new byte[16];
+        System.arraycopy(Longs.toByteArray(endMsb), 0, bytes, 0, 8);
+        System.arraycopy(Longs.toByteArray(endLsb), 0, bytes, 8, 8);
         try {
             return Inet6Address.getByAddress(bytes);
         } catch (UnknownHostException e) {

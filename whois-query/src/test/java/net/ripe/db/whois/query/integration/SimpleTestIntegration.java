@@ -74,6 +74,13 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     }
 
     @Test
+    public void testDoc() {         // TODO: add assertion
+        final String response = DummyWhoisClient.query(QueryServer.port, "-v mntner");
+
+        System.out.println(response);
+    }
+
+    @Test
     public void kFlagShouldKeepTheConnectionOpenUntilTheSecondKWithoutArguments() throws Exception {
         final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
 
