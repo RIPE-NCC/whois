@@ -28,9 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @Category(IntegrationTest.class)
 public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase {
@@ -43,7 +41,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     private static final int MID_RANGE = 21486049;  // 21486050 is a person in nrtm_sample.sql
     private static final int MAX_RANGE = 21486100;
 
-    private static List<NrtmTestThread> testThreads;
+
 
     @BeforeClass
     public static void setInterval() {
@@ -52,7 +50,6 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
 
     @Before
     public void before() throws Exception {
-        waitForRunningThreadsToFinish();
         loadSerials(0, Integer.MAX_VALUE);
         nrtmServer.start();
     }
@@ -64,28 +61,21 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
 
     @Test
     public void dontHangOnHugeAutNumObject() throws Exception {
-        LOGGER.info("Entering dontHangOnHugeAutNumObject()");
         String response = DummyWhoisClient.query(NrtmServer.port, String.format("-g TEST:3:%d-%d", MIN_RANGE, MAX_RANGE), 5 * 1000);
 
         assertTrue(response, response.contains(String.format("ADD %d", MIN_RANGE)));  // serial 21486000 is a huge aut-num
         assertTrue(response, response.contains(String.format("DEL %d", MIN_RANGE + 1)));
-        LOGGER.info("Exiting dontHangOnHugeAutNumObject()");
     }
 
     @Test
     public void dontHangOnHugeAutNumObjectKeepalive() throws Exception {
-        LOGGER.info("Entering dontHangOnHugeAutNumObjectKeepalive()");
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         // initial serial range
         setSerial(MIN_RANGE + 1, MIN_RANGE + 1);
         String query = String.format("-g TEST:3:%d-LAST -k", MIN_RANGE + 1);
 
         NrtmTestThread thread = new NrtmTestThread(query, MIN_RANGE + 1, countDownLatch);
-
-        // junit will now wait until test finishes in @Before incase it thinks test is finished (and test threads still runnning)
-        testThreads = Lists.newArrayList(thread);
-
         thread.start();
         countDownLatch.await(5, TimeUnit.SECONDS);
         assertThat(thread.delCount, is(1));
@@ -100,17 +90,12 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
         assertThat(thread.delCount, is(3));
 
         thread.stop = true;
-        LOGGER.info("Exiting dontHangOnHugeAutNumObjectKeepalive()");
     }
 
     @Test
     public void manySimultaneousClientsReadingManyObjects() throws InterruptedException {
-        LOGGER.info("Entering manySimultaneousClientsReadingManyObjects()");
         // 1st part: clients request MIN to LAST with -k flag, but we provide half of the available serials only
         final List<NrtmTestThread> threads = Lists.newArrayList();
-
-        // junit will now wait until test finishes in @Before incase it thinks test is finished (and test threads still runnning)
-        testThreads = threads;
         CountDownLatch countDownLatch = new CountDownLatch(NUM_THREADS);
 
         setSerial(MIN_RANGE, MID_RANGE);
@@ -146,7 +131,6 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
         for (NrtmTestThread thread : threads) {
             thread.stop = true;
             if (thread.error != null) {
-                LOGGER.error("Thread reported error: " + thread.error);
                 fail("Thread reported error: " + thread.error);
             }
 
@@ -165,7 +149,6 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
         }
 
         LOGGER.info("ADD: {}, DEL: {}", addResult, delResult);
-        LOGGER.info("Exiting manySimultaneousClientsReadingManyObjects()");
     }
 
     private void setSerial(int min, int max) {
@@ -187,17 +170,6 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
         whoisTemplate.execute("TRUNCATE TABLE history");
         whoisTemplate.execute("TRUNCATE TABLE last");
     }
-
-    private void waitForRunningThreadsToFinish() {
-        if (testThreads != null) {
-            for (Thread thread : testThreads) {
-                try {
-                    thread.join();
-                } catch (InterruptedException ie) {}
-            }
-        }
-    }
-
 
     static class NrtmTestThread extends Thread {
         volatile String error;
@@ -249,15 +221,11 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
 
                         if (line.startsWith("ADD ")) {
                             addCount++;
-                            LOGGER.info("addCount++ now set to: " + addCount);
-                            LOGGER.info("line: " + line);
                             signalLatch(line.substring(4));
                         }
 
                         if (line.startsWith("DEL ")) {
                             delCount++;
-                            LOGGER.info("delcount++ now set to: " + delCount);
-                            LOGGER.info("line: " + line);
                             signalLatch(line.substring(4));
                         }
 
@@ -270,7 +238,6 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
                 }
             } catch (Exception e) {
                 error = e.getMessage();
-                LOGGER.error("Exception in NrtmTestThread",e);
             } finally {
                 IOUtils.closeQuietly(out);
                 IOUtils.closeQuietly(in);
