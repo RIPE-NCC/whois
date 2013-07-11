@@ -29,3 +29,4 @@ public class VCard {
         return properties;
     }
 }
+
