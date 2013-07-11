@@ -8,21 +8,20 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
-public class UpdateLockTestIntegration extends AbstractDaoTest implements Runnable {
+public class UpdateLockTestIntegration extends AbstractDaoTest {
 
     private static final String MNTNER = "Dot: ";
-
     private final int threads = 12;
-    private final CountDownLatch completed = new CountDownLatch(threads);
-
-    @Autowired private UpdateLockHelper updateLockHelper;
+    @Autowired
+    private UpdateLockHelper updateLockHelper;
 
     @Before
     public void setup() {
@@ -32,13 +31,14 @@ public class UpdateLockTestIntegration extends AbstractDaoTest implements Runnab
     @Test
     public void test_global_update_lock() throws Exception {
 
-        for (int i = 0; i < threads; i++) {
-            final Thread thread = new Thread(this);
-            thread.start();
+        ExecutorService executor = Executors.newFixedThreadPool(threads);
+        for (int cnt = 0; cnt < threads; ++cnt) {
+            UpdateLockWorker updateLockWorker = new UpdateLockWorker(updateLockHelper);
+            executor.execute(updateLockWorker);
         }
-
-        completed.await(10, TimeUnit.SECONDS);
-
+        executor.shutdown();
+        while (!executor.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
+        }
         assertThat(getMntnerValue(), is("Dot: " + StringUtils.repeat(".", threads)));
     }
 
@@ -46,9 +46,17 @@ public class UpdateLockTestIntegration extends AbstractDaoTest implements Runnab
         return whoisTemplate.queryForObject("SELECT mntner FROM mntner WHERE object_id = 1", String.class);
     }
 
-    @Override
-    public void run() {
-        updateLockHelper.testUpdateLock();
-        completed.countDown();
+    private static class UpdateLockWorker implements Runnable {
+        UpdateLockHelper updateLockHelper;
+
+        UpdateLockWorker(UpdateLockHelper updateLockHelper) {
+            this.updateLockHelper = updateLockHelper;
+        }
+
+        @Override
+        public void run() {
+            updateLockHelper.testUpdateLock();
+        }
     }
+
 }

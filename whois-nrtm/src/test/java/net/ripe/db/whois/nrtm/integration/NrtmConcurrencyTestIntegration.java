@@ -41,7 +41,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     private static final int MID_RANGE = 21486049;  // 21486050 is a person in nrtm_sample.sql
     private static final int MAX_RANGE = 21486100;
 
-    private static CountDownLatch countDownLatch;
+    private static List<NrtmTestThread> testThreads;
 
     @BeforeClass
     public static void setInterval() {
@@ -50,6 +50,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
 
     @Before
     public void before() throws Exception {
+        waitForRunningThreadsToFinish();
         loadSerials(0, Integer.MAX_VALUE);
         nrtmServer.start();
     }
@@ -69,13 +70,17 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
 
     @Test
     public void dontHangOnHugeAutNumObjectKeepalive() throws Exception {
-        countDownLatch = new CountDownLatch(1);
+         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         // initial serial range
         setSerial(MIN_RANGE + 1, MIN_RANGE + 1);
         String query = String.format("-g TEST:3:%d-LAST -k", MIN_RANGE + 1);
 
-        NrtmTestThread thread = new NrtmTestThread(query, MIN_RANGE + 1);
+        NrtmTestThread thread = new NrtmTestThread(query, MIN_RANGE + 1, countDownLatch);
+
+        // junit will now wait until test finishes in @Before incase it thinks test is finished (and test threads still runnning)
+        testThreads = Lists.newArrayList(thread);
+
         thread.start();
         countDownLatch.await(5, TimeUnit.SECONDS);
         assertThat(thread.delCount, is(1));
@@ -96,14 +101,18 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     public void manySimultaneousClientsReadingManyObjects() throws InterruptedException {
         // 1st part: clients request MIN to LAST with -k flag, but we provide half of the available serials only
         final List<NrtmTestThread> threads = Lists.newArrayList();
-        countDownLatch = new CountDownLatch(NUM_THREADS);
+
+        // junit will now wait until test finishes in @Before incase it thinks test is finished (and test threads still runnning)
+        testThreads = threads;
+
+        CountDownLatch countDownLatch = new CountDownLatch(NUM_THREADS);
 
         setSerial(MIN_RANGE, MID_RANGE);
 
         String query = String.format("-g TEST:3:%d-LAST -k", MIN_RANGE);
 
         for (int i = 0; i < NUM_THREADS; i++) {
-            NrtmTestThread thread = new NrtmTestThread(query, MID_RANGE);
+            NrtmTestThread thread = new NrtmTestThread(query, MID_RANGE, countDownLatch);
             threads.add(thread);
             thread.start();
         }
@@ -171,6 +180,16 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
         whoisTemplate.execute("TRUNCATE TABLE last");
     }
 
+    private void waitForRunningThreadsToFinish() {
+        if (testThreads != null) {
+            for (Thread thread : testThreads) {
+                try {
+                    thread.join();
+                } catch (InterruptedException ie) {}
+            }
+        }
+    }
+
     static class NrtmTestThread extends Thread {
         volatile String error;
         volatile int addCount;
@@ -178,10 +197,12 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
         volatile boolean stop = false;
         final String query;
         int lastSerial;
+        CountDownLatch countDownLatch;
 
-        public NrtmTestThread(String query, int lastSerial) {
+        public NrtmTestThread(String query, int lastSerial, CountDownLatch countDownLatch) {
             this.query = query;
             this.lastSerial = lastSerial;
+            this.countDownLatch = countDownLatch;
         }
 
         public void setLastSerial(int lastSerial) {
