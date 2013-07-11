@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
@@ -7,7 +9,13 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
+import net.ripe.db.whois.api.whois.rdap.domain.Domain;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Event;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
+import net.ripe.db.whois.api.whois.rdap.domain.Remark;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
@@ -20,7 +28,9 @@ import org.junit.experimental.categories.Category;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -47,7 +57,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Before
     public void setup() throws Exception {
-        databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
+        databaseHelper.addObject("" +
+                "person: Test Person\n" +
+                "nic-hdl: TP1-TEST");
+
         databaseHelper.addObject("" +
                 "mntner:        OWNER-MNT\n" +
                 "descr:         Owner Maintainer\n" +
@@ -258,6 +271,20 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("PP1-TEST"));
+
+        final List vcardArray = response.getVCardArray();
+        assertThat(vcardArray.size(), is(2));
+        assertThat(vcardArray.get(0).toString(), is("vcard"));
+        final List vcard = (List)vcardArray.get(1);
+        assertThat(vcard.size(), is(5));
+        assertThat(((ArrayList<Object>)vcard.get(0)), equalTo(Lists.<Object>newArrayList("version", Maps.newHashMap(), "text", "4.0")));
+        assertThat(((ArrayList<Object>)vcard.get(1)), equalTo(Lists.<Object>newArrayList("fn", Maps.newHashMap(), "text", "Pauleth Palthen")));
+        final Map adrParameters = Maps.newHashMap();
+        adrParameters.put("label", "Singel 258");
+        assertThat(((ArrayList<Object>) vcard.get(2)), equalTo(Lists.<Object>newArrayList("adr", adrParameters, "text", null)));
+        assertThat(((ArrayList<Object>) vcard.get(3)), equalTo(Lists.<Object>newArrayList("tel", Maps.newHashMap(), "uri", "+31-1234567890")));
+        assertThat(((ArrayList<Object>) vcard.get(4)), equalTo(Lists.<Object>newArrayList("email", Maps.newHashMap(), "text", "noreply@ripe.net")));
+
         assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
     }
 
