@@ -338,10 +338,10 @@ class RdapObjectMapper {
             secureDNS.setDelegationSigned(true);
 
             final Domain.SecureDNS.DsData dsData = new Domain.SecureDNS.DsData();
-            dsData.setKeyTag(dsRdata.getKeyTag());
-            dsData.setAlgorithm(dsRdata.getAlgorithmNumber());
+            dsData.setKeyTag(dsRdata.getKeytag());
+            dsData.setAlgorithm(dsRdata.getAlgorithm());
             dsData.setDigestType(dsRdata.getDigestType());
-            dsData.setDigest(dsRdata.getDigest().toString());
+            dsData.setDigest(dsRdata.getDigestHexString());
 
             secureDNS.getDsData().add(dsData);
         }

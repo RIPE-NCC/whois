@@ -169,7 +169,7 @@ public class Domain
             @XmlSchemaType(name = "unsignedInt")
             protected long keyTag;
             @XmlSchemaType(name = "unsignedByte")
-            protected short algorithm;
+            protected int algorithm;
             @XmlElement(required = true)
             protected String digest;
             @XmlSchemaType(name = "unsignedInt")
@@ -185,11 +185,11 @@ public class Domain
                 this.keyTag = value;
             }
 
-            public short getAlgorithm() {
+            public int getAlgorithm() {
                 return algorithm;
             }
 
-            public void setAlgorithm(short value) {
+            public void setAlgorithm(int value) {
                 this.algorithm = value;
             }
 
