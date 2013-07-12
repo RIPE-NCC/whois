@@ -37,7 +37,7 @@ class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link().setRel("copyright").setValue(TERMS_AND_CONDITIONS).setHref(TERMS_AND_CONDITIONS);
 
-    private static final List<String> RDAPCONFORMANCE = Lists.newArrayList("rdap_level_0");
+    private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
 
     private static final Set<AttributeType> CONTACT_ATTRIBUTES = Sets.newHashSet(AttributeType.ADMIN_C, AttributeType.TECH_C);
     private static final Map<AttributeType, String> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
@@ -76,12 +76,11 @@ class RdapObjectMapper {
                 throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
         }
 
-        rdapResponse.getRdapConformance().add("rdap_level_0");
         rdapResponse.getRemarks().add(createRemark(rpslObject));
         rdapResponse.getEvents().add(createEvent(lastChangedTimestamp));
 
         noticeValue = noticeValue + rpslObject.getKey();
-        rdapResponse.getRdapConformance().addAll(RDAPCONFORMANCE);
+        rdapResponse.getRdapConformance().addAll(RDAP_CONFORMANCE_LEVEL);
         rdapResponse.getNotices().addAll(NoticeFactory.generateNotices(noticeValue, rpslObject));
 
         rdapResponse.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(requestUrl));

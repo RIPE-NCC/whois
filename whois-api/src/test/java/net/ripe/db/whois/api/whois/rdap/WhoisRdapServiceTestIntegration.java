@@ -294,6 +294,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "[adr, {label=Singel 258}, text, null], " +
                 "[tel, {}, uri, +31-1234567890], " +
                 "[email, {}, text, noreply@ripe.net]]"));
+        assertThat(response.getRdapConformance(), hasSize(1));
         assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
     }
 
@@ -315,6 +316,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("PP1-TEST"));
+        assertThat(response.getRdapConformance(), hasSize(1));
         assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
     }
 
@@ -337,6 +339,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(response.getEntities(), hasSize(1));
         assertThat(response.getEntities().get(0).getHandle(), is("PP1-TEST"));
         assertThat(response.getEntities().get(0).getRoles(), contains("administrative", "technical"));
+        assertThat(response.getRdapConformance(), hasSize(1));
         assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
     }
 
@@ -350,6 +353,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
         assertThat(response.getHandle(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(response.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(response.getRdapConformance(), hasSize(1));
         assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
     }
 
