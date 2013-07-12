@@ -91,12 +91,6 @@
             <artifactId>ez-vcard</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.skyscreamer</groupId>
-            <artifactId>jsonassert</artifactId>
-            <version>1.2.0</version>
-        </dependency>
-
         <!-- Solr -->
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -126,10 +120,26 @@
             <artifactId>utils</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- JSON testing -->
+
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <version>1.2.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>uk.co.datumedge</groupId>
             <artifactId>hamcrest-json</artifactId>
             <version>0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ostermiller</groupId>
+            <artifactId>utils</artifactId>
+            <version>1.07.00</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

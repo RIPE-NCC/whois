@@ -409,19 +409,6 @@
                 <scope>test</scope>
             </dependency>
 
-            <dependency>
-                <groupId>org.ostermiller</groupId>
-                <artifactId>utils</artifactId>
-                <version>1.07.00</version>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>uk.co.datumedge</groupId>
-                <artifactId>hamcrest-json</artifactId>
-                <version>0.2</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
