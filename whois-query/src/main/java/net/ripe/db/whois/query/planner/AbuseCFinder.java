@@ -47,7 +47,13 @@ public class AbuseCFinder {
             RpslObject parentObject = object;
 
             while (abuseContacts.isEmpty()) {
-                final IpEntry ipEntry = findParent(parentObject);
+                List<? extends IpEntry> parent = Lists.newArrayList();
+                if (parentObject.getType() == ObjectType.INETNUM) {
+                    parent = ipv4Tree.findFirstLessSpecific(Ipv4Resource.parse(parentObject.getKey()));
+                } else if (parentObject.getType() == ObjectType.INET6NUM) {
+                    parent = ipv6Tree.findFirstLessSpecific(Ipv6Resource.parse(parentObject.getKey()));
+                }
+                final IpEntry ipEntry = CollectionHelper.uniqueResult(parent);
                 if (ipEntry == null) {
                     break;
                 }
@@ -70,48 +76,12 @@ public class AbuseCFinder {
     }
 
     public Map<CIString, CIString> getAbuseContacts(final RpslObject object) {
-        Collection<CIString> abuseContacts = getValuesForAttribute(getAbuseContactObjects(object), AttributeType.ABUSE_MAILBOX);
-
-        if (abuseContacts.isEmpty() && object.getType() != ObjectType.AUT_NUM) {
-            RpslObject parentObject = object;
-
-            while (abuseContacts.isEmpty()) {
-                final IpEntry ipEntry = findParent(parentObject);
-                if (ipEntry == null) {
-                    break;
-                }
-
-                try {
-                    parentObject = objectDao.getById(ipEntry.getObjectId());
-                } catch (EmptyResultDataAccessException e) {
-                    LOGGER.warn("Parent does not exist: {}", ipEntry.getObjectId());
-                    break;
-                }
-
-                abuseContacts = getValuesForAttribute(getAbuseContactObjects(parentObject), AttributeType.ABUSE_MAILBOX);
-
-                if (isMaintainedByRs(parentObject)) {
-                    break;
-                }
-            }
-        }
-
-        final Iterator<CIString> iterator = abuseContacts.iterator();
+        final Iterator<CIString> iterator = getValuesForAttribute(findAbuseContacts(object), AttributeType.ABUSE_MAILBOX).iterator();
         final Map<CIString, CIString> objectKeyWithAbuseContact = Maps.newHashMap();
         if (iterator.hasNext()) {
             objectKeyWithAbuseContact.put(object.getKey(), iterator.next());
         }
         return objectKeyWithAbuseContact;
-    }
-
-    private IpEntry findParent(final RpslObject parentObject) {
-        List<? extends IpEntry> parent = Lists.newArrayList();
-        if (parentObject.getType() == ObjectType.INETNUM) {
-            parent = ipv4Tree.findFirstLessSpecific(Ipv4Resource.parse(parentObject.getKey()));
-        } else if (parentObject.getType() == ObjectType.INET6NUM) {
-            parent = ipv6Tree.findFirstLessSpecific(Ipv6Resource.parse(parentObject.getKey()));
-        }
-        return CollectionHelper.uniqueResult(parent);
     }
 
     private List<RpslObject> getAbuseContactObjects(final RpslObject object) {
