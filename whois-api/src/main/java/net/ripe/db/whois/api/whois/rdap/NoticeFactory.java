@@ -20,34 +20,34 @@ import java.util.List;
 @Component
 public class NoticeFactory {
 
-    @Value("${rdap.tnc.title}")
+    @Value("${rdap.tnc.title:}")
     private String rdap_tnc_title;
 
-    @Value("${rdap.tnc.description}")
+    @Value("${rdap.tnc.description:}")
     private String rdap_tnc_description;
 
-    @Value("${rdap.tnc.linkrel}")
+    @Value("${rdap.tnc.linkrel:}")
     private String rdap_tnc_linkrel;
 
-    @Value("${rdap.tnc.linkhref}")
+    @Value("${rdap.tnc.linkhref:}")
     private String rdap_tnc_linkhref;
 
-    @Value("${rdap.tnc.linktype}")
+    @Value("${rdap.tnc.linktype:}")
     private String rdap_tnc_linktype;
 
-    @Value("${rdap.filter.isfiltered}")
+    @Value("${rdap.filter.isfiltered:}")
     private String rdap_filter_is_filtered;
 
-    @Value("${rdap.filter.description}")
+    @Value("${rdap.filter.description:}")
     private String rdap_filter_description;
 
-    @Value("${rdap.filter.title}")
+    @Value("${rdap.filter.title:}")
     private String rdap_filter_title;
 
-    @Value("${rdap.source.description}")
+    @Value("${rdap.source.description:}")
     private String rdap_source_description;
 
-    @Value("${rdap.source.title}")
+    @Value("${rdap.source.title:}")
     private String rdap_source_title;
 
     private static NoticeFactory noticeFactory;
