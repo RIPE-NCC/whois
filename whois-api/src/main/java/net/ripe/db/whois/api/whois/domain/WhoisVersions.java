@@ -10,7 +10,6 @@ import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-        "source",
         "type",
         "key",
         "versions"
@@ -19,15 +18,12 @@ import java.util.List;
 public class WhoisVersions {
     @XmlElement(name = "version")
     protected List<WhoisVersion> versions;
-    @XmlElement(name = "source")
-    protected Source source;
     @XmlAttribute(name = "type")
     protected String type;
     @XmlAttribute(name = "key")
     protected String key;
 
-    public WhoisVersions(final String source, final String type, final String key, final List<WhoisVersion> versions) {
-        this.source = new Source().setId(source);
+    public WhoisVersions(final String type, final String key, final List<WhoisVersion> versions) {
         this.type = type;
         this.key = key;
         this.versions = versions;
@@ -47,9 +43,5 @@ public class WhoisVersions {
 
     public String getKey() {
         return key;
-    }
-
-    public Source getSource() {
-        return source;
     }
 }
