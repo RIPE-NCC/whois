@@ -10,12 +10,6 @@ import static org.junit.Assert.assertTrue;
 
 public class AsBlockRangeTest {
     @Test
-    public void validSingleAsBlock() {
-        checkAsBlockRange(AsBlockRange.parse("AS1"), 1, 1);
-        checkAsBlockRange(AsBlockRange.parse("as1"), 1, 1);
-    }
-
-    @Test
     public void validAsBlockRanges() {
         checkAsBlockRange(AsBlockRange.parse("AS1-AS2"), 1, 2);
         checkAsBlockRange(AsBlockRange.parse("as1-as2"), 1, 2);

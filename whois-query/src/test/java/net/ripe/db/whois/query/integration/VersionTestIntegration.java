@@ -29,54 +29,6 @@ import static org.hamcrest.Matchers.not;
 @Category(IntegrationTest.class)
 public class VersionTestIntegration extends AbstractWhoisIntegrationTest {
 
-    public static class VersionMatcher extends BaseMatcher<String> {
-        private final String expected;
-
-        public VersionMatcher(String expected) {
-            this.expected = expected;
-        }
-
-        @Override
-        public boolean matches(Object item) {
-            return item instanceof String && ((String) item).contains(expected);
-        }
-
-        @Override
-        public void describeTo(Description description) {
-            description.appendText("Version object: ").appendValue(expected);
-        }
-
-        @Factory
-        public static Matcher<String> containsUnfilteredVersion(RpslObject object) {
-            return new VersionMatcher(makeMatcherString(object, false));
-        }
-
-        @Factory
-        public static Matcher<String> containsFilteredVersion(RpslObject object) {
-            return new VersionMatcher(makeMatcherString(object, true));
-        }
-
-        private static String makeMatcherString(RpslObject object, boolean filtered) {
-            StringBuilder expecting = new StringBuilder();
-
-            FilterAuthFunction authFilter = new FilterAuthFunction();
-            RpslObject filteredObject = authFilter.apply(object);
-
-            if (filtered) {
-                FilterEmailFunction emailFilter = new FilterEmailFunction();
-                filteredObject = emailFilter.apply(filteredObject);
-            }
-
-            expecting.append(filteredObject != null ? filteredObject.toString() : null);
-
-            return expecting.toString();
-        }
-    }
-
-    protected String historyTimestampToString(long timestamp) {
-        return new VersionDateTime(timestamp).toString();
-    }
-
     @Before
     public void startup() {
         loadScripts(databaseHelper.getWhoisTemplate(), "broken.sql");
@@ -89,6 +41,10 @@ public class VersionTestIntegration extends AbstractWhoisIntegrationTest {
     @After
     public void teardown() {
         queryServer.stop(true);
+    }
+
+    protected String historyTimestampToString(long timestamp) {
+        return new VersionDateTime(timestamp).toString();
     }
 
     @Test
@@ -260,5 +216,49 @@ public class VersionTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = stripHeader(DummyWhoisClient.query(QueryServer.port, "--show-version 1 TEST-DBM"));
         assertThat(response, not(containsString("This object was deleted on")));
         assertThat(response, containsString("mntner:         TEST-DBM"));
+    }
+
+    public static class VersionMatcher extends BaseMatcher<String> {
+        private final String expected;
+
+        public VersionMatcher(String expected) {
+            this.expected = expected;
+        }
+
+        @Override
+        public boolean matches(Object item) {
+            return item instanceof String && ((String) item).contains(expected);
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("Version object: ").appendValue(expected);
+        }
+
+        @Factory
+        public static Matcher<String> containsUnfilteredVersion(RpslObject object) {
+            return new VersionMatcher(makeMatcherString(object, false));
+        }
+
+        @Factory
+        public static Matcher<String> containsFilteredVersion(RpslObject object) {
+            return new VersionMatcher(makeMatcherString(object, true));
+        }
+
+        private static String makeMatcherString(RpslObject object, boolean filtered) {
+            StringBuilder expecting = new StringBuilder();
+
+            FilterAuthFunction authFilter = new FilterAuthFunction();
+            RpslObject filteredObject = authFilter.apply(object);
+
+            if (filtered) {
+                FilterEmailFunction emailFilter = new FilterEmailFunction();
+                filteredObject = emailFilter.apply(filteredObject);
+            }
+
+            expecting.append(filteredObject != null ? filteredObject.toString() : null);
+
+            return expecting.toString();
+        }
     }
 }
