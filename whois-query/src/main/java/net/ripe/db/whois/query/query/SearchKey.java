@@ -60,6 +60,9 @@ class SearchKey {
             parsedAsBlockRange = true;
 
             try {
+                if (value.indexOf('-') == -1) {
+                    throw new AsBlockParseException("invalid asblock range");
+                }
                 asBlockRange = AsBlockRange.parse(value);
             } catch (AsBlockParseException e) {
                 asBlockRange = null;

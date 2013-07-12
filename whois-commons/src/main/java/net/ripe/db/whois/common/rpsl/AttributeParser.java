@@ -3,7 +3,6 @@ package net.ripe.db.whois.common.rpsl;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Ipv6Resource;
 import net.ripe.db.whois.common.domain.attrs.*;
-import net.ripe.db.whois.common.exception.AsBlockParseException;
 
 public interface AttributeParser<T> {
     T parse(String s);
@@ -25,10 +24,6 @@ public interface AttributeParser<T> {
     final class AsBlockParser implements AttributeParser<AsBlockRange> {
         @Override
         public AsBlockRange parse(final String s) {
-            // TODO: [AH] this test should be done at the query search key sanitizer, and asblock should be range only
-            if (s.indexOf('-') == -1) {
-                throw new AsBlockParseException("invalid asblock");
-            }
             return AsBlockRange.parse(s);
         }
     }
