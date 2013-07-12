@@ -31,6 +31,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -43,8 +44,8 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.*;
 @Path("/")
 public class WhoisRdapService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRdapService.class);
-
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
+    private static final Set<ObjectType> ABUSE_CONTACT_TYPES = Sets.newHashSet(AUT_NUM, INETNUM, INET6NUM);
 
     private final SourceContext sourceContext;
     private final QueryHandler queryHandler;
@@ -158,11 +159,11 @@ public class WhoisRdapService {
 
             return Response.ok(
                     RdapObjectMapper.map(
-                        getRequestUrl(request),
-                        getBaseUrl(request),
-                        resultObject,
-                        objectDao.getLastUpdated(resultObject.getObjectId()),
-                        abuseCFinder.findAbuseContacts(resultObject))).build();
+                            getRequestUrl(request),
+                            getBaseUrl(request),
+                            resultObject,
+                            objectDao.getLastUpdated(resultObject.getObjectId()),
+                            getAbuseContacts(resultObject))).build();
 
         } catch (final QueryException e) {
             if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
@@ -192,5 +193,13 @@ public class WhoisRdapService {
             buffer.append(request.getQueryString());
         }
         return buffer.toString();
+    }
+
+    private List<RpslObject> getAbuseContacts(final RpslObject rpslObject) {
+        final ObjectType objectType = rpslObject.getType();
+        if (ABUSE_CONTACT_TYPES.contains(objectType)) {
+            return abuseCFinder.findAbuseContacts(rpslObject);
+        }
+        return Collections.emptyList();
     }
 }
