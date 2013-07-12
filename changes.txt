@@ -1,6 +1,9 @@
 ## next
 [update] removed unused and incorrect text aliases for specifying ds-rdata digest/algorithm
 [query] fixed verbose help for route-set member: attribute
+[update] ds-rdata: attribute is now sanitized before persisting in database
+[update] fixed incorrect syntax rules for as-block
+[api] removed {source} pathparam where not needed
 
 ## 1.67.3
 [all] Added support for graceful shutdown for layer 2 load balancers
