@@ -10,7 +10,6 @@ import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.joda.time.LocalDateTime;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
@@ -183,7 +182,6 @@ public class RdapObjectMapperTest {
         assertThat(result.getHandle(), is("102.130.in-addr.arpa"));
     }
 
-    @Ignore("TODO ds-rdata syntax")
     @Test
     public void domain_29_12_202_in_addr_arpa() {
         final Domain result = (Domain)map((RpslObject.parse("" +
