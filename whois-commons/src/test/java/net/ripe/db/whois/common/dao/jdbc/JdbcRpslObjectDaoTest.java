@@ -1,11 +1,13 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
+import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.AbstractDaoTest;
+import org.joda.time.LocalDateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,15 +19,16 @@ import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
     @Autowired RpslObjectDao subject;
+    @Autowired TestDateTimeProvider dateTimeProvider;
 
     @Before
     public void setup() {
         sourceContext.setCurrent(Source.slave(source));
+        dateTimeProvider.reset();
     }
 
     @After
@@ -301,6 +304,27 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
     public void test_get_unknown_object() {
         int objectId = -1;
         subject.getById(objectId);
+    }
+
+    @Test
+    public void lastUpdated_success() {
+        final LocalDateTime timestamp = LocalDateTime.now().withMillisOfSecond(0);
+        dateTimeProvider.setTime(timestamp);
+        final RpslObject object = databaseHelper.addObject("" +
+                "mntner:    TEST-MNT\n" +
+                "mnt-by:    TEST-MNT\n" +
+                "source:    TEST");
+
+        final LocalDateTime lastUpdated = subject.getLastUpdated(object.getObjectId());
+        assertThat(lastUpdated, is(timestamp));
+    }
+
+    @Test
+    public void lastUpdated_no_such_objectId() {
+        try {
+            subject.getLastUpdated(42);
+            fail();
+        } catch (final EmptyResultDataAccessException expected) {}
     }
 
     @Test

@@ -6,8 +6,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.VCard;
-import net.ripe.db.whois.common.dao.VersionInfo;
-import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
@@ -18,10 +16,14 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.joda.time.LocalDateTime;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static net.ripe.db.whois.common.rpsl.ObjectType.*;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
 class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
@@ -29,17 +31,17 @@ class RdapObjectMapper {
     private static final List<String> RDAPCONFORMANCE = Lists.newArrayList("rdap_level_0");
 
     private static final Map<AttributeType, String> typeToRole;
+
     static {
         typeToRole = Maps.newHashMap();
         typeToRole.put(AttributeType.ADMIN_C, "administrative");
-        typeToRole.put(AttributeType.TECH_C,  "technical");
-        typeToRole.put(AttributeType.MNT_BY,  "registrant");
+        typeToRole.put(AttributeType.TECH_C, "technical");
+        typeToRole.put(AttributeType.MNT_BY, "registrant");
     }
 
-    public static Object map(final String requestUrl, final String baseUrl, final RpslObject rpslObject, final VersionLookupResult versionLookupResult, final List<RpslObject> abuseContacts) {
+    public static Object map(final String requestUrl, final String baseUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, final List<RpslObject> abuseContacts) {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
-        final List<VersionInfo> versions = (versionLookupResult == null || rpslObjectType == PERSON || rpslObjectType == ROLE) ? Collections.<VersionInfo>emptyList() : versionLookupResult.getVersionInfos();
 
         String noticeValue = requestUrl;
 
@@ -68,11 +70,11 @@ class RdapObjectMapper {
 
         rdapResponse.getRdapConformance().add("rdap_level_0");
         rdapResponse.getRemarks().add(createRemark(rpslObject));
-        rdapResponse.getEvents().addAll(createEvents(versions));
+        rdapResponse.getEvents().add(createEvent(lastChangedTimestamp));
 
         noticeValue = noticeValue + rpslObject.getKey();
         rdapResponse.getRdapConformance().addAll(RDAPCONFORMANCE);
-        rdapResponse.getNotices().addAll(NoticeFactory.generateNotices(noticeValue,rpslObject));
+        rdapResponse.getNotices().addAll(NoticeFactory.generateNotices(noticeValue, rpslObject));
 
         rdapResponse.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(requestUrl));
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
@@ -105,7 +107,6 @@ class RdapObjectMapper {
 
 //        ip.getLinks().add(new Link().setRel("up")... //TODO parent (first less specific) - do parentHandle at the same time
 
-        //TODO [AS] is parentHandle optional or not?
         return ip;
     }
 
@@ -125,22 +126,11 @@ class RdapObjectMapper {
         return remark;
     }
 
-    private static List<Event> createEvents(final List<VersionInfo> versions) {
-        final List<Event> events = Lists.newArrayList();
-        if (!versions.isEmpty()) {
-            final VersionInfo first = versions.get(0);
-            final Event registrationEvent = new Event();
-            registrationEvent.setEventAction("registration");
-            registrationEvent.setEventDate(first.getTimestamp().toLocalDateTime());
-            events.add(registrationEvent);
-
-            final VersionInfo last = versions.get(versions.size() - 1);
-            final Event lastChangedEvent = new Event();
-            lastChangedEvent.setEventAction("last changed");
-            lastChangedEvent.setEventDate(last.getTimestamp().toLocalDateTime());
-            events.add(lastChangedEvent);
-        }
-        return events;
+    private static Event createEvent(final LocalDateTime lastChanged) {
+        final Event lastChangedEvent = new Event();
+        lastChangedEvent.setEventAction("last changed");
+        lastChangedEvent.setEventDate(lastChanged);
+        return lastChangedEvent;
     }
 
     private static void setEntities(final RdapObject rdapObject, final RpslObject rpslObject, final Set<AttributeType> attributeTypes, final String requestUrl, final String baseUrl) {
@@ -186,12 +176,6 @@ class RdapObjectMapper {
         entity.setVCardArray(createVCard(rpslObject));
         setRemarks(entity, rpslObject);
 
-        final Link selfLink = new Link();
-        selfLink.setRel("self");
-        selfLink.setValue(requestUrl);
-        selfLink.setHref(baseUrl + "/entity/" + entity.getHandle());
-        entity.getLinks().add(selfLink);
-
         if (rpslObject.getType() == ObjectType.ORGANISATION) {
             final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
             contactAttributeTypes.add(AttributeType.ADMIN_C);
@@ -235,8 +219,6 @@ class RdapObjectMapper {
         contactAttributeTypes.add(AttributeType.TECH_C);
         setEntities(autnum, rpslObject, contactAttributeTypes, requestUrl, baseUrl);
 
-        autnum.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(baseUrl + "/autnum/" + new Long(startAndEnd).toString()));
-
         return autnum;
     }
 
@@ -245,7 +227,7 @@ class RdapObjectMapper {
         domain.setHandle(rpslObject.getKey().toString());
         domain.setLdhName(rpslObject.getKey().toString());
 
-        final HashMap<CIString,Set<IpInterval>> hostnameMap = new HashMap<>();
+        final HashMap<CIString, Set<IpInterval>> hostnameMap = new HashMap<>();
 
         for (final RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.NSERVER)) {
             final NServer nserver = NServer.parse(rpslAttribute.getCleanValue().toString());
@@ -255,8 +237,7 @@ class RdapObjectMapper {
             final Set<IpInterval> ipIntervalSet;
             if (hostnameMap.containsKey(hostname)) {
                 ipIntervalSet = hostnameMap.get(hostname);
-            }
-            else {
+            } else {
                 ipIntervalSet = Sets.newHashSet();
                 hostnameMap.put(hostname, ipIntervalSet);
             }
@@ -315,8 +296,6 @@ class RdapObjectMapper {
         contactAttributeTypes.add(AttributeType.ADMIN_C);
         contactAttributeTypes.add(AttributeType.TECH_C);
         setEntities(domain, rpslObject, contactAttributeTypes, requestUrl, baseUrl);
-
-        domain.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(baseUrl + "/domain/" + domain.getHandle()));
 
         return domain;
     }
