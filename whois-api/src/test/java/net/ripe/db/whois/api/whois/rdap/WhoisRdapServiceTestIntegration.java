@@ -74,6 +74,16 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "remarks:       remark\n" +
                 "source:        TEST\n");
         databaseHelper.addObject("" +
+                "role:          First Role\n" +
+                "address:       Singel 258\n" +
+                "e-mail:        dbtest@ripe.net\n" +
+                "admin-c:       PP1-TEST\n" +
+                "tech-c:        PP1-TEST\n" +
+                "nic-hdl:       FR1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20121016\n" +
+                "source:        TEST\n");
+        databaseHelper.addObject("" +
                 "domain:        31.12.202.in-addr.arpa\n" +
                 "descr:         Test domain\n" +
                 "admin-c:       TP1-TEST\n" +
@@ -274,6 +284,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("PP1-TEST"));
+        assertThat(response.getEntities(), hasSize(0));
         assertThat(response.getVCardArray().size(), is(2));
         assertThat(response.getVCardArray().get(0).toString(), is("vcard"));
         assertThat(response.getVCardArray().get(1).toString(), equalTo("" +
@@ -304,6 +315,28 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("PP1-TEST"));
+        assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
+    }
+
+    // role entity
+
+    @Test
+    public void lookup_role_entity() throws Exception {
+        final Entity response = createResource(AUDIENCE, "entity/FR1-TEST")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("FR1-TEST"));
+        assertThat(response.getVCardArray().size(), is(2));
+        assertThat(response.getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(response.getVCardArray().get(1).toString(), equalTo("" +
+                "[[version, {}, text, 4.0], " +
+                "[kind, {}, text, group], " +
+                "[adr, {label=Singel 258}, text, null], " +
+                "[email, {}, text, dbtest@ripe.net]]"));
+        assertThat(response.getEntities(), hasSize(1));
+        assertThat(response.getEntities().get(0).getHandle(), is("PP1-TEST"));
+        assertThat(response.getEntities().get(0).getRoles(), contains("administrative", "technical"));
         assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
     }
 
@@ -353,27 +386,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertTrue(firstEvent.getEventDate().isBefore(LocalDateTime.now()));
         assertThat(firstEvent.getEventAction(), is("last changed"));
 
-//        final List<Entity> entities = autnum.getEntities();                           // TODO: implement
-//        assertThat(entities, hasSize(2));
-//        Collections.sort(entities, new Comparator<Entity>() {
-//            public int compare(final Entity e1, final Entity e2) {
-//                return e1.getHandle().compareTo(e2.getHandle());
-//            }
-//        });
-//
-//        final Entity entityTp1 = entities.get(0);
-//        assertThat(entityTp1.getHandle(), equalTo("TP1-TEST"));
-//
-//        final List<String> adminRoles = entityTp1.getRoles();
-//        assertThat(adminRoles, hasSize(1));
-//        assertThat(adminRoles.get(0), equalTo("administrative"));
-//
-//        final Entity entityTp2 = entities.get(1);
-//        assertThat(entityTp2.getHandle(), equalTo("TP2-TEST"));
-//
-//        final List<String> techRoles = entityTp2.getRoles();
-//        assertThat(techRoles, hasSize(1));
-//        assertThat(techRoles.get(0), equalTo("technical"));
+        final List<Entity> entities = autnum.getEntities();
+        assertThat(entities, hasSize(1));
+        assertThat(entities.get(0).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(0).getRoles(), contains("administrative", "technical"));
 
         final List<Link> links = autnum.getLinks();
         assertThat(links, hasSize(2));

@@ -4,7 +4,15 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
+import net.ripe.db.whois.api.whois.rdap.domain.Domain;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Event;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
+import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.whois.rdap.domain.Remark;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.VCard;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
@@ -28,15 +36,15 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link().setRel("copyright").setValue(TERMS_AND_CONDITIONS).setHref(TERMS_AND_CONDITIONS);
+
     private static final List<String> RDAPCONFORMANCE = Lists.newArrayList("rdap_level_0");
 
-    private static final Map<AttributeType, String> typeToRole;
-
+    private static final Set<AttributeType> CONTACT_ATTRIBUTES = Sets.newHashSet(AttributeType.ADMIN_C, AttributeType.TECH_C);
+    private static final Map<AttributeType, String> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
     static {
-        typeToRole = Maps.newHashMap();
-        typeToRole.put(AttributeType.ADMIN_C, "administrative");
-        typeToRole.put(AttributeType.TECH_C, "technical");
-        typeToRole.put(AttributeType.MNT_BY, "registrant");
+        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(AttributeType.ADMIN_C, "administrative");
+        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(AttributeType.TECH_C, "technical");
+        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(AttributeType.MNT_BY, "registrant");
     }
 
     public static Object map(final String requestUrl, final String baseUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, final List<RpslObject> abuseContacts) {
@@ -133,41 +141,32 @@ class RdapObjectMapper {
         return lastChangedEvent;
     }
 
-    private static void setEntities(final RdapObject rdapObject, final RpslObject rpslObject, final Set<AttributeType> attributeTypes, final String requestUrl, final String baseUrl) {
-        /* Construct a map for finding the entity objects in the query
-         * results. */
-        final Map<CIString, RpslObject> objectMap = Maps.newHashMap();
+    private static List<Entity> createContactEntities(final RpslObject rpslObject) {
+        final List<Entity> entities = Lists.newArrayList();
 
-        /* Construct a map from attribute value to a list of the
-         * attribute types against which it is recorded. (To handle
-         * the case where a single person/role/similar occurs multiple
-         * times in a record.) */
-        final Map<CIString, Set<AttributeType>> valueToRoles = Maps.newHashMap();
-        for (final RpslAttribute attribute : rpslObject.findAttributes(attributeTypes)) {
-            final CIString key = attribute.getCleanValue();
-            final Set<AttributeType> roleAttributeTypes = valueToRoles.get(key);
+        final Map<String, Set<AttributeType>> contacts = Maps.newHashMap();
 
-            if (roleAttributeTypes != null) {
-                roleAttributeTypes.add(attribute.getType());
+        for (final RpslAttribute attribute : rpslObject.findAttributes(CONTACT_ATTRIBUTES)) {
+            final String contactName = attribute.getCleanValue().toString();
+            if (contacts.containsKey(contactName)) {
+                contacts.get(contactName).add(attribute.getType());
             } else {
-                final Set<AttributeType> newAttributes = Sets.newHashSet();
-                newAttributes.add(attribute.getType());
-                valueToRoles.put(key, newAttributes);
+                final Set<AttributeType> attributeTypes = Sets.newHashSet();
+                attributeTypes.add(attribute.getType());
+                contacts.put(contactName, attributeTypes);
             }
         }
 
-        for (final CIString key : valueToRoles.keySet()) {
-            final Set<AttributeType> attributes = valueToRoles.get(key);
-            final RpslObject object = objectMap.get(key);
-            if (object != null) {
-                final Entity entity = createEntity(object, requestUrl, baseUrl);
-                final List<String> roles = entity.getRoles();
-                for (final AttributeType at : attributes) {
-                    roles.add(typeToRole.get(at));
-                }
-                rdapObject.getEntities().add(entity);
+        for (Map.Entry<String, Set<AttributeType>> entry : contacts.entrySet()) {
+            final Entity entity = new Entity();
+            entity.setHandle(entry.getKey());
+            for (AttributeType attributeType : entry.getValue()) {
+                entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
             }
+            entities.add(entity);
         }
+
+        return entities;
     }
 
     private static Entity createEntity(final RpslObject rpslObject, final String requestUrl, final String baseUrl) {
@@ -176,12 +175,13 @@ class RdapObjectMapper {
         entity.setVCardArray(createVCard(rpslObject));
         setRemarks(entity, rpslObject);
 
-        if (rpslObject.getType() == ObjectType.ORGANISATION) {
-            final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
-            contactAttributeTypes.add(AttributeType.ADMIN_C);
-            contactAttributeTypes.add(AttributeType.TECH_C);
-            setEntities(entity, rpslObject, contactAttributeTypes, requestUrl, baseUrl);
-        }
+        entity.getEntities().addAll(createContactEntities(rpslObject));
+
+        final Link selfLink = new Link();
+        selfLink.setRel("self");
+        selfLink.setValue(requestUrl);
+        selfLink.setHref(baseUrl + "/entity/" + entity.getHandle());
+        entity.getLinks().add(selfLink);
 
         return entity;
     }
@@ -190,21 +190,9 @@ class RdapObjectMapper {
         final Autnum autnum = new Autnum();
         autnum.setHandle(rpslObject.getKey().toString());
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
-
-        /* aut-num records don't have a 'type' or 'status' field, and
-         * each is allocated directly by the relevant RIR. 'DIRECT
-         * ALLOCATION' is the default value used in the response
-         * draft, and it makes sense to use it here too, at least for
-         * now. */
         autnum.setType("DIRECT ALLOCATION");
-
-        /* None of the statuses from [9.1] in json-response is
-         * applicable here, so 'status' will be left empty for now. */
-
-        final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
-        contactAttributeTypes.add(AttributeType.ADMIN_C);
-        contactAttributeTypes.add(AttributeType.TECH_C);
-        setEntities(autnum, rpslObject, contactAttributeTypes, requestUrl, baseUrl);
+        autnum.getEntities().addAll(createContactEntities(rpslObject));
+        setRemarks(autnum, rpslObject);
 
         return autnum;
     }
@@ -280,7 +268,8 @@ class RdapObjectMapper {
         final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
         contactAttributeTypes.add(AttributeType.ADMIN_C);
         contactAttributeTypes.add(AttributeType.TECH_C);
-        setEntities(domain, rpslObject, contactAttributeTypes, requestUrl, baseUrl);
+
+        domain.getEntities().addAll(createContactEntities(rpslObject));
 
         return domain;
     }
