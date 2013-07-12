@@ -424,4 +424,6 @@ public class AttributeSanitizerTest {
 
         verifyNoMoreInteractions(objectMessages);
     }
+
+    // TODO: [RL] Add tests for sanitizing ds-rdata
 }
