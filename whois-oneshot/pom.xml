@@ -4,12 +4,12 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.67.4</version>
+        <version>1.67.5-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>whois-oneshot</artifactId>
-    <version>1.67.4</version>
+    <version>1.67.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
