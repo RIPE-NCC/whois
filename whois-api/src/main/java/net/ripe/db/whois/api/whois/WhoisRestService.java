@@ -10,7 +10,6 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -271,22 +270,23 @@ public class WhoisRestService {
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 key));
 
-        return handleQuery(query, source, key, request, null);
+        return handleQuery(query, key, request, null);
     }
 
-    private Response handleQuery(final Query query, final String source, final String key, final HttpServletRequest request, @Nullable final Parameters parameters) {
+    // TODO: [AH] refactor this looks-generic-but-is-not method
+    private Response handleQuery(final Query query, final String key, final HttpServletRequest request, @Nullable final Parameters parameters) {
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
         final int contextId = System.identityHashCode(Thread.currentThread());
 
         if (query.isVersionList() || query.isObjectVersion()) {
-            return handleVersionQuery(query, source, key, remoteAddress, contextId);
+            return handleVersionQuery(query, key, remoteAddress, contextId);
         }
 
         return handleQueryAndStreamResponse(query, request, remoteAddress, contextId, parameters);
     }
 
     // TODO: [AH] refactor this spaghetti
-    private Response handleVersionQuery(final Query query, final String source, final String key, final InetAddress remoteAddress, final int contextId) {
+    private Response handleVersionQuery(final Query query, final String key, final InetAddress remoteAddress, final int contextId) {
         final ApiResponseHandlerVersions apiResponseHandlerVersions = new ApiResponseHandlerVersions();
         queryHandler.streamResults(query, remoteAddress, contextId, apiResponseHandlerVersions);
 
@@ -308,7 +308,7 @@ public class WhoisRestService {
             whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         } else {
             final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
-            final WhoisVersions whoisVersions = new WhoisVersions(source, type, key, WhoisObjectMapper.mapVersions(deleted, versions));
+            final WhoisVersions whoisVersions = new WhoisVersions(type, key, WhoisObjectMapper.mapVersions(deleted, versions));
             whoisResources.setVersions(whoisVersions);
         }
 
@@ -492,7 +492,6 @@ public class WhoisRestService {
      * </pre></p>
      *
      * @param resources Request body.
-     * @param source    RIPE or TEST.
      * @param passwords One or more password values.
      * @return The response body will be empty.
      */
@@ -500,7 +499,7 @@ public class WhoisRestService {
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @TypeHint(WhoisResources.class)
-    @Path("/create/{source}")
+    @Path("/create")
     @StatusCodes({
             @ResponseCode(code = 201, condition = "Successful create"),
             @ResponseCode(code = 400, condition = "Incorrect value for source"),
@@ -508,7 +507,6 @@ public class WhoisRestService {
     public Response create(
             final WhoisResources resources,
             @Context final HttpServletRequest request,
-            @PathParam("source") final String source,
             @QueryParam(value = "password") final List<String> passwords) {
 
         final RpslObject submittedObject = getSubmittedObject(resources);
@@ -517,25 +515,9 @@ public class WhoisRestService {
                 createOrigin(request),
                 createUpdate(submittedObject, passwords, null),
                 createContent(submittedObject, passwords, null),
-                Keyword.NEW,
-                source);
+                Keyword.NEW);
 
         return getResponse(response);
-    }
-
-    // TODO: [AH] drop this a couple of weeks after deployment
-
-    /**
-     * Create request without including source in URL is no longer allowed - use <a href="path__create_-source-.html">/create/source</a> instead.
-     */
-    @POST
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
-    @Path("/create")
-    public Response create() {
-        // Source needs to be included to be consistent with the other CRUD operations, and also
-        // to allow mod-proxy to redirect requests to the correct instance.
-        throw new IllegalArgumentException("Source must be specified in URL");
     }
 
     /**
@@ -694,7 +676,6 @@ public class WhoisRestService {
      *  </pre>
      *
      * @param resource   Request body.
-     * @param source     RIPE or TEST.
      * @param objectType Object type for given object.
      * @param key        Primary key of the given object.
      * @param passwords  One or more password values.
@@ -704,7 +685,7 @@ public class WhoisRestService {
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @TypeHint(WhoisResources.class)
-    @Path("/update/{source}/{objectType}/{key:.*}")
+    @Path("/update/{objectType}/{key:.*}")
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Successful modification"),
             @ResponseCode(code = 400, condition = "Incorrect value for source, objectType or key "),
@@ -714,7 +695,6 @@ public class WhoisRestService {
     public Response update(
             final WhoisResources resource,
             @Context final HttpServletRequest request,
-            @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam(value = "password") final List<String> passwords) {
@@ -725,8 +705,7 @@ public class WhoisRestService {
                 createOrigin(request),
                 createUpdate(submittedObject, passwords, null),
                 createContent(submittedObject, passwords, null),
-                Keyword.NONE,
-                source);
+                Keyword.NONE);
 
         if (response.getStatus().equals(UpdateStatus.SUCCESS)) {
             final RpslObject updatedObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
@@ -929,7 +908,6 @@ public class WhoisRestService {
      * </ul></p>
      *
      * @param whoisModify Request body.
-     * @param source      RIPE or TEST.
      * @param objectType  Object type of given object.
      * @param key         Primary key of given object.
      * @param passwords   One or more password values.
@@ -939,7 +917,7 @@ public class WhoisRestService {
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @TypeHint(WhoisResources.class)
-    @Path("/modify/{source}/{objectType}/{key:.*}")
+    @Path("/modify/{objectType}/{key:.*}")
     @StatusCodes({
             @ResponseCode(code = 204, condition = "Successful modification"),
             @ResponseCode(code = 400, condition = "Incorrect value for source, objectType or key (or when applicable, index)"),
@@ -949,7 +927,6 @@ public class WhoisRestService {
     public Response modify(
             final WhoisModify whoisModify,
             @Context final HttpServletRequest request,
-            @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam(value = "password") final List<String> passwords) {
@@ -961,8 +938,7 @@ public class WhoisRestService {
                 createOrigin(request),
                 createUpdate(updatedObject, passwords, null),
                 createContent(updatedObject, passwords, null),
-                Keyword.NONE,
-                source);
+                Keyword.NONE);
 
         if (!response.getStatus().equals(UpdateStatus.SUCCESS)) {
             return getResponse(response);
@@ -1035,7 +1011,6 @@ public class WhoisRestService {
      * </pre>
      * <p/>
      *
-     * @param source     RIPE or TEST. Mandatory.
      * @param objectType Object type of given object. Mandatory.
      * @param key        Primary key for given object. Mandatory.
      * @param reason     Reason for deleting given object. Optional.
@@ -1043,7 +1018,7 @@ public class WhoisRestService {
      * @return Returns only HTTP headers
      */
     @DELETE
-    @Path("/delete/{source}/{objectType}/{key:.*}")
+    @Path("/delete/{objectType}/{key:.*}")
     @Produces({})
     @StatusCodes({
             @ResponseCode(code = 204, condition = "Successful delete"),
@@ -1053,7 +1028,6 @@ public class WhoisRestService {
     })
     public Response delete(
             @Context final HttpServletRequest request,
-            @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam(value = "reason") @DefaultValue("--") final String reason,
@@ -1065,8 +1039,7 @@ public class WhoisRestService {
                 createOrigin(request),
                 createUpdate(originalObject, passwords, reason),
                 createContent(originalObject, passwords, reason),
-                Keyword.NONE,
-                source);
+                Keyword.NONE);
 
         return getResponse(response);
     }
@@ -1129,14 +1102,13 @@ public class WhoisRestService {
      * }
      * </pre>
      *
-     * @param source RIPE or TEST
      * @param key    sought RPSL object
      * @return Returns all updates of given RPSL object
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @TypeHint(WhoisResources.class)
-    @Path("/versions/{source}/{key:.*}")
+    @Path("/versions/{key:.*}")
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Versions were found"),
             @ResponseCode(code = 400, condition = "Illegal input - incorrect source or key"),
@@ -1144,10 +1116,9 @@ public class WhoisRestService {
     })
     public Response listVersions(
             @Context HttpServletRequest request,
-            @PathParam("source") final String source,
             @PathParam("key") final String key) {
         final Query query = Query.parse(String.format("--list-versions %s", key));
-        return handleQuery(query, source, key, request, null);
+        return handleQuery(query, key, request, null);
     }
 
     /**
@@ -1252,7 +1223,6 @@ public class WhoisRestService {
      * }
      * * </pre>
      *
-     * @param source  RIPE or TEST
      * @param version sought version
      * @param key     sought RPSL object
      * @return Returns the version of the RPSL object asked for
@@ -1260,7 +1230,7 @@ public class WhoisRestService {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @TypeHint(WhoisResources.class)
-    @Path("/version/{source}/{version}/{key:.*}")
+    @Path("/version/{version}/{key:.*}")
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Version was found"),
             @ResponseCode(code = 400, condition = "Illegal input - incorrect source or key"),
@@ -1268,7 +1238,6 @@ public class WhoisRestService {
     })
     public Response showVersion(
             @Context HttpServletRequest request,
-            @PathParam("source") final String source,
             @PathParam("version") final int version,
             @PathParam("key") final String key) {
 
@@ -1276,7 +1245,7 @@ public class WhoisRestService {
                 "--show-version %s %s",
                 version,
                 key));
-        return handleQuery(query, source, key, request, null);
+        return handleQuery(query, key, request, null);
     }
 
     /**
@@ -1589,7 +1558,7 @@ public class WhoisRestService {
         parameters.setTypeFilters(types);
         parameters.setFlags(separateFlags);
 
-        return handleQuery(query, JOINER.join(sources), queryString, request, parameters);
+        return handleQuery(query, queryString, request, parameters);
     }
 
     private void checkForInvalidSources(final Set<String> sources) {
@@ -1631,11 +1600,7 @@ public class WhoisRestService {
         }
     }
 
-    private UpdateResponse performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword, final String source) {
-        if (!sourceMatchesContext(source)) {
-            throw new IllegalArgumentException("Invalid source specified: " + source);
-        }
-
+    private UpdateResponse performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword) {
         loggerContext.init(getRequestId(origin.getFrom()));
         try {
             final UpdateContext updateContext = new UpdateContext(loggerContext);
@@ -1754,10 +1719,6 @@ public class WhoisRestService {
 
     private String getRequestId(final String remoteAddress) {
         return String.format("rest_%s_%s", remoteAddress, System.nanoTime());
-    }
-
-    private boolean sourceMatchesContext(final String source) {
-        return (source != null) && sourceContext.getCurrentSource().getName().equals(CIString.ciString(source));
     }
 
     private String findAllErrors(final UpdateResponse updateResponse) {

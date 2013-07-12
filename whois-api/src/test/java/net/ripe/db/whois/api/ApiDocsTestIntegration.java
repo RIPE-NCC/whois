@@ -20,7 +20,7 @@ public class ApiDocsTestIntegration extends AbstractRestClientTest {
         assertThat(index, containsString(">/acl/bans/{prefix}<"));
         assertThat(index, containsString(">/logs/current<"));
         assertThat(index, containsString(">/metadata/sources<"));
-        assertThat(index, containsString(">/delete/{source}/{objectType}/{key}<"));
+        assertThat(index, containsString(">/delete/{objectType}/{key}<"));
     }
 
     @Test
@@ -32,6 +32,6 @@ public class ApiDocsTestIntegration extends AbstractRestClientTest {
         assertThat(index, not(containsString(">/acl/bans/{prefix}<")));
         assertThat(index, not(containsString(">/logs/current<")));
         assertThat(index, containsString(">/metadata/sources<"));
-        assertThat(index, containsString(">/delete/{source}/{objectType}/{key}<"));
+        assertThat(index, containsString(">/delete/{objectType}/{key}<"));
     }
 }
