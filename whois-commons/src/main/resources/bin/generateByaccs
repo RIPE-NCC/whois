@@ -4,6 +4,11 @@ set -e
 
 GENERATED_PATH=target/generated-sources/jflex/net/ripe/db/whois/common/generated
 
+if [[ $(find $GENERATED_PATH -name '*.java' | wc -l) -gt 5 ]]; then
+	echo 'Skipping generation of *Parser classes, run clean to regenerate'
+	exit 0
+fi
+
 case $OSTYPE in
 	darwin*)
 		echo 'using byacc for OSX'

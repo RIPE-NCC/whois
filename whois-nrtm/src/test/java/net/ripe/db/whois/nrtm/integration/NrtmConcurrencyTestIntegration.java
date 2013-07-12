@@ -8,10 +8,7 @@ import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,11 +38,16 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     private static final int MID_RANGE = 21486049;  // 21486050 is a person in nrtm_sample.sql
     private static final int MAX_RANGE = 21486100;
 
-    private static CountDownLatch countDownLatch;
+    private CountDownLatch countDownLatch;
 
     @BeforeClass
     public static void setInterval() {
         System.setProperty("nrtm.update.interval", "1");
+    }
+
+    @AfterClass
+    public static void resetInterval() {
+        System.clearProperty("nrtm.update.interval");
     }
 
     @Before
@@ -171,7 +173,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
         whoisTemplate.execute("TRUNCATE TABLE last");
     }
 
-    static class NrtmTestThread extends Thread {
+    class NrtmTestThread extends Thread {
         volatile String error;
         volatile int addCount;
         volatile int delCount;
