@@ -117,20 +117,14 @@ class RdapObjectMapper {
         return ip;
     }
 
-    private static void setRemarks(final RdapObject rdapObject, final RpslObject rpslObject) {
-        final Remark remark = createRemark(rpslObject);
-        if (remark.getDescription().size() > 0) {
-            rdapObject.getRemarks().add(remark);
-        }
-    }
-
     private static Remark createRemark(final RpslObject rpslObject) {
-        final Remark remark = new Remark();
-        for (final CIString descriptionValue : rpslObject.getValuesForAttribute(AttributeType.DESCR)) {
-            remark.getDescription().add(descriptionValue.toString());
+        final List<String> descriptions = Lists.newArrayList();
+
+        for (final CIString description : rpslObject.getValuesForAttribute(AttributeType.DESCR)) {
+            descriptions.add(description.toString());
         }
 
-        return remark;
+        return new Remark(descriptions);
     }
 
     private static Event createEvent(final LocalDateTime lastChanged) {
@@ -172,7 +166,6 @@ class RdapObjectMapper {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVCardArray(createVCard(rpslObject));
-        setRemarks(entity, rpslObject);
 
         entity.getEntities().addAll(createContactEntities(rpslObject));
 
@@ -191,7 +184,6 @@ class RdapObjectMapper {
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
         autnum.setType("DIRECT ALLOCATION");
         autnum.getEntities().addAll(createContactEntities(rpslObject));
-        setRemarks(autnum, rpslObject);
 
         return autnum;
     }

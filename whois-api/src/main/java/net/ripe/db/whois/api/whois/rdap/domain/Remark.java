@@ -1,7 +1,5 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
-import com.google.common.collect.Lists;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
@@ -15,10 +13,15 @@ import java.util.List;
 public class Remark implements Serializable {
     protected List<String> description;
 
+    public Remark(final List<String> description) {
+        this.description = description;
+    }
+
+    public Remark() {
+        // required no-arg constructor
+    }
+
     public List<String> getDescription() {
-        if (description == null) {
-            description = Lists.newArrayList();
-        }
-        return this.description;
+        return description;
     }
 }
