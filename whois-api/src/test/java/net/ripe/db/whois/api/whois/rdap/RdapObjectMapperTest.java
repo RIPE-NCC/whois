@@ -18,7 +18,9 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class RdapObjectMapperTest {
-    private static final VersionLookupResult VERSION_LOOKUP_RESULT = new VersionLookupResult(Lists.<VersionInfo>newArrayList(new VersionInfo(true, 1, 1, 2345234523l, Operation.UPDATE)), INETNUM, "10.0.0.0 - 10.255.255.255");
+    private static final LocalDateTime VERSION_TIMESTAMP = LocalDateTime.parse("2044-04-26T00:02:03.000");
+
+    private static final VersionLookupResult VERSION_LOOKUP_RESULT = new VersionLookupResult(Lists.<VersionInfo>newArrayList(new VersionInfo(true, 1, 1, (VERSION_TIMESTAMP.toDate().getTime() / 1000), Operation.UPDATE)), INETNUM, "10.0.0.0 - 10.255.255.255");
 
     @Test
     public void ip() {
@@ -43,9 +45,9 @@ public class RdapObjectMapperTest {
         assertThat(result.getHandle(), is("10.0.0.0 - 10.255.255.255"));
         assertThat(result.getEvents(), hasSize(2));
         assertThat(result.getEvents().get(0).getEventAction(), is("registration"));
-        assertThat(result.getEvents().get(0).getEventDate(), is((LocalDateTime.parse("2044-04-26T00:02:03.000"))));
+        assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
         assertThat(result.getEvents().get(1).getEventAction(), is("last changed"));
-        assertThat(result.getEvents().get(1).getEventDate(), is((LocalDateTime.parse("2044-04-26T00:02:03.000"))));
+        assertThat(result.getEvents().get(1).getEventDate(), is(VERSION_TIMESTAMP));
         assertThat(result.getCountry(), is("NL"));
         assertThat(result.getEndAddress(), is("10.255.255.255/32"));
         assertThat(result.getIpVersion(), is("v4"));
@@ -89,9 +91,9 @@ public class RdapObjectMapperTest {
         assertThat(result.getEndAutnum(), is(102l));
         assertThat(result.getEvents(), hasSize(2));
         assertThat(result.getEvents().get(0).getEventAction(), is("registration"));
-        assertThat(result.getEvents().get(0).getEventDate(), is((LocalDateTime.parse("2044-04-26T00:02:03.000"))));
+        assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
         assertThat(result.getEvents().get(1).getEventAction(), is("last changed"));
-        assertThat(result.getEvents().get(1).getEventDate(), is((LocalDateTime.parse("2044-04-26T00:02:03.000"))));
+        assertThat(result.getEvents().get(1).getEventDate(), is(VERSION_TIMESTAMP));
         assertThat(result.getName(), is("End-User-2"));
         assertThat(result.getType(), is("DIRECT ALLOCATION"));
         assertThat(result.getLinks(), hasSize(3));
@@ -121,10 +123,10 @@ public class RdapObjectMapperTest {
         assertThat(result.getNameservers().get(0).getLdhName(), is("ns.1.net"));
         assertThat(result.getEvents(), hasSize(2));
         assertThat(result.getEvents().get(0).getEventAction(), is("registration"));
-        assertThat(result.getEvents().get(0).getEventDate(), is((LocalDateTime.parse("2044-04-26T00:02:03.000"))));
+        assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
         assertThat(result.getEvents().get(0).getEventActor(), is(nullValue()));
         assertThat(result.getEvents().get(1).getEventAction(), is("last changed"));
-        assertThat(result.getEvents().get(1).getEventDate(), is((LocalDateTime.parse("2044-04-26T00:02:03.000"))));
+        assertThat(result.getEvents().get(1).getEventDate(), is(VERSION_TIMESTAMP));
         assertThat(result.getEvents().get(1).getEventActor(), is(nullValue()));
         assertThat(result.getLinks(), hasSize(3));
         assertThat(result.getLinks().get(0).getRel(), is("self"));
