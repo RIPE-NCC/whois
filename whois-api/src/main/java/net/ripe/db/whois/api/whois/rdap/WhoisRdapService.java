@@ -116,7 +116,7 @@ public class WhoisRdapService {
         }));
 
         final Query query = Query.parse(
-                String.format("%s %s %s %s %s %s %s",
+                String.format("%s %s %s %s %s %s %s %s",
                         QueryFlag.NO_GROUPING.getLongFlag(),
                         QueryFlag.NO_REFERENCED.getLongFlag(),
                         QueryFlag.SOURCES.getLongFlag(),
