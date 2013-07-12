@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+// TODO: [AH] during syntax check/sanitization we parse all attributes into their domain object, we should keep a reference to that instead of reparsing all the time
 @Component
 public class AttributeSanitizer {
     private static final Logger LOGGER = LoggerFactory.getLogger(AttributeSanitizer.class);
