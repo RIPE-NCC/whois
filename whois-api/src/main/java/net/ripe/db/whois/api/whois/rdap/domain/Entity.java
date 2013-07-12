@@ -3,7 +3,11 @@ package net.ripe.db.whois.api.whois.rdap.domain;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.VCard;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +20,7 @@ import java.util.Map;
     "publicIds",
     "port43"
 })
-public class Entity extends RdapObject implements Serializable {
+public class Entity extends RdapObject implements Serializable, Comparable<Entity> {
     @XmlElement(required = true)
     protected String handle;
     @XmlSchemaType(name = "anySimpleType")
@@ -66,5 +70,10 @@ public class Entity extends RdapObject implements Serializable {
 
     public void setPort43(final String value) {
         this.port43 = value;
+    }
+
+    @Override
+    public int compareTo(Entity o) {
+        return this.getHandle().compareTo(o.getHandle());
     }
 }

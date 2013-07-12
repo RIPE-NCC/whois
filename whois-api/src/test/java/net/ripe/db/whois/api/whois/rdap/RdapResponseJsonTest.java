@@ -25,8 +25,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.TimeZone;
 
 import static com.google.common.collect.Maps.immutableEntry;
@@ -140,8 +138,7 @@ public class RdapResponseJsonTest {
         ipAddresses.getIpv6().add("2001:db8::123");
         nameserver.setIpAddresses(ipAddresses);
 
-        final Remark remark = new Remark();
-        remark.getDescription().addAll(Lists.newArrayList("She sells sea shells down by the sea shore.", "Originally written by Terry Sullivan."));
+        final Remark remark = new Remark(Lists.newArrayList("She sells sea shells down by the sea shore.", "Originally written by Terry Sullivan."));
         nameserver.getRemarks().add(remark);
 
         final Link link = new Link()
@@ -208,12 +205,7 @@ public class RdapResponseJsonTest {
         nameserver2.setLdhName("ns2.rir.example");
         domain.getNameservers().add(nameserver2);
 
-        final List<String> remarkList = new ArrayList<>();
-        final Remark remark = new Remark();
-        remarkList.add("She sells sea shells down by the sea shore.");
-        remarkList.add("Originally written by Terry Sullivan.");
-
-        remark.getDescription().addAll(remarkList);
+        final Remark remark = new Remark(Lists.newArrayList("She sells sea shells down by the sea shore.", "Originally written by Terry Sullivan."));
         domain.getRemarks().add(remark);
 
         final Link link = new Link();
@@ -358,8 +350,7 @@ public class RdapResponseJsonTest {
         ip.setCountry("AU");
         ip.getStatus().add("allocated");
 
-        final Remark remark = new Remark();
-        remark.getDescription().addAll(Lists.newArrayList("She sells sea shells down by the sea shore.", "Originally written by Terry Sullivan."));
+        final Remark remark = new Remark(Lists.newArrayList("She sells sea shells down by the sea shore.", "Originally written by Terry Sullivan."));
         ip.getRemarks().add(remark);
 
         final Link link = new Link()

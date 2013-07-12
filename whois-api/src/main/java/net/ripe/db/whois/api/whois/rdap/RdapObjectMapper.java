@@ -166,15 +166,7 @@ class RdapObjectMapper {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVCardArray(createVCard(rpslObject));
-
         entity.getEntities().addAll(createContactEntities(rpslObject));
-
-        final Link selfLink = new Link();
-        selfLink.setRel("self");
-        selfLink.setValue(requestUrl);
-        selfLink.setHref(baseUrl + "/entity/" + entity.getHandle());
-        entity.getLinks().add(selfLink);
-
         return entity;
     }
 
@@ -184,7 +176,6 @@ class RdapObjectMapper {
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
         autnum.setType("DIRECT ALLOCATION");
         autnum.getEntities().addAll(createContactEntities(rpslObject));
-
         return autnum;
     }
 

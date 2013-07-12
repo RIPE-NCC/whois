@@ -18,7 +18,7 @@ import java.util.List;
         "media",
         "type"
 })
-public class Link implements Serializable {
+public class Link implements Serializable, Comparable<Link> {
     protected String value;
     protected String rel;
     protected String href;
@@ -82,5 +82,10 @@ public class Link implements Serializable {
 
     public void setType(final String value) {
         this.type = value;
+    }
+
+    @Override
+    public int compareTo(Link o) {
+        return this.getValue().compareTo(o.getValue());
     }
 }
