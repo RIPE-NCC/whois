@@ -1,4 +1,4 @@
-## next
+## 1.67.4
 [update] removed unused and incorrect text aliases for specifying ds-rdata digest/algorithm
 [query] fixed verbose help for route-set member: attribute
 [update] ds-rdata: attribute is now sanitized before persisting in database
