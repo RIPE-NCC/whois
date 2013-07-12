@@ -2443,8 +2443,11 @@ class DomainAuthSpec extends BaseSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
+        ack.infoSuccessMessagesFor("Create", "[domain] 0.0.193.in-addr.arpa") == [
+                "Value 17881 5 1 2e58131e5fe28ec965a 7b8e4efb52d0a028d7a78 converted to 17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78"
+        ]
 
         queryObject("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
     }

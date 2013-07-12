@@ -29,6 +29,7 @@ public class AttributeSanitizer {
 
     private final DateTimeProvider dateTimeProvider;
     private final Map<AttributeType, Sanitizer> SANITIZER_MAP;
+    private final Set<AttributeType> keyAttributes = Sets.newHashSet();
 
     @Autowired
     public AttributeSanitizer(DateTimeProvider dateTimeProvider) {
@@ -47,14 +48,13 @@ public class AttributeSanitizer {
         SANITIZER_MAP.put(AttributeType.DS_RDATA, new DsRdataSanitizer());
 
         // add the default sanitizer for keys and primary attributes
-        final Set<AttributeType> alwaysSanitize = Sets.newHashSet();
         for (ObjectTemplate objectTemplate : ObjectTemplate.getTemplates()) {
-            alwaysSanitize.addAll(objectTemplate.getKeyAttributes());
-            alwaysSanitize.add(objectTemplate.getAttributeTemplates().get(0).getAttributeType());
+            keyAttributes.addAll(objectTemplate.getKeyAttributes());
+            keyAttributes.add(objectTemplate.getAttributeTemplates().get(0).getAttributeType());
         }
 
         Sanitizer defaultSanitizer = new DefaultSanitizer();
-        for (AttributeType attributeType : alwaysSanitize) {
+        for (AttributeType attributeType : keyAttributes) {
             if (!SANITIZER_MAP.containsKey(attributeType)) {
                 SANITIZER_MAP.put(attributeType, defaultSanitizer);
             }
@@ -86,11 +86,11 @@ public class AttributeSanitizer {
                 attributeMessages.add(ValidationMessages.attributeValueConverted(attribute.getCleanValue(), newValue));
             }
 
-            if (attribute.getValue().indexOf('\n') != -1) {
+            if (keyAttributes.contains(type) && attribute.getValue().indexOf('\n') != -1) {
                 attributeMessages.add(ValidationMessages.continuationLinesRemoved());
             }
 
-            if (attribute.getValue().indexOf('#') != -1) {
+            if (keyAttributes.contains(type) && attribute.getValue().indexOf('#') != -1) {
                 attributeMessages.add(ValidationMessages.remarksReformatted());
             }
 
@@ -166,6 +166,7 @@ public class AttributeSanitizer {
         }
 
         @Override
+        // this is expected behavior, don't spam users
         public boolean silent() {
             return true;
         }
