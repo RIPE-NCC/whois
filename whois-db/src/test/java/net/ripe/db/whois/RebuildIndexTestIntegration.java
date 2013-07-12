@@ -348,7 +348,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "nserver:        ns.bar.net\n" +
                 "org:            ORG-TOL1-TEST\n" +
                 "notify:         notify@ripe.net\n" +
-                "ds-rdata:       52151  1  1  13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
+                "ds-rdata:       52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
                 "mnt-by:         TST-MNT\n" +
                 "changed:        test@ripe.net 20120505\n" +
                 "source:         TEST\n"));
