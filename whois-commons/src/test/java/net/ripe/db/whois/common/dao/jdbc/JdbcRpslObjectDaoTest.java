@@ -35,22 +35,22 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
 
     @Test
     public void findSingleAsBlockUsingSingleBlockQuery() throws Exception {
-        databaseHelper.addObject("as-block:AS31066");
+        databaseHelper.addObject("as-block:AS31066-AS31066");
 
         RpslObject result = subject.findAsBlock(31066, 31066);
 
         assertThat(result.getType(), is(ObjectType.AS_BLOCK));
-        assertThat(result.getKey().toString(), is("AS31066"));
+        assertThat(result.getKey().toString(), is("AS31066-AS31066"));
     }
 
     @Test
     public void findSingleAsBlockUsingExactRangeQuery() throws Exception {
-        databaseHelper.addObject("as-block:AS31066");
+        databaseHelper.addObject("as-block:AS31066-AS31066");
 
         RpslObject result = subject.findAsBlock(31066, 31066);
 
         assertThat(result.getType(), is(ObjectType.AS_BLOCK));
-        assertThat(result.getKey().toString(), is("AS31066"));
+        assertThat(result.getKey().toString(), is("AS31066-AS31066"));
     }
 
     @Test

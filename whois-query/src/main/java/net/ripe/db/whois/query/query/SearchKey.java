@@ -60,10 +60,9 @@ class SearchKey {
             parsedAsBlockRange = true;
 
             try {
-                if (value.indexOf('-') == -1) {
-                    throw new AsBlockParseException("invalid asblock range");
-                }
-                asBlockRange = AsBlockRange.parse(value);
+                // support for 'AS222' specification of as-block (meaning 'AS222-AS222')
+                final String sanitizedAsBlock = value.indexOf('-') == -1 ? value + "-" + value : value;
+                asBlockRange = AsBlockRange.parse(sanitizedAsBlock);
             } catch (AsBlockParseException e) {
                 asBlockRange = null;
             }

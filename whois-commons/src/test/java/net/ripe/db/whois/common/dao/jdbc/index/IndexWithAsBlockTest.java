@@ -22,7 +22,7 @@ public class IndexWithAsBlockTest extends IndexTestBase {
     public void setup() {
         subject = new IndexWithAsBlock(AttributeType.AS_BLOCK);
 
-        asBlock = RpslObject.parse("as-block:AS31066");
+        asBlock = RpslObject.parse("as-block:AS31066-AS31066");
         asBlockInfo = new RpslObjectInfo(1, asBlock.getType(), asBlock.getKey());
     }
 

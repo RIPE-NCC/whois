@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public final class AsBlockRange {
 
-    private static final Pattern AS_BLOCK_PATTERN = Pattern.compile("^[Aa][Ss](\\d+)\\s*(?:-\\s*[Aa][Ss](\\d+))?$");
+    private static final Pattern AS_BLOCK_PATTERN = Pattern.compile("^[Aa][Ss](\\d+)\\s*-\\s*[Aa][Ss](\\d+)$");
 
     private final long begin;
 
@@ -23,11 +23,6 @@ public final class AsBlockRange {
         final Matcher match = AS_BLOCK_PATTERN.matcher(range);
         if (match.find()) {
             long begin = Long.valueOf(match.group(1));
-
-            if (match.group(2) == null) {
-                return new AsBlockRange(begin, begin);
-            }
-
             long end = Long.valueOf(match.group(2));
 
             if (end < begin) {
