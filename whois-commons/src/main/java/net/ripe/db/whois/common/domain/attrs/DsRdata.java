@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DsRdata {
-    private static final Pattern RDATA_PATTERN = Pattern.compile("^(\\d+) (\\d+) (\\d+) ([ 0-9a-fA-F]{1,128})$");
+    private static final Pattern RDATA_PATTERN = Pattern.compile("^(\\d+) (\\d+) (\\d+) ([(]?[ 0-9a-fA-F]{1,128}[)]?)$");
 
     private final int keytag;
     private final int algorithm;
@@ -18,6 +18,22 @@ public class DsRdata {
         this.algorithm = algorithm;
         this.digestType = digestType;
         this.digestHexString = digestHexString;
+    }
+
+    public int getKeytag() {
+        return keytag;
+    }
+
+    public int getAlgorithm() {
+        return algorithm;
+    }
+
+    public int getDigestType() {
+        return digestType;
+    }
+
+    public String getDigestHexString() {
+        return digestHexString;
     }
 
     @Override
