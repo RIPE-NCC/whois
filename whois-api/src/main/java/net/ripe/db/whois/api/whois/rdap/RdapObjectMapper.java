@@ -189,17 +189,6 @@ class RdapObjectMapper {
     private static Autnum createAutnumResponse(final RpslObject rpslObject, final String requestUrl, final String baseUrl) {
         final Autnum autnum = new Autnum();
         autnum.setHandle(rpslObject.getKey().toString());
-
-        final CIString autnumAttributeValue = rpslObject.getValueForAttribute(AttributeType.AUT_NUM);
-        final long startAndEnd = Long.valueOf(autnumAttributeValue.toString().replace("AS", "").replace(" ", ""));
-        autnum.setStartAutnum(startAndEnd);
-        autnum.setEndAutnum(startAndEnd);
-
-        if (rpslObject.containsAttribute(AttributeType.COUNTRY)) {
-            // TODO: no country attribute in autnum? remove?
-            autnum.setCountry(rpslObject.findAttribute(AttributeType.COUNTRY).getValue().replace(" ", ""));
-        }
-
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
 
         /* aut-num records don't have a 'type' or 'status' field, and
@@ -211,8 +200,6 @@ class RdapObjectMapper {
 
         /* None of the statuses from [9.1] in json-response is
          * applicable here, so 'status' will be left empty for now. */
-
-        setRemarks(autnum, rpslObject);
 
         final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
         contactAttributeTypes.add(AttributeType.ADMIN_C);
@@ -289,8 +276,6 @@ class RdapObjectMapper {
         if (secureDNS.isDelegationSigned()) {
             domain.setSecureDNS(secureDNS);
         }
-
-        setRemarks(domain, rpslObject);
 
         final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
         contactAttributeTypes.add(AttributeType.ADMIN_C);

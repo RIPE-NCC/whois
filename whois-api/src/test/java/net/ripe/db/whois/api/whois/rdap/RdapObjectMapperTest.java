@@ -78,8 +78,8 @@ public class RdapObjectMapperTest {
                 "password:       update")));
 
         assertThat(result.getHandle(), is("AS102"));
-        assertThat(result.getStartAutnum(), is(102l));
-        assertThat(result.getEndAutnum(), is(102l));
+        assertThat(result.getStartAutnum(), is(0l));
+        assertThat(result.getEndAutnum(), is(0l));
         assertThat(result.getEvents(), hasSize(1));
         assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
         assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));

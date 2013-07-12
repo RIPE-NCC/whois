@@ -341,8 +341,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Autnum.class);
 
         assertThat(autnum.getHandle(), equalTo("AS123"));
-        assertThat(autnum.getStartAutnum(), equalTo(123L));
-        assertThat(autnum.getEndAutnum(), equalTo(123L));
+        assertThat(autnum.getStartAutnum(), equalTo(0L));
+        assertThat(autnum.getEndAutnum(), equalTo(0L));
         assertThat(autnum.getName(), equalTo("AS-TEST"));
         assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
 
@@ -381,9 +381,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(selfLink.getRel(), equalTo("self"));
 
         final List<Remark> remarks = autnum.getRemarks();
-        assertThat(remarks, hasSize(2));                                            // TODO: two remarks
+        assertThat(remarks, hasSize(1));
         assertThat(remarks.get(0).getDescription().get(0), is("A single ASN"));
-        assertThat(remarks.get(1).getDescription().get(0), is("A single ASN"));
     }
 
     @Test
