@@ -9,7 +9,9 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Ipv6Resource;
 import net.ripe.db.whois.common.domain.attrs.Changed;
+import net.ripe.db.whois.common.domain.attrs.DsRdata;
 import net.ripe.db.whois.common.domain.attrs.NServer;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +21,14 @@ import javax.annotation.CheckForNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class AttributeSanitizer {
     private static final Logger LOGGER = LoggerFactory.getLogger(AttributeSanitizer.class);
     private static final Splitter LINE_SPLITTER = Splitter.on('\n').trimResults().omitEmptyStrings();
+    private static final Pattern PARENS_PATTERN = Pattern.compile("\\((.+)\\)");
 
     private final DateTimeProvider dateTimeProvider;
     private final Map<AttributeType, Sanitizer> SANITIZER_MAP;
@@ -42,6 +47,7 @@ public class AttributeSanitizer {
         SANITIZER_MAP.put(AttributeType.ROUTE6, new Route6Sanitizer());
         SANITIZER_MAP.put(AttributeType.ALIAS, new AliasSanitizer());
         SANITIZER_MAP.put(AttributeType.CHANGED, new ChangedSanitizer());
+        SANITIZER_MAP.put(AttributeType.DS_RDATA, new DsRdataSanitizer());
 
         // add the default sanitizer for keys and primary attributes
         final Set<AttributeType> alwaysSanitize = Sets.newHashSet();
@@ -186,6 +192,20 @@ public class AttributeSanitizer {
             final String domain = attribute.getCleanValue().toString();
             if (domain.endsWith(".")) {
                 return domain.substring(0, domain.length() - 1);
+            }
+
+            return null;
+        }
+
+    }
+
+    private class DsRdataSanitizer extends Sanitizer {
+        @Override
+        public String sanitize(final RpslObject object, final RpslAttribute attribute) {
+            final DsRdata dsRdata = DsRdata.parse(attribute.getCleanValue().toString());
+            final Matcher matcher = PARENS_PATTERN.matcher(dsRdata.getDigestHexString());
+            if (matcher.matches() || dsRdata.getDigestHexString().contains(" ")) {
+                return new DsRdata(dsRdata.getKeytag(), dsRdata.getAlgorithm(), dsRdata.getDigestType(), StringUtils.deleteWhitespace(matcher.group(1))).toString();
             }
 
             return null;
