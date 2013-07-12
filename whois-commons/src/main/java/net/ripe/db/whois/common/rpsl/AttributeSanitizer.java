@@ -203,14 +203,15 @@ public class AttributeSanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
             final DsRdata dsRdata = DsRdata.parse(attribute.getCleanValue().toString());
-            final Matcher matcher = PARENS_PATTERN.matcher(dsRdata.getDigestHexString());
-            if (matcher.matches() || dsRdata.getDigestHexString().contains(" ")) {
-                return new DsRdata(dsRdata.getKeytag(), dsRdata.getAlgorithm(), dsRdata.getDigestType(), StringUtils.deleteWhitespace(matcher.group(1))).toString();
+            final String digestHexString = dsRdata.getDigestHexString();
+            final Matcher matcher = PARENS_PATTERN.matcher(digestHexString);
+            if (matcher.matches() || digestHexString.contains(" ")) {
+                final String sanitizedDigestHexString = StringUtils.deleteWhitespace(matcher.matches() ? matcher.group(1) : digestHexString);
+                return new DsRdata(dsRdata.getKeytag(), dsRdata.getAlgorithm(), dsRdata.getDigestType(), sanitizedDigestHexString).toString();
             }
 
             return null;
         }
-
     }
 
     private class InetnumSanitizer extends Sanitizer {

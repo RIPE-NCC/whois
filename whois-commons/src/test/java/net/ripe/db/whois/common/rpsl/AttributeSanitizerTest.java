@@ -42,6 +42,61 @@ public class AttributeSanitizerTest {
     }
 
     @Test
+    public void transform_ds_rdata_no_change() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "domain:            17.45.212.in-addr.arpa\n" +
+                "ds-rdata:          52314 5 1 93B5837D4E5C063A3728FAA72BA64068F89B39DF");
+
+        final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
+
+        assertThat(result.getValueForAttribute(AttributeType.DS_RDATA).toString(), is("52314 5 1 93B5837D4E5C063A3728FAA72BA64068F89B39DF"));
+
+        verifyZeroInteractions(objectMessages);
+    }
+
+    @Test
+    public void transform_ds_rdata_remove_spaces() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "domain:            17.45.212.in-addr.arpa\n" +
+                "ds-rdata:          52314 5 1 93B5837D4E5C063 A3728FAA72BA64 068F89B39DF");
+
+        final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
+
+        assertThat(result.getValueForAttribute(AttributeType.DS_RDATA).toString(), is("52314 5 1 93B5837D4E5C063A3728FAA72BA64068F89B39DF"));
+        verify(objectMessages).addMessage(result.findAttribute(AttributeType.DS_RDATA), ValidationMessages.attributeValueConverted("52314 5 1 93B5837D4E5C063 A3728FAA72BA64 068F89B39DF", "52314 5 1 93B5837D4E5C063A3728FAA72BA64068F89B39DF"));
+
+        verifyNoMoreInteractions(objectMessages);
+    }
+
+    @Test
+    public void transform_ds_rdata_remove_parentheses() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "domain:            17.45.212.in-addr.arpa\n" +
+                "ds-rdata:          52314 5 1 ( 93B5837D4E5C063A3728FAA72BA64068F89B39DF )");
+
+        final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
+
+        assertThat(result.getValueForAttribute(AttributeType.DS_RDATA).toString(), is("52314 5 1 93B5837D4E5C063A3728FAA72BA64068F89B39DF"));
+        verify(objectMessages).addMessage(result.findAttribute(AttributeType.DS_RDATA), ValidationMessages.attributeValueConverted("52314 5 1 ( 93B5837D4E5C063A3728FAA72BA64068F89B39DF )", "52314 5 1 93B5837D4E5C063A3728FAA72BA64068F89B39DF"));
+
+        verifyNoMoreInteractions(objectMessages);
+    }
+
+    @Test
+    public void transform_ds_rdata_remove_spaces_and_parentheses() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "domain:            17.45.212.in-addr.arpa\n" +
+                "ds-rdata:          52314 5 1 ( 93B5837D4E5C063 A3728FAA72BA64 068F89B39DF )");
+
+        final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
+
+        assertThat(result.getValueForAttribute(AttributeType.DS_RDATA).toString(), is("52314 5 1 93B5837D4E5C063A3728FAA72BA64068F89B39DF"));
+        verify(objectMessages).addMessage(result.findAttribute(AttributeType.DS_RDATA), ValidationMessages.attributeValueConverted("52314 5 1 ( 93B5837D4E5C063 A3728FAA72BA64 068F89B39DF )", "52314 5 1 93B5837D4E5C063A3728FAA72BA64068F89B39DF"));
+
+        verifyNoMoreInteractions(objectMessages);
+    }
+
+    @Test
     public void transform_person() {
         final RpslObject rpslObject = RpslObject.parse("" +
                 "person: Test Person\n" +
@@ -424,6 +479,4 @@ public class AttributeSanitizerTest {
 
         verifyNoMoreInteractions(objectMessages);
     }
-
-    // TODO: [RL] Add tests for sanitizing ds-rdata
 }
