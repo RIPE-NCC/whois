@@ -86,7 +86,7 @@ public class WhoisRdapService {
             case "entity":
                 whoisObjectTypes.add(PERSON);
                 whoisObjectTypes.add(ROLE);
-//                whoisObjectTypes.add(ORGANISATION);  //TODO Denis will look into if this should be used or not
+                whoisObjectTypes.add(ORGANISATION);
                 break;
 
             case "nameserver":

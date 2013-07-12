@@ -19,11 +19,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.*;
 
@@ -63,7 +59,7 @@ class RdapObjectMapper {
                 break;
             case PERSON:
             case ROLE:
-//            case ORGANISATION:        // TODO: [ES] Denis to review
+            case ORGANISATION:
                 rdapResponse = createEntity(rpslObject, requestUrl, baseUrl);
                 break;
             default:

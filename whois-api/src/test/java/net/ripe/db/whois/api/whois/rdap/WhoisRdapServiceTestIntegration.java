@@ -7,18 +7,11 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
-import net.ripe.db.whois.api.whois.rdap.domain.Domain;
-import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Event;
-import net.ripe.db.whois.api.whois.rdap.domain.Ip;
-import net.ripe.db.whois.api.whois.rdap.domain.Link;
-import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -539,10 +532,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     // organisation entity
 
-    // TODO Denis will look into if this should be used or not
-
     @Test
-    @Ignore
     public void lookup_org_entity_handle() throws Exception {
         final Entity response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -552,7 +542,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    @Ignore
     public void lookup_org_not_found() throws Exception {
         try {
             createResource(AUDIENCE, "entity/ORG-NONE-TEST")
@@ -565,7 +554,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    @Ignore
     public void lookup_org_entity() throws Exception {
         final Entity entity = createResource(AUDIENCE, "entity/ORG-ONE-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
