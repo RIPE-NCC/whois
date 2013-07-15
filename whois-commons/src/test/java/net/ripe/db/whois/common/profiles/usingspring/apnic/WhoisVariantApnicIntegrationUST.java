@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.profiles.usingspring.ripe;
+package net.ripe.db.whois.common.profiles.usingspring.apnic;
 
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.profiles.usingspring.ModifiedAbstractDatabaseHelperTest;
@@ -21,11 +21,10 @@ import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-commons-test-usingprofiles.xml"})
 @Category(IntegrationTest.class)
-public class WhoisVariantRipeIntegrationTest extends ModifiedAbstractDatabaseHelperTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisVariantRipeIntegrationTest.class);
+public class WhoisVariantApnicIntegrationUST extends ModifiedAbstractDatabaseHelperTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisVariantApnicIntegrationUST.class);
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    @Rule public ExpectedException exception = ExpectedException.none();
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -33,16 +32,16 @@ public class WhoisVariantRipeIntegrationTest extends ModifiedAbstractDatabaseHel
     }
 
     @Test
-    public void load_apnic_bean_fail() {
-        exception.expect(NoSuchBeanDefinitionException.class);
+    public void load_apnic_bean_success() {
         WhoisVariantBeanApnic whoisVariantBeanApnic = (WhoisVariantBeanApnic)applicationContext.getBean(StringUtils.uncapitalize(WhoisVariantBeanApnic.class.getSimpleName()));
+        assertTrue(whoisVariantBeanApnic.isApnic());
+        assertNotNull(whoisVariantBeanApnic.getUpdateDao());
+    }
+    @Test
+    public void load_ripe_bean_fail() {
+        exception.expect(NoSuchBeanDefinitionException.class);
+        WhoisVariantBeanRipe whoisVariantBeanRipe = (WhoisVariantBeanRipe)applicationContext.getBean(StringUtils.uncapitalize(WhoisVariantBeanRipe.class.getSimpleName()));
     }
 
-    @Test
-    public void load_ripe_bean_success() {
-        WhoisVariantBeanRipe whoisVariantBeanRipe = (WhoisVariantBeanRipe)applicationContext.getBean(StringUtils.uncapitalize(WhoisVariantBeanRipe.class.getSimpleName()));
-        assertTrue(whoisVariantBeanRipe.isRipe());
-        assertNotNull(whoisVariantBeanRipe.getUpdateDao());
-    }
 
 }

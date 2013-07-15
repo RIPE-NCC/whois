@@ -778,8 +778,8 @@
                 <arg.line.variant>-Dspring.profiles.active=TEST,${whois.variant}</arg.line.variant>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
-                <test.files.unit>net/ripe/db/whois/common/profiles/usingspring/${whois.variant}/*Test.java</test.files.unit>
-                <test.files.integration>net/ripe/db/whois/common/profiles/usingspring/${whois.variant}/*IntegrationTest.class</test.files.integration>
+                <test.files.unit>net/ripe/db/whois/common/profiles/usingspring/${whois.variant}/*UST.java</test.files.unit>
+                <test.files.integration>net/ripe/db/whois/common/profiles/usingspring/${whois.variant}/*IntegrationUST.class</test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>

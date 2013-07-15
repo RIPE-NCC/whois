@@ -10,8 +10,8 @@ import org.springframework.core.env.AbstractEnvironment;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class WhoisVariantRipeTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisVariantRipeTest.class);
+public class WhoisVariantRipeUST {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisVariantRipeUST.class);
 
     @BeforeClass
     public static void beforeClass() throws Exception {
