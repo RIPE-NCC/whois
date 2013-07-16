@@ -364,6 +364,19 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
     }
 
+    @Test
+    public void lookup_forward_domain() {
+        try {
+            createResource(AUDIENCE, "domain/ripe.net")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Domain.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), is("RIPE NCC does not support forward domain queries."));
+        }
+    }
+
     // autnum
 
     @Test
@@ -585,19 +598,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(links.get(0).getValue(), equalTo(orgLink));
         assertThat(links.get(0).getHref(), equalTo(orgLink));
         assertThat(links.get(1).getRel(), equalTo("copyright"));
-    }
-
-    @Test
-    public void lookup_forward_domain() {
-        try {
-            createResource(AUDIENCE, "domain/ripe.net")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Domain.class);
-            fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("RIPE NCC does not support forward domain queries."));
-        }
     }
 
     @Override
