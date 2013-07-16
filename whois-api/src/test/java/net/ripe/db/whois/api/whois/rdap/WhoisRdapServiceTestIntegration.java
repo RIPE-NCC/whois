@@ -214,6 +214,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(response.getStartAddress(), is("192.0.0.0/32"));
         assertThat(response.getEndAddress(), is("192.255.255.255/32"));
         assertThat(response.getName(), is("TEST-NET-NAME"));
+        assertThat(response.getLang(), is(nullValue()));
     }
 
     @Test
