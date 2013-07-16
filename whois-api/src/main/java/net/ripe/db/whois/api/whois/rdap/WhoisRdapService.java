@@ -24,7 +24,6 @@ import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,16 +52,14 @@ public class WhoisRdapService {
     private final QueryHandler queryHandler;
     private final RpslObjectDao objectDao;
     private final AbuseCFinder abuseCFinder;
-    private final String baseUrl;
     private final RdapObjectMapper rdapObjectMapper;
 
     @Autowired
-    public WhoisRdapService(final SourceContext sourceContext, final QueryHandler queryHandler, final RpslObjectDao objectDao, final AbuseCFinder abuseCFinder, @Value("${rdap.public.baseUrl:}") final String baseUrl, final NoticeFactory noticeFactory) {
+    public WhoisRdapService(final SourceContext sourceContext, final QueryHandler queryHandler, final RpslObjectDao objectDao, final AbuseCFinder abuseCFinder, final NoticeFactory noticeFactory) {
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
         this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
-        this.baseUrl = baseUrl;
         this.rdapObjectMapper = new RdapObjectMapper(noticeFactory);
     }
 
@@ -75,7 +72,7 @@ public class WhoisRdapService {
 
         final Set<ObjectType> whoisObjectTypes = Sets.newHashSet();
 
-        switch (objectType) {
+        switch (objectType.toLowerCase()) {
             case "autnum":
                 whoisObjectTypes.add(AUT_NUM);
                 break;
