@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.domain.attrs;
 
-import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;

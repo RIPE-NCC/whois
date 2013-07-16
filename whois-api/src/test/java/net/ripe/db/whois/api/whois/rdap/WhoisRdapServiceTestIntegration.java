@@ -587,6 +587,19 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(links.get(1).getRel(), equalTo("copyright"));
     }
 
+    @Test
+    public void lookup_forward_domain() {
+        try {
+            createResource(AUDIENCE, "domain/ripe.net")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Domain.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), is("RIPE NCC does not support forward domain queries."));
+        }
+    }
+
     @Override
     protected WebResource createResource(final Audience audience, final String path) {
         return client.resource(String.format("http://localhost:%s/rdap/%s", getPort(audience), path));

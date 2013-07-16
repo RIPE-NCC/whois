@@ -9,6 +9,8 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.whois.ApiResponseHandler;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.domain.attrs.AttributeParseException;
+import net.ripe.db.whois.common.domain.attrs.Domain;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -79,6 +81,7 @@ public class WhoisRdapService {
                 break;
 
             case "domain":
+                validateDomain(key);
                 whoisObjectTypes.add(DOMAIN);
                 break;
 
@@ -100,6 +103,14 @@ public class WhoisRdapService {
         }
 
         return lookupObject(request, whoisObjectTypes, getKey(whoisObjectTypes, key));
+    }
+
+    private void validateDomain(final String key) {
+        try {
+            Domain.parse(key);
+        } catch (AttributeParseException e) {
+            throw new IllegalArgumentException("RIPE NCC does not support forward domain queries.");
+        }
     }
 
     private String getKey(final Set<ObjectType> objectTypes, final String key) {
