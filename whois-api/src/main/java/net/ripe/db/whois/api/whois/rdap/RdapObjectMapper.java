@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
 class RdapObjectMapper {
@@ -31,20 +33,21 @@ class RdapObjectMapper {
 
     private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
 
-    private static final Set<AttributeType> CONTACT_ATTRIBUTES = Sets.newHashSet(AttributeType.ADMIN_C, AttributeType.TECH_C);
     private static final Map<AttributeType, String> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
+
     static {
-        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(AttributeType.ADMIN_C, "administrative");
-        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(AttributeType.TECH_C, "technical");
+        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ADMIN_C, "administrative");
+        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(TECH_C, "technical");
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(AttributeType.MNT_BY, "registrant");
     }
+
     private final NoticeFactory noticeFactory;
 
     public RdapObjectMapper(final NoticeFactory noticeFactory) {
         this.noticeFactory = noticeFactory;
     }
 
-    public Object map(final String requestUrl, final String baseUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, final List<RpslObject> abuseContacts) {
+    public Object map(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, final List<RpslObject> abuseContacts) {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
 
@@ -52,11 +55,11 @@ class RdapObjectMapper {
 
         switch (rpslObjectType) {
             case DOMAIN:
-                rdapResponse = createDomain(rpslObject, requestUrl, baseUrl);
+                rdapResponse = createDomain(rpslObject);
                 noticeValue = noticeValue + "/domain/";
                 break;
             case AUT_NUM:
-                rdapResponse = createAutnumResponse(rpslObject, requestUrl, baseUrl);
+                rdapResponse = createAutnumResponse(rpslObject);
                 noticeValue = noticeValue + "/autnum/";
                 break;
             case INETNUM:
@@ -67,7 +70,7 @@ class RdapObjectMapper {
             case PERSON:
             case ROLE:
             case ORGANISATION:
-                rdapResponse = createEntity(rpslObject, requestUrl, baseUrl);
+                rdapResponse = createEntity(rpslObject);
                 break;
             default:
                 throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
@@ -84,7 +87,7 @@ class RdapObjectMapper {
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
 
         for (final RpslObject abuseContact : abuseContacts) {
-            rdapResponse.getEntities().add(createEntity(abuseContact, requestUrl, baseUrl));
+            rdapResponse.getEntities().add(createEntity(abuseContact));
         }
 
         return rdapResponse;
@@ -134,32 +137,19 @@ class RdapObjectMapper {
     private static List<Entity> createContactEntities(final RpslObject rpslObject) {
         final List<Entity> entities = Lists.newArrayList();
 
-        final Map<String, Set<AttributeType>> contacts = Maps.newHashMap();
-
-        for (final RpslAttribute attribute : rpslObject.findAttributes(CONTACT_ATTRIBUTES)) {
-            final String contactName = attribute.getCleanValue().toString();
-            if (contacts.containsKey(contactName)) {
-                contacts.get(contactName).add(attribute.getType());
-            } else {
-                final Set<AttributeType> attributeTypes = Sets.newHashSet();
-                attributeTypes.add(attribute.getType());
-                contacts.put(contactName, attributeTypes);
-            }
-        }
-
-        for (Map.Entry<String, Set<AttributeType>> entry : contacts.entrySet()) {
-            final Entity entity = new Entity();
-            entity.setHandle(entry.getKey());
-            for (AttributeType attributeType : entry.getValue()) {
+        for (final AttributeType attributeType : CONTACT_ATTRIBUTE_TO_ROLE_NAME.keySet()) {
+            for (final CIString attributeValue : rpslObject.getValuesForAttribute(attributeType)) {
+                final Entity entity = new Entity();
+                entity.setHandle(attributeValue.toString());
                 entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
+                entities.add(entity);
             }
-            entities.add(entity);
         }
 
         return entities;
     }
 
-    private static Entity createEntity(final RpslObject rpslObject, final String requestUrl, final String baseUrl) {
+    private static Entity createEntity(final RpslObject rpslObject) {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVCardArray(createVCard(rpslObject));
@@ -167,7 +157,7 @@ class RdapObjectMapper {
         return entity;
     }
 
-    private static Autnum createAutnumResponse(final RpslObject rpslObject, final String requestUrl, final String baseUrl) {
+    private static Autnum createAutnumResponse(final RpslObject rpslObject) {
         final Autnum autnum = new Autnum();
         autnum.setHandle(rpslObject.getKey().toString());
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
@@ -176,8 +166,8 @@ class RdapObjectMapper {
         return autnum;
     }
 
-    private static Domain createDomain(final RpslObject rpslObject, final String requestUrl, final String baseUrl) {
-        Domain domain = new Domain();
+    private static Domain createDomain(final RpslObject rpslObject) {
+        final Domain domain = new Domain();
         domain.setHandle(rpslObject.getKey().toString());
         domain.setLdhName(rpslObject.getKey().toString());
 
@@ -245,8 +235,8 @@ class RdapObjectMapper {
         }
 
         final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
-        contactAttributeTypes.add(AttributeType.ADMIN_C);
-        contactAttributeTypes.add(AttributeType.TECH_C);
+        contactAttributeTypes.add(ADMIN_C);
+        contactAttributeTypes.add(TECH_C);
 
         domain.getEntities().addAll(createContactEntities(rpslObject));
 

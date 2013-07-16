@@ -173,7 +173,6 @@ public class WhoisRdapService {
             return Response.ok(
                     rdapObjectMapper.map(
                             getRequestUrl(request),
-                            getBaseUrl(request),
                             resultObject,
                             objectDao.getLastUpdated(resultObject.getObjectId()),
                             getAbuseContacts(resultObject))).build();
@@ -186,17 +185,6 @@ public class WhoisRdapService {
                 throw e;
             }
         }
-    }
-
-    private String getBaseUrl(final HttpServletRequest request) {
-        if (!this.baseUrl.isEmpty()) {
-            return this.baseUrl;
-        }
-
-        final StringBuffer buffer = request.getRequestURL();
-        buffer.setLength(buffer.length() - request.getRequestURI().length());
-
-        return buffer.toString();
     }
 
     private String getRequestUrl(final HttpServletRequest request) {
