@@ -13,13 +13,11 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
 
 class StreamingMarshalXml implements StreamingMarshal {
-    private static Marshaller marshaller;
+    private static Marshaller marshaller;                           // TODO: [ES] jaxb marshaller isn't thread safe
     private static XMLOutputFactory xmlOutputFactory;
 
     public StreamingMarshalXml() {
         try {
-//            String wtf = WhoisResources.class.getPackage().getName();
-
             final JAXBContext context = JAXBContext.newInstance(
                     Attribute.class,
                     Attributes.class,
