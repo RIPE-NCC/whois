@@ -52,14 +52,16 @@ public class WhoisRdapService {
     private final RpslObjectDao objectDao;
     private final AbuseCFinder abuseCFinder;
     private final String baseUrl;
+    private final RdapObjectMapper rdapObjectMapper;
 
     @Autowired
-    public WhoisRdapService(final SourceContext sourceContext, final QueryHandler queryHandler, final RpslObjectDao objectDao, final AbuseCFinder abuseCFinder, @Value("${rdap.public.baseUrl:}") final String baseUrl) {
+    public WhoisRdapService(final SourceContext sourceContext, final QueryHandler queryHandler, final RpslObjectDao objectDao, final AbuseCFinder abuseCFinder, @Value("${rdap.public.baseUrl:}") final String baseUrl, final NoticeFactory noticeFactory) {
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
         this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
         this.baseUrl = baseUrl;
+        this.rdapObjectMapper = new RdapObjectMapper(noticeFactory);
     }
 
     @GET
@@ -158,7 +160,7 @@ public class WhoisRdapService {
             final RpslObject resultObject = result.get(0);
 
             return Response.ok(
-                    RdapObjectMapper.map(
+                    rdapObjectMapper.map(
                             getRequestUrl(request),
                             getBaseUrl(request),
                             resultObject,

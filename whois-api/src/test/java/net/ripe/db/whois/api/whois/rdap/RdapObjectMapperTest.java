@@ -210,6 +210,6 @@ public class RdapObjectMapperTest {
     }
 
     private Object map(final RpslObject rpslObject) {
-        return RdapObjectMapper.map("http://localhost/", "http://localhost/", rpslObject, VERSION_TIMESTAMP, Lists.<RpslObject>newArrayList());
+        return new RdapObjectMapper(new NoticeFactory("", "", "", "", "", "", "", "", "", "")).map("http://localhost/", "http://localhost/", rpslObject, VERSION_TIMESTAMP, Lists.<RpslObject>newArrayList());
     }
 }
