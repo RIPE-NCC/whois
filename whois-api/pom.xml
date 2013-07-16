@@ -117,11 +117,6 @@
             <artifactId>whois-update</artifactId>
             <type>test-jar</type>
         </dependency>
-        <dependency>
-            <groupId>org.ostermiller</groupId>
-            <artifactId>utils</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <!-- JSON testing -->
 
