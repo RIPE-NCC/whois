@@ -13,6 +13,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import java.util.zip.GZIPOutputStream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.not;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -86,6 +88,14 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
         final String response = getUpdates("192.0.0.0 - 193.0.0.0");
 
         assertThat(response, containsString("192.0.0.0 - 193.0.0.0"));
+    }
+
+    @Ignore("TODO: [ES] fix tokenizer, query string shouldn't match")
+    @Test
+    public void single_inet6num_term() throws Exception {
+        createLogFile("inet6num: 2001:a08:cafe::/48");
+
+        assertThat(getUpdates("2001:cafe"), not(containsString("2001:a08:cafe::/48")));
     }
 
     @Test

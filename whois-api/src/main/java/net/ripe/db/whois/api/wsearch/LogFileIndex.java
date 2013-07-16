@@ -212,6 +212,7 @@ public class LogFileIndex extends RebuildableIndex {
             queryBuilder.append("date:").append(DATE_FORMATTER.print(date)).append(' ');
         }
 
+        // TODO: [ES] make exact match search on contents (don't tokenize)
         queryBuilder.append("contents:").append(QueryParser.escape(queryString));
 
         final Query query = queryParser.parse(queryBuilder.toString());
