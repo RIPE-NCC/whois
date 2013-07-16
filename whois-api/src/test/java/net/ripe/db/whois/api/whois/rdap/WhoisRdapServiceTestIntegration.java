@@ -7,13 +7,7 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
-import net.ripe.db.whois.api.whois.rdap.domain.Domain;
-import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Event;
-import net.ripe.db.whois.api.whois.rdap.domain.Ip;
-import net.ripe.db.whois.api.whois.rdap.domain.Link;
-import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
@@ -434,6 +428,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void multiple_modification_gives_correct_events() throws Exception {
+        final LocalDateTime now = LocalDateTime.now().withMillisOfSecond(0);
+        dateTimeProvider.setTime(now);
+
         final String start = "" +
                 "aut-num:   AS123\n" +
                 "as-name:   AS-TEST\n" +
@@ -455,7 +452,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(events, hasSize(1));
 
         assertThat(events.get(0).getEventAction(), is("last changed"));
-        assertThat(events.get(0).getEventDate(), is(LocalDateTime.now().withMillisOfSecond(0)));
+        assertThat(events.get(0).getEventDate(), is(dateTimeProvider.getCurrentDateTime()));
     }
 
     @Test
