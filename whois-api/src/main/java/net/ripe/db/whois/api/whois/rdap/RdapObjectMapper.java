@@ -166,6 +166,7 @@ class RdapObjectMapper {
         entity.setHandle(rpslObject.getKey().toString());
         entity.setVCardArray(createVCard(rpslObject));
         entity.getEntities().addAll(createContactEntities(rpslObject));
+        entity.setPort43(PORT43);
         return entity;
     }
 
