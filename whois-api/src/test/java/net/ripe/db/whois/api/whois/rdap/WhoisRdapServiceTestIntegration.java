@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -379,6 +380,20 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
         }
+    }
+
+    @Test
+    public void lookup_autnum_head_method() {
+        final ClientResponse response = createResource(AUDIENCE, "autnum/123").head();
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+    }
+
+    @Test
+    public void lookup_autnum_not_found_head_method() {
+        final ClientResponse response = createResource(AUDIENCE, "autnum/1").head();
+
+        assertThat(response.getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
     }
 
     @Test
