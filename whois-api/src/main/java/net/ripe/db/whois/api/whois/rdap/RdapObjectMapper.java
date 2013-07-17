@@ -23,13 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
-import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.*;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
 class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link().setRel("copyright").setValue(TERMS_AND_CONDITIONS).setHref(TERMS_AND_CONDITIONS);
+    private static final String PORT43 = "whois.ripe.net";
 
     private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
 
@@ -38,7 +38,8 @@ class RdapObjectMapper {
     static {
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ADMIN_C, "administrative");
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(TECH_C, "technical");
-        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(AttributeType.MNT_BY, "registrant");
+        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(MNT_BY, "registrant");
+        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ZONE_C, "zone");
     }
 
     private final NoticeFactory noticeFactory;
@@ -79,9 +80,8 @@ class RdapObjectMapper {
         rdapResponse.getRemarks().add(createRemark(rpslObject));
         rdapResponse.getEvents().add(createEvent(lastChangedTimestamp));
 
-        noticeValue = noticeValue + rpslObject.getKey();
         rdapResponse.getRdapConformance().addAll(RDAP_CONFORMANCE_LEVEL);
-        rdapResponse.getNotices().addAll(noticeFactory.generateNotices(noticeValue, rpslObject));
+        rdapResponse.getNotices().addAll(noticeFactory.generateNotices(noticeValue + rpslObject.getKey(), rpslObject));
 
         rdapResponse.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(requestUrl));
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
@@ -136,14 +136,26 @@ class RdapObjectMapper {
 
     private static List<Entity> createContactEntities(final RpslObject rpslObject) {
         final List<Entity> entities = Lists.newArrayList();
+        final Map<CIString, Set<AttributeType>> contacts = Maps.newTreeMap();
 
         for (final AttributeType attributeType : CONTACT_ATTRIBUTE_TO_ROLE_NAME.keySet()) {
-            for (final CIString attributeValue : rpslObject.getValuesForAttribute(attributeType)) {
-                final Entity entity = new Entity();
-                entity.setHandle(attributeValue.toString());
-                entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
-                entities.add(entity);
+            for (final RpslAttribute attribute : rpslObject.findAttributes(attributeType)) {
+                final CIString contactName = attribute.getCleanValue();
+                if (contacts.containsKey(contactName)) {
+                    contacts.get(contactName).add(attribute.getType());
+                } else {
+                    contacts.put(contactName, Sets.newHashSet(attribute.getType()));
+                }
             }
+        }
+
+        for (final Map.Entry<CIString, Set<AttributeType>> entry : contacts.entrySet()) {
+            final Entity entity = new Entity();
+            entity.setHandle(entry.getKey().toString());
+            for (final AttributeType attributeType : entry.getValue()) {
+                entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
+            }
+            entities.add(entity);
         }
 
         return entities;
@@ -173,8 +185,8 @@ class RdapObjectMapper {
 
         final Map<CIString, Set<IpInterval>> hostnameMap = new HashMap<>();
 
-        for (final RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.NSERVER)) {
-            final NServer nserver = NServer.parse(rpslAttribute.getCleanValue().toString());
+        for (final CIString nserverValue : rpslObject.getValuesForAttribute(AttributeType.NSERVER)) {
+            final NServer nserver = NServer.parse(nserverValue.toString());
 
             final CIString hostname = nserver.getHostname();
 
@@ -234,12 +246,8 @@ class RdapObjectMapper {
             domain.setSecureDNS(secureDNS);
         }
 
-        final Set<AttributeType> contactAttributeTypes = Sets.newHashSet();
-        contactAttributeTypes.add(ADMIN_C);
-        contactAttributeTypes.add(TECH_C);
-
         domain.getEntities().addAll(createContactEntities(rpslObject));
-
+        domain.setPort43(PORT43);
         return domain;
     }
 

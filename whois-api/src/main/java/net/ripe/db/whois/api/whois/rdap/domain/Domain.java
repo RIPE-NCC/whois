@@ -1,17 +1,9 @@
-
-
 package net.ripe.db.whois.api.whois.rdap.domain;
 
 import com.google.common.collect.Lists;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -103,9 +95,7 @@ public class Domain extends RdapObject implements Serializable {
         "dsData",
         "keyData"
     })
-    public static class SecureDNS
-        implements Serializable
-    {
+    public static class SecureDNS implements Serializable {
 
         protected Boolean zoneSigned;
         protected Boolean delegationSigned;
@@ -117,7 +107,7 @@ public class Domain extends RdapObject implements Serializable {
             return zoneSigned;
         }
 
-        public void setZoneSigned(Boolean value) {
+        public void setZoneSigned(final Boolean value) {
             this.zoneSigned = value;
         }
 
@@ -125,7 +115,7 @@ public class Domain extends RdapObject implements Serializable {
             return delegationSigned;
         }
 
-        public void setDelegationSigned(Boolean value) {
+        public void setDelegationSigned(final Boolean value) {
             this.delegationSigned = value;
         }
 
@@ -133,20 +123,20 @@ public class Domain extends RdapObject implements Serializable {
             return maxSigLife;
         }
 
-        public void setMaxSigLife(Long value) {
+        public void setMaxSigLife(final Long value) {
             this.maxSigLife = value;
         }
 
         public List<Domain.SecureDNS.DsData> getDsData() {
             if (dsData == null) {
-                dsData = new ArrayList<Domain.SecureDNS.DsData>();
+                dsData = Lists.newArrayList();
             }
             return this.dsData;
         }
 
         public List<Domain.SecureDNS.KeyData> getKeyData() {
             if (keyData == null) {
-                keyData = new ArrayList<Domain.SecureDNS.KeyData>();
+                keyData = Lists.newArrayList();
             }
             return this.keyData;
         }
@@ -159,9 +149,7 @@ public class Domain extends RdapObject implements Serializable {
             "digestType",
             "events"
         })
-        public static class DsData
-            implements Serializable
-        {
+        public static class DsData implements Serializable {
 
             @XmlSchemaType(name = "unsignedInt")
             protected long keyTag;
@@ -178,7 +166,7 @@ public class Domain extends RdapObject implements Serializable {
                 return keyTag;
             }
 
-            public void setKeyTag(long value) {
+            public void setKeyTag(final long value) {
                 this.keyTag = value;
             }
 
@@ -186,7 +174,7 @@ public class Domain extends RdapObject implements Serializable {
                 return algorithm;
             }
 
-            public void setAlgorithm(int value) {
+            public void setAlgorithm(final int value) {
                 this.algorithm = value;
             }
 
@@ -194,7 +182,7 @@ public class Domain extends RdapObject implements Serializable {
                 return digest;
             }
 
-            public void setDigest(String value) {
+            public void setDigest(final String value) {
                 this.digest = value;
             }
 
@@ -202,13 +190,13 @@ public class Domain extends RdapObject implements Serializable {
                 return digestType;
             }
 
-            public void setDigestType(int value) {
+            public void setDigestType(final int value) {
                 this.digestType = value;
             }
 
             public List<Event> getEvents() {
                 if (events == null) {
-                    events = new ArrayList<Event>();
+                    events = Lists.newArrayList();
                 }
                 return this.events;
             }
@@ -224,9 +212,7 @@ public class Domain extends RdapObject implements Serializable {
             "algorithm",
             "events"
         })
-        public static class KeyData
-            implements Serializable
-        {
+        public static class KeyData implements Serializable {
 
             @XmlElement(required = true)
             protected String flags;
@@ -243,7 +229,7 @@ public class Domain extends RdapObject implements Serializable {
                 return flags;
             }
 
-            public void setFlags(String value) {
+            public void setFlags(final String value) {
                 this.flags = value;
             }
 
@@ -251,7 +237,7 @@ public class Domain extends RdapObject implements Serializable {
                 return protocol;
             }
 
-            public void setProtocol(String value) {
+            public void setProtocol(final String value) {
                 this.protocol = value;
             }
 
@@ -259,7 +245,7 @@ public class Domain extends RdapObject implements Serializable {
                 return publicKey;
             }
 
-            public void setPublicKey(String value) {
+            public void setPublicKey(final String value) {
                 this.publicKey = value;
             }
 
@@ -267,19 +253,16 @@ public class Domain extends RdapObject implements Serializable {
                 return algorithm;
             }
 
-            public void setAlgorithm(int value) {
+            public void setAlgorithm(final int value) {
                 this.algorithm = value;
             }
 
             public List<Event> getEvents() {
                 if (events == null) {
-                    events = new ArrayList<Event>();
+                    events = Lists.newArrayList();
                 }
                 return this.events;
             }
-
         }
-
     }
-
 }

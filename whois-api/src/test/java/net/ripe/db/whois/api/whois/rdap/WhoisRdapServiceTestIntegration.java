@@ -128,19 +128,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "changed:       test@test.net.au 20121121\n" +
                 "source:        TEST\n");
         databaseHelper.addObject("" +
-                "organisation:  ORG-ONE-TEST\n" +
-                "org-name:      Organisation One\n" +
-                "org-type:      LIR\n" +
-                "address:       One Org Street\n" +
-                "e-mail:        test@ripe.net\n" +
-                "admin-c:       TP2-TEST\n" +
-                "tech-c:        TP1-TEST\n" +
-                "tech-c:        TP2-TEST\n" +
-                "mnt-ref:       OWNER-MNT\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "changed:       test@test.net.au 20000228\n" +
-                "source:        TEST\n");
-        databaseHelper.addObject("" +
                 "as-block:       AS100 - AS200\n" +
                 "descr:          ARIN ASN block\n" +
                 "org:            ORG-TEST1-TEST\n" +
@@ -291,7 +278,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("PP1-TEST"));
-        assertThat(response.getEntities(), hasSize(0));
+        assertThat(response.getEntities(), hasSize(1));
         assertThat(response.getVCardArray().size(), is(2));
         assertThat(response.getVCardArray().get(0).toString(), is("vcard"));
         assertThat(response.getVCardArray().get(1).toString(), equalTo("" +
@@ -344,9 +331,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "[email, {}, text, dbtest@ripe.net]]"));
 
 
-        assertThat(response.getEntities(), hasSize(1));
-        assertThat(response.getEntities().get(0).getHandle(), is("PP1-TEST"));
-        assertThat(response.getEntities().get(0).getRoles(), containsInAnyOrder("administrative", "technical"));
+        assertThat(response.getEntities(), hasSize(2));
+        assertThat(response.getEntities().get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(response.getEntities().get(0).getRoles(), contains("registrant"));
+        assertThat(response.getEntities().get(1).getHandle(), is("PP1-TEST"));
+        assertThat(response.getEntities().get(1).getRoles(), containsInAnyOrder("administrative", "technical"));
         assertThat(response.getRdapConformance(), hasSize(1));
         assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
     }
@@ -412,9 +401,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(firstEvent.getEventAction(), is("last changed"));
 
         final List<Entity> entities = autnum.getEntities();
-        assertThat(entities, hasSize(1));
-        assertThat(entities.get(0).getHandle(), is("TP1-TEST"));
-        assertThat(entities.get(0).getRoles(), containsInAnyOrder("administrative", "technical"));
+        assertThat(entities, hasSize(2));
+        assertThat(entities.get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(0).getRoles(), contains("registrant"));
+        assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(1).getRoles(), containsInAnyOrder("administrative", "technical"));
 
         final List<Link> links = autnum.getLinks();
         assertThat(links, hasSize(2));
@@ -556,8 +547,21 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_org_entity() throws Exception {
-        final LocalDateTime now = LocalDateTime.now().withMillisOfSecond(0);
-        dateTimeProvider.setTime(now);
+        dateTimeProvider.setTime(LocalDateTime.now().withMillisOfSecond(0));
+        databaseHelper.addObject("" +
+                "organisation:  ORG-ONE-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "admin-c:       TP2-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "tech-c:        TP2-TEST\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       test@test.net.au 20000228\n" +
+                "source:        TEST\n");
+        System.out.println(dateTimeProvider.getCurrentDateTime());
 
         final Entity entity = createResource(AUDIENCE, "entity/ORG-ONE-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -567,17 +571,19 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
         assertThat(entity.getEvents().size(), equalTo(1));
         final Event event = entity.getEvents().get(0);
-        assertThat(event.getEventDate(), equalTo(now));
+        assertThat(event.getEventDate(), equalTo(dateTimeProvider.getCurrentDateTime()));
         assertThat(event.getEventAction(), equalTo("last changed"));
         assertThat(event.getEventActor(), is(nullValue()));
 
-        assertThat(entity.getEntities(), hasSize(2));
+        assertThat(entity.getEntities(), hasSize(3));
         final List<Entity> entities = entity.getEntities();
         Collections.sort(entities);
-        assertThat(entities.get(0).getHandle(), is("TP1-TEST"));
-        assertThat(entities.get(0).getRoles(), contains("technical"));
-        assertThat(entities.get(1).getHandle(), is("TP2-TEST"));
-        assertThat(entities.get(1).getRoles(), containsInAnyOrder("administrative", "technical"));
+        assertThat(entities.get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(0).getRoles(), contains("registrant"));
+        assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(1).getRoles(), contains("technical"));
+        assertThat(entities.get(2).getHandle(), is("TP2-TEST"));
+        assertThat(entities.get(2).getRoles(), containsInAnyOrder("administrative", "technical"));
 
         final String orgLink = createResource(AUDIENCE, "entity/ORG-ONE-TEST").toString();        // TODO: implement
         final String tp1Link = createResource(AUDIENCE, "entity/TP1-TEST").toString();
