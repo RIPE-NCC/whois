@@ -165,4 +165,41 @@ public class LoggerContextTest {
 
         context.remove();
     }
+
+    @Test
+    public void init_filename_too_long() throws Exception {
+        LoggerContext context = new LoggerContext(dateTimeProvider);
+        context.setBaseDir(folder.getRoot().getCanonicalPath());
+
+        context.init(
+                "!&!GAAAAAAAAABroW3yuncHTIoNeDX08wSswoAAABgAAAAAAAAAa6Ft8rp3B0yKDXg19LMErCTLPAAAAAAAEAAAAETr6edDTvV" +
+                "Lsahq+LasU3W8AAAAIE1FRFQgU3VydmV5IFJlcXVlc3QgZm9yIFNpdGUgU2VsZWN0aW9uIG1hZ2F6aW5lJ3MgIkNhbmFkYSdzI" +
+                "EJlc3QgTG9jYXRpb25zIiByYW5raW5ncyBTZXB0ZW1iZXIgMjAxMSAtICggQXdhcmRzIHdpbGwgYmUgUHJlc2VudGVkIGF0IEV" +
+                "EQUMgMjAxMSAxMC1xIC0xeC80LCAyMDExIGluIFBldGVyYm9yb3VnaCBPbnRhcjlvKSAgIAA=");
+        context.checkDirs();
+
+        assertThat(context.getFile("test").getCanonicalPath(), containsString("MSAt/001.test.gz"));
+    }
+
+    @Test
+    public void init_filename_illegal_path() throws Exception {
+        LoggerContext context = new LoggerContext(dateTimeProvider);
+        context.setBaseDir(folder.getRoot().getCanonicalPath());
+
+        context.init("/../../../../../../../");
+        context.checkDirs();
+
+        assertThat(context.getFile("test").getCanonicalPath(), containsString(".............../001.test.gz"));
+    }
+
+    @Test
+    public void init_filename_illegal_characters() throws Exception {
+        LoggerContext context = new LoggerContext(dateTimeProvider);
+        context.setBaseDir(folder.getRoot().getCanonicalPath());
+
+        context.init("2001:2002::\t\n\\x0B\f\r//?<>\\*|\"");
+        context.checkDirs();
+
+        assertThat(context.getFile("test").getCanonicalPath(), containsString(".2001:2002::x0B/001.test.gz"));
+    }
 }

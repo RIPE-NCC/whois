@@ -32,6 +32,7 @@ public class LoggerContext {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormat.forPattern("HHmmss");
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
+    private static final int MAXIMUM_FILENAME_LENGTH = 255;
 
     private final DateTimeProvider dateTimeProvider;
     private final ThreadLocal<Context> context = new ThreadLocal<>();
@@ -67,7 +68,7 @@ public class LoggerContext {
 
     public void init(final String folderName) {
         final LocalDateTime now = dateTimeProvider.getCurrentDateTime();
-        final File dir = getCreatedDir(baseDir + FILE_SEPARATOR + DATE_FORMAT.print(now) + FILE_SEPARATOR + TIME_FORMAT.print(now) + "." + folderName);
+        final File dir = getCreatedDir(baseDir + FILE_SEPARATOR + DATE_FORMAT.print(now) + FILE_SEPARATOR + trim(TIME_FORMAT.print(now) + "." + sanitize(folderName), MAXIMUM_FILENAME_LENGTH));
         init(dir);
     }
 
@@ -245,6 +246,17 @@ public class LoggerContext {
         }
 
         return result;
+    }
+
+    private String sanitize(final String filename) {
+        return (filename == null) ? null : filename.replaceAll("[^\\p{Alnum}\\-\\.:_]", "");
+    }
+
+    private String trim(final String filename, final int maxLength) {
+        if (filename.length() <= maxLength) {
+            return filename;
+        }
+        return filename.substring(0, maxLength - 1);
     }
 
     private static final class Context {
