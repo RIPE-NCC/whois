@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
 import com.google.common.collect.Lists;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -16,6 +17,7 @@ import java.util.List;
     "links"
 })
 @XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
 public class Notice implements Serializable {
     protected String title;
     protected List<String> description;

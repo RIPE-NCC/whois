@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.LocalDateTime;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -15,6 +16,7 @@ import java.io.Serializable;
     "eventDate",
     "eventActor"
 })
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
 public class Event implements Serializable {
     protected String eventAction;
     @XmlSchemaType(name = "dateTime")

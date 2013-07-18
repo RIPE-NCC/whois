@@ -2,10 +2,12 @@ package net.ripe.db.whois.api.whois.rdap.domain;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.VCard;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
@@ -20,6 +22,8 @@ import java.util.Map;
     "publicIds",
     "port43"
 })
+@XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
 public class Entity extends RdapObject implements Serializable, Comparable<Entity> {
     @XmlElement(required = true)
     protected String handle;

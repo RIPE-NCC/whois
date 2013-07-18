@@ -1,8 +1,14 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
 import com.google.common.collect.Lists;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 import java.util.List;
 
@@ -24,6 +30,8 @@ import java.util.List;
     Autnum.class,
     Domain.class
 })
+@XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
 public class RdapObject implements Serializable {
     protected List<Object> status;
     protected List<Entity> entities;

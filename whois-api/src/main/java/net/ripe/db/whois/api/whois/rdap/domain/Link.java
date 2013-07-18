@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
 import com.google.common.collect.Lists;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -18,6 +19,7 @@ import java.util.List;
         "media",
         "type"
 })
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
 public class Link implements Serializable, Comparable<Link> {
     protected String value;
     protected String rel;

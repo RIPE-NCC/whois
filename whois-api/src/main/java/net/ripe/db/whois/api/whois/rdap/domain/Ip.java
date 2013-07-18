@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
@@ -15,6 +17,7 @@ import java.io.Serializable;
     "parentHandle"
 })
 @XmlRootElement(name = "ip")
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
 public class Ip extends RdapObject implements Serializable {
     @XmlElement(required = true)
     protected String handle;

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
 import com.google.common.collect.Lists;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
@@ -15,6 +16,7 @@ import java.util.List;
     "port43"
 })
 @XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
 public class Nameserver
     extends RdapObject
     implements Serializable
