@@ -579,6 +579,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "organisation:  ORG-ONE-TEST\n" +
                 "org-name:      Organisation One\n" +
                 "org-type:      LIR\n" +
+                "descr:         Test organisation\n" +
                 "address:       One Org Street\n" +
                 "e-mail:        test@ripe.net\n" +
                 "admin-c:       TP2-TEST\n" +
@@ -588,7 +589,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:        OWNER-MNT\n" +
                 "changed:       test@test.net.au 20000228\n" +
                 "source:        TEST\n");
-        System.out.println(dateTimeProvider.getCurrentDateTime());
 
         final Entity entity = createResource(AUDIENCE, "entity/ORG-ONE-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -616,7 +616,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         final String tp1Link = createResource(AUDIENCE, "entity/TP1-TEST").toString();
         final String tp2Link = createResource(AUDIENCE, "entity/TP2-TEST").toString();
 
-//        assertThat(entities.get(0).getLinks(), hasSize(1));
+//        assertThat(entities.get(0).getLinks(), hasSize(1));                                    // TODO
 //        assertThat(entities.get(0).getLinks().get(0).getRel(), is("self"));
 //        assertThat(entities.get(0).getLinks().get(0).getValue(), is(orgLink));
 //        assertThat(entities.get(0).getLinks().get(0).getHref(), is(tp1Link));
@@ -632,6 +632,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(links.get(0).getValue(), equalTo(orgLink));
         assertThat(links.get(0).getHref(), equalTo(orgLink));
         assertThat(links.get(1).getRel(), equalTo("copyright"));
+
+        assertThat(entity.getRemarks(), hasSize(1));
+        assertThat(entity.getRemarks().get(0).getDescription(), contains("Test organisation"));
     }
 
     @Override
