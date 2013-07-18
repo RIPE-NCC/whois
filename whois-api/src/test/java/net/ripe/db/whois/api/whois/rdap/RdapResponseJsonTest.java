@@ -18,10 +18,12 @@ import org.junit.Test;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import static com.google.common.collect.Maps.immutableEntry;
-import static net.ripe.db.whois.api.whois.rdap.VCardHelper.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -72,8 +74,8 @@ public class RdapResponseJsonTest {
                 .addOrg("Example")
                 .addTitle("Research Scientist")
                 .addRole("Project Lead")
-                .addAdr(createMap(immutableEntry("type", "work")), VCardHelper.createAddress("", "Suite 1234", "4321 Rue Somewhere", "Quebec", "QC", "G1V 2M2", "Canada"))
-                .addAdr(createMap(immutableEntry("pref", "1")), VCardHelper.createAddress("", "", "", "", "", "", ""))
+                .addAdr(createMap(immutableEntry("type", "work")), createAddress("", "Suite 1234", "4321 Rue Somewhere", "Quebec", "QC", "G1V 2M2", "Canada"))
+                .addAdr(createMap(immutableEntry("pref", "1")), createAddress("", "", "", "", "", "", ""))
                 .addTel(createMap(immutableEntry("type", new String[]{"work", "voice"})), "tel:+1-555-555-1234;ext=102")
                 .addTel(createMap(immutableEntry("type", new String[]{"work", "cell", "voice", "video", "text"})), "tel:+1-555-555-4321")
                 .addEmail(createMap(immutableEntry("type", "work")), "joe.user@example.com")
@@ -117,13 +119,25 @@ public class RdapResponseJsonTest {
                 "  }, \"text\", \"http://example.org\" ] ]\n}"));
     }
 
+    private List createName(final String surname, final String given, final String prefix, final String suffix, final List honorifics) {
+        return Lists.newArrayList(surname, given, prefix, suffix, honorifics);
+    }
+
+    private List createHonorifics(final String prefix, final String suffix) {
+        return Lists.newArrayList(prefix, suffix);
+    }
+
+    private List createAddress(final String pobox, final String ext, final String street, final String locality, final String region, final String code, final String country) {
+        return Lists.newArrayList(pobox, ext, street, locality, region, code, country);
+    }
+
     @Test
     public void nameserver_serialization_test() throws Exception {
         final Nameserver nameserver = new Nameserver();
         nameserver.setHandle("handle");
         nameserver.setLdhName("ns1.xn--fo-5ja.example");
         nameserver.setUnicodeName("foo.example");
-        nameserver.getStatus().add("active");
+//        nameserver.getStatus().add("active");
 
         final Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
         ipAddresses.getIpv4().add("192.0.2.1");
@@ -243,7 +257,7 @@ public class RdapResponseJsonTest {
                 .addOrg("Example")
                 .addTitle("Research Scientist")
                 .addRole("Project Lead")
-                .addAdr(VCardHelper.createAddress("", "Suite 1234", "4321 Rue Somewhere", "Quebec", "QC", "G1V 2M2", "Canada"))
+                .addAdr(createAddress("", "Suite 1234", "4321 Rue Somewhere", "Quebec", "QC", "G1V 2M2", "Canada"))
                 .addTel("tel:+1-555-555-1234;ext=102")
                 .addEmail("joe.user@example.com");
 
@@ -341,7 +355,7 @@ public class RdapResponseJsonTest {
         ip.setName("NET-RTR-1");
         ip.setType("DIRECT ALLOCATION");
         ip.setCountry("AU");
-        ip.getStatus().add("allocated");
+//        ip.getStatus().add("allocated"); //TODO should type and status be the same for ip?
 
         final Remark remark = new Remark(Lists.newArrayList("She sells sea shells down by the sea shore.", "Originally written by Terry Sullivan."));
         ip.getRemarks().add(remark);
@@ -523,5 +537,13 @@ public class RdapResponseJsonTest {
         objectMapper.setDateFormat(df);
 
         return objectMapper.getJsonFactory();
+    }
+
+    private <K, V> Map createMap(final Map.Entry<K, V>... entries) {
+        final Map <K, V> ret = new HashMap<>();
+        for (final Map.Entry<K, V>entry : entries) {
+            ret.put(entry.getKey(), entry.getValue());
+        }
+        return ret;
     }
 }

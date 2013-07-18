@@ -55,6 +55,10 @@ public class VCardBuilder {
         return this;
     }
 
+    public VCardBuilder addGeo(final String value) {
+        return addGeo(Maps.newHashMap(), value);
+    }
+
     public VCardBuilder addKind(final String value) {
         properties.add(new VCardProperty("kind", Maps.newHashMap(), "text", value));
         return this;
@@ -81,7 +85,8 @@ public class VCardBuilder {
     }
 
     public VCardBuilder addTel(final Map parameters, final String value) {
-        properties.add(new VCardProperty("tel", parameters, "uri", value));
+        final String type = (value.startsWith("tel:")) ? "uri" : "text";
+        properties.add(new VCardProperty("tel", parameters, type, value));
         return this;
     }
 
