@@ -88,7 +88,7 @@ class RdapObjectMapper {
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
 
         for (final RpslObject abuseContact : abuseContacts) {
-            rdapResponse.getEntities().add(createEntity(abuseContact));
+            rdapResponse.getEntities().add(createEntity(abuseContact, "abuse"));
         }
 
         return rdapResponse;
@@ -153,6 +153,7 @@ class RdapObjectMapper {
         for (final Map.Entry<CIString, Set<AttributeType>> entry : contacts.entrySet()) {
             final Entity entity = new Entity();
             entity.setHandle(entry.getKey().toString());
+            // TODO: set role
             for (final AttributeType attributeType : entry.getValue()) {
                 entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
             }
@@ -163,8 +164,16 @@ class RdapObjectMapper {
     }
 
     private static Entity createEntity(final RpslObject rpslObject) {
+        // top-level entity has no role
+        return createEntity(rpslObject, null);
+    }
+
+    private static Entity createEntity(final RpslObject rpslObject, final String role) {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
+        if (role != null) {
+            entity.getRoles().add(role);
+        }
         entity.setVCardArray(createVCard(rpslObject));
         entity.getEntities().addAll(createContactEntities(rpslObject));
         entity.setPort43(PORT43);

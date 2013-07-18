@@ -311,6 +311,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("PP1-TEST"));
+        assertThat(entity.getRoles(), hasSize(0));
         assertThat(entity.getPort43(), is("whois.ripe.net"));
         assertThat(entity.getEntities(), hasSize(1));
         assertThat(entity.getVCardArray().size(), is(2));
@@ -336,7 +337,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         try {
             createResource(AUDIENCE, "entity/nonexistant")
                     .accept(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Ip.class);
+                    .get(Entity.class);
         } catch (final UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
         }
@@ -361,6 +362,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("FR1-TEST"));
+        assertThat(entity.getRoles(), hasSize(0));
         assertThat(entity.getPort43(), is("whois.ripe.net"));
         assertThat(entity.getVCardArray().size(), is(2));
         assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
@@ -583,6 +585,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Ip.class);
 
         assertThat(ip.getEntities().get(0).getHandle(), is("AB-TEST"));
+        assertThat(ip.getEntities().get(0).getRoles(), contains("abuse"));
         assertThat(ip.getEntities().get(0).getVCardArray(), hasSize(2));
         assertThat(ip.getEntities().get(0).getVCardArray().get(0).toString(), is("vcard"));
         assertThat(ip.getEntities().get(0).getVCardArray().get(1).toString(), is("" +
@@ -639,6 +642,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("ORG-ONE-TEST"));
+        assertThat(entity.getRoles(), hasSize(0));
         assertThat(entity.getPort43(), is("whois.ripe.net"));
 
         assertThat(entity.getEvents().size(), equalTo(1));
