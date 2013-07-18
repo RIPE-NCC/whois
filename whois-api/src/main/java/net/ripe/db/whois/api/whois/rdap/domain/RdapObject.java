@@ -38,7 +38,7 @@ public class RdapObject implements Serializable {
     protected List<Remark> remarks;
     protected List<Link> links;
     protected List<Event> events;
-    protected String lang;
+    protected String lang;                                  // TODO: [ES] support multiple attributes
     @XmlElement(required = true)
     protected List<String> rdapConformance;
     protected List<Notice> notices;
