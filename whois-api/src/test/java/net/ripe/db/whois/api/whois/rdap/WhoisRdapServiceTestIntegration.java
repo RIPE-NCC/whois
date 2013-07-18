@@ -8,18 +8,23 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
+import net.ripe.db.whois.api.whois.rdap.domain.Domain;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Event;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
+import net.ripe.db.whois.api.whois.rdap.domain.Remark;
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.TestDateTimeProvider;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Collections;
 import java.util.List;
@@ -32,8 +37,6 @@ import static org.junit.Assert.fail;
 @Category(IntegrationTest.class)
 public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     private static final Audience AUDIENCE = Audience.PUBLIC;
-
-    @Autowired TestDateTimeProvider dateTimeProvider;
 
     @Before
     public void setup() throws Exception {
@@ -137,7 +140,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST\n" +
                 "password:       test\n");
         ipTreeUpdater.rebuild();
-        dateTimeProvider.reset();
     }
 
     @Before
@@ -165,17 +167,23 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
-        final Ip response = createResource(AUDIENCE, "ip/192.0.0.0/8")
+        final Ip ip = createResource(AUDIENCE, "ip/192.0.0.0/8")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
-        assertThat(response.getHandle(), is("192.0.0.0 - 192.255.255.255"));
-        assertThat(response.getIpVersion(), is("v4"));
-        assertThat(response.getLang(), is("en"));
-        assertThat(response.getCountry(), is("NL"));
-        assertThat(response.getStartAddress(), is("192.0.0.0/32"));
-        assertThat(response.getEndAddress(), is("192.255.255.255/32"));
-        assertThat(response.getName(), is("TEST-NET-NAME"));
+        assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
+        assertThat(ip.getIpVersion(), is("v4"));
+        assertThat(ip.getLang(), is("en"));
+        assertThat(ip.getCountry(), is("NL"));
+        assertThat(ip.getStartAddress(), is("192.0.0.0/32"));
+        assertThat(ip.getEndAddress(), is("192.255.255.255/32"));
+        assertThat(ip.getName(), is("TEST-NET-NAME"));
+        assertThat(ip.getType(), is("OTHER"));
+
+        final List<Event> events = ip.getEvents();
+        assertThat(events, hasSize(1));
+        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventAction(), is("last changed"));
     }
 
     @Test
@@ -192,17 +200,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
-        final Ip response = createResource(AUDIENCE, "ip/192.0.0.255")
+        final Ip ip = createResource(AUDIENCE, "ip/192.0.0.255")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
-        assertThat(response.getHandle(), is("192.0.0.0 - 192.255.255.255"));
-        assertThat(response.getIpVersion(), is("v4"));
-        assertThat(response.getCountry(), is("NL"));
-        assertThat(response.getStartAddress(), is("192.0.0.0/32"));
-        assertThat(response.getEndAddress(), is("192.255.255.255/32"));
-        assertThat(response.getName(), is("TEST-NET-NAME"));
-        assertThat(response.getLang(), is(nullValue()));
+        assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
+        assertThat(ip.getIpVersion(), is("v4"));
+        assertThat(ip.getCountry(), is("NL"));
+        assertThat(ip.getStartAddress(), is("192.0.0.0/32"));
+        assertThat(ip.getEndAddress(), is("192.255.255.255/32"));
+        assertThat(ip.getName(), is("TEST-NET-NAME"));
+        assertThat(ip.getLang(), is(nullValue()));
     }
 
     @Test
@@ -233,17 +241,23 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final Ip response = createResource(AUDIENCE, "ip/2001:2002:2003::/48")
+        final Ip ip = createResource(AUDIENCE, "ip/2001:2002:2003::/48")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
-        assertThat(response.getHandle(), is("2001:2002:2003::/48"));
-        assertThat(response.getIpVersion(), is("v6"));
-        assertThat(response.getCountry(), is("NL"));
-        assertThat(response.getLang(), is("EN"));
-        assertThat(response.getStartAddress(), is("2001:2002:2003::/128"));
-        assertThat(response.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
-        assertThat(response.getName(), is("RIPE-NCC"));
+        assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
+        assertThat(ip.getIpVersion(), is("v6"));
+        assertThat(ip.getCountry(), is("NL"));
+        assertThat(ip.getLang(), is("EN"));
+        assertThat(ip.getStartAddress(), is("2001:2002:2003::/128"));
+        assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
+        assertThat(ip.getName(), is("RIPE-NCC"));
+        assertThat(ip.getType(), is("ASSIGNED PA"));
+
+        final List<Event> events = ip.getEvents();
+        assertThat(events, hasSize(1));
+        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventAction(), is("last changed"));
     }
 
     @Test
@@ -260,39 +274,45 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final Ip response = createResource(AUDIENCE, "ip/2001:2002:2003:2004::")
+        final Ip ip = createResource(AUDIENCE, "ip/2001:2002:2003:2004::")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
-        assertThat(response.getHandle(), is("2001:2002:2003::/48"));
-        assertThat(response.getIpVersion(), is("v6"));
-        assertThat(response.getCountry(), is("NL"));
-        assertThat(response.getStartAddress(), is("2001:2002:2003::/128"));
-        assertThat(response.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
-        assertThat(response.getName(), is("RIPE-NCC"));
+        assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
+        assertThat(ip.getIpVersion(), is("v6"));
+        assertThat(ip.getCountry(), is("NL"));
+        assertThat(ip.getStartAddress(), is("2001:2002:2003::/128"));
+        assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
+        assertThat(ip.getName(), is("RIPE-NCC"));
     }
 
     // person entity
 
     @Test
     public void lookup_person_entity() throws Exception {
-        final Entity response = createResource(AUDIENCE, "entity/PP1-TEST")
+        final Entity entity = createResource(AUDIENCE, "entity/PP1-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertThat(response.getHandle(), equalTo("PP1-TEST"));
-        assertThat(response.getEntities(), hasSize(1));
-        assertThat(response.getVCardArray().size(), is(2));
-        assertThat(response.getVCardArray().get(0).toString(), is("vcard"));
-        assertThat(response.getVCardArray().get(1).toString(), equalTo("" +
+        assertThat(entity.getHandle(), equalTo("PP1-TEST"));
+        assertThat(entity.getPort43(), is("whois.ripe.net"));
+        assertThat(entity.getEntities(), hasSize(1));
+        assertThat(entity.getVCardArray().size(), is(2));
+        assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(entity.getVCardArray().get(1).toString(), equalTo("" +
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Pauleth Palthen], " +
                 "[kind, {}, text, individual], " +
                 "[adr, {label=Singel 258}, text, null], " +
                 "[tel, {type=voice}, text, +31-1234567890], " +
                 "[email, {}, text, noreply@ripe.net]]"));
-        assertThat(response.getRdapConformance(), hasSize(1));
-        assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        assertThat(entity.getRdapConformance(), hasSize(1));
+        assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
+
+        final List<Event> events = entity.getEvents();
+        assertThat(events, hasSize(1));
+        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventAction(), is("last changed"));
     }
 
     @Test
@@ -308,26 +328,27 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_entity_no_accept_header() {
-        final Entity response = createResource(AUDIENCE, "entity/PP1-TEST")
+        final Entity entity = createResource(AUDIENCE, "entity/PP1-TEST")
                 .get(Entity.class);
 
-        assertThat(response.getHandle(), equalTo("PP1-TEST"));
-        assertThat(response.getRdapConformance(), hasSize(1));
-        assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        assertThat(entity.getHandle(), equalTo("PP1-TEST"));
+        assertThat(entity.getRdapConformance(), hasSize(1));
+        assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
     }
 
     // role entity
 
     @Test
     public void lookup_role_entity() throws Exception {
-        final Entity response = createResource(AUDIENCE, "entity/FR1-TEST")
+        final Entity entity = createResource(AUDIENCE, "entity/FR1-TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertThat(response.getHandle(), equalTo("FR1-TEST"));
-        assertThat(response.getVCardArray().size(), is(2));
-        assertThat(response.getVCardArray().get(0).toString(), is("vcard"));
-        assertThat(response.getVCardArray().get(1).toString(), equalTo("" +
+        assertThat(entity.getHandle(), equalTo("FR1-TEST"));
+        assertThat(entity.getPort43(), is("whois.ripe.net"));
+        assertThat(entity.getVCardArray().size(), is(2));
+        assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(entity.getVCardArray().get(1).toString(), equalTo("" +
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, First Role], " +
                 "[kind, {}, text, group], " +
@@ -335,27 +356,38 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "[email, {}, text, dbtest@ripe.net]]"));
 
 
-        assertThat(response.getEntities(), hasSize(2));
-        assertThat(response.getEntities().get(0).getHandle(), is("OWNER-MNT"));
-        assertThat(response.getEntities().get(0).getRoles(), contains("registrant"));
-        assertThat(response.getEntities().get(1).getHandle(), is("PP1-TEST"));
-        assertThat(response.getEntities().get(1).getRoles(), containsInAnyOrder("administrative", "technical"));
-        assertThat(response.getRdapConformance(), hasSize(1));
-        assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        assertThat(entity.getEntities(), hasSize(2));
+        assertThat(entity.getEntities().get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(entity.getEntities().get(0).getRoles(), contains("registrant"));
+        assertThat(entity.getEntities().get(1).getHandle(), is("PP1-TEST"));
+        assertThat(entity.getEntities().get(1).getRoles(), containsInAnyOrder("administrative", "technical"));
+        assertThat(entity.getRdapConformance(), hasSize(1));
+        assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
+
+        final List<Event> events = entity.getEvents();
+        assertThat(events, hasSize(1));
+        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventAction(), is("last changed"));
     }
 
     // domain
 
     @Test
     public void lookup_domain_object() throws Exception {
-        final Domain response = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa")
+        final Domain domain = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
-        assertThat(response.getHandle(), equalTo("31.12.202.in-addr.arpa"));
-        assertThat(response.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
-        assertThat(response.getRdapConformance(), hasSize(1));
-        assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(domain.getRdapConformance(), hasSize(1));
+        assertThat(domain.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        assertThat(domain.getPort43(), is("whois.ripe.net"));
+
+        final List<Event> events = domain.getEvents();
+        assertThat(events, hasSize(1));
+        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventAction(), is("last changed"));
     }
 
     @Test
@@ -413,10 +445,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
         final List<Event> events = autnum.getEvents();
         assertThat(events, hasSize(1));
-
-        final Event firstEvent = events.get(0);
-        assertTrue(firstEvent.getEventDate().isBefore(LocalDateTime.now()));
-        assertThat(firstEvent.getEventAction(), is("last changed"));
+        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventAction(), is("last changed"));
 
         final List<Entity> entities = autnum.getEntities();
         assertThat(entities, hasSize(2));
@@ -461,10 +491,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void multiple_modification_gives_correct_events() throws Exception {
-        final LocalDateTime now = LocalDateTime.now().withMillisOfSecond(0);
-        dateTimeProvider.setTime(now);
-
-        final String start = "" +
+        final String rpslObject = "" +
                 "aut-num:   AS123\n" +
                 "as-name:   AS-TEST\n" +
                 "descr:     Modified ASN\n" +
@@ -474,7 +501,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:    OWNER-MNT\n" +
                 "source:    TEST\n" +
                 "password:  test\n";
-        final String response = doPostOrPutRequest(getSyncupdatesUrl("test", ""), "POST", "DATA=" + encode(start), MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
+        final String response = syncupdate(rpslObject);
         assertThat(response, containsString("Modify SUCCEEDED: [aut-num] AS123"));
 
         final Autnum autnum = createResource(AUDIENCE, "autnum/123")
@@ -483,9 +510,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
         final List<Event> events = autnum.getEvents();
         assertThat(events, hasSize(1));
-
         assertThat(events.get(0).getEventAction(), is("last changed"));
-        assertThat(events.get(0).getEventDate(), is(dateTimeProvider.getCurrentDateTime()));
+        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
     }
 
     @Test
@@ -576,7 +602,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_org_entity() throws Exception {
-        dateTimeProvider.setTime(LocalDateTime.now().withMillisOfSecond(0));
         databaseHelper.addObject("" +
                 "organisation:  ORG-ONE-TEST\n" +
                 "org-name:      Organisation One\n" +
@@ -598,10 +623,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("ORG-ONE-TEST"));
+        assertThat(entity.getPort43(), is("whois.ripe.net"));
 
         assertThat(entity.getEvents().size(), equalTo(1));
         final Event event = entity.getEvents().get(0);
-        assertThat(event.getEventDate(), equalTo(dateTimeProvider.getCurrentDateTime()));
+        assertTrue(event.getEventDate().isBefore(LocalDateTime.now()));
         assertThat(event.getEventAction(), equalTo("last changed"));
         assertThat(event.getEventActor(), is(nullValue()));
 
@@ -645,6 +671,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Override
     protected WebResource createResource(final Audience audience, final String path) {
         return client.resource(String.format("http://localhost:%s/rdap/%s", getPort(audience), path));
+    }
+
+    private String syncupdate(final String data) throws IOException {
+        return doPostOrPutRequest(getSyncupdatesUrl("test", ""), "POST", "DATA=" + encode(data), MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
     }
 
     private String getSyncupdatesUrl(final String instance, final String command) {
