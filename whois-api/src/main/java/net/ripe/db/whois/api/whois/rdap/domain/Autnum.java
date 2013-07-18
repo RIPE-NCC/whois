@@ -20,10 +20,10 @@ public class Autnum extends RdapObject implements Serializable {
     protected String handle;
     @XmlElement(required = true)
     @XmlSchemaType(name = "nonNegativeInteger")
-    protected long startAutnum;
+    protected Long startAutnum;
     @XmlElement(required = true)
     @XmlSchemaType(name = "nonNegativeInteger")
-    protected long endAutnum;
+    protected Long endAutnum;
     @XmlElement(required = true)
     protected String name;
     @XmlElement(required = true)
@@ -39,19 +39,19 @@ public class Autnum extends RdapObject implements Serializable {
         this.handle = value;
     }
 
-    public long getStartAutnum() {
+    public Long getStartAutnum() {
         return startAutnum;
     }
 
-    public void setStartAutnum(final long value) {
+    public void setStartAutnum(final Long value) {
         this.startAutnum = value;
     }
 
-    public long getEndAutnum() {
+    public Long getEndAutnum() {
         return endAutnum;
     }
 
-    public void setEndAutnum(final long value) {
+    public void setEndAutnum(final Long value) {
         this.endAutnum = value;
     }
 
