@@ -296,7 +296,7 @@ public class RdapObjectMapperTest {
                 "[email, {}, text, first@last.org]\n" +
                 "[org, {}, text, ORG-TOL1-TEST]"));
 
-        assertThat(result.getRoles(), is(emptyIterable())); //TODO is this correct?
+        assertThat(result.getRoles(), is(emptyIterable()));
         assertThat(result.getPublicIds(), is(nullValue()));
 
         final List<Entity> entities = result.getEntities();
@@ -351,7 +351,7 @@ public class RdapObjectMapperTest {
                 "[email, {}, text, bitbucket@ripe.net]\n" +
                 "[geo, {}, uri, 52.375599 4.899902]"));
 
-        assertThat(result.getRoles(), is(emptyIterable())); //TODO correct?
+        assertThat(result.getRoles(), is(emptyIterable()));
 
         assertThat(result.getPublicIds(), is(nullValue()));
         assertThat(result.getEntities(), hasSize(2));
