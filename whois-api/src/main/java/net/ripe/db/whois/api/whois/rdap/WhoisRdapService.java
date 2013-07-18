@@ -24,6 +24,7 @@ import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,12 +57,14 @@ public class WhoisRdapService {
     private final RdapObjectMapper rdapObjectMapper;
 
     @Autowired
-    public WhoisRdapService(final SourceContext sourceContext, final QueryHandler queryHandler, final RpslObjectDao objectDao, final AbuseCFinder abuseCFinder, final NoticeFactory noticeFactory) {
+    public WhoisRdapService(final SourceContext sourceContext, final QueryHandler queryHandler,
+                            final RpslObjectDao objectDao, final AbuseCFinder abuseCFinder, final NoticeFactory noticeFactory,
+                            @Value("${rdap.port43:}") final String port43) {
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
         this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
-        this.rdapObjectMapper = new RdapObjectMapper(noticeFactory);
+        this.rdapObjectMapper = new RdapObjectMapper(noticeFactory, port43);
     }
 
     @GET

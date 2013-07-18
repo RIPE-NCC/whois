@@ -52,11 +52,11 @@ public class RdapObjectMapperTest {
         assertThat(result.getType(), is("OTHER"));
         assertThat(result.getCountry(), is("NL"));
         assertThat(result.getParentHandle(), is(nullValue()));
+        assertThat(result.getPort43(), is("whois.ripe.net"));
 
         final List<Entity> entities = result.getEntities();
         assertThat(entities, hasSize(1));
         assertThat(entities.get(0).getHandle(), is("AB-TEST"));
-        assertThat(entities.get(0).getPort43(), is("whois.ripe.net"));
         assertThat(entities.get(0).getRoles(), hasSize(0));
 //        assertThat(entities.get(0).getVCardArray(), is(not(nullValue())));  //TODO is this correct, really?
 
@@ -122,12 +122,15 @@ public class RdapObjectMapperTest {
         assertThat(entities.get(1).getVCardArray(), is(nullValue()));
 
         assertThat(result.getRemarks().get(0).getDescription().get(0), is("description"));
+
         assertThat(result.getLinks(), hasSize(2));
         assertThat(result.getLinks().get(0).getRel(), is("self"));
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
         assertThat(result.getEvents(), hasSize(1));
         assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
         assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
+
+        assertThat(result.getPort43(), is("whois.ripe.net"));
     }
 
     @Test
@@ -185,11 +188,13 @@ public class RdapObjectMapperTest {
         assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
         assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
         assertThat(result.getEvents().get(0).getEventActor(), is(nullValue()));
+
+        assertThat(result.getPort43(), is("whois.ripe.net"));
     }
 
     @Test
     public void domain_31_12_202_in_addr_arpa() {
-        final Domain result = (Domain)map((RpslObject.parse("" +
+        final Domain result = (Domain) map((RpslObject.parse("" +
                 "domain:   31.12.202.in-addr.arpa\n" +
                 "descr:    Test domain\n" +
                 "admin-c:  TP1-TEST\n" +
@@ -247,6 +252,8 @@ public class RdapObjectMapperTest {
         assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
         assertThat(entities.get(1).getRoles(), containsInAnyOrder("administrative", "technical", "zone"));
         assertThat(entities.get(1).getVCardArray(), is(nullValue()));
+
+        assertThat(result.getPort43(), is("whois.ripe.net"));
     }
 
     @Test
@@ -270,14 +277,14 @@ public class RdapObjectMapperTest {
         final List<Object> vCardArray = result.getVCardArray();
         assertThat(vCardArray, hasSize(2));
         assertThat(vCardArray.get(0).toString(), is("vcard"));
-        assertThat(Joiner.on("-").join((List)vCardArray.get(1)), is("" +
-                "[version, {}, text, 4.0]-" +
-                "[fn, {}, text, First Last]-" +
-                "[kind, {}, text, individual]-" +
-                "[adr, {label=Singel 258}, text, null]-" +
-                "[tel, {type=voice}, text, +31 20 123456]-" +
-                "[tel, {type=fax}, text, +31 20 123457]-" +
-                "[email, {}, text, first@last.org]-" +
+        assertThat(Joiner.on("\n").join((List) vCardArray.get(1)), is("" +
+                "[version, {}, text, 4.0]\n" +
+                "[fn, {}, text, First Last]\n" +
+                "[kind, {}, text, individual]\n" +
+                "[adr, {label=Singel 258}, text, null]\n" +
+                "[tel, {type=voice}, text, +31 20 123456]\n" +
+                "[tel, {type=fax}, text, +31 20 123457]\n" +
+                "[email, {}, text, first@last.org]\n" +
                 "[org, {}, text, ORG-TOL1-TEST]"));
 
         assertThat(result.getRoles(), is(emptyIterable())); //TODO is this correct?
@@ -295,6 +302,61 @@ public class RdapObjectMapperTest {
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
 
         assertThat(result.getEvents(), hasSize(1));
+        assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
+
+        assertThat(result.getStatus(), is(emptyIterable()));
+        assertThat(result.getPort43(), is("whois.ripe.net"));
+    }
+
+    @Test
+    public void organisation() {
+        final Entity result = (Entity) map(RpslObject.parse("" +
+                "organisation:   ORG-AC1-TEST\n" +
+                "org-name:       Acme Carpets\n" +
+                "org-type:       OTHER\n" +
+                "address:        Singel 258\n" +
+                "e-mail:         bitbucket@ripe.net\n" +
+                "descr:          Acme Carpet Organisation\n" +
+                "remark:         some remark\n" +
+                "phone:          +31 1234567\n" +
+                "fax-no:         +31 98765432\n" +
+                "geoloc:         52.375599 4.899902\n" +
+                "language:       DK\n" +
+                "admin-c:        TP1-TEST\n" +
+                "abuse-c:        ABU-TEST\n" +
+                "mnt-by:         FRED-MNT\n" +
+                "changed:        change@test.ripe\n" +
+                "source:         TEST"));
+
+        assertThat(result.getHandle(), is("ORG-AC1-TEST"));
+        final List<Object> vCardArray = result.getVCardArray();
+        assertThat(vCardArray, hasSize(2));
+        assertThat(vCardArray.get(0).toString(), is("vcard"));
+        assertThat(Joiner.on("\n").join((List) vCardArray.get(1)), is("" +
+                "[version, {}, text, 4.0]\n" +
+                "[fn, {}, text, Acme Carpets]\n" +
+                "[kind, {}, text, org]\n" +
+                "[adr, {label=Singel 258}, text, null]\n" +
+                "[tel, {type=voice}, text, +31 1234567]\n" +
+                "[tel, {type=fax}, text, +31 98765432]\n" +
+                "[email, {}, text, bitbucket@ripe.net]\n" +
+                "[geo, {}, uri, 52.375599 4.899902]"));
+
+        assertThat(result.getRoles(), is(emptyIterable())); //TODO correct?
+
+        assertThat(result.getPublicIds(), is(nullValue()));
+        assertThat(result.getEntities(), hasSize(2));
+
+        assertThat(result.getRemarks(), hasSize(1));
+        assertThat(result.getRemarks().get(0).getDescription().get(0), is("Acme Carpet Organisation"));
+
+        assertThat(result.getLinks(), hasSize(2));
+        assertThat(result.getLinks().get(0).getRel(), is("self"));
+        assertThat(result.getLinks().get(1).getRel(), is("copyright"));
+
+        assertThat(result.getEvents(), hasSize(1));
+        assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
+
         assertThat(result.getStatus(), is(emptyIterable()));
         assertThat(result.getPort43(), is("whois.ripe.net"));
     }
@@ -304,6 +366,6 @@ public class RdapObjectMapperTest {
     }
 
     private Object map(final RpslObject rpslObject, final List<RpslObject> abuseContacts) {
-        return new RdapObjectMapper(new NoticeFactory("", "", "", "", "", "", "", "", "", "")).map("http://localhost/", rpslObject, VERSION_TIMESTAMP, abuseContacts);
+        return new RdapObjectMapper(new NoticeFactory("", "", "", "", "", "", "", "", "", ""), "whois.ripe.net").map("http://localhost/", rpslObject, VERSION_TIMESTAMP, abuseContacts);
     }
 }

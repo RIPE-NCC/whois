@@ -15,8 +15,7 @@ import java.util.Map;
     "unicodeName",
     "nameservers",
     "secureDNS",
-    "publicIds",
-    "port43"
+    "publicIds"
 })
 @XmlRootElement(name = "domain")
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
@@ -32,7 +31,6 @@ public class Domain extends RdapObject implements Serializable {
     protected List<Nameserver> nameservers;
     protected Domain.SecureDNS secureDNS;
     protected Map publicIds;
-    protected String port43;
 
     public String getHandle() {
         return handle;
@@ -79,14 +77,6 @@ public class Domain extends RdapObject implements Serializable {
 
     public void setPublicIds(final Map value) {
         this.publicIds = value;
-    }
-
-    public String getPort43() {
-        return port43;
-    }
-
-    public void setPort43(final String value) {
-        this.port43 = value;
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)

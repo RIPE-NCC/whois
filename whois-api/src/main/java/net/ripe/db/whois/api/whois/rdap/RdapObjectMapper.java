@@ -29,7 +29,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link().setRel("copyright").setValue(TERMS_AND_CONDITIONS).setHref(TERMS_AND_CONDITIONS);
-    private static final String PORT43 = "whois.ripe.net";
+    private final String port43;
 
     private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
     private static final Joiner NEWLINE_JOINER = Joiner.on("\n");
@@ -45,8 +45,9 @@ class RdapObjectMapper {
 
     private final NoticeFactory noticeFactory;
 
-    public RdapObjectMapper(final NoticeFactory noticeFactory) {
+    public RdapObjectMapper(final NoticeFactory noticeFactory, final String port43) {
         this.noticeFactory = noticeFactory;
+        this.port43 = port43;
     }
 
     public Object map(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, final List<RpslObject> abuseContacts) {
@@ -90,6 +91,8 @@ class RdapObjectMapper {
         for (final RpslObject abuseContact : abuseContacts) {
             rdapResponse.getEntities().add(createEntity(abuseContact, "abuse"));
         }
+
+        rdapResponse.setPort43(port43);
 
         return rdapResponse;
     }
@@ -176,7 +179,7 @@ class RdapObjectMapper {
         }
         entity.setVCardArray(createVCard(rpslObject));
         entity.getEntities().addAll(createContactEntities(rpslObject));
-        entity.setPort43(PORT43);
+
         return entity;
     }
 
@@ -258,7 +261,6 @@ class RdapObjectMapper {
         }
 
         domain.getEntities().addAll(createContactEntities(rpslObject));
-        domain.setPort43(PORT43);
         return domain;
     }
 

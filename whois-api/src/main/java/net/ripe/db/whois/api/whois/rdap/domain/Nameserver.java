@@ -12,21 +12,16 @@ import java.util.List;
     "handle",
     "ldhName",
     "unicodeName",
-    "ipAddresses",
-    "port43"
+    "ipAddresses"
 })
 @XmlRootElement
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
-public class Nameserver
-    extends RdapObject
-    implements Serializable
-{
+public class Nameserver extends RdapObject implements Serializable {
     @XmlElement(required = true)
     protected String handle;
     protected String ldhName;
     protected String unicodeName;
     protected Nameserver.IpAddresses ipAddresses;
-    protected String port43;
 
     public String getHandle() {
         return handle;
@@ -58,14 +53,6 @@ public class Nameserver
 
     public void setIpAddresses(Nameserver.IpAddresses value) {
         this.ipAddresses = value;
-    }
-
-    public String getPort43() {
-        return port43;
-    }
-
-    public void setPort43(String value) {
-        this.port43 = value;
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
