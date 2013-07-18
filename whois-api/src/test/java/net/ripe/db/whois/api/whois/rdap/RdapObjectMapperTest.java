@@ -42,7 +42,8 @@ public class RdapObjectMapperTest {
                         "nic-hdl: AB-TEST\n" +
                         "mnt-by:  TEST-MNT\n" +
                         "admin-c: TP1-TEST\n" +
-                        "tech-c:  TP2-TEST")));
+                        "tech-c:  TP2-TEST\n" +
+                        "phone:   +31 12345678")));
 
         assertThat(result.getHandle(), is("10.0.0.0 - 10.255.255.255"));
         assertThat(result.getStartAddress(), is("10.0.0.0/32"));
@@ -58,7 +59,15 @@ public class RdapObjectMapperTest {
         assertThat(entities, hasSize(1));
         assertThat(entities.get(0).getHandle(), is("AB-TEST"));
         assertThat(entities.get(0).getRoles(), hasSize(0));
-//        assertThat(entities.get(0).getVCardArray(), is(not(nullValue())));  //TODO is this correct, really?
+
+        final List<Object> vCardArray = entities.get(0).getVCardArray();
+        assertThat(vCardArray, hasSize(2));
+        assertThat(vCardArray.get(0).toString(), is("vcard"));
+        assertThat(Joiner.on("\n").join((List)vCardArray.get(1)), is("" +
+                "[version, {}, text, 4.0]\n" +
+                "[fn, {}, text, Abuse Contact]\n" +
+                "[kind, {}, text, group]\n" +
+                "[tel, {type=voice}, text, +31 12345678]"));
 
         final List<Entity> abuseEntities = entities.get(0).getEntities();
         assertThat(abuseEntities, hasSize(3));
