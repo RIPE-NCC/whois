@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
 import net.ripe.db.whois.api.whois.rdap.domain.Domain;
@@ -8,6 +9,8 @@ import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -33,23 +36,47 @@ public class RdapObjectMapperTest {
                 "notify:         notify@test.net\n" +
                 "org:            ORG-TOL1-TEST\n" +
                 "changed:        ripe@test.net 20120101\n" +
-                "source:         TEST")));
+                "source:         TEST")),
+                Lists.newArrayList(RpslObject.parse("" +
+                        "role: Abuse Contact\n" +
+                        "nic-hdl: AB-TEST\n" +
+                        "mnt-by:  TEST-MNT\n" +
+                        "admin-c: TP1-TEST\n" +
+                        "tech-c:  TP2-TEST")));
 
         assertThat(result.getHandle(), is("10.0.0.0 - 10.255.255.255"));
-        assertThat(result.getEvents(), hasSize(1));
-        assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
-        assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
-        assertThat(result.getCountry(), is("NL"));
+        assertThat(result.getStartAddress(), is("10.0.0.0/32"));
         assertThat(result.getEndAddress(), is("10.255.255.255/32"));
         assertThat(result.getIpVersion(), is("v4"));
         assertThat(result.getName(), is("RIPE-NCC"));
-        assertThat(result.getParentHandle(), is(nullValue()));
-        assertThat(result.getStartAddress(), is("10.0.0.0/32"));
         assertThat(result.getType(), is("OTHER"));
+        assertThat(result.getCountry(), is("NL"));
+        assertThat(result.getParentHandle(), is(nullValue()));
+
+        final List<Entity> entities = result.getEntities();
+        assertThat(entities, hasSize(1));
+        assertThat(entities.get(0).getHandle(), is("AB-TEST"));
+        assertThat(entities.get(0).getPort43(), is("whois.ripe.net"));
+        assertThat(entities.get(0).getRoles(), hasSize(0));
+//        assertThat(entities.get(0).getVCardArray(), is(not(nullValue())));  //TODO is this correct, really?
+
+        final List<Entity> abuseEntities = entities.get(0).getEntities();
+        assertThat(abuseEntities, hasSize(3));
+        assertThat(abuseEntities.get(0).getHandle(), is("TEST-MNT"));
+        assertThat(abuseEntities.get(0).getRoles().get(0), is("registrant"));
+        assertThat(abuseEntities.get(1).getHandle(), is("TP1-TEST"));
+        assertThat(abuseEntities.get(1).getRoles().get(0), is("administrative"));
+        assertThat(abuseEntities.get(2).getHandle(), is("TP2-TEST"));
+        assertThat(abuseEntities.get(2).getRoles().get(0), is("technical"));
+
+        assertThat(result.getRemarks().get(0).getDescription().get(0), is("some descr"));
         assertThat(result.getLinks(), hasSize(2));
         assertThat(result.getLinks().get(0).getRel(), is("self"));
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
-        assertThat(result.getRemarks().get(0).getDescription().get(0), is("some descr"));
+
+        assertThat(result.getEvents(), hasSize(1));
+        assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
+        assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
     }
 
     @Test
@@ -78,17 +105,29 @@ public class RdapObjectMapperTest {
                 "password:       update")));
 
         assertThat(result.getHandle(), is("AS102"));
-        assertThat(result.getStartAutnum(), is(0l));
-        assertThat(result.getEndAutnum(), is(0l));
-        assertThat(result.getEvents(), hasSize(1));
-        assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
-        assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
+        assertThat(result.getStartAutnum(), is(nullValue()));
+        assertThat(result.getEndAutnum(), is(nullValue()));
         assertThat(result.getName(), is("End-User-2"));
         assertThat(result.getType(), is("DIRECT ALLOCATION"));
+        assertThat(result.getStatus(), is(emptyIterable()));
+        assertThat(result.getCountry(), is(nullValue()));
+
+        final List<Entity> entities = result.getEntities();
+        assertThat(entities, hasSize(2));
+        assertThat(entities.get(0).getHandle(), is("AP1-TEST"));
+        assertThat(entities.get(0).getRoles(), containsInAnyOrder("technical", "administrative"));
+        assertThat(entities.get(0).getVCardArray(), is(nullValue()));
+        assertThat(entities.get(1).getHandle(), is("UPD-MNT"));
+        assertThat(entities.get(1).getRoles().get(0), is("registrant"));
+        assertThat(entities.get(1).getVCardArray(), is(nullValue()));
+
+        assertThat(result.getRemarks().get(0).getDescription().get(0), is("description"));
         assertThat(result.getLinks(), hasSize(2));
         assertThat(result.getLinks().get(0).getRel(), is("self"));
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
-        assertThat(result.getRemarks().get(0).getDescription().get(0), is("description"));
+        assertThat(result.getEvents(), hasSize(1));
+        assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
+        assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
     }
 
     @Test
@@ -100,24 +139,52 @@ public class RdapObjectMapperTest {
                 "tech-c:          TEST-PN\n" +
                 "zone-c:          TEST-PN\n" +
                 "nserver:         ns.1.net\n" +
+                "nserver:         ns.foo.net.0.0.193.in-addr.arpa. 10.0.0.0/32\n" +
                 "mnt-by:          RIPE-NCC-MNT\n" +
+                "ds-rdata:        52314 5 1 93B5837D4E5C063A3728FAA72BA64068F89B39DF\n" +
                 "changed:         test@ripe.net 20120505\n" +
                 "source:          TEST\n" +
                 "password:        update")));
 
         assertThat(result.getHandle(), is("2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
         assertThat(result.getLdhName(), is("2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
-        assertThat(result.getNameservers(), hasSize(1));
+        assertThat(result.getUnicodeName(), is(nullValue()));
+
+        assertThat(result.getNameservers(), hasSize(2));
         assertThat(result.getNameservers().get(0).getLdhName(), is("ns.1.net"));
+        assertThat(result.getNameservers().get(1).getLdhName(), is("ns.foo.net.0.0.193.in-addr.arpa"));
+        assertThat(result.getNameservers().get(1).getIpAddresses().getIpv4().get(0), is("10.0.0.0/32"));
+
+        final Domain.SecureDNS secureDNS = result.getSecureDNS();
+        assertThat(secureDNS.isDelegationSigned(), is(true));
+        assertThat(secureDNS.getDsData().get(0).getAlgorithm(), is(5));
+        assertThat(secureDNS.getDsData().get(0).getKeyTag(), is(52314L));
+        assertThat(secureDNS.getDsData().get(0).getDigest(), is("93B5837D4E5C063A3728FAA72BA64068F89B39DF"));
+        assertThat(secureDNS.getDsData().get(0).getDigestType(), is(1));
+
+        final List<Entity> entities = result.getEntities();
+        assertThat(entities, hasSize(2));
+        assertThat(entities.get(0).getHandle(), is("RIPE-NCC-MNT"));
+        assertThat(entities.get(0).getRoles(), contains("registrant"));
+        assertThat(entities.get(0).getVCardArray(), is(nullValue()));
+        assertThat(entities.get(1).getHandle(), is("TEST-PN"));
+        assertThat(entities.get(1).getRoles(), containsInAnyOrder("administrative", "technical", "zone"));
+        assertThat(entities.get(1).getVCardArray(), is(nullValue()));
+
+        assertThat(result.getStatus(), is(emptyIterable()));
+        assertThat(result.getPublicIds(), is(nullValue()));
+
+        assertThat(result.getRemarks().get(0).getDescription().get(0), is("enum domain"));
+        assertThat(result.getLinks(), hasSize(2));
+        assertThat(result.getLinks().get(0).getRel(), is("self"));
+        assertThat(result.getLinks().get(1).getRel(), is("copyright"));
+        assertThat(result.getPort43(), is("whois.ripe.net"));
+
         assertThat(result.getEvents(), hasSize(1));
         assertThat(result.getEvents().get(0).getEventActor(), is(nullValue()));
         assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
         assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
         assertThat(result.getEvents().get(0).getEventActor(), is(nullValue()));
-        assertThat(result.getLinks(), hasSize(2));
-        assertThat(result.getLinks().get(0).getRel(), is("self"));
-        assertThat(result.getLinks().get(1).getRel(), is("copyright"));
-        assertThat(result.getRemarks().get(0).getDescription().get(0), is("enum domain"));
     }
 
     @Test
@@ -143,50 +210,43 @@ public class RdapObjectMapperTest {
                 "source:   TEST\n")));
 
         assertThat(result.getHandle(), is("31.12.202.in-addr.arpa"));
-    }
+        assertThat(result.getLdhName(), is("31.12.202.in-addr.arpa"));
+        assertThat(result.getUnicodeName(), is(nullValue()));
 
-    @Test
-    public void domain_102_130_in_addr_arpa() {
-        final Domain result = (Domain)map((RpslObject.parse("" +
-                "domain:         102.130.in-addr.arpa\n" +
-                "descr:          domain object for 130.102.0.0 - 130.102.255.255\n" +
-                "country:        AU\n" +
-                "admin-c:        HM53-AP\n" +
-                "tech-c:         HM53-AP\n" +
-                "zone-c:         HM53-AP\n" +
-                "nserver:        NS1.UQ.EDU.AU\n" +
-                "nserver:        NS2.UQ.EDU.AU\n" +
-                "nserver:        NS3.UQ.EDU.AU\n" +
-                "nserver:        ns4.uqconnect.net\n" +
-                "notify:         hostmaster@uq.edu.au\n" +
-                "mnt-by:         MAINT-AU-UQ\n" +
-                "changed:        hm-changed@apnic.net 20031020\n" +
-                "changed:        hm-changed@apnic.net 20040319\n" +
-                "changed:        d.thomas@its.uq.edu.au 20070226\n" +
-                "source:         APNIC\n")));
+        assertThat(result.getNameservers(), hasSize(3));
+        assertThat(result.getNameservers().get(0).getLdhName(), is("ns1.test.com.au"));
+        assertThat(result.getNameservers().get(0).getIpAddresses().getIpv4().get(0), is("10.0.0.1/32"));
+        assertThat(result.getNameservers().get(0).getIpAddresses().getIpv6().get(0), is("2001:10::1/128"));
+        assertThat(result.getNameservers().get(1).getLdhName(), is("ns2.test.com.au"));
+        assertThat(result.getNameservers().get(1).getIpAddresses().getIpv4().get(0), is("10.0.0.2/32"));
+        assertThat(result.getNameservers().get(1).getIpAddresses().getIpv6().get(0), is("2001:10::2/128"));
+        assertThat(result.getNameservers().get(2).getLdhName(), is("ns3.test.com.au"));
+        assertThat(result.getNameservers().get(2).getIpAddresses(), is(nullValue()));
 
-        assertThat(result.getHandle(), is("102.130.in-addr.arpa"));
-    }
+        final Domain.SecureDNS secureDNS = result.getSecureDNS();
+        assertThat(secureDNS.isDelegationSigned(), is(true));
+        assertThat(secureDNS.getDsData(), hasSize(3));
+        assertThat(secureDNS.getDsData().get(0).getAlgorithm(), is(1));
+        assertThat(secureDNS.getDsData().get(0).getKeyTag(), is(52151L));
+        assertThat(secureDNS.getDsData().get(0).getDigest(), is("13ee60f7499a70e5aadaf05828e7fc59e8e70bc1"));
+        assertThat(secureDNS.getDsData().get(0).getDigestType(), is(1));
+        assertThat(secureDNS.getDsData().get(1).getAlgorithm(), is(5));
+        assertThat(secureDNS.getDsData().get(1).getKeyTag(), is(17881L));
+        assertThat(secureDNS.getDsData().get(1).getDigest(), is("2e58131e5fe28ec965a7b8e4efb52d0a028d7a78"));
+        assertThat(secureDNS.getDsData().get(1).getDigestType(), is(1));
+        assertThat(secureDNS.getDsData().get(2).getAlgorithm(), is(5));
+        assertThat(secureDNS.getDsData().get(2).getKeyTag(), is(17881L));
+        assertThat(secureDNS.getDsData().get(2).getDigest(), is("8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e"));
+        assertThat(secureDNS.getDsData().get(2).getDigestType(), is(2));
 
-    @Test
-    public void domain_29_12_202_in_addr_arpa() {
-        final Domain result = (Domain)map((RpslObject.parse("" +
-                "domain:         29.12.202.in-addr.arpa\n" +
-                "descr:          zone for 202.12.29.0/24\n" +
-                "admin-c:        NO4-AP\n" +
-                "tech-c:         AIC1-AP\n" +
-                "zone-c:         NO4-AP\n" +
-                "nserver:        cumin.apnic.net\n" +
-                "nserver:        tinnie.apnic.net\n" +
-                "nserver:        tinnie.arin.net\n" +
-                "ds-rdata:       55264 5 1 ( 8bb4b233cbcf8593c6f153fccd4d805179b972a4 )\n" +
-                "ds-rdata:       55264 5 2 ( b44b18643775f9fdc76ee312667c2b350c1e02f3e43f8027f2c55777a429095a )\n" +
-                "mnt-by:         MAINT-APNIC-IS-AP\n" +
-                "changed:        hm-changed@apnic.net 20120504\n" +
-                "changed:        hm-changed@apnic.net 20120508\n" +
-                "source:         APNIC\n")));
-
-        assertThat(result.getHandle(), is("29.12.202.in-addr.arpa"));
+        final List<Entity> entities = result.getEntities();
+        assertThat(entities, hasSize(2));
+        assertThat(entities.get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(0).getRoles(), contains("registrant"));
+        assertThat(entities.get(0).getVCardArray(), is(nullValue()));
+        assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(1).getRoles(), containsInAnyOrder("administrative", "technical", "zone"));
+        assertThat(entities.get(1).getVCardArray(), is(nullValue()));
     }
 
     @Test
@@ -206,10 +266,44 @@ public class RdapObjectMapperTest {
                 "changed:       first@last.org 20120220\n" +
                 "source:        TEST"));
 
+        assertThat(result.getHandle(), is("FL1-TEST"));
+        final List<Object> vCardArray = result.getVCardArray();
+        assertThat(vCardArray, hasSize(2));
+        assertThat(vCardArray.get(0).toString(), is("vcard"));
+        assertThat(Joiner.on("-").join((List)vCardArray.get(1)), is("" +
+                "[version, {}, text, 4.0]-" +
+                "[fn, {}, text, First Last]-" +
+                "[kind, {}, text, individual]-" +
+                "[adr, {label=Singel 258}, text, null]-" +
+                "[tel, {type=voice}, text, +31 20 123456]-" +
+                "[tel, {type=fax}, text, +31 20 123457]-" +
+                "[email, {}, text, first@last.org]-" +
+                "[org, {}, text, ORG-TOL1-TEST]"));
+
+        assertThat(result.getRoles(), is(emptyIterable())); //TODO is this correct?
+        assertThat(result.getPublicIds(), is(nullValue()));
+
+        final List<Entity> entities = result.getEntities();
+        assertThat(entities, hasSize(1));
+        assertThat(entities.get(0).getHandle(), is("TST-MNT"));
+        assertThat(entities.get(0).getRoles(), contains("registrant"));
+        assertThat(entities.get(0).getVCardArray(), is(nullValue()));
+
+        assertThat(result.getRemarks().get(0).getDescription(), is(emptyIterable()));
+        assertThat(result.getLinks(), hasSize(2));
+        assertThat(result.getLinks().get(0).getRel(), is("self"));
+        assertThat(result.getLinks().get(1).getRel(), is("copyright"));
+
         assertThat(result.getEvents(), hasSize(1));
+        assertThat(result.getStatus(), is(emptyIterable()));
+        assertThat(result.getPort43(), is("whois.ripe.net"));
     }
 
     private Object map(final RpslObject rpslObject) {
-        return new RdapObjectMapper(new NoticeFactory("", "", "", "", "", "", "", "", "", "")).map("http://localhost/", rpslObject, VERSION_TIMESTAMP, Lists.<RpslObject>newArrayList());
+        return map(rpslObject, Lists.<RpslObject>newArrayList());
+    }
+
+    private Object map(final RpslObject rpslObject, final List<RpslObject> abuseContacts) {
+        return new RdapObjectMapper(new NoticeFactory("", "", "", "", "", "", "", "", "", "")).map("http://localhost/", rpslObject, VERSION_TIMESTAMP, abuseContacts);
     }
 }

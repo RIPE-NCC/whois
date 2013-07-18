@@ -287,7 +287,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "[fn, {}, text, Pauleth Palthen], " +
                 "[kind, {}, text, individual], " +
                 "[adr, {label=Singel 258}, text, null], " +
-                "[tel, {}, uri, +31-1234567890], " +
+                "[tel, {type=voice}, text, +31-1234567890], " +
                 "[email, {}, text, noreply@ripe.net]]"));
         assertThat(response.getRdapConformance(), hasSize(1));
         assertThat(response.getRdapConformance().get(0), equalTo("rdap_level_0"));
@@ -327,6 +327,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(response.getVCardArray().get(0).toString(), is("vcard"));
         assertThat(response.getVCardArray().get(1).toString(), equalTo("" +
                 "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, First Role], " +
                 "[kind, {}, text, group], " +
                 "[adr, {label=Singel 258}, text, null], " +
                 "[email, {}, text, dbtest@ripe.net]]"));
@@ -403,8 +404,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(Autnum.class);
 
         assertThat(autnum.getHandle(), equalTo("AS123"));
-        assertThat(autnum.getStartAutnum(), equalTo(0L));
-        assertThat(autnum.getEndAutnum(), equalTo(0L));
+        assertThat(autnum.getStartAutnum(), is(nullValue()));
+        assertThat(autnum.getEndAutnum(), is(nullValue()));
         assertThat(autnum.getName(), equalTo("AS-TEST"));
         assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
 
@@ -542,9 +543,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(ip.getEntities().get(0).getVCardArray().get(0).toString(), is("vcard"));
         assertThat(ip.getEntities().get(0).getVCardArray().get(1).toString(), is("" +
                 "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
                 "[adr, {label=Singel 258}, text, null], " +
-                "[tel, {}, uri, +31 6 12345678]]"));
+                "[tel, {type=voice}, text, +31 6 12345678]]"));
     }
 
     // organisation entity

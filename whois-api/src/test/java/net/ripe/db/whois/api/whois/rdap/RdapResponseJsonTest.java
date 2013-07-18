@@ -137,7 +137,7 @@ public class RdapResponseJsonTest {
         nameserver.setHandle("handle");
         nameserver.setLdhName("ns1.xn--fo-5ja.example");
         nameserver.setUnicodeName("foo.example");
-//        nameserver.getStatus().add("active");
+        nameserver.getStatus().add("active");
 
         final Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
         ipAddresses.getIpv4().add("192.0.2.1");
@@ -355,7 +355,7 @@ public class RdapResponseJsonTest {
         ip.setName("NET-RTR-1");
         ip.setType("DIRECT ALLOCATION");
         ip.setCountry("AU");
-//        ip.getStatus().add("allocated"); //TODO should type and status be the same for ip?
+        ip.getStatus().add("allocated");
 
         final Remark remark = new Remark(Lists.newArrayList("She sells sea shells down by the sea shore.", "Originally written by Terry Sullivan."));
         ip.getRemarks().add(remark);

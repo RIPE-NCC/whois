@@ -32,6 +32,7 @@ class RdapObjectMapper {
     private static final String PORT43 = "whois.ripe.net";
 
     private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
+    private static final Joiner NEWLINE_JOINER = Joiner.on("\n");
 
     private static final Map<AttributeType, String> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
 
@@ -229,7 +230,7 @@ class RdapObjectMapper {
         final Domain.SecureDNS secureDNS = new Domain.SecureDNS();
         secureDNS.setDelegationSigned(false);
 
-        for (final CIString rdata : rpslObject.getValuesForAttribute(AttributeType.DS_RDATA)) {
+        for (final CIString rdata : rpslObject.getValuesForAttribute(DS_RDATA)) {
             final DsRdata dsRdata = DsRdata.parse(rdata);
 
             secureDNS.setDelegationSigned(true);
@@ -258,40 +259,50 @@ class RdapObjectMapper {
 
         switch (rpslObject.getType()) {
             case PERSON:
-                for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.PERSON)) {
-                    builder.addFn(attribute.getCleanValue().toString());
-                }
+                builder.addFn(rpslObject.getValueForAttribute(PERSON).toString());
                 builder.addKind("individual");
                 break;
             case ORGANISATION:
-                for (final RpslAttribute attribute : rpslObject.findAttributes(AttributeType.ORG_NAME)) {
-                    builder.addFn(attribute.getCleanValue().toString());
-                }
+                builder.addFn(rpslObject.getValueForAttribute(ORG_NAME).toString());
                 builder.addKind("org");
                 break;
             case ROLE:
-            case IRT:
+                builder.addFn(rpslObject.getValueForAttribute(ROLE).toString());
                 builder.addKind("group");
                 break;
             default:
                 break;
         }
 
-        for (final CIString address : rpslObject.getValuesForAttribute(AttributeType.ADDRESS)) {
-            builder.addAdr(VCardHelper.createMap(Maps.immutableEntry("label", address)), null);
+        final Set<CIString> addresses = rpslObject.getValuesForAttribute(ADDRESS);
+        if (!addresses.isEmpty()) {
+            final Map<String, String> addressMap = Maps.newHashMap();
+            addressMap.put("label", NEWLINE_JOINER.join(addresses));
+            builder.addAdr(addressMap, null);
         }
 
-        for (final CIString phone : rpslObject.getValuesForAttribute(AttributeType.PHONE)) {
-            builder.addTel(phone.toString());
+        for (final CIString phone : rpslObject.getValuesForAttribute(PHONE)) {
+            final Map<String, String> phoneMap = Maps.newHashMap();
+            phoneMap.put("type", "voice");
+            builder.addTel(phoneMap, phone.toString());
         }
 
-        for (final CIString email : rpslObject.getValuesForAttribute(AttributeType.E_MAIL)) {
-            // TODO ?? Is it valid to have more than 1 email
+        for (final CIString fax : rpslObject.getValuesForAttribute(FAX_NO)) {
+            final Map<String, String> faxMap = Maps.newHashMap();
+            faxMap.put("type", "fax");
+            builder.addTel(faxMap, fax.toString());
+        }
+
+        for (final CIString email : rpslObject.getValuesForAttribute(E_MAIL)) {
             builder.addEmail(email.toString());
         }
 
-        for (final CIString org : rpslObject.getValuesForAttribute(AttributeType.ORG)) {
+        for (final CIString org : rpslObject.getValuesForAttribute(ORG)) {
             builder.addOrg(org.toString());
+        }
+
+        for (final CIString geoloc : rpslObject.getValuesForAttribute(GEOLOC)) {
+            builder.addGeo(geoloc.toString());
         }
 
         return builder.build();
