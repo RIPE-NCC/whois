@@ -8,14 +8,7 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
-import net.ripe.db.whois.api.whois.rdap.domain.Domain;
-import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Event;
-import net.ripe.db.whois.api.whois.rdap.domain.Ip;
-import net.ripe.db.whois.api.whois.rdap.domain.Link;
-import net.ripe.db.whois.api.whois.rdap.domain.Notice;
-import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.joda.time.LocalDateTime;
@@ -661,23 +654,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(entities.get(2).getHandle(), is("TP2-TEST"));
         assertThat(entities.get(2).getRoles(), containsInAnyOrder("administrative", "technical"));
 
-        final String orgLink = createResource(AUDIENCE, "entity/ORG-ONE-TEST").toString();        // TODO: implement
-        final String tp1Link = createResource(AUDIENCE, "entity/TP1-TEST").toString();
-        final String tp2Link = createResource(AUDIENCE, "entity/TP2-TEST").toString();
-
-//        assertThat(entities.get(0).getLinks(), hasSize(1));                                    // TODO
-//        assertThat(entities.get(0).getLinks().get(0).getRel(), is("self"));
-//        assertThat(entities.get(0).getLinks().get(0).getValue(), is(orgLink));
-//        assertThat(entities.get(0).getLinks().get(0).getHref(), is(tp1Link));
-//        assertThat(entities.get(1).getLinks(), hasSize(1));
-//        assertThat(entities.get(1).getLinks().get(0).getRel(), is("self"));
-//        assertThat(entities.get(1).getLinks().get(0).getValue(), is(orgLink));
-//        assertThat(entities.get(1).getLinks().get(0).getHref(), is(tp2Link));
-
         final List<Link> links = entity.getLinks();
         assertThat(links, hasSize(2));
         Collections.sort(links);
         assertThat(links.get(0).getRel(), equalTo("self"));
+        final String orgLink = createResource(AUDIENCE, "entity/ORG-ONE-TEST").toString();        // TODO: implement
         assertThat(links.get(0).getValue(), equalTo(orgLink));
         assertThat(links.get(0).getHref(), equalTo(orgLink));
         assertThat(links.get(1).getRel(), equalTo("copyright"));
@@ -685,7 +666,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(entity.getRemarks(), hasSize(1));
         assertThat(entity.getRemarks().get(0).getDescription(), contains("Test organisation"));
 
-        // assertThat(entity.getLang(), is("EN"));          // TODO: [ES] fix, is null not EN
+//        assertThat(entity.getLang(), is("EN")); TODO
     }
 
     @Override

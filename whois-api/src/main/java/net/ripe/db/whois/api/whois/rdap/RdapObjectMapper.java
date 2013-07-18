@@ -115,6 +115,7 @@ class RdapObjectMapper {
         ip.setCountry(rpslObject.getValueForAttribute(AttributeType.COUNTRY).toString());
         ip.setLang(rpslObject.getValuesForAttribute(AttributeType.LANGUAGE).isEmpty() ? null : Joiner.on(",").join(rpslObject.getValuesForAttribute(AttributeType.LANGUAGE)));
         ip.setType(rpslObject.getValueForAttribute(AttributeType.STATUS).toString());
+//        ip.setLang(CollectionHelper.uniqueResult(rpslObject.getValuesForAttribute(LANGUAGE)).toString()); //TODO how to handle more than one language on the rpsl object
 
 //        ip.getLinks().add(new Link().setRel("up")... //TODO parent (first less specific) - do parentHandle at the same time
 
@@ -179,7 +180,7 @@ class RdapObjectMapper {
         }
         entity.setVCardArray(createVCard(rpslObject));
         entity.getEntities().addAll(createContactEntities(rpslObject));
-
+//        entity.setLang(CollectionHelper.uniqueResult(rpslObject.getValuesForAttribute(LANGUAGE)).toString()); //TODO how to handle more than one language on the rpsl object
         return entity;
     }
 
