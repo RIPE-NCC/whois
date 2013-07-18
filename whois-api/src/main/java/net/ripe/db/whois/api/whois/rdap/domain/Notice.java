@@ -18,7 +18,7 @@ import java.util.List;
 })
 @XmlRootElement
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
-public class Notice implements Serializable {
+public class Notice implements Serializable, Comparable<Notice> {
     protected String title;
     protected List<String> description;
     protected Link links;
@@ -44,5 +44,22 @@ public class Notice implements Serializable {
 
     public void setLinks(Link value) {
         this.links = value;
+    }
+
+    @Override
+    public int compareTo(Notice o) {
+        if (title != null) {
+            if (o.getTitle() != null) {
+                return title.compareTo(o.getTitle());
+            } else {
+                return 1;
+            }
+        } else {
+            if (o.getTitle() != null) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
     }
 }

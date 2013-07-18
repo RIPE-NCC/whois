@@ -14,6 +14,7 @@ import net.ripe.db.whois.api.whois.rdap.domain.Entity;
 import net.ripe.db.whois.api.whois.rdap.domain.Event;
 import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.api.whois.rdap.domain.Link;
+import net.ripe.db.whois.api.whois.rdap.domain.Notice;
 import net.ripe.db.whois.api.whois.rdap.domain.Remark;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
@@ -184,6 +185,21 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(events, hasSize(1));
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is("last changed"));
+
+        final List<Notice> notices = ip.getNotices();                                                                   // TODO: [ES] values are dependant on rdap.properties
+        assertThat(notices, hasSize(3));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(0).getDescription(), contains("This output has been filtered."));
+        assertThat(notices.get(0).getLinks(), is(nullValue()));
+        assertThat(notices.get(1).getTitle(), is("Source"));                                                            // TODO: [ES] should source be specified?
+        assertThat(notices.get(1).getDescription(), contains("Objects returned came from source", "TEST"));
+        assertThat(notices.get(1).getLinks(), is(nullValue()));
+        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
+        assertThat(notices.get(2).getDescription(), contains("This is the RIPE Database query service. The objects are in RDAP format."));
+//        assertThat(notices.get(2).getLinks().getValue(), endsWith("/rdap/ip/192.0.0.0/8/ip/192.0.0.0 - 192.255.255.255"));                // TODO: [ES] fix
+        assertThat(notices.get(2).getLinks().getRel(), is("terms-of-service"));
+        assertThat(notices.get(2).getLinks().getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
     }
 
     @Test
