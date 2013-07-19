@@ -242,6 +242,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         }
     }
 
+    @Test
+    public void lookup_inetnum_invalid_syntax() {
+        try {
+            createResource(AUDIENCE, "ip/invalid")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+        } catch (final UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+        }
+    }
+
     // inet6num
 
     @Test

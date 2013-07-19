@@ -8,6 +8,7 @@ import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.whois.ApiResponseHandler;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.attrs.AttributeParseException;
 import net.ripe.db.whois.common.domain.attrs.Domain;
@@ -28,7 +29,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -87,6 +92,7 @@ public class WhoisRdapService {
                 break;
 
             case "ip":
+                validateIp(key);
                 whoisObjectTypes.add(key.contains(":") ? INET6NUM : INETNUM);
                 break;
 
@@ -111,6 +117,14 @@ public class WhoisRdapService {
             Domain.parse(key);
         } catch (AttributeParseException e) {
             throw new IllegalArgumentException("RIPE NCC does not support forward domain queries.");
+        }
+    }
+
+    private void validateIp(final String key) {
+        try {
+            IpInterval.parse(key);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid IP syntax.", e);
         }
     }
 
