@@ -176,7 +176,6 @@ public class RdapResponseJsonTest {
                 "    \"ipv4\" : [ \"192.0.2.1\", \"192.0.2.2\" ],\n" +
                 "    \"ipv6\" : [ \"2001:db8::123\" ]\n" +
                 "  },\n" +
-                "  \"port43\" : \"whois.example.net\",\n" +
                 "  \"status\" : [ \"active\" ],\n" +
                 "  \"remarks\" : [ {\n" +
                 "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
@@ -193,7 +192,8 @@ public class RdapResponseJsonTest {
                 "    \"eventAction\" : \"last changed\",\n" +
                 "    \"eventDate\" : \"" + DATE_TIME + "\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
-                "  } ]\n" +
+                "  } ],\n" +
+                "  \"port43\" : \"whois.example.net\"\n" +
                 "}"));
     }
 
