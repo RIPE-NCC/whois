@@ -28,6 +28,7 @@ public class RdapObjectMapperTest {
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
                 "status:         OTHER\n" +
+                "language:       EN\n" +
                 "mnt-by:         TST-MNT\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-domains:    TST-MNT\n" +
@@ -52,13 +53,15 @@ public class RdapObjectMapperTest {
         assertThat(result.getName(), is("RIPE-NCC"));
         assertThat(result.getType(), is("OTHER"));
         assertThat(result.getCountry(), is("NL"));
+        assertThat(result.getLang(), is("EN"));
         assertThat(result.getParentHandle(), is(nullValue()));
         assertThat(result.getPort43(), is("whois.ripe.net"));
 
         final List<Entity> entities = result.getEntities();
         assertThat(entities, hasSize(1));
         assertThat(entities.get(0).getHandle(), is("AB-TEST"));
-        assertThat(entities.get(0).getRoles(), hasSize(0));
+        assertThat(entities.get(0).getRoles(), hasSize(1));
+        assertThat(entities.get(0).getRoles().get(0), is("abuse"));
 
         final List<Object> vCardArray = entities.get(0).getVCardArray();
         assertThat(vCardArray, hasSize(2));
@@ -368,6 +371,8 @@ public class RdapObjectMapperTest {
 
         assertThat(result.getStatus(), is(emptyIterable()));
         assertThat(result.getPort43(), is("whois.ripe.net"));
+
+        assertThat(result.getLang(), is("DK"));
     }
 
     private Object map(final RpslObject rpslObject) {
