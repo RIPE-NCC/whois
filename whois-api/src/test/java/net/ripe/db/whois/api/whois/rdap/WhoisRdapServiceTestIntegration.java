@@ -228,6 +228,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             createResource(AUDIENCE, "ip/193.0.0.0")
                     .accept(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
+            fail();
         } catch (final UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
         }
@@ -293,6 +294,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(ip.getStartAddress(), is("2001:2002:2003::/128"));
         assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
         assertThat(ip.getName(), is("RIPE-NCC"));
+    }
+
+    @Test
+    public void lookup_inet6num_not_found() {
+        try {
+            createResource(AUDIENCE, "ip/2001:2002:2003::/48")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+            fail();
+        } catch (final UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
     }
 
     // person entity
@@ -496,6 +509,60 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
         }
+    }
+
+    @Test
+    public void lookup_autnum_has_abuse_contact() {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "address:       Singel 358\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       AB-TEST\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST\n");
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TO2-TEST\n" +
+                "org-name:      Test organisation\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       AB-TEST\n" +
+                "descr:         Drugs and gambling\n" +
+                "remarks:       Nice to deal with generally\n" +
+                "address:       1 Fake St. Fauxville\n" +
+                "phone:         +01-000-000-000\n" +
+                "fax-no:        +01-000-000-000\n" +
+                "e-mail:        org@test.com\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       test@test.net.au 20121121\n" +
+                "source:        TEST\n");
+        databaseHelper.updateObject("" +
+                "aut-num:       AS123\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "org:           ORG-TO2-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "changed:       test@test.net.au 20010816\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST\n");
+
+        final Autnum autnum = createResource(AUDIENCE, "autnum/123")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(autnum.getEntities().get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(autnum.getEntities().get(1).getHandle(), is("TP1-TEST"));
+        assertThat(autnum.getEntities().get(2).getHandle(), is("AB-TEST"));
+        assertThat(autnum.getEntities().get(2).getRoles(), contains("abuse"));
+        assertThat(autnum.getEntities().get(2).getVCardArray(), hasSize(2));
+        assertThat(autnum.getEntities().get(2).getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(autnum.getEntities().get(2).getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, Abuse Contact], " +
+                "[kind, {}, text, group], " +
+                "[adr, {label=Singel 358}, text, null], " +
+                "[tel, {type=voice}, text, +31 6 12345678]]"));
     }
 
     // general
