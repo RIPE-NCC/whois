@@ -434,6 +434,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void domain_not_found() throws Exception {
+        try {
+            createResource(AUDIENCE, "domain/10.in-addr.arpa")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Domain.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
+    }
+
+    @Test
     public void lookup_forward_domain() {
         try {
             createResource(AUDIENCE, "domain/ripe.net")
