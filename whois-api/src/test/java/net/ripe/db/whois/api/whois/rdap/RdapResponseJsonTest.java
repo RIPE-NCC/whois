@@ -234,7 +234,7 @@ public class RdapResponseJsonTest {
 
         final Entity entity = new Entity();
         entity.setHandle("XXXX");
-        entity.getRoles().add("registrant");
+        entity.getRoles().add(Role.REGISTRANT);
 
         entity.getRemarks().add(remark);
 
@@ -397,7 +397,7 @@ public class RdapResponseJsonTest {
                 .addTel("tel:+1-555-555-1234;ext=102")
                 .addEmail("joe.user@example.com");
         entity.setVCardArray(builder.build());
-        entity.getRoles().add("registrant");
+        entity.getRoles().add(Role.REGISTRANT);
         entity.getRemarks().add(remark);
         entity.getEvents().add(registrationEvent);
         entity.getEvents().add(lastChangedEvent);

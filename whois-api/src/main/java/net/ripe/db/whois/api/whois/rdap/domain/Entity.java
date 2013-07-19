@@ -23,7 +23,7 @@ public class Entity extends RdapObject implements Serializable, Comparable<Entit
     protected String handle;
     @XmlSchemaType(name = "anySimpleType")
     protected List<Object> vcardArray;
-    protected List<String> roles;
+    protected List<Role> roles;
     protected Map publicIds;
 
     public String getHandle() {
@@ -46,7 +46,7 @@ public class Entity extends RdapObject implements Serializable, Comparable<Entit
         }
     }
 
-    public List<String> getRoles() {
+    public List<Role> getRoles() {
         if (roles == null) {
             roles = Lists.newArrayList();
         }

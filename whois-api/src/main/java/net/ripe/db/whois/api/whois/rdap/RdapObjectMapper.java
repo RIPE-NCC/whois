@@ -35,13 +35,12 @@ class RdapObjectMapper {
     private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
     private static final Joiner NEWLINE_JOINER = Joiner.on("\n");
 
-    private static final Map<AttributeType, String> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
+    private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
 
     static {
-        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ADMIN_C, "administrative");
-        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(TECH_C, "technical");
-        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(MNT_BY, "registrant");
-        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ZONE_C, "zone");
+        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ADMIN_C, Role.ADMINISTRATIVE);
+        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(TECH_C, Role.TECHNICAL);
+        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(MNT_BY, Role.REGISTRANT);
     }
 
     private final NoticeFactory noticeFactory;
@@ -90,7 +89,7 @@ class RdapObjectMapper {
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
 
         for (final RpslObject abuseContact : abuseContacts) {
-            rdapResponse.getEntities().add(createEntity(abuseContact, "abuse"));
+            rdapResponse.getEntities().add(createEntity(abuseContact, Role.ABUSE));
         }
 
         rdapResponse.setPort43(port43);
@@ -174,7 +173,7 @@ class RdapObjectMapper {
         return createEntity(rpslObject, null);
     }
 
-    private static Entity createEntity(final RpslObject rpslObject, final String role) {
+    private static Entity createEntity(final RpslObject rpslObject, final Role role) {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         if (role != null) {
