@@ -203,6 +203,7 @@ public class WhoisRdapService {
             });
 
             if (result.isEmpty()) {
+                //TODO look up in delegated stats for possible redirect
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 

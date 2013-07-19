@@ -59,6 +59,12 @@
         <property name="password" value="${pending.database.password}"/>
     </bean>
 
+    <bean id="delegatedStatsDataSource" parent="abstractDataSource">
+        <property name="jdbcUrl" value="${delegatedstats.database.url}"/>
+        <property name="user" value="${delegatedstats.database.username}"/>
+        <property name="password" value="${delegatedstats.database.password}"/>
+    </bean>
+
     <bean id="whoisMasterDataSource" parent="abstractDataSource">
         <property name="driverClass" value="${whois.db.master.driver}"/>
         <property name="jdbcUrl" value="${whois.db.master.url}"/>

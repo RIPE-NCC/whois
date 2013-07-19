@@ -61,6 +61,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private JdbcTemplate schedulerTemplate;
     private JdbcTemplate mailupdatesTemplate;
     private JdbcTemplate pendingUpdatesTemplate;
+    private JdbcTemplate delegatedStatsTemplate;
 
     @Autowired Environment environment;
     @Autowired DateTimeProvider dateTimeProvider;
@@ -102,6 +103,12 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         pendingUpdatesTemplate = new JdbcTemplate(pendingDataSource);
     }
 
+    @Autowired(required = false)
+    @Qualifier("delegatedStatsDataSource")
+    public void setDelegatedStatsDataSource(DataSource delegatedStatsDataSource) {
+        delegatedStatsTemplate = new JdbcTemplate(delegatedStatsDataSource);
+    }
+
     @Override
     public void setEmbeddedValueResolver(final StringValueResolver valueResolver) {
         this.valueResolver = valueResolver;
@@ -131,6 +138,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "mailupdates.database", "MAILUPDATES", "mailupdates_schema.sql");
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "pending.database", "PENDING", "pending_schema.sql");
+        setupDatabase(jdbcTemplate, "delegatedstats.database", "DSTATS", "delegatedstats_schema.sql");
 
         final String masterUrl = String.format("jdbc:log:mysql://localhost/%s_WHOIS;driver=%s;logger=%s", dbBaseName, JDBC_DRIVER, LOGGING_HANDLER);
         System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
@@ -254,6 +262,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     public JdbcTemplate getPendingUpdatesTemplate() {
         return pendingUpdatesTemplate;
+    }
+
+    public JdbcTemplate getDelegatedStatsTemplate() {
+        return delegatedStatsTemplate;
     }
 
     public JdbcTemplate getWhoisTemplate() {
