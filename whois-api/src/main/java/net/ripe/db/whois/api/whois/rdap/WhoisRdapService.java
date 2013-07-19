@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.attrs.AttributeParseException;
+import net.ripe.db.whois.common.domain.attrs.AutNum;
 import net.ripe.db.whois.common.domain.attrs.Domain;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -83,6 +84,7 @@ public class WhoisRdapService {
 
         switch (objectType.toLowerCase()) {
             case "autnum":
+                validateAutnum(key);
                 whoisObjectTypes.add(AUT_NUM);
                 break;
 
@@ -125,6 +127,14 @@ public class WhoisRdapService {
             IpInterval.parse(key);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid IP syntax.", e);
+        }
+    }
+
+    private void validateAutnum(final String key) {
+        try {
+            AutNum.parse(key);
+        } catch (AttributeParseException e) {
+            throw new IllegalArgumentException("Invalid syntax.");
         }
     }
 

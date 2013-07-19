@@ -473,6 +473,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void autnum_invalid_syntax() throws Exception {
+        try {
+            createResource(AUDIENCE, "autnum/XYZ")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Autnum.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+        }
+    }
+
+    @Test
     public void lookup_autnum_head_method() {
         final ClientResponse response = createResource(AUDIENCE, "autnum/123").head();
 
