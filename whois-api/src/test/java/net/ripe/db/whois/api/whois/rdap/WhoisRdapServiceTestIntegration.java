@@ -360,11 +360,23 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_entity_not_found() throws Exception {
         try {
-            createResource(AUDIENCE, "entity/nonexistant")
+            createResource(AUDIENCE, "entity/ORG-BAD1-TEST")
                     .accept(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
         } catch (final UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
+    }
+
+    @Test
+    public void lookup_entity_invalid_syntax() throws Exception {
+        try {
+            createResource(AUDIENCE, "entity/12345")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
         }
     }
 
@@ -719,6 +731,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
+    }
+
+    @Test
+    public void lookup_org_invalid_syntax() throws Exception {
+        try {
+            createResource(AUDIENCE, "entity/ORG-INVALID")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
         }
     }
 

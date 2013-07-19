@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.attrs.AttributeParseException;
 import net.ripe.db.whois.common.domain.attrs.AutNum;
 import net.ripe.db.whois.common.domain.attrs.Domain;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -84,7 +85,7 @@ public class WhoisRdapService {
 
         switch (objectType.toLowerCase()) {
             case "autnum":
-                validateAutnum(key);
+                validateAutnum("AS" + key);
                 whoisObjectTypes.add(AUT_NUM);
                 break;
 
@@ -99,9 +100,13 @@ public class WhoisRdapService {
                 break;
 
             case "entity":
-                whoisObjectTypes.add(PERSON);
-                whoisObjectTypes.add(ROLE);
-                whoisObjectTypes.add(ORGANISATION);
+                validateEntity(key);
+                if (key.toUpperCase().startsWith("ORG-")) {
+                    whoisObjectTypes.add(ORGANISATION);
+                } else {
+                    whoisObjectTypes.add(PERSON);
+                    whoisObjectTypes.add(ROLE);
+                }
                 break;
 
             case "nameserver":
@@ -135,6 +140,18 @@ public class WhoisRdapService {
             AutNum.parse(key);
         } catch (AttributeParseException e) {
             throw new IllegalArgumentException("Invalid syntax.");
+        }
+    }
+
+    private void validateEntity(final String key) {
+        if (key.toUpperCase().startsWith("ORG-")) {
+            if (!AttributeType.ORGANISATION.isValidValue(ORGANISATION, key)) {
+                throw new IllegalArgumentException("Invalid syntax.");
+            }
+        } else {
+            if (!AttributeType.NIC_HDL.isValidValue(ObjectType.PERSON, key)) {
+                throw new IllegalArgumentException("Invalid syntax");
+            }
         }
     }
 
