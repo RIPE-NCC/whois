@@ -35,7 +35,7 @@ public class DelegatedStatsServiceTest {
         when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, CIString.ciString("AS3546"))).thenReturn(true);
 
         assertThat(subject.getUriForRedirect("AS3546"), is(not(nullValue())));
-        assertThat(subject.getUriForRedirect("AS3546").toString(), is("arin.net"));
+        assertThat(subject.getUriForRedirect("AS3546").toString(), is("apnic.net"));
     }
 
     @Test

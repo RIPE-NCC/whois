@@ -30,10 +30,10 @@ public class DelegatedStatsService {
         this.resourceData = resourceData;
 
         uriMap = Maps.newHashMap();
-        uriMap.put(CIString.ciString("afrinic"), URI.create(redirectAfrinic));
-        uriMap.put(CIString.ciString("apnic"), URI.create(redirectApnic));
-        uriMap.put(CIString.ciString("arin"), URI.create(redirectArin));
-        uriMap.put(CIString.ciString("lacnic"), URI.create(redirectLacnic));
+        uriMap.put(CIString.ciString("afrinic-grs"), URI.create(redirectAfrinic));
+        uriMap.put(CIString.ciString("apnic-grs"), URI.create(redirectApnic));
+        uriMap.put(CIString.ciString("arin-grs"), URI.create(redirectArin));
+        uriMap.put(CIString.ciString("lacnic-grs"), URI.create(redirectLacnic));
     }
 
     @Nullable
