@@ -202,7 +202,7 @@ public class WhoisRdapService {
             });
 
             if (result.isEmpty()) {
-                return searchDelegatedStats(query.getSearchValue());
+                return redirect(query.getSearchValue());
             }
 
             if (result.size() > 1) {
@@ -228,7 +228,7 @@ public class WhoisRdapService {
         }
     }
 
-    private Response searchDelegatedStats(final String searchValue) {
+    private Response redirect(final String searchValue) {
         final URI uri = delegatedStatsService.getUriForRedirect(searchValue);
         if (uri == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
