@@ -31,15 +31,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -62,16 +59,18 @@ public class WhoisRdapService {
     private final RpslObjectDao objectDao;
     private final AbuseCFinder abuseCFinder;
     private final RdapObjectMapper rdapObjectMapper;
+    private final DelegatedStatsService delegatedStatsService;
 
     @Autowired
     public WhoisRdapService(final SourceContext sourceContext, final QueryHandler queryHandler,
                             final RpslObjectDao objectDao, final AbuseCFinder abuseCFinder, final NoticeFactory noticeFactory,
-                            @Value("${rdap.port43:}") final String port43) {
+                            @Value("${rdap.port43:}") final String port43, final DelegatedStatsService delegatedStatsService) {
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
         this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
         this.rdapObjectMapper = new RdapObjectMapper(noticeFactory, port43);
+        this.delegatedStatsService = delegatedStatsService;
     }
 
     @GET
@@ -203,8 +202,7 @@ public class WhoisRdapService {
             });
 
             if (result.isEmpty()) {
-                //TODO look up in delegated stats for possible redirect
-                return Response.status(Response.Status.NOT_FOUND).build();
+                return searchDelegatedStats(query.getSearchValue());
             }
 
             if (result.size() > 1) {
@@ -228,6 +226,15 @@ public class WhoisRdapService {
                 throw e;
             }
         }
+    }
+
+    private Response searchDelegatedStats(final String searchValue) {
+        final URI uri = delegatedStatsService.getUriForRedirect(searchValue);
+        if (uri == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        return Response.status(Response.Status.MOVED_PERMANENTLY).contentLocation(uri).build();
     }
 
     private String getRequestUrl(final HttpServletRequest request) {

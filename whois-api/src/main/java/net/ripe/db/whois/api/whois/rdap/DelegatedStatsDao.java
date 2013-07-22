@@ -1,5 +1,7 @@
-package net.ripe.db.whois.scheduler.task.grs;
+package net.ripe.db.whois.api.whois.rdap;
 
+import net.ripe.db.whois.common.collect.CollectionHelper;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Ipv6Resource;
@@ -8,8 +10,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
-import java.util.List;
 
 @Repository
 public class DelegatedStatsDao {
@@ -20,8 +22,9 @@ public class DelegatedStatsDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public List<String> findSourceForResource(final String searchValue) {
-        final String sql = "SELECT source FROM delegated_stats WHERE type = ? AND resource_start >= ? AND resource_end <= ?";
+    @Nullable
+    public CIString findSourceForResource(final String searchValue) {
+        final String sql = "SELECT source FROM delegated_stats WHERE type = ? AND resource_start <= ? AND resource_end >= ?";
         Object[] parameters;
 
         if (searchValue.startsWith("AS")) {
@@ -29,7 +32,13 @@ public class DelegatedStatsDao {
             parameters = new Object[]{ResourceType.ASN.name(), asNumber, asNumber};
 
         } else {
-            final IpInterval<?> ipInterval = IpInterval.parse(searchValue);
+            IpInterval<?> ipInterval;
+            try {
+                ipInterval = IpInterval.parse(searchValue);
+            } catch(final IllegalArgumentException e) {
+                return null;
+            }
+
             if (ipInterval instanceof Ipv4Resource) {
                 final Ipv4Resource resource = (Ipv4Resource)ipInterval;
                 parameters = new Object[]{ResourceType.IPV4.name(), resource.begin(), resource.end()};
@@ -38,8 +47,7 @@ public class DelegatedStatsDao {
                 parameters = new Object[]{ResourceType.IPV6.name(), resource.begin(), resource.end()};
             }
         }
-        System.out.println(sql);
-        return jdbcTemplate.queryForList(sql, parameters, String.class);
+        return CIString.ciString(CollectionHelper.uniqueResult(jdbcTemplate.queryForList(sql, parameters, String.class)));
     }
 
     enum ResourceType {
