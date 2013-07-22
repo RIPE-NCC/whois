@@ -84,8 +84,8 @@ public class WhoisRdapService {
 
         switch (objectType.toLowerCase()) {
             case "autnum":
-                validateAutnum("AS" + key);
                 whoisObjectTypes.add(AUT_NUM);
+                validateAutnum(getKey(whoisObjectTypes, key));
                 break;
 
             case "domain":
@@ -230,7 +230,6 @@ public class WhoisRdapService {
 
     private Response redirect(final Query query) {
         final URI uri = delegatedStatsService.getUriForRedirect(query);
-
         return Response.status(Response.Status.MOVED_PERMANENTLY).contentLocation(uri).build();
     }
 
