@@ -8,15 +8,7 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
-import net.ripe.db.whois.api.whois.rdap.domain.Domain;
-import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Event;
-import net.ripe.db.whois.api.whois.rdap.domain.Ip;
-import net.ripe.db.whois.api.whois.rdap.domain.Link;
-import net.ripe.db.whois.api.whois.rdap.domain.Notice;
-import net.ripe.db.whois.api.whois.rdap.domain.Remark;
-import net.ripe.db.whois.api.whois.rdap.domain.Role;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
@@ -305,6 +297,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         final Ip ip = createResource(AUDIENCE, "ip/2001:2002:2003::/48")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
+        System.out.println(createResource(AUDIENCE, "ip/2001:2002:2003::/48")
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class));
 
         assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
         assertThat(ip.getIpVersion(), is("v6"));

@@ -1,18 +1,19 @@
 <enunciate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            description="REST API for the RIPE Whois database"
-           xsi:noNamespaceSchemaLocation="http://enunciate.codehaus.org/schemas/enunciate-1.26.xsd">
+           xsi:noNamespaceSchemaLocation="http://enunciate.codehaus.org/schemas/enunciate-1.27.xsd">
     <namespaces>
-        <namespace id="whois" uri="http://www.ripe.net/whois"/>
+        <namespace id="rdap" uri="http://rdap.ripe.net"/>
     </namespaces>
     <services>
-        <rest defaultRestSubcontext="/api"/>
+        <rest defaultRestSubcontext="/"/>
     </services>
     <webapp disabled="true"/>
     <modules>
         <c disabled="true"/>
         <csharp disabled="true"/>
         <java-client disabled="true"/>
-        <docs title="RIPE WHOIS API" splashPackage="net.ripe.db.whois.api.acl" groupRestResources="byPath"/>
+        <docs title="RIPE RDAP API" splashPackage="net.ripe.db.whois.api.whois.rdap" groupRestResources="byPath"
+              freemarkerXMLProcessingTemplate="enunciateTemplate.fmt"/>
         <obj-c disabled="true"/>
     </modules>
 </enunciate>

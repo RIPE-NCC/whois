@@ -179,6 +179,7 @@
                                 <exclude>net.ripe.db.whois.api.acl.**</exclude>
                                 <exclude>net.ripe.db.whois.api.freetext.**</exclude>
                                 <exclude>net.ripe.db.whois.api.wsearch.**</exclude>
+                                <exclude>net.ripe.db.whois.api.whois.rdap.**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -210,6 +211,14 @@
                             <scratchDir>${project.build.directory}/enunciate-scratch-rdap</scratchDir>
                             <generateDir>${project.build.directory}/enunciate/generate-rdap</generateDir>
                             <packageDir>${project.build.directory}/enunciate/package-rdap</packageDir>
+                            <excludes>
+                                <exclude>net.ripe.db.whois.api.acl.**</exclude>
+                                <exclude>net.ripe.db.whois.api.freetext.**</exclude>
+                                <exclude>net.ripe.db.whois.api.wsearch.**</exclude>
+                            </excludes>
+                            <includes>
+                                <include>net.ripe.db.whois.api.whois.rdap.**</include>
+                            </includes>
                         </configuration>
                     </execution>
                 </executions>
