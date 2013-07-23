@@ -6,6 +6,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.search.IndexTemplate;
 import net.ripe.db.whois.api.search.RebuildableIndex;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
@@ -46,7 +48,8 @@ public class LogFileIndex extends RebuildableIndex {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
     private static final int INDEX_UPDATE_INTERVAL_IN_SECONDS = 300;
 
-    private static final LogFileAnalyzer ANALYZER = new LogFileAnalyzer(Version.LUCENE_41);
+    private static final Analyzer INDEX_ANALYZER = new LogFileAnalyzer(Version.LUCENE_41);
+    private static final Analyzer QUERY_ANALYZER = new StandardAnalyzer(Version.LUCENE_41);
     private static final Sort SORT_BY_UPDATE_ID = new Sort(new SortField("updateId", SortField.Type.STRING, true));
     private static final int MAX_RESULTS = 1000;
 
@@ -90,7 +93,7 @@ public class LogFileIndex extends RebuildableIndex {
     @PostConstruct
     public void init() {
         super.init(
-                new IndexWriterConfig(Version.LUCENE_41, ANALYZER).setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
+                new IndexWriterConfig(Version.LUCENE_41, INDEX_ANALYZER).setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
 
                 new IndexTemplate.WriteCallback() {
                     @Override
@@ -204,7 +207,7 @@ public class LogFileIndex extends RebuildableIndex {
     }
 
     Set<LoggedUpdateId> searchLoggedUpdateIds(final String queryString, @Nullable final LocalDate date) throws IOException, ParseException {
-        final QueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_41, new String[]{"date", "contents"}, LogFileIndex.ANALYZER);
+        final QueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_41, new String[]{"date", "contents"}, LogFileIndex.QUERY_ANALYZER);
         queryParser.setDefaultOperator(QueryParser.Operator.AND);
 
         final StringBuilder queryBuilder = new StringBuilder();
