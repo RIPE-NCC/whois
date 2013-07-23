@@ -18,8 +18,8 @@
  *       <li><a href="path__metadata_sources.html">metadata (list sources)</a></li>
  *       <li><a href="path__metadata_templates_-objectType-.html">metadata (object template for given object type)</a></li>
  *       <li><a href="path__search.html">search</a></li>
- *       <li><a href="path__versions_-source-_-key-.html">versions</a></li>
- *       <li><a href="path__version_-source-_-version-_-key-.html">version</a></li>
+ *       <li><a href="path__versions_-key-.html">versions</a></li>
+ *       <li><a href="path__version_-version-_-key-.html">version</a></li>
  *   </ul>
  *
  * <p>The Query Services are REST interfaces that can be used to search for, or directly lookup, RIPE database objects.</p>
@@ -27,10 +27,10 @@
  * <h3>Update Services</h3>
  *  <div><b>REST Services</b></div>
  *  <ul>
- *      <li><a href="path__create_-source-.html">create</a></li>
- *      <li><a href="path__modify_-source-_-objectType-_-key-.html">modify</a></li>
- *      <li><a href="path__update_-source-_-objectType-_-key-.html">update</a></li>
- *      <li><a href="path__delete_-source-_-objectType-_-key-.html">delete</a></li>
+ *      <li><a href="path__create.html">create</a></li>
+ *      <li><a href="path__modify_-objectType-_-key-.html">modify</a></li>
+ *      <li><a href="path__update_-objectType-_-key-.html">update</a></li>
+ *      <li><a href="path__delete_-objectType-_-key-.html">delete</a></li>
  *  </ul>
  *
  * <p>The Update Services are REST interfaces that you can use to create, update and delete RIPE database objects.</p>
