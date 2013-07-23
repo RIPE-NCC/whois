@@ -41,7 +41,7 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
     private StringValueResolver valueResolver;
 
     @Autowired
-    public DelegatedStatsService(@Value("${rdap.sources}") String rdapSourceNames,
+    public DelegatedStatsService(@Value("${rdap.sources:}") String rdapSourceNames,
                                  final AuthoritativeResourceData resourceData) {
         this.sources = ciSet(Splitter.on(',').split(rdapSourceNames));
         this.resourceData = resourceData;
