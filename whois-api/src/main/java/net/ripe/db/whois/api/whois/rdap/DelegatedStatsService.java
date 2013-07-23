@@ -63,7 +63,7 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
         }
     }
 
-    public URI getUriForRedirect(final Query query) {
+    public URI getUriForRedirect(final String requestPath, final Query query) {
         final Optional<ObjectType> objectType = Iterables.tryFind(query.getObjectTypes(), new Predicate<ObjectType>() {
             @Override
             public boolean apply(ObjectType input) {
@@ -77,8 +77,8 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
                 final AuthoritativeResource authoritativeResource = resourceData.getAuthoritativeResource(sourceName);
                 if (authoritativeResource.isMaintainedByRir(objectType.get(), CIString.ciString(query.getSearchValue()))) {
                     final String basePath = entry.getValue();
-                    LOGGER.debug("Redirecting {} to {}", query.getSearchValue(), sourceName);
-                    return URI.create(basePath);            // TODO: [ES] add query path to base path
+                    LOGGER.debug("Redirecting {} to {}", requestPath, sourceName);
+                    return URI.create(String.format("%s%s", basePath, requestPath));
                 }
             }
         }

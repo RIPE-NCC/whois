@@ -299,7 +299,7 @@ public class WhoisRdapService {
             });
 
             if (result.isEmpty()) {
-                return redirect(query);
+                return redirect(getRequestPath(request), query);
             }
 
             if (result.size() > 1) {
@@ -325,8 +325,8 @@ public class WhoisRdapService {
         }
     }
 
-    private Response redirect(final Query query) {
-        final URI uri = delegatedStatsService.getUriForRedirect(query);
+    private Response redirect(final String requestPath, final Query query) {
+        final URI uri = delegatedStatsService.getUriForRedirect(requestPath, query);
         return Response.status(Response.Status.MOVED_PERMANENTLY).contentLocation(uri).build();
     }
 
@@ -337,6 +337,16 @@ public class WhoisRdapService {
             buffer.append(request.getQueryString());
         }
         return buffer.toString();
+    }
+
+    private String getRequestPath(final HttpServletRequest request) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(request.getRequestURI());
+        if (request.getQueryString() != null) {
+            builder.append('?');
+            builder.append(request.getQueryString());
+        }
+        return builder.toString();
     }
 
     private List<RpslObject> getAbuseContacts(final RpslObject rpslObject) {

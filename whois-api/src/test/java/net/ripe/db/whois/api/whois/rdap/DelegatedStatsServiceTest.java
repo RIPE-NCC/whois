@@ -49,13 +49,13 @@ public class DelegatedStatsServiceTest {
     public void getUri_value_found() {
         when(authoritativeResourceOne.isMaintainedByRir(ObjectType.AUT_NUM, CIString.ciString("AS3546"))).thenReturn(true);
 
-        assertThat(subject.getUriForRedirect(Query.parse("-T aut-num AS3546")).toString(), is("one.net"));
+        assertThat(subject.getUriForRedirect("/rdap/autnum/3546", Query.parse("-T aut-num AS3546")).toString(), is("one.net/rdap/autnum/3546"));
     }
 
     @Test
     public void getUri_value_not_found() {
         try {
-            subject.getUriForRedirect(Query.parse("-T aut-num AS3546"));
+            subject.getUriForRedirect("/rdap/autnum/3546", Query.parse("-T aut-num AS3546"));
             fail();
         } catch (WebApplicationException expected) {
             assertThat(expected.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
