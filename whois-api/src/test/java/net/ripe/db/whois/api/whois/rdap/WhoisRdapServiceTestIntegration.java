@@ -512,7 +512,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (final UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-            assertThat(e.getResponse().getHeaders().get("Content-Location").get(0), equals("rdap.test.net/rdap/autnum/102"));
+            assertThat(e.getResponse().getHeaders().get("Content-Location").get(0), is("rdap.test.net/rdap/autnum/102"));
         }
     }
 
