@@ -80,18 +80,17 @@ public class WhoisRdapService {
     /**
      * <h3>Queries</h3>
      * <p>
-     * <div>Queries to the RIPE NCC RDAP implementation should be directed to http://rdap.ripe.net.</div>
-     * <div>The RDAP server accepts Content Media type application/json and application/rdap+json</div></p>
-     *
-     * <h3>Responses</h3>
-     * <p>
-     * <div>All responses are in the JSON format. Response headers.. yada yada </div></p>
+     * <div>Queries to the RIPE NCC RDAP implementation should be directed to http://rdap.db.ripe.net. For testing
+     * purposes, queries can also be directed to http://rdap-test.db.ripe.net</div>
+     * <div>The RDAP server accepts Content Media type application/json and application/rdap+json and will respond with the same</div>
+     * </p>
      *
      * <h3>Examples</h3>
      * <ul>
      *     <li>
-     *      <div>Successfully querying for an IP resource: http://rdap.ripe.net/ip/2003:2004:2005::/64</div>
-     *      <div><pre>
+     *      <div>Successfully querying for an IP resource: http://rdap.db.ripe.net/ip/2003:2004:2005::/64</div>
+     *      <div>Response header<pre>HTTP/1.1 200 OK</pre></div>
+     *      <div>Content<pre>
      *    {
      *      "handle" : "2001:2002:2003::/48",
      *      "startAddress" : "2001:2002:2003::/128",
@@ -140,27 +139,29 @@ public class WhoisRdapService {
      *     </li>
      *
      *     <li>
-     *         <div>Unsuccessfully quering for an autnum: http://rdap.ripe.net/entity/fred-mnt</div>
-     *         <div><pre>
+     *         <div>Unsuccessfully quering for an autnum: http://rdap.db.ripe.net/entity/fred-mnt</div>
+     *         <div>Response header<pre>
      *             HTTP/1.1 404 Not Found
      *         </pre>
      *         </div>
+     *         <p>Note that queries for nameserver (ie, http://rdap.db.ripe.net/nameserver/whatever) will always result in
+     *         404 Not Found since RIPE NCC does not have this information.</p>
      *     </li>
      *
      *     <li>
-     *         <div>Quering for an autnum that exists at a different RIR: http://rdap.ripe.net/autnum/1840</div>
-     *         <div><pre>
+     *         <div>Quering for an autnum that exists at a different RIR: http://rdap.db.ripe.net/autnum/1840</div>
+     *         <div>Response header<pre>
      *             HTTP/1.1 301 Moved Permanently
-     *             Location: http://rdap.lacnic.net/
+     *             Location: http://rdap.lacnic.net/autnum/1840
      *         </pre></div>
      *     </li>
      * </ul>
      *
      *
-     * @param objectType The object type requested, one of ip, autnum, inetnum, domain, nameserver
+     * @param objectType The object type requested, one of ip, autnum, entity, domain, nameserver
      * @param key Primary key of the given object.
      * @return A JSON response is returned, containing the object requested. If the object is maintained at a different RIR
-     * a link to where it can be found is returned
+     * the response header will contain a pointer to where it can be found
      */
     @GET
     @TypeHint(RdapObject.class)

@@ -136,7 +136,7 @@
                     [#if restAvailable]
                         <li id="nav-rest"><a href="rest.html">REST</a></li>
                     [/#if]
-                    <li id="nav-data"><a href="model.html">Data Model</a></li>
+                    <!--li id="nav-data"><a href="model.html">Data Model</a></li -->
                     [#if ((downloadsxml??) && (downloadsxml.download?size > 0))]
                         <li id="nav-downloads"><a href="downloads.html">Files and Libraries</a></li>
                     [/#if]
