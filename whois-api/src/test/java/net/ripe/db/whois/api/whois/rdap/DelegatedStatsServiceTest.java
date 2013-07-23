@@ -10,13 +10,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.util.StringValueResolver;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -24,30 +23,37 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatedStatsServiceTest {
-    @Mock AuthoritativeResourceData resourceData;
-    @Mock AuthoritativeResource authoritativeResource;
+    @Mock AuthoritativeResourceData authoritativeResourceData;
+    @Mock AuthoritativeResource authoritativeResourceOne;
+    @Mock AuthoritativeResource authoritativeResourceTwo;
+    @Mock StringValueResolver valueResolver;
 
     private DelegatedStatsService subject;
 
     @Before
     public void setup() {
-        subject = new DelegatedStatsService(resourceData, "afrinic.net", "apnic.net", "arin.net", "lacnic.net");
+        when(authoritativeResourceOne.isMaintainedByRir(any(ObjectType.class), any(CIString.class))).thenReturn(Boolean.FALSE);
+        when(authoritativeResourceTwo.isMaintainedByRir(any(ObjectType.class), any(CIString.class))).thenReturn(Boolean.FALSE);
+        when(authoritativeResourceData.getAuthoritativeResource(CIString.ciString("one"))).thenReturn(authoritativeResourceOne);
+        when(authoritativeResourceData.getAuthoritativeResource(CIString.ciString("two"))).thenReturn(authoritativeResourceTwo);
+
+        when(valueResolver.resolveStringValue("${rdap.redirect.one:}")).thenReturn("one.net");
+        when(valueResolver.resolveStringValue("${rdap.redirect.two:}")).thenReturn("two.net");
+
+        subject = new DelegatedStatsService("one,two", authoritativeResourceData);
+        subject.setEmbeddedValueResolver(valueResolver);
+        subject.init();
     }
 
     @Test
     public void getUri_value_found() {
-        when(resourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
-        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, CIString.ciString("AS3546"))).thenReturn(true);
+        when(authoritativeResourceOne.isMaintainedByRir(ObjectType.AUT_NUM, CIString.ciString("AS3546"))).thenReturn(true);
 
-        assertThat(subject.getUriForRedirect(Query.parse("-T aut-num AS3546")), is(not(nullValue())));
-        assertThat(subject.getUriForRedirect(Query.parse("-T aut-num AS3546")).toString(), is("apnic.net"));
+        assertThat(subject.getUriForRedirect(Query.parse("-T aut-num AS3546")).toString(), is("one.net"));
     }
 
     @Test
     public void getUri_value_not_found() {
-        when(resourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
-        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, CIString.ciString("AS3546"))).thenReturn(false);
-
         try {
             subject.getUriForRedirect(Query.parse("-T aut-num AS3546"));
             fail();

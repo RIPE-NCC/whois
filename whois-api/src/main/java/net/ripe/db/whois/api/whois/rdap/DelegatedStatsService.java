@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -11,52 +12,78 @@ import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.query.query.Query;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringValueResolver;
 
+import javax.annotation.PostConstruct;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.domain.CIString.ciSet;
+
 @Component
-public class DelegatedStatsService {
+public class DelegatedStatsService implements EmbeddedValueResolverAware {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DelegatedStatsService.class);
+
     private static final Set<ObjectType> ALLOWED_OBJECTTYPES = Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INET6NUM, ObjectType.INETNUM);
-    private final Map<CIString, URI> uriMap;
+    private final Map<CIString, String> sourceToPathMap = Maps.newHashMap();
+    private final Set<CIString> sources;
     private final AuthoritativeResourceData resourceData;
+    private StringValueResolver valueResolver;
 
     @Autowired
-    public DelegatedStatsService(final AuthoritativeResourceData resourceData,
-                                 @Value("${rdap.redirect.afrinic}") final String redirectAfrinic,
-                                 @Value("${rdap.redirect.apnic}") final String redirectApnic,
-                                 @Value("${rdap.redirect.arin}") final String redirectArin,
-                                 @Value("${rdap.redirect.lacnic}") final String redirectLacnic) {
+    public DelegatedStatsService(@Value("${rdap.sources}") String rdapSourceNames,
+                                 final AuthoritativeResourceData resourceData) {
+        this.sources = ciSet(Splitter.on(',').split(rdapSourceNames));
         this.resourceData = resourceData;
+    }
 
-        uriMap = Maps.newHashMap();
-        uriMap.put(CIString.ciString("afrinic-grs"), URI.create(redirectAfrinic));
-        uriMap.put(CIString.ciString("apnic-grs"), URI.create(redirectApnic));
-        uriMap.put(CIString.ciString("arin-grs"), URI.create(redirectArin));
-        uriMap.put(CIString.ciString("lacnic-grs"), URI.create(redirectLacnic));
+    @Override
+    public void setEmbeddedValueResolver(StringValueResolver valueResolver) {
+        this.valueResolver = valueResolver;
+    }
+
+    @PostConstruct
+    void init() {
+        for (CIString sourceName : sources) {
+            final String propertyName = String.format("${rdap.redirect.%s:}", sourceName);
+            final String redirectUrl = valueResolver.resolveStringValue(propertyName);
+            if (!StringUtils.isBlank(redirectUrl)) {
+                sourceToPathMap.put(sourceName, redirectUrl);
+            }
+        }
     }
 
     public URI getUriForRedirect(final Query query) {
-        final Optional<ObjectType> objectTypeOptional = Iterables.tryFind(query.getObjectTypes(), new Predicate<ObjectType>() {
+        final Optional<ObjectType> objectType = Iterables.tryFind(query.getObjectTypes(), new Predicate<ObjectType>() {
             @Override
             public boolean apply(ObjectType input) {
                 return ALLOWED_OBJECTTYPES.contains(input);
             }
         });
 
-        for (final CIString source : uriMap.keySet()) {
-            final AuthoritativeResource authoritativeResource = resourceData.getAuthoritativeResource(source);
-            if (objectTypeOptional.isPresent() && authoritativeResource.isMaintainedByRir(objectTypeOptional.get(), CIString.ciString(query.getSearchValue()))) {
-                return uriMap.get(source);
+        if (objectType.isPresent()) {
+            for (Map.Entry<CIString, String> entry : sourceToPathMap.entrySet()) {
+                final CIString sourceName = entry.getKey();
+                final AuthoritativeResource authoritativeResource = resourceData.getAuthoritativeResource(sourceName);
+                if (authoritativeResource.isMaintainedByRir(objectType.get(), CIString.ciString(query.getSearchValue()))) {
+                    final String basePath = entry.getValue();
+                    LOGGER.debug("Redirecting {} to {}", query.getSearchValue(), sourceName);
+                    return URI.create(basePath);            // TODO: [ES] add query path to base path
+                }
             }
         }
 
+        LOGGER.debug("Resource {} not found", query.getSearchValue());
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 }
