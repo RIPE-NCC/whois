@@ -35,12 +35,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -57,6 +62,7 @@ public class WhoisRdapService {
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
     private static final Set<ObjectType> ABUSE_CONTACT_TYPES = Sets.newHashSet(AUT_NUM, INETNUM, INET6NUM);
     private static final String CONTENT_TYPE_RDAP_JSON = "application/rdap+json";
+    private static final Joiner COMMA_JOINER = Joiner.on(",");
 
     private final SourceContext sourceContext;
     private final QueryHandler queryHandler;
@@ -259,22 +265,12 @@ public class WhoisRdapService {
     }
 
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
-        final String source = sourceContext.getWhoisSlaveSource().getName().toString();
-        final String objectTypesString = Joiner.on(",").join(Iterables.transform(objectTypes, new Function<ObjectType, String>() {
-            @Override
-            public String apply(final ObjectType input) {
-                return input.getName();
-            }
-        }));
-
         final Query query = Query.parse(
-                String.format("%s %s %s %s %s %s %s %s",
+                String.format("%s %s %s %s %s %s",
                         QueryFlag.NO_GROUPING.getLongFlag(),
                         QueryFlag.NO_REFERENCED.getLongFlag(),
-                        QueryFlag.SOURCES.getLongFlag(),
-                        source,
                         QueryFlag.SELECT_TYPES.getLongFlag(),
-                        objectTypesString,
+                        objectTypesToString(objectTypes),
                         QueryFlag.NO_FILTERING.getLongFlag(),
                         key));
 
@@ -355,5 +351,14 @@ public class WhoisRdapService {
             return abuseCFinder.findAbuseContacts(rpslObject);
         }
         return Collections.emptyList();
+    }
+
+    private String objectTypesToString(final Collection<ObjectType> objectTypes) {
+        return COMMA_JOINER.join(Iterables.transform(objectTypes, new Function<ObjectType, String>() {
+            @Override
+            public String apply(final ObjectType input) {
+                return input.getName();
+            }
+        }));
     }
 }
