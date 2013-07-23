@@ -8,24 +8,23 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
+import net.ripe.db.whois.api.whois.rdap.domain.Domain;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Event;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
+import net.ripe.db.whois.api.whois.rdap.domain.Notice;
+import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import net.ripe.db.whois.api.whois.rdap.domain.Role;
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.grs.AuthoritativeResource;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.joda.time.LocalDateTime;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.kubek2k.springockito.annotations.ReplaceWithMock;
-import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -38,17 +37,22 @@ import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-api-test.xml"}, inheritLocations = false)
 @Category(IntegrationTest.class)
 public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     private static final Audience AUDIENCE = Audience.PUBLIC;
 
-    @Autowired @ReplaceWithMock AuthoritativeResourceData authoritativeResourceData;                // TODO: [ES] replace mock with test data
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        System.setProperty("rdap.sources", "TEST-GRS");                        // TODO: [ES] dependency on grs source configuration
+        System.setProperty("rdap.redirect.test", "rdap.test.net");
+    }
+
+    @AfterClass
+    public static void afterClass() throws Exception {
+        System.clearProperty("rdap.sources");
+        System.clearProperty("rdap.redirect.test");
+    }
 
     @Before
     public void setup() throws Exception {
@@ -261,19 +265,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (final UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-        }
-    }
-
-    @Test
-    public void lookup_inetnum_redirect_to_apnic() {
-        mockMaintainedByRIR("apnic-grs", ObjectType.INETNUM, "10.0.0.0 - 10.0.0.0");
-        try {
-            createResource(AUDIENCE, "ip/10.0.0.0")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Ip.class);
-            fail();
-        } catch (final UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
         }
     }
 
@@ -501,7 +492,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     // autnum
 
     @Test
-    public void autnum_not_found() throws Exception {
+    public void lookup_autnum_not_found() throws Exception {
         try {
             createResource(AUDIENCE, "autnum/1")
                     .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -513,7 +504,20 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void autnum_invalid_syntax() throws Exception {
+    public void lookup_autnum_redirect_to_test() {
+        try {
+            createResource(AUDIENCE, "autnum/102")
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+            fail();
+        } catch (final UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+            assertThat(e.getResponse().getHeaders().get("Content-Location").get(0), equals("rdap.test.net/rdap/autnum/102"));
+        }
+    }
+
+    @Test
+    public void lookup_autnum_invalid_syntax() throws Exception {
         try {
             createResource(AUDIENCE, "autnum/XYZ")
                     .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -842,21 +846,5 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     private String getSyncupdatesUrl(final String instance, final String command) {
         return "http://localhost:" + getPort(Audience.PUBLIC) + String.format("/whois/syncupdates/%s?%s", instance, command);
-    }
-
-    private void mockMaintainedByRIR(final String source, final ObjectType objectType, final String key) {
-        when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenAnswer(new Answer<AuthoritativeResource>() {
-            @Override
-            public AuthoritativeResource answer(final InvocationOnMock invocation) throws Throwable {
-                final AuthoritativeResource mock = mock(AuthoritativeResource.class);
-                if (invocation.getArguments()[0].equals(CIString.ciString(source))) {
-                    when(mock.isMaintainedByRir(objectType, CIString.ciString(key))).thenReturn(Boolean.TRUE);
-                } else {
-                    when(mock.isMaintainedByRir(any(ObjectType.class), any(CIString.class))).thenReturn(Boolean.FALSE);
-                }
-                return mock;
-            }
-        });
-
     }
 }

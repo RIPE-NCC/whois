@@ -54,11 +54,12 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
 
     @PostConstruct
     void init() {
-        for (CIString sourceName : sources) {
+        for (CIString source : sources) {
+            final String sourceName = source.toLowerCase().replace("-grs", "");
             final String propertyName = String.format("${rdap.redirect.%s:}", sourceName);
             final String redirectUrl = valueResolver.resolveStringValue(propertyName);
             if (!StringUtils.isBlank(redirectUrl)) {
-                sourceToPathMap.put(sourceName, redirectUrl);
+                sourceToPathMap.put(source, redirectUrl);
             }
         }
     }
