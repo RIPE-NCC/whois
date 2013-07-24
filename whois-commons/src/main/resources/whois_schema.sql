@@ -199,7 +199,7 @@ DROP TABLE IF EXISTS `ds_rdata`;
 CREATE TABLE `ds_rdata` (
   `thread_id` int(11) NOT NULL DEFAULT '0',
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `ds_rdata` varchar(80) NOT NULL DEFAULT '',
+  `ds_rdata` varchar(128) NOT NULL DEFAULT '',
   PRIMARY KEY (`ds_rdata`,`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;

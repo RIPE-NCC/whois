@@ -190,6 +190,8 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "alpha.e164.arpa.");
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "23024.194.196.in-addr.arpa");
         verifySuccess(ObjectType.DOMAIN, AttributeType.DOMAIN, "4.3.2.1.6.7.9.8.6.4.e164.arpa.");
+
+        verifySuccess(ObjectType.DOMAIN, AttributeType.DS_RDATA, "26954 8 4 502BDAEFD8944CC0B47A100425FE1D3CE44235E5B6EA3E7C884D28C581D868E5DCEDD21EDF8CB45CDAE3F05B947BDED5");
     }
 
     @Test
