@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  *
  * The original input is also preserved as a separate token.
  */
-public final class PatternFilter extends TokenFilter {
+public class PatternFilter extends TokenFilter {
 
     private static final Pattern IPV4_PATTERN = Pattern.compile("^(\\d{1,3})([.]\\d{1,3})([.]\\d{1,3})([.]\\d{1,3})(?:[/]\\d{1,2})?$");
     private static final Pattern IPV6_PATTERN = Pattern.compile("(?i)^([0-9a-f]{0,4})([:][0-9a-f]{0,4})([:][0-9a-f]{1,4})?([:][0-9a-f]{1,4})?(?:.*)?(?:[/]\\d{1,3})?$");
@@ -31,7 +31,7 @@ public final class PatternFilter extends TokenFilter {
 
     private final CharTermAttribute termAttribute = addAttribute(CharTermAttribute.class);
 
-    private final List<String> tokens = Lists.newArrayList();
+    protected final List<String> tokens = Lists.newArrayList();
     private int index = 0;
 
     protected PatternFilter(TokenStream input) {
@@ -39,7 +39,7 @@ public final class PatternFilter extends TokenFilter {
     }
 
     @Override
-    public boolean incrementToken() throws IOException {
+    public final boolean incrementToken() throws IOException {
         if (!tokens.isEmpty()) {
             if (index < tokens.size()) {
                 // iterate next token
@@ -78,7 +78,7 @@ public final class PatternFilter extends TokenFilter {
         termAttribute.setLength(token.length());
     }
 
-    private void tokenize(final CharSequence input) {
+    protected void tokenize(final CharSequence input) {
         final Matcher ipv4matcher = IPV4_PATTERN.matcher(input);
         if (ipv4matcher.find()) {
             final StringBuilder token = new StringBuilder();

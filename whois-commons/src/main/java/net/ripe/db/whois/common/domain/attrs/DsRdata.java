@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 public class DsRdata {
     private static final Pattern RDATA_PATTERN = Pattern.compile("^(\\d+) (\\d+) (\\d+) \\(?([ 0-9a-fA-F]{1,128})\\)?$");
+    private static final int DS_RDATA_COLUMN_WIDTH = 128;
 
     private final int keytag;
     private final int algorithm;
@@ -47,6 +48,10 @@ public class DsRdata {
     }
 
     public static DsRdata parse(final String value) {
+        if (value.length() > DS_RDATA_COLUMN_WIDTH) {
+            throw new AttributeParseException("Too long", value);
+        }
+
         final Matcher matcher = RDATA_PATTERN.matcher(value);
         if (!matcher.matches()) {
             throw new AttributeParseException("Invalid syntax", value);

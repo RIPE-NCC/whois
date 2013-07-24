@@ -180,6 +180,8 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "-core.swip.net");
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "icm-$-london-1.icp.net");
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "");
+        verifySuccess(ObjectType.DOMAIN, AttributeType.DOMAIN, "1.0.0.0.2.0.0.0.3.0.0.0.4.0.0.0.5.0.0.0.6.0.0.0.7.0.0.0.8.0.0.0.9.0.0.0.0.0.0.0.1.0.0.0.2.0.0.0.3.0.0.0.4.0.0.0.5.0.0.0.e164.arpa.");
+
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "Amsterdam.ripe.net");
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "Amsterdam.in-addr.arpa");
@@ -190,6 +192,11 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "alpha.e164.arpa.");
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "23024.194.196.in-addr.arpa");
         verifySuccess(ObjectType.DOMAIN, AttributeType.DOMAIN, "4.3.2.1.6.7.9.8.6.4.e164.arpa.");
+        verifySuccess(ObjectType.DOMAIN, AttributeType.DOMAIN, "2.0.0.1.2.0.0.2.2.0.0.3.2.0.0.4.2.0.0.5.2.0.0.6.2.0.0.7.2.0.0.8.ip6.arpa");
+
+        verifySuccess(ObjectType.DOMAIN, AttributeType.DS_RDATA, "26954 8 4 502BDAEFD8944CC0B47A100425FE1D3CE44235E5B6EA3E7C884D28C581D868E5DCEDD21EDF8CB45CDAE3F05B947BDED5");
+        verifySuccess(ObjectType.DOMAIN, AttributeType.DS_RDATA, "1 1 1 1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890");
+        verifyFailure(ObjectType.DOMAIN, AttributeType.DS_RDATA, "1 1 1 1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF12345678901");
     }
 
     @Test

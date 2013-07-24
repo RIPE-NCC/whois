@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -427,6 +426,18 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
         assertThat(query("q=ripencc"), containsString("numFound=\"1\""));
     }
 
+
+    @Test
+    public void search_inetnum_with_prefix_length() throws Exception {
+        databaseHelper.addObject("" +
+                "inetnum:        10.0.0.0/24\n" +
+                "netname:        RIPE-NCC\n" +
+                "source:         RIPE");
+        freeTextIndex.rebuild();
+
+        assertThat(query("q=10.0.0.0/24"), containsString("numFound=\"1\""));
+    }
+
     @Test
     public void search_inetnum_multiple_matches() throws Exception {
         databaseHelper.addObject(
@@ -600,7 +611,7 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
         assertThat(query("q=test.com"), containsString("numFound=\"1\""));
     }
 
-    private final String query(final String queryString) {
+    private String query(final String queryString) {
         return client
                 .resource(String.format("http://localhost:%s/search?%s", getPort(AUDIENCE), queryString))
                 .get(String.class);

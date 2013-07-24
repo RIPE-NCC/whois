@@ -13,12 +13,13 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
 
 class StreamingMarshalXml implements StreamingMarshal {
-    private static Marshaller marshaller;                           // TODO: [ES] jaxb marshaller isn't thread safe
+
+    private static JAXBContext context;
     private static XMLOutputFactory xmlOutputFactory;
 
     public StreamingMarshalXml() {
         try {
-            final JAXBContext context = JAXBContext.newInstance(
+            this.context = JAXBContext.newInstance(
                     Attribute.class,
                     Attributes.class,
                     DirectLookup.class,
@@ -53,9 +54,6 @@ class StreamingMarshalXml implements StreamingMarshal {
                     WhoisTags.class,
                     WhoisVersion.class,
                     WhoisVersions.class);
-            marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-
             xmlOutputFactory = XMLOutputFactory.newFactory();
         } catch (JAXBException e) {
             throw new IllegalStateException(e);
@@ -106,6 +104,8 @@ class StreamingMarshalXml implements StreamingMarshal {
         JAXBElement<T> element = new JAXBElement<>(QName.valueOf(name), (Class<T>) t.getClass(), t);
 
         try {
+            final Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
             marshaller.marshal(element, xmlOut);
         } catch (JAXBException e) {
             throw new StreamingException(e);
