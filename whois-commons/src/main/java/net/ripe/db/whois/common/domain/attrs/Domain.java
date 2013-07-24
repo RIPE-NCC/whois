@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.domain.attrs;
 
-import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
@@ -18,6 +17,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 @Immutable
 public class Domain {
     private static final Pattern E164_SYNTAX = Pattern.compile("(?i)^(?:[0-9]\\.)+e164.arpa$");
+    private static final int DOMAIN_COLUMN_WIDTH = 254;
 
     private final CIString value;
     private final IpInterval<?> reverseIp;
@@ -72,7 +72,7 @@ public class Domain {
             value = value.substring(0, value.length() - 1);
         }
 
-        if (value.length() > 254) {
+        if (value.length() > DOMAIN_COLUMN_WIDTH) {
             throw new AttributeParseException("Too long", value);
         }
         final int lastDot = value.lastIndexOf('.');
