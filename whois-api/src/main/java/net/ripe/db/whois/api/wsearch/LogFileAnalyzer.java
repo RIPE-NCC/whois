@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.wsearch;
 
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.freetext.PatternFilter;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -11,7 +10,6 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.util.Version;
 
 import java.io.Reader;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,20 +30,31 @@ class LogFileAnalyzer extends Analyzer {
                 WordDelimiterFilter.GENERATE_WORD_PARTS | WordDelimiterFilter.SPLIT_ON_CASE_CHANGE | WordDelimiterFilter.PRESERVE_ORIGINAL,
                 CharArraySet.EMPTY_SET));
 
-        tok = new PatternFilter(tok) {
-            final Pattern pattern = Pattern.compile("(?i)^(FROM:)(.*)$");
-            private final List<String> tokens = Lists.newArrayList();
+        tok = new LogFilePatternFilter(tok);
 
-            @Override
-            protected void tokenize(CharSequence input) {
-                final Matcher matcher = pattern.matcher(input);
-                if (matcher.matches()) {
-                    this.tokens.add(matcher.group(1));
-                    this.tokens.add(matcher.group(2));
-                    return;
-                }
-            }
-        };
         return new TokenStreamComponents(tokenizer, tok);
+    }
+
+    /**
+     * Filter to tokenize whois update logfile content.
+     * (1) extract IP address from "REQUEST FROM:<ip>" (no space after colon).
+     */
+    private class LogFilePatternFilter extends PatternFilter {
+
+        private final Pattern requestFromPattern = Pattern.compile("(?i)^(FROM)[:](.*)$");
+
+        protected LogFilePatternFilter(TokenStream input) {
+            super(input);
+        }
+
+        @Override
+        protected void tokenize(CharSequence input) {
+            final Matcher matcher = requestFromPattern.matcher(input);
+            if (matcher.matches()) {
+                super.tokens.add(matcher.group(1));
+                super.tokens.add(matcher.group(2));
+                return;
+            }
+        }
     }
 }
