@@ -6,7 +6,6 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 import net.ripe.db.whois.api.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
-import net.ripe.db.whois.api.wsearch.LogSearchService;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -26,17 +25,15 @@ public class ApiServletDeployer implements ServletDeployer {
     private final AclLimitService aclLimitService;
     private final AclMirrorService aclMirrorService;
     private final AclProxyService aclProxyService;
-    private final LogSearchService logSearchService;
     private final DefaultExceptionMapper defaultExceptionMapper;
 
     @Autowired
-    public ApiServletDeployer(final ApiKeyFilter apiKeyFilter, final AclBanService aclBanService, final AclLimitService aclLimitService, final AclMirrorService aclMirrorService, final AclProxyService aclProxyService, final LogSearchService logSearchService, final DefaultExceptionMapper defaultExceptionMapper) {
+    public ApiServletDeployer(final ApiKeyFilter apiKeyFilter, final AclBanService aclBanService, final AclLimitService aclLimitService, final AclMirrorService aclMirrorService, final AclProxyService aclProxyService, final DefaultExceptionMapper defaultExceptionMapper) {
         this.apiKeyFilter = apiKeyFilter;
         this.aclBanService = aclBanService;
         this.aclLimitService = aclLimitService;
         this.aclMirrorService = aclMirrorService;
         this.aclProxyService = aclProxyService;
-        this.logSearchService = logSearchService;
         this.defaultExceptionMapper = defaultExceptionMapper;
     }
 
@@ -56,7 +53,6 @@ public class ApiServletDeployer implements ServletDeployer {
                         aclLimitService,
                         aclMirrorService,
                         aclProxyService,
-                        logSearchService,
                         defaultExceptionMapper,
                         new JacksonJaxbJsonProvider()));
             }

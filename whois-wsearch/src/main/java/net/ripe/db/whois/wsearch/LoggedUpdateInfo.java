@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.wsearch;
+package net.ripe.db.whois.wsearch;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.CompareToBuilder;

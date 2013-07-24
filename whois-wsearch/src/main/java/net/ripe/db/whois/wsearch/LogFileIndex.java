@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.wsearch;
+package net.ripe.db.whois.wsearch;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;

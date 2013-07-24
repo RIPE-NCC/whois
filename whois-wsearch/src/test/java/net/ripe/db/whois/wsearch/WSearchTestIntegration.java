@@ -1,12 +1,10 @@
-package net.ripe.db.whois.api.wsearch;
+package net.ripe.db.whois.wsearch;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -16,6 +14,8 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import java.io.*;
 import java.net.URLEncoder;
@@ -27,7 +27,13 @@ import static org.hamcrest.Matchers.*;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class WSearchTestIntegration extends AbstractIntegrationTest {
+@ContextConfiguration(locations = {"classpath:applicationContext-wsearch-test.xml"})
+public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
+    @Autowired
+    private WSearchJettyBootstrap wSearchJettyBootstrap;
+
+    @Autowired
+    private LogFileIndex logFileIndex;
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormat.forPattern("HHmmss");
@@ -37,8 +43,6 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
     private Client client;
     private File logFile;
 
-    @Autowired
-    private LogFileIndex logFileIndex;
 
     @Value("${dir.update.audit.log}")
     private String logDir;
@@ -53,6 +57,7 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
 
     @Before
     public void setup() {
+        wSearchJettyBootstrap.start();
         client = Client.create(new DefaultClientConfig());
     }
 
@@ -61,6 +66,7 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
         if (logFile != null) {
             logFile.delete();
         }
+        wSearchJettyBootstrap.stop(true);
     }
 
     @Test
@@ -232,44 +238,44 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
 
     private String getUpdates(final String searchTerm) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), apiKey))
+                .resource(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=%s", wSearchJettyBootstrap.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), apiKey))
                 .get(String.class);
     }
 
 
     private String getUpdateIds(final String searchTerm, final String date) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs/ids?search=%s&date=%s&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
+                .resource(String.format("http://localhost:%s/api/logs/ids?search=%s&date=%s&apiKey=%s", wSearchJettyBootstrap.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
                 .get(String.class);
     }
 
     private String getRemoteUpdateLogs(final String host, final String updateId) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs/%s/%s?apiKey=%s", getPort(Audience.INTERNAL), host, updateId, apiKey))
+                .resource(String.format("http://localhost:%s/api/logs/%s/%s?apiKey=%s", wSearchJettyBootstrap.getPort(), host, updateId, apiKey))
                 .get(String.class);
     }
 
     private String getRemoteUpdateLogs(final String host, final String updateId, final String date) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs/%s/%s/%s?apiKey=%s", getPort(Audience.INTERNAL), host, date, updateId, apiKey))
+                .resource(String.format("http://localhost:%s/api/logs/%s/%s/%s?apiKey=%s", wSearchJettyBootstrap.getPort(), host, date, updateId, apiKey))
                 .get(String.class);
     }
 
     private String getCurrentUpdateLogs(final String searchTerm, final String date) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs/current?search=%s&date=%s&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
+                .resource(String.format("http://localhost:%s/api/logs/current?search=%s&date=%s&apiKey=%s", wSearchJettyBootstrap.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
                 .get(String.class);
     }
 
     private String getCurrentUpdateLogsForId(final String updateId) {
         return client
-                .resource(String.format("http://localhost:%s/api/logs/current/%s?apiKey=%s", getPort(Audience.INTERNAL), updateId, apiKey))
+                .resource(String.format("http://localhost:%s/api/logs/current/%s?apiKey=%s", wSearchJettyBootstrap.getPort(), updateId, apiKey))
                 .get(String.class);
     }
 
     private String getCurrentUpdateLogsForIdAndDate(final String updateId, final String date) {
         return client
-                .resource(String.format("http://localhost:%s/api/logs/current/%s/%s?apiKey=%s", getPort(Audience.INTERNAL), date, updateId, apiKey))
+                .resource(String.format("http://localhost:%s/api/logs/current/%s/%s?apiKey=%s", wSearchJettyBootstrap.getPort(), date, updateId, apiKey))
                 .get(String.class);
     }
 

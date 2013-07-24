@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.wsearch;
+package net.ripe.db.whois.wsearch;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
@@ -7,8 +7,6 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
-import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.httpserver.JettyConfig;
 import net.ripe.db.whois.common.domain.Hosts;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -50,7 +48,7 @@ public class LogSearchService {
     private static final int CLUSTER_TIMEOUT = 10000;
     private static final int STREAM_RESULTS_LIMIT = 100;
 
-    private final JettyConfig jettyConfig;
+    private final WSearchJettyConfig jettyConfig;
     private final Hosts host = Hosts.getLocalHost();
     private final LogFileSearch logFileSearch;
     private final String apiKey;
@@ -58,7 +56,7 @@ public class LogSearchService {
 
     @Autowired
     public LogSearchService(
-            final JettyConfig jettyConfig,
+            final WSearchJettyConfig jettyConfig,
             final LogFileSearch logFileSearch,
             @Value("${api.key}") final String apiKey) {
         this.jettyConfig = jettyConfig;
@@ -146,7 +144,7 @@ public class LogSearchService {
 
             final String url = String.format("http://%s:%s/api/logs/current?search=%s&date=%s&apiKey=%s",
                     clusterMember.getHostName(),
-                    jettyConfig.getPort(Audience.INTERNAL),
+                    jettyConfig.getPort(),
                     URLEncoder.encode(search, "ISO-8859-1"),
                     date, apiKey);
             final Future<List<Update>> future = client.asyncResource(url)
@@ -231,7 +229,7 @@ public class LogSearchService {
 
         final String url = String.format("http://%s:%s/api/logs/current/%s/%s?apiKey=%s",
                 host.getHostName(),
-                jettyConfig.getPort(Audience.INTERNAL),
+                jettyConfig.getPort(),
                 loggedUpdateId.getDailyLogFolder(),
                 loggedUpdateId.getUpdateFolder(),
                 apiKey);

@@ -1,9 +1,5 @@
-package net.ripe.db.whois.api.wsearch;
+package net.ripe.db.whois.wsearch;
 
-import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.httpserver.ServletDeployer;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -16,16 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public class WSearchServlet extends HttpServlet implements ServletDeployer {
-    @Override
-    public Audience getAudience() {
-        return Audience.INTERNAL;
-    }
-
-    @Override
-    public void deploy(final WebAppContext context) {
-        context.addServlet(new ServletHolder("WSearch", this), "/wsearch/*");
-    }
+public class WSearchServlet extends HttpServlet {
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {

@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.wsearch;
+package net.ripe.db.whois.wsearch;
 
 import net.ripe.db.whois.api.freetext.PatternFilter;
 import org.apache.lucene.analysis.Analyzer;
@@ -43,12 +43,12 @@ class LogFileAnalyzer extends Analyzer {
 
         private final Pattern requestFromPattern = Pattern.compile("(?i)^(FROM)[:](.*)$");
 
-        protected LogFilePatternFilter(TokenStream input) {
+        protected LogFilePatternFilter(final TokenStream input) {
             super(input);
         }
 
         @Override
-        protected void tokenize(CharSequence input) {
+        protected void tokenize(final CharSequence input) {
             final Matcher matcher = requestFromPattern.matcher(input);
             if (matcher.matches()) {
                 super.tokens.add(matcher.group(1));

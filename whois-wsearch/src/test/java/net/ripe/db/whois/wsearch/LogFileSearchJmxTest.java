@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.wsearch;
+package net.ripe.db.whois.wsearch;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -64,6 +64,7 @@
         <module>whois-db</module>
         <module>whois-endtoend</module>
         <module>whois-oneshot</module>
+        <module>whois-wsearch</module>
     </modules>
 
     <dependencyManagement>

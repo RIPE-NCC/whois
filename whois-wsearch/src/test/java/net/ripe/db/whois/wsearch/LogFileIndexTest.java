@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.wsearch;
+package net.ripe.db.whois.wsearch;
 
 import net.ripe.db.whois.api.search.IndexTemplate;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
