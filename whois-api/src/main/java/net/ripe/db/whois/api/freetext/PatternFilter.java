@@ -39,7 +39,7 @@ public class PatternFilter extends TokenFilter {
     }
 
     @Override
-    public boolean incrementToken() throws IOException {
+    public final boolean incrementToken() throws IOException {
         if (!tokens.isEmpty()) {
             if (index < tokens.size()) {
                 // iterate next token
