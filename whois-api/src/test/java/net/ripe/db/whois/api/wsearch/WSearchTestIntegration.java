@@ -71,6 +71,7 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void single_term_inetnum_with_prefix_length() throws Exception {
         createLogFile("inetnum: 10.0.0.0/24");
 
@@ -95,6 +96,7 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void curly_brace_in_search_term() throws Exception {
         createLogFile("mnt-routes: ROUTES-MNT {2001::/48}");
 
@@ -216,12 +218,12 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void search_from_inet6num() throws IOException {
         createLogFile("REQUEST FROM:2000:3000:4000::/48\nPARAMS:");
 
         final String response = getCurrentUpdateLogs("2000:3000:4000::/48", getDate());
 
-        System.out.println(response);
         assertThat(response, containsString("\"host\":"));
         assertThat(response, containsString("\"id\":"));
     }

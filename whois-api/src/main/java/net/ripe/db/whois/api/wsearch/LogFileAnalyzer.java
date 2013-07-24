@@ -41,10 +41,9 @@ class LogFileAnalyzer extends Analyzer {
                 final Matcher matcher = pattern.matcher(input);
                 if (matcher.matches()) {
                     this.tokens.add(matcher.group(1));
-                    super.tokenize(matcher.group(2));
+                    this.tokens.add(matcher.group(2));
                     return;
                 }
-                super.tokenize(input);
             }
         };
         return new TokenStreamComponents(tokenizer, tok);
