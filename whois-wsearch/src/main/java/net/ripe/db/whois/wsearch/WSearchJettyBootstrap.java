@@ -38,9 +38,9 @@ public class WSearchJettyBootstrap implements ApplicationService {
     private final WSearchServlet wsearchServlet;
     private final LogSearchService logSearchService;
     private final DefaultExceptionMapper defaultExceptionMapper;
+    private final WSearchJettyConfig wSearchJettyConfig;
 
     private final int internalPort;
-    private int actualPort;
 
     @Autowired
     public WSearchJettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
@@ -48,12 +48,14 @@ public class WSearchJettyBootstrap implements ApplicationService {
                                  final ApiKeyFilter apiKeyFilter,
                                  final LogSearchService logSearchService,
                                  final DefaultExceptionMapper defaultExceptionMapper,
+                                 final WSearchJettyConfig wSearchJettyConfig,
                                  @Value("${port.wsearch.internal:-1}") final int internalPort) {
         this.remoteAddressFilter = remoteAddressFilter;
         this.wsearchServlet = wsearchServlet;
         this.apiKeyFilter = apiKeyFilter;
         this.logSearchService = logSearchService;
         this.defaultExceptionMapper = defaultExceptionMapper;
+        this.wSearchJettyConfig = wSearchJettyConfig;
         this.internalPort = internalPort;
     }
 
@@ -88,15 +90,16 @@ public class WSearchJettyBootstrap implements ApplicationService {
 
     @RetryFor(attempts = 5, value = Exception.class)
     private Server createAndStartServer(int port, ServletContextHandler servletContextHandler, Audience audience) throws Exception {
-        actualPort = (port <= 0) ? ServerHelper.getAvailablePort() : port;
-        LOGGER.debug("Trying port {}", actualPort);
+        int tryPort = (port <= 0) ? ServerHelper.getAvailablePort() : port;
+        wSearchJettyConfig.setPort(tryPort);
+        LOGGER.debug("Trying port {}", tryPort);
 
-        final Server server = new Server(actualPort);
+        final Server server = new Server(tryPort);
         server.setStopAtShutdown(true);
         server.setHandler(servletContextHandler);
 
         server.start();
-        LOGGER.info("Jetty started on port {} ({})", actualPort, audience);
+        LOGGER.info("Jetty started on port {} ({})", tryPort, audience);
         return server;
     }
 
@@ -126,9 +129,5 @@ public class WSearchJettyBootstrap implements ApplicationService {
         } catch (InterruptedException e) {
             LOGGER.error("Stopping server", e);
         }
-    }
-
-    public int getPort() {
-        return actualPort;
     }
 }
