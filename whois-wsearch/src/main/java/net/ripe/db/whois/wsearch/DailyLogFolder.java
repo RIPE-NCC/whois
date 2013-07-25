@@ -141,7 +141,7 @@ class DailyLogFolder {
 
     @Override
     public String toString() {
-        return folderName;
+        return folder.getAbsolutePath();
     }
 
     private String getContents(final InputStream input, final long size) throws IOException {
@@ -171,23 +171,31 @@ class DailyLogFolder {
         void process(LoggedUpdateInfo loggedUpdateInfo, String contents);
     }
 
-    static List<DailyLogFolder> getDailyLogFolders(final File logDir, final String fromDailyLogFolder) {
+    private static List<DailyLogFolder> recurse(final File logDir, final String fromDailyLogFolder) {
+        final List<DailyLogFolder> results = Lists.newArrayList();
+
         final File[] dailyLogFolders = logDir.listFiles(new FileFilter() {
             @Override
             public boolean accept(final File pathname) {
                 final Matcher dailyLogFolderMatcher = DAILY_LOG_FOLDER_PATTERN.matcher(pathname.getName());
-                return dailyLogFolderMatcher.matches() && dailyLogFolderMatcher.group(1).compareTo(fromDailyLogFolder) >= 0;
+                final boolean matches = dailyLogFolderMatcher.matches() && dailyLogFolderMatcher.group(1).compareTo(fromDailyLogFolder) >= 0;
+                if (!matches && pathname.isDirectory()) {
+                    results.addAll(recurse(pathname, fromDailyLogFolder));
+                }
+                return matches;
             }
         });
-
         Arrays.sort(dailyLogFolders, new FileComparator());
 
-        final List<DailyLogFolder> result = Lists.newArrayListWithExpectedSize(dailyLogFolders.length);
         for (final File dailyLogFolder : dailyLogFolders) {
-            result.add(new DailyLogFolder(dailyLogFolder));
+            results.add(new DailyLogFolder(dailyLogFolder));
         }
 
-        return result;
+        return results;
+    }
+
+    static List<DailyLogFolder> getDailyLogFolders(final File logDir, final String fromDailyLogFolder) {
+       return recurse(logDir, fromDailyLogFolder);
     }
 
     private static class FileComparator implements Comparator<File> {
