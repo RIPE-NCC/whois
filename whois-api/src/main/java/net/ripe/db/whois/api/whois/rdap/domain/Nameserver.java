@@ -66,6 +66,15 @@ public class Nameserver extends RdapObject implements Serializable {
         protected List<String> ipv4;
         protected List<String> ipv6;
 
+        public IpAddresses(final List<String> ipv4, final List<String> ipv6) {
+            this.ipv4 = ipv4;
+            this.ipv6 = ipv6;
+        }
+
+        public IpAddresses() {
+            // required no-arg constructor
+        }
+
         public List<String> getIpv4() {
             if (ipv4 == null) {
                 ipv4 = Lists.newArrayList();
@@ -79,6 +88,20 @@ public class Nameserver extends RdapObject implements Serializable {
             }
             return this.ipv6;
         }
-    }
 
+        @Override
+        public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        final IpAddresses ipAddresses = (IpAddresses) object;
+        return (ipAddresses.ipv4 != null ? ipAddresses.ipv4.equals(ipv4) : ipv4 == null) &&
+                (ipAddresses.ipv6 != null ? ipAddresses.ipv6.equals(ipv6) : ipv6 == null);
+        }
+    }
 }

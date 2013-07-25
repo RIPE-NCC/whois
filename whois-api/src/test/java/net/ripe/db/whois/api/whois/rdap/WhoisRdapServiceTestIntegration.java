@@ -163,10 +163,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     // inetnum
 
+    // Ref. draft-ietf-weirds-json-response, section 5.9 "An Example"
     @Test
     public void lookup_inetnum_range() {
         databaseHelper.addObject("" +
-                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "inetnum:      192.0.2.0 - 192.0.2.255\n" +
                 "netname:      TEST-NET-NAME\n" +
                 "descr:        TEST network\n" +
                 "country:      NL\n" +
@@ -178,18 +179,27 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
-        final Ip ip = createResource(AUDIENCE, "ip/192.0.0.0/8")
+        final Ip ip = createResource(AUDIENCE, "ip/192.0.2.0/24")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
-        assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
+        assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255"));
         assertThat(ip.getIpVersion(), is("v4"));
         assertThat(ip.getLang(), is("en"));
         assertThat(ip.getCountry(), is("NL"));
-        assertThat(ip.getStartAddress(), is("192.0.0.0/32"));
-        assertThat(ip.getEndAddress(), is("192.255.255.255/32"));
+        assertThat(ip.getStartAddress(), is("192.0.2.0/32"));
+        assertThat(ip.getEndAddress(), is("192.0.2.255/32"));
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getType(), is("OTHER"));
+        assertThat(ip.getPort43(), is("whois.ripe.net"));
+
+        final List<String> rdapConformance = ip.getRdapConformance();
+        assertThat(rdapConformance, hasSize(1));
+        assertThat(rdapConformance, contains("rdap_level_0"));
+
+        final List<Remark> remarks = ip.getRemarks();
+        assertThat(remarks, hasSize(1));
+        assertThat(remarks.get(0).getDescription(), contains("TEST network"));
 
         final List<Event> events = ip.getEvents();
         assertThat(events, hasSize(1));
@@ -298,10 +308,26 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(ip.getName(), is("RIPE-NCC"));
         assertThat(ip.getType(), is("ASSIGNED PA"));
 
+        final List<String> rdapConformance = ip.getRdapConformance();
+        assertThat(rdapConformance, hasSize(1));
+        assertThat(rdapConformance, contains("rdap_level_0"));
+
+        final List<Remark> remarks = ip.getRemarks();
+        assertThat(remarks, hasSize(1));
+        assertThat(remarks.get(0).getDescription(), contains("Private Network"));
+
         final List<Event> events = ip.getEvents();
         assertThat(events, hasSize(1));
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is("last changed"));
+
+        final List<Notice> notices = ip.getNotices();
+        assertThat(notices, hasSize(3));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Source"));
+        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
+        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/ip/2001:2002:2003::/48"));
     }
 
     @Test
@@ -366,10 +392,21 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(entity.getRdapConformance(), hasSize(1));
         assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
 
+        assertThat(entity.getRemarks(), hasSize(1));                                                // TODO: [ES]
+        assertThat(entity.getRemarks().get(0).getDescription(), is(nullValue()));
+
         final List<Event> events = entity.getEvents();
         assertThat(events, hasSize(1));
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is("last changed"));
+
+        final List<Notice> notices = entity.getNotices();
+        assertThat(notices, hasSize(3));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Source"));
+        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
+        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/entity/PP1-TEST"));
     }
 
     @Test
@@ -426,7 +463,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "[adr, {label=Singel 258}, text, null], " +
                 "[email, {}, text, dbtest@ripe.net]]"));
 
-
         assertThat(entity.getEntities(), hasSize(2));
         assertThat(entity.getEntities().get(0).getHandle(), is("OWNER-MNT"));
         assertThat(entity.getEntities().get(0).getRoles(), contains(Role.REGISTRANT));
@@ -439,6 +475,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(events, hasSize(1));
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is("last changed"));
+
+        assertThat(entity.getRemarks(), hasSize(1));
+        assertThat(entity.getRemarks().get(0).getDescription(), is(nullValue()));
+
+        final List<Notice> notices = entity.getNotices();
+        assertThat(notices, hasSize(3));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Source"));
+        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
+        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/entity/FR1-TEST"));
     }
 
     // domain
@@ -455,10 +502,47 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(domain.getRdapConformance().get(0), equalTo("rdap_level_0"));
         assertThat(domain.getPort43(), is("whois.ripe.net"));
 
+        assertThat(domain.getNameservers(), hasSize(2));
+        assertThat(domain.getNameservers().get(0).getLdhName(), is("ns1.test.com.au"));
+        assertThat(domain.getNameservers().get(0).getIpAddresses(), equalTo(new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), null)));
+        assertThat(domain.getNameservers().get(1).getLdhName(), is("ns2.test.com.au"));
+        assertThat(domain.getNameservers().get(1).getIpAddresses(), equalTo(new Nameserver.IpAddresses(null, Lists.newArrayList("2001:10::2/128"))));
+
+        assertThat(domain.getSecureDNS().isDelegationSigned(), is(Boolean.TRUE));
+        assertThat(domain.getSecureDNS().getDsData(), hasSize(3));
+        assertThat(domain.getSecureDNS().getDsData().get(0).getDigest(), is("13ee60f7499a70e5aadaf05828e7fc59e8e70bc1"));
+        assertThat(domain.getSecureDNS().getDsData().get(0).getKeyTag(), is(52151L));
+        assertThat(domain.getSecureDNS().getDsData().get(0).getAlgorithm(), is(1));
+        assertThat(domain.getSecureDNS().getDsData().get(0).getDigestType(), is(1));
+        assertThat(domain.getSecureDNS().getDsData().get(1).getDigest(), is("2e58131e5fe28ec965a7b8e4efb52d0a028d7a78"));
+        assertThat(domain.getSecureDNS().getDsData().get(2).getDigest(), is("8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e"));
+
+        assertThat(domain.getRemarks(), hasSize(1));
+        assertThat(domain.getRemarks().get(0).getDescription(), contains("Test domain"));
+
         final List<Event> events = domain.getEvents();
         assertThat(events, hasSize(1));
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is("last changed"));
+
+        final List<Entity> entities = domain.getEntities();
+        assertThat(entities, hasSize(2));
+        assertThat(entities.get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
+
+        final List<Notice> notices = domain.getNotices();
+        assertThat(notices, hasSize(3));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Source"));
+        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
+        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/domain/31.12.202.in-addr.arpa"));
+
+        final List<Link> links = domain.getLinks();
+        assertThat(links, hasSize(2));
+        Collections.sort(links);
+        assertThat(links.get(0).getRel(), equalTo("self"));
+        assertThat(links.get(1).getRel(), equalTo("copyright"));
     }
 
     @Test
@@ -567,6 +651,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(links, hasSize(2));
         assertThat(links.get(0).getRel(), equalTo("self"));
         assertThat(links.get(1).getRel(), equalTo("copyright"));
+
+        final List<Notice> notices = autnum.getNotices();
+        assertThat(notices, hasSize(3));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Source"));
+        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
 
         final List<Remark> remarks = autnum.getRemarks();
         assertThat(remarks, hasSize(1));
@@ -800,6 +891,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(entity.getHandle(), equalTo("ORG-ONE-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
         assertThat(entity.getPort43(), is("whois.ripe.net"));
+        assertThat(entity.getRdapConformance(), hasSize(1));
+        assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        assertThat(entity.getLang(), is("EN"));
 
         assertThat(entity.getEvents().size(), equalTo(1));
         final Event event = entity.getEvents().get(0);
@@ -817,19 +911,35 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(entities.get(2).getHandle(), is("TP2-TEST"));
         assertThat(entities.get(2).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
 
+        assertThat(entity.getVCardArray(), hasSize(2));
+        assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(entity.getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, Organisation One], " +
+                "[kind, {}, text, org], " +
+                "[adr, {label=One Org Street}, text, null], " +
+                "[email, {}, text, test@ripe.net]]"));
+
         final List<Link> links = entity.getLinks();
         assertThat(links, hasSize(2));
         Collections.sort(links);
-        assertThat(links.get(0).getRel(), equalTo("self"));
-        final String orgLink = createResource(AUDIENCE, "entity/ORG-ONE-TEST").toString();        // TODO: implement
-        assertThat(links.get(0).getValue(), equalTo(orgLink));
-        assertThat(links.get(0).getHref(), equalTo(orgLink));
-        assertThat(links.get(1).getRel(), equalTo("copyright"));
+        assertThat(links.get(0).getRel(), equalTo("copyright"));
+        assertThat(links.get(0).getValue(), equalTo("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links.get(0).getHref(), equalTo("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links.get(1).getRel(), equalTo("self"));
+        assertThat(links.get(1).getValue(), equalTo("https://rdap.db.ripe.net/rdap/entity/ORG-ONE-TEST"));
+        assertThat(links.get(1).getHref(), equalTo("https://rdap.db.ripe.net/rdap/entity/ORG-ONE-TEST"));
 
         assertThat(entity.getRemarks(), hasSize(1));
         assertThat(entity.getRemarks().get(0).getDescription(), contains("Test organisation"));
 
-//        assertThat(entity.getLang(), is("EN")); TODO
+        final List<Notice> notices = entity.getNotices();
+        assertThat(notices, hasSize(3));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Source"));
+        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
+        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/entity/ORG-ONE-TEST"));
     }
 
     @Override
