@@ -9,15 +9,7 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
-import net.ripe.db.whois.api.whois.rdap.domain.Domain;
-import net.ripe.db.whois.api.whois.rdap.domain.Entity;
-import net.ripe.db.whois.api.whois.rdap.domain.Event;
-import net.ripe.db.whois.api.whois.rdap.domain.Ip;
-import net.ripe.db.whois.api.whois.rdap.domain.Link;
-import net.ripe.db.whois.api.whois.rdap.domain.Notice;
-import net.ripe.db.whois.api.whois.rdap.domain.Remark;
-import net.ripe.db.whois.api.whois.rdap.domain.Role;
+import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.joda.time.LocalDateTime;
@@ -47,12 +39,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public static void beforeClass() throws Exception {
         System.setProperty("rdap.sources", "TEST-GRS");                        // TODO: [ES] dependency on grs source configuration
         System.setProperty("rdap.redirect.test", "rdap.test.net");
+        System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
     }
 
     @AfterClass
     public static void afterClass() throws Exception {
         System.clearProperty("rdap.sources");
         System.clearProperty("rdap.redirect.test");
+        System.clearProperty("rdap.public.baseUrl");
     }
 
     @Before

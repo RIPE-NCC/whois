@@ -24,6 +24,7 @@ import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.codehaus.enunciate.jaxrs.TypeHint;
@@ -70,17 +71,24 @@ public class WhoisRdapService {
     private final AbuseCFinder abuseCFinder;
     private final RdapObjectMapper rdapObjectMapper;
     private final DelegatedStatsService delegatedStatsService;
+    private final String baseUrl;
 
     @Autowired
-    public WhoisRdapService(final SourceContext sourceContext, final QueryHandler queryHandler,
-                            final RpslObjectDao objectDao, final AbuseCFinder abuseCFinder, final NoticeFactory noticeFactory,
-                            @Value("${rdap.port43:}") final String port43, final DelegatedStatsService delegatedStatsService) {
+    public WhoisRdapService(final SourceContext sourceContext,
+                            final QueryHandler queryHandler,
+                            final RpslObjectDao objectDao,
+                            final AbuseCFinder abuseCFinder,
+                            final NoticeFactory noticeFactory,
+                            final DelegatedStatsService delegatedStatsService,
+                            @Value("${rdap.port43:}") final String port43,
+                            @Value("${rdap.public.baseUrl:}") final String baseUrl) {
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
         this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
         this.rdapObjectMapper = new RdapObjectMapper(noticeFactory, port43);
         this.delegatedStatsService = delegatedStatsService;
+        this.baseUrl = baseUrl;
     }
 
     /**
@@ -327,6 +335,9 @@ public class WhoisRdapService {
     }
 
     private String getRequestUrl(final HttpServletRequest request) {
+        if (StringUtils.isNotEmpty(baseUrl)) {
+            return String.format("%s%s", baseUrl, getRequestPath(request));
+        }
         final StringBuffer buffer = request.getRequestURL();
         if (request.getQueryString() != null) {
             buffer.append('?');

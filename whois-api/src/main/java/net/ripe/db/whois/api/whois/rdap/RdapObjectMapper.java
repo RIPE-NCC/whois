@@ -55,21 +55,16 @@ class RdapObjectMapper {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
 
-        String noticeValue = requestUrl;
-
         switch (rpslObjectType) {
             case DOMAIN:
                 rdapResponse = createDomain(rpslObject);
-                noticeValue = noticeValue + "/domain/";
                 break;
             case AUT_NUM:
                 rdapResponse = createAutnumResponse(rpslObject);
-                noticeValue = noticeValue + "/autnum/";
                 break;
             case INETNUM:
             case INET6NUM:
                 rdapResponse = createIp(rpslObject);
-                noticeValue = noticeValue + "/ip/";
                 break;
             case PERSON:
             case ROLE:
@@ -84,7 +79,7 @@ class RdapObjectMapper {
         rdapResponse.getEvents().add(createEvent(lastChangedTimestamp));
 
         rdapResponse.getRdapConformance().addAll(RDAP_CONFORMANCE_LEVEL);
-        rdapResponse.getNotices().addAll(noticeFactory.generateNotices(noticeValue + rpslObject.getKey(), rpslObject));
+        rdapResponse.getNotices().addAll(noticeFactory.generateNotices(requestUrl, rpslObject));
 
         rdapResponse.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(requestUrl));
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
