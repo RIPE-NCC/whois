@@ -51,7 +51,7 @@ public class LogFileIndex extends RebuildableIndex {
     private static final Analyzer INDEX_ANALYZER = new LogFileAnalyzer(Version.LUCENE_41);
     private static final Analyzer QUERY_ANALYZER = new StandardAnalyzer(Version.LUCENE_41);
     private static final Sort SORT_BY_UPDATE_ID = new Sort(new SortField("updateId", SortField.Type.STRING, true));
-    private static final int MAX_RESULTS = 1000;
+    private final int maxResults;
 
     private static final FieldType STORED;
     private static final FieldType INDEXED;
@@ -75,7 +75,8 @@ public class LogFileIndex extends RebuildableIndex {
     @Autowired
     LogFileIndex(
             @Value("${dir.update.audit.log}") final String logDir,
-            @Value("${dir.wsearch.index}") final String indexDir) {
+            @Value("${dir.wsearch.index}") final String indexDir,
+            @Value("${wsearch.result.limit}") final int resultLimit) {
         super(LOGGER, indexDir);
 
         final File file = new File(logDir);
@@ -88,6 +89,7 @@ public class LogFileIndex extends RebuildableIndex {
         }
 
         this.logDir = file;
+        this.maxResults = resultLimit;
     }
 
     @PostConstruct
@@ -223,7 +225,7 @@ public class LogFileIndex extends RebuildableIndex {
         return search(new IndexTemplate.SearchCallback<Set<LoggedUpdateId>>() {
             @Override
             public Set<LoggedUpdateId> search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
-                final int maxResults = Math.max(Math.min(MAX_RESULTS, indexReader.numDocs()), 1);
+                final int maxResults = Math.max(Math.min(LogFileIndex.this.maxResults, indexReader.numDocs()), 1);
                 final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_UPDATE_ID, maxResults, false, false, false, false);
 
                 indexSearcher.search(query, topFieldCollector);
