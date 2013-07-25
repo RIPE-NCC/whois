@@ -46,22 +46,24 @@ public class LogSearchService {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
 
     private static final int CLUSTER_TIMEOUT = 10000;
-    private static final int STREAM_RESULTS_LIMIT = 100;
 
     private final WSearchJettyConfig jettyConfig;
     private final Hosts host = Hosts.getLocalHost();
     private final LogFileSearch logFileSearch;
     private final String apiKey;
     private final Client client;
+    private final int streamResultsLimit;
 
     @Autowired
     public LogSearchService(
             final WSearchJettyConfig jettyConfig,
             final LogFileSearch logFileSearch,
-            @Value("${api.key}") final String apiKey) {
+            @Value("${api.key}") final String apiKey,
+            @Value("${wsearch.result.limit}") final int streamResultLimit) {
         this.jettyConfig = jettyConfig;
         this.logFileSearch = logFileSearch;
         this.apiKey = apiKey;
+        this.streamResultsLimit = streamResultLimit;
 
         final ClientConfig cc = new DefaultClientConfig();
         cc.getClasses().add(JacksonJaxbJsonProvider.class);
@@ -83,8 +85,8 @@ public class LogSearchService {
             public void write(final OutputStream output) throws IOException, WebApplicationException {
                 try {
                     final Writer writer = new BufferedWriter(new OutputStreamWriter(output, Charsets.UTF_8));
-                    if (updateIds.size() > 100) {
-                        writer.write(String.format("!!! Found %s update logs, limiting to %s", updateIds.size(), STREAM_RESULTS_LIMIT));
+                    if (updateIds.size() > streamResultsLimit) {
+                        writer.write(String.format("!!! Found %s update logs, limiting to %s", updateIds.size(), streamResultsLimit));
                     } else {
                         writer.write(String.format("*** Found %s update log(s)", updateIds.size()));
                     }
@@ -100,7 +102,7 @@ public class LogSearchService {
                         }
 
                         writer.flush();
-                        if (++count > STREAM_RESULTS_LIMIT) {
+                        if (++count > streamResultsLimit) {
                             break;
                         }
                     }
