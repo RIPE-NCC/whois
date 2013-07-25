@@ -1,5 +1,6 @@
 package net.ripe.db.whois.wsearch;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -55,6 +56,7 @@ public class LogFileIndex extends RebuildableIndex {
 
     private static final FieldType STORED;
     private static final FieldType INDEXED;
+    private static final FieldType NUMERIC_INDEXED;
 
     static {
         STORED = new FieldType();
@@ -68,6 +70,10 @@ public class LogFileIndex extends RebuildableIndex {
         INDEXED.setStored(false);
         INDEXED.setTokenized(true);
         INDEXED.freeze();
+
+        NUMERIC_INDEXED = new FieldType(INDEXED);
+        NUMERIC_INDEXED.setNumericType(FieldType.NumericType.LONG);
+        NUMERIC_INDEXED.freeze();
     }
 
     private final File logDir;
@@ -208,14 +214,11 @@ public class LogFileIndex extends RebuildableIndex {
         indexWriter.setCommitData(metadata);
     }
 
-    Set<LoggedUpdateId> searchLoggedUpdateIds(final String queryString, @Nullable final LocalDate date) throws IOException, ParseException {
+    Set<LoggedUpdateId> searchLoggedUpdateIds(final String queryString, @Nullable final LocalDate fromDate, @Nullable final LocalDate toDate) throws IOException, ParseException {
         final QueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_41, new String[]{"date", "contents"}, LogFileIndex.QUERY_ANALYZER);
         queryParser.setDefaultOperator(QueryParser.Operator.AND);
 
-        final StringBuilder queryBuilder = new StringBuilder();
-        if (date != null) {
-            queryBuilder.append("date:").append(DATE_FORMATTER.print(date)).append(' ');
-        }
+        final StringBuilder queryBuilder = addDateToQueryBuilder(fromDate, toDate);
 
         // TODO: [ES] make exact match search on contents (don't tokenize)
         queryBuilder.append("contents:").append(QueryParser.escape(queryString));
@@ -242,5 +245,33 @@ public class LogFileIndex extends RebuildableIndex {
                 return updateIds;
             }
         });
+    }
+
+    private StringBuilder addDateToQueryBuilder(final LocalDate fromDate, final LocalDate toDate) {
+        final StringBuilder stringBuilder = new StringBuilder();
+        if (fromDate != null && toDate != null) {
+            stringBuilder.append(NumericRangeQuery.newIntRange(
+                    "date",
+                    Integer.parseInt(DATE_FORMATTER.print(fromDate)),
+                    Integer.parseInt(DATE_FORMATTER.print(toDate)),
+                    true,
+                    true).toString())
+                    .append(' ');
+            return stringBuilder;
+        }
+
+        final Optional<LocalDate> date = findValidDate(fromDate, toDate);
+        if (date.isPresent()) {
+            stringBuilder.append("date:").append(DATE_FORMATTER.print(date.get())).append(' ');
+        }
+
+        return stringBuilder;
+    }
+
+    private Optional<LocalDate> findValidDate(final LocalDate fromDate, final LocalDate toDate) {
+        if (fromDate == null) {
+            return Optional.fromNullable(toDate);
+        }
+        return Optional.fromNullable(fromDate);
     }
 }

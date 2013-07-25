@@ -160,6 +160,23 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
     }
 
     @Test
+    public void search_date_range() throws IOException {
+        createLogFile("mntner: TEST-MNT");
+
+        String response = client
+                .resource(String.format(
+                        "http://localhost:%s/api/logs?search=%s&fromdate=%s&todate=%s&apiKey=%s",
+                        wSearchJettyConfig.getPort(),
+                        URLEncoder.encode("TEST-MNT", "ISO-8859-1"),
+                        getDate(),
+                        getDate(),
+                        apiKey))
+                .get(String.class);
+
+        assertThat(response, containsString("TEST-MNT"));
+    }
+
+    @Test
     public void get_update_logs_for_id() throws Exception {
         createLogFile("mntner: TEST-MNT");
 
@@ -240,14 +257,14 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
 
     private String getUpdates(final String searchTerm) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=%s", wSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), apiKey))
+                .resource(String.format("http://localhost:%s/api/logs?search=%s&fromdate=&todate=&apiKey=%s", wSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), apiKey))
                 .get(String.class);
     }
 
 
     private String getUpdateIds(final String searchTerm, final String date) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs/ids?search=%s&date=%s&apiKey=%s", wSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
+                .resource(String.format("http://localhost:%s/api/logs/ids?search=%s&fromdate=%s&todate=&apiKey=%s", wSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
                 .get(String.class);
     }
 

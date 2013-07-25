@@ -28,8 +28,8 @@ public class LogFileSearch {
         this.logFileIndex = logFileIndex;
     }
 
-    public Set<LoggedUpdateId> searchLoggedUpdateIds(final String queryString, final LocalDate date) throws IOException, ParseException {
-        return logFileIndex.searchLoggedUpdateIds(queryString, date);
+    public Set<LoggedUpdateId> searchLoggedUpdateIds(final String queryString, final LocalDate fromDate, final LocalDate toDate) throws IOException, ParseException {
+        return logFileIndex.searchLoggedUpdateIds(queryString, fromDate, toDate);
     }
 
     public void writeLoggedUpdates(final LoggedUpdateId loggedUpdateId, final Writer writer) throws IOException {

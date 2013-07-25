@@ -1,5 +1,13 @@
 <html>
 <head>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.css" />
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <script>
+        $(function() {
+            $('input[id*="datepicker"]').datepicker({ dateFormat: "yymmdd" });
+        });
+    </script>
     <STYLE type="text/css">
         body {
             font-family: "Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif;
@@ -78,7 +86,7 @@
 </head>
 <body>
 <div id="stylized" class="myform">
-    <form id="form" name="form" method="get" action="/wsearchapi/logs/">
+    <form id="form" name="form" method="get" action="/api/logs/">
         <h1>Wsearch</h1>
 
         <p>Search RDP update log files</p>
@@ -88,10 +96,15 @@
         </label>
         <input type="text" name="search"/>
 
-        <label>date
+        <label>date (from)
             <span class="small">empty or YYYYMMDD</span>
         </label>
-        <input type="text" name="date"/>
+        <input type="text" name="fromdate" id="datepicker"/>
+
+        <label>date (to, after 'from')
+            <span class="small">empty or YYYYMMDD</span>
+        </label>
+        <input type="text" name="todate" id="datepickerfrom"/>
 
         <label>api key
             <span class="small">DB-WHOIS-16CHARS</span>

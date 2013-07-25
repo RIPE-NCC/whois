@@ -36,9 +36,9 @@ public class LogFileSearchTest {
 
     @Test
     public void searchLoggedUpdateIds() throws IOException, ParseException {
-        when(logFileIndex.searchLoggedUpdateIds("query", null)).thenReturn(Sets.newHashSet(loggedUpdateWithPasswordId));
+        when(logFileIndex.searchLoggedUpdateIds("query", null, null)).thenReturn(Sets.newHashSet(loggedUpdateWithPasswordId));
 
-        final Set<LoggedUpdateId> updateIds = subject.searchLoggedUpdateIds("query", null);
+        final Set<LoggedUpdateId> updateIds = subject.searchLoggedUpdateIds("query", null, null);
         assertThat(updateIds, contains(loggedUpdateWithPasswordId));
     }
 

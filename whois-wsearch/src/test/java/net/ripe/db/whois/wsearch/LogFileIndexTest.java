@@ -28,7 +28,7 @@ public class LogFileIndexTest {
     public void setUp() throws Exception {
         logDir = new ClassPathResource("/log/update").getFile().getAbsolutePath();
 
-        subject = new LogFileIndex(logDir, indexFolder.getRoot().getAbsolutePath());
+        subject = new LogFileIndex(logDir, indexFolder.getRoot().getAbsolutePath(), 100);
         subject.init();
     }
 
@@ -58,7 +58,7 @@ public class LogFileIndexTest {
     public void search_contents() throws IOException, ParseException {
         subject.update();
 
-        final Set<LoggedUpdateId> loggedUpdateIds = subject.searchLoggedUpdateIds("FAILED", null);
+        final Set<LoggedUpdateId> loggedUpdateIds = subject.searchLoggedUpdateIds("FAILED", null, null);
         assertThat(loggedUpdateIds, hasSize(11));
         assertThat(loggedUpdateIds, contains(
                 new LoggedUpdateId("20120816", "102048.006601cd7b88$0824a380$c87e400a"),
@@ -79,11 +79,57 @@ public class LogFileIndexTest {
     public void search_contents_on_date() throws IOException, ParseException {
         subject.update();
 
-        final Set<LoggedUpdateId> loggedUpdateIds = subject.searchLoggedUpdateIds("FAILED", new LocalDate(2013, 3, 6));
+        final Set<LoggedUpdateId> loggedUpdateIds = subject.searchLoggedUpdateIds("FAILED", new LocalDate(2013, 3, 6), null);
         assertThat(loggedUpdateIds, hasSize(2));
         assertThat(loggedUpdateIds, contains(
                 new LoggedUpdateId("20130306", "123623.428054357.0.1362569782886.JavaMail.andre"),
                 new LoggedUpdateId("20130306", "123624.428054357.0.1362569782886.JavaMail.andre")
+        ));
+    }
+
+    @Test
+    public void search_contents_on_date_range() throws IOException, ParseException {
+        subject.update();
+
+        final Set<LoggedUpdateId> loggedUpdateIds = subject.searchLoggedUpdateIds("FAILED", new LocalDate(2013, 3, 1), new LocalDate(2013, 3, 6));
+        assertThat(loggedUpdateIds, hasSize(4));
+        assertThat(loggedUpdateIds, contains(
+                new LoggedUpdateId("20130305", "114444.1975357211.0.1362480283923.JavaMail.andre"),
+                new LoggedUpdateId("20130305", "140319.syncupdate_127.0.0.1_1362488599134839000"),
+                new LoggedUpdateId("20130306", "123623.428054357.0.1362569782886.JavaMail.andre"),
+                new LoggedUpdateId("20130306", "123624.428054357.0.1362569782886.JavaMail.andre")
+        ));
+    }
+
+    @Test
+    public void search_contents_on_date_range_only_one_day() throws IOException, ParseException {
+        subject.update();
+
+        final Set<LoggedUpdateId> loggedUpdateIds = subject.searchLoggedUpdateIds("FAILED", new LocalDate(2013, 3, 5), new LocalDate(2013, 3, 5));
+        assertThat(loggedUpdateIds, hasSize(2));
+        assertThat(loggedUpdateIds, contains(
+                new LoggedUpdateId("20130305", "114444.1975357211.0.1362480283923.JavaMail.andre"),
+                new LoggedUpdateId("20130305", "140319.syncupdate_127.0.0.1_1362488599134839000")
+        ));
+    }
+
+    @Test
+    public void search_contents_on_date_range_reversed() throws IOException, ParseException {
+        subject.update();
+
+        final Set<LoggedUpdateId> loggedUpdateIds = subject.searchLoggedUpdateIds("FAILED", new LocalDate(2013, 3, 6), new LocalDate(2013, 3, 3));
+        assertThat(loggedUpdateIds, hasSize(0));
+    }
+
+    @Test
+    public void search_contents_on_one_date() throws IOException, ParseException {
+        subject.update();
+
+        final Set<LoggedUpdateId> loggedUpdateIds = subject.searchLoggedUpdateIds("FAILED", null, new LocalDate(2013, 3, 5));
+        assertThat(loggedUpdateIds, hasSize(2));
+        assertThat(loggedUpdateIds, contains(
+                new LoggedUpdateId("20130305", "114444.1975357211.0.1362480283923.JavaMail.andre"),
+                new LoggedUpdateId("20130305", "140319.syncupdate_127.0.0.1_1362488599134839000")
         ));
     }
 

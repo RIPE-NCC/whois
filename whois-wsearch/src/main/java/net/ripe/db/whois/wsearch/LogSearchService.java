@@ -74,9 +74,10 @@ public class LogSearchService {
     @Produces(MediaType.TEXT_PLAIN)
     public Response getUpdates(
             @QueryParam("search") final String search,
-            @DefaultValue("") @QueryParam("date") final String date) throws IOException {
+            @DefaultValue("") @QueryParam("todate") final String toDate,
+            @DefaultValue("") @QueryParam("fromdate") final String fromDate) throws IOException {
 
-        final List<Update> updateIds = getUpdateIds(search, date);
+        final List<Update> updateIds = getUpdateIds(search, toDate, fromDate);
         return Response.ok(new StreamingOutput() {
             @Override
             public void write(final OutputStream output) throws IOException, WebApplicationException {
@@ -118,7 +119,8 @@ public class LogSearchService {
      * Search for updates on all machines based on query string
      *
      * @param search The search query
-     * @param date   date the updates was handled
+     * @param fromDate   date the updates was handled or lower part of a range
+     * @param toDate   uppder part of a range
      * @return List of updateIds matching search query
      */
     @GET
@@ -127,9 +129,10 @@ public class LogSearchService {
     @TypeHint(Update.class)
     public List<Update> getUpdateIds(
             @QueryParam("search") final String search,
-            @DefaultValue("") @QueryParam("date") final String date) throws IOException {
+            @DefaultValue("") @QueryParam("fromdate") final String fromDate,
+            @DefaultValue("") @QueryParam("todate") final String toDate) throws IOException {
 
-        final List<Update> updates = getCurrentUpdateIds(search, date);
+        final List<Update> updates = getCurrentUpdateIds(search, fromDate, toDate);
 
         final List<Hosts> clusterMembers = host.getClusterMembers();
         if (clusterMembers.isEmpty()) {
@@ -142,11 +145,12 @@ public class LogSearchService {
                 continue;
             }
 
-            final String url = String.format("http://%s:%s/api/logs/current?search=%s&date=%s&apiKey=%s",
+            final String url = String.format("http://%s:%s/api/logs/current?search=%s&fromdate=%s&todate=%s&apiKey=%s",
                     clusterMember.getHostName(),
                     jettyConfig.getPort(),
                     URLEncoder.encode(search, "ISO-8859-1"),
-                    date, apiKey);
+                    fromDate, toDate,
+                    apiKey);
             final Future<List<Update>> future = client.asyncResource(url)
                     .accept(MediaType.APPLICATION_JSON_TYPE)
                     .get(new GenericType<List<Update>>() {
@@ -235,8 +239,7 @@ public class LogSearchService {
                 apiKey);
 
         try {
-            final String response = client.resource(url).accept(MediaType.TEXT_PLAIN).get(String.class);
-            return response;
+            return client.resource(url).accept(MediaType.TEXT_PLAIN).get(String.class);
         } catch (RuntimeException e) {
             return remoteError(url, e);
         }
@@ -245,7 +248,8 @@ public class LogSearchService {
     /**
      * Search for updates on the local machine based on query string
      *
-     * @param date   date the updates was handled
+     * @param fromDate   date the updates was handled or lower part of a date range
+     * @param toDate   upper part of a date range
      * @param search The search query
      * @return List of updateIds matching search query
      */
@@ -255,12 +259,14 @@ public class LogSearchService {
     @TypeHint(Update.class)
     public List<Update> getCurrentUpdateIds(
             @QueryParam("search") final String search,
-            @DefaultValue("") @QueryParam("date") final String date) throws IOException {
+            @DefaultValue("") @QueryParam("fromdate") final String fromDate,
+            @DefaultValue("") @QueryParam("todate") final String toDate) throws IOException {
 
         try {
-            final LocalDate localDate = StringUtils.isEmpty(date) ? null : DATE_FORMAT.parseLocalDate(date);
+            final LocalDate localDateFrom = StringUtils.isEmpty(fromDate) ? null : DATE_FORMAT.parseLocalDate(fromDate);
+            final LocalDate localDateTo = StringUtils.isEmpty(toDate) ? null : DATE_FORMAT.parseLocalDate(toDate);
 
-            final Set<LoggedUpdateId> updateIds = logFileSearch.searchLoggedUpdateIds(search, localDate);
+            final Set<LoggedUpdateId> updateIds = logFileSearch.searchLoggedUpdateIds(search, localDateFrom, localDateTo);
             final List<Update> result = Lists.newArrayListWithExpectedSize(updateIds.size());
             for (final LoggedUpdateId updateId : updateIds) {
                 result.add(new Update(host.name(), updateId.toString()));
