@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap;
 
+import com.google.common.collect.Lists;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -201,20 +202,22 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is("last changed"));
 
-        final List<Notice> notices = ip.getNotices();                                                                   // TODO: [ES] values are dependant on rdap.properties
+        final List<Notice> notices = ip.getNotices();
         assertThat(notices, hasSize(3));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(0).getDescription(), contains("This output has been filtered."));
-        assertThat(notices.get(0).getLinks(), is(nullValue()));
+        assertThat(notices.get(0).getLinks(), hasSize(0));
         assertThat(notices.get(1).getTitle(), is("Source"));                                                            // TODO: [ES] should source be specified?
         assertThat(notices.get(1).getDescription(), contains("Objects returned came from source", "TEST"));
-        assertThat(notices.get(1).getLinks(), is(nullValue()));
+        assertThat(notices.get(1).getLinks(), hasSize(0));
         assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
         assertThat(notices.get(2).getDescription(), contains("This is the RIPE Database query service. The objects are in RDAP format."));
-//        assertThat(notices.get(2).getLinks().getValue(), endsWith("/rdap/ip/192.0.0.0/8/ip/192.0.0.0 - 192.255.255.255"));                // TODO: [ES] fix
-        assertThat(notices.get(2).getLinks().getRel(), is("terms-of-service"));
-        assertThat(notices.get(2).getLinks().getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+        assertThat(notices.get(2).getLinks(), hasSize(1));
+        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/ip/192.0.2.0/24"));
+        assertThat(notices.get(2).getLinks().get(0).getRel(), is("terms-of-service"));
+        assertThat(notices.get(2).getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+        assertThat(notices.get(2).getLinks().get(0).getType(), is("application/pdf"));
     }
 
     @Test

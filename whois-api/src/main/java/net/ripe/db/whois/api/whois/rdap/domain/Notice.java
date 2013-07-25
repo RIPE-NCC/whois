@@ -21,7 +21,7 @@ import java.util.List;
 public class Notice implements Serializable, Comparable<Notice> {
     protected String title;
     protected List<String> description;
-    protected Link links;
+    protected List<Link> links;
 
     public String getTitle() {
         return title;
@@ -38,12 +38,11 @@ public class Notice implements Serializable, Comparable<Notice> {
         return this.description;
     }
 
-    public Link getLinks() {
+    public List<Link> getLinks() {
+        if (links == null) {
+            links = Lists.newArrayList();
+        }
         return links;
-    }
-
-    public void setLinks(Link value) {
-        this.links = value;
     }
 
     @Override

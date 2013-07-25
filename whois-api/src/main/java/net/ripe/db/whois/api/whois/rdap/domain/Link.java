@@ -5,6 +5,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 import java.util.List;
@@ -21,12 +22,19 @@ import java.util.List;
 })
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
 public class Link implements Serializable, Comparable<Link> {
+    @XmlElement(required = true)
     protected String value;
+    @XmlElement(required = true)
     protected String rel;
+    @XmlElement(required = true)
     protected String href;
+    @XmlElement
     protected List<String> hreflang;
+    @XmlElement
     protected List<String> title;
+    @XmlElement
     protected String media;
+    @XmlElement
     protected String type;
 
     public String getValue() {
@@ -88,6 +96,6 @@ public class Link implements Serializable, Comparable<Link> {
 
     @Override
     public int compareTo(Link o) {
-        return this.getValue().compareTo(o.getValue());
+        return this.getRel().compareTo(o.getRel());
     }
 }
