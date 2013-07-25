@@ -10,7 +10,8 @@
     <context:annotation-config/>
     <context:component-scan base-package="net.ripe.db.whois.wsearch" />
     <context:property-placeholder
-            location="classpath:wsearch.properties"
+            location="classpath:wsearch.properties,
+            file:${whois.wsearch.config}"
             system-properties-mode="OVERRIDE"/>
 
     <bean class="net.ripe.db.whois.api.httpserver.RemoteAddressFilter">
