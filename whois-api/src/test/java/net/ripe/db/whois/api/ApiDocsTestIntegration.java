@@ -18,7 +18,7 @@ public class ApiDocsTestIntegration extends AbstractRestClientTest {
         assertThat(index, containsString("<html"));
         assertThat(index, containsString("<title>RIPE WHOIS API</title>"));
         assertThat(index, containsString(">/acl/bans/{prefix}<"));
-        assertThat(index, containsString(">/logs/current<"));
+        assertThat(index, not(containsString(">/logs/current<")));
         assertThat(index, containsString(">/metadata/sources<"));
         assertThat(index, containsString(">/delete/{objectType}/{key}<"));
     }
