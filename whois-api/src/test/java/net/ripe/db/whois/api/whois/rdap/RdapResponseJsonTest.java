@@ -157,12 +157,12 @@ public class RdapResponseJsonTest {
         nameserver.setPort43("whois.example.net");
 
         final Event registrationEvent = new Event();
-        registrationEvent.setEventAction("registration");
+        registrationEvent.setEventAction(Action.REGISTRATION);
         registrationEvent.setEventDate(LOCAL_DATE_TIME);
         nameserver.getEvents().add(registrationEvent);
 
         final Event lastChangedEvent = new Event();
-        lastChangedEvent.setEventAction("last changed");
+        lastChangedEvent.setEventAction(Action.LAST_CHANGED);
         lastChangedEvent.setEventDate(LOCAL_DATE_TIME);
         lastChangedEvent.setEventActor("joe@example.com");
         nameserver.getEvents().add(lastChangedEvent);
@@ -222,12 +222,12 @@ public class RdapResponseJsonTest {
         domain.getLinks().add(link);
 
         final Event registrationEvent = new Event();
-        registrationEvent.setEventAction("registration");
+        registrationEvent.setEventAction(Action.REGISTRATION);
         registrationEvent.setEventDate(LOCAL_DATE_TIME);
         domain.getEvents().add(registrationEvent);
 
         final Event lastChangedEvent = new Event();
-        lastChangedEvent.setEventAction("last changed");
+        lastChangedEvent.setEventAction(Action.LAST_CHANGED);
         lastChangedEvent.setEventDate(LOCAL_DATE_TIME);
         lastChangedEvent.setEventActor("joe@example.com");
         domain.getEvents().add(lastChangedEvent);
@@ -373,12 +373,12 @@ public class RdapResponseJsonTest {
         ip.getLinks().add(uplink);
 
         final Event registrationEvent = new Event();
-        registrationEvent.setEventAction("registration");
+        registrationEvent.setEventAction(Action.REGISTRATION);
         registrationEvent.setEventDate(LOCAL_DATE_TIME);
         ip.getEvents().add(registrationEvent);
 
         final Event lastChangedEvent = new Event();
-        lastChangedEvent.setEventAction("last changed");
+        lastChangedEvent.setEventAction(Action.LAST_CHANGED);
         lastChangedEvent.setEventDate(LOCAL_DATE_TIME);
         lastChangedEvent.setEventActor("joe@example.com");
         ip.getEvents().add(lastChangedEvent);

@@ -204,7 +204,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         final List<Event> events = ip.getEvents();
         assertThat(events, hasSize(1));
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
-        assertThat(events.get(0).getEventAction(), is("last changed"));
+        assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Notice> notices = ip.getNotices();
         assertThat(notices, hasSize(3));
@@ -319,7 +319,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         final List<Event> events = ip.getEvents();
         assertThat(events, hasSize(1));
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
-        assertThat(events.get(0).getEventAction(), is("last changed"));
+        assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Notice> notices = ip.getNotices();
         assertThat(notices, hasSize(3));
@@ -392,13 +392,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(entity.getRdapConformance(), hasSize(1));
         assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
 
-        assertThat(entity.getRemarks(), hasSize(1));                                                // TODO: [ES]
+        assertThat(entity.getRemarks(), hasSize(1));                                                // TODO: [ES] no remarks - has one element rather than empty
         assertThat(entity.getRemarks().get(0).getDescription(), is(nullValue()));
 
         final List<Event> events = entity.getEvents();
         assertThat(events, hasSize(1));
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
-        assertThat(events.get(0).getEventAction(), is("last changed"));
+        assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Notice> notices = entity.getNotices();
         assertThat(notices, hasSize(3));
@@ -474,7 +474,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         final List<Event> events = entity.getEvents();
         assertThat(events, hasSize(1));
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
-        assertThat(events.get(0).getEventAction(), is("last changed"));
+        assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
 
         assertThat(entity.getRemarks(), hasSize(1));
         assertThat(entity.getRemarks().get(0).getDescription(), is(nullValue()));
@@ -523,7 +523,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         final List<Event> events = domain.getEvents();
         assertThat(events, hasSize(1));
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
-        assertThat(events.get(0).getEventAction(), is("last changed"));
+        assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Entity> entities = domain.getEntities();
         assertThat(entities, hasSize(2));
@@ -638,7 +638,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         final List<Event> events = autnum.getEvents();
         assertThat(events, hasSize(1));
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
-        assertThat(events.get(0).getEventAction(), is("last changed"));
+        assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Entity> entities = autnum.getEntities();
         assertThat(entities, hasSize(2));
@@ -763,7 +763,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
         final List<Event> events = autnum.getEvents();
         assertThat(events, hasSize(1));
-        assertThat(events.get(0).getEventAction(), is("last changed"));
+        assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
     }
 
@@ -898,7 +898,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(entity.getEvents().size(), equalTo(1));
         final Event event = entity.getEvents().get(0);
         assertTrue(event.getEventDate().isBefore(LocalDateTime.now()));
-        assertThat(event.getEventAction(), equalTo("last changed"));
+        assertThat(event.getEventAction(), equalTo(Action.LAST_CHANGED));
         assertThat(event.getEventActor(), is(nullValue()));
 
         assertThat(entity.getEntities(), hasSize(3));

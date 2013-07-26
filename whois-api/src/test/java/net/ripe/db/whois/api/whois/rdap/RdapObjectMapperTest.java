@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.whois.rdap.domain.Action;
 import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
 import net.ripe.db.whois.api.whois.rdap.domain.Domain;
 import net.ripe.db.whois.api.whois.rdap.domain.Entity;
@@ -88,7 +89,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
 
         assertThat(result.getEvents(), hasSize(1));
-        assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
+        assertThat(result.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
         assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
     }
 
@@ -140,7 +141,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getLinks().get(0).getRel(), is("self"));
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
         assertThat(result.getEvents(), hasSize(1));
-        assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
+        assertThat(result.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
         assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
 
         assertThat(result.getPort43(), is("whois.ripe.net"));
@@ -198,7 +199,7 @@ public class RdapObjectMapperTest {
 
         assertThat(result.getEvents(), hasSize(1));
         assertThat(result.getEvents().get(0).getEventActor(), is(nullValue()));
-        assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
+        assertThat(result.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
         assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
         assertThat(result.getEvents().get(0).getEventActor(), is(nullValue()));
 
@@ -315,7 +316,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
 
         assertThat(result.getEvents(), hasSize(1));
-        assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
+        assertThat(result.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
 
         assertThat(result.getStatus(), is(emptyIterable()));
         assertThat(result.getPort43(), is("whois.ripe.net"));
@@ -368,7 +369,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
 
         assertThat(result.getEvents(), hasSize(1));
-        assertThat(result.getEvents().get(0).getEventAction(), is("last changed"));
+        assertThat(result.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
 
         assertThat(result.getStatus(), is(emptyIterable()));
         assertThat(result.getPort43(), is("whois.ripe.net"));

@@ -124,7 +124,7 @@ class RdapObjectMapper {
 
     private static Event createEvent(final LocalDateTime lastChanged) {
         final Event lastChangedEvent = new Event();
-        lastChangedEvent.setEventAction("last changed");
+        lastChangedEvent.setEventAction(Action.LAST_CHANGED);
         lastChangedEvent.setEventDate(lastChanged);
         return lastChangedEvent;
     }

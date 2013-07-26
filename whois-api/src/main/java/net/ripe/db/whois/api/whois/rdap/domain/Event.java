@@ -18,17 +18,17 @@ import java.io.Serializable;
 })
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
 public class Event implements Serializable {
-    protected String eventAction;
+    protected Action eventAction;
     @XmlSchemaType(name = "dateTime")
     @XmlJavaTypeAdapter(DateTimeAdapter.class)
     protected LocalDateTime eventDate;
     protected String eventActor;
 
-    public String getEventAction() {
+    public Action getEventAction() {
         return eventAction;
     }
 
-    public void setEventAction(final String value) {
+    public void setEventAction(final Action value) {
         this.eventAction = value;
     }
 
