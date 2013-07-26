@@ -10,7 +10,6 @@ import net.ripe.db.whois.api.httpserver.RemoteAddressFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.common.aspects.RetryFor;
-import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -75,8 +74,7 @@ public class WSearchJettyBootstrap implements ApplicationService {
             public Set<Object> getSingletons() {
                 return Sets.newHashSet(
                         logSearchService,
-                        defaultExceptionMapper,
-                        new JacksonJaxbJsonProvider());
+                        defaultExceptionMapper);
             }
         })), "/api/*");
 
@@ -89,7 +87,7 @@ public class WSearchJettyBootstrap implements ApplicationService {
 
 
     @RetryFor(attempts = 5, value = Exception.class)
-    private Server createAndStartServer(int port, ServletContextHandler servletContextHandler, Audience audience) throws Exception {
+    private Server createAndStartServer(int port, ServletContextHandler servletContextHandler, final Audience audience) throws Exception {
         int tryPort = (port <= 0) ? ServerHelper.getAvailablePort() : port;
         wSearchJettyConfig.setPort(tryPort);
         LOGGER.debug("Trying port {}", tryPort);
