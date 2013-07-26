@@ -76,6 +76,6 @@ public class LoggedUpdateInfoTest {
     @Test
     public void string() {
         final String s = LoggedUpdateInfo.parse("/test/20130312/101010.update/666.out.gz").toString();
-        assertThat(s, is("[EMAIL       ] 20130312/101010.update/666.out.gz"));
+        assertThat(s, is("[EMAIL       ] 20130312/101010.update/666.out.gz /test/20130312/101010.update/666.out.gz"));
     }
 }

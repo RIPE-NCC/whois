@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -205,24 +206,6 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
     }
 
     @Test
-    public void get_remote_update_logs_for_host_and_id() throws Exception {
-        createLogFile("mntner: TEST-MNT");
-
-        final String response = getRemoteUpdateLogs("UNDEFINED", URLEncoder.encode(getLogDirFullPathName(), "ISO-8859-1"));
-
-        assertThat(response, isEmptyString());
-    }
-
-    @Test
-    public void get_remote_update_logs_for_host_and_id_and_date() throws Exception {
-        createLogFile("mntner: TEST-MNT");
-
-        final String response = getRemoteUpdateLogs("UNDEFINED", getLogDirName(), getDate());
-
-        assertThat(response, isEmptyString());
-    }
-
-    @Test
     public void get_current_update_logs_for_name_and_date() throws Exception {
         createLogFile("mntner: TEST-MNT");
 
@@ -265,18 +248,6 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
     private String getUpdateIds(final String searchTerm, final String date) throws IOException {
         return client
                 .resource(String.format("http://localhost:%s/api/logs/ids?search=%s&fromdate=%s&todate=&apiKey=%s", wSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
-                .get(String.class);
-    }
-
-    private String getRemoteUpdateLogs(final String host, final String updateId) throws IOException {
-        return client
-                .resource(String.format("http://localhost:%s/api/logs/%s/%s?apiKey=%s", wSearchJettyConfig.getPort(), host, updateId, apiKey))
-                .get(String.class);
-    }
-
-    private String getRemoteUpdateLogs(final String host, final String updateId, final String date) throws IOException {
-        return client
-                .resource(String.format("http://localhost:%s/api/logs/%s/%s/%s?apiKey=%s", wSearchJettyConfig.getPort(), host, date, updateId, apiKey))
                 .get(String.class);
     }
 

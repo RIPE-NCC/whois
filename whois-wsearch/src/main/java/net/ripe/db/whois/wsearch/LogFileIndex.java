@@ -193,6 +193,7 @@ public class LogFileIndex extends RebuildableIndex {
         document.add(new Field("updateId", loggedUpdateId.toString(), STORED));
         document.add(new Field("date", date, INDEXED));
         document.add(new Field("filename", loggedUpdateInfo.getFilename(), STORED));
+        document.add(new Field("filepath", loggedUpdateInfo.getFilePath(), STORED));
         document.add(new Field("type", loggedUpdateInfo.getType().name(), STORED));
         document.add(new Field("contents", contents, INDEXED));
 

@@ -16,11 +16,13 @@ class LoggedUpdateInfo implements Comparable<LoggedUpdateInfo> {
 
     private final LoggedUpdateId loggedUpdateId;
     private final String filename;
+    private final String filePath;
     private final Type type;
 
-    private LoggedUpdateInfo(final LoggedUpdateId loggedUpdateId, final String filename, final Type type) {
+    private LoggedUpdateInfo(final LoggedUpdateId loggedUpdateId, final String filename, final String filePath, final Type type) {
         this.loggedUpdateId = loggedUpdateId;
         this.filename = filename;
+        this.filePath = filePath;
         this.type = type;
     }
 
@@ -32,13 +34,17 @@ class LoggedUpdateInfo implements Comparable<LoggedUpdateInfo> {
         return filename;
     }
 
+    public String getFilePath() {
+        return filePath;
+    }
+
     public Type getType() {
         return type;
     }
 
     @Override
     public String toString() {
-        return String.format("[%-12s] %s/%s", type.name(), loggedUpdateId, filename);
+        return String.format("[%-12s] %s/%s %s", type.name(), loggedUpdateId, filename, filePath);
     }
 
     private static Type getType(final String filename) {
@@ -67,7 +73,7 @@ class LoggedUpdateInfo implements Comparable<LoggedUpdateInfo> {
         final String filename = filePath.substring(filenameSeparator + 1);
         final Type type = getType(filename);
 
-        return new LoggedUpdateInfo(loggedUpdateId, filename, type);
+        return new LoggedUpdateInfo(loggedUpdateId, filename, filePath, type);
     }
 
     static boolean isLoggedUpdateInfo(final String filename) {
@@ -80,6 +86,7 @@ class LoggedUpdateInfo implements Comparable<LoggedUpdateInfo> {
                 .append(loggedUpdateId, other.loggedUpdateId)
                 .append(type, other.type)
                 .append(filename, other.filename)
+                .append(filePath, other.filePath)
                 .toComparison();
     }
 
@@ -94,7 +101,10 @@ class LoggedUpdateInfo implements Comparable<LoggedUpdateInfo> {
         }
 
         final LoggedUpdateInfo that = (LoggedUpdateInfo) o;
-        return loggedUpdateId.equals(that.loggedUpdateId) && type == that.type && filename.equals(that.filename);
+        return loggedUpdateId.equals(that.loggedUpdateId) &&
+                type == that.type &&
+                filename.equals(that.filename) &&
+                filePath.equals(that.filePath);
     }
 
     @Override
@@ -102,6 +112,7 @@ class LoggedUpdateInfo implements Comparable<LoggedUpdateInfo> {
         int result = loggedUpdateId.hashCode();
         result = 31 * result + filename.hashCode();
         result = 31 * result + type.hashCode();
+        result = 31 * result + filePath.hashCode();
         return result;
     }
 }
