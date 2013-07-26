@@ -541,8 +541,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         final List<Link> links = domain.getLinks();
         assertThat(links, hasSize(2));
         Collections.sort(links);
-        assertThat(links.get(0).getRel(), equalTo("self"));
-        assertThat(links.get(1).getRel(), equalTo("copyright"));
+        assertThat(links.get(0).getRel(), equalTo("copyright"));
+        assertThat(links.get(1).getRel(), equalTo("self"));
     }
 
     @Test
@@ -940,6 +940,29 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
         assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/entity/ORG-ONE-TEST"));
+    }
+
+    // HTML Documentation
+
+    @Test
+    public void html_documentation() {
+        String response = createStaticResource(AUDIENCE, "rdap-doc/")
+                .get(String.class);
+
+        assertThat(response, containsString("RIPE RDAP API"));
+    }
+
+    @Test
+    public void redirect_to_html_documentation() {
+        try {
+            createResource(AUDIENCE, "")
+                .accept(MediaType.TEXT_HTML)
+                .get(String.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+            assertThat(e.getResponse().getHeaders().get("Content-Location").get(0), is("/rdap-doc/"));
+        }
     }
 
     @Override

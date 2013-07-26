@@ -199,23 +199,18 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>RDAP</id>
+                        <id>rdap</id>
                         <goals>
                             <goal>docs</goal>
                         </goals>
                         <configuration>
                             <configFile>enunciate-rdap.xml</configFile>
-                            <docsDir>${project.build.directory}/generated-sources/enunciate/rdap-docs</docsDir>
+                            <docsDir>${project.build.directory}/generated-sources/enunciate/ext-doc/rdap-doc</docsDir>
                             <buildDir>${project.build.directory}/enunciate/build-rdap</buildDir>
                             <compileDir>${project.build.directory}/enunciate/compile-rdap</compileDir>
                             <scratchDir>${project.build.directory}/enunciate-scratch-rdap</scratchDir>
                             <generateDir>${project.build.directory}/enunciate/generate-rdap</generateDir>
                             <packageDir>${project.build.directory}/enunciate/package-rdap</packageDir>
-                            <excludes>
-                                <exclude>net.ripe.db.whois.api.acl.**</exclude>
-                                <exclude>net.ripe.db.whois.api.freetext.**</exclude>
-                                <exclude>net.ripe.db.whois.api.wsearch.**</exclude>
-                            </excludes>
                             <includes>
                                 <include>net.ripe.db.whois.api.whois.rdap.**</include>
                             </includes>
