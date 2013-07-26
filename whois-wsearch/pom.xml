@@ -11,7 +11,6 @@
     </parent>
 
     <artifactId>whois-wsearch</artifactId>
-    <groupId>net.ripe.db</groupId>
     <version>1.67.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -64,4 +63,39 @@
             <type>test-jar</type>
         </dependency>
     </dependencies>
+    <profiles>
+        <profile>
+            <id>release</id>
+            <properties>
+                <whois.main>net.ripe.db.whois.wsearch.WSearchServer</whois.main>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
