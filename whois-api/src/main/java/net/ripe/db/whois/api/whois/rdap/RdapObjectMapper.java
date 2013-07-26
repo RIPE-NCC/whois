@@ -284,7 +284,7 @@ class RdapObjectMapper {
         if (!addresses.isEmpty()) {
             final Map<String, String> addressMap = Maps.newHashMap();
             addressMap.put("label", NEWLINE_JOINER.join(addresses));
-            builder.addAdr(addressMap, null);
+            builder.addAdr(addressMap, null);                               // TODO: [ES] vcard address value is null
         }
 
         for (final CIString phone : rpslObject.getValuesForAttribute(PHONE)) {
