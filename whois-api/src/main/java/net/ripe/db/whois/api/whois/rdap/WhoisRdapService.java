@@ -232,7 +232,7 @@ public class WhoisRdapService {
     @GET
     @Path("/")
     public Response redirectToDocumentation() {
-        return Response.status(Response.Status.MOVED_PERMANENTLY).contentLocation(URI.create("/rdap-doc/")).build();
+        return Response.status(Response.Status.MOVED_PERMANENTLY).location(URI.create("/rdap-doc/")).build();
     }
 
     private void validateDomain(final String key) {
@@ -337,7 +337,7 @@ public class WhoisRdapService {
 
     private Response redirect(final String requestPath, final Query query) {
         final URI uri = delegatedStatsService.getUriForRedirect(requestPath, query);
-        return Response.status(Response.Status.MOVED_PERMANENTLY).contentLocation(uri).build();
+        return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
     }
 
     private String getRequestUrl(final HttpServletRequest request) {
