@@ -671,7 +671,21 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .get(ClientResponse.class);
 
         assertThat(response.getType(), is(new MediaType("application", "rdap+json")));
-        assertThat(response.getEntity(String.class), containsString("\"handle\":\"AS123\""));
+        final String entity = response.getEntity(String.class);
+        assertThat(entity, containsString("\"handle\" : \"AS123\""));
+        assertThat(entity, containsString("\"rdapConformance\" : [ \"rdap_level_0\" ]"));
+    }
+
+    @Test
+    public void lookup_autnum_with_application_json_content_type() {
+        final ClientResponse response = createResource(AUDIENCE, "autnum/123")
+                .accept("application/json")
+                .get(ClientResponse.class);
+
+        //assertThat(response.getType(), is(new MediaType("application", "rdap+json")));        // TODO: [ES] must return this media type
+        final String entity = response.getEntity(String.class);
+        assertThat(entity, containsString("\"handle\" : \"AS123\""));
+        assertThat(entity, containsString("\"rdapConformance\" : [ \"rdap_level_0\" ]"));
     }
 
     @Test
