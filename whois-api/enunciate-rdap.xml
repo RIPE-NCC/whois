@@ -2,7 +2,7 @@
            description="REST API for the RIPE Whois database"
            xsi:noNamespaceSchemaLocation="http://enunciate.codehaus.org/schemas/enunciate-1.27.xsd">
     <namespaces>
-        <namespace id="rdap" uri="http://rdap.ripe.net"/>
+        <namespace id="rdap" uri="http://rdap.db.ripe.net"/>
     </namespaces>
     <services>
         <rest defaultRestSubcontext="/"/>
@@ -14,6 +14,16 @@
         <java-client disabled="true"/>
         <docs title="RIPE RDAP API" splashPackage="net.ripe.db.whois.api.whois.rdap" groupRestResources="byPath"
               freemarkerXMLProcessingTemplate="enunciateTemplate.fmt"/>
+        <jersey usePathBasedConneg="false"/>
         <obj-c disabled="true"/>
     </modules>
+    <services>
+        <rest>
+            <content-types>
+                <content-type type="application/json" id="json"/>
+                <content-type type="application/rdap+json" id="rdap-json"/>
+                <!-- TODO <content-type type="text/json" id="text-json"/>-->
+            </content-types>
+        </rest>
+    </services>
 </enunciate>

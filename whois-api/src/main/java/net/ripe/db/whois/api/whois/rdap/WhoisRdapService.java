@@ -96,7 +96,7 @@ public class WhoisRdapService {
      * <p>
      * <div>Queries to the RIPE NCC RDAP implementation should be directed to http://rdap.db.ripe.net. For testing
      * purposes, queries can also be directed to http://rdap-test.db.ripe.net</div>
-     * <div>The RDAP server accepts Content Media type application/json and application/rdap+json and will respond with the same</div>
+     * <div>The RDAP server accepts Content Media type "application/json" and "application/rdap+json", but will always respond with "application/rdap+json".</div>
      * </p>
      *
      * <h3>Examples</h3>
@@ -153,7 +153,7 @@ public class WhoisRdapService {
      *     </li>
      *
      *     <li>
-     *         <div>Unsuccessfully quering for an autnum: http://rdap.db.ripe.net/entity/fred-mnt</div>
+     *         <div>Unsuccessfully querying for an autnum: http://rdap.db.ripe.net/entity/fred-mnt</div>
      *         <div>Response header<pre>
      *             HTTP/1.1 404 Not Found
      *         </pre>
@@ -163,7 +163,7 @@ public class WhoisRdapService {
      *     </li>
      *
      *     <li>
-     *         <div>Quering for an autnum that exists at a different RIR: http://rdap.db.ripe.net/autnum/1840</div>
+     *         <div>Querying for an autnum that exists at a different RIR: http://rdap.db.ripe.net/autnum/1840</div>
      *         <div>Response header<pre>
      *             HTTP/1.1 301 Moved Permanently
      *             Location: http://rdap.lacnic.net/autnum/1840
@@ -323,7 +323,8 @@ public class WhoisRdapService {
                             getRequestUrl(request),
                             resultObject,
                             objectDao.getLastUpdated(resultObject.getObjectId()),
-                            getAbuseContacts(resultObject))).build();
+                            getAbuseContacts(resultObject)))
+                    .build();
 
         } catch (final QueryException e) {
             if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {

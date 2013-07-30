@@ -38,7 +38,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
         System.setProperty("rdap.sources", "TEST-GRS");                        // TODO: [ES] dependency on grs source configuration
-        System.setProperty("rdap.redirect.test", "rdap.test.net");
+        System.setProperty("rdap.redirect.test", "https://rdap.test.net");
         System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
     }
 
