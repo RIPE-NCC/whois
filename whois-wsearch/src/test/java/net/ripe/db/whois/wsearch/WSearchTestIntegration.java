@@ -1,6 +1,7 @@
 package net.ripe.db.whois.wsearch;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.sun.jersey.api.client.Client;
@@ -75,6 +76,14 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
     @Test
     public void single_term() throws Exception {
         createLogFile("the quick brown fox");
+
+        assertThat(getUpdates("quick"), containsString("the quick brown fox"));
+    }
+
+    @Test
+    public void realisticPathTest() throws Exception {
+        createLogFileNew("the quick brown fox");
+        logFileIndex.update();
 
         assertThat(getUpdates("quick"), containsString("the quick brown fox"));
     }
@@ -209,20 +218,19 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
     public void get_current_update_logs_for_name_and_date() throws Exception {
         createLogFile("mntner: TEST-MNT");
 
-        final String response = getCurrentUpdateLogs("TEST-MNT", getDate());
+        final String date = getDate();
+        final String response = getUpdates("TEST-MNT", date);
 
-        assertThat(response, containsString("\"host\":"));
-        assertThat(response, containsString("\"id\":"));
+        assertThat(response, containsString("mntner: TEST-MNT"));
     }
 
     @Test
     public void search_from_inetnum() throws IOException {
         createLogFile("REQUEST FROM:193.0.1.204\nPARAMS:");
 
-        final String response = getCurrentUpdateLogs("193.0.1.204", getDate());
+        final String response = getUpdates("193.0.1.204", getDate());
 
-        assertThat(response, containsString("\"host\":"));
-        assertThat(response, containsString("\"id\":"));
+        assertThat(response, containsString("REQUEST FROM:193.0.1.204"));
     }
 
     @Ignore("TODO")
@@ -230,7 +238,7 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
     public void search_from_inet6num() throws IOException {
         createLogFile("REQUEST FROM:2000:3000:4000::/48\nPARAMS:");
 
-        final String response = getCurrentUpdateLogs("2000:3000:4000::/48", getDate());
+        final String response = getUpdates("2000:3000:4000::/48", getDate());
 
         assertThat(response, containsString("\"host\":"));
         assertThat(response, containsString("\"id\":"));
@@ -244,6 +252,11 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
                 .get(String.class);
     }
 
+    private String getUpdates(final String searchTerm, final String date) throws IOException {
+        return client
+                .resource(String.format("http://localhost:%s/api/logs?search=%s&date=%s&apiKey=%s", wSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
+                .get(String.class);
+    }
 
     private String getUpdateIds(final String searchTerm, final String date) throws IOException {
         return client
@@ -251,11 +264,6 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
                 .get(String.class);
     }
 
-    private String getCurrentUpdateLogs(final String searchTerm, final String date) throws IOException {
-        return client
-                .resource(String.format("http://localhost:%s/api/logs/current?search=%s&date=%s&apiKey=%s", wSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
-                .get(String.class);
-    }
 
     private String getCurrentUpdateLogsForId(final String updateId) {
         return client
@@ -300,6 +308,35 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
         logFileIndex.update();
     }
 
+    private void createLogFileNew(final String data) throws IOException {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(logDir)
+                .append("/whois2/audit/")
+                .append(getDate())
+                .append('/')
+                .append(getTime())
+                .append('.')
+                .append(Math.random());
+
+        final File fullDir = new File(builder.toString());
+        fullDir.mkdirs();
+
+        logFile = new File(fullDir, INPUT_FILE_NAME);
+        final FileOutputStream fileOutputStream = new FileOutputStream(logFile);
+
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(fileOutputStream), Charsets.ISO_8859_1));
+            writer.write(data);
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
+        }
+
+        logFileIndex.update();
+    }
+
     private String getLogDirName() throws IOException {
         final List<String> path = Lists.newArrayList(PATH_SPLITTER.split(logFile.getCanonicalPath()));
         return path.get(path.size() - 2);
@@ -307,10 +344,7 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
 
     private String getLogDirFullPathName() throws IOException {
         final List<String> path = Lists.newArrayList(PATH_SPLITTER.split(logFile.getCanonicalPath()));
-
-        return String.format("/%s/%s",
-                path.get(path.size() - 3),
-                path.get(path.size() - 2));
+        return Joiner.on("/").join(path.subList(0, path.size() - 1));
     }
 
     private String getDate() {

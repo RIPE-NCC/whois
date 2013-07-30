@@ -64,6 +64,9 @@ class LoggedUpdateInfo implements Comparable<LoggedUpdateInfo> {
     }
 
     static LoggedUpdateInfo parse(final String filePath) {
+        return parse(filePath, null);
+    }
+    static LoggedUpdateInfo parse(final String filePath, final String directoryPath) {
         final int filenameSeparator = filePath.lastIndexOf(File.separatorChar);
         if (filenameSeparator == -1) {
             throw new IllegalArgumentException(String.format("Invalid path: %s", filePath));
@@ -73,7 +76,7 @@ class LoggedUpdateInfo implements Comparable<LoggedUpdateInfo> {
         final String filename = filePath.substring(filenameSeparator + 1);
         final Type type = getType(filename);
 
-        return new LoggedUpdateInfo(loggedUpdateId, filename, filePath, type);
+        return new LoggedUpdateInfo(loggedUpdateId, filename, directoryPath == null ? filePath : directoryPath, type);
     }
 
     static boolean isLoggedUpdateInfo(final String filename) {

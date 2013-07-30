@@ -16,16 +16,16 @@
 
     <!-- Loggers -->
     <category name="net.ripe">
-        <priority value="INFO"/>
+        <priority value="DEBUG"/>
     </category>
 
     <category name="org.springframework">
-        <priority value="INFO"/>
+        <priority value="WARN"/>
     </category>
 
     <!-- For debugging resourcehandler -->
     <category name="org.eclipse.jetty">
-        <priority value="DEBUG"/>
+        <priority value="INFO"/>
     </category>
 
     <category name="com.mchange.v2">

@@ -7,10 +7,17 @@ import java.io.File;
 public class LoggedUpdateId implements Comparable<LoggedUpdateId> {
     private final String dailyLogFolder;
     private final String updateFolder;
+    private String fullPathToLogFolder;
 
     public LoggedUpdateId(final String dailyLogFolder, final String updateFolder) {
         this.dailyLogFolder = dailyLogFolder;
         this.updateFolder = updateFolder;
+    }
+
+    public LoggedUpdateId(final String dailyLogFolder, final String updateFolder, final String pathToFolder) {
+        this.dailyLogFolder = dailyLogFolder;
+        this.updateFolder = updateFolder;
+        this.fullPathToLogFolder = pathToFolder;
     }
 
     public String getDailyLogFolder() {
@@ -21,7 +28,15 @@ public class LoggedUpdateId implements Comparable<LoggedUpdateId> {
         return updateFolder;
     }
 
+    public String getFullPathToLogFolder() {
+        return fullPathToLogFolder;
+    }
+
     public static LoggedUpdateId parse(final String path) {
+        return parse(path, path);
+    }
+
+    public static LoggedUpdateId parse(final String path, final String fullPath) {
         try {
             final int updateFolderSeparator = path.lastIndexOf(File.separatorChar);
             final int dailyLogFolderSeparator = path.lastIndexOf(File.separatorChar, updateFolderSeparator - 1);
@@ -29,7 +44,7 @@ public class LoggedUpdateId implements Comparable<LoggedUpdateId> {
             final String dailyLogFolder = path.substring(dailyLogFolderSeparator + 1, updateFolderSeparator);
             final String updateFolder = path.substring(updateFolderSeparator + 1);
 
-            return new LoggedUpdateId(dailyLogFolder, updateFolder);
+            return new LoggedUpdateId(dailyLogFolder, updateFolder, fullPath);
         } catch (IndexOutOfBoundsException e) {
             throw new IllegalArgumentException(String.format("Invalid path: %s", path));
         }

@@ -22,27 +22,40 @@ class DailyLogFolder {
     private static final Pattern UPDATE_LOG_FOLDER_PATTERN = Pattern.compile("(\\d{6})\\..*");
     private static final Pattern TAR_ENTRY_PATH_PATTERN = Pattern.compile("^\\./(.*)");
 
-    private final File folder;
-    private final String folderName;
+    private File folder;
+    private String folderName;
 
     public DailyLogFolder(final File folder) {
+        init(folder);
+    }
+
+    private void init(final File folder) {
         final Matcher folderNameMatcher = DAILY_LOG_FOLDER_PATTERN.matcher(folder.getName());
         if (!folderNameMatcher.matches()) {
             throw new IllegalArgumentException("Invalid folder: " + folder.getName());
         }
 
-        folderName = folderNameMatcher.group(1);
+        this.folderName = folderNameMatcher.group(1);
+        LOGGER.info("folderName {}, folder {}", folderName, folder);
 
         if (folder.exists()) {
             this.folder = folder;
         } else {
             final File tarFile = new File(folder.getPath() + ".tar");
             if (!tarFile.exists() || !tarFile.isFile()) {
-                throw new IllegalArgumentException("Not existing folder: " + folderName);
+                throw new IllegalArgumentException("Not existing folder: " + folder + " name " + folderName);
             }
 
             this.folder = tarFile;
         }
+    }
+
+    public DailyLogFolder(final LoggedUpdateId loggedUpdateId) {
+        final String fullPathToLogFolder = loggedUpdateId.getFullPathToLogFolder();
+        final String dailyLogFolder = loggedUpdateId.getDailyLogFolder();
+        final int index = fullPathToLogFolder.indexOf(dailyLogFolder) + dailyLogFolder.length();
+
+        init(new File(fullPathToLogFolder.substring(0, index)));
     }
 
     public void processLoggedFiles(final LoggedFilesProcessor loggedFilesProcessor) {
@@ -59,7 +72,7 @@ class DailyLogFolder {
                     try {
                         final String entryPath = String.format("%s%s%s", folderName, File.separator, TAR_ENTRY_PATH_PATTERN.matcher(tarEntryName).replaceAll("$1"));
                         if (tarEntry.isFile() && LoggedUpdateInfo.isLoggedUpdateInfo(entryPath)) {
-                            final LoggedUpdateInfo loggedUpdateInfo = LoggedUpdateInfo.parse(entryPath);
+                            final LoggedUpdateInfo loggedUpdateInfo = LoggedUpdateInfo.parse(entryPath, this.folder.getAbsolutePath());
                             if (loggedFilesProcessor.accept(loggedUpdateInfo)) {
                                 loggedFilesProcessor.process(loggedUpdateInfo, getContents(tarInput, tarEntry.getSize()));
                             }

@@ -41,22 +41,16 @@ public class LogSearchService {
 
     private static final int CLUSTER_TIMEOUT = 10000;
 
-    private final WSearchJettyConfig jettyConfig;
     private final Hosts host = Hosts.getLocalHost();
     private final LogFileSearch logFileSearch;
-    private final String apiKey;
     private final Client client;
     private final int streamResultsLimit;
 
     @Autowired
     public LogSearchService(
-            final WSearchJettyConfig jettyConfig,
             final LogFileSearch logFileSearch,
-            @Value("${api.key}") final String apiKey,
             @Value("${wsearch.result.limit}") final int streamResultLimit) {
-        this.jettyConfig = jettyConfig;
         this.logFileSearch = logFileSearch;
-        this.apiKey = apiKey;
         this.streamResultsLimit = streamResultLimit;
 
         final ClientConfig cc = new DefaultClientConfig();
@@ -67,7 +61,6 @@ public class LogSearchService {
     }
 
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
     public Response getUpdates(
             @QueryParam("search") final String search,
             @DefaultValue("") @QueryParam("todate") final String toDate,
@@ -76,34 +69,34 @@ public class LogSearchService {
         final List<Update> updateIds = getUpdateIds(search, toDate, fromDate);
         return Response.ok(new StreamingOutput() {
             @Override
-            public void write(final OutputStream output) throws IOException, WebApplicationException {
-        try {
-            final Writer writer = new BufferedWriter(new OutputStreamWriter(output, Charsets.UTF_8));
-            if (updateIds.size() > streamResultsLimit) {
-                writer.write(String.format("!!! Found %s update logs, limiting to %s", updateIds.size(), streamResultsLimit));
-            } else {
-                writer.write(String.format("*** Found %s update log(s)", updateIds.size()));
-            }
+            public void write(OutputStream output) throws IOException, WebApplicationException {
+                try {
+                    final Writer writer = new BufferedWriter(new OutputStreamWriter(output, Charsets.UTF_8));
+                    if (updateIds.size() > streamResultsLimit) {
+                        writer.write(String.format("!!! Found %s update logs, limiting to %s", updateIds.size(), streamResultsLimit));
+                    } else {
+                        writer.write(String.format("*** Found %s update log(s)", updateIds.size()));
+                    }
 
-            int count = 1;
-            for (final Update updateId : updateIds) {
-                writer.write(String.format("\n\n*** %03d ***\n\n%s %s\n\n", count, updateId.getHost(), updateId.getId()));
+                    int count = 1;
+                    for (final Update updateId : updateIds) {
+                        writer.write(String.format("\n\n*** %03d ***\n\n%s %s\n\n", count, updateId.getHost(), updateId.getId()));
+                        final String path = updateId.getPath();
+                        logFileSearch.writeLoggedUpdates(LoggedUpdateId.parse(updateId.getId(), path), writer);
 
-                logFileSearch.writeLoggedUpdates(LoggedUpdateId.parse(updateId.getId()), writer);
-
-                writer.flush();
-                if (++count > streamResultsLimit) {
-                    break;
+                        writer.flush();
+                        if (++count > streamResultsLimit) {
+                            break;
+                        }
+                    }
+                } catch (IOException e) {
+                    LOGGER.error(e.getMessage(), e);
+                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+                } catch (RuntimeException e) {
+                    LOGGER.error(e.getMessage(), e);
+                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
                 }
             }
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-        } catch (RuntimeException e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-        }
-    }
         }).build();
     }
 
@@ -124,31 +117,6 @@ public class LogSearchService {
             @DefaultValue("") @QueryParam("fromdate") final String fromDate,
             @DefaultValue("") @QueryParam("todate") final String toDate) throws IOException {
 
-        return getCurrentUpdateIds(search, fromDate, toDate);
-    }
-
-    private String remoteError(final String msg, final Exception e) {
-        LOGGER.error("Remote error", e);
-        return String.format("%s FAILED: %s", msg, e.getMessage());
-    }
-
-    /**
-     * Search for updates on the local machine based on query string
-     *
-     * @param fromDate   date the updates was handled or lower part of a date range
-     * @param toDate   upper part of a date range
-     * @param search The search query
-     * @return List of updateIds matching search query
-     */
-    @GET
-    @Path("/current")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Update.class)
-    public List<Update> getCurrentUpdateIds(
-            @QueryParam("search") final String search,
-            @DefaultValue("") @QueryParam("fromdate") final String fromDate,
-            @DefaultValue("") @QueryParam("todate") final String toDate) throws IOException {
-
         try {
             final LocalDate localDateFrom = StringUtils.isEmpty(fromDate) ? null : DATE_FORMAT.parseLocalDate(fromDate);
             final LocalDate localDateTo = StringUtils.isEmpty(toDate) ? null : DATE_FORMAT.parseLocalDate(toDate);
@@ -156,7 +124,7 @@ public class LogSearchService {
             final Set<LoggedUpdateId> updateIds = logFileSearch.searchLoggedUpdateIds(search, localDateFrom, localDateTo);
             final List<Update> result = Lists.newArrayListWithExpectedSize(updateIds.size());
             for (final LoggedUpdateId updateId : updateIds) {
-                result.add(new Update(host.name(), updateId.toString()));
+                result.add(new Update(host.name(), updateId.toString(), updateId.getFullPathToLogFolder()));
             }
 
             return result;

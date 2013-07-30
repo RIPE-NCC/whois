@@ -11,13 +11,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Update {
     private String host;
     private String id;
+    private String path;
 
-    public Update() {
-    }
-
-    public Update(final String host, final String id) {
+    public Update(final String host, final String id, final String path) {
         this.host = host;
         this.id = id;
+        this.path = path;
+    }
+
+    public Update() {
+        //necessary no-arg constructor
     }
 
     /**
@@ -44,8 +47,17 @@ public class Update {
         this.id = id;
     }
 
+    @XmlElement(required = false)
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     @Override
     public String toString() {
-        return String.format("Update{host='%s' , id='%s'}", host, id);
+        return String.format("Update{host='%s' , id='%s', path='%s'}", host, id, path);
     }
 }

@@ -184,8 +184,6 @@ public class LogFileIndex extends RebuildableIndex {
     }
 
     private void addLoggedUpdate(final LoggedUpdateInfo loggedUpdateInfo, final String contents, final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-        LOGGER.debug("Indexing {}", loggedUpdateInfo);
-
         final Document document = new Document();
         final LoggedUpdateId loggedUpdateId = loggedUpdateInfo.getLoggedUpdateId();
         final String date = loggedUpdateId.getDailyLogFolder();
@@ -240,7 +238,7 @@ public class LogFileIndex extends RebuildableIndex {
                 final Set<LoggedUpdateId> updateIds = Sets.newLinkedHashSetWithExpectedSize(scoreDocs.length);
                 for (final ScoreDoc scoreDoc : scoreDocs) {
                     final Document doc = indexSearcher.doc(scoreDoc.doc);
-                    updateIds.add(LoggedUpdateId.parse(doc.getField("updateId").stringValue()));
+                    updateIds.add(LoggedUpdateId.parse(doc.getField("updateId").stringValue(), doc.getField("filepath").stringValue()));
                 }
 
                 return updateIds;

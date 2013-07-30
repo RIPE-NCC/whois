@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -104,4 +105,12 @@ public class DailyLogFolderTest {
     private static File getLogFolder(final String path) throws IOException {
         return new ClassPathResource(path).getFile();
     }
+
+
+    @Test
+    public void pathtest() throws IOException {
+        final File file = new File("/var/log/whois/dbc-whois1/audit/20130404/233220.E1UyTtu-0001df-Tq");
+        System.out.println(Pattern.compile("(\\d{6})\\..*").matcher(file.getName()).matches());
+    }
+
 }
