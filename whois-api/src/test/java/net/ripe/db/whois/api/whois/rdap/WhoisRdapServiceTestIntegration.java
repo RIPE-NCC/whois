@@ -11,7 +11,6 @@ import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
-import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -158,7 +157,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Override
     public void setUpClient() throws Exception {
         ClientConfig cc = new DefaultClientConfig();
-        cc.getSingletons().add(new JacksonJaxbJsonProvider());
+        cc.getSingletons().add(new RdapJsonProvider());
         client = Client.create(cc);
     }
 
@@ -683,7 +682,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .accept("application/json")
                 .get(ClientResponse.class);
 
-        //assertThat(response.getType(), is(new MediaType("application", "rdap+json")));        // TODO: [ES] must return this media type
+        assertThat(response.getType(), is(new MediaType("application", "rdap+json")));
         final String entity = response.getEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS123\""));
         assertThat(entity, containsString("\"rdapConformance\" : [ \"rdap_level_0\" ]"));

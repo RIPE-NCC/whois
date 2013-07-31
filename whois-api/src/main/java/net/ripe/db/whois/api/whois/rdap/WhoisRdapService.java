@@ -17,7 +17,6 @@ import net.ripe.db.whois.common.domain.attrs.Domain;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.handler.QueryHandler;
@@ -65,7 +64,6 @@ public class WhoisRdapService {
     private static final String CONTENT_TYPE_RDAP_JSON = "application/rdap+json";
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 
-    private final SourceContext sourceContext;
     private final QueryHandler queryHandler;
     private final RpslObjectDao objectDao;
     private final AbuseCFinder abuseCFinder;
@@ -74,15 +72,13 @@ public class WhoisRdapService {
     private final String baseUrl;
 
     @Autowired
-    public WhoisRdapService(final SourceContext sourceContext,
-                            final QueryHandler queryHandler,
+    public WhoisRdapService(final QueryHandler queryHandler,
                             final RpslObjectDao objectDao,
                             final AbuseCFinder abuseCFinder,
                             final NoticeFactory noticeFactory,
                             final DelegatedStatsService delegatedStatsService,
                             @Value("${rdap.port43:}") final String port43,
                             @Value("${rdap.public.baseUrl:}") final String baseUrl) {
-        this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
         this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
@@ -324,6 +320,7 @@ public class WhoisRdapService {
                             resultObject,
                             objectDao.getLastUpdated(resultObject.getObjectId()),
                             getAbuseContacts(resultObject)))
+                    .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
                     .build();
 
         } catch (final QueryException e) {

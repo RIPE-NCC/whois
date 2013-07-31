@@ -21,7 +21,7 @@ public abstract class AbstractRestClientTest extends AbstractIntegrationTest {
     @Before
     public void setUpClient() throws Exception {
         ClientConfig cc = new DefaultClientConfig();
-        cc.getClasses().add(JacksonJaxbJsonProvider.class);             // TODO: extend provider to support application/rdap+json
+        cc.getClasses().add(JacksonJaxbJsonProvider.class);
         client = Client.create(cc);
     }
 
