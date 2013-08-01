@@ -114,8 +114,8 @@ public class LogSearchService {
     @TypeHint(Update.class)
     public List<Update> getUpdateIds(
             @QueryParam("search") final String search,
-            @DefaultValue("") @QueryParam("fromdate") final String fromDate,
-            @DefaultValue("") @QueryParam("todate") final String toDate) throws IOException {
+            @DefaultValue("") @QueryParam("todate") final String toDate,
+            @DefaultValue("") @QueryParam("fromdate") final String fromDate) throws IOException {
 
         try {
             final LocalDate localDateFrom = StringUtils.isEmpty(fromDate) ? null : DATE_FORMAT.parseLocalDate(fromDate);
