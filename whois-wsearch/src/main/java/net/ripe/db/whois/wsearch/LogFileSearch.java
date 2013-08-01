@@ -35,38 +35,38 @@ public class LogFileSearch {
     public void writeLoggedUpdates(final LoggedUpdateId loggedUpdateId, final Writer writer) throws IOException {
         final String fullPathToLogFolder = loggedUpdateId.getFullPathToLogFolder();
         final DailyLogFolder dailyLogFolder = fullPathToLogFolder == null ? new DailyLogFolder(new File(logDir, loggedUpdateId.getDailyLogFolder())) : new DailyLogFolder(loggedUpdateId);
-                dailyLogFolder.processLoggedFiles(new DailyLogFolder.LoggedFilesProcessor() {
-                    @Override
-                    public boolean accept(final LoggedUpdateInfo loggedUpdateInfo) {
-                        return loggedUpdateInfo.getLoggedUpdateId().equals(loggedUpdateId) && !loggedUpdateInfo.getType().equals(LoggedUpdateInfo.Type.AUDIT);
-                    }
+        dailyLogFolder.processLoggedFiles(new DailyLogFolder.LoggedFilesProcessor() {
+            @Override
+            public boolean accept(final LoggedUpdateInfo loggedUpdateInfo) {
+                return loggedUpdateInfo.getLoggedUpdateId().equals(loggedUpdateId) && !loggedUpdateInfo.getType().equals(LoggedUpdateInfo.Type.AUDIT);
+            }
 
-                    @Override
-                    public void process(final LoggedUpdateInfo loggedUpdateInfo, final String contents) {
-                        final String filteredContents = filterContents(loggedUpdateInfo, contents);
+            @Override
+            public void process(final LoggedUpdateInfo loggedUpdateInfo, final String contents) {
+                final String filteredContents = filterContents(loggedUpdateInfo, contents);
 
-                        try {
-                            final String box = StringUtils.repeat("#", 115);
+                try {
+                    final String box = StringUtils.repeat("#", 115);
 
-                            writer.write(box);
-                            writer.write("\n");
-                            writer.write(format("date", loggedUpdateInfo.getLoggedUpdateId().getDailyLogFolder()));
-                            writer.write(format("folder", loggedUpdateInfo.getLoggedUpdateId().getUpdateFolder()));
-                            writer.write(format("type", loggedUpdateInfo.getType().name()));
-                            writer.write(format("filename", loggedUpdateInfo.getFilename()));
-                            writer.write(box);
-                            writer.write("\n\n");
-                            writer.write(filteredContents);
-                            writer.write("\n\n");
-                        } catch (IOException e) {
-                            throw new IllegalStateException("Writing contents", e);
-                        }
-                    }
+                    writer.write(box);
+                    writer.write("\n");
+                    writer.write(format("date", loggedUpdateInfo.getLoggedUpdateId().getDailyLogFolder()));
+                    writer.write(format("folder", loggedUpdateInfo.getLoggedUpdateId().getUpdateFolder()));
+                    writer.write(format("type", loggedUpdateInfo.getType().name()));
+                    writer.write(format("filename", loggedUpdateInfo.getFilename()));
+                    writer.write(box);
+                    writer.write("\n\n");
+                    writer.write(filteredContents);
+                    writer.write("\n\n");
+                } catch (IOException e) {
+                    throw new IllegalStateException("Writing contents", e);
+                }
+            }
 
-                    private String format(final String key, final String value) throws IOException {
-                        return String.format("# %-9s: %-100s #\n", key, value);
-                    }
-                });
+            private String format(final String key, final String value) throws IOException {
+                return String.format("# %-9s: %-100s #\n", key, value);
+            }
+        });
     }
 
     private String filterContents(final LoggedUpdateInfo loggedUpdateInfo, final String contents) {
