@@ -2,15 +2,11 @@ package net.ripe.db.whois.wsearch;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.common.domain.Hosts;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.codehaus.enunciate.jaxrs.TypeHint;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
-import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -39,11 +35,8 @@ public class LogSearchService {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
 
-    private static final int CLUSTER_TIMEOUT = 10000;
-
     private final Hosts host = Hosts.getLocalHost();
     private final LogFileSearch logFileSearch;
-    private final Client client;
     private final int streamResultsLimit;
 
     @Autowired
@@ -52,15 +45,10 @@ public class LogSearchService {
             @Value("${wsearch.result.limit}") final int streamResultLimit) {
         this.logFileSearch = logFileSearch;
         this.streamResultsLimit = streamResultLimit;
-
-        final ClientConfig cc = new DefaultClientConfig();
-        cc.getClasses().add(JacksonJaxbJsonProvider.class);
-        client = Client.create(cc);
-        client.setConnectTimeout(CLUSTER_TIMEOUT);
-        client.setReadTimeout(CLUSTER_TIMEOUT);
     }
 
     @GET
+    @Produces(MediaType.TEXT_PLAIN)
     public Response getUpdates(
             @QueryParam("search") final String search,
             @DefaultValue("") @QueryParam("todate") final String toDate,
