@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -80,14 +79,6 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
         assertThat(getUpdates("quick"), containsString("the quick brown fox"));
     }
 
-    @Test
-    public void realisticPathTest() throws Exception {
-        createLogFileNew("the quick brown fox");
-        logFileIndex.update();
-
-        assertThat(getUpdates("quick"), containsString("the quick brown fox"));
-    }
-
     @Ignore("TODO: [ES] fix")
     @Test
     public void single_term_inetnum_with_prefix_length() throws Exception {
@@ -126,43 +117,43 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
     @Test
     public void search_multiple_terms_in_failed_update() throws Exception {
         createLogFile(
-            "SUMMARY OF UPDATE:\n"+
-            "\n"+
-            "Number of objects found:                   1\n"+
-            "Number of objects processed successfully:  0\n"+
-            " Create:         0\n"+
-            " Modify:         0\n"+
-            " Delete:         0\n"+
-            " No Operation:   0\n"+
-            "Number of objects processed with errors:   1\n"+
-            " Create:         1\n"+
-            " Modify:         0\n"+
-            " Delete:         0\n"+
-            "\n"+
-            "DETAILED EXPLANATION:\n"+
-            "\n"+
-            "\n"+
-            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"+
-            "The following object(s) were found to have ERRORS:\n"+
-            "\n"+
-            "---\n"+
-            "Create FAILED: [person] FP1-TEST   First Person\n"+
-            "\n"+
-            "person:         First Person\n"+
-            "address:        St James Street\n"+
-            "address:        Burnley\n"+
-            "address:        UK\n"+
-            "phone:          +44 282 420469\n"+
-            "nic-hdl:        FP1-TEST\n"+
-            "mnt-by:         OWNER-MNT\n"+
-            "changed:        user@ripe.net\n"+
-            "source:         TEST\n"+
-            "\n"+
-            "***Error:   Authorisation for [person] FP1-TEST failed\n"+
-            "           using \"mnt-by:\"\n"+
-            "           not authenticated by: OWNER-MNT\n"+
-            "\n\n\n"+
-            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+                "SUMMARY OF UPDATE:\n" +
+                        "\n" +
+                        "Number of objects found:                   1\n" +
+                        "Number of objects processed successfully:  0\n" +
+                        " Create:         0\n" +
+                        " Modify:         0\n" +
+                        " Delete:         0\n" +
+                        " No Operation:   0\n" +
+                        "Number of objects processed with errors:   1\n" +
+                        " Create:         1\n" +
+                        " Modify:         0\n" +
+                        " Delete:         0\n" +
+                        "\n" +
+                        "DETAILED EXPLANATION:\n" +
+                        "\n" +
+                        "\n" +
+                        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
+                        "The following object(s) were found to have ERRORS:\n" +
+                        "\n" +
+                        "---\n" +
+                        "Create FAILED: [person] FP1-TEST   First Person\n" +
+                        "\n" +
+                        "person:         First Person\n" +
+                        "address:        St James Street\n" +
+                        "address:        Burnley\n" +
+                        "address:        UK\n" +
+                        "phone:          +44 282 420469\n" +
+                        "nic-hdl:        FP1-TEST\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "changed:        user@ripe.net\n" +
+                        "source:         TEST\n" +
+                        "\n" +
+                        "***Error:   Authorisation for [person] FP1-TEST failed\n" +
+                        "           using \"mnt-by:\"\n" +
+                        "           not authenticated by: OWNER-MNT\n" +
+                        "\n\n\n" +
+                        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
         final String response = getUpdates("FAILED: mnt-by: OWNER-MNT");
 
@@ -170,20 +161,54 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
     }
 
     @Test
-    public void search_date_range() throws IOException {
-        createLogFile("mntner: TEST-MNT");
+    public void search_date_range() throws IOException, InterruptedException {
+        createLogFileAtDate("mntner: TEST-MNT", "20130505");
+        createLogFileAtDate("mntner: UPD-MNT", "20130507");
+        createLogFileAtDate("mntner: OTHER-MNT", "20130508");
 
         String response = client
                 .resource(String.format(
-                        "http://localhost:%s/api/logs?search=%s&fromdate=%s&todate=%s&apiKey=%s",
+                        "http://localhost:%s/api/logs?search=%s&fromdate=20130506&todate=20130509&apiKey=%s",
                         wSearchJettyConfig.getPort(),
-                        URLEncoder.encode("TEST-MNT", "ISO-8859-1"),
-                        getDate(),
-                        getDate(),
+                        URLEncoder.encode("mntner", "ISO-8859-1"),
                         apiKey))
                 .get(String.class);
 
-        assertThat(response, containsString("TEST-MNT"));
+        assertThat(response, containsString("UPD-MNT"));
+        assertThat(response, containsString("OTHER-MNT"));
+        assertThat(response, not(containsString("TEST-MNT")));
+    }
+
+    @Test
+    public void search_date_range_dates_turnedaround() throws IOException {
+        createLogFileAtDate("mntner: TEST-MNT", "20130505");
+        createLogFileAtDate("mntner: UPD-MNT", "20130507");
+        createLogFileAtDate("mntner: OTHER-MNT", "20130508");
+
+        String response = client
+                .resource(String.format(
+                        "http://localhost:%s/api/logs?search=%s&fromdate=20130509&todate=20130506&apiKey=%s",
+                        wSearchJettyConfig.getPort(),
+                        URLEncoder.encode("mntner", "ISO-8859-1"),
+                        apiKey))
+                .get(String.class);
+
+        assertThat(response, isEmptyOrNullString());
+    }
+
+    @Test
+    public void search_on_date_that_does_not_exist() throws IOException {
+        createLogFileAtDate("mntner: UPD-MNT", "20130507");
+        createLogFileAtDate("mntner: OTHER-MNT", "20130508");
+
+        String response = client
+                .resource(String.format(
+                        "http://localhost:%s/api/logs?search=%s&fromdate=20130506&todate=&apiKey=%s",
+                        wSearchJettyConfig.getPort(),
+                        URLEncoder.encode("mntner", "ISO-8859-1"),
+                        apiKey))
+                .get(String.class);
+        assertThat(response, isEmptyOrNullString());
     }
 
     @Test
@@ -279,11 +304,11 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
 
     // helper methods
 
-    private void createLogFile(final String data) throws IOException {
+    private void createLogFileAtDate(final String data, final String date) throws IOException {
         final StringBuilder builder = new StringBuilder();
         builder.append(logDir)
-                .append('/')
-                .append(getDate())
+                .append("/whois2/audit/")
+                .append(date)
                 .append('/')
                 .append(getTime())
                 .append('.')
@@ -308,33 +333,8 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
         logFileIndex.update();
     }
 
-    private void createLogFileNew(final String data) throws IOException {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(logDir)
-                .append("/whois2/audit/")
-                .append(getDate())
-                .append('/')
-                .append(getTime())
-                .append('.')
-                .append(Math.random());
-
-        final File fullDir = new File(builder.toString());
-        fullDir.mkdirs();
-
-        logFile = new File(fullDir, INPUT_FILE_NAME);
-        final FileOutputStream fileOutputStream = new FileOutputStream(logFile);
-
-        BufferedWriter writer = null;
-        try {
-            writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(fileOutputStream), Charsets.ISO_8859_1));
-            writer.write(data);
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
-        }
-
-        logFileIndex.update();
+    private void createLogFile(final String data) throws IOException {
+        createLogFileAtDate(data, getDate());
     }
 
     private String getLogDirName() throws IOException {
