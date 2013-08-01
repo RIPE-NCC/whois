@@ -378,9 +378,7 @@ class MembershipSpec extends BaseSpec {
         dbfixture(getTransient("ASN352"))
 
       expect:
-        queryObject("-r -T as-set AS-TEST", "as-set", "AS-TEST")
         query_object_matches("-r -T as-set AS-TEST", "as-set", "AS-TEST", "mbrs-by-ref:\\s*LIR-MNT")
-        queryObject("-rBT aut-num AS352", "aut-num", "AS352")
         query_object_matches("-rBT aut-num AS352", "aut-num", "AS352", "mnt-by:\\s*LIR-MNT")
         query_object_matches("-rBT aut-num AS352", "aut-num", "AS352", "member-of:\\s*AS-TEST")
 
@@ -760,7 +758,6 @@ class MembershipSpec extends BaseSpec {
 
       expect:
         queryObject("-rBT mntner REF-MNT", "mntner", "REF-MNT")
-        queryObject("-r -T as-set AS-TEST", "as-set", "AS-TEST")
         query_object_matches("-r -T as-set AS-TEST", "as-set", "AS-TEST", "mbrs-by-ref:\\s*REF-MNT")
 
       when:
@@ -804,9 +801,7 @@ class MembershipSpec extends BaseSpec {
         dbfixture(getTransient("ASN352"))
 
       expect:
-        queryObject("-r -T as-set AS-TEST", "as-set", "AS-TEST")
         query_object_matches("-r -T as-set AS-TEST", "as-set", "AS-TEST", "mbrs-by-ref:\\s*LIR-MNT")
-        queryObject("-rBT aut-num AS352", "aut-num", "AS352")
         query_object_matches("-rBT aut-num AS352", "aut-num", "AS352", "member-of:\\s*AS-TEST")
 
       when:
