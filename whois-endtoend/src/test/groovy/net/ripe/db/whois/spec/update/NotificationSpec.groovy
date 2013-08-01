@@ -185,8 +185,23 @@ class NotificationSpec extends BaseSpec {
                 mnt-by:       TST-MNT3
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                """
-    ]}
+                """,
+            "ASSPI": """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                notify:       dbtest@ripe.net
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+        ]
+    }
 
     def "add notify to object"() {
       given:
@@ -1160,6 +1175,63 @@ class NotificationSpec extends BaseSpec {
         noMoreMessages()
 
         query_object_matches("-r -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255","mnt-irt:        irt-test-notify")
+    }
+
+    def "modify inetnum, add remarks:"() {
+        given:
+        syncUpdate(getTransient("ASSPI") + "override: override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                notify:       dbtest@ripe.net
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       lir-MNT
+                changed:      dbtest@ripe.net 20020101
+                remarks:      just added
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        def notif = notificationFor "dbtest@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.modified.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+        notif.contents =~ /(?ms)OBJECT BELOW MODIFIED:\n\n@@.+@@.*?-mnt-by:\s*LIR-MNT\n\+mnt-by:\s*lir-MNT.+?THIS IS THE NEW VERSION OF THE OBJECT:\n*inetnum:\s*192.168.200.0 - 192.168.200.255.+?The old object can be seen in the history using the query options/
+
+        def notif2 = notificationFor "mntnfy_lir@ripe.net"
+        notif2.subject =~ "Notification of RIPE Database changes"
+        notif2.modified.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+
+        def notif3 = notificationFor "mntnfy_hm@ripe.net"
+        notif3.subject =~ "Notification of RIPE Database changes"
+        notif3.modified.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+
+        noMoreMessages()
+
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "just added")
     }
 
 }
