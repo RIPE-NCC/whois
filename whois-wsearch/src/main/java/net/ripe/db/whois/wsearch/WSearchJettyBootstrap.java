@@ -14,7 +14,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,14 +59,11 @@ public class WSearchJettyBootstrap implements ApplicationService {
 
     @Override
     public void start() {
-        final WebAppContext context = new WebAppContext();
-        context.setContextPath("/");
-        context.setResourceBase("src/main/webapp");
-        context.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
-        context.addFilter(new FilterHolder(apiKeyFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
-
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
         servletContextHandler.setContextPath("/");
+        servletContextHandler.setResourceBase("src/main/webapp");
+        servletContextHandler.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
+        servletContextHandler.addFilter(new FilterHolder(apiKeyFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
         servletContextHandler.addServlet(new ServletHolder(wsearchServlet), "/wsearch/*");
         servletContextHandler.addServlet(new ServletHolder("WSEARCH API", new ServletContainer(new Application() {
             @Override

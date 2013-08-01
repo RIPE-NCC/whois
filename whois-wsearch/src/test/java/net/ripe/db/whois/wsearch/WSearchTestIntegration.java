@@ -5,6 +5,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.joda.time.DateTime;
@@ -18,6 +19,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
+import javax.ws.rs.core.MediaType;
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.List;
@@ -235,8 +237,8 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
 
         final String response = getUpdateIds("TEST-MNT", getDate());
 
-        assertThat(response, containsString("\"host\":"));
-        assertThat(response, containsString("\"id\":"));
+        assertThat(response, containsString("\"host\" :"));
+        assertThat(response, containsString("\"id\" :"));
     }
 
     @Test
@@ -267,6 +269,51 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
 
         assertThat(response, containsString("\"host\":"));
         assertThat(response, containsString("\"id\":"));
+    }
+
+    @Test
+    public void search_wrong_api_key() throws IOException {
+        createLogFileAtDate("mntner: OTHER-MNT", "20130508");
+
+        try {
+            client.resource(String.format(
+                    "http://localhost:%s/api/logs?search=%s&fromdate=20130508&todate=&apiKey=WRONG",
+                    wSearchJettyConfig.getPort(),
+                    URLEncoder.encode("mntner", "ISO-8859-1")))
+                    .get(String.class);
+        } catch (final UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(403));
+        }
+    }
+
+    @Test
+    //TODO [AS] seems there's a mapping for <updates> missing...
+    public void search_ids_xml() throws IOException {
+        createLogFileAtDate("mntner: OTHER-MNT", "20130707");
+
+        final String updates = client
+                .resource(String.format("http://localhost:%s/api/logs/ids?search=%s&fromdate=20130707&todate=&apiKey=%s",
+                        wSearchJettyConfig.getPort(),
+                        URLEncoder.encode("OTHER-MNT", "ISO-8859-1"),
+                        apiKey))
+                .accept(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        assertThat(updates, containsString("<updates><update><host>UNDEFINED</host><id>20130707/"));
+    }
+
+    @Test
+    public void search_ids_json() throws Exception {
+        createLogFileAtDate("MIGHTY FINE LOGFILE", "20130808");
+        final String updates = client
+                .resource(String.format("http://localhost:%s/api/logs/ids?search=%s&fromdate=20130808&todate=&apiKey=%s",
+                        wSearchJettyConfig.getPort(),
+                        URLEncoder.encode("LOGFILE", "ISO-8859-1"),
+                        apiKey))
+                .accept(MediaType.APPLICATION_JSON)
+                .get(String.class);
+
+        assertThat(updates, containsString("{\"update\":{\"host\":\"UNDEFINED\",\"id\":\"20130808"));
     }
 
     // API calls
