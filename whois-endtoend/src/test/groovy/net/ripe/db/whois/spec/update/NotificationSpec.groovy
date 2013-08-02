@@ -1,6 +1,7 @@
 package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.spec.BaseSpec
+import spec.domain.AckResponse
 import spec.domain.Message
 
 class NotificationSpec extends BaseSpec {
@@ -1224,14 +1225,228 @@ class NotificationSpec extends BaseSpec {
         def notif2 = notificationFor "mntnfy_lir@ripe.net"
         notif2.subject =~ "Notification of RIPE Database changes"
         notif2.modified.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+        notif.contents =~ /(?ms)OBJECT BELOW MODIFIED:\n\n@@.+@@.*?-mnt-by:\s*LIR-MNT\n\+mnt-by:\s*lir-MNT.+?THIS IS THE NEW VERSION OF THE OBJECT:\n*inetnum:\s*192.168.200.0 - 192.168.200.255.+?The old object can be seen in the history using the query options/
 
         def notif3 = notificationFor "mntnfy_hm@ripe.net"
         notif3.subject =~ "Notification of RIPE Database changes"
         notif3.modified.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+        notif.contents =~ /(?ms)OBJECT BELOW MODIFIED:\n\n@@.+@@.*?-mnt-by:\s*LIR-MNT\n\+mnt-by:\s*lir-MNT.+?THIS IS THE NEW VERSION OF THE OBJECT:\n*inetnum:\s*192.168.200.0 - 192.168.200.255.+?The old object can be seen in the history using the query options/
 
         noMoreMessages()
 
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "just added")
+    }
+
+    def "modify inetnum, add remarks: with syntax error, no notifs sent"() {
+        given:
+        syncUpdate(getTransient("ASSPI") + "override: override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                notify:       dbtest@ripe.net
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       lir-MNT
+                changed:      dbtest@ripe.net 20020101
+                remarks      just added
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        noMoreMessages()
+
+        query_object_not_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "just added")
+    }
+
+    def "create inetnum"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                notify:       dbtest@ripe.net
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       lir-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                password: hm
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        def notif = notificationFor "dbtest@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.created.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+        !(notif.contents =~ /(?ms)@@.+@@/)
+        notif.contents =~ /(?ms)OBJECT BELOW CREATED:\n\ninetnum:\s*192.168.200.0 - 192.168.200.255/
+
+        def notif2 = notificationFor "mntnfy_lir@ripe.net"
+        notif2.subject =~ "Notification of RIPE Database changes"
+        notif2.created.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+        !(notif.contents =~ /(?ms)@@.+@@/)
+        notif.contents =~ /(?ms)OBJECT BELOW CREATED:\n\ninetnum:\s*192.168.200.0 - 192.168.200.255/
+
+        def notif3 = notificationFor "mntnfy_hm@ripe.net"
+        notif3.subject =~ "Notification of RIPE Database changes"
+        notif3.created.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+        !(notif.contents =~ /(?ms)@@.+@@/)
+        notif.contents =~ /(?ms)OBJECT BELOW CREATED:\n\ninetnum:\s*192.168.200.0 - 192.168.200.255/
+
+        noMoreMessages()
+
+        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "delete inetnum"() {
+        given:
+        syncUpdate(getTransient("ASSPI") + "override: override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                notify:       dbtest@ripe.net
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                delete:   testing notifications
+                password: hm
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        def notif = notificationFor "dbtest@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.deleted.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+        !(notif.contents =~ /(?ms)@@.+@@/)
+        notif.contents =~ /(?ms)OBJECT BELOW DELETED:\n\ninetnum:\s*192.168.200.0 - 192.168.200.255/
+
+        def notif2 = notificationFor "mntnfy_lir@ripe.net"
+        notif2.subject =~ "Notification of RIPE Database changes"
+        notif2.deleted.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+        !(notif.contents =~ /(?ms)@@.+@@/)
+        notif.contents =~ /(?ms)OBJECT BELOW DELETED:\n\ninetnum:\s*192.168.200.0 - 192.168.200.255/
+
+        def notif3 = notificationFor "mntnfy_hm@ripe.net"
+        notif3.subject =~ "Notification of RIPE Database changes"
+        notif3.deleted.any { it.type == "inetnum" && it.key == "192.168.200.0 - 192.168.200.255" }
+        !(notif.contents =~ /(?ms)@@.+@@/)
+        notif.contents =~ /(?ms)OBJECT BELOW DELETED:\n\ninetnum:\s*192.168.200.0 - 192.168.200.255/
+
+        noMoreMessages()
+
+        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "create object with syncupdate, fail auth error"() {
+        given:
+        def mnt = object(getTransient("CREATE-MNT"))
+
+        expect:
+        queryNothing("-rBGT mntner CREATE-MNT")
+
+        when:
+        def message = syncUpdate("""\
+                mntner:      CREATE-MNT
+                descr:       to be created
+                admin-c:     TP1-TEST
+                upd-to:      updto_create@ripe.net
+                mnt-nfy:     mntnfy_create@ripe.net
+                notify:      notify_create@ripe.net
+                auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
+                mnt-by:      OWNER-MNT
+                referral-by: CREATE-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
+                password: null
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.errors.any {it.operation == "Create" && it.key == "[mntner] CREATE-MNT"}
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Create", "[mntner] CREATE-MNT") ==
+                ["Authorisation for [mntner] CREATE-MNT failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
+
+        def notif = notificationFor "updto_owner@ripe.net"
+        notif.subject =~ "RIPE Database updates, auth error notification"
+        notif.authFailed("CREATE", "mntner", "CREATE-MNT")
+
+        noMoreMessages()
+
+        queryNothing("-rBGT mntner CREATE-MNT")
     }
 
 }
