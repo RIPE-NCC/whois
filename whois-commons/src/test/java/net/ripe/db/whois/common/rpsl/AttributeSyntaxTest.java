@@ -8,6 +8,12 @@ import static org.junit.Assert.assertThat;
 public class AttributeSyntaxTest {
 
     @Test
+    public void adminc() {
+        verifySuccess(ObjectType.AS_SET, AttributeType.ADMIN_C, "HIA1-AFRINIC");
+        verifySuccess(ObjectType.AS_SET, AttributeType.ADMIN_C, "HIA1-ARIN");
+    }
+
+    @Test
     public void alias() {
         verifySuccess(ObjectType.INET_RTR, AttributeType.ALIAS, "Moscow-BNS003-Gig0-1-707.free.net");
         verifySuccess(ObjectType.INET_RTR, AttributeType.ALIAS, "RIPE-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test.net");
@@ -1201,6 +1207,12 @@ public class AttributeSyntaxTest {
         }
 
         verifySuccess(ObjectType.POEM, AttributeType.TEXT, builder.toString());
+    }
+
+    @Test
+    public void techc() {
+        verifySuccess(ObjectType.AS_SET, AttributeType.TECH_C, "HIA1-AFRINIC");
+        verifySuccess(ObjectType.AS_SET, AttributeType.TECH_C, "HIA1-ARIN");
     }
 
     private void verifySuccess(final ObjectType objectType, final AttributeType attributeType, final String value) {
