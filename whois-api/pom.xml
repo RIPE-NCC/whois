@@ -32,33 +32,23 @@
         </dependency>
 
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-webapp</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-client</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.enunciate</groupId>
-            <artifactId>enunciate-core-annotations</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
         </dependency>
 
+        <!-- Jersey JAX-RS implementation -->
         <dependency>
-            <groupId>org.codehaus.enunciate</groupId>
-            <artifactId>enunciate-jersey-rt</artifactId>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
         </dependency>
 
         <!-- Lucene free text search -->
@@ -94,7 +84,6 @@
             <scope>test</scope>
         </dependency>
 
-
         <!-- testing -->
         <dependency>
             <groupId>net.ripe.db</groupId>
@@ -111,6 +100,21 @@
             <artifactId>whois-update</artifactId>
             <type>test-jar</type>
         </dependency>
+
+        <!-- enunciate to generate API docs -->
+        <dependency>
+            <groupId>org.codehaus.enunciate</groupId>
+            <artifactId>enunciate-core-annotations</artifactId>
+            <version>1.27</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.enunciate</groupId>
+            <artifactId>enunciate-jersey-rt</artifactId>
+            <version>1.27</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

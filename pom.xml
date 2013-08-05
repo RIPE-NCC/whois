@@ -342,7 +342,6 @@
 
 
             <!-- Jersey JAX-RS implementation -->
-
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet-core</artifactId>
@@ -352,18 +351,6 @@
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-client</artifactId>
                 <version>${jersey.version}</version>
-            </dependency>
-
-            <!-- enunciate to generate API docs -->
-            <dependency>
-                <groupId>org.codehaus.enunciate</groupId>
-                <artifactId>enunciate-core-annotations</artifactId>
-                <version>1.26.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.enunciate</groupId>
-                <artifactId>enunciate-jersey-rt</artifactId>
-                <version>1.26.2</version>
             </dependency>
 
             <!-- lucene for fulltext search -->
@@ -398,6 +385,7 @@
                 <version>${lucene.version}</version>
             </dependency>
 
+            <!-- diffutils -->
             <dependency>
                 <groupId>com.googlecode.java-diff-utils</groupId>
                 <artifactId>diffutils</artifactId>
