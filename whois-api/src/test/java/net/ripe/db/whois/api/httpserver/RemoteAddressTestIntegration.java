@@ -19,8 +19,9 @@ public class RemoteAddressTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void help_localhost() throws Exception {
-        final String index = client.resource(
+        final String index = client.target(
                 String.format("http://localhost:%s/whois/syncupdates/TEST?HELP=yes", getPort(AUDIENCE)))
+                .request()
                 .get(String.class);
 
         assertThat(index, containsString("From-Host: 127.0.0.1"));
@@ -28,8 +29,9 @@ public class RemoteAddressTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void help_forward_header() throws Exception {
-        final String index = client.resource(
+        final String index = client.target(
                 String.format("http://localhost:%s/whois/syncupdates/TEST?HELP=yes", getPort(AUDIENCE)))
+                .request()
                 .header(HttpHeaders.X_FORWARDED_FOR, "10.0.0.0")
                 .get(String.class);
 
@@ -40,8 +42,9 @@ public class RemoteAddressTestIntegration extends AbstractRestClientTest {
     public void help_forward_header_ripe() throws Exception {
         ipRanges.setTrusted("193/8");
 
-        final String index = client.resource(
+        final String index = client.target(
                 String.format("http://localhost:%s/whois/syncupdates/TEST?HELP=yes", getPort(AUDIENCE)))
+                .request()
                 .header(HttpHeaders.X_FORWARDED_FOR, "193.0.20.1")
                 .header(HttpHeaders.X_FORWARDED_FOR, "74.125.136.99")
                 .get(String.class);

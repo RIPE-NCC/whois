@@ -3,21 +3,29 @@ package net.ripe.db.whois.api.wsearch;
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.annotation.DirtiesContext;
 
-import java.io.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
@@ -53,7 +61,7 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
 
     @Before
     public void setup() {
-        client = Client.create(new DefaultClientConfig());
+        client = ClientBuilder.newBuilder().build();
     }
 
     @After
@@ -232,44 +240,51 @@ public class WSearchTestIntegration extends AbstractIntegrationTest {
 
     private String getUpdates(final String searchTerm) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), apiKey))
+                .target(String.format("http://localhost:%s/api/logs?search=%s&date=&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), apiKey))
+                .request()
                 .get(String.class);
     }
 
 
     private String getUpdateIds(final String searchTerm, final String date) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs/ids?search=%s&date=%s&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
+                .target(String.format("http://localhost:%s/api/logs/ids?search=%s&date=%s&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
+                .request()
                 .get(String.class);
     }
 
     private String getRemoteUpdateLogs(final String host, final String updateId) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs/%s/%s?apiKey=%s", getPort(Audience.INTERNAL), host, updateId, apiKey))
+                .target(String.format("http://localhost:%s/api/logs/%s/%s?apiKey=%s", getPort(Audience.INTERNAL), host, updateId, apiKey))
+                .request()
                 .get(String.class);
     }
 
     private String getRemoteUpdateLogs(final String host, final String updateId, final String date) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs/%s/%s/%s?apiKey=%s", getPort(Audience.INTERNAL), host, date, updateId, apiKey))
+                .target(String.format("http://localhost:%s/api/logs/%s/%s/%s?apiKey=%s", getPort(Audience.INTERNAL), host, date, updateId, apiKey))
+                .request()
                 .get(String.class);
     }
 
     private String getCurrentUpdateLogs(final String searchTerm, final String date) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs/current?search=%s&date=%s&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
+                .target(String.format("http://localhost:%s/api/logs/current?search=%s&date=%s&apiKey=%s", getPort(Audience.INTERNAL), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
+                .request()
                 .get(String.class);
     }
 
     private String getCurrentUpdateLogsForId(final String updateId) {
         return client
-                .resource(String.format("http://localhost:%s/api/logs/current/%s?apiKey=%s", getPort(Audience.INTERNAL), updateId, apiKey))
+                .target(String.format("http://localhost:%s/api/logs/current/%s?apiKey=%s", getPort(Audience.INTERNAL), updateId, apiKey))
+                .request()
                 .get(String.class);
     }
 
     private String getCurrentUpdateLogsForIdAndDate(final String updateId, final String date) {
         return client
-                .resource(String.format("http://localhost:%s/api/logs/current/%s/%s?apiKey=%s", getPort(Audience.INTERNAL), date, updateId, apiKey))
+                .target(String.format("http://localhost:%s/api/logs/current/%s/%s?apiKey=%s", getPort(Audience.INTERNAL), date, updateId, apiKey))
+                .request()
                 .get(String.class);
     }
 

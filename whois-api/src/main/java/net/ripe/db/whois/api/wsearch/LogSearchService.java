@@ -3,10 +3,6 @@ package net.ripe.db.whois.api.wsearch;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.GenericType;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.httpserver.JettyConfig;
 import net.ripe.db.whois.common.domain.Hosts;
@@ -24,13 +20,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -65,11 +78,12 @@ public class LogSearchService {
         this.logFileSearch = logFileSearch;
         this.apiKey = apiKey;
 
-        final ClientConfig cc = new DefaultClientConfig();
-        cc.getClasses().add(JacksonJaxbJsonProvider.class);
-        client = Client.create(cc);
-        client.setConnectTimeout(CLUSTER_TIMEOUT);
-        client.setReadTimeout(CLUSTER_TIMEOUT);
+        this.client = ClientBuilder.newBuilder()
+                .register(JacksonJaxbJsonProvider.class)
+                .build();
+
+//        client.setConnectTimeout(CLUSTER_TIMEOUT);            // TODO
+//        client.setReadTimeout(CLUSTER_TIMEOUT);
     }
 
     @GET
@@ -149,10 +163,12 @@ public class LogSearchService {
                     jettyConfig.getPort(Audience.INTERNAL),
                     URLEncoder.encode(search, "ISO-8859-1"),
                     date, apiKey);
-            final Future<List<Update>> future = client.asyncResource(url)
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
-                    .get(new GenericType<List<Update>>() {
-                    });
+
+            final Future<List<Update>> future = client
+                    .target(url)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .async()
+                    .get(new GenericType<List<Update>>() {});
 
             futures.put(clusterMember, future);
         }
@@ -237,7 +253,7 @@ public class LogSearchService {
                 apiKey);
 
         try {
-            final String response = client.resource(url).accept(MediaType.TEXT_PLAIN).get(String.class);
+            final String response = client.target(url).request(MediaType.TEXT_PLAIN).get(String.class);
             return response;
         } catch (RuntimeException e) {
             return remoteError(url, e);

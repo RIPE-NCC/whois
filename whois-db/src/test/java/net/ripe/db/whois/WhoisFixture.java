@@ -289,7 +289,7 @@ public class WhoisFixture {
     private static String doPostRequest(final String url, final String data, final int responseCode) throws IOException {
         Map<String, String> properties = Maps.newLinkedHashMap();
         properties.put(HttpHeaders.CONTENT_LENGTH, Integer.toString(data.length()));
-        properties.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED + "; charset=" + CHARSET);
+        properties.put(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
         return doPostRequest(url, data, properties, responseCode);
     }
 

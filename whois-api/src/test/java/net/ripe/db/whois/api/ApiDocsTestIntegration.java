@@ -13,7 +13,7 @@ import static org.junit.Assert.assertThat;
 public class ApiDocsTestIntegration extends AbstractRestClientTest {
     @Test
     public void checkInternalIndex() throws Exception {
-        final String index = createStaticResource(Audience.INTERNAL, "api-doc").get(String.class);
+        final String index = createStaticResource(Audience.INTERNAL, "api-doc").request().get(String.class);
 
         assertThat(index, containsString("<html"));
         assertThat(index, containsString("<title>RIPE WHOIS API</title>"));
@@ -25,7 +25,7 @@ public class ApiDocsTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void checkExternalIndex() throws Exception {
-        final String index = createStaticResource(Audience.PUBLIC, "api-doc").get(String.class);
+        final String index = createStaticResource(Audience.PUBLIC, "api-doc").request().get(String.class);
 
         assertThat(index, containsString("<html"));
         assertThat(index, containsString("<title>RIPE WHOIS API</title>"));

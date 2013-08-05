@@ -1,7 +1,5 @@
 package net.ripe.db.whois.api.whois;
 
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.common.IntegrationTest;
@@ -11,11 +9,11 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -59,7 +57,8 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         final String response = createResource("whois/geolocation?source=test&ipkey=10.0.0.0")
-                    .accept(MediaType.APPLICATION_XML)
+                    .request(MediaType.APPLICATION_XML)
+
                     .get(String.class);
 
         assertThat(response, containsString("service=\"geolocation-finder\""));
@@ -86,7 +85,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         final String response = createResource("whois/geolocation?source=test&ipkey=10.0.0.0")
-                    .accept(MediaType.APPLICATION_XML)
+                    .request(MediaType.APPLICATION_XML)
                     .get(String.class);
 
         assertThat(response, containsString("service=\"geolocation-finder\""));
@@ -114,7 +113,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         final String response = createResource("whois/geolocation?source=test&ipkey=10.0.0.0")
-                    .accept(MediaType.APPLICATION_JSON)
+                    .request(MediaType.APPLICATION_JSON)
                     .get(String.class);
 
         assertThat(response, containsString("\"whois-resources\""));
@@ -140,12 +139,11 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
 
         try {
             createResource("whois/geolocation?source=test&ipkey=10.0.0.0")
-                    .accept(MediaType.APPLICATION_XML)
+                    .request(MediaType.APPLICATION_XML)
                     .get(String.class);
             fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("No geolocation data was found for the given ipkey: 10.0.0.0"));
+        } catch (NotFoundException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("No geolocation data was found for the given ipkey: 10.0.0.0"));
         }
     }
 
@@ -153,12 +151,11 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
     public void inetnum_not_found() throws Exception {
         try {
             createResource("whois/geolocation?source=test&ipkey=127.0.0.1")
-                    .accept(MediaType.APPLICATION_XML)
+                    .request(MediaType.APPLICATION_XML)
                     .get(String.class);
             fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("No geolocation data was found for the given ipkey: 127.0.0.1"));
+        } catch (NotFoundException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("No geolocation data was found for the given ipkey: 127.0.0.1"));
         }
     }
 
@@ -191,7 +188,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         final String response = createResource("whois/geolocation?source=test&ipkey=10.0.0.0")
-                    .accept(MediaType.APPLICATION_XML)
+                    .request(MediaType.APPLICATION_XML)
                     .get(String.class);
 
         assertThat(response, containsString("service=\"geolocation-finder\""));
@@ -229,7 +226,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         final String response = createResource("whois/geolocation?source=test&ipkey=10.1.0.0%20-%2010.1.255.255")
-                    .accept(MediaType.APPLICATION_XML)
+                    .request(MediaType.APPLICATION_XML)
                     .get(String.class);
 
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
@@ -253,7 +250,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         final String response = createResource("whois/geolocation?source=test&ipkey=2001::/20")
-                    .accept(MediaType.APPLICATION_XML)
+                    .request(MediaType.APPLICATION_XML)
                     .get(String.class);
 
         assertThat(response, containsString("service=\"geolocation-finder\""));
@@ -268,16 +265,15 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
     public void invalid_inetnum_argument() throws Exception {
         try {
             createResource("whois/geolocation?source=test&ipkey=invalid")
-                    .accept(MediaType.APPLICATION_XML)
+                    .request(MediaType.APPLICATION_XML)
                     .get(String.class);
             fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("No inetnum/inet6num resource has been found"));
+        } catch (NotFoundException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("No inetnum/inet6num resource has been found"));
         }
     }
 
-    protected WebResource createResource(final String path) {
-        return client.resource(String.format("http://localhost:%s/%s", getPort(Audience.PUBLIC), path));
+    protected WebTarget createResource(final String path) {
+        return client.target(String.format("http://localhost:%s/%s", getPort(Audience.PUBLIC), path));
     }
 }

@@ -1,16 +1,16 @@
 package net.ripe.db.whois.api;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.httpserver.Audience;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+
 
 public abstract class AbstractRestClientTest extends AbstractIntegrationTest {
     protected Client client;
@@ -20,25 +20,25 @@ public abstract class AbstractRestClientTest extends AbstractIntegrationTest {
 
     @Before
     public void setUpClient() throws Exception {
-        ClientConfig cc = new DefaultClientConfig();
-        cc.getClasses().add(JacksonJaxbJsonProvider.class);
-        client = Client.create(cc);
+        this.client = ClientBuilder.newBuilder()
+                .register(JacksonJaxbJsonProvider.class)
+                .build();
     }
 
-    protected WebResource createStaticResource(final Audience audience, final String path) {
-        return client.resource(String.format("http://localhost:%s/%s", getPort(audience), path));
+    protected WebTarget createStaticResource(final Audience audience, final String path) {
+       return client.target(String.format("http://localhost:%s/%s", getPort(audience), path));
     }
 
-    protected WebResource createResource(final Audience audience, final String path) {
-        return client.resource(String.format("http://localhost:%s/%s?apiKey=%s", getPort(audience), path, apiKey));
+    protected WebTarget createResource(final Audience audience, final String path) {
+        return client.target(String.format("http://localhost:%s/%s?apiKey=%s", getPort(audience), path, apiKey));
     }
 
-    protected WebResource createResourceGet(final Audience audience, final String pathAndParams) {
-        return client.resource(String.format("http://localhost:%s/%s&apiKey=%s", getPort(audience), pathAndParams, apiKey));
+    protected WebTarget createResourceGet(final Audience audience, final String pathAndParams) {
+        return client.target(String.format("http://localhost:%s/%s&apiKey=%s", getPort(audience), pathAndParams, apiKey));
     }
 
-    protected WebResource createResource(final Audience audience, final String path, final String param) {
-        return client.resource(String.format("http://localhost:%s/%s/%s?apiKey=%s", getPort(audience), path, encode(param), apiKey));
+    protected WebTarget createResource(final Audience audience, final String path, final String param) {
+        return client.target(String.format("http://localhost:%s/%s/%s?apiKey=%s", getPort(audience), path, encode(param), apiKey));
     }
 
     protected String encode(final String param) {

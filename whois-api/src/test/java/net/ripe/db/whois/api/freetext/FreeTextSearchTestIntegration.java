@@ -1,7 +1,5 @@
 package net.ripe.db.whois.api.freetext;
 
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.common.IntegrationTest;
@@ -16,6 +14,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.ws.rs.BadRequestException;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +39,8 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
         try {
             query("");
             fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(ClientResponse.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), containsString("No query parameter."));
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("No query parameter."));
         }
     }
 
@@ -51,9 +49,8 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
         try {
             query("q=");
             fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(ClientResponse.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), containsString("Invalid query"));
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("Invalid query"));
         }
     }
 
@@ -613,7 +610,8 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
 
     private String query(final String queryString) {
         return client
-                .resource(String.format("http://localhost:%s/search?%s", getPort(AUDIENCE), queryString))
+                .target(String.format("http://localhost:%s/search?%s", getPort(AUDIENCE), queryString))
+                .request()
                 .get(String.class);
     }
 }
