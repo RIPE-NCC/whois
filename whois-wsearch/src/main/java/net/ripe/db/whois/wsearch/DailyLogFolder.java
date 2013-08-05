@@ -36,7 +36,6 @@ class DailyLogFolder {
         }
 
         this.folderName = folderNameMatcher.group(1);
-        LOGGER.info("folderName {}, folder {}", folderName, folder);
 
         if (folder.exists()) {
             this.folder = folder;
@@ -48,6 +47,7 @@ class DailyLogFolder {
 
             this.folder = tarFile;
         }
+        LOGGER.debug("init DailyLogFolder: folderName {}, folder {}", folderName, folder);
     }
 
     public DailyLogFolder(final LoggedUpdateId loggedUpdateId) {
