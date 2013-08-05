@@ -98,4 +98,22 @@ public abstract class RebuildableIndex {
     public <T> T search(IndexTemplate.SearchCallback<T> searchCallback) throws IOException {
         return index.search(searchCallback);
     }
+
+    public void partialRebuild() {
+        if (!updateLock.tryAcquire()) {
+            logger.warn("Indexing in progress, skipping update for {}", indexDir);
+            return;
+        }
+
+        try {
+            lockedPartialRebuild();
+        } catch (IOException e) {
+            logger.error("Updating index: {}", indexDir, e);
+        } finally {
+            updateLock.release();
+        }
+    }
+
+    protected void lockedPartialRebuild() throws IOException {
+    }
 }

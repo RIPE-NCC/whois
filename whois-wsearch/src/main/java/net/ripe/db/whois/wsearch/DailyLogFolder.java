@@ -47,7 +47,7 @@ class DailyLogFolder {
 
             this.folder = tarFile;
         }
-        LOGGER.debug("init DailyLogFolder: folderName {}, folder {}", folderName, folder);
+        LOGGER.info("init DailyLogFolder: folderName {}, folder {}", folderName, folder);
     }
 
     public DailyLogFolder(final LoggedUpdateId loggedUpdateId) {

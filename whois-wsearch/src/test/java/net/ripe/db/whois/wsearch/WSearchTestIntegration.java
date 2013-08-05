@@ -1,9 +1,6 @@
 package net.ripe.db.whois.wsearch;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
@@ -22,7 +19,6 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import javax.ws.rs.core.MediaType;
 import java.io.*;
 import java.net.URLEncoder;
-import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -43,7 +39,6 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormat.forPattern("HHmmss");
     private static final String INPUT_FILE_NAME = "001.msg-in.txt.gz";
-    private static final Splitter PATH_SPLITTER = Splitter.on('/');
 
     private Client client;
     private File logFile;
@@ -72,6 +67,11 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
             logFile.delete();
         }
         wSearchJettyBootstrap.stop(true);
+        try {
+            logFileIndex.lockedRebuild();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -214,39 +214,20 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
     }
 
     @Test
-    public void get_update_logs_for_id() throws Exception {
-        createLogFile("mntner: TEST-MNT");
-
-        final String response = getCurrentUpdateLogsForId(URLEncoder.encode(getLogDirFullPathName(), "ISO-8859-1"));
-
-        assertThat(response, containsString("TEST-MNT"));
-    }
-
-    @Test
-    public void get_update_logs_for_id_and_date() throws Exception {
-        createLogFile("mntner: TEST-MNT");
-
-        final String response = getCurrentUpdateLogsForIdAndDate(getLogDirName(), getDate());
-
-        assertThat(response, containsString("TEST-MNT"));
-    }
-
-    @Test
     public void get_update_ids_for_name_and_date() throws Exception {
         createLogFile("mntner: TEST-MNT");
 
         final String response = getUpdateIds("TEST-MNT", getDate());
 
-        assertThat(response, containsString("\"host\" :"));
-        assertThat(response, containsString("\"id\" :"));
+        assertThat(response, containsString("\"host\":"));
+        assertThat(response, containsString("\"id\":"));
     }
 
     @Test
     public void get_current_update_logs_for_name_and_date() throws Exception {
         createLogFile("mntner: TEST-MNT");
 
-        final String date = getDate();
-        final String response = getUpdates("TEST-MNT", date);
+        final String response = getUpdates("TEST-MNT", getDate());
 
         assertThat(response, containsString("mntner: TEST-MNT"));
     }
@@ -316,6 +297,25 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
         assertThat(updates, containsString("{\"update\":{\"host\":\"UNDEFINED\",\"id\":\"20130808"));
     }
 
+    @Test
+    public void index_does_not_add_entry_twice() throws Exception {
+        final double random = Math.random();
+        createLogFileAtDateTime("Once upon a midnight dreary", "20131010", "222222", random);
+
+        createLogFileAtDateTime("Once upon a midnight dreary", "20131010", "222222", random);
+
+        final String result = client.resource(String.format(
+                "http://localhost:%s/api/logs?search=%s&fromdate=&todate=&apiKey=%s",
+                wSearchJettyConfig.getPort(),
+                URLEncoder.encode("midnight", "ISO-8859-1"),
+                apiKey))
+                .get(String.class);
+
+        final String folder = "# folder   : 222222." + random;
+        final int lastSeen = result.indexOf(folder);
+        assertThat(result.indexOf(folder, lastSeen + folder.length()), is(-1));
+    }
+
     // API calls
 
     private String getUpdates(final String searchTerm) throws IOException {
@@ -336,30 +336,17 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
                 .get(String.class);
     }
 
-
-    private String getCurrentUpdateLogsForId(final String updateId) {
-        return client
-                .resource(String.format("http://localhost:%s/api/logs/current/%s?apiKey=%s", wSearchJettyConfig.getPort(), updateId, apiKey))
-                .get(String.class);
-    }
-
-    private String getCurrentUpdateLogsForIdAndDate(final String updateId, final String date) {
-        return client
-                .resource(String.format("http://localhost:%s/api/logs/current/%s/%s?apiKey=%s", wSearchJettyConfig.getPort(), date, updateId, apiKey))
-                .get(String.class);
-    }
-
     // helper methods
 
-    private void createLogFileAtDate(final String data, final String date) throws IOException {
+    private void createLogFileAtDateTime(final String data, final String date, final String time, final double random) throws IOException {
         final StringBuilder builder = new StringBuilder();
         builder.append(logDir)
                 .append("/whois2/audit/")
                 .append(date)
                 .append('/')
-                .append(getTime())
+                .append(time)
                 .append('.')
-                .append(Math.random());
+                .append(random);
 
         final File fullDir = new File(builder.toString());
         fullDir.mkdirs();
@@ -380,18 +367,12 @@ public class WSearchTestIntegration extends AbstractJUnit4SpringContextTests {
         logFileIndex.update();
     }
 
+    private void createLogFileAtDate(final String data, final String date) throws IOException {
+        createLogFileAtDateTime(data, date, getTime(), Math.random());
+    }
+
     private void createLogFile(final String data) throws IOException {
         createLogFileAtDate(data, getDate());
-    }
-
-    private String getLogDirName() throws IOException {
-        final List<String> path = Lists.newArrayList(PATH_SPLITTER.split(logFile.getCanonicalPath()));
-        return path.get(path.size() - 2);
-    }
-
-    private String getLogDirFullPathName() throws IOException {
-        final List<String> path = Lists.newArrayList(PATH_SPLITTER.split(logFile.getCanonicalPath()));
-        return Joiner.on("/").join(path.subList(0, path.size() - 1));
     }
 
     private String getDate() {

@@ -28,8 +28,9 @@ public class LogFileSearchTest {
 
     @Before
     public void setUp() throws Exception {
-        loggedUpdateWithPasswordId = new LoggedUpdateId("20130306", "123623.428054357.0.1362569782886.JavaMail.andre");
-        loggedUpdateWithOverrideId = new LoggedUpdateId("20130306", "123624.428054357.0.1362569782886.JavaMail.andre");
+        final String logDir = new ClassPathResource("/log/update").getFile().getAbsolutePath();
+        loggedUpdateWithPasswordId = new LoggedUpdateId("20130306", "123623.428054357.0.1362569782886.JavaMail.andre", logDir + "/20130306/123623.428054357.0.1362569782886.JavaMail.andre/002.msg-out.txt.gz");
+        loggedUpdateWithOverrideId = new LoggedUpdateId("20130306", "123624.428054357.0.1362569782886.JavaMail.andre", logDir + "/20130306/123623.428054357.0.1362569782886.JavaMail.andre/002.msg-out.txt.gz");
 
         subject = new LogFileSearch(new ClassPathResource("/log/update").getFile().getAbsolutePath(), logFileIndex);
     }

@@ -61,17 +61,17 @@ public class LogFileIndexTest {
         final Set<LoggedUpdateId> loggedUpdateIds = subject.searchLoggedUpdateIds("FAILED", null, null);
         assertThat(loggedUpdateIds, hasSize(11));
         assertThat(loggedUpdateIds, contains(
-                new LoggedUpdateId("20120816", "102048.006601cd7b88$0824a380$c87e400a"),
-                new LoggedUpdateId("20120816", "062632.006401cd7b67$4c0ada40$c87e400a"),
-                new LoggedUpdateId("20120816", "162650.007101cd7bbb$279aa740$c87e400a"),
-                new LoggedUpdateId("20120816", "083803.008c01cd7b79$adf9a210$4b45400a"),
-                new LoggedUpdateId("20120816", "115733.20555419.71345111048502.JavaMail.mtce0001"),
-                new LoggedUpdateId("20120816", "163251.009101cd7bbb$fe81c270$4b45400a"),
-                new LoggedUpdateId("20120816", "161005.006b01cd7bb8$d40be280$c87e400a"),
-                new LoggedUpdateId("20130305", "114444.1975357211.0.1362480283923.JavaMail.andre"),
-                new LoggedUpdateId("20130305", "140319.syncupdate_127.0.0.1_1362488599134839000"),
-                new LoggedUpdateId("20130306", "123623.428054357.0.1362569782886.JavaMail.andre"),
-                new LoggedUpdateId("20130306", "123624.428054357.0.1362569782886.JavaMail.andre")
+                new LoggedUpdateId("20120816", "102048.006601cd7b88$0824a380$c87e400a", logDir + "/20120816.tar"),
+                new LoggedUpdateId("20120816", "062632.006401cd7b67$4c0ada40$c87e400a", logDir + "/20120816.tar"),
+                new LoggedUpdateId("20120816", "162650.007101cd7bbb$279aa740$c87e400a", logDir + "/20120816.tar"),
+                new LoggedUpdateId("20120816", "083803.008c01cd7b79$adf9a210$4b45400a", logDir + "/20120816.tar"),
+                new LoggedUpdateId("20120816", "115733.20555419.71345111048502.JavaMail.mtce0001", logDir + "/20120816.tar"),
+                new LoggedUpdateId("20120816", "163251.009101cd7bbb$fe81c270$4b45400a", logDir + "/20120816.tar"),
+                new LoggedUpdateId("20120816", "161005.006b01cd7bb8$d40be280$c87e400a", logDir + "/20120816.tar"),
+                new LoggedUpdateId("20130305", "114444.1975357211.0.1362480283923.JavaMail.andre", logDir + "/20130305.tar"),
+                new LoggedUpdateId("20130305", "140319.syncupdate_127.0.0.1_1362488599134839000", logDir + "/20130305.tar"),
+                new LoggedUpdateId("20130306", "123623.428054357.0.1362569782886.JavaMail.andre", logDir + "/20130306/123623.428054357.0.1362569782886.JavaMail.andre/002.msg-out.txt.gz"),
+                new LoggedUpdateId("20130306", "123624.428054357.0.1362569782886.JavaMail.andre", logDir + "/20130306/123623.428054357.0.1362569782886.JavaMail.andre/002.msg-out.txt.gz")
         ));
     }
 
@@ -82,8 +82,8 @@ public class LogFileIndexTest {
         final Set<LoggedUpdateId> loggedUpdateIds = subject.searchLoggedUpdateIds("FAILED", new LocalDate(2013, 3, 6), null);
         assertThat(loggedUpdateIds, hasSize(2));
         assertThat(loggedUpdateIds, contains(
-                new LoggedUpdateId("20130306", "123623.428054357.0.1362569782886.JavaMail.andre"),
-                new LoggedUpdateId("20130306", "123624.428054357.0.1362569782886.JavaMail.andre")
+                new LoggedUpdateId("20130306", "123623.428054357.0.1362569782886.JavaMail.andre", logDir + "/20130306/123623.428054357.0.1362569782886.JavaMail.andre/002.msg-out.txt.gz"),
+                new LoggedUpdateId("20130306", "123624.428054357.0.1362569782886.JavaMail.andre", logDir + "/20130306/123623.428054357.0.1362569782886.JavaMail.andre/002.msg-out.txt.gz")
         ));
     }
 
@@ -94,10 +94,10 @@ public class LogFileIndexTest {
         final Set<LoggedUpdateId> loggedUpdateIds = subject.searchLoggedUpdateIds("FAILED", new LocalDate(2013, 3, 1), new LocalDate(2013, 3, 6));
         assertThat(loggedUpdateIds, hasSize(4));
         assertThat(loggedUpdateIds, contains(
-                new LoggedUpdateId("20130305", "114444.1975357211.0.1362480283923.JavaMail.andre"),
-                new LoggedUpdateId("20130305", "140319.syncupdate_127.0.0.1_1362488599134839000"),
-                new LoggedUpdateId("20130306", "123623.428054357.0.1362569782886.JavaMail.andre"),
-                new LoggedUpdateId("20130306", "123624.428054357.0.1362569782886.JavaMail.andre")
+                new LoggedUpdateId("20130305", "114444.1975357211.0.1362480283923.JavaMail.andre", logDir + "/20130305.tar"),
+                new LoggedUpdateId("20130305", "140319.syncupdate_127.0.0.1_1362488599134839000", logDir + "/20130305.tar"),
+                new LoggedUpdateId("20130306", "123623.428054357.0.1362569782886.JavaMail.andre", logDir + "/20130306/123623.428054357.0.1362569782886.JavaMail.andre/002.msg-out.txt.gz"),
+                new LoggedUpdateId("20130306", "123624.428054357.0.1362569782886.JavaMail.andre", logDir + "/20130306/123623.428054357.0.1362569782886.JavaMail.andre/002.msg-out.txt.gz")
         ));
     }
 
@@ -108,8 +108,8 @@ public class LogFileIndexTest {
         final Set<LoggedUpdateId> loggedUpdateIds = subject.searchLoggedUpdateIds("FAILED", new LocalDate(2013, 3, 5), new LocalDate(2013, 3, 5));
         assertThat(loggedUpdateIds, hasSize(2));
         assertThat(loggedUpdateIds, contains(
-                new LoggedUpdateId("20130305", "114444.1975357211.0.1362480283923.JavaMail.andre"),
-                new LoggedUpdateId("20130305", "140319.syncupdate_127.0.0.1_1362488599134839000")
+                new LoggedUpdateId("20130305", "114444.1975357211.0.1362480283923.JavaMail.andre", logDir + "/20130305.tar"),
+                new LoggedUpdateId("20130305", "140319.syncupdate_127.0.0.1_1362488599134839000", logDir + "/20130305.tar")
         ));
     }
 
@@ -128,8 +128,8 @@ public class LogFileIndexTest {
         final Set<LoggedUpdateId> loggedUpdateIds = subject.searchLoggedUpdateIds("FAILED", null, new LocalDate(2013, 3, 5));
         assertThat(loggedUpdateIds, hasSize(2));
         assertThat(loggedUpdateIds, contains(
-                new LoggedUpdateId("20130305", "114444.1975357211.0.1362480283923.JavaMail.andre"),
-                new LoggedUpdateId("20130305", "140319.syncupdate_127.0.0.1_1362488599134839000")
+                new LoggedUpdateId("20130305", "114444.1975357211.0.1362480283923.JavaMail.andre", logDir + "/20130305.tar"),
+                new LoggedUpdateId("20130305", "140319.syncupdate_127.0.0.1_1362488599134839000", logDir + "/20130305.tar")
         ));
     }
 

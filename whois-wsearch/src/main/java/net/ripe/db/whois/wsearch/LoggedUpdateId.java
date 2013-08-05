@@ -9,11 +9,6 @@ public class LoggedUpdateId implements Comparable<LoggedUpdateId> {
     private final String updateFolder;
     private String fullPathToLogFolder;
 
-    public LoggedUpdateId(final String dailyLogFolder, final String updateFolder) {
-        this.dailyLogFolder = dailyLogFolder;
-        this.updateFolder = updateFolder;
-    }
-
     public LoggedUpdateId(final String dailyLogFolder, final String updateFolder, final String pathToFolder) {
         this.dailyLogFolder = dailyLogFolder;
         this.updateFolder = updateFolder;

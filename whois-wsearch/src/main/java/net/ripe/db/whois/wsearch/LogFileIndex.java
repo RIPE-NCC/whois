@@ -106,6 +106,8 @@ public class LogFileIndex extends RebuildableIndex {
                 new IndexTemplate.WriteCallback() {
                     @Override
                     public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
+                        //TODO full rebuild if index is empty
+                        //TODO partial rebuild when starting up
                     }
                 });
     }
@@ -139,6 +141,18 @@ public class LogFileIndex extends RebuildableIndex {
             @Override
             public void run() {
                 update();
+            }
+        };
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    @Scheduled(cron = "0 0 3 * * ?")
+    public void scheduledPartialRebuild() {
+        final Thread thread = new Thread("Logfile index partial rebuilder") {
+            @Override
+            public void run() {
+                rebuild(); //TODO do a partial rebuild
             }
         };
         thread.setDaemon(true);
@@ -200,6 +214,43 @@ public class LogFileIndex extends RebuildableIndex {
         facetFields.addFields(document, Lists.newArrayList(categoryPath));
 
         indexWriter.addDocument(document);
+    }
+
+    @Override
+    public void lockedPartialRebuild() throws IOException {
+        final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyyMMdd");
+
+        final LocalDate yesterdayDate = new LocalDate().minusDays(1);
+        final String yesterday = dateTimeFormatter.print(yesterdayDate);
+
+        if (luceneDocFilePathDoesNotExistOnFileSystem(yesterdayDate)) {
+            index.write(new IndexTemplate.WriteCallback() {
+                @Override
+                public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
+                    final QueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_41, new String[]{"date"}, LogFileIndex.QUERY_ANALYZER);
+                    try {
+                        indexWriter.deleteDocuments(queryParser.parse("date:" + yesterday));
+                        resetMetadata(indexWriter);
+                    } catch (final ParseException ignored) {
+                        LOGGER.debug("partial rebuild failed");
+                    }
+                }
+            });
+            lockedUpdate();
+        }
+    }
+
+    private boolean luceneDocFilePathDoesNotExistOnFileSystem(final LocalDate date) throws IOException {
+        try {
+            final Set<LoggedUpdateId> loggedUpdateIds = searchLoggedUpdateIds("*", date, null);
+            if (!loggedUpdateIds.isEmpty()) {
+                final LoggedUpdateId first = loggedUpdateIds.iterator().next();
+                return new File(first.getFullPathToLogFolder()).exists();
+            }
+        } catch (final ParseException e) {
+            LOGGER.error("Lucene search failed", e);
+        }
+        return false;
     }
 
     private void resetMetadata(final IndexWriter indexWriter) {

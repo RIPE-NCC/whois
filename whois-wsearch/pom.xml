@@ -28,11 +28,11 @@
             <!--<groupId>com.sun.jersey</groupId>-->
             <!--<artifactId>jersey-bundle</artifactId>-->
         <!--</dependency>-->
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-bundle-jaxrs</artifactId>
-            <version>2.7.6</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.cxf</groupId>-->
+            <!--<artifactId>cxf-bundle-jaxrs</artifactId>-->
+            <!--<version>2.7.6</version>-->
+        <!--</dependency>-->
 
 
         <dependency>
