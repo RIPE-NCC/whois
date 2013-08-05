@@ -28,6 +28,7 @@
         <compiler.version>1.7</compiler.version>
         <java.version>1.7</java.version>
         <jersey.version>1.17</jersey.version>
+        <jetty.version>8.1.12.v20130726</jetty.version>
         <lucene.version>4.1.0</lucene.version>
         <whois.main>OVERRIDE</whois.main>
         <sonar.skippedModules>whois-oneshot</sonar.skippedModules>
@@ -337,7 +338,7 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-webapp</artifactId>
-                <version>8.1.8.v20121106</version>
+                <version>${jetty.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.jersey</groupId>
