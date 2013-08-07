@@ -5,7 +5,7 @@
 [api] Create JAXB marshaller instance per thread.
 [api] Updated embedded Jetty server from 8.1.8 to 8.1.12.
 
-## 1.67.4
+## 1.67.4 (deployed on 2013-08-07)
 [update] removed unused and incorrect text aliases for specifying ds-rdata digest/algorithm
 [query] fixed verbose help for route-set member: attribute
 [update] ds-rdata: attribute is now sanitized before persisting in database
@@ -35,7 +35,7 @@
 [query] All GRS sources are now filtered on AuthoritativeResource regardless of --resource flag
 [query] --resource now enables --no-referenced by default
 
-## 1.67 (not yet deployed)
+## 1.67
 [update] added pending auth support for route(6) creation
 [update] added dry-run support for a single object update via the 'dry-run: reason' pseudo-attribute
 [update] display diff instead of original object in update notifications
