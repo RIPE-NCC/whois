@@ -1,3 +1,10 @@
+## 1.67.5
+[update] Allow 2-10 letters in nic-hdl suffix.
+[update] Allow SHA384 hashes in ds-rdata attribute in domain objects.
+[update] Improved update logging.
+[api] Create JAXB marshaller instance per thread.
+[api] Updated embedded Jetty server from 8.1.8 to 8.1.12.
+
 ## 1.67.4
 [update] removed unused and incorrect text aliases for specifying ds-rdata digest/algorithm
 [query] fixed verbose help for route-set member: attribute
