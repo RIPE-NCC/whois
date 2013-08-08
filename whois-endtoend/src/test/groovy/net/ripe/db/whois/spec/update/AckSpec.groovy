@@ -36,7 +36,6 @@ class AckSpec extends BaseSpec {
         def ack = ackFor message
         ack.subject == "SUCCESS: delete MNTNER DEL-MNT"
         ack.contents =~ "(?s)>  From:.+?SUMMARY OF UPDATE:.+?Number of objects found:.+?DETAILED EXPLANATION:.+?~~~~\nThe following.+?---\nDelete SUCCEEDED:.+?~~~~\n+The RIPE Database is subject to Terms and Conditions:"
-//      ack.contents =~ "(?s)(>  From:)|(- From-Host:).+?SUMMARY OF UPDATE:.+?DETAILED EXPLANATION:.+?~~~~\nThe following.+?~~~~\nThe RIPE Database is subject to Terms and Conditions:"
     }
 
     // Check basic structure of a sync ack message
