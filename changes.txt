@@ -1,3 +1,6 @@
+## 1.67.6
+[update] Allow import-via/export-via rpsl attributes - Job Snijders <job@atrato.com>
+
 ## 1.67.5
 [update] Allow 2-10 letters in nic-hdl suffix.
 [update] Allow SHA384 hashes in ds-rdata attribute in domain objects.
