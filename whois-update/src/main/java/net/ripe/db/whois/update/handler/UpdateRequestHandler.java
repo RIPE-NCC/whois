@@ -2,7 +2,6 @@ package net.ripe.db.whois.update.handler;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.dns.DnsChecker;
 import net.ripe.db.whois.update.domain.*;
@@ -62,10 +61,7 @@ public class UpdateRequestHandler {
         }
 
         if (Keyword.DIFF.equals(keyword)) {
-            // TODO: [AH] remove this condition when deploying diff keyword support
-            if (!WhoisProfile.isDeployed()) {
-                updateContext.dryRun();
-            }
+            updateContext.dryRun();
         }
 
         final List<Update> updates = updateRequest.getUpdates();

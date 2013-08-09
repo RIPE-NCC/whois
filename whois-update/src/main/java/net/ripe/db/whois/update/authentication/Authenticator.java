@@ -209,11 +209,6 @@ public class Authenticator {
     }
 
     boolean isPending(final PreparedUpdate update, final UpdateContext updateContext, final Subject subject) {
-        // TODO: [AH] delete this when deploying pending updates
-        if (WhoisProfile.isDeployed()) {
-            return false;
-        }
-
         if (!Action.CREATE.equals(update.getAction())) {
             return false;
         }
