@@ -141,7 +141,16 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <executable>src/main/resources/bin/generateByaccs</executable>
+                    <!-- @TODO generateByaccs - this needs to be converted to an ant script. Maybe use CUP or JavaCC and remove platform binaries. -->
+                    <!-- If running build on *nix x64 -->
+                    <!-- UBUNTU: sudo apt-get install ia32-libs-multiarch -->
+                    <!-- CENTOS: yum install xulrunner.i686 -->
+                    <!-- WINDOWS: cygwin -->
+                    <executable>bash</executable>
+                    <arguments>
+                        <argument>src/main/resources/bin/generateByaccs</argument>
+                        <argument>${os.name}</argument>
+                    </arguments>
                 </configuration>
             </plugin>
             <plugin>

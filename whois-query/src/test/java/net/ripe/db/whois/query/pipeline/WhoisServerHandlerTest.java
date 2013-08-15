@@ -34,6 +34,7 @@ import static org.mockito.Mockito.*;
 public class WhoisServerHandlerTest {
     @Mock ChannelHandlerContext ctx;
     @Mock Channel channel;
+    @Mock ChannelFuture channelFuture;
     @Mock ChannelPipeline pipeline;
     @Mock ChannelStateEvent channelStateEvent;
     @Mock MessageEvent messageEvent;
@@ -52,6 +53,8 @@ public class WhoisServerHandlerTest {
         when(messageEvent.getChannel()).thenReturn(channel);
         when(channel.getRemoteAddress()).thenReturn(new InetSocketAddress(inetAddress, 80));
         when(channel.getPipeline()).thenReturn(pipeline);
+        when(channel.write(responseObject)).thenReturn(channelFuture);
+        when(channel.write(responseObject).awaitUninterruptibly()).thenReturn(channelFuture);
 
         doNothing().when(queryHandler).streamResults(any(Query.class), eq(inetAddress), eq(0), argThat(new BaseMatcher<ResponseHandler>() {
             @Override
@@ -73,7 +76,7 @@ public class WhoisServerHandlerTest {
 
         subject.messageReceived(ctx, messageEvent);
 
-        verify(channel).write(responseObject);
+        verify(channel, times(2)).write(responseObject);
 
         final ArgumentCaptor<QueryCompletedEvent> channelEventCapture = ArgumentCaptor.forClass(QueryCompletedEvent.class);
         verify(pipeline).sendDownstream(channelEventCapture.capture());

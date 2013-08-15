@@ -38,8 +38,10 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         try {
             final MimeMessage mimeMessage = new MimeMessage((Session) null);
             mimeMessagePreparator.prepare(mimeMessage);
-            LOGGER.info("Send message: {}\n\n{}\n\n", EnumerationUtils.toList(mimeMessage.getAllHeaderLines()), mimeMessage.getContent());
-            messages.add(mimeMessage);
+            synchronized (this) {
+                LOGGER.info("Send message: {}\n\n{}\n\n", EnumerationUtils.toList(mimeMessage.getAllHeaderLines()), mimeMessage.getContent());
+                messages.add(mimeMessage);
+            }
         } catch (Exception e) {
             throw new RuntimeException("Send message", e);
         }
@@ -51,7 +53,9 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         try {
             Awaitility.await().atMost(30, TimeUnit.SECONDS).until(getResponse);
             final MimeMessage message = getResponse.getMessage();
-            messages.remove(message);
+            synchronized (this) {
+                messages.remove(message);
+            }
             return message;
         } catch (Exception e) {
             for (final MimeMessage message : messages) {
