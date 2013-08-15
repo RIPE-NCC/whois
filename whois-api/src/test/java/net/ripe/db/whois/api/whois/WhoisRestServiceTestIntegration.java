@@ -985,18 +985,16 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     // schema
 
     @Test
-    @Ignore
     public void schema_int() throws Exception {
-        final String response = createResource(AUDIENCE, "whois/xsd/int-docs/whois-resources.xsd")
+        final String response = createResource(Audience.INTERNAL, "api-doc/whois-resources.xsd")
                 .accept(MediaType.APPLICATION_XML)
                 .get(String.class);
         assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
     }
 
     @Test
-    @Ignore
     public void schema_ext() throws Exception {
-        final String response = createResource(AUDIENCE, "whois/xsd/ext-docs/whois-resources.xsd")
+        final String response = createResource(Audience.PUBLIC, "api-doc/whois-resources.xsd")
                 .accept(MediaType.APPLICATION_XML)
                 .get(String.class);
         assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
