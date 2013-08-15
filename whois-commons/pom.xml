@@ -141,8 +141,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <!-- @TODO generateByaccs - this needs to be converted to an ant script. Maybe use CUP or JavaCC and remove platform binaries. -->
-                    <!-- If running build on *nix x64 -->
+                    <!-- @TODO generateByaccs - this should be converted - Maven/Ant script, maybe use CUP or JavaCC and remove platform specific binaries. -->
+                    <!-- To run the x86 yacc binary under x64 linux, you'll need to install the following: -->
                     <!-- UBUNTU: sudo apt-get install ia32-libs-multiarch -->
                     <!-- CENTOS: yum install xulrunner.i686 -->
                     <!-- WINDOWS: cygwin -->
