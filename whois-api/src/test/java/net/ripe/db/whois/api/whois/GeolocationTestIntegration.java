@@ -66,7 +66,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\""));
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
-        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
+        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<language value=\"EN\">"));
-        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
+        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
     }
 
     @Test
@@ -199,7 +199,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<language value=\"EN\">"));
-        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois/lookup/test/organisation/ORG-LIR1-TEST\"/>"));
+        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/organisation/ORG-LIR1-TEST\"/>"));
     }
 
     @Test
@@ -233,7 +233,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
                     .get(String.class);
 
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
-        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
+        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
     }
 
     @Test
@@ -261,7 +261,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<language value=\"EN\">"));
-        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://apps.db.ripe.net/whois/lookup/test/inet6num/2001::/20\"/>"));
+        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/inet6num/2001::/20\"/>"));
     }
 
     @Test

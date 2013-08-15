@@ -39,7 +39,7 @@ public class WhoisObjectMapperTest {
         assertThat(subject.getType(), is("mntner"));
         assertThat(subject.getSource().getId(), is("test"));
         assertThat(subject.getLink().getType(), is("locator"));
-        assertThat(subject.getLink().getHref(), is("http://apps.db.ripe.net/whois/lookup/test/mntner/TST-MNT"));
+        assertThat(subject.getLink().getHref(), is("http://rest.db.ripe.net/lookup/test/mntner/TST-MNT"));
         assertThat(subject.getPrimaryKey(), hasSize(1));
         final Attribute primaryKeyAttribute = subject.getPrimaryKey().get(0);
         assertThat(primaryKeyAttribute.getName(), is("mntner"));
@@ -47,12 +47,12 @@ public class WhoisObjectMapperTest {
         assertThat(subject.getAttributes(), contains(
                 new Attribute("mntner", "TST-MNT", null, null, null),
                 new Attribute("descr", "MNTNER for test", null, null, null),
-                new Attribute("admin-c", "TP1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/person-role/TP1-TEST")),
+                new Attribute("admin-c", "TP1-TEST", null, "person-role", new Link("locator", "http://rest.db.ripe.net/lookup/test/person-role/TP1-TEST")),
                 new Attribute("upd-to", "dbtest@ripe.net", null, null, null),
                 new Attribute("auth", "MD5-PW", "Filtered", null, null),
-                new Attribute("auth", "PGPKEY-28F6CD6C", null, "key-cert", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/key-cert/PGPKEY-28F6CD6C")),
-                new Attribute("mnt-by", "TST-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/mntner/TST-MNT")),
-                new Attribute("referral-by", "TST-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/mntner/TST-MNT")),
+                new Attribute("auth", "PGPKEY-28F6CD6C", null, "key-cert", new Link("locator", "http://rest.db.ripe.net/lookup/test/key-cert/PGPKEY-28F6CD6C")),
+                new Attribute("mnt-by", "TST-MNT", null, "mntner", new Link("locator", "http://rest.db.ripe.net/lookup/test/mntner/TST-MNT")),
+                new Attribute("referral-by", "TST-MNT", null, "mntner", new Link("locator", "http://rest.db.ripe.net/lookup/test/mntner/TST-MNT")),
                 new Attribute("changed", "dbtest@ripe.net", null, null, null),
                 new Attribute("source", "TEST", "Filtered", null, null)
         ));
@@ -75,7 +75,7 @@ public class WhoisObjectMapperTest {
         assertThat(subject.getType(), is("as-set"));
         assertThat(subject.getSource().getId(), is("test"));
         assertThat(subject.getLink().getType(), is("locator"));
-        assertThat(subject.getLink().getHref(), is("http://apps.db.ripe.net/whois/lookup/test/as-set/AS-set-attendees"));
+        assertThat(subject.getLink().getHref(), is("http://rest.db.ripe.net/lookup/test/as-set/AS-set-attendees"));
         assertThat(subject.getPrimaryKey(), hasSize(1));
         final Attribute primaryKeyAttribute = subject.getPrimaryKey().get(0);
         assertThat(primaryKeyAttribute.getName(), is("as-set"));
@@ -83,12 +83,12 @@ public class WhoisObjectMapperTest {
         assertThat(subject.getAttributes(), containsInAnyOrder(
                 new Attribute("as-set", "AS-set-attendees", null, null, null),
                 new Attribute("descr", "AS-set containing all attendees' ASNs.", null, null, null),
-                new Attribute("tech-c", "TS1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/person-role/TS1-TEST")),
-                new Attribute("admin-c", "TS1-TEST", null, "person-role", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/person-role/TS1-TEST")),
-                new Attribute("members", "as1", null, "aut-num", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/aut-num/as1")),
-                new Attribute("members", "as2", null, "aut-num", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/aut-num/as2")),
-                new Attribute("members", "as3", null, "aut-num", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/aut-num/as3")),
-                new Attribute("mnt-by", "TS1-MNT", null, "mntner", new Link("locator", "http://apps.db.ripe.net/whois/lookup/test/mntner/TS1-MNT")),
+                new Attribute("tech-c", "TS1-TEST", null, "person-role", new Link("locator", "http://rest.db.ripe.net/lookup/test/person-role/TS1-TEST")),
+                new Attribute("admin-c", "TS1-TEST", null, "person-role", new Link("locator", "http://rest.db.ripe.net/lookup/test/person-role/TS1-TEST")),
+                new Attribute("members", "as1", null, "aut-num", new Link("locator", "http://rest.db.ripe.net/lookup/test/aut-num/as1")),
+                new Attribute("members", "as2", null, "aut-num", new Link("locator", "http://rest.db.ripe.net/lookup/test/aut-num/as2")),
+                new Attribute("members", "as3", null, "aut-num", new Link("locator", "http://rest.db.ripe.net/lookup/test/aut-num/as3")),
+                new Attribute("mnt-by", "TS1-MNT", null, "mntner", new Link("locator", "http://rest.db.ripe.net/lookup/test/mntner/TS1-MNT")),
                 new Attribute("changed", "hostmaster@ripe.net 20121115", null, null, null),
                 new Attribute("source", "TEST", null, null, null)
         ));

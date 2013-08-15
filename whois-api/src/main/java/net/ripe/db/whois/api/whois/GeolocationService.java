@@ -52,7 +52,7 @@ public class GeolocationService {
 
     private static final String SERVICE_NAME = "geolocation-finder";
 
-    private static final String LOOKUP_URL = "http://apps.db.ripe.net/whois/lookup";
+    private static final String LOOKUP_URL = "http://rest.db.ripe.net/lookup";
 
     private static final String TEXT_JSON = "text/json";
     private static final String TEXT_XML = "text/xml";
@@ -89,21 +89,21 @@ public class GeolocationService {
      * <p>The response format is specified using a HTTP Accept header. If not specified, the default response format is XML.</p>
      *
      * <p><div>Example request using the CURL command:</div>
-     * <pre>curl https://apps.db.ripe.net/whois/geolocation?source=test&ipkey=10.0.0.0</pre></p>
+     * <pre>curl https://rest.db.ripe.net/geolocation?source=test&ipkey=10.0.0.0</pre></p>
      *
      * <p><div>Example XML response:</div>
      * <pre>
      * &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
      * &lt;whois-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      * xmlns:xlink="http://www.w3.org/1999/xlink" service="geolocation-finder"
-     * xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois/xsd/whois-resources.xsd"&gt;
-     * &lt;link xlink:type="locator" xlink:href="https://apps.db.ripe.net/whois/geolocation?source=test&amp;ipkey=10.0.0.0"/&gt;
+     * xsi:noNamespaceSchemaLocation="http://rest.db.ripe.net/api-doc/whois-resources.xsd"&gt;
+     * &lt;link xlink:type="locator" xlink:href="https://rest.db.ripe.net/geolocation?source=test&amp;ipkey=10.0.0.0"/&gt;
      * &lt;geolocation-attributes&gt;
      *     &lt;location value="52.375599 4.899902"&gt;
-     *         &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255"/&gt;
+     *         &lt;link xlink:type="locator" xlink:href="http://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255"/&gt;
      *     &lt;/location&gt;
      *     &lt;language value="EN"&gt;
-     *         &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255"/&gt;
+     *         &lt;link xlink:type="locator" xlink:href="http://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255"/&gt;
      *     &lt;/language&gt;
      * &lt;/geolocation-attributes&gt;
      * &lt;/whois-resources&gt;
@@ -117,7 +117,7 @@ public class GeolocationService {
      *       "service": "geolocation-finder",
      *       "link": {
      *         "xlink:type": "locator",
-     *         "xlink:href": "https://apps.db.ripe.net/whois/geolocation?source=test&ipkey=10.0.0.0"
+     *         "xlink:href": "https://rest.db.ripe.net/geolocation?source=test&ipkey=10.0.0.0"
      *       },
      *       "geolocation-attributes": {
      *         "location": [
@@ -125,7 +125,7 @@ public class GeolocationService {
      *             "value": "52.375599 4.899902",
      *             "link": {
      *               "xlink:type": "locator",
-     *               "xlink:href": "https://apps.db.ripe.net/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255"
+     *               "xlink:href": "https://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255"
      *             }
      *           }
      *         ],
@@ -134,7 +134,7 @@ public class GeolocationService {
      *             "value": "EN",
      *             "link": {
      *               "xlink:type": "locator",
-     *               "xlink:href": "https://apps.db.ripe.net/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255"
+     *               "xlink:href": "https://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255"
      *             }
      *           }
      *         ]
