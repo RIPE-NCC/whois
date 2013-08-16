@@ -148,7 +148,6 @@ public class GeolocationService {
      * <a href="https://labs.ripe.net/Members/denis/geolocation-prototype-for-ripe-database" class="external-link" rel="nofollow" target="_blank">
      *     https://labs.ripe.net/Members/denis/geolocation-prototype-for-ripe-database</a></p>
      *
-     * @param source Source name (TEST or RIPE)
      * @param ipkey IPv4 or IPv6 address
      * @return Returns geolocation information for the specified address.
      */
@@ -160,7 +159,6 @@ public class GeolocationService {
     })
     public WhoisResources geolocation(
             @Context final HttpServletRequest request,
-            @QueryParam(value = "source") final String source,      // TODO: validate source
             @QueryParam(value = "ipkey") final String ipkey) {
 
         List<Language> languages = null;

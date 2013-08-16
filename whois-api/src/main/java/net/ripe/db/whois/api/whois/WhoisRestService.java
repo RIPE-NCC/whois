@@ -356,6 +356,7 @@ public class WhoisRestService {
                     streamObject(rpslObjectQueue.poll(), tagResponseObjects);
 
                     if (!found) {
+                        // TODO: you can't throw a 404 in the middle of a streaming 200 http response!!!
                         throw new WebApplicationException(Response.Status.NOT_FOUND);
                     }
                 } catch (QueryException e) {
