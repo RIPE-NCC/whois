@@ -27,13 +27,15 @@ class StreamingMarshalXml implements StreamingMarshal {
     }
 
     private XMLStreamWriter xmlOut;
-    private boolean wroteRootNamespaceYet = false;
 
     @Override
-    public void open(final OutputStream outputStream) {
+    public void open(final OutputStream outputStream, String root) {
         try {
             xmlOut = xmlOutputFactory.createXMLStreamWriter(outputStream);
             xmlOut.writeStartDocument();
+            xmlOut.writeStartElement(root);
+            // TODO: this is ugly, should come from package info instead (which is the case with no streaming)
+            xmlOut.writeNamespace("xlink", Link.XLINK_URI);
         } catch (XMLStreamException e) {
             throw new StreamingException(e);
         }
@@ -43,12 +45,6 @@ class StreamingMarshalXml implements StreamingMarshal {
     public void start(final String name) {
         try {
             xmlOut.writeStartElement(name);
-
-            // TODO: this is ugly, should come from package info instead (which is the case with no streaming)
-            if (!wroteRootNamespaceYet) {
-                xmlOut.writeNamespace("xlink", Link.XLINK_URI);
-                wroteRootNamespaceYet = true;
-            }
         } catch (XMLStreamException e) {
             throw new StreamingException(e);
         }

@@ -166,10 +166,7 @@ public class WhoisRestService {
 
             @Override
             public void write(final OutputStream output) throws IOException {
-                streamingMarshal.open(output);
-                if (streamingMarshal instanceof  StreamingMarshalXml) {
-                    streamingMarshal.start("whois-resources");
-                }
+                streamingMarshal.open(output, "whois-resources");
 
                 if (parameters != null) {
                     streamingMarshal.write("parameters", parameters);
