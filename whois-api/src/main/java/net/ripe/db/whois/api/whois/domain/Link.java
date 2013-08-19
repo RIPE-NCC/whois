@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Link {
 
-    private static final String XLINK_URI = "http://www.w3.org/1999/xlink";
+    public static final String XLINK_URI = "http://www.w3.org/1999/xlink";
 
     @XmlAttribute(namespace = XLINK_URI)
     @JsonProperty("xlink:type")

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.whois;
 
+import net.ripe.db.whois.api.whois.domain.Link;
 import net.ripe.db.whois.api.whois.domain.WhoisResources;
 
 import javax.xml.bind.JAXBContext;
@@ -26,6 +27,7 @@ class StreamingMarshalXml implements StreamingMarshal {
     }
 
     private XMLStreamWriter xmlOut;
+    private boolean wroteRootNamespaceYet = false;
 
     @Override
     public void open(final OutputStream outputStream) {
@@ -41,6 +43,12 @@ class StreamingMarshalXml implements StreamingMarshal {
     public void start(final String name) {
         try {
             xmlOut.writeStartElement(name);
+
+            // TODO: this is ugly, should come from package info instead (which is the case with no streaming)
+            if (!wroteRootNamespaceYet) {
+                xmlOut.writeNamespace("xlink", Link.XLINK_URI);
+                wroteRootNamespaceYet = true;
+            }
         } catch (XMLStreamException e) {
             throw new StreamingException(e);
         }

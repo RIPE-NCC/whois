@@ -1012,7 +1012,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .accept(MediaType.APPLICATION_XML)
                 .get(String.class);
         assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
-        assertThat(response, containsString("<whois-resources>"));
+        assertThat(response, containsString("<whois-resources"));
     }
 
     @Test
@@ -1021,7 +1021,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .accept("text/xml")
                 .get(String.class);
         assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
-        assertThat(response, containsString("<whois-resources>"));
+        assertThat(response, containsString("<whois-resources"));
     }
 
     @Test
@@ -1669,6 +1669,47 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
             assertThat(e.getResponse().getEntity(String.class), not(containsString("Caused by:")));
         }
+    }
+
+    @Test
+    public void streaming_puts_xlink_into_root_element_and_nowhere_else() throws Exception {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String whoisResources = createResource(AUDIENCE, "whois/search?query-string=AS102&source=TEST")
+                .accept(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        assertThat(whoisResources, containsString("<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">"));
+        assertThat(whoisResources, containsString("<object type=\"aut-num\">"));
+        assertThat(whoisResources, containsString("<objects>"));
+    }
+
+    @Test
+    public void non_streaming_puts_xlink_into_root_element_and_nowhere_else() throws Exception {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+
+        final String whoisResources = createResource(AUDIENCE, "whois/version/1/AS102")
+                .accept(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        assertThat(whoisResources, containsString("<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">"));
+        assertThat(whoisResources, containsString("<object type=\"aut-num\" version=\"1\">"));
+        assertThat(whoisResources, containsString("<objects>"));
     }
 
     @Ignore("TODO: [ES] don't set the content-type on an error response")
