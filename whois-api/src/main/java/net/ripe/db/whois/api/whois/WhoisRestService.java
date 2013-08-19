@@ -166,13 +166,6 @@ public class WhoisRestService {
 
             @Override
             public void write(final OutputStream output) throws IOException {
-                streamingMarshal.open(output, "whois-resources");
-
-                if (parameters != null) {
-                    streamingMarshal.write("parameters", parameters);
-                }
-
-                streamingMarshal.start("objects");
 
                 // TODO [AK] Crude way to handle tags, but working
                 final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
@@ -186,7 +179,10 @@ public class WhoisRestService {
                             if (responseObject instanceof TagResponseObject) {
                                 tagResponseObjects.add((TagResponseObject) responseObject);
                             } else if (responseObject instanceof RpslObject) {
-                                found = true;
+                                if (!found) {
+                                    startStreaming(output);
+                                }
+                                    found = true;
                                 streamObject(rpslObjectQueue.poll(), tagResponseObjects);
                                 rpslObjectQueue.add((RpslObject) responseObject);
                             }
@@ -198,7 +194,6 @@ public class WhoisRestService {
                     streamObject(rpslObjectQueue.poll(), tagResponseObjects);
 
                     if (!found) {
-                        // TODO: you can't throw a 404 in the middle of a streaming 200 http response!!!
                         throw new WebApplicationException(Response.Status.NOT_FOUND);
                     }
                 } catch (QueryException e) {
@@ -210,6 +205,16 @@ public class WhoisRestService {
                 }
 
                 streamingMarshal.close();
+            }
+
+            private void startStreaming(final OutputStream output) {
+                streamingMarshal.open(output, "whois-resources");
+
+                if (parameters != null) {
+                    streamingMarshal.write("parameters", parameters);
+                }
+
+                streamingMarshal.start("objects");
             }
 
             private void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
