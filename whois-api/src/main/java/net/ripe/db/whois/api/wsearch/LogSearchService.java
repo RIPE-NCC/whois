@@ -12,8 +12,6 @@ import net.ripe.db.whois.api.httpserver.JettyConfig;
 import net.ripe.db.whois.common.domain.Hosts;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.codehaus.enunciate.jaxrs.TypeHint;
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -39,7 +37,6 @@ import java.util.concurrent.TimeoutException;
 /**
  * Search log files.
  */
-@ExternallyManagedLifecycle
 @Component
 @Path("/logs")
 public class LogSearchService {
@@ -126,7 +123,6 @@ public class LogSearchService {
     @GET
     @Path("/ids")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Update.class)
     public List<Update> getUpdateIds(
             @QueryParam("search") final String search,
             @DefaultValue("") @QueryParam("date") final String date) throws IOException {
@@ -214,7 +210,6 @@ public class LogSearchService {
     @GET
     @Path("/{host}/{date}/{updateId}")
     @Produces({MediaType.TEXT_PLAIN})
-    @TypeHint(String.class)
     public String getRemoteUpdateLogs(
             @PathParam("host") final String host,
             @PathParam("date") final String date,
@@ -254,7 +249,6 @@ public class LogSearchService {
     @GET
     @Path("/current")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Update.class)
     public List<Update> getCurrentUpdateIds(
             @QueryParam("search") final String search,
             @DefaultValue("") @QueryParam("date") final String date) throws IOException {
@@ -283,7 +277,6 @@ public class LogSearchService {
     @GET
     @Path("/current/{updateId}")
     @Produces({MediaType.TEXT_PLAIN})
-    @TypeHint(String.class)
     public Response getUpdateLogs(
             @PathParam("updateId") final String updateId) throws IOException {
         return getUpdateLogs(LoggedUpdateId.parse(updateId));
@@ -301,7 +294,6 @@ public class LogSearchService {
     @GET
     @Path("/current/{date}/{updateId}")
     @Produces({MediaType.TEXT_PLAIN})
-    @TypeHint(String.class)
     public Response getUpdateLogs(
             @PathParam("date") final String date,
             @PathParam("updateId") final String updateId) throws IOException {

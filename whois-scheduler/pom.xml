@@ -22,10 +22,6 @@
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
-            <artifactId>whois-nrtm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
             <artifactId>whois-api</artifactId>
         </dependency>
         <dependency>

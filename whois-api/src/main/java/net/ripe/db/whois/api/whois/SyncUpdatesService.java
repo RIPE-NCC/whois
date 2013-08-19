@@ -16,7 +16,6 @@ import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +36,6 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.Iterator;
 import java.util.Map;
 
-@ExternallyManagedLifecycle
 @Component
 @Path("/syncupdates")
 public class SyncUpdatesService {

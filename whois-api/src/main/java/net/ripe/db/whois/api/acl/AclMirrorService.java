@@ -1,9 +1,5 @@
 package net.ripe.db.whois.api.acl;
 
-import org.codehaus.enunciate.jaxrs.ResponseCode;
-import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.codehaus.enunciate.jaxrs.TypeHint;
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -20,7 +16,6 @@ import static net.ripe.db.whois.api.acl.AclServiceHelper.getNormalizedPrefix;
  * <p/>
  * Requests from prefix ranges with mirror support are allowed to use the mirror option in queries.
  */
-@ExternallyManagedLifecycle
 @Component
 @Path("/acl/mirrors")
 public class AclMirrorService {
@@ -38,7 +33,6 @@ public class AclMirrorService {
      */
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Mirror.class)
     public List<Mirror> getMirrors() {
         return aclServiceDao.getMirrors();
     }
@@ -54,8 +48,6 @@ public class AclMirrorService {
     @Path("/{prefix}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Mirror.class)
-    @StatusCodes(@ResponseCode(code = 404, condition = "Mirror authorisation with the specified prefix does not exist"))
     public Response getMirror(@PathParam("prefix") String prefix) {
         final String normalizedPrefix = getNormalizedPrefix(prefix);
 
@@ -77,7 +69,6 @@ public class AclMirrorService {
     @POST
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Mirror.class)
     public Response saveMirror(final Mirror mirror) {
         final String normalizedPrefix = getNormalizedPrefix(mirror.getPrefix());
         mirror.setPrefix(normalizedPrefix);
@@ -102,8 +93,6 @@ public class AclMirrorService {
     @DELETE
     @Path("/{prefix}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Mirror.class)
-    @StatusCodes(@ResponseCode(code = 404, condition = "Mirror authorisation with the specified prefix does not exist"))
     public Response deleteMirror(@PathParam("prefix") final String prefix) {
         try {
             final String normalizedPrefix = getNormalizedPrefix(prefix);

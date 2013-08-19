@@ -1,10 +1,8 @@
 @XmlSchema(
     xmlns = {
-        @XmlNs(prefix = "xlink", namespaceURI = "http://www.w3.org/1999/xlink"),
-        @XmlNs(prefix = "xsi", namespaceURI = "http://www.w3.org/2001/XMLSchema-instance")
+        @XmlNs(prefix = "xlink", namespaceURI = "http://www.w3.org/1999/xlink")
     },
-    elementFormDefault = XmlNsForm.QUALIFIED,
-    location = "http://http://rest.db.ripe.net/api-doc/whois-resources.xsd"
+    elementFormDefault = XmlNsForm.QUALIFIED
 )
 
 package net.ripe.db.whois.api.whois.domain;

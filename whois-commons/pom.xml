@@ -120,12 +120,6 @@
                     <exclude>**/version.properties</exclude>
                 </excludes>
             </resource>
-            <resource>
-                <directory>target/generated-sources/enunciate</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
         </resources>
         <plugins>
             <plugin>
