@@ -160,10 +160,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_object_json_extension() {
-        final String awhoisResources = createResource(AUDIENCE, "whois/lookup/TEST/person/TP1-TEST.json")
-                .get(String.class);
-        System.out.println(awhoisResources);
-
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/lookup/TEST/person/TP1-TEST.json")
                 .get(WhoisResources.class);
 
