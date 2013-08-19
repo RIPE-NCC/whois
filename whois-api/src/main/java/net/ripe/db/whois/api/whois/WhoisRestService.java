@@ -20,8 +20,6 @@ import net.ripe.db.whois.query.query.QueryFlag;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -45,7 +43,6 @@ import static net.ripe.db.whois.query.query.QueryFlag.*;
 @Component
 @Path("/")
 public class WhoisRestService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRestService.class);
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
     private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
     private static final Joiner JOINER = Joiner.on(",");
@@ -87,6 +84,7 @@ public class WhoisRestService {
     }
 
     /**
+     * The lookup service returns a single object specified by the source, object type and primary-key arguments.
      *
      * @param source     Source name (RIPE or TEST).
      * @param objectType Object type of given object.
@@ -247,6 +245,7 @@ public class WhoisRestService {
     }
 
     /**
+     * Create an object in the RIPE database.
      *
      * @param resources Request body.
      * @param passwords One or more password values.
@@ -273,6 +272,9 @@ public class WhoisRestService {
     }
 
     /**
+     * A successful update request replaces all of an object attributes with the new set of attributes described in
+     * the request.
+     *
      * @param resource   Request body.
      * @param objectType Object type for given object.
      * @param key        Primary key of the given object.
@@ -308,6 +310,8 @@ public class WhoisRestService {
     }
 
     /**
+     * The modify service supports adding, removing or replacing individual attributes.
+     *
      * @param whoisModify Request body.
      * @param objectType  Object type of given object.
      * @param key         Primary key of given object.
@@ -396,6 +400,8 @@ public class WhoisRestService {
     }
 
     /**
+     * The delete service deletes a single object from the database.
+     *
      * @param objectType Object type of given object. Mandatory.
      * @param key        Primary key for given object. Mandatory.
      * @param reason     Reason for deleting given object. Optional.
@@ -424,6 +430,8 @@ public class WhoisRestService {
     }
 
     /**
+     * Lists versions of an RPSL object.
+     *
      * @param key    sought RPSL object
      * @return Returns all updates of given RPSL object
      */
@@ -438,6 +446,8 @@ public class WhoisRestService {
     }
 
     /**
+     * Show a specific version of an RPSL object.
+     *
      * @param version sought version
      * @param key     sought RPSL object
      * @return Returns the version of the RPSL object asked for
@@ -458,6 +468,8 @@ public class WhoisRestService {
     }
 
     /**
+     * The search interface resembles a standard Whois client query with the extra features of multi-registry client, multiple response styles that can be selected via content negotiation and with an extensible URL parameters schema.
+     *
      * @param sources           Mandatory. It's possible to specify multiple sources.
      * @param queryString       Mandatory.
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
