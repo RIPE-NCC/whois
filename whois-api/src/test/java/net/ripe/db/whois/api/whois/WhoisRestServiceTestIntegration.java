@@ -87,7 +87,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void setUpClient() throws Exception {
         ClientConfig cc = new DefaultClientConfig();
         final JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
-        provider.configure(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE, true);
+        provider.configure(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE, false);
         provider.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         cc.getSingletons().add(provider);
         client = Client.create(cc);
@@ -160,6 +160,10 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_object_json_extension() {
+        final String awhoisResources = createResource(AUDIENCE, "whois/lookup/TEST/person/TP1-TEST.json")
+                .get(String.class);
+        System.out.println(awhoisResources);
+
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/lookup/TEST/person/TP1-TEST.json")
                 .get(WhoisResources.class);
 
@@ -1025,7 +1029,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
                 .accept(MediaType.APPLICATION_JSON)
                 .get(String.class);
-        assertThat(response, containsString("\"whois-resources\""));
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"object\""));
         assertThat(response, containsString("\"xlink:type\""));
@@ -1037,7 +1040,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
                 .accept("text/json")
                 .get(String.class);
-        assertThat(response, containsString("\"whois-resources\""));
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"object\""));
         assertThat(response, containsString("\"xlink:type\""));
@@ -1048,7 +1050,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_json_extension() throws Exception {
         final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST.json")
                 .get(String.class);
-        assertThat(response, containsString("\"whois-resources\""));
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"object\""));
         assertThat(response, containsString("\"xlink:type\""));
@@ -1085,7 +1086,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .put(String.class, update);
 
-        assertThat(response, containsString("\"whois-resources\""));
+        assertThat(response, containsString("\"service\" : \"lookup\","));
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"dbtest@ripe.net 20120101\""));
     }
@@ -1189,7 +1190,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=TP1-TEST&source=TEST")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
-
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
         final RpslObject rpslObject = WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
