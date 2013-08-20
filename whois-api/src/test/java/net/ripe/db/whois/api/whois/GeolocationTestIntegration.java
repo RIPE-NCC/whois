@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -117,7 +118,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
                     .accept(MediaType.APPLICATION_JSON)
                     .get(String.class);
 
-        assertThat(response, containsString("\"whois-resources\""));
+        assertThat(response, not(containsString("\"whois-resources\"")));
         assertThat(response, containsString("\"service\" : \"geolocation-finder\""));
         assertThat(response, containsString("\"geolocation-attributes\""));
         assertThat(response, containsString("\"location\""));
