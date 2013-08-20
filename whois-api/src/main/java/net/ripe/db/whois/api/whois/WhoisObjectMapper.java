@@ -29,7 +29,7 @@ public class WhoisObjectMapper {
 
     private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)^[^#]*[#](.*)$");
 
-    private static final String BASE_URL = "http://rest.db.ripe.net/lookup";     // TODO: base url property
+    private static String BASE_URL = "";
 
     private static final Set<AttributeType> CSV_ATTRIBUTES = Sets.immutableEnumSet(
             AttributeType.MNT_BY,
@@ -43,6 +43,10 @@ public class WhoisObjectMapper {
             AttributeType.MEMBER_OF);
 
     private static final Splitter CSV_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
+
+    public static void setBaseUrl(final String baseUrl) {
+        BASE_URL = baseUrl;
+    }
 
     // TODO: [AH] converting between object by parse(toString()) is the most inefficient; reimplement using direct translation
     public static RpslObject map(final WhoisObject whoisObject) {
