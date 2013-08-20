@@ -109,7 +109,7 @@ public class WhoisRestService {
                 QueryFlag.SOURCES.getLongFlag(),
                 source,
                 QueryFlag.SELECT_TYPES.getLongFlag(),
-                objectType,
+                lookupObjectType(objectType),
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 key));
 
@@ -698,4 +698,12 @@ public class WhoisRestService {
         }
         return builder.toString();
     }
+
+    private String lookupObjectType(final String objectType) {
+        if (objectType.equalsIgnoreCase("person-role")) {
+            return "person,role";
+        }
+        return ObjectType.getByName(objectType).getName();
+    }
+
 }

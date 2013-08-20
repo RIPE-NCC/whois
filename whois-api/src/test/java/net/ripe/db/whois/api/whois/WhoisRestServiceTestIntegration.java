@@ -229,6 +229,14 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new WhoisTag("unref", "28")));
     }
 
+    @Test
+    public void lookup_person_role() throws Exception {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/lookup/test/person-role/PP1-TEST").get(WhoisResources.class);
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+    }
+
     // create
 
     @Test
