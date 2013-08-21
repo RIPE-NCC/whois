@@ -1,11 +1,7 @@
 package net.ripe.db.whois.api.whois;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.whois.domain.Attribute;
-import net.ripe.db.whois.api.whois.domain.Link;
-import net.ripe.db.whois.api.whois.domain.WhoisObject;
-import net.ripe.db.whois.api.whois.domain.WhoisTag;
-import net.ripe.db.whois.api.whois.domain.WhoisVersion;
+import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;

@@ -11,11 +11,7 @@ import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.rpsl.*;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.junit.Before;
@@ -132,16 +128,16 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_inet6num_with_prefix_length() throws Exception {
-        databaseHelper.addObject(
+        databaseHelper.addObject("" +
                 "inet6num:       2001:2002:2003::/48\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "descr:          Private Network\n" +
-                        "country:        NL\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "mnt-lower:      OWNER-MNT\n" +
-                        "source:         TEST");
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
         ipTreeUpdater.rebuild();
 
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/lookup/test/inet6num/2001:2002:2003::/48").get(WhoisResources.class);
@@ -269,8 +265,20 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void create_succeeds() throws Exception {
         final boolean filter = false;
-        createResource(AUDIENCE, "whois/create?password=test")
-                .post(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
+        final WhoisResources response = createResource(AUDIENCE, "whois/create?password=test")
+                .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
+        final WhoisObject object = response.getWhoisObjects().get(0);
+
+        assertThat(object.getAttributes(), contains(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/lookup/test/mntner/OWNER-MNT")),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("remarks", "remark"),
+                new Attribute("source", "TEST")));
     }
 
     @Test
@@ -320,26 +328,26 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void create_invalid_reference() throws Exception {
         try {
             createResource(AUDIENCE, "whois/create?password=test")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                     .post(String.class,
                             "<whois-resources>\n" +
-                            "    <objects>\n" +
-                            "        <object type=\"person\">\n" +
-                            "            <source id=\"RIPE\"/>\n" +
-                            "            <attributes>\n" +
-                            "                <attribute name=\"person\" value=\"Pauleth Palthen\"/>\n" +
-                            "                <attribute name=\"address\" value=\"Singel 258\"/>\n" +
-                            "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
-                            "                <attribute name=\"e-mail\" value=\"noreply@ripe.net\"/>\n" +
-                            "                <attribute name=\"admin-c\" value=\"INVALID\"/>\n" +
-                            "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
-                            "                <attribute name=\"nic-hdl\" value=\"PP1-TEST\"/>\n" +
-                            "                <attribute name=\"changed\" value=\"ppalse@ripe.net 20101228\"/>\n" +
-                            "                <attribute name=\"source\" value=\"RIPE\"/>\n" +
-                            "            </attributes>\n" +
-                            "        </object>\n" +
-                            "    </objects>\n" +
-                            "</whois-resources>");
+                                    "    <objects>\n" +
+                                    "        <object type=\"person\">\n" +
+                                    "            <source id=\"RIPE\"/>\n" +
+                                    "            <attributes>\n" +
+                                    "                <attribute name=\"person\" value=\"Pauleth Palthen\"/>\n" +
+                                    "                <attribute name=\"address\" value=\"Singel 258\"/>\n" +
+                                    "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                                    "                <attribute name=\"e-mail\" value=\"noreply@ripe.net\"/>\n" +
+                                    "                <attribute name=\"admin-c\" value=\"INVALID\"/>\n" +
+                                    "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                                    "                <attribute name=\"nic-hdl\" value=\"PP1-TEST\"/>\n" +
+                                    "                <attribute name=\"changed\" value=\"ppalse@ripe.net 20101228\"/>\n" +
+                                    "                <attribute name=\"source\" value=\"RIPE\"/>\n" +
+                                    "            </attributes>\n" +
+                                    "        </object>\n" +
+                                    "    </objects>\n" +
+                                    "</whois-resources>");
             fail("expected request to fail");
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
@@ -422,8 +430,21 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void create_json_request() throws Exception {
         final String response = createResource(AUDIENCE, "whois/create?password=test")
                 .type(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .post(String.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), false));
-        assertThat(response, isEmptyString());
+
+        assertThat(response, containsString("" +
+                "      \"primary-key\" : {\n" +
+                "        \"attribute\" : [ {\n" +
+                "          \"name\" : \"nic-hdl\",\n" +
+                "          \"value\" : \"PP1-TEST\"\n" +
+                "        } ]\n" +
+                "      },\n" +
+                "      \"attributes\" : {\n" +
+                "        \"attribute\" : [ {\n" +
+                "          \"name\" : \"person\",\n" +
+                "          \"value\" : \"Pauleth Palthen\"\n" +
+                "        }, {"));
     }
 
     // delete

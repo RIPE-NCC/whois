@@ -184,7 +184,7 @@ public class WhoisRestService {
                                 if (!found) {
                                     startStreaming(output);
                                 }
-                                    found = true;
+                                found = true;
                                 streamObject(rpslObjectQueue.poll(), tagResponseObjects);
                                 rpslObjectQueue.add((RpslObject) responseObject);
                             }
@@ -268,13 +268,13 @@ public class WhoisRestService {
 
         final RpslObject submittedObject = getSubmittedObject(resources);
 
-        final UpdateResponse response = performUpdate(
+        final RpslObject response = performUpdate(
                 createOrigin(request),
                 createUpdate(submittedObject, passwords, null),
                 createContent(submittedObject, passwords, null),
                 Keyword.NEW);
 
-        return getResponse(response);
+        return Response.ok(createWhoisResources(request, response)).build();
     }
 
     /**
@@ -300,19 +300,13 @@ public class WhoisRestService {
 
         final RpslObject submittedObject = getSubmittedObject(resource);
 
-        final UpdateResponse response = performUpdate(
+        final RpslObject response = performUpdate(
                 createOrigin(request),
                 createUpdate(submittedObject, passwords, null),
                 createContent(submittedObject, passwords, null),
                 Keyword.NONE);
 
-        if (response.getStatus().equals(UpdateStatus.SUCCESS)) {
-            final RpslObject updatedObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
-            final WhoisResources whoisResources = createWhoisResources(request, updatedObject);
-            return Response.ok(whoisResources).build();
-        }
-
-        return getResponse(response);
+        return Response.ok(createWhoisResources(request, response)).build();
     }
 
     /**
@@ -338,18 +332,13 @@ public class WhoisRestService {
         RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
         RpslObject updatedObject = modifyRpslObject(originalObject, whoisModify);
 
-        final UpdateResponse response = performUpdate(
+        final RpslObject response = performUpdate(
                 createOrigin(request),
                 createUpdate(updatedObject, passwords, null),
                 createContent(updatedObject, passwords, null),
                 Keyword.NONE);
 
-        if (!response.getStatus().equals(UpdateStatus.SUCCESS)) {
-            return getResponse(response);
-        }
-
-        final WhoisResources whoisResources = createWhoisResources(request, updatedObject);
-        return Response.ok(whoisResources).build();
+        return Response.ok(createWhoisResources(request, response)).build();
     }
 
     private RpslObject modifyRpslObject(final RpslObject rpslObject, final WhoisModify whoisModify) {
@@ -426,19 +415,19 @@ public class WhoisRestService {
 
         final RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
 
-        final UpdateResponse response = performUpdate(
+        performUpdate(
                 createOrigin(request),
                 createUpdate(originalObject, passwords, reason),
                 createContent(originalObject, passwords, reason),
                 Keyword.NONE);
 
-        return getResponse(response);
+        return Response.status(Response.Status.OK).build();
     }
 
     /**
      * Lists versions of an RPSL object.
      *
-     * @param key    sought RPSL object
+     * @param key sought RPSL object
      * @return Returns all updates of given RPSL object
      */
     @GET
@@ -575,7 +564,7 @@ public class WhoisRestService {
         }
     }
 
-    private UpdateResponse performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword) {
+    private RpslObject performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword) {
         loggerContext.init(getRequestId(origin.getFrom()));
         try {
             final UpdateContext updateContext = new UpdateContext(loggerContext);
@@ -591,10 +580,13 @@ public class WhoisRestService {
             final UpdateResponse response = updateRequestHandler.handle(updateRequest, updateContext);
 
             if (updateContext.getStatus(update) == UpdateStatus.FAILED_AUTHENTICATION) {
-                return new UpdateResponse(UpdateStatus.FAILED_AUTHENTICATION, response.getResponse());
+                throw new WebApplicationException(getResponse(new UpdateResponse(UpdateStatus.FAILED_AUTHENTICATION, response.getResponse())));
+            }
+            if (response.getStatus() != UpdateStatus.SUCCESS) {
+                throw new WebApplicationException(getResponse(response));
             }
 
-            return response;
+            return update.getOperation() == Operation.DELETE ? null : rpslObjectDao.getById(updateContext.getUpdateInfo(update).getObjectId());
         } finally {
             loggerContext.remove();
         }
