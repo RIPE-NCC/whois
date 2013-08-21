@@ -3,7 +3,13 @@ package net.ripe.db.whois.api.whois;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.whois.domain.*;
+import net.ripe.db.whois.api.whois.domain.Attribute;
+import net.ripe.db.whois.api.whois.domain.Link;
+import net.ripe.db.whois.api.whois.domain.Source;
+import net.ripe.db.whois.api.whois.domain.WhoisObject;
+import net.ripe.db.whois.api.whois.domain.WhoisResources;
+import net.ripe.db.whois.api.whois.domain.WhoisTag;
+import net.ripe.db.whois.api.whois.domain.WhoisVersion;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -14,6 +20,9 @@ import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -23,13 +32,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class WhoisObjectMapper {
 
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
 
     private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)^[^#]*[#](.*)$");
-
-    private static String BASE_URL = "";
 
     private static final Set<AttributeType> CSV_ATTRIBUTES = Sets.immutableEnumSet(
             AttributeType.MNT_BY,
@@ -44,12 +52,17 @@ public class WhoisObjectMapper {
 
     private static final Splitter CSV_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
-    public static void setBaseUrl(final String baseUrl) {
-        BASE_URL = baseUrl;
+    private final ReferencedTypeResolver referencedTypeResolver;
+    private final String baseUrl;
+
+    @Autowired
+    public WhoisObjectMapper(final ReferencedTypeResolver referencedTypeResolver, @Value("${api.rest.lookup.baseurl}") final String baseUrl) {
+        this.referencedTypeResolver = referencedTypeResolver;
+        this.baseUrl = baseUrl;
     }
 
     // TODO: [AH] converting between object by parse(toString()) is the most inefficient; reimplement using direct translation
-    public static RpslObject map(final WhoisObject whoisObject) {
+    public RpslObject map(final WhoisObject whoisObject) {
         final StringBuilder builder = new StringBuilder();
         for (Attribute attribute : whoisObject.getAttributes()) {
 
@@ -77,11 +90,11 @@ public class WhoisObjectMapper {
         return RpslObject.parse(builder.toString());
     }
 
-    public static WhoisResources map(final List<RpslObject> rpslObjects) {
+    public WhoisResources map(final List<RpslObject> rpslObjects) {
         return map(rpslObjects, true);
     }
 
-    public static WhoisResources map(final List<RpslObject> rpslObjects, final boolean filter) {
+    public WhoisResources map(final List<RpslObject> rpslObjects, final boolean filter) {
         final WhoisResources whoisResources = new WhoisResources();
         final List<WhoisObject> whoisObjects = Lists.newArrayList();
         for (RpslObject rpslObject : rpslObjects) {
@@ -91,11 +104,11 @@ public class WhoisObjectMapper {
         return whoisResources;
     }
 
-    public static WhoisObject map(final RpslObject rpslObject) {
+    public WhoisObject map(final RpslObject rpslObject) {
         return map(rpslObject, true);
     }
 
-    public static WhoisObject map(final RpslObject rpslObject, final List<TagResponseObject> tags) {
+    public WhoisObject map(final RpslObject rpslObject, final List<TagResponseObject> tags) {
         final WhoisObject object = map(rpslObject);
 
         final List<WhoisTag> whoisTags = Lists.newArrayListWithExpectedSize(tags.size());
@@ -106,7 +119,7 @@ public class WhoisObjectMapper {
         return object;
     }
 
-    public static WhoisObject map(final RpslObject rpslObject, final boolean filter) {
+    public WhoisObject map(final RpslObject rpslObject, final boolean filter) {
         if (filter) {
             return map(filter(rpslObject), false);
         }
@@ -119,7 +132,7 @@ public class WhoisObjectMapper {
             final String comment = getComment(attribute);
             for (CIString value : attribute.getCleanValues()) {
                 if (value.length() > 0) {
-                    final String referencedType = (attribute.getType() != null) ? ReferencedTypeResolver.getReferencedType(attribute.getType(), value) : null;
+                    final String referencedType = (attribute.getType() != null) ? referencedTypeResolver.getReferencedType(attribute.getType(), value) : null;
                     final Link link = (referencedType != null) ? createLink(source, referencedType, value.toString()) : null;
                     attributes.add(createAttribute(attribute.getKey(), value.toString(), comment, referencedType, link));
                 }
@@ -141,7 +154,7 @@ public class WhoisObjectMapper {
     }
 
     @Nullable
-    private static String getComment(final RpslAttribute attribute) {
+    private String getComment(final RpslAttribute attribute) {
         Matcher m = COMMENT_PATTERN.matcher(attribute.getValue());
         if (m.find()) {
             return m.group(1).trim();
@@ -149,26 +162,26 @@ public class WhoisObjectMapper {
         return null;
     }
 
-    private static Link createLink(final RpslObject rpslObject) {
+    private Link createLink(final RpslObject rpslObject) {
         final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
         final String type = rpslObject.getType().getName();
         final String key = rpslObject.getKey().toString();
         return createLink(source, type, key);
     }
 
-    private static Link createLink(final String source, final String type, final String key) {
-        return new Link("locator", String.format("%s/%s/%s/%s", BASE_URL, source, type, key));
+    private Link createLink(final String source, final String type, final String key) {
+        return new Link("locator", String.format("%s/%s/%s/%s", baseUrl, source, type, key));
     }
 
-    private static Source createSource(final String id) {
+    private Source createSource(final String id) {
         return new Source(id);
     }
 
-    private static RpslObject filter(final RpslObject rpslObject) {
+    private RpslObject filter(final RpslObject rpslObject) {
         return FILTER_AUTH_FUNCTION.apply(rpslObject);
     }
 
-    private static RpslAttribute getPrimaryKey(final RpslObject rpslObject) {
+    private RpslAttribute getPrimaryKey(final RpslObject rpslObject) {
         final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
         Iterator<AttributeType> iterator = Sets.intersection(objectTemplate.getKeyAttributes(), objectTemplate.getLookupAttributes()).iterator();
         if (iterator.hasNext()) {
@@ -181,7 +194,7 @@ public class WhoisObjectMapper {
         throw new IllegalArgumentException("Couldn't find primary key attribute for type: " + rpslObject.getType());
     }
 
-    private static Attribute createAttribute(final String name, final String value, final String comment, final String referencedType, final Link link) {
+    private Attribute createAttribute(final String name, final String value, final String comment, final String referencedType, final Link link) {
         final Attribute attribute = new Attribute();
         attribute.setName(name);
         attribute.setValue(value);
@@ -191,7 +204,7 @@ public class WhoisObjectMapper {
         return attribute;
     }
 
-    private static WhoisObject createWhoisObject(final Source source, final String type, final List<Attribute> attributes, final List<Attribute> primaryKey, final Link link) {
+    private WhoisObject createWhoisObject(final Source source, final String type, final List<Attribute> attributes, final List<Attribute> primaryKey, final Link link) {
         final WhoisObject whoisObject = new WhoisObject();
         whoisObject.setSource(source);
         whoisObject.setType(type);
@@ -201,7 +214,7 @@ public class WhoisObjectMapper {
         return whoisObject;
     }
 
-    public static List<WhoisVersion> mapVersions(final List<DeletedVersionResponseObject> deleted, final List<VersionResponseObject> versions) {
+    public List<WhoisVersion> mapVersions(final List<DeletedVersionResponseObject> deleted, final List<VersionResponseObject> versions) {
         final List<WhoisVersion> whoisVersions = Lists.newArrayList();
         for (final DeletedVersionResponseObject deletedVersion : deleted) {
             whoisVersions.add(new WhoisVersion(deletedVersion.getDeletedDate().toString()));

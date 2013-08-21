@@ -72,15 +72,17 @@ public class WhoisRestService {
     private final RpslObjectDao rpslObjectDao;
     private final SourceContext sourceContext;
     private final QueryHandler queryHandler;
+    private final WhoisObjectMapper whoisObjectMapper;
 
     @Autowired
-    public WhoisRestService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler) {
+    public WhoisRestService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler, final WhoisObjectMapper whoisObjectMapper) {
         this.dateTimeProvider = dateTimeProvider;
         this.updateRequestHandler = updateRequestHandler;
         this.loggerContext = loggerContext;
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
+        this.whoisObjectMapper = whoisObjectMapper;
     }
 
     /**
@@ -109,7 +111,7 @@ public class WhoisRestService {
                 QueryFlag.SOURCES.getLongFlag(),
                 source,
                 QueryFlag.SELECT_TYPES.getLongFlag(),
-                lookupObjectType(objectType),
+                ObjectType.getByName(objectType).getName(),
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 key));
 
@@ -146,12 +148,12 @@ public class WhoisRestService {
         final WhoisResources whoisResources = new WhoisResources();
 
         if (versionResponseObject != null) {
-            final WhoisObject whoisObject = WhoisObjectMapper.map(versionResponseObject.getRpslObject());
+            final WhoisObject whoisObject = whoisObjectMapper.map(versionResponseObject.getRpslObject());
             whoisObject.setVersion(versionResponseObject.getVersion());
             whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         } else {
             final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
-            final WhoisVersions whoisVersions = new WhoisVersions(type, key, WhoisObjectMapper.mapVersions(deleted, versions));
+            final WhoisVersions whoisVersions = new WhoisVersions(type, key, whoisObjectMapper.mapVersions(deleted, versions));
             whoisResources.setVersions(whoisVersions);
         }
 
@@ -222,7 +224,7 @@ public class WhoisRestService {
                     return;
                 }
 
-                final WhoisObject whoisObject = WhoisObjectMapper.map(rpslObject, tagResponseObjects);
+                final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, tagResponseObjects);
 
                 streamingMarshal.write("object", whoisObject);
                 tagResponseObjects.clear();
@@ -645,7 +647,7 @@ public class WhoisRestService {
     private WhoisResources createWhoisResources(final HttpServletRequest request, final RpslObject rpslObject) {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setService("lookup");
-        whoisResources.setWhoisObjects(Lists.newArrayList(WhoisObjectMapper.map(rpslObject)));
+        whoisResources.setWhoisObjects(Lists.newArrayList(whoisObjectMapper.map(rpslObject)));
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
         return whoisResources;
     }
@@ -654,7 +656,7 @@ public class WhoisRestService {
         if (whoisResources.getWhoisObjects().isEmpty() || whoisResources.getWhoisObjects().size() > 1) {
             throw new IllegalArgumentException("Expected a single RPSL object");
         }
-        return WhoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
     private Response getResponse(final UpdateResponse updateResponse) {
@@ -703,12 +705,4 @@ public class WhoisRestService {
         }
         return builder.toString();
     }
-
-    private String lookupObjectType(final String objectType) {
-        if (objectType.equalsIgnoreCase("person-role")) {
-            return "person,role";
-        }
-        return ObjectType.getByName(objectType).getName();
-    }
-
 }

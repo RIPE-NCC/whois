@@ -1,20 +1,33 @@
 package net.ripe.db.whois.api.whois;
 
+import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+@Component
 public class ReferencedTypeResolver {
 
     private static final Pattern MNT_ROUTES_NO_REFERENCE = Pattern.compile("^\\s*(ANY|\\{.*\\})$");
 
+    private final RpslObjectDao rpslObjectDao;
+
+    @Autowired
+    public ReferencedTypeResolver(final RpslObjectDao rpslObjectDao) {
+        this.rpslObjectDao = rpslObjectDao;
+    }
+
     @Nullable
-    public static String getReferencedType(final AttributeType attributeType, final CIString value) {
+    public String getReferencedType(final AttributeType attributeType, final CIString value) {
         final Set<ObjectType> references = attributeType.getReferences();
         switch (references.size()) {
             case 0:
@@ -57,20 +70,32 @@ public class ReferencedTypeResolver {
                 return references.iterator().next().getName();
 
             default:
-                if (references.contains(ObjectType.PERSON) && references.contains(ObjectType.ROLE)) {
-                    return "person-role";
-                }
 
-                for (ObjectType objectType : references) {
-                    for (AttributeType lookupAttribute : ObjectTemplate.getTemplate(objectType).getLookupAttributes()) {
-                        if (lookupAttribute.isValidValue(objectType, value)) {
-                            return objectType.getName();
+                if (references.contains(ObjectType.PERSON) || references.contains(ObjectType.ROLE)) {
+                    for (ObjectType objectType : references) {
+                        if (attributeType.isValidValue(objectType, value)) {
+                            try {
+                                return lookup(objectType, value).getObjectType().getName();
+                            } catch (EmptyResultDataAccessException ignored) {
+                            }
+                        }
+                    }
+                }
+                else {
+                    for (ObjectType objectType : references) {
+                        for (AttributeType lookupAttribute : ObjectTemplate.getTemplate(objectType).getLookupAttributes()) {
+                            if (lookupAttribute.isValidValue(objectType, value)) {
+                                return objectType.getName();
+                            }
                         }
                     }
                 }
 
-                throw new IllegalStateException(
-                        String.format("Unable to determine object type for attribute %s: %s", attributeType, value));
+                return null;
         }
+    }
+
+    private RpslObjectInfo lookup(final ObjectType objectType, final CIString value) {
+        return rpslObjectDao.findByKey(objectType, value.toString());
     }
 }

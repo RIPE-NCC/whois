@@ -17,8 +17,4 @@
         <oxm:class-to-be-bound name="net.ripe.db.whois.api.whois.domain.WhoisModify"/>
     </oxm:jaxb2-marshaller>
 
-    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="staticMethod" value="net.ripe.db.whois.api.whois.WhoisObjectMapper.setBaseUrl"/>
-        <property name="arguments" value="${api.rest.lookup.baseurl}"/>
-    </bean>
 </beans>
