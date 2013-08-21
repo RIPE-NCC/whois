@@ -355,6 +355,10 @@ public enum AttributeType implements Documented {
             .doc("Specifies a multiprotocol export policy expression.")
             .syntax(MP_EXPORT_SYNTAX)),
 
+    EXPORT_VIA(new Builder("export-via", "ev")
+            .doc("Specifies an export policy expression targeted at a non-adjacent network.")
+            .syntax(EXPORT_VIA_SYNTAX)),
+
     MP_FILTER(new Builder("mp-filter", "mf")
             .doc("Defines the set's multiprotocol policy filter.")
             .syntax(MP_FILTER_SYNTAX)),
@@ -362,6 +366,10 @@ public enum AttributeType implements Documented {
     MP_IMPORT(new Builder("mp-import", "my")
             .doc("Specifies multiprotocol import policy expression.")
             .syntax(MP_IMPORT_SYNTAX)),
+
+    IMPORT_VIA(new Builder("import-via", "iv")
+            .doc("Specifies an import policy expression targeted at a non-adjacent network.")
+            .syntax(IMPORT_VIA_SYNTAX)),
 
     MP_MEMBERS(new Builder("mp-members", "mm")
             .doc("Lists the multiprotocol members of the set.")
