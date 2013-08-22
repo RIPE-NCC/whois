@@ -2,7 +2,6 @@ package spec.integration
 import net.ripe.db.whois.common.IntegrationTest
 import spec.domain.Message
 import spec.domain.SyncUpdate
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class PersonIntegrationSpec extends BaseWhoisSourceSpec {
@@ -246,7 +245,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[person\] TP3-TEST/
     }
 
-    @Ignore   //TODO these characters are being stored incorrectly in the database (also őúŐÚ are stored incorrectly)
     def "create person keeps special chars with syncupdate GET request"() {
       given:
         def person = new SyncUpdate(data: """\
@@ -270,9 +268,9 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /person:\s+Test Person2/
         response =~ /address:\s+Flughafenstraße 109\/a/
         response =~ /address:\s+München, Germany/
+        response =~ /Mandatory attribute \"mnt-by\" is missing/
     }
 
-    @Ignore
     def "create person keeps special chars with syncupdate POST request"() {
       given:
         def person = new SyncUpdate(data: """\
@@ -295,6 +293,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /person:\s+New Test Person/
         response =~ /address:\s+Flughafenstraße 120/
         response =~ /address:\s+D \- 40474 Düsseldorf/
+        response =~ /Mandatory attribute \"mnt-by\" is missing/
     }
 
     def "create person keeps special chars with mail update"() {
