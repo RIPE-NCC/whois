@@ -146,6 +146,33 @@ public class WhoisRestService {
 
 
         // TODO: [AH] refactor this looks-generic-but-is-not method
+
+    @GET
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Path("/{source}/{objectType}/{key:.*}")
+    public Response get(
+            @Context final HttpServletRequest request,
+            @PathParam("source") final String source,
+            @PathParam("objectType") final String objectType,
+            @PathParam("key") final String key) {
+
+        checkForInvalidSource(source);
+
+        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s",
+                QueryFlag.EXACT.getLongFlag(),
+                QueryFlag.NO_GROUPING.getLongFlag(),
+                QueryFlag.NO_REFERENCED.getLongFlag(),
+                QueryFlag.SOURCES.getLongFlag(),
+                source,
+                QueryFlag.SELECT_TYPES.getLongFlag(),
+                ObjectType.getByName(objectType).getName(),
+                QueryFlag.SHOW_TAG_INFO.getLongFlag(),
+                key));
+
+        return handleQuery(query, key, request, null);
+    }
+
+    // TODO: [AH] refactor this looks-generic-but-is-not method
     private Response handleQuery(final Query query, final String key, final HttpServletRequest request, @Nullable final Parameters parameters) {
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
         final int contextId = System.identityHashCode(Thread.currentThread());
