@@ -809,6 +809,27 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     // versions
 
     @Test
+    public void versions_as_rest_queryparam() throws IOException {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST\n");
+
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/aut-num/AS102?versions=true")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        final WhoisVersions whoisVersions = whoisResources.getVersions();
+        assertThat(whoisVersions.getType(), is("aut-num"));
+        assertThat(whoisVersions.getVersions(), hasSize(1));
+    }
+
+    @Test
     public void versions_returns_xml() throws IOException {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
@@ -996,6 +1017,32 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getType(), is("aut-num"));
+        assertThat(object.getVersion(), is(1));
+        final List<Attribute> attributes = object.getAttributes();
+        final List<RpslAttribute> originalAttributes = autnum.getAttributes();
+        for (int i = 0; i < originalAttributes.size(); i++) {
+            assertThat(originalAttributes.get(i).getCleanValue().toString(), is(attributes.get(i).getValue()));
+        }
+    }
+
+    @Test
+    public void rest_version_as_queryparam() throws IOException {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/aut-num/AS102?version=1")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getType(), is("aut-num"));
