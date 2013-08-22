@@ -639,7 +639,7 @@ public class WhoisRestService {
     private WhoisResources createWhoisResources(final HttpServletRequest request, final RpslObject rpslObject) {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setService("lookup");
-        whoisResources.setWhoisObjects(Lists.newArrayList(whoisObjectMapper.map(rpslObject)));
+        whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(rpslObject)));
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
         return whoisResources;
     }
