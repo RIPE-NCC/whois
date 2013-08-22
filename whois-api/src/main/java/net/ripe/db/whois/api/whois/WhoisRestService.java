@@ -129,9 +129,7 @@ public class WhoisRestService {
             @QueryParam(value = "reason") @DefaultValue("--") final String reason,
             @QueryParam(value = "password") final List<String> passwords) {
 
-        if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
-            throw new IllegalArgumentException("Invalid source for deletion: "+source);
-        }
+        checkForMainSource(source);
 
         final RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
 
@@ -144,8 +142,36 @@ public class WhoisRestService {
         return Response.status(Response.Status.OK).build();
     }
 
+    @PUT
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @Path("/{source}/{objectType}/{key:.*}")
+    public Response restUpdate(
+            final WhoisResources resource,
+            @Context final HttpServletRequest request,
+            @PathParam("source") final String source,
+            @PathParam("objectType") final String objectType,
+            @PathParam("key") final String key,
+            @QueryParam(value = "password") final List<String> passwords) {
 
-        // TODO: [AH] refactor this looks-generic-but-is-not method
+        checkForMainSource(source);
+
+        final RpslObject submittedObject = getSubmittedObject(resource);
+
+        final RpslObject response = performUpdate(
+                createOrigin(request),
+                createUpdate(submittedObject, passwords, null),
+                createContent(submittedObject, passwords, null),
+                Keyword.NONE);
+
+        return Response.ok(createWhoisResources(request, response)).build();
+    }
+
+    private void checkForMainSource(String source) {
+        if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
+            throw new IllegalArgumentException("Invalid source for deletion: "+source);
+        }
+    }
 
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
