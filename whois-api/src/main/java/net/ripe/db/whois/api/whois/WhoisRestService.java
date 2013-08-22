@@ -180,9 +180,19 @@ public class WhoisRestService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
-            @PathParam("key") final String key) {
+            @PathParam("key") final String key,
+            @QueryParam("version") final Integer version,
+            @QueryParam("versions") final boolean listVersions) {
 
         checkForInvalidSource(source);
+
+        if (version != null) {
+            return showVersion(request, version, key);
+        }
+
+        if (listVersions) {
+            return listVersions(request, key);
+        }
 
         final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s",
                 QueryFlag.EXACT.getLongFlag(),
