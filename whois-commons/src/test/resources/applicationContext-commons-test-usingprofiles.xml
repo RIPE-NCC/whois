@@ -9,17 +9,15 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
+<context:property-placeholder
+            location="classpath:version.properties,classpath:whois.properties"
+            system-properties-mode="OVERRIDE"/>
+
     <tx:annotation-driven mode="aspectj"/>
 
     <context:spring-configured/>
 
-    <context:component-scan base-package="net.ripe.db.whois" use-default-filters="false">
-        <context:include-filter type="custom" expression="net.ripe.db.whois.common.profiles.WhoisVariantContextFilter"/>
-    </context:component-scan>
-
-    <context:component-scan base-package="net.apnic.db.whois" use-default-filters="false">
-        <context:include-filter type="custom" expression="net.ripe.db.whois.common.profiles.WhoisVariantContextFilter"/>
-    </context:component-scan>
+    <context:component-scan base-package="net.ripe.db.whois"/>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="sourceAwareDataSource"/>
@@ -78,4 +76,5 @@
         <property name="user" value="${whois.db.slave.username}"/>
         <property name="password" value="${whois.db.slave.password}"/>
     </bean>
+
 </beans>

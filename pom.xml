@@ -36,6 +36,10 @@
         <sonar.jdbc.driver>com.mysql.jdbc.Driver</sonar.jdbc.driver>
         <sonar.jdbc.username>dbint</sonar.jdbc.username>
         <sonar.jdbc.password />
+
+        <!-- Can be overridden when invoking maven e.g. mvn -Dwhois.variant=apnic clean install -->
+        <whois.variant>ripe</whois.variant>
+
     </properties>
 
     <scm>
@@ -607,7 +611,7 @@
                 <version>2.14.1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx512m -Ddir.var=var${surefire.forkNumber} -Dsurefire.forkNumber=${surefire.forkNumber}</argLine>
+                    <argLine>-Xmx512m -Ddir.var=var${surefire.forkNumber} -Dsurefire.forkNumber=${surefire.forkNumber} ${arg.line.variant}</argLine>
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
@@ -625,7 +629,7 @@
                 <version>2.14.1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx1024m -Ddir.var=var${surefire.forkNumber} -Dsurefire.forkNumber=${surefire.forkNumber}</argLine>
+                    <argLine>-Xmx1024m -Ddir.var=var${surefire.forkNumber} -Dsurefire.forkNumber=${surefire.forkNumber} ${arg.line.variant}</argLine>
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
@@ -776,5 +780,23 @@
                 </plugins>
             </build>
         </profile>
+
+        <!--  Base on "all" maven profile. Proposed concept - new whois variant configurations if using spring profiles -->
+        <profile>
+            <id>usingprofiles</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <arg.line.variant>-Dspring.profiles.active=TEST,${whois.variant}</arg.line.variant>
+                <test.redirectOutput>true</test.redirectOutput>
+                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
+                <test.files.unit>net/ripe/db/whois/common/profiles/usingspring/${whois.variant}/*UST.java</test.files.unit>
+                <test.files.integration>net/ripe/db/whois/common/profiles/usingspring/${whois.variant}/*IntegrationUST.class</test.files.integration>
+                <test.forkCount.integration>3</test.forkCount.integration>
+            </properties>
+        </profile>
+
+
     </profiles>
 </project>
