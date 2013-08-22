@@ -479,7 +479,7 @@ public class WhoisRestService {
     @Path("/search")
     public Response search(
             @Context HttpServletRequest request,
-            @QueryParam("source") Set<String> sources,
+            @QueryParam("source") @DefaultValue("ripe") Set<String> sources,
             @QueryParam("query-string") String queryString,
             @QueryParam("inverse-attribute") Set<String> inverseAttributes,
             @QueryParam("include-tag") Set<String> includeTags,
