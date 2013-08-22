@@ -479,7 +479,7 @@ public class WhoisRestService {
     @Path("/search")
     public Response search(
             @Context HttpServletRequest request,
-            @QueryParam("source") @DefaultValue("ripe") Set<String> sources,
+            @QueryParam("source") Set<String> sources,
             @QueryParam("query-string") String queryString,
             @QueryParam("inverse-attribute") Set<String> inverseAttributes,
             @QueryParam("include-tag") Set<String> includeTags,
@@ -488,10 +488,11 @@ public class WhoisRestService {
             @QueryParam("flags") Set<String> flags) {
 
         if (sources == null || sources.isEmpty()) {
-            throw new IllegalArgumentException("Argument 'source' is missing, you have to specify a valid RIR source for your search request");
+            sources = Collections.singleton(sourceContext.getCurrentSource().getName().toString());
+        } else {
+            checkForInvalidSources(sources);
         }
 
-        checkForInvalidSources(sources);
         final Set<String> separateFlags = splitInputFlags(flags);
         checkForInvalidFlags(separateFlags);
 
