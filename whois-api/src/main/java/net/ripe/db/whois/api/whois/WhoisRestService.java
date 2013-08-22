@@ -118,7 +118,34 @@ public class WhoisRestService {
         return handleQuery(query, key, request, null);
     }
 
-    // TODO: [AH] refactor this looks-generic-but-is-not method
+    @DELETE
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Path("/{source}/{objectType}/{key:.*}")
+    public Response restDelete (
+            @Context final HttpServletRequest request,
+            @PathParam("source") final String source,
+            @PathParam("objectType") final String objectType,
+            @PathParam("key") final String key,
+            @QueryParam(value = "reason") @DefaultValue("--") final String reason,
+            @QueryParam(value = "password") final List<String> passwords) {
+
+        if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
+            throw new IllegalArgumentException("Invalid source for deletion: "+source);
+        }
+
+        final RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
+
+        performUpdate(
+                createOrigin(request),
+                createUpdate(originalObject, passwords, reason),
+                createContent(originalObject, passwords, reason),
+                Keyword.NONE);
+
+        return Response.status(Response.Status.OK).build();
+    }
+
+
+        // TODO: [AH] refactor this looks-generic-but-is-not method
     private Response handleQuery(final Query query, final String key, final HttpServletRequest request, @Nullable final Parameters parameters) {
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
         final int contextId = System.identityHashCode(Thread.currentThread());
