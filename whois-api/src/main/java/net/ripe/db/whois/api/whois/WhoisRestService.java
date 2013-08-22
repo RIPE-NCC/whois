@@ -176,7 +176,7 @@ public class WhoisRestService {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
     @Path("/{source}/{objectType}/{key:.*}")
-    public Response get(
+    public Response restGet(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
