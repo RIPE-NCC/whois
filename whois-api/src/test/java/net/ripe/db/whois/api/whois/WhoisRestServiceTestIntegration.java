@@ -1475,15 +1475,11 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void search_no_sources_given() {
-        try {
-            createResource(AUDIENCE, "whois/search?query-string=AS102")
-                    .accept(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-            fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("Argument 'source' is missing, you have to specify a valid RIR source for your search request"));
-        }
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=TP1-TEST")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
     }
 
     @Test
