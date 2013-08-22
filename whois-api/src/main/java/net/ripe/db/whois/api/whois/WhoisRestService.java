@@ -184,6 +184,9 @@ public class WhoisRestService {
 
         checkForInvalidSource(source);
 
+        String queryString = request.getQueryString();
+        System.out.println(queryString);
+
         final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s",
                 QueryFlag.EXACT.getLongFlag(),
                 QueryFlag.NO_GROUPING.getLongFlag(),
@@ -195,6 +198,40 @@ public class WhoisRestService {
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 key));
 
+        return handleQuery(query, key, request, null);
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Path("/{source}/{objectType}/{key:.*}/versions")
+    public Response restVersions(
+            @Context final HttpServletRequest request,
+            @PathParam("source") final String source,
+            @PathParam("objectType") final String objectType,
+            @PathParam("key") final String key) {
+
+        checkForMainSource(source);
+
+        final Query query = Query.parse(String.format("--list-versions %s", key));
+        return handleQuery(query, key, request, null);
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Path("/{source}/{objectType}/{key:.*}/versions/{version}")
+    public Response restVersion(
+            @Context final HttpServletRequest request,
+            @PathParam("source") final String source,
+            @PathParam("objectType") final String objectType,
+            @PathParam("key") final String key,
+            @PathParam("version") final Integer version) {
+
+        checkForMainSource(source);
+
+        final Query query = Query.parse(String.format("" +
+                "--show-version %s %s",
+                version,
+                key));
         return handleQuery(query, key, request, null);
     }
 

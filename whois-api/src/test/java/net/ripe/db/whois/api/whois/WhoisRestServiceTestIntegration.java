@@ -1781,6 +1781,34 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         assertThat(whoisResources, containsString("<objects>"));
     }
 
+    // TODO: fix up this test
+    // TODO: fix up this test
+    // TODO: fix up this test
+    // TODO: fix up this test
+    // TODO: fix up this test
+    // TODO: fix up this test
+    // TODO: fix up this test
+    @Test
+    public void rest_get_person() throws Exception {
+        final RpslObject autnum = RpslObject.parse("" +
+                "inet6num: 2001::/48\n" +
+                "netname: RIPE-NCC\n" +
+                "descr: some description\n" +
+                "country: DK\n" +
+                "admin-c: TP1-TEST\n" +
+                "tech-c: TP1-TEST\n" +
+                "status: ASSIGNED\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "changed: org@ripe.net 20120505\n" +
+                "source: TEST\n");
+        databaseHelper.addObject(autnum);
+
+        final String whoisResources = createResource(AUDIENCE, "whois/test/inet6num/2001::/48/versions/1").get(String.class);
+
+        System.out.printf(whoisResources);
+    }
+
+
     @Ignore("TODO: [ES] don't set the content-type on an error response")
     @Test
     public void search_dont_set_content_type_on_error() {
