@@ -155,7 +155,7 @@ public class RpslObjectTest {
     }
 
     private byte[] bytesFrom(String input) {
-        return input.getBytes(Charsets.ISO_8859_1);
+        return input.getBytes(Charsets.UTF_8);
     }
 
     private void parseAndAssign(String input) {
@@ -774,6 +774,48 @@ public class RpslObjectTest {
                         "-changed:        noreply@ripe.net\n" +
                         "+changed:        updated@ripe.net\n" +
                         " source:         TEST\n"));
+    }
+
+    @Test
+    public void parse_greek_attribute_value() {
+        final RpslObject rpslObject = RpslObject.parse(
+                "person:  Test Person\n" +
+                "address: Καλημέρα κόσμε\n" +
+                "phone:   +31 20 123456\n" +
+                "nic-hdl: AUTO-1\n" +
+                "mnt-by:  TEST-DBM-MNT\n" +
+                "changed: hostmaster@ripe.net\n" +
+                "source:  TEST\n");
+
+        assertThat(rpslObject.findAttribute(AttributeType.ADDRESS).getValue(), containsString("Καλημέρα κόσμε"));
+    }
+
+    @Test
+    public void parse_japanese_attribute_value() {
+        final RpslObject rpslObject = RpslObject.parse(
+                "person:  Test Person\n" +
+                "address: こんにちは 世界\n" +
+                "phone:   +31 20 123456\n" +
+                "nic-hdl: AUTO-1\n" +
+                "mnt-by:  TEST-DBM-MNT\n" +
+                "changed: hostmaster@ripe.net\n" +
+                "source:  TEST\n");
+
+        assertThat(rpslObject.findAttribute(AttributeType.ADDRESS).getValue(), containsString("こんにちは 世界"));
+    }
+
+    @Test
+    public void parse_arabic_attribute_value() {
+        final RpslObject rpslObject = RpslObject.parse(
+                "person:  Test Person\n" +
+                "address: حد بيتكلم انجليزي؟\n" +
+                "phone:   +31 20 123456\n" +
+                "nic-hdl: AUTO-1\n" +
+                "mnt-by:  TEST-DBM-MNT\n" +
+                "changed: hostmaster@ripe.net\n" +
+                "source:  TEST\n");
+
+        assertThat(rpslObject.findAttribute(AttributeType.ADDRESS).getValue(), containsString("حد بيتكلم انجلي"));
     }
 
     private static Iterable<String> convertToString(final Iterable<CIString> c) {

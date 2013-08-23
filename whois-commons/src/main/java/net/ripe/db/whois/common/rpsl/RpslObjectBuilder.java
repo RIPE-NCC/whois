@@ -39,9 +39,8 @@ public class RpslObjectBuilder {
         return attributes;
     }
 
-    // Note: we use ISO_8859_1 encoding everywhere as it is the only one that maps directly from byte to char (as in, it effectively is a '(char)byteValue')
     static List<RpslAttribute> getAttributes(String input) {
-        return getAttributes(input.getBytes(Charsets.ISO_8859_1));
+        return getAttributes(input.getBytes(Charsets.UTF_8));
     }
 
     static List<RpslAttribute> getAttributes(byte[] buf) {
@@ -70,7 +69,7 @@ public class RpslObjectBuilder {
             if (!readKey) throw new IllegalArgumentException("No key found");
             if (start == pos) throw new IllegalArgumentException("Read zero sized key");
 
-            final String key = new String(buf, start, pos - start, Charsets.ISO_8859_1);
+            final String key = new String(buf, start, pos - start, Charsets.UTF_8);
 
             // skip over ':' and continue reading the attribute value
             start = ++pos;
@@ -100,7 +99,7 @@ public class RpslObjectBuilder {
                 stop = pos;
             }
 
-            final String value = new String(buf, start, stop - start, Charsets.ISO_8859_1);
+            final String value = new String(buf, start, stop - start, Charsets.UTF_8);
             newAttributes.add(new RpslAttribute(key, value));
         }
 
