@@ -761,7 +761,7 @@ public class MessageParserTest {
 
     @Test
     public void illegal_charset() throws Exception {
-        assertThat(subject.getCharset(new ContentType("text/plain;\n\tcharset=\"_iso-2022-jp$ESC\"")), is(Charsets.ISO_8859_1));
+        assertThat(subject.getCharset(new ContentType("text/plain;\n\tcharset=\"_iso-2022-jp$ESC\"")), is(Charsets.UTF_8));
     }
 
     private MimeMessage getMessage(final String message) throws MessagingException, IOException {

@@ -29,7 +29,7 @@ CREATE TABLE `abuse_c` (
   PRIMARY KEY (`pe_ro_id`,`object_id`),
   KEY `object_type` (`object_type`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -46,7 +46,7 @@ CREATE TABLE `abuse_mailbox` (
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`abuse_mailbox`,`object_id`),
   KEY `abuse_mailbox_object_id_index` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -64,7 +64,7 @@ CREATE TABLE `admin_c` (
   PRIMARY KEY (`pe_ro_id`,`object_id`),
   KEY `object_type` (`object_type`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -83,7 +83,7 @@ CREATE TABLE `as_block` (
   KEY `thread_id` (`thread_id`),
   KEY `begin_as` (`begin_as`),
   KEY `end_as` (`end_as`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,7 +101,7 @@ CREATE TABLE `as_set` (
   PRIMARY KEY (`object_id`),
   KEY `as_set` (`as_set`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -118,7 +118,7 @@ CREATE TABLE `aut_num` (
   PRIMARY KEY (`object_id`),
   KEY `aut_num` (`aut_num`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -131,11 +131,11 @@ DROP TABLE IF EXISTS `auth`;
 CREATE TABLE `auth` (
   `thread_id` int(11) NOT NULL DEFAULT '0',
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `auth` varchar(90) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL DEFAULT '',
+  `auth` varchar(90) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`auth`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -151,7 +151,7 @@ CREATE TABLE `auth_override` (
   `date` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`date`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -169,7 +169,7 @@ CREATE TABLE `author` (
   PRIMARY KEY (`pe_ro_id`,`object_id`),
   KEY `object_id` (`object_id`),
   KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -186,7 +186,7 @@ CREATE TABLE `domain` (
   PRIMARY KEY (`object_id`),
   KEY `domain` (`domain`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -201,7 +201,7 @@ CREATE TABLE `ds_rdata` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `ds_rdata` varchar(128) NOT NULL DEFAULT '',
   PRIMARY KEY (`ds_rdata`,`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -218,7 +218,7 @@ CREATE TABLE `e_mail` (
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`e_mail`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -235,7 +235,7 @@ CREATE TABLE `filter_set` (
   PRIMARY KEY (`object_id`),
   KEY `filter_set` (`filter_set`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -251,7 +251,7 @@ CREATE TABLE `fingerpr` (
   `fingerpr` varchar(80) NOT NULL DEFAULT '',
   PRIMARY KEY (`fingerpr`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -269,7 +269,7 @@ CREATE TABLE `form` (
   PRIMARY KEY (`form_id`,`object_id`),
   KEY `object_id` (`object_id`),
   KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -292,7 +292,7 @@ CREATE TABLE `history` (
   PRIMARY KEY (`object_id`,`sequence_id`),
   KEY `history_pkey` (`pkey`),
   KEY `history_timestamp` (`timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -308,7 +308,7 @@ CREATE TABLE `ifaddr` (
   `ifaddr` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`ifaddr`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -324,7 +324,7 @@ CREATE TABLE `inaddr_arpa` (
   `begin_in` int(10) unsigned NOT NULL DEFAULT '0',
   `end_in` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -346,7 +346,7 @@ CREATE TABLE `inet6num` (
   KEY `i6_msb` (`i6_msb`),
   KEY `i6_lsb` (`i6_lsb`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -365,7 +365,7 @@ CREATE TABLE `inet_rtr` (
   KEY `inet_rtr` (`inet_rtr`),
   KEY `local_as` (`local_as`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -386,7 +386,7 @@ CREATE TABLE `inetnum` (
   KEY `begin_in` (`begin_in`),
   KEY `end_in` (`end_in`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -404,7 +404,7 @@ CREATE TABLE `interface` (
   `interface_v4` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`interface_v6_msp`,`interface_v6_lsp`,`interface_v4`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -421,7 +421,7 @@ CREATE TABLE `ip6int` (
   `lsb` varchar(20) NOT NULL DEFAULT '',
   `prefix_length` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -438,7 +438,7 @@ CREATE TABLE `irt` (
   `dummy` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`object_id`),
   KEY `irt` (`irt`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -454,7 +454,7 @@ CREATE TABLE `irt_nfy` (
   `irt_nfy` varchar(80) NOT NULL DEFAULT '',
   PRIMARY KEY (`irt_nfy`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -471,7 +471,7 @@ CREATE TABLE `key_cert` (
   PRIMARY KEY (`object_id`),
   KEY `key_cert` (`key_cert`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -494,7 +494,7 @@ CREATE TABLE `last` (
   PRIMARY KEY (`object_id`,`sequence_id`),
   KEY `last_pkey` (`pkey`),
   KEY `object_type_index` (`object_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=12650254 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=12650254 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -511,7 +511,7 @@ CREATE TABLE `limerick` (
   PRIMARY KEY (`object_id`),
   KEY `limerick` (`limerick`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -529,7 +529,7 @@ CREATE TABLE `mbrs_by_ref` (
   PRIMARY KEY (`mnt_id`,`object_id`),
   KEY `object_id` (`object_id`),
   KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -547,7 +547,7 @@ CREATE TABLE `member_of` (
   PRIMARY KEY (`set_id`,`object_id`),
   KEY `object_id` (`object_id`),
   KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -565,7 +565,7 @@ CREATE TABLE `mnt_by` (
   PRIMARY KEY (`mnt_id`,`object_id`),
   KEY `object_id` (`object_id`),
   KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -582,7 +582,7 @@ CREATE TABLE `mnt_domains` (
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`mnt_id`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -600,7 +600,7 @@ CREATE TABLE `mnt_irt` (
   PRIMARY KEY (`irt_id`,`object_id`),
   KEY `object_id` (`object_id`),
   KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -618,7 +618,7 @@ CREATE TABLE `mnt_lower` (
   PRIMARY KEY (`mnt_id`,`object_id`),
   KEY `object_id` (`object_id`),
   KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -634,7 +634,7 @@ CREATE TABLE `mnt_nfy` (
   `mnt_nfy` varchar(80) NOT NULL DEFAULT '',
   PRIMARY KEY (`mnt_nfy`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -651,7 +651,7 @@ CREATE TABLE `mnt_ref` (
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`mnt_id`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -669,7 +669,7 @@ CREATE TABLE `mnt_routes` (
   PRIMARY KEY (`mnt_id`,`object_id`),
   KEY `object_id` (`object_id`),
   KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -687,7 +687,7 @@ CREATE TABLE `mnt_routes6` (
   PRIMARY KEY (`mnt_id`,`object_id`),
   KEY `object_id` (`object_id`),
   KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -705,7 +705,7 @@ CREATE TABLE `mntner` (
   PRIMARY KEY (`object_id`),
   KEY `mntner` (`mntner`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -722,7 +722,7 @@ CREATE TABLE `names` (
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`name`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -744,7 +744,7 @@ CREATE TABLE `nic_hdl` (
   KEY `range_end` (`range_end`),
   KEY `space` (`space`,`source`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1924502 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1924502 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -761,7 +761,7 @@ CREATE TABLE `notify` (
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`notify`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -777,7 +777,7 @@ CREATE TABLE `nserver` (
   `host` varchar(254) NOT NULL DEFAULT '',
   PRIMARY KEY (`host`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -794,7 +794,7 @@ CREATE TABLE `org` (
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`org_id`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -810,7 +810,7 @@ CREATE TABLE `org_name` (
   `name` varchar(64) NOT NULL DEFAULT '',
   PRIMARY KEY (`name`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -828,7 +828,7 @@ CREATE TABLE `organisation` (
   PRIMARY KEY (`organisation`,`object_id`),
   KEY `object_id` (`object_id`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -848,7 +848,7 @@ CREATE TABLE `organisation_id` (
   KEY `range_end` (`range_end`),
   KEY `space` (`space`,`source`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19153 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=19153 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -865,7 +865,7 @@ CREATE TABLE `peering_set` (
   PRIMARY KEY (`object_id`),
   KEY `peering_set` (`peering_set`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -885,7 +885,7 @@ CREATE TABLE `person_role` (
   KEY `nic_hdl` (`nic_hdl`),
   KEY `object_type` (`object_type`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -903,7 +903,7 @@ CREATE TABLE `ping_hdl` (
   PRIMARY KEY (`pe_ro_id`,`object_id`),
   KEY `object_type` (`object_type`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -920,7 +920,7 @@ CREATE TABLE `poem` (
   PRIMARY KEY (`object_id`),
   KEY `poem` (`poem`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -939,7 +939,7 @@ CREATE TABLE `poetic_form` (
   KEY `poetic_form` (`poetic_form`),
   KEY `thread_id` (`thread_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -955,7 +955,7 @@ CREATE TABLE `ref_nfy` (
   `ref_nfy` varchar(80) NOT NULL DEFAULT '',
   PRIMARY KEY (`ref_nfy`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -972,7 +972,7 @@ CREATE TABLE `refer` (
   `port` int(5) unsigned NOT NULL DEFAULT '43',
   `host` varchar(80) NOT NULL DEFAULT '',
   PRIMARY KEY (`object_id`,`host`,`port`,`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -990,7 +990,7 @@ CREATE TABLE `referral_by` (
   PRIMARY KEY (`mnt_id`,`object_id`),
   KEY `object_id` (`object_id`),
   KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1007,7 +1007,7 @@ CREATE TABLE `rev_srv` (
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`rev_srv`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1026,7 +1026,7 @@ CREATE TABLE `route` (
   `dummy` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`object_id`),
   KEY `origin` (`origin`,`prefix`,`prefix_length`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1048,7 +1048,7 @@ CREATE TABLE `route6` (
   KEY `origin` (`origin`,`r6_msb`,`r6_lsb`,`prefix_length`),
   KEY `r6_msb` (`r6_msb`),
   KEY `r6_lsb` (`r6_lsb`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1066,7 +1066,7 @@ CREATE TABLE `route_set` (
   PRIMARY KEY (`object_id`),
   KEY `route_set` (`route_set`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1084,7 +1084,7 @@ CREATE TABLE `rtr_set` (
   PRIMARY KEY (`object_id`),
   KEY `rtr_set` (`rtr_set`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1104,7 +1104,7 @@ CREATE TABLE `serials` (
   PRIMARY KEY (`serial_id`),
   KEY `object` (`object_id`,`sequence_id`),
   KEY `thread_id` (`thread_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25050923 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=25050923 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1120,7 +1120,7 @@ CREATE TABLE `sub_dom` (
   `domain` varchar(254) NOT NULL DEFAULT '',
   PRIMARY KEY (`domain`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1138,7 +1138,7 @@ CREATE TABLE `tech_c` (
   PRIMARY KEY (`pe_ro_id`,`object_id`),
   KEY `object_type` (`object_type`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1154,7 +1154,7 @@ CREATE TABLE `upd_to` (
   `upd_to` varchar(80) NOT NULL DEFAULT '',
   PRIMARY KEY (`upd_to`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1167,7 +1167,7 @@ DROP TABLE IF EXISTS `update_lock`;
 CREATE TABLE `update_lock` (
   `global_lock` int(11) NOT NULL,
   PRIMARY KEY (`global_lock`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1179,7 +1179,7 @@ DROP TABLE IF EXISTS `version`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `version` (
   `version` varchar(80) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1193,7 +1193,7 @@ CREATE TABLE `x509` (
   `thread_id` int(11) NOT NULL DEFAULT '0',
   `keycert_id` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`keycert_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1211,7 +1211,7 @@ CREATE TABLE `zone_c` (
   PRIMARY KEY (`pe_ro_id`,`object_id`),
   KEY `object_type` (`object_type`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -1232,5 +1232,5 @@ CREATE TABLE `tags` (
   `tag_id` varchar(50) NOT NULL DEFAULT '',
   `data` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`object_id`, `tag_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

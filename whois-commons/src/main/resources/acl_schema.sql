@@ -27,7 +27,7 @@ CREATE TABLE `acl_denied` (
   `comment` text,
   `denied_date` date NOT NULL DEFAULT '0000-00-00',
   PRIMARY KEY (`prefix`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -43,7 +43,7 @@ CREATE TABLE `acl_event` (
   `daily_limit` int(11) NOT NULL,
   `event_type` varchar(20) NOT NULL,
   PRIMARY KEY (`prefix`,`event_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -59,7 +59,7 @@ CREATE TABLE `acl_limit` (
   `comment` text,
   `unlimited_connections` bit(1) NOT NULL DEFAULT b'0',
   PRIMARY KEY (`prefix`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -73,7 +73,7 @@ CREATE TABLE `acl_mirror` (
   `prefix` varchar(50) NOT NULL,
   `comment` text,
   PRIMARY KEY (`prefix`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -89,7 +89,7 @@ CREATE TABLE `acl_mirror_delete_log` (
   `delete_comment` text,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`prefix`,`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -103,7 +103,7 @@ CREATE TABLE `acl_proxy` (
   `prefix` varchar(50) NOT NULL,
   `comment` text,
   PRIMARY KEY (`prefix`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -119,7 +119,7 @@ CREATE TABLE `override_users` (
   `objecttypes` varchar(255) NOT NULL,
   `last_changed` date DEFAULT NULL,
   UNIQUE KEY `override_username_idx` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -131,7 +131,7 @@ DROP TABLE IF EXISTS `version`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `version` (
   `version` varchar(80) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

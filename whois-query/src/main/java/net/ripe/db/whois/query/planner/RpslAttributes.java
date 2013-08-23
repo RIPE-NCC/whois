@@ -18,7 +18,7 @@ class RpslAttributes implements ResponseObject {
 
     @Override
     public void writeTo(final OutputStream out) throws IOException {
-        final OutputStreamWriter writer = new OutputStreamWriter(out, Charsets.ISO_8859_1);
+        final OutputStreamWriter writer = new OutputStreamWriter(out, Charsets.UTF_8);
 
         for (final RpslAttribute attribute : attributes) {
             attribute.writeTo(writer);
@@ -40,6 +40,6 @@ class RpslAttributes implements ResponseObject {
 
     @Override
     public String toString() {
-        return new String(toByteArray(), Charsets.ISO_8859_1);
+        return new String(toByteArray(), Charsets.UTF_8);
     }
 }

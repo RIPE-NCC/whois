@@ -143,7 +143,7 @@ public class LogSearchService {
             final String url = String.format("http://%s:%s/api/logs/current?search=%s&date=%s&apiKey=%s",
                     clusterMember.getHostName(),
                     jettyConfig.getPort(Audience.INTERNAL),
-                    URLEncoder.encode(search, "ISO-8859-1"),
+                    URLEncoder.encode(search, "UTF-8"),
                     date, apiKey);
             final Future<List<Update>> future = client.asyncResource(url)
                     .accept(MediaType.APPLICATION_JSON_TYPE)

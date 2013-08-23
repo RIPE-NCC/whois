@@ -219,7 +219,7 @@ public class MessageParser {
             }
         }
 
-        return Charsets.ISO_8859_1;
+        return Charsets.UTF_8;
     }
 
     String getHeaders(final Part part) throws MessagingException {

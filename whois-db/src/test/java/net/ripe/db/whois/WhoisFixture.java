@@ -83,7 +83,7 @@ public class WhoisFixture {
 
     private static final String SYNCUPDATES_INSTANCE = "TEST";
 
-    private static final String CHARSET = "ISO-8859-1";
+    private static final String CHARSET = "UTF-8";
 
     static {
         Slf4JLogConfiguration.init();

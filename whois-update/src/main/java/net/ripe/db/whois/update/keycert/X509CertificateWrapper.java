@@ -33,7 +33,7 @@ public class X509CertificateWrapper implements KeyWrapper {
         }
 
         try {
-            final byte[] bytes = new RpslObjectFilter(rpslObject).getCertificateFromKeyCert().getBytes(Charsets.ISO_8859_1);
+            final byte[] bytes = new RpslObjectFilter(rpslObject).getCertificateFromKeyCert().getBytes(Charsets.UTF_8);
 
             X509CertParser parser = new X509CertParser();
             parser.engineInit(new ByteArrayInputStream(bytes));

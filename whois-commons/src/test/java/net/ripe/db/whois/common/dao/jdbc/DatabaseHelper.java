@@ -14,7 +14,12 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.jdbc.driver.LoggingDriver;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
+import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
@@ -38,9 +43,19 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.StringValueResolver;
 
 import javax.sql.DataSource;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -179,7 +194,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     static void setupDatabase(final JdbcTemplate jdbcTemplate, final String propertyBase, final String name, final String... sql) {
         final String dbName = dbBaseName + "_" + name;
-        jdbcTemplate.execute("CREATE DATABASE " + dbName);
+        jdbcTemplate.execute("CREATE DATABASE " + dbName + " DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci");
 
         loadScripts(new JdbcTemplate(createDataSource(dbName)), sql);
 

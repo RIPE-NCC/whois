@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 
 public final class ChannelUtil {
-    public static final Charset BYTE_ENCODING = Charsets.ISO_8859_1;
+    public static final Charset BYTE_ENCODING = Charsets.UTF_8;
 
     private ChannelUtil() {
     }

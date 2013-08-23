@@ -7,9 +7,9 @@ create table pending_updates (
   `passed_authentications` VARCHAR(100) NOT NULL,
   `object` longblob NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `version`;
 CREATE TABLE `version` (
   `version` varchar(80) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

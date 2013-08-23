@@ -26,7 +26,7 @@ CREATE TABLE `scheduler` (
   `date` date NOT NULL,
   `host` varchar(50) NOT NULL,
   PRIMARY KEY (`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -38,7 +38,7 @@ DROP TABLE IF EXISTS `version`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `version` (
   `version` varchar(80) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

@@ -38,8 +38,8 @@ public final class RpslAttribute {
         Validate.notNull(key);
         Validate.notNull(value);
 
-        this.key = new String(key, Charsets.ISO_8859_1).toLowerCase();
-        this.value = new String(value, Charsets.ISO_8859_1);
+        this.key = new String(key, Charsets.UTF_8).toLowerCase();
+        this.value = new String(value, Charsets.UTF_8);
         this.type = AttributeType.getByNameOrNull(this.key);
     }
 

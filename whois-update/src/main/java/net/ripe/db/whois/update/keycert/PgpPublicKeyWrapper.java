@@ -42,7 +42,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
         }
 
         try {
-            final byte[] bytes = new RpslObjectFilter(object).getCertificateFromKeyCert().getBytes(Charsets.ISO_8859_1);
+            final byte[] bytes = new RpslObjectFilter(object).getCertificateFromKeyCert().getBytes(Charsets.UTF_8);
             final ArmoredInputStream armoredInputStream = (ArmoredInputStream) PGPUtil.getDecoderStream(new ByteArrayInputStream(bytes));
             PGPPublicKey masterKey = null;
             List<PGPPublicKey> subKeys = Lists.newArrayList();
