@@ -222,7 +222,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Error:   Self reference is not allowed for attribute type "tech-c"/
     }
 
-
     def "create person"() {
       given:
         def person = new SyncUpdate(data: """\
@@ -245,18 +244,66 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[person\] TP3-TEST/
     }
 
-    def "create person keeps special chars with syncupdate GET request"() {
+    def "create person returns non-ASCII characters in query response"() {
+      given:
+        def create = syncUpdate new SyncUpdate(data: """\
+                person:     Test Person2
+                address:    Flughafenstraße 109/a
+                address:    München, Germany
+                phone:      +49 282 411141
+                fax-no:     +49 282 411140
+                nic-hdl:    TP3-TEST
+                changed:    dbtest@ripe.net 20120101
+                mnt-by:     UPD-MNT
+                source:     TEST
+                password: update
+                """.stripIndent())
+
+      when:
+        create =~ /Create SUCCEEDED: \[person\] TP3-TEST/
+
+      then:
+        def query = query "-r -T person TP3-TEST"
+          query =~ /address:\s+Flughafenstraße 109\/a/
+          query =~ /address:\s+München, Germany/
+    }
+
+    def "update person returns non-ASCII characters in query response"() {
+      given:
+        def update = syncUpdate new SyncUpdate(data: """\
+                person:     Admin Person
+                address:    Flughafenstraße 109/a
+                address:    München, Germany
+                address:    DE
+                phone:      +49 282 411141
+                nic-hdl:    TEST-RIPE
+                mnt-by:     UPD-MNT
+                changed:    dbtest@ripe.net 20120101
+                source:     TEST
+                password: update
+                """.stripIndent())
+
+      when:
+        update =~ /Modify SUCCEEDED: \[person\] TEST-RIPE/
+
+      then:
+        def query = query "-r -T person TEST-RIPE"
+        query =~ /address:\s+Flughafenstraße 109\/a/
+        query =~ /address:\s+München, Germany/
+    }
+
+    def "create person returns non-ASCII characters with syncupdate GET request"() {
       given:
         def person = new SyncUpdate(data: """\
-                person:  Test Person2
-                address: Flughafenstraße 109/a
-                address: München, Germany
-                phone:   +44 282 411141
-                fax-no:  +44 282 411140
-                nic-hdl: AUTO-1
-                changed: dbtest@ripe.net 20120101
-                changed: dbtest@ripe.net 20120101
-                source:  TEST
+                person:     Test Person2
+                address:    Flughafenstraße 109/a
+                address:    München, Germany
+                phone:      +44 282 411141
+                fax-no:     +44 282 411140
+                nic-hdl:    AUTO-1
+                changed:    dbtest@ripe.net 20120101
+                changed:    dbtest@ripe.net 20120101
+                source:     TEST
                 password: update
                 """.stripIndent(),
                 post: false)
@@ -265,23 +312,22 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate person
 
       then:
-        response =~ /person:\s+Test Person2/
         response =~ /address:\s+Flughafenstraße 109\/a/
         response =~ /address:\s+München, Germany/
         response =~ /Mandatory attribute \"mnt-by\" is missing/
     }
 
-    def "create person keeps special chars with syncupdate POST request"() {
+    def "create person returns non-ASCII characters with syncupdate POST request"() {
       given:
         def person = new SyncUpdate(data: """\
-                person:  New Test Person
-                address: Flughafenstraße 120
-                address: D - 40474 Düsseldorf
-                phone:   +44 282 411141
-                fax-no:  +44 282 411140
-                nic-hdl: AUTO-1
-                changed: dbtest@ripe.net 20120101
-                source:  TEST
+                person:     New Test Person
+                address:    Flughafenstraße 120
+                address:    D - 40474 Düsseldorf
+                phone:      +49 282 411141
+                fax-no:     +49 282 411140
+                nic-hdl:    AUTO-1
+                changed:    dbtest@ripe.net 20120101
+                source:     TEST
                 password: update
                 """.stripIndent(),
                 post: true)
@@ -290,23 +336,22 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate person
 
       then:
-        response =~ /person:\s+New Test Person/
         response =~ /address:\s+Flughafenstraße 120/
         response =~ /address:\s+D \- 40474 Düsseldorf/
         response =~ /Mandatory attribute \"mnt-by\" is missing/
     }
 
-    def "create person keeps special chars with mail update"() {
+    def "create person returns non-ASCII characters with mail update"() {
       given:
         def person = new Message(body: """\
-                person:  New Test Person
-                address: Flughafenstraße 120
-                address: D - 40474 Düsseldorf
-                phone:   +44 282 411141
-                fax-no:  +44 282 411140
-                nic-hdl: AUTO-1
-                changed: dbtest@ripe.net 20120101
-                source:  TEST
+                person:     New Test Person
+                address:    Flughafenstraße 120
+                address:    D - 40474 Düsseldorf
+                phone:      +49 282 411141
+                fax-no:     +49 282 411140
+                nic-hdl:    AUTO-1
+                changed:    dbtest@ripe.net 20120101
+                source:     TEST
                 password: update
                 """.stripIndent())
 
@@ -315,9 +360,9 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         def response = ackFor message
 
       then:
-        response =~ /person:\s+New Test Person/
         response =~ /address:\s+Flughafenstraße 120/
         response =~ /address:\s+D \- 40474 Düsseldorf/
+        response =~ /Mandatory attribute \"mnt-by\" is missing/
     }
 
     def "create person with generated nic-hdl"() {
