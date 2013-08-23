@@ -140,7 +140,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST");
         ipTreeUpdater.rebuild();
 
-//        Thread.sleep(Long.MAX_VALUE);
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/inet6num/2001:2002:2003::/48").get(WhoisResources.class);
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
@@ -175,6 +174,13 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("nic-hdl", "TP1-TEST"),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)));
+    }
+
+    @Test
+    public void json_lookup_correct_object() throws Exception {
+        final String whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST").accept(MediaType.APPLICATION_JSON_TYPE).get(String.class);
+        assertThat(whoisResources, containsString("{\"object\":[{\"type\":\"person"));
+        assertThat(whoisResources, containsString("\"tags\":{\"tag\":[]}}]}}"));
     }
 
     @Test
@@ -264,7 +270,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
 
         final WhoisResources whoisResources = createResource(AUDIENCE,
-                "whois/lookup/TEST/aut-num/AS102")
+                "whois/TEST/aut-num/AS102")
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1011,7 +1017,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void rest_version_as_queryparam() throws IOException {
+    public void rest_versions() throws IOException {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -1110,7 +1116,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_accept_application_xml() throws Exception {
-        final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
+        final String response = createResource(AUDIENCE, "whois/test/person/TP1-TEST")
                 .accept(MediaType.APPLICATION_XML)
                 .get(String.class);
         assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
@@ -1119,7 +1125,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_accept_text_xml() throws Exception {
-        final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
+        final String response = createResource(AUDIENCE, "whois/test/person/TP1-TEST")
                 .accept("text/xml")
                 .get(String.class);
         assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
@@ -1128,7 +1134,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_accept_application_json() throws Exception {
-        final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
+        final String response = createResource(AUDIENCE, "whois/test/person/TP1-TEST")
                 .accept(MediaType.APPLICATION_JSON)
                 .get(String.class);
         assertThat(response, containsString("\"objects\""));
@@ -1139,7 +1145,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_accept_text_json() throws Exception {
-        final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
+        final String response = createResource(AUDIENCE, "whois/test/person/TP1-TEST")
                 .accept("text/json")
                 .get(String.class);
         assertThat(response, containsString("\"objects\""));
@@ -1150,7 +1156,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_json_extension() throws Exception {
-        final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST.json")
+        final String response = createResource(AUDIENCE, "whois/test/person/TP1-TEST.json")
                 .get(String.class);
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"object\""));
@@ -1188,7 +1194,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .put(String.class, update);
 
-        assertThat(response, containsString("\"service\" : \"lookup\","));
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"dbtest@ripe.net 20120101\""));
     }
@@ -1231,7 +1236,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "changed:     dbtest@ripe.net 20120101\n" +
                 "source:      TEST");
 
-        final String response = createResource(AUDIENCE, "whois/lookup/test/mntner/TEST-MNT")
+        final String response = createResource(AUDIENCE, "whois/test/mntner/TEST-MNT")
                 .accept(MediaType.APPLICATION_XML)
                 .get(String.class);
 
@@ -1383,7 +1388,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
 
         final WhoisResources whoisResources = createResource(AUDIENCE,
-                "whois/lookup/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
+                "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 

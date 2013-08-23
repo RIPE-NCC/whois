@@ -342,7 +342,12 @@ public class WhoisRestService {
 
                 final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, tagResponseObjects);
 
-                streamingMarshal.write("object", whoisObject);
+                if (streamingMarshal instanceof StreamingMarshalJson) {
+                    streamingMarshal.write("object", Collections.singletonList(whoisObject));
+                } else {
+                    streamingMarshal.write("object", whoisObject);
+                }
+
                 tagResponseObjects.clear();
             }
         }).build();
@@ -755,7 +760,6 @@ public class WhoisRestService {
 
     private WhoisResources createWhoisResources(final HttpServletRequest request, final RpslObject rpslObject) {
         final WhoisResources whoisResources = new WhoisResources();
-        whoisResources.setService("lookup");
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(rpslObject)));
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
         return whoisResources;
