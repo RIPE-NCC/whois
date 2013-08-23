@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.whois;
 
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
@@ -70,18 +69,16 @@ public class ReferencedTypeResolver {
                 return references.iterator().next().getName();
 
             default:
-
                 if (references.contains(ObjectType.PERSON) || references.contains(ObjectType.ROLE)) {
                     for (ObjectType objectType : references) {
                         if (attributeType.isValidValue(objectType, value)) {
                             try {
-                                return lookup(objectType, value).getObjectType().getName();
-                            } catch (EmptyResultDataAccessException ignored) {
-                            }
+                                // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
+                                return rpslObjectDao.findByKey(objectType, value.toString()).getObjectType().getName();
+                            } catch (EmptyResultDataAccessException ignored) {}
                         }
                     }
-                }
-                else {
+                } else {
                     for (ObjectType objectType : references) {
                         for (AttributeType lookupAttribute : ObjectTemplate.getTemplate(objectType).getLookupAttributes()) {
                             if (lookupAttribute.isValidValue(objectType, value)) {
@@ -93,9 +90,5 @@ public class ReferencedTypeResolver {
 
                 return null;
         }
-    }
-
-    private RpslObjectInfo lookup(final ObjectType objectType, final CIString value) {
-        return rpslObjectDao.findByKey(objectType, value.toString());
     }
 }

@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class RouteEntry<T extends Interval<T>> extends IpEntry<T> implements Comparable<RouteEntry<T>> {
-    private static final Pattern PKEY_PATTERN = Pattern.compile("(.+)([aA][sS]\\d+)");
+    private static final Pattern PKEY_PATTERN = Pattern.compile("(?i)(.+)(AS\\d+)");
 
     private final String origin;
 
