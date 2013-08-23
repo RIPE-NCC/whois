@@ -304,24 +304,23 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void create_source_in_url() throws Exception {
-        final RpslObject rpslObject = RpslObject.parse("" +
-                "person:  Pauleth Palthen\n" +
-                "address: Singel 258\n" +
-                "phone:   +31-1234567890\n" +
-                "e-mail:  noreply@ripe.net\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "nic-hdl: PP1-TEST\n" +
-                "changed: noreply@ripe.net 20120101\n" +
-                "remarks: remark\n" +
-                "source:  TEST\n");
-        try {
-            createResource(AUDIENCE, "whois/create/test?password=test")
-                    .post(Response.class, whoisObjectMapper.map(Lists.newArrayList(rpslObject), false));
-            fail("expected request to fail");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
-        }
+    //TODO [AS]niceify, just a copy-paste to ensure the rest-create is working
+    public void rest_create_succeeds() throws Exception {
+        final boolean filter = false;
+        final WhoisResources response = createResource(AUDIENCE, "whois/test/person?password=test")
+                .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
+        final WhoisObject object = response.getWhoisObjects().get(0);
+
+        assertThat(object.getAttributes(), contains(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("remarks", "remark"),
+                new Attribute("source", "TEST")));
     }
 
     @Test

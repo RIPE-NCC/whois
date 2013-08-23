@@ -167,6 +167,28 @@ public class WhoisRestService {
         return Response.ok(createWhoisResources(request, response)).build();
     }
 
+    @POST
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @Path("/{source}/{objectType}")
+    public Response restCreate(
+            final WhoisResources resource,
+            @Context final HttpServletRequest request,
+            @PathParam("source") final String source,
+            @PathParam("objectType") final String objectType,
+            @QueryParam(value = "password") final List<String> passwords) {
+
+        final RpslObject submittedObject = getSubmittedObject(resource);
+
+        final RpslObject response = performUpdate(
+                createOrigin(request),
+                createUpdate(submittedObject, passwords, null),
+                createContent(submittedObject, passwords, null),
+                Keyword.NEW);
+
+        return Response.ok(createWhoisResources(request, response)).build();
+    }
+
     private void checkForMainSource(String source) {
         if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
             throw new IllegalArgumentException("Invalid source for deletion: "+source);
