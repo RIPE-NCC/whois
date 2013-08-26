@@ -649,24 +649,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void modify_supports_text_json_accept_and_content_type_headers() {
-        databaseHelper.addObject(PAULETH_PALTHEN);
-
-        final WhoisModify whoisModify = new WhoisModify(
-                new WhoisModify.Replace("address",
-                        Lists.newArrayList(
-                                new Attribute("address", "P.O. Box 10096"),
-                                new Attribute("address", "1001 EB Amsterdam"),
-                                new Attribute("address", "The Netherlands"))));
-
-        WhoisResources response = createResource(AUDIENCE, "whois/modify/person/PP1-TEST?password=test")
-                .accept("text/json")
-                .entity(whoisModify, "text/json").post(WhoisResources.class);
-
-        assertThat(response.getWhoisObjects(), hasSize(1));
-    }
-
-    @Test
     public void modify_append_new_attributes() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
@@ -1074,29 +1056,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void lookup_accept_text_xml() throws Exception {
-        final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
-                .accept("text/xml")
-                .get(String.class);
-        assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
-        assertThat(response, containsString("<whois-resources"));
-    }
-
-    @Test
     public void lookup_accept_application_json() throws Exception {
         final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
                 .accept(MediaType.APPLICATION_JSON)
-                .get(String.class);
-        assertThat(response, containsString("\"objects\""));
-        assertThat(response, containsString("\"object\""));
-        assertThat(response, containsString("\"xlink:type\""));
-        assertThat(response, containsString("\"xlink:href\""));
-    }
-
-    @Test
-    public void lookup_accept_text_json() throws Exception {
-        final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
-                .accept("text/json")
                 .get(String.class);
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"object\""));
@@ -1170,6 +1132,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .post(String.class, update);
 
         assertThat(response, containsString("\"objects\""));
+        assertThat(response, containsString("\"object\" : [ {"));
         assertThat(response, containsString("\"name\" : \"remarks\""));
         assertThat(response, containsString("\"value\" : \"updated\""));
     }
@@ -1779,6 +1742,53 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             assertThat(e.getResponse().getEntity(String.class), not(containsString("Caused by:")));
             assertThat(e.getResponse().getHeaders().get("Content-Type"), not(contains("application/xml"))); //is(empty()));
         }
+    }
+
+    @Test
+    public void non_ascii_characters_are_preserved() {
+        assertThat(createResource(AUDIENCE, "whois/create?password=test")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .post(String.class,
+                        "{ \"objects\": { \"object\": [ {\n" +
+                        "\"source\": { \"id\": \"RIPE\" },\n" +
+                        "\"attributes\": {\n \"attribute\": [\n" +
+                        "{ \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                        "{ \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
+                        "{ \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                        "{ \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "{ \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                        "{ \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                        "{ \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "{ \"name\": \"remarks\", \"value\": \"created\" },\n" +
+                        "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                        "] } } ] } }"), containsString("Flughafenstraße 109/a"));
+
+        assertThat(createResource(AUDIENCE, "whois/lookup/test/person/PP1-TEST")
+                .accept(MediaType.APPLICATION_JSON)
+                .get(String.class), containsString("Flughafenstraße 109/a"));
+
+        assertThat(createResource(AUDIENCE, "whois/search?query-string=PP1-TEST&source=TEST")
+                .accept(MediaType.APPLICATION_JSON)
+                .get(String.class), containsString("Flughafenstraße 109/a"));
+
+        assertThat(createResource(AUDIENCE, "whois/update/person/PP1-TEST?password=test")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .put(String.class,
+                        "{ \"objects\": { \"object\": [ {\n" +
+                        "\"source\": { \"id\": \"RIPE\" },\n" +
+                        "\"attributes\": {\n \"attribute\": [\n" +
+                        "{ \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                        "{ \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
+                        "{ \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                        "{ \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "{ \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                        "{ \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                        "{ \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "{ \"name\": \"remarks\", \"value\": \"updated\" },\n" +
+                        "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                        "] } } ] } }"), containsString("Flughafenstraße 109/a"));
     }
 
     // helper methods

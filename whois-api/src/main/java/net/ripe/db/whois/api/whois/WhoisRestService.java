@@ -63,9 +63,6 @@ public class WhoisRestService {
             PERSISTENT_CONNECTION.getFlags()
     ));
 
-    private static final String TEXT_JSON = "text/json";
-    private static final String TEXT_XML = "text/xml";
-
     private final DateTimeProvider dateTimeProvider;
     private final UpdateRequestHandler updateRequestHandler;
     private final LoggerContext loggerContext;
@@ -94,7 +91,7 @@ public class WhoisRestService {
      * @return Returns the lookup result.
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/lookup/{source}/{objectType}/{key:.*}")
     public Response lookup(
             @Context final HttpServletRequest request,
@@ -258,8 +255,8 @@ public class WhoisRestService {
      * @return The response body will be empty.
      */
     @POST
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/create")
     public Response create(
             final WhoisResources resources,
@@ -288,8 +285,8 @@ public class WhoisRestService {
      * @return Response in appropriate format.
      */
     @PUT
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/update/{objectType}/{key:.*}")
     public Response update(
             final WhoisResources resource,
@@ -319,8 +316,8 @@ public class WhoisRestService {
      * @return Returns the modified object.
      */
     @POST
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/modify/{objectType}/{key:.*}")
     public Response modify(
             final WhoisModify whoisModify,
@@ -431,7 +428,7 @@ public class WhoisRestService {
      * @return Returns all updates of given RPSL object
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/versions/{key:.*}")
     public Response listVersions(
             @Context HttpServletRequest request,
@@ -448,7 +445,7 @@ public class WhoisRestService {
      * @return Returns the version of the RPSL object asked for
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/version/{version}/{key:.*}")
     public Response showVersion(
             @Context HttpServletRequest request,
@@ -475,7 +472,7 @@ public class WhoisRestService {
      * @return Returns the query result.
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/search")
     public Response search(
             @Context HttpServletRequest request,
