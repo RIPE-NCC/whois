@@ -649,24 +649,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void modify_supports_text_json_accept_and_content_type_headers() {
-        databaseHelper.addObject(PAULETH_PALTHEN);
-
-        final WhoisModify whoisModify = new WhoisModify(
-                new WhoisModify.Replace("address",
-                        Lists.newArrayList(
-                                new Attribute("address", "P.O. Box 10096"),
-                                new Attribute("address", "1001 EB Amsterdam"),
-                                new Attribute("address", "The Netherlands"))));
-
-        WhoisResources response = createResource(AUDIENCE, "whois/modify/person/PP1-TEST?password=test")
-                .accept("text/json")
-                .entity(whoisModify, "text/json").post(WhoisResources.class);
-
-        assertThat(response.getWhoisObjects(), hasSize(1));
-    }
-
-    @Test
     public void modify_append_new_attributes() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
@@ -1074,29 +1056,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void lookup_accept_text_xml() throws Exception {
-        final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
-                .accept("text/xml")
-                .get(String.class);
-        assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
-        assertThat(response, containsString("<whois-resources"));
-    }
-
-    @Test
     public void lookup_accept_application_json() throws Exception {
         final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
                 .accept(MediaType.APPLICATION_JSON)
-                .get(String.class);
-        assertThat(response, containsString("\"objects\""));
-        assertThat(response, containsString("\"object\""));
-        assertThat(response, containsString("\"xlink:type\""));
-        assertThat(response, containsString("\"xlink:href\""));
-    }
-
-    @Test
-    public void lookup_accept_text_json() throws Exception {
-        final String response = createResource(AUDIENCE, "whois/lookup/test/person/TP1-TEST")
-                .accept("text/json")
                 .get(String.class);
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"object\""));
