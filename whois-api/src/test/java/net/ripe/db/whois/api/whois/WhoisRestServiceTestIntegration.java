@@ -1132,6 +1132,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .post(String.class, update);
 
         assertThat(response, containsString("\"objects\""));
+        assertThat(response, containsString("\"object\" : [ {"));
         assertThat(response, containsString("\"name\" : \"remarks\""));
         assertThat(response, containsString("\"value\" : \"updated\""));
     }
