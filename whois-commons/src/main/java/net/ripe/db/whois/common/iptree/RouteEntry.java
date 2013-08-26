@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.etree.Interval;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class RouteEntry<T extends Interval<T>> extends IpEntry<T> implements Comparable<RouteEntry<T>> {
+public class RouteEntry<T extends Interval<T>> extends IpEntry<T> implements Comparable<RouteEntry<T>> {
     private static final Pattern PKEY_PATTERN = Pattern.compile("(?i)(.+)(AS\\d+)");
 
     private final String origin;

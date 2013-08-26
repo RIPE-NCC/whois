@@ -253,7 +253,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     @Test
     public void unsupported_query() {
         final String response = DummyWhoisClient.query(QueryServer.port, "(85.115.248.176)");
-        assertThat(response, containsString(QueryMessages.unsupportedQuery().toString()));
+        assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
     }
 
     @Test

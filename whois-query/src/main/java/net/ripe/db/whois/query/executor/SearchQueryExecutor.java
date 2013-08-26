@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -18,7 +17,6 @@ import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 import java.util.Set;
 
 @Component
@@ -51,18 +49,7 @@ public class SearchQueryExecutor implements QueryExecutor {
             return false;
         }
 
-        if (query.isInverse()) {
-            return true;
-        }
-
-        final Collection<ObjectType> requestedTypes = query.getObjectTypes();
-        for (final ObjectType objectType : requestedTypes) {
-            if (query.matchesObjectType(objectType)) {
-                return true;
-            }
-        }
-
-        return false;
+        return true;
     }
 
     @Override
@@ -123,8 +110,7 @@ public class SearchQueryExecutor implements QueryExecutor {
             for (String source : query.getSources()) {
                 sources.add(Source.slave(source));
             }
-        }
-        else {
+        } else {
             if (!sourceContext.getAdditionalSourceNames().isEmpty()) {
                 sources.add(sourceContext.getWhoisSlaveSource());
                 sources.addAll(Sets.newLinkedHashSet(Iterables.transform(sourceContext.getAdditionalSourceNames(), new Function<CIString, Source>() {

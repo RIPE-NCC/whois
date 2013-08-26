@@ -23,10 +23,11 @@ import java.util.regex.Pattern;
  * represented as <code>long</code>s to avoid issues with the sign-bit.
  */
 public final class Ipv4Resource extends IpInterval<Ipv4Resource> implements Comparable<Ipv4Resource> {
+    public static final String IPV4_REVERSE_DOMAIN = ".in-addr.arpa";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Ipv4Resource.class);
 
     private static final Splitter IPV4_TEXT_SPLITTER = Splitter.on('.');
-    private static final String IPV4_REVERSE_DOMAIN = ".in-addr.arpa";
 
     private static final long MINIMUM_NUMBER = 0;
     private static final long MAXIMUM_NUMBER = (1L << 32) - 1;
