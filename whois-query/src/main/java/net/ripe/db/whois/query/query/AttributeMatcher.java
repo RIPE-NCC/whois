@@ -50,6 +50,13 @@ abstract class AttributeMatcher { // TODO [AK] Figure out what can be delegated 
         }
     };
 
+    static final AttributeMatcher ROUTE_MATCHER = new AttributeMatcher() {
+        @Override
+        public boolean matches(final Query query) {
+            return query.getRouteOrigin() != null;
+        }
+    };
+
     static final class RegExpMatcher extends AttributeMatcher {
         private final Pattern pattern;
 
@@ -87,31 +94,22 @@ abstract class AttributeMatcher { // TODO [AK] Figure out what can be delegated 
         attributeMatchers.put(AttributeType.POEM, Sets.newHashSet(AttributeMatcher.POEM_MATCHER));
         attributeMatchers.put(AttributeType.POETIC_FORM, Sets.newHashSet(AttributeMatcher.POETIC_FORM_MATCHER));
         attributeMatchers.put(AttributeType.ROLE, Sets.newHashSet(AttributeMatcher.ANYTHING_CONTAINING_ALPHA_MATCHER));
-        attributeMatchers.put(AttributeType.ROUTE, Sets.newHashSet(AttributeMatcher.IPV4_MATCHER));
-        attributeMatchers.put(AttributeType.ROUTE6, Sets.newHashSet(AttributeMatcher.IPV6_MATCHER));
+        attributeMatchers.put(AttributeType.ROUTE, Sets.newHashSet(AttributeMatcher.IPV4_MATCHER, AttributeMatcher.ROUTE_MATCHER));
+        attributeMatchers.put(AttributeType.ROUTE6, Sets.newHashSet(AttributeMatcher.IPV6_MATCHER, AttributeMatcher.ROUTE_MATCHER));
         attributeMatchers.put(AttributeType.ROUTE_SET, Sets.newHashSet(AttributeMatcher.ROUTE_SET_MATCHER));
         attributeMatchers.put(AttributeType.RTR_SET, Sets.newHashSet(AttributeMatcher.RTR_SET_MATCHER));
     }
 
     static boolean fetchableBy(final AttributeType attributeType, final Query query) {
-        final Collection<AttributeMatcher> matchers = attributeMatchers.get(attributeType);
-        if (matchers == null) {
-            return false;
-        }
-
-        for (final AttributeMatcher matcher : matchers) {
+        for (final AttributeMatcher matcher : attributeMatchers.get(attributeType)) {
             try {
                 if (matcher.matches(query)) {
                     return true;
                 }
-            } catch (IllegalArgumentException ignored) {
-            }
+            } catch (IllegalArgumentException ignored) {}
         }
 
         return false;
-    }
-
-    private AttributeMatcher() {
     }
 
     abstract boolean matches(Query query);

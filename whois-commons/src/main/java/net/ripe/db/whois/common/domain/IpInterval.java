@@ -29,6 +29,16 @@ public abstract class IpInterval<K extends Interval<K>> implements Interval<K> {
         return Ipv6Resource.parse(prefix);
     }
 
+    public static IpInterval<?> parseReverseDomain(String reverse) {
+        reverse = removeTrailingDot(reverse);
+
+        if (reverse.endsWith(Ipv4Resource.IPV4_REVERSE_DOMAIN)) {
+            return Ipv4Resource.parseReverseDomain(reverse);
+        }
+
+        return Ipv6Resource.parseReverseDomain(reverse);
+    }
+
     public static IpInterval<?> asIpInterval(InetAddress address) {
         if (address instanceof Inet4Address) {
             return new Ipv4Resource(address);

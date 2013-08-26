@@ -88,6 +88,7 @@ public class RpslObject implements Identifiable, ResponseObject {
             final Iterator<AttributeType> keyAttributeIterator = objectTemplate.getKeyAttributes().iterator();
 
             CIString tmpKey = findAttribute(keyAttributeIterator.next()).getCleanValue();
+            // route(6) has two primary keys
             while (keyAttributeIterator.hasNext()) {
                 tmpKey = tmpKey.append(findAttribute(keyAttributeIterator.next()).getCleanValue());
             }
