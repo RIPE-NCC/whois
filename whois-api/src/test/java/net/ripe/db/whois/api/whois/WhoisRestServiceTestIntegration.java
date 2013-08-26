@@ -162,6 +162,61 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void get_inet6num() throws Exception {
+        final RpslObject inet6num = RpslObject.parse("" +
+                "inet6num: 2001::/48\n" +
+                "netname: RIPE-NCC\n" +
+                "descr: some description\n" +
+                "country: DK\n" +
+                "admin-c: TP1-TEST\n" +
+                "tech-c: TP1-TEST\n" +
+                "status: ASSIGNED\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "changed: org@ripe.net 20120505\n" +
+                "source: TEST\n");
+        databaseHelper.addObject(inet6num);
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/inet6num/2001::/48").get(WhoisResources.class);
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("inet6num", "2001::/48"),
+                new Attribute("netname", "RIPE-NCC"),
+                new Attribute("descr", "some description"),
+                new Attribute("country", "DK"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("tech-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("status", "ASSIGNED"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST", "Filtered", null, null)
+        ));
+    }
+
+    @Test
+    public void get_route() throws Exception {
+        final RpslObject route = RpslObject.parse("" +
+                "route:           193.254.30.0/24\n" +
+                "descr:           Test route\n" +
+                "origin:          AS12726\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "changed:         ripe@test.net 20091015\n" +
+                "source:          TEST\n");
+        databaseHelper.addObject(route);
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/route/193.254.30.0/24AS12726").get(WhoisResources.class);
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route/193.254.30.0/24AS12726"));
+        assertThat(whoisObject.getAttributes(), containsInAnyOrder(
+                new Attribute("route", "193.254.30.0/24"),
+                new Attribute("descr", "Test route"),
+                new Attribute("origin", "AS12726", null, "aut-num", new Link("locator", "http://rest-test.db.ripe.net/test/aut-num/AS12726")),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST", "Filtered", null, null)
+        ));
+    }
+
+    @Test
     public void rest_get_person_json() throws Exception {
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST").accept(MediaType.APPLICATION_JSON_TYPE).get(WhoisResources.class);
 
@@ -286,9 +341,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void create_succeeds() throws Exception {
-        final boolean filter = false;
         final WhoisResources response = createResource(AUDIENCE, "whois/test?password=test")
-                .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
+                .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), false));
         final WhoisObject object = response.getWhoisObjects().get(0);
 
         assertThat(object.getAttributes(), contains(
@@ -1536,61 +1590,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         assertThat(whoisResources, containsString("<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">"));
         assertThat(whoisResources, containsString("<object type=\"aut-num\" version=\"1\">"));
         assertThat(whoisResources, containsString("<objects>"));
-    }
-
-    @Test
-    public void get_inet6num() throws Exception {
-        final RpslObject inet6num = RpslObject.parse("" +
-                "inet6num: 2001::/48\n" +
-                "netname: RIPE-NCC\n" +
-                "descr: some description\n" +
-                "country: DK\n" +
-                "admin-c: TP1-TEST\n" +
-                "tech-c: TP1-TEST\n" +
-                "status: ASSIGNED\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "changed: org@ripe.net 20120505\n" +
-                "source: TEST\n");
-        databaseHelper.addObject(inet6num);
-        ipTreeUpdater.rebuild();
-
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/inet6num/2001::/48").get(WhoisResources.class);
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getAttributes(), contains(
-                new Attribute("inet6num", "2001::/48"),
-                new Attribute("netname", "RIPE-NCC"),
-                new Attribute("descr", "some description"),
-                new Attribute("country", "DK"),
-                new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
-                new Attribute("tech-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
-                new Attribute("status", "ASSIGNED"),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("source", "TEST", "Filtered", null, null)
-        ));
-    }
-
-    @Test
-    public void get_route() throws Exception {
-        final RpslObject route = RpslObject.parse("" +
-                "route:           193.254.30.0/24\n" +
-                "descr:           Test route\n" +
-                "origin:          AS12726\n" +
-                "mnt-by:          OWNER-MNT\n" +
-                "changed:         ripe@test.net 20091015\n" +
-                "source:          TEST\n");
-        databaseHelper.addObject(route);
-        ipTreeUpdater.rebuild();
-
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/route/193.254.30.0/24AS12726").get(WhoisResources.class);
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route/193.254.30.0/24AS12726"));
-        assertThat(whoisObject.getAttributes(), containsInAnyOrder(
-                new Attribute("route", "193.254.30.0/24"),
-                new Attribute("descr", "Test route"),
-                new Attribute("origin", "AS12726", null, "aut-num", new Link("locator", "http://rest-test.db.ripe.net/test/aut-num/AS12726")),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("source", "TEST", "Filtered", null, null)
-        ));
     }
 
     @Ignore("TODO: [ES] don't set the content-type on an error response")
