@@ -88,13 +88,13 @@ public class ExportFileWriterFactoryTest {
         final File currentSerialFile = new File(folder.getRoot(), "dbase/RIPE.CURRENTSERIAL");
         assertThat(currentSerialFile.exists(), Matchers.is(true));
 
-        final String savedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), Charsets.ISO_8859_1);
+        final String savedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), Charsets.UTF_8);
         assertThat(savedSerial, Matchers.is(String.valueOf(LAST_SERIAL)));
 
         final File newSerialFile = new File(folder.getRoot(), "dbase_new/RIPE.CURRENTSERIAL");
         assertThat(newSerialFile.exists(), Matchers.is(true));
 
-        final String newSavedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), Charsets.ISO_8859_1);
+        final String newSavedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), Charsets.UTF_8);
         assertThat(newSavedSerial, Matchers.is(String.valueOf(LAST_SERIAL)));
     }
 }

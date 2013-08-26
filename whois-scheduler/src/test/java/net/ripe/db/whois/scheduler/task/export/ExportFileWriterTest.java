@@ -98,7 +98,7 @@ public class ExportFileWriterTest {
     }
 
     private void checkFile(final File file, final String expectedContents) throws IOException {
-        final String content = FileCopyUtils.copyToString(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), Charsets.ISO_8859_1));
+        final String content = FileCopyUtils.copyToString(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), Charsets.UTF_8));
         Assert.assertThat(content, Matchers.is(QueryMessages.termsAndConditionsDump() + "\n" + expectedContents));
     }
 
