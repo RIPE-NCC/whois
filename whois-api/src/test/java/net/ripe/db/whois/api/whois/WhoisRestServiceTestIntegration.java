@@ -1569,6 +1569,29 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         ));
     }
 
+    @Test
+    public void get_route() throws Exception {
+        final RpslObject route = RpslObject.parse("" +
+                "route:           193.254.30.0/24\n" +
+                "descr:           Test route\n" +
+                "origin:          AS12726\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "changed:         ripe@test.net 20091015\n" +
+                "source:          TEST\n");
+        databaseHelper.addObject(route);
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/route/193.254.30.0/24AS12726").get(WhoisResources.class);
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route/193.254.30.0/24AS12726"));
+        assertThat(whoisObject.getAttributes(), containsInAnyOrder(
+                new Attribute("route", "193.254.30.0/24"),
+                new Attribute("descr", "Test route"),
+                new Attribute("origin", "AS12726", null, "aut-num", new Link("locator", "http://rest-test.db.ripe.net/test/aut-num/AS12726")),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST", "Filtered", null, null)
+        ));
+    }
 
     @Ignore("TODO: [ES] don't set the content-type on an error response")
     @Test

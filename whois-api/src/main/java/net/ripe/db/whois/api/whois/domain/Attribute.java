@@ -112,4 +112,8 @@ public class Attribute {
                 (attribute.referencedType != null ? attribute.referencedType.equals(referencedType) : referencedType == null) &&
                 (attribute.link != null ? attribute.link.equals(link) : link == null);
     }
+
+    public String toString() {
+        return name + ": " + value;
+    }
 }

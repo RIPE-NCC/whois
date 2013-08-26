@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
 import java.util.Set;
@@ -44,6 +45,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         databaseHelper.addObject("inetnum: 81.0.0.0 - 82.255.255.255\nnetname: NE\nmnt-by:RIPE-NCC-HM-MNT");
         databaseHelper.addObject("domain: 117.80.81.in-addr.arpa");
         databaseHelper.addObject("inetnum: 81.80.117.237 - 81.80.117.237\nnetname: NN\nstatus: OTHER");
+        databaseHelper.addObject("route: 81.80.117.0/24\norigin: AS123\n");
         ipTreeUpdater.rebuild();
         queryServer.start();
     }
@@ -708,4 +710,11 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         assertThat(response, containsString("ERROR:110: multiple use of flag"));
         assertThat(response, containsString("The flag \"-v\" cannot be used multiple times."));
     }
+
+    @Test
+    public void testDirectRouteLookup() {
+        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.0/24AS123");
+        assertThat(response, containsString("81.80.117.0/24"));
+    }
+
 }
