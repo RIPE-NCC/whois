@@ -63,9 +63,6 @@ public class WhoisRestService {
             PERSISTENT_CONNECTION.getFlags()
     ));
 
-    private static final String TEXT_JSON = "text/json";
-    private static final String TEXT_XML = "text/xml";
-
     private final DateTimeProvider dateTimeProvider;
     private final UpdateRequestHandler updateRequestHandler;
     private final LoggerContext loggerContext;
@@ -86,7 +83,7 @@ public class WhoisRestService {
     }
 
     @DELETE
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}")
     public Response restDelete (
             @Context final HttpServletRequest request,
@@ -110,8 +107,8 @@ public class WhoisRestService {
     }
 
     @PUT
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}")
     public Response restUpdate(
             final WhoisResources resource,
@@ -135,8 +132,8 @@ public class WhoisRestService {
     }
 
     @POST
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}")
     public Response restCreate(
             final WhoisResources resource,
@@ -164,7 +161,7 @@ public class WhoisRestService {
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}")
     public Response restGet(
             @Context final HttpServletRequest request,
@@ -191,7 +188,7 @@ public class WhoisRestService {
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}/versions")
     public Response restVersions(
             @Context final HttpServletRequest request,
@@ -206,7 +203,7 @@ public class WhoisRestService {
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}/versions/{version}")
     public Response restVersion(
             @Context final HttpServletRequest request,
@@ -374,7 +371,7 @@ public class WhoisRestService {
      * @return Returns the query result.
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/search")
     public Response search(
             @Context HttpServletRequest request,

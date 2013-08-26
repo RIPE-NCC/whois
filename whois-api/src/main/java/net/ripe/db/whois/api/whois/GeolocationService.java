@@ -42,9 +42,6 @@ public class GeolocationService {
 
     private static final String LOOKUP_URL = "http://rest.db.ripe.net/lookup";
 
-    private static final String TEXT_JSON = "text/json";
-    private static final String TEXT_XML = "text/xml";
-
     private static final Set<InetnumStatus> STOP_AT_STATUS_IPV4 = Sets.immutableEnumSet(
             InetnumStatus.ASSIGNED_PI,
             InetnumStatus.ASSIGNED_ANYCAST,
@@ -76,7 +73,7 @@ public class GeolocationService {
      * @return Returns geolocation information for the specified address.
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public WhoisResources geolocation(
             @Context final HttpServletRequest request,
             @QueryParam(value = "ipkey") final String ipkey) {
