@@ -1,5 +1,7 @@
-## next
+## 1.67.7
 [api] added api.rest.lookup.baseurl to properties
+[query] added option to directly lookup route object by specifying search key '10.0.0.0/24AS123'
+[api] fully revamped REST API
 
 ## 1.67.5
 [update] Allow 2-10 letters in nic-hdl suffix.
