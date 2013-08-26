@@ -1589,7 +1589,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void non_ascii_characters_are_preserved() {
-        assertThat(createResource(AUDIENCE, "whois/create?password=test")
+        assertThat(createResource(AUDIENCE, "whois/test?password=test")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .post(String.class,
@@ -1607,7 +1607,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                         "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
                         "] } } ] } }"), containsString("Flughafenstraße 109/a"));
 
-        assertThat(createResource(AUDIENCE, "whois/lookup/test/person/PP1-TEST")
+        assertThat(createResource(AUDIENCE, "whois/test/person/PP1-TEST")
                 .accept(MediaType.APPLICATION_JSON)
                 .get(String.class), containsString("Flughafenstraße 109/a"));
 
@@ -1615,7 +1615,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .get(String.class), containsString("Flughafenstraße 109/a"));
 
-        assertThat(createResource(AUDIENCE, "whois/update/person/PP1-TEST?password=test")
+        assertThat(createResource(AUDIENCE, "whois/test/person/PP1-TEST?password=test")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .put(String.class,
