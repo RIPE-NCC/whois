@@ -142,8 +142,9 @@ public class WhoisRestService {
             final WhoisResources resource,
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
-            @PathParam("objectType") final String objectType,
             @QueryParam(value = "password") final List<String> passwords) {
+
+        checkForMainSource(source);
 
         final RpslObject submittedObject = getSubmittedObject(resource);
 
