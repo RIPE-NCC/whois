@@ -365,6 +365,61 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Mandatory attribute \"mnt-by\" is missing/
     }
 
+    def "create person mail update with non-ASCII UTF-8 character"() {
+      given:
+        def person = new Message(body: """\
+                person:     Test Person3
+                address:    Flughafenstra\u00DFe 109/a
+                address:    München, Germany
+                phone:      +49 282 411141
+                fax-no:     +49 282 411140
+                nic-hdl:    TP3-TEST
+                changed:    dbtest@ripe.net 20120101
+                mnt-by:     UPD-MNT
+                source:     TEST
+                password: update
+                """.stripIndent())
+
+      when:
+        def message = send person
+        def response = ackFor message
+
+      then:
+        println response
+        response =~ /Create SUCCEEDED: \[person\] TP3-TEST/
+
+      then:
+        def query = query "-r -T person TP3-TEST"
+        query =~ /address:\s+Flughafenstraße 109\/a/
+        query =~ /address:\s+München, Germany/
+    }
+
+    def "create person syncupdate with non-ASCII UTF-8 character"() {
+      given:
+        def create = syncUpdate new SyncUpdate(data: """\
+                person:     Test Person3
+                address:    Flughafenstra\u00DFe 109/a
+                address:    München, Germany
+                phone:      +49 282 411141
+                fax-no:     +49 282 411140
+                nic-hdl:    TP3-TEST
+                changed:    dbtest@ripe.net 20120101
+                mnt-by:     UPD-MNT
+                source:     TEST
+                password: update
+                """.stripIndent())
+
+      when:
+        create =~ /Create SUCCEEDED: \[person\] TP3-TEST/
+
+      then:
+        def query = query "-r -T person TP3-TEST"
+          query =~ /address:\s+Flughafenstraße 109\/a/
+          query =~ /address:\s+München, Germany/
+    }
+
+
+
     def "create person with generated nic-hdl"() {
       given:
         def person = new SyncUpdate(data: """\

@@ -34,7 +34,7 @@ public class DummyWhoisClient {
 
     public static String query(final int port, final String query, final int timeout) {
         try {
-            return new DummyWhoisClient("127.0.0.1", port).sendQuery(query, Charset.forName("ISO-8859-1"), timeout);
+            return new DummyWhoisClient("127.0.0.1", port).sendQuery(query, Charset.forName("UTF-8"), timeout);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to execute query");
         }
@@ -52,7 +52,7 @@ public class DummyWhoisClient {
     }
 
     public String sendQuery(String query) throws IOException {
-        return sendQuery(query, Charset.forName("ISO-8859-1"));
+        return sendQuery(query, Charset.forName("UTF-8"));
     }
 
     public String sendQuery(String query, Charset charset) throws IOException {
