@@ -944,6 +944,12 @@ public class QueryTest {
     }
 
     @Test
+    public void inverse_query_should_not_filter_object_types() {
+        final Query query = Query.parse("-i nic-hdl 10.0.0.1");
+        assertThat(query.getObjectTypes(), hasSize(21));
+    }
+
+    @Test
     public void grs_search_types_specified_non_resource() {
         final Query query = Query.parse("--resource -Tinetnum,mntner 10.0.0.0");
         assertThat(query.getObjectTypes(), contains(ObjectType.INETNUM));

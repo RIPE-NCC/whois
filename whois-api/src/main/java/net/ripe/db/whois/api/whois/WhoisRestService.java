@@ -85,6 +85,7 @@ public class WhoisRestService {
         this.whoisObjectMapper = whoisObjectMapper;
     }
 
+// TODO: drop this
     /**
      * The lookup service returns a single object specified by the source, object type and primary-key arguments.
      *
@@ -167,6 +168,7 @@ public class WhoisRestService {
         return Response.ok(createWhoisResources(request, response)).build();
     }
 
+    // TODO: drop objecttype
     @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_JSON, TEXT_XML})
@@ -393,6 +395,7 @@ public class WhoisRestService {
         return new StreamingMarshalXml();
     }
 
+// TODO: drop this
     /**
      * Create an object in the RIPE database.
      *
@@ -420,6 +423,7 @@ public class WhoisRestService {
         return Response.ok(createWhoisResources(request, response)).build();
     }
 
+// TODO: drop this
     /**
      * A successful update request replaces all of an object attributes with the new set of attributes described in
      * the request.
@@ -452,6 +456,7 @@ public class WhoisRestService {
         return Response.ok(createWhoisResources(request, response)).build();
     }
 
+// TODO: drop this
     /**
      * The modify service supports adding, removing or replacing individual attributes.
      *
@@ -537,6 +542,7 @@ public class WhoisRestService {
         }
     }
 
+// TODO: drop this
     /**
      * The delete service deletes a single object from the database.
      *
@@ -567,6 +573,7 @@ public class WhoisRestService {
         return Response.status(Response.Status.OK).build();
     }
 
+// TODO: drop this
     /**
      * Lists versions of an RPSL object.
      *
@@ -583,6 +590,7 @@ public class WhoisRestService {
         return handleQuery(query, key, request, null);
     }
 
+// TODO: drop this
     /**
      * Show a specific version of an RPSL object.
      *

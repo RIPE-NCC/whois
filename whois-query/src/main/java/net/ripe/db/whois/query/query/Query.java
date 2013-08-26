@@ -479,15 +479,17 @@ public final class Query {
             response.retainAll(GRS_LIMIT_TYPES);
         }
 
-        nextObjectType:
-        for (Iterator<ObjectType> it = response.iterator(); it.hasNext(); ) {
-            ObjectType objectType = it.next();
-            for (final AttributeType attribute : ObjectTemplate.getTemplate(objectType).getLookupAttributes()) {
-                if (AttributeMatcher.fetchableBy(attribute, this)) {
-                    continue nextObjectType;
+        if (!isInverse()) {
+            nextObjectType:
+            for (Iterator<ObjectType> it = response.iterator(); it.hasNext(); ) {
+                ObjectType objectType = it.next();
+                for (final AttributeType attribute : ObjectTemplate.getTemplate(objectType).getLookupAttributes()) {
+                    if (AttributeMatcher.fetchableBy(attribute, this)) {
+                        continue nextObjectType;
+                    }
                 }
+                it.remove();
             }
-            it.remove();
         }
 
         return Collections.unmodifiableSet(response);
