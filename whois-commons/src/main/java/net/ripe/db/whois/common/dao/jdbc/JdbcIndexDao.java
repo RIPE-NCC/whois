@@ -151,7 +151,8 @@ public class JdbcIndexDao implements IndexDao {
         indexStrategy.removeFromIndex(jdbcTemplate, rpslObjectInfo);
 
         final Set<CIString> uniqueValues = Sets.newHashSet();
-        for (final RpslAttribute attribute : rpslObject.findAttributes(attributeType)) {
+        final List<RpslAttribute> attributes = rpslObject.findAttributes(attributeType);
+        for (final RpslAttribute attribute : attributes) {
             for (final CIString value : attribute.getReferenceValues()) {
                 if (uniqueValues.add(value)) {
                     if (!attribute.getType().isValidValue(rpslObject.getType(), value)) {
