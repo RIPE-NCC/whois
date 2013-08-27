@@ -278,6 +278,19 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         }
     }
 
+    @Test
+    public void geolocation_without_query_params() throws Exception {
+        try {
+            createResource("whois/geolocation")
+                    .get(String.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), is("ipkey is required"));
+        }
+
+    }
+
     protected WebResource createResource(final String path) {
         return client.resource(String.format("http://localhost:%s/%s", getPort(Audience.PUBLIC), path));
     }
