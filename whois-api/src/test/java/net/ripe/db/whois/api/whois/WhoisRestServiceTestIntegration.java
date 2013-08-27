@@ -341,8 +341,29 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void create_succeeds() throws Exception {
-        final WhoisResources response = createResource(AUDIENCE, "whois/test?password=test")
-                .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), false));
+        final boolean filter = false;
+        final WhoisResources response = createResource(AUDIENCE, "whois/create?password=test")
+                .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
+        final WhoisObject object = response.getWhoisObjects().get(0);
+
+        assertThat(object.getAttributes(), contains(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("remarks", "remark"),
+                new Attribute("source", "TEST")));
+    }
+
+    @Test
+    //TODO [AS]niceify, just a copy-paste to ensure the rest-create is working
+    public void rest_create_succeeds() throws Exception {
+        final boolean filter = false;
+        final WhoisResources response = createResource(AUDIENCE, "whois/test/person?password=test")
+                .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
         final WhoisObject object = response.getWhoisObjects().get(0);
 
         assertThat(object.getAttributes(), contains(
@@ -564,7 +585,32 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         }
     }
 
+    @Test
+    public void delete_post_not_allowed() throws Exception {
+        try {
+            createResource(AUDIENCE, "whois/delete")
+                    .accept(MediaType.APPLICATION_XML)
+                    .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)));
+            fail("expected POST method to fail");
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_NOT_FOUND));
+        }
+    }
+
+    @Test
+    public void delete_get_not_allowed() throws Exception {
+        try {
+            createResource(AUDIENCE, "whois/delete")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail("expected GET method to fail");
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_NOT_FOUND));
+        }
+    }
+
     // update
+
     @Test
     public void update_succeeds() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
@@ -613,6 +659,213 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             fail("expected update with POST method to fail");
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_BAD_METHOD));
+        }
+    }
+
+    @Test
+    public void modify_replace_attributes() throws Exception {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        WhoisResources response = createResource(AUDIENCE, "whois/modify/person/PP1-TEST?password=test")
+                .accept(MediaType.APPLICATION_XML)
+                .post(WhoisResources.class, new WhoisModify(
+                        new WhoisModify.Replace("address",
+                                Lists.newArrayList(
+                                        new Attribute("address", "P.O. Box 10096"),
+                                        new Attribute("address", "1001 EB Amsterdam"),
+                                        new Attribute("address", "The Netherlands")))));
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = response.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), contains(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "P.O. Box 10096"),
+                new Attribute("address", "1001 EB Amsterdam"),
+                new Attribute("address", "The Netherlands"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("remarks", "remark"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("source", "TEST")
+        ));
+    }
+
+    // modify
+
+    @Test
+    public void modify_replace_attributes_json_request_and_response() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final WhoisModify whoisModify = new WhoisModify(
+                new WhoisModify.Replace("address",
+                        Lists.newArrayList(
+                                new Attribute("address", "P.O. Box 10096"),
+                                new Attribute("address", "1001 EB Amsterdam"),
+                                new Attribute("address", "The Netherlands"))));
+
+        WhoisResources response = createResource(AUDIENCE, "whois/modify/person/PP1-TEST?password=test")
+                .accept(MediaType.APPLICATION_JSON)
+                .entity(whoisModify, MediaType.APPLICATION_JSON).post(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = response.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), contains(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "P.O. Box 10096"),
+                new Attribute("address", "1001 EB Amsterdam"),
+                new Attribute("address", "The Netherlands"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("remarks", "remark"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("source", "TEST")
+        ));
+    }
+
+    @Test
+    public void modify_supports_text_json_accept_and_content_type_headers() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final WhoisModify whoisModify = new WhoisModify(
+                new WhoisModify.Replace("address",
+                        Lists.newArrayList(
+                                new Attribute("address", "P.O. Box 10096"),
+                                new Attribute("address", "1001 EB Amsterdam"),
+                                new Attribute("address", "The Netherlands"))));
+
+        WhoisResources response = createResource(AUDIENCE, "whois/modify/person/PP1-TEST?password=test")
+                .accept("text/json")
+                .entity(whoisModify, "text/json").post(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+    }
+
+    @Test
+    public void modify_append_new_attributes() throws Exception {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        WhoisResources response = createResource(AUDIENCE, "whois/modify/person/PP1-TEST?password=test")
+                .accept(MediaType.APPLICATION_XML)
+                .post(WhoisResources.class, new WhoisModify(
+                        new WhoisModify.Add(
+                                Lists.newArrayList(
+                                        new Attribute("remarks", "updated")))));
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = response.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), contains(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("remarks", "remark"),
+                new Attribute("remarks", "updated"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("source", "TEST")
+        ));
+    }
+
+    @Test
+    public void modify_add_new_attributes_from_index() throws Exception {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        WhoisResources response = createResource(AUDIENCE, "whois/modify/person/PP1-TEST?password=test")
+                .accept(MediaType.APPLICATION_XML)
+                .post(WhoisResources.class, new WhoisModify(
+                        new WhoisModify.Add(5,
+                                Lists.newArrayList(
+                                        new Attribute("remarks", "These remark lines will be added"),
+                                        new Attribute("remarks", "starting from index 5 (line 6) !")))));
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = response.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), contains(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("remarks", "These remark lines will be added"),
+                new Attribute("remarks", "starting from index 5 (line 6) !"),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("remarks", "remark"),
+                new Attribute("source", "TEST")
+        ));
+    }
+
+    @Test
+    public void modify_remove_all_attributes_of_type() throws Exception {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        WhoisResources response = createResource(AUDIENCE, "whois/modify/person/PP1-TEST?password=test")
+                .accept(MediaType.APPLICATION_XML)
+                .post(WhoisResources.class, new WhoisModify(new WhoisModify.Remove("remarks")));
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = response.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), contains(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("source", "TEST")
+        ));
+    }
+
+    @Test
+    public void modify_remove_attribute_at_index() throws Exception {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        WhoisResources response = createResource(AUDIENCE, "whois/modify/person/PP1-TEST?password=test")
+                .accept(MediaType.APPLICATION_XML)
+                .post(WhoisResources.class, new WhoisModify(new WhoisModify.Remove(7)));
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = response.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), contains(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("source", "TEST")
+        ));
+    }
+
+    @Test
+    public void modify_object_not_found() {
+        try {
+            createResource(AUDIENCE, "whois/modify/person/NONEXISTANT")
+                    .accept(MediaType.APPLICATION_XML)
+                    .post(WhoisResources.class, new WhoisModify(new WhoisModify.Remove(7)));
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), containsString("Not Found"));
+        }
+    }
+
+    @Test
+    public void modify_invalid_object_type() {
+        try {
+            createResource(AUDIENCE, "whois/modify/invalid/OWNER-MNT")
+                    .accept(MediaType.APPLICATION_XML)
+                    .post(WhoisResources.class, new WhoisModify(new WhoisModify.Remove(7)));
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
         }
     }
 
@@ -978,6 +1231,31 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"dbtest@ripe.net 20120101\""));
+    }
+
+    @Test
+    public void modify_json_request_and_response_content() throws Exception {
+        final String update =
+                "{\n" +
+                        "  \"add\" : {\n" +
+                        "    \"attributes\" : {\n" +
+                        "          \"attribute\" : [\n" +
+                        "                {\n" +
+                        "                  \"name\" : \"remarks\",\n" +
+                        "                  \"value\" : \"updated\"\n" +
+                        "                }\n" +
+                        "        ] }\n" +
+                        "  }\n" +
+                        "}";
+
+        final String response = createResource(AUDIENCE, "whois/modify/mntner/OWNER-MNT?password=test")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .post(String.class, update);
+
+        assertThat(response, containsString("\"objects\""));
+        assertThat(response, containsString("\"name\" : \"remarks\""));
+        assertThat(response, containsString("\"value\" : \"updated\""));
     }
 
     @Test
