@@ -10,6 +10,7 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -123,6 +124,7 @@ public class WhoisRestService {
         checkForMainSource(source);
 
         final RpslObject submittedObject = getSubmittedObject(resource);
+        validateSubmittedObject(submittedObject, objectType, key);
 
         final RpslObject response = performUpdate(
                 createOrigin(request),
@@ -611,6 +613,13 @@ public class WhoisRestService {
         return builder.toString();
     }
 
+    private void validateSubmittedObject(final RpslObject object, final String objectType, final String key) {
+        if (!(object.getKey().equals(CIString.ciString(key)) &&
+                object.getType().getName().equalsIgnoreCase(objectType))) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+    }
+
 /****************************************************************************************************************************************
  * from here comes the "old" rest api, announced but deprecated by restful revamp, kept to keep true to public announcement.
  * Undocumented. Should be dropped if unused.
@@ -698,6 +707,7 @@ public class WhoisRestService {
             @QueryParam(value = "password") final List<String> passwords) {
 
         final RpslObject submittedObject = getSubmittedObject(resource);
+        validateSubmittedObject(submittedObject, objectType, key);
 
         final RpslObject response = performUpdate(
                 createOrigin(request),

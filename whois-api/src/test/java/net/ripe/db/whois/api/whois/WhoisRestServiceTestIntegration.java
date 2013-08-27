@@ -748,7 +748,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         final RpslObject updatedObject = new RpslObjectFilter(PAULETH_PALTHEN).addAttributes(
                 Lists.newArrayList(new RpslAttribute(AttributeType.REMARKS, "updated")));
 
-        WhoisResources response = createResource(AUDIENCE, "whois/test/person/PP1-TEST?password=test")
+        final WhoisResources response = createResource(AUDIENCE, "whois/test/person/PP1-TEST?password=test")
                 .accept(MediaType.APPLICATION_XML)
                 .put(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(updatedObject)));
 
@@ -765,6 +765,30 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
                 new Attribute("source", "TEST")));
+    }
+
+    @Test
+    public void update_path_vs_object_mismatch_objecttype() throws Exception {
+        try {
+            createResource(AUDIENCE, "whois/test/mntner/PP1-TEST?password=test")
+                    .accept(MediaType.APPLICATION_XML)
+                    .put(WhoisResources.class, whoisObjectMapper.map(PAULETH_PALTHEN));
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_BAD_REQUEST));
+        }
+    }
+
+    @Test
+    public void update_path_vs_object_mismatch_key() throws Exception {
+        try {
+            createResource(AUDIENCE, "whois/test/mntner/OO2-TEST?password=test")
+                    .accept(MediaType.APPLICATION_XML)
+                    .put(WhoisResources.class, whoisObjectMapper.map(PAULETH_PALTHEN));
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_BAD_REQUEST));
+        }
     }
 
     @Test
