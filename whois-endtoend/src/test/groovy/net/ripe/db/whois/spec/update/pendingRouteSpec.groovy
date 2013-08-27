@@ -110,7 +110,7 @@ class pendingRouteSpec extends BaseSpec {
         ]
     }
 
-    def "create route, parent inet and ASN pw supplied"() {
+    def "create route, mnt-by, parent inet and ASN pw supplied"() {
         given:
         syncUpdate(getTransient("PARENT-INET") + "override: override1")
         syncUpdate(getTransient("AS100") + "override: override1")
@@ -143,6 +143,11 @@ class pendingRouteSpec extends BaseSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+
+        def notif = notificationFor "mntnfy_owner@ripe.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+
+        noMoreMessages()
 
         queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
     }
@@ -406,6 +411,294 @@ class pendingRouteSpec extends BaseSpec {
         noMoreMessages()
 
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+    }
+
+    def "create route, ASN pw supplied, then inet pw supplied"() {
+        given:
+        syncUpdate(getTransient("PARENT-INET") + "override: override1")
+        syncUpdate(getTransient("AS100") + "override: override1")
+
+        expect:
+        queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   as
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 2)
+        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+        ack.warningPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+                ["This update has only passed one of the two required hierarchical authorisations"]
+        ack.infoPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+                ["Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT",
+                        "The route object 192.168.0.0/16AS100 will be saved for one week pending the second authorisation"]
+
+        def notif = notificationFor "updto_pinet@ripe.net"
+        notif.subject =~ "RIPE Database updates, auth request notification"
+        notif.pendingAuth("CREATE", "route", "192.168.0.0/16")
+
+        noMoreMessages()
+
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+
+        when:
+        def message2 = send new Message(
+                subject: "",
+                body: """\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   pinet
+                """.stripIndent()
+        )
+
+        then:
+        def ack2 = ackFor message2
+
+        ack2.summary.nrFound == 1
+//        ack2.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack2.summary.assertErrors(0, 0, 0, 0)
+        ack2.countErrorWarnInfo(0, 0, 1)
+//        ack2.successes.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+//        ack2.infoSuccessMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
+//                "This update concludes a pending update on route 192.168.0.0/16AS100"]
+
+        def notif2 = notificationFor "mntnfy_owner@ripe.net"
+        notif2.subject =~ "RIPE Database updates, auth request notification"
+
+        noMoreMessages()
+
+        queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+    }
+
+    def "create route, ASN pw supplied, then same ASN pw supplied"() {
+        given:
+        syncUpdate(getTransient("PARENT-INET") + "override: override1")
+        syncUpdate(getTransient("AS100") + "override: override1")
+
+        expect:
+        queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   as
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 2)
+        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+        ack.warningPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+                ["This update has only passed one of the two required hierarchical authorisations"]
+        ack.infoPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+                ["Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT",
+                        "The route object 192.168.0.0/16AS100 will be saved for one week pending the second authorisation"]
+
+        def notif = notificationFor "updto_pinet@ripe.net"
+        notif.subject =~ "RIPE Database updates, auth request notification"
+        notif.pendingAuth("CREATE", "route", "192.168.0.0/16")
+
+        noMoreMessages()
+
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+
+        when:
+        def message2 = send new Message(
+                subject: "",
+                body: """\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   as
+                """.stripIndent()
+        )
+
+        then:
+        def ack2 = ackFor message2
+
+        ack2.summary.nrFound == 1
+        ack2.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack2.summary.assertErrors(0, 0, 0, 0)
+        ack2.countErrorWarnInfo(0, 0, 1)
+//        ack2.successes.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+//        ack2.infoSuccessMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
+//                "This update concludes a pending update on route 192.168.0.0/16AS100"]
+
+        def notif2 = notificationFor "mntnfy_owner@ripe.net"
+        notif2.subject =~ "RIPE Database updates, auth request notification"
+
+        noMoreMessages()
+
+        queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+    }
+
+    def "create route, ASN pw supplied, then same ASN pw supplied, then inet pw supplied"() {
+        given:
+        syncUpdate(getTransient("PARENT-INET") + "override: override1")
+        syncUpdate(getTransient("AS100") + "override: override1")
+
+        expect:
+        queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   as
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 2)
+        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+        ack.warningPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+                ["This update has only passed one of the two required hierarchical authorisations"]
+        ack.infoPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+                ["Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT",
+                        "The route object 192.168.0.0/16AS100 will be saved for one week pending the second authorisation"]
+
+        def notif = notificationFor "updto_pinet@ripe.net"
+        notif.subject =~ "RIPE Database updates, auth request notification"
+        notif.pendingAuth("CREATE", "route", "192.168.0.0/16")
+
+        noMoreMessages()
+
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+
+        when:
+        def message2 = send new Message(
+                subject: "",
+                body: """\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   as
+                """.stripIndent()
+        )
+
+        then:
+            def ack2 = ackFor message2
+
+            ack2.summary.nrFound == 1
+            ack2.summary.assertSuccess(0, 0, 0, 0, 0)
+            ack2.summary.assertErrors(1, 1, 0, 0)
+            ack2.countErrorWarnInfo(2, 0, 0)
+            ack2.errors.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+            ack2.errorMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
+                "Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT",
+                "There is already an identical update pending authentication"]
+
+//        def notif2 = notificationFor "updto_owner@ripe.net"
+//        notif2.subject =~ "RIPE Database updates, auth request notification"
+
+            noMoreMessages()
+
+            queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+
+        when:
+        def message3 = send new Message(
+                subject: "",
+                body: """\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   pinet
+                """.stripIndent()
+        )
+
+        then:
+            def ack3 = ackFor message3
+
+            ack3.summary.nrFound == 1
+//            ack3.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack3.summary.assertErrors(0, 0, 0, 0)
+            ack3.countErrorWarnInfo(0, 0, 1)
+//        ack2.successes.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+//        ack2.infoSuccessMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
+//                "This update concludes a pending update on route 192.168.0.0/16AS100"]
+
+            def notif3 = notificationFor "mntnfy_owner@ripe.net"
+            notif3.subject =~ "RIPE Database updates, auth request notification"
+
+            noMoreMessages()
+
+            queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
     }
 
 }
