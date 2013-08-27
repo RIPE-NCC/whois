@@ -11,8 +11,7 @@ import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.*;
 import net.ripe.db.whois.query.handler.QueryHandler;
@@ -21,6 +20,7 @@ import net.ripe.db.whois.query.query.QueryFlag;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -47,6 +47,7 @@ public class WhoisRestService {
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
     private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
     private static final Joiner JOINER = Joiner.on(",");
+    private static final Splitter AMPERSAND = Splitter.on("&");
     private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(Iterables.concat(
             TEMPLATE.getFlags(),
             VERBOSE.getFlags(),
@@ -86,7 +87,7 @@ public class WhoisRestService {
     @DELETE
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}")
-    public Response restDelete (
+    public Response restDelete(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
@@ -157,7 +158,7 @@ public class WhoisRestService {
 
     private void checkForMainSource(String source) {
         if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
-            throw new IllegalArgumentException("Invalid source for deletion: "+source);
+            throw new IllegalArgumentException("Invalid source for deletion: " + source);
         }
     }
 
@@ -172,7 +173,8 @@ public class WhoisRestService {
 
         checkForInvalidSource(source);
 
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s",
+        final boolean noFilter = hasUnfilteredQueryParameter(request.getQueryString());
+        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s",
                 QueryFlag.EXACT.getLongFlag(),
                 QueryFlag.NO_GROUPING.getLongFlag(),
                 QueryFlag.NO_REFERENCED.getLongFlag(),
@@ -181,6 +183,7 @@ public class WhoisRestService {
                 QueryFlag.SELECT_TYPES.getLongFlag(),
                 ObjectType.getByName(objectType).getName(),
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
+                noFilter ? QueryFlag.NO_FILTERING.getLongFlag() : "",
                 key));
 
         return handleQuery(query, key, request, null);
@@ -355,6 +358,21 @@ public class WhoisRestService {
         }
 
         return new StreamingMarshalXml();
+    }
+
+    private boolean hasUnfilteredQueryParameter(final String queryString) {
+        return !StringUtils.isBlank(queryString) &&
+                Iterables.contains(Iterables.transform(AMPERSAND.split(queryString), new Function<String, String>() {
+                    @Override
+                    public String apply(final String input) {
+                        String result = input.toLowerCase();
+                        if (result.contains("=")) {
+                            return result.substring(0, result.indexOf("="));
+                        }
+
+                        return result;
+                    }
+                }), "unfiltered");
     }
 
     /**

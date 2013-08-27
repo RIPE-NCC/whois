@@ -1538,6 +1538,23 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void lookup_unfiltered_queryparameter() throws Exception {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final String response = createResource(AUDIENCE, "whois/test/person/PP1-TEST?unfiltered=").get(String.class);
+        assertThat(response, containsString("attribute name=\"e-mail\" value=\"noreply@ripe.net\""));
+
+        final String noEqualSign = createResource(AUDIENCE, "whois/test/person/PP1-TEST?unfiltered").get(String.class);
+        assertThat(noEqualSign, containsString("attribute name=\"e-mail\" value=\"noreply@ripe.net\""));
+
+        final String withOtherParameters = createResource(AUDIENCE, "whois/test/person/PP1-TEST?unfiltered=true&pretty=false").get(String.class);
+        assertThat(withOtherParameters, containsString("attribute name=\"e-mail\" value=\"noreply@ripe.net\""));
+
+        final String filtered = createResource(AUDIENCE, "whois/test/person/PP1-TEST?pretty=false").get(String.class);
+        assertThat(filtered, not(containsString("attribute name=\"e-mail\" value=\"noreply@ripe.net\"")));
+    }
+
+    @Test
     public void update_json_request_and_response_content() throws Exception {
         final String update =
                 "{\n" +
@@ -2244,18 +2261,18 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .post(String.class,
                         "{ \"objects\": { \"object\": [ {\n" +
-                        "\"source\": { \"id\": \"RIPE\" },\n" +
-                        "\"attributes\": {\n \"attribute\": [\n" +
-                        "{ \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
-                        "{ \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
-                        "{ \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
-                        "{ \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
-                        "{ \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
-                        "{ \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
-                        "{ \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
-                        "{ \"name\": \"remarks\", \"value\": \"created\" },\n" +
-                        "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
-                        "] } } ] } }"), containsString("Flughafenstraße 109/a"));
+                                "\"source\": { \"id\": \"RIPE\" },\n" +
+                                "\"attributes\": {\n \"attribute\": [\n" +
+                                "{ \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                                "{ \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
+                                "{ \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                                "{ \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                                "{ \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                                "{ \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                                "{ \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
+                                "{ \"name\": \"remarks\", \"value\": \"created\" },\n" +
+                                "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                                "] } } ] } }"), containsString("Flughafenstraße 109/a"));
 
         assertThat(createResource(AUDIENCE, "whois/test/person/PP1-TEST")
                 .accept(MediaType.APPLICATION_JSON)
@@ -2270,18 +2287,18 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .put(String.class,
                         "{ \"objects\": { \"object\": [ {\n" +
-                        "\"source\": { \"id\": \"RIPE\" },\n" +
-                        "\"attributes\": {\n \"attribute\": [\n" +
-                        "{ \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
-                        "{ \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
-                        "{ \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
-                        "{ \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
-                        "{ \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
-                        "{ \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
-                        "{ \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
-                        "{ \"name\": \"remarks\", \"value\": \"updated\" },\n" +
-                        "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
-                        "] } } ] } }"), containsString("Flughafenstraße 109/a"));
+                                "\"source\": { \"id\": \"RIPE\" },\n" +
+                                "\"attributes\": {\n \"attribute\": [\n" +
+                                "{ \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                                "{ \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
+                                "{ \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                                "{ \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                                "{ \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                                "{ \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                                "{ \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
+                                "{ \"name\": \"remarks\", \"value\": \"updated\" },\n" +
+                                "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                                "] } } ] } }"), containsString("Flughafenstraße 109/a"));
     }
 
     // helper methods
