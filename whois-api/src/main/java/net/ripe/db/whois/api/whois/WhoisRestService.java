@@ -656,7 +656,7 @@ public class WhoisRestService {
                 createContent(submittedObject, passwords, null),
                 Keyword.NEW);
 
-        return Response.ok(createWhoisResources(request, response)).build();
+        return Response.ok(createWhoisResources(request, response, false)).build();
     }
 
     /**
@@ -688,7 +688,7 @@ public class WhoisRestService {
                 createContent(submittedObject, passwords, null),
                 Keyword.NONE);
 
-        return Response.ok(createWhoisResources(request, response)).build();
+        return Response.ok(createWhoisResources(request, response, false)).build();
     }
 
     /**
@@ -720,7 +720,7 @@ public class WhoisRestService {
                 createContent(updatedObject, passwords, null),
                 Keyword.NONE);
 
-        return Response.ok(createWhoisResources(request, response)).build();
+        return Response.ok(createWhoisResources(request, response, false)).build();
     }
 
     private RpslObject modifyRpslObject(final RpslObject rpslObject, final WhoisModify whoisModify) {

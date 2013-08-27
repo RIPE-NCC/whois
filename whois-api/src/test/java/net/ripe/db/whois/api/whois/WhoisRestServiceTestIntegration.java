@@ -341,9 +341,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void create_succeeds() throws Exception {
-        final boolean filter = false;
         final WhoisResources response = createResource(AUDIENCE, "whois/create?password=test")
-                .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
+                .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), false));
         final WhoisObject object = response.getWhoisObjects().get(0);
 
         assertThat(object.getAttributes(), contains(
@@ -359,11 +358,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    //TODO [AS]niceify, just a copy-paste to ensure the rest-create is working
     public void rest_create_succeeds() throws Exception {
-        final boolean filter = false;
-        final WhoisResources response = createResource(AUDIENCE, "whois/test/person?password=test")
-                .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
+        final WhoisResources response = createResource(AUDIENCE, "whois/test?password=test")
+                .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), false));
         final WhoisObject object = response.getWhoisObjects().get(0);
 
         assertThat(object.getAttributes(), contains(
@@ -401,9 +398,63 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void old_create_invalid_source_in_request_body() throws Exception {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person:  Pauleth Palthen\n" +
+                "address: Singel 258\n" +
+                "phone:   +31-1234567890\n" +
+                "e-mail:  noreply@ripe.net\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "nic-hdl: PP1-TEST\n" +
+                "changed: noreply@ripe.net 20120101\n" +
+                "remarks: remark\n" +
+                "source:  NONE\n");
+        try {
+            createResource(AUDIENCE, "whois/create?password=test")
+                    .post(Response.class, whoisObjectMapper.map(Lists.newArrayList(rpslObject), false));
+            fail("expected request to fail");
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), containsString("Unrecognized source: NONE"));
+        }
+    }
+
+
+    @Test
     public void create_invalid_reference() throws Exception {
         try {
             createResource(AUDIENCE, "whois/test?password=test")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                    .post(String.class,
+                            "<whois-resources>\n" +
+                                    "    <objects>\n" +
+                                    "        <object type=\"person\">\n" +
+                                    "            <source id=\"RIPE\"/>\n" +
+                                    "            <attributes>\n" +
+                                    "                <attribute name=\"person\" value=\"Pauleth Palthen\"/>\n" +
+                                    "                <attribute name=\"address\" value=\"Singel 258\"/>\n" +
+                                    "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                                    "                <attribute name=\"e-mail\" value=\"noreply@ripe.net\"/>\n" +
+                                    "                <attribute name=\"admin-c\" value=\"INVALID\"/>\n" +
+                                    "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                                    "                <attribute name=\"nic-hdl\" value=\"PP1-TEST\"/>\n" +
+                                    "                <attribute name=\"changed\" value=\"ppalse@ripe.net 20101228\"/>\n" +
+                                    "                <attribute name=\"source\" value=\"RIPE\"/>\n" +
+                                    "            </attributes>\n" +
+                                    "        </object>\n" +
+                                    "    </objects>\n" +
+                                    "</whois-resources>");
+            fail("expected request to fail");
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), containsString("\"admin-c\" is not valid for this object type"));
+        }
+    }
+
+    @Test
+    public void old_create_invalid_reference() throws Exception {
+        try {
+            createResource(AUDIENCE, "whois/create?password=test")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                     .post(String.class,
                             "<whois-resources>\n" +
@@ -439,10 +490,31 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void old_create_multiple_passwords() throws Exception {
+        final boolean filter = false;
+        createResource(AUDIENCE, "whois/create?password=invalid&password=test")
+                .post(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
+    }
+
+    @Test
     public void create_invalid_password() throws Exception {
         try {
             final boolean filter = false;
             createResource(AUDIENCE, "whois/test?password=invalid")
+                    .post(Response.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
+            fail("expected request to fail");
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_UNAUTHORIZED));
+            assertThat(e.getResponse().getEntity(String.class),
+                    containsString("Authorisation for [person] PP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"));
+        }
+    }
+
+    @Test
+    public void old_create_invalid_password() throws Exception {
+        try {
+            final boolean filter = false;
+            createResource(AUDIENCE, "whois/create?password=invalid")
                     .post(Response.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
             fail("expected request to fail");
         } catch (UniformInterfaceException e) {
@@ -467,6 +539,20 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void old_create_no_password() throws Exception {
+        try {
+            final boolean filter = false;
+            createResource(AUDIENCE, "whois/create")
+                    .post(Response.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
+            fail("expected request to fail");
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_UNAUTHORIZED));
+            assertThat(e.getResponse().getEntity(String.class),
+                    containsString("Authorisation for [person] PP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"));
+        }
+    }
+
+    @Test
     public void create_already_exists() throws Exception {
         try {
             createResource(AUDIENCE, "whois/test?password=test")
@@ -480,9 +566,32 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void old_create_already_exists() throws Exception {
+        try {
+            createResource(AUDIENCE, "whois/create?password=test")
+                    .post(Response.class, whoisObjectMapper.map(Lists.newArrayList(OWNER_MNT), false));
+            fail("Expected failure as object already exists");
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_CONFLICT));
+            assertThat(e.getResponse().getEntity(String.class),
+                    containsString("Enforced new keyword specified, but the object already exists in the database"));
+        }
+    }
+
+    @Test
     public void create_delete_method_not_allowed() throws Exception {
         try {
-            createResource(AUDIENCE, "whois/test")
+            createResource(AUDIENCE, "whois/test").delete();
+            fail("expected DELETE method to fail");
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_BAD_METHOD));
+        }
+    }
+
+    @Test
+    public void old_create_delete_method_not_allowed() throws Exception {
+        try {
+            createResource(AUDIENCE, "whois/create")
                     .delete();
             fail("expected DELETE method to fail");
         } catch (UniformInterfaceException e) {
@@ -494,6 +603,18 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void create_get_method_not_allowed() throws Exception {
         try {
             createResource(AUDIENCE, "whois/test")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail("expected GET method to fail");
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_BAD_METHOD));
+        }
+    }
+
+    @Test
+    public void old_create_get_method_not_allowed() throws Exception {
+        try {
+            createResource(AUDIENCE, "whois/create")
                     .accept(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail("expected GET method to fail");
@@ -523,12 +644,45 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "        }, {"));
     }
 
+    @Test
+    public void old_create_json_request() throws Exception {
+        final String response = createResource(AUDIENCE, "whois/create?password=test")
+                .type(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .post(String.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), false));
+
+        assertThat(response, containsString("" +
+                "      \"primary-key\" : {\n" +
+                "        \"attribute\" : [ {\n" +
+                "          \"name\" : \"nic-hdl\",\n" +
+                "          \"value\" : \"PP1-TEST\"\n" +
+                "        } ]\n" +
+                "      },\n" +
+                "      \"attributes\" : {\n" +
+                "        \"attribute\" : [ {\n" +
+                "          \"name\" : \"person\",\n" +
+                "          \"value\" : \"Pauleth Palthen\"\n" +
+                "        }, {"));
+    }
+
     // delete
 
     @Test
     public void delete_succeeds() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
         createResource(AUDIENCE, "whois/test/person/PP1-TEST?password=test").delete();
+        try {
+            databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST");
+            fail();
+        } catch (EmptyResultDataAccessException ignored) {
+            // expected
+        }
+    }
+
+    @Test
+    public void old_delete_succeeds() throws Exception {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        createResource(AUDIENCE, "whois/delete/person/PP1-TEST?password=test").delete();
         try {
             databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST");
             fail();
@@ -582,30 +736,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_UNAUTHORIZED));
             assertThat(e.getResponse().getEntity(String.class),
                     containsString("Authorisation for [person] PP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"));
-        }
-    }
-
-    @Test
-    public void delete_post_not_allowed() throws Exception {
-        try {
-            createResource(AUDIENCE, "whois/delete")
-                    .accept(MediaType.APPLICATION_XML)
-                    .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)));
-            fail("expected POST method to fail");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_NOT_FOUND));
-        }
-    }
-
-    @Test
-    public void delete_get_not_allowed() throws Exception {
-        try {
-            createResource(AUDIENCE, "whois/delete")
-                    .accept(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-            fail("expected GET method to fail");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_NOT_FOUND));
         }
     }
 
@@ -724,24 +854,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("changed", "noreply@ripe.net 20120101"),
                 new Attribute("source", "TEST")
         ));
-    }
-
-    @Test
-    public void modify_supports_text_json_accept_and_content_type_headers() {
-        databaseHelper.addObject(PAULETH_PALTHEN);
-
-        final WhoisModify whoisModify = new WhoisModify(
-                new WhoisModify.Replace("address",
-                        Lists.newArrayList(
-                                new Attribute("address", "P.O. Box 10096"),
-                                new Attribute("address", "1001 EB Amsterdam"),
-                                new Attribute("address", "The Netherlands"))));
-
-        WhoisResources response = createResource(AUDIENCE, "whois/modify/person/PP1-TEST?password=test")
-                .accept("text/json")
-                .entity(whoisModify, "text/json").post(WhoisResources.class);
-
-        assertThat(response.getWhoisObjects(), hasSize(1));
     }
 
     @Test
@@ -941,6 +1053,51 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void old_versions_deleted() throws IOException {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+        databaseHelper.removeObject(autnum);
+        databaseHelper.addObject(autnum);
+        databaseHelper.updateObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST\n");
+
+        final List<WhoisVersion> versions = createResource(AUDIENCE, "whois/versions/AS102")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class).getVersions().getVersions();
+
+        assertThat(versions, hasSize(3));
+        assertThat(versions.get(0).getDeletedDate(), is(not(nullValue())));
+        assertThat(versions.get(0).getOperation(), is(nullValue()));
+        assertThat(versions.get(0).getDate(), is(nullValue()));
+        assertThat(versions.get(0).getRevision(), is(nullValue()));
+
+        assertThat(versions.get(1).getDeletedDate(), is(nullValue()));
+        assertThat(versions.get(1).getOperation(), is("ADD/UPD"));
+        assertThat(versions.get(1).getRevision(), is(1));
+        assertThat(versions.get(1).getDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
+
+        assertThat(versions.get(2).getDeletedDate(), is(nullValue()));
+        assertThat(versions.get(2).getOperation(), is("ADD/UPD"));
+        assertThat(versions.get(2).getRevision(), is(2));
+        assertThat(versions.get(2).getDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
+    }
+
+    @Test
     public void versions_deleted_versions_json() throws IOException {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
@@ -965,6 +1122,51 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST\n");
 
         final List<WhoisVersion> versions = createResource(AUDIENCE, "whois/test/aut-num/AS102/versions")
+                .accept(MediaType.APPLICATION_JSON)
+                .get(WhoisResources.class).getVersions().getVersions();
+
+        assertThat(versions, hasSize(3));
+        assertThat(versions.get(0).getDeletedDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
+        assertThat(versions.get(0).getOperation(), is(nullValue()));
+        assertThat(versions.get(0).getDate(), is(nullValue()));
+        assertThat(versions.get(0).getRevision(), is(nullValue()));
+
+        assertThat(versions.get(1).getDeletedDate(), is(nullValue()));
+        assertThat(versions.get(1).getOperation(), is("ADD/UPD"));
+        assertThat(versions.get(1).getRevision(), is(1));
+        assertThat(versions.get(1).getDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
+
+        assertThat(versions.get(2).getDeletedDate(), is(nullValue()));
+        assertThat(versions.get(2).getOperation(), is("ADD/UPD"));
+        assertThat(versions.get(2).getRevision(), is(2));
+        assertThat(versions.get(2).getDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
+    }
+
+    @Test
+    public void old_versions_deleted_versions_json() throws IOException {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+        databaseHelper.removeObject(autnum);
+        databaseHelper.addObject(autnum);
+        databaseHelper.updateObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST\n");
+
+        final List<WhoisVersion> versions = createResource(AUDIENCE, "whois/versions/AS102")
                 .accept(MediaType.APPLICATION_JSON)
                 .get(WhoisResources.class).getVersions().getVersions();
 
@@ -1011,9 +1213,47 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void old_versions_last_version_deleted() throws IOException {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+        databaseHelper.removeObject(autnum);
+
+        final List<WhoisVersion> versions = createResource(AUDIENCE, "whois/versions/AS102")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class).getVersions().getVersions();
+
+        assertThat(versions, hasSize(1));
+        assertThat(versions.get(0).getDeletedDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
+        assertThat(versions.get(0).getOperation(), is(nullValue()));
+        assertThat(versions.get(0).getDate(), is(nullValue()));
+        assertThat(versions.get(0).getRevision(), is(nullValue()));
+    }
+
+    @Test
     public void versions_no_versions_found() throws IOException {
         try {
             createResource(AUDIENCE, "whois/test/aut-num/AS102/versions")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+            assertThat(e.getResponse().getEntity(String.class), containsString("Not Found"));
+        }
+    }
+
+    @Test
+    public void old_versions_no_versions_found() throws IOException {
+        try {
+            createResource(AUDIENCE, "whois/versions/AS102")
                     .accept(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -1044,6 +1284,26 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void old_version_nonexistant_version() throws IOException {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST\n");
+
+        try {
+            createResource(AUDIENCE, "whois/version/2/AS102").get(WhoisResources.class);
+            fail("expected request to fail");
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_NOT_FOUND));
+        }
+    }
+
+    @Test
     public void version_returns_xml() throws IOException {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
@@ -1056,6 +1316,33 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         databaseHelper.addObject(autnum);
 
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/aut-num/AS102/versions/1")
+                .accept(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getType(), is("aut-num"));
+        assertThat(object.getVersion(), is(1));
+        final List<Attribute> attributes = object.getAttributes();
+        final List<RpslAttribute> originalAttributes = autnum.getAttributes();
+        for (int i = 0; i < originalAttributes.size(); i++) {
+            assertThat(originalAttributes.get(i).getCleanValue().toString(), is(attributes.get(i).getValue()));
+        }
+    }
+
+    @Test
+    public void old_version_returns_xml() throws IOException {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/version/1/AS102")
                 .accept(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1125,6 +1412,34 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void old_version_returns_json() throws IOException {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/version/1/AS102")
+                .accept(MediaType.APPLICATION_JSON)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects().size(), is(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getType(), is("aut-num"));
+        assertThat(object.getVersion(), is(1));
+
+        final List<Attribute> attributes = object.getAttributes();
+        final List<RpslAttribute> originalAttributes = autnum.getAttributes();
+        for (int i = 0; i < originalAttributes.size(); i++) {
+            assertThat(originalAttributes.get(i).getCleanValue().toString(), is(attributes.get(i).getValue()));
+        }
+    }
+
+    @Test
     public void version_not_showing_deleted_version() throws IOException {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
@@ -1148,8 +1463,31 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         }
     }
 
+    @Test
+    public void old_version_not_showing_deleted_version() throws IOException {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+        databaseHelper.removeObject(autnum);
+
+        try {
+            createResource(AUDIENCE, "whois/version/1/AS102")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail("expected not found (404)");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), containsString("404"));
+        }
+    }
+
     // schema
-    // TODO: schema is outdated, either remove or fix and link from REST API doc
 
     @Test
     public void schema_int() throws Exception {
@@ -1225,6 +1563,40 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                         "}";
 
         final String response = createResource(AUDIENCE, "whois/test/mntner/OWNER-MNT?password=test")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .put(String.class, update);
+
+        assertThat(response, containsString("\"objects\""));
+        assertThat(response, containsString("\"dbtest@ripe.net 20120101\""));
+    }
+
+    @Test
+    public void old_update_json_request_and_response_content() throws Exception {
+        final String update =
+                "{\n" +
+                        "  \"objects\" : {\n" +
+                        "      \"object\" : [ {\n" +
+                        "        \"source\" : {\n" +
+                        "          \"id\" : \"test\"\n" +
+                        "        },\n" +
+                        "        \"attributes\" : {\n" +
+                        "          \"attribute\" : [\n" +
+                        "            {\"name\":\"mntner\", \"value\":\"OWNER-MNT\"},\n" +
+                        "            {\"name\":\"descr\", \"value\":\"description\"},\n" +
+                        "            {\"name\":\"admin-c\", \"value\":\"TP1-TEST\"},\n" +
+                        "            {\"name\":\"upd-to\", \"value\":\"noreply@ripe.net\"},\n" +
+                        "            {\"name\":\"auth\", \"value\":\"MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/\"},\n" +
+                        "            {\"name\":\"mnt-by\", \"value\":\"OWNER-MNT\"},\n" +
+                        "            {\"name\":\"referral-by\", \"value\":\"OWNER-MNT\"},\n" +
+                        "            {\"name\":\"changed\", \"value\":\"dbtest@ripe.net 20120101\"},\n" +
+                        "            {\"name\":\"source\", \"value\":\"TEST\"}\n" +
+                        "        ] }\n" +
+                        "     }]\n" +
+                        "   }\n" +
+                        "}";
+
+        final String response = createResource(AUDIENCE, "whois/update/mntner/OWNER-MNT?password=test")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .put(String.class, update);
