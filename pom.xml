@@ -27,7 +27,7 @@
         <aspectj.version>1.7.2</aspectj.version>
         <compiler.version>1.7</compiler.version>
         <java.version>1.7</java.version>
-        <jersey.version>1.17.1</jersey.version>
+        <jersey.version>1.17</jersey.version>
         <jetty.version>8.1.12.v20130726</jetty.version>
         <lucene.version>4.1.0</lucene.version>
         <whois.main>OVERRIDE</whois.main>
@@ -344,18 +344,7 @@
             <!-- Jersey -->
             <dependency>
                 <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-server</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-servlet</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <!-- TODO: deprecate jersey-client once wsearch branch is merged -->
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-client</artifactId>
+                <artifactId>jersey-bundle</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
             <!-- Jackson -->
