@@ -341,7 +341,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void rest_create_succeeds() throws Exception {
-        final WhoisResources response = createResource(AUDIENCE, "whois/test?password=test")
+        final WhoisResources response = createResource(AUDIENCE, "whois/test/person?password=test")
                 .post(WhoisResources.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), false));
         final WhoisObject object = response.getWhoisObjects().get(0);
 
@@ -370,7 +370,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "remarks: remark\n" +
                 "source:  NONE\n");
         try {
-            createResource(AUDIENCE, "whois/test?password=test")
+            createResource(AUDIENCE, "whois/test/person?password=test")
                     .post(Response.class, whoisObjectMapper.map(Lists.newArrayList(rpslObject), false));
             fail("expected request to fail");
         } catch (UniformInterfaceException e) {
@@ -382,7 +382,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void create_invalid_reference() throws Exception {
         try {
-            createResource(AUDIENCE, "whois/test?password=test")
+            createResource(AUDIENCE, "whois/test/person?password=test")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                     .post(String.class,
                             "<whois-resources>\n" +
@@ -413,7 +413,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void create_multiple_passwords() throws Exception {
         final boolean filter = false;
-        createResource(AUDIENCE, "whois/test?password=invalid&password=test")
+        createResource(AUDIENCE, "whois/test/person?password=invalid&password=test")
                 .post(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
     }
 
@@ -421,7 +421,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void create_invalid_password() throws Exception {
         try {
             final boolean filter = false;
-            createResource(AUDIENCE, "whois/test?password=invalid")
+            createResource(AUDIENCE, "whois/test/person?password=invalid")
                     .post(Response.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
             fail("expected request to fail");
         } catch (UniformInterfaceException e) {
@@ -435,7 +435,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void create_no_password() throws Exception {
         try {
             final boolean filter = false;
-            createResource(AUDIENCE, "whois/test")
+            createResource(AUDIENCE, "whois/test/person")
                     .post(Response.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter));
             fail("expected request to fail");
         } catch (UniformInterfaceException e) {
@@ -448,7 +448,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void create_already_exists() throws Exception {
         try {
-            createResource(AUDIENCE, "whois/test?password=test")
+            createResource(AUDIENCE, "whois/test/person?password=test")
                     .post(Response.class, whoisObjectMapper.map(Lists.newArrayList(OWNER_MNT), false));
             fail("Expected failure as object already exists");
         } catch (UniformInterfaceException e) {
@@ -464,7 +464,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             createResource(AUDIENCE, "whois/test").delete();
             fail("expected DELETE method to fail");
         } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_BAD_METHOD));
+            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_NOT_FOUND));
         }
     }
 
@@ -476,13 +476,13 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                     .get(WhoisResources.class);
             fail("expected GET method to fail");
         } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_BAD_METHOD));
+            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_NOT_FOUND));
         }
     }
 
     @Test
     public void create_json_request() throws Exception {
-        final String response = createResource(AUDIENCE, "whois/test?password=test")
+        final String response = createResource(AUDIENCE, "whois/test/person?password=test")
                 .type(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .post(String.class, whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), false));
@@ -1629,7 +1629,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void non_ascii_characters_are_preserved() {
-        assertThat(createResource(AUDIENCE, "whois/test?password=test")
+        assertThat(createResource(AUDIENCE, "whois/test/person?password=test")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .post(String.class,

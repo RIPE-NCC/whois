@@ -138,11 +138,12 @@ public class WhoisRestService {
     @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @Path("/{source}")
+    @Path("/{source}/{objectType}")
     public Response restCreate(
             final WhoisResources resource,
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
+            @PathParam("objectType") final String objectType,
             @QueryParam(value = "password") final List<String> passwords) {
 
         checkForMainSource(source);
