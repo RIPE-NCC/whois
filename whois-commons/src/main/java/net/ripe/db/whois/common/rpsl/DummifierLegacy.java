@@ -5,6 +5,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
@@ -14,6 +16,8 @@ import java.util.Set;
 
 @Component
 public class DummifierLegacy implements Dummifier {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummifierLegacy.class);
+
     public static final RpslObject PLACEHOLDER_PERSON_OBJECT = RpslObject.parse("" +
             "person:         Placeholder Person Object\n" +
             "address:        RIPE Network Coordination Centre\n" +
@@ -58,16 +62,6 @@ public class DummifierLegacy implements Dummifier {
     static final Set<ObjectType> SKIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.PERSON, ObjectType.ROLE);
     static final Set<ObjectType> STRIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.MNTNER, ObjectType.ORGANISATION);
 
-    static final List<RpslAttribute> DUMMIFICATION_REMARKS = Lists.newArrayList(
-            new RpslAttribute("remarks", "        ****************************"),
-            new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
-            new RpslAttribute("remarks", "        * Please note that all data that is generally regarded as personal"),
-            new RpslAttribute("remarks", "        * data has been removed from this object."),
-            new RpslAttribute("remarks", "        * To view the original object, please query the RIPE Database at:"),
-            new RpslAttribute("remarks", "        * http://www.ripe.net/whois"),
-            new RpslAttribute("remarks", "        ****************************")
-    );
-
     private static final String PERSON_ROLE_PLACEHOLDER = "DUMY-RIPE";
     static final Set<AttributeType> PERSON_ROLE_REFERENCES = Sets.immutableEnumSet(
             AttributeType.ADMIN_C,
@@ -104,7 +98,7 @@ public class DummifierLegacy implements Dummifier {
         dummifyMandatoryAttributes(attributes, rpslObject.getKey());
         insertPlaceholder(attributes);
 
-        attributes.addAll(DUMMIFICATION_REMARKS);
+        attributes.addAll(getDummificationRemarks(rpslObject));
 
         return new RpslObject(rpslObject.getObjectId(), attributes);
     }
@@ -191,4 +185,86 @@ public class DummifierLegacy implements Dummifier {
         return SKIPPED_OBJECT_TYPES.contains(objectType)
                 && (!ObjectType.ROLE.equals(objectType) || rpslObject.findAttributes(AttributeType.ABUSE_MAILBOX).isEmpty());
     }
+
+    private static List<RpslAttribute> getDummificationRemarks(final RpslObject rpslObject) {
+        final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString();
+        switch(source) {
+            case "RIPE":
+            case "RIPE-GRS":
+            case "TEST":
+                return Lists.newArrayList(
+                        new RpslAttribute("remarks", "        ****************************"),
+                        new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
+                        new RpslAttribute("remarks", "        * Please note that all data that is generally regarded as personal"),
+                        new RpslAttribute("remarks", "        * data has been removed from this object."),
+                        new RpslAttribute("remarks", "        * To view the original object, please query the RIPE Database at:"),
+                        new RpslAttribute("remarks", "        * http://www.ripe.net/whois"),
+                        new RpslAttribute("remarks", "        ****************************"));
+
+            case "AFRINIC-GRS":
+                return Lists.newArrayList(
+                        new RpslAttribute("remarks", "        ****************************"),
+                        new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
+                        new RpslAttribute("remarks", "        * Please note that all data that is generally regarded as personal"),
+                        new RpslAttribute("remarks", "        * data has been removed from this object."),
+                        new RpslAttribute("remarks", "        * To view the original object, please query the AFRINIC Database at:"),
+                        new RpslAttribute("remarks", "        * http://www.afrinic.net/"),
+                        new RpslAttribute("remarks", "        ****************************"));
+
+            case "APNIC-GRS":
+                return Lists.newArrayList(
+                        new RpslAttribute("remarks", "        ****************************"),
+                        new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
+                        new RpslAttribute("remarks", "        * Please note that all data that is generally regarded as personal"),
+                        new RpslAttribute("remarks", "        * data has been removed from this object."),
+                        new RpslAttribute("remarks", "        * To view the original object, please query the APNIC Database at:"),
+                        new RpslAttribute("remarks", "        * http://www.apnic.net/"),
+                        new RpslAttribute("remarks", "        ****************************"));
+
+            case "ARIN-GRS":
+                return Lists.newArrayList(
+                        new RpslAttribute("remarks", "        ****************************"),
+                        new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
+                        new RpslAttribute("remarks", "        * Please note that all data that is generally regarded as personal"),
+                        new RpslAttribute("remarks", "        * data has been removed from this object."),
+                        new RpslAttribute("remarks", "        * To view the original object, please query the ARIN Database at:"),
+                        new RpslAttribute("remarks", "        * http://www.arin.net/"),
+                        new RpslAttribute("remarks", "        ****************************"));
+
+            case "JPIRR-GRS":
+                return Lists.newArrayList(
+                        new RpslAttribute("remarks", "        ****************************"),
+                        new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
+                        new RpslAttribute("remarks", "        * Please note that all data that is generally regarded as personal"),
+                        new RpslAttribute("remarks", "        * data has been removed from this object."),
+                        new RpslAttribute("remarks", "        * To view the original object, please query the JPIRR Database at:"),
+                        new RpslAttribute("remarks", "        * http://www.nic.ad.jp/"),
+                        new RpslAttribute("remarks", "        ****************************"));
+
+            case "LACNIC-GRS":
+                return Lists.newArrayList(
+                        new RpslAttribute("remarks", "        ****************************"),
+                        new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
+                        new RpslAttribute("remarks", "        * Please note that all data that is generally regarded as personal"),
+                        new RpslAttribute("remarks", "        * data has been removed from this object."),
+                        new RpslAttribute("remarks", "        * To view the original object, please query the LACNIC Database at:"),
+                        new RpslAttribute("remarks", "        * http://www.lacnic.net/"),
+                        new RpslAttribute("remarks", "        ****************************"));
+
+            case "RADB-GRS":
+                return Lists.newArrayList(
+                        new RpslAttribute("remarks", "        ****************************"),
+                        new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
+                        new RpslAttribute("remarks", "        * Please note that all data that is generally regarded as personal"),
+                        new RpslAttribute("remarks", "        * data has been removed from this object."),
+                        new RpslAttribute("remarks", "        * To view the original object, please query the RADB Database at:"),
+                        new RpslAttribute("remarks", "        * http://www.ra.net/"),
+                        new RpslAttribute("remarks", "        ****************************"));
+
+            default:
+                LOGGER.warn("Unknown source {} in object {}", source, rpslObject.getKey());
+                return Lists.newArrayList();
+        }
+    }
+
 }
