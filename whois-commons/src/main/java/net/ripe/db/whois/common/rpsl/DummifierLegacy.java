@@ -192,6 +192,7 @@ public class DummifierLegacy implements Dummifier {
             case "RIPE":
             case "RIPE-GRS":
             case "TEST":
+            case "TEST-GRS":
                 return Lists.newArrayList(
                         new RpslAttribute("remarks", "        ****************************"),
                         new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),

@@ -267,58 +267,63 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
     @Test
     public void export_proposed_dummification() throws IOException {
         databaseHelper.addObject(RpslObject.parse("" +
-                "inetnum: 193.0.0.0 - 193.255.255.255\n" +
-                "netname: TEST-RIPE\n" +
-                "admin-c: PN1-RIPE\n" +
-                "tech-c: PN1-RIPE\n" +
-                "notify: test@ripe.net\n" +
-                "changed: test@ripe.net 20120101"));
+                "inetnum:   193.0.0.0 - 193.255.255.255\n" +
+                "netname:   TEST-RIPE\n" +
+                "admin-c:   PN1-RIPE\n" +
+                "tech-c:    PN1-RIPE\n" +
+                "notify:    test@ripe.net\n" +
+                "changed:   test@ripe.net 20120101\n" +
+                "source:    TEST"));
 
         databaseHelper.addObject(RpslObject.parse("" +
-                "organisation: ORG-TO1-TEST\n" +
-                "org-name: Test Organisation\n" +
-                "org-type: OTHER\n" +
-                "address: Test Org\n" +
-                "         Street\n" +
-                "         1234 City\n" +
-                "         Country\n" +
-                "phone:   +12 3456 78\n" +
-                "fax-no:  +12 234 567\n" +
-                "e-mail:  test@ripe.net"));
+                "organisation:  ORG-TO1-TEST\n" +
+                "org-name:      Test Organisation\n" +
+                "org-type:      OTHER\n" +
+                "address:       Test Org\n" +
+                "               Street\n" +
+                "               1234 City\n" +
+                "               Country\n" +
+                "phone:         +12 3456 78\n" +
+                "fax-no:        +12 234 567\n" +
+                "e-mail:        test@ripe.net\n" +
+                "source:        TEST"));
 
         databaseHelper.addObject(RpslObject.parse("" +
-                "mntner: TEST-MNT\n" +
-                "descr: description\n" +
-                "upd-to: test@ripe.net\n" +
-                "auth: X509-1\n" +
-                "auth: PGPKEY-AA\n" +
-                "auth: MD5-PW\n" +
-                "mnt-nfy: test@test.com\n" +
-                "ref-nfy: foo@bar.com\n" +
-                "mnt-by: TEST-MNT"));
+                "mntner:        TEST-MNT\n" +
+                "descr:         description\n" +
+                "upd-to:        test@ripe.net\n" +
+                "auth:          X509-1\n" +
+                "auth:          PGPKEY-AA\n" +
+                "auth:          MD5-PW\n" +
+                "mnt-nfy:       test@test.com\n" +
+                "ref-nfy:       foo@bar.com\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST"));
 
         databaseHelper.addObject(RpslObject.parse("" +
-                "role: Test Role1\n" +
-                "address: Street\n" +
-                "address: City\n" +
-                "address: Country\n" +
-                "phone: +12 345 678\n" +
-                "fax-no: +12 345 678\n" +
-                "e-mail: test@bar.com\n" +
-                "nic-hdl: ROLE-NIC\n" +
-                "changed: foo@test.net"));
+                "role:      Test Role1\n" +
+                "address:   Street\n" +
+                "address:   City\n" +
+                "address:   Country\n" +
+                "phone:     +12 345 678\n" +
+                "fax-no:    +12 345 678\n" +
+                "e-mail:    test@bar.com\n" +
+                "nic-hdl:   ROLE-NIC\n" +
+                "changed:   foo@test.net\n" +
+                "source:    TEST"));
 
         databaseHelper.addObject(RpslObject.parse("" +
-                "role: Test Role2\n" +
-                "address: Street\n" +
-                "address: City\n" +
-                "address: Country\n" +
-                "phone: +12 345 678\n" +
-                "fax-no: +12 345 678\n" +
-                "e-mail: test@bar.com\n" +
+                "role:          Test Role2\n" +
+                "address:       Street\n" +
+                "address:       City\n" +
+                "address:       Country\n" +
+                "phone:         +12 345 678\n" +
+                "fax-no:        +12 345 678\n" +
+                "e-mail:        test@bar.com\n" +
                 "abuse-mailbox: abuse@test.net\n" +
-                "nic-hdl: AB-NIC\n" +
-                "changed: foo@test.net"));
+                "nic-hdl:       AB-NIC\n" +
+                "changed:       foo@test.net\n" +
+                "source:        TEST"));
 
         sourceContext.removeCurrentSource();
 
@@ -334,7 +339,8 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "admin-c:        PN1-RIPE\n" +
                 "tech-c:         PN1-RIPE\n" +
                 "notify:         ***@ripe.net\n" +
-                "changed:        ***@ripe.net 20120101");
+                "changed:        ***@ripe.net 20120101\n" +
+                "source:         TEST");
 
         checkFile("dbase_new/split/ripe.db.organisation.gz", "" +
                 "organisation:   ORG-TO1-TEST\n" +
@@ -346,7 +352,8 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "                Country\n" +
                 "phone:          +12 3... ..\n" +
                 "fax-no:         +12 2.. ...\n" +
-                "e-mail:         ***@ripe.net");
+                "e-mail:         ***@ripe.net\n" +
+                "source:         TEST");
 
         checkFile("dbase_new/split/ripe.db.mntner.gz", "" +
                 "mntner:         TEST-MNT\n" +
@@ -357,7 +364,8 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "auth:           MD5-PW # Filtered\n" +
                 "mnt-nfy:        ***@test.com\n" +
                 "ref-nfy:        ***@bar.com\n" +
-                "mnt-by:         TEST-MNT");
+                "mnt-by:         TEST-MNT\n" +
+                "source:         TEST");
 
         checkFile("dbase_new/split/ripe.db.role.gz", "" +
                 "role:           Test Role1\n" +
@@ -368,7 +376,8 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "fax-no:         +12 3.. ...\n" +
                 "e-mail:         ***@bar.com\n" +
                 "nic-hdl:        ROLE-NIC\n" +
-                "changed:        ***@test.net");
+                "changed:        ***@test.net\n" +
+                "source:         TEST");
 
         checkFile("dbase_new/split/ripe.db.role.gz", "" +
                 "role:           Test Role2\n" +
@@ -380,15 +389,17 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "e-mail:         ***@bar.com\n" +
                 "abuse-mailbox:  abuse@test.net\n" +
                 "nic-hdl:        AB-NIC\n" +
-                "changed:        ***@test.net");
+                "changed:        ***@test.net\n" +
+                "source:         TEST");
     }
 
     @Test
     public void export_tags_in_all_dumps() throws IOException {
         final RpslObject org = databaseHelper.addObject(RpslObject.parse("" +
-                "organisation: ORG-TO1-TEST\n" +
-                "org-name: Test Organisation\n" +
-                "org-type: OTHER\n"));
+                "organisation:  ORG-TO1-TEST\n" +
+                "org-name:      Test Organisation\n" +
+                "org-type:      OTHER\n" +
+                "source:        TEST"));
 
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", org.getObjectId(), "bar", "Bar Data");
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", org.getObjectId(), "foo", "Foo Data");
