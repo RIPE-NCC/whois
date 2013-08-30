@@ -87,9 +87,9 @@ class RpslObjectSearcher {
             case AS_BLOCK:
                 return asBlockLookup(query);
             case INETNUM:
-                return query.getIpKeyOrNull() != null ? proxy(ipTreeLookup(ipv4Tree, query.getIpKeyOrNull(), query.matchOperation())) : proxy(inetnumDao.findByNetname(query.getSearchValue()));
+                return query.getIpKeyOrNull() != null ? proxy(ipTreeLookup(ipv4Tree, query.getIpKeyOrNull(), query)) : proxy(inetnumDao.findByNetname(query.getSearchValue()));
             case INET6NUM:
-                return query.getIpKeyOrNull() != null ? proxy(ipTreeLookup(ipv6Tree, query.getIpKeyOrNull(), query.matchOperation())) : proxy(inet6numDao.findByNetname(query.getSearchValue()));
+                return query.getIpKeyOrNull() != null ? proxy(ipTreeLookup(ipv6Tree, query.getIpKeyOrNull(), query)) : proxy(inet6numDao.findByNetname(query.getSearchValue()));
             case DOMAIN:
                 return domainLookup(query);
             case ROUTE:
@@ -102,19 +102,17 @@ class RpslObjectSearcher {
     }
 
     private Iterable<ResponseObject> routeLookup(IpTree routeTree, Query query) {
-        final List ipEntries = ipTreeLookup(routeTree, query.getIpKeyOrNull(), query.matchOperation());
-
         final String origin = query.getRouteOrigin();
         if (origin != null) {
             final List newEntries = new ArrayList();
-            for (Object ipEntry : ipEntries) {
+            for (IpEntry ipEntry : ipTreeLookup(routeTree, query.getIpKeyOrNull(), query)) {
                 if (((RouteEntry)ipEntry).getOrigin().equals(origin)) {
                     newEntries.add(ipEntry);
                 }
             }
             return proxy(newEntries);
         } else {
-            return proxy(ipEntries);
+            return proxy(ipTreeLookup(routeTree, query.getIpKeyOrNull(), query));
         }
     }
 
@@ -144,21 +142,26 @@ class RpslObjectSearcher {
 
         switch (ipInterval.getAttributeType()) {
             case INETNUM:
-                return proxy(ipTreeLookup(ipv4DomainTree, ipInterval, query.matchOperation()));
+                return proxy(ipTreeLookup(ipv4DomainTree, ipInterval, query));
             case INET6NUM:
-                return proxy(ipTreeLookup(ipv6DomainTree, ipInterval, query.matchOperation()));
+                return proxy(ipTreeLookup(ipv6DomainTree, ipInterval, query));
             default:
                 throw new IllegalArgumentException(String.format("Unexpected type: %s", ipInterval.getAttributeType()));
         }
     }
 
-    private List<IpEntry> ipTreeLookup(final IpTree tree, final IpInterval<?> key, Query.MatchOperation matchOperation) {
+    private List<IpEntry> ipTreeLookup(final IpTree tree, final IpInterval<?> key, Query query) {
         if (key == null) {
             return Collections.emptyList();
         }
 
+        Query.MatchOperation matchOperation = query.matchOperation();
         if (matchOperation == null) {
-            matchOperation = Query.MatchOperation.MATCH_EXACT_OR_FIRST_LEVEL_LESS_SPECIFIC;
+            if (query.getRouteOrigin() != null) {
+                matchOperation = Query.MatchOperation.MATCH_EXACT;
+            } else {
+                matchOperation = Query.MatchOperation.MATCH_EXACT_OR_FIRST_LEVEL_LESS_SPECIFIC;
+            }
         }
 
         return findEntries(key, tree, matchOperation);
