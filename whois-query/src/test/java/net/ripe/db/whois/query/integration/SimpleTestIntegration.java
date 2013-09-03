@@ -214,10 +214,18 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     }
 
     @Test
+    public void reverseDomainUppercaseSearch() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "117.80.81.IN-ADDR.ARPA");
+
+        assertThat(response, containsString("117.80.81.in-addr.arpa"));
+        assertThat(response, not(containsString(QueryMessages.noResults("TEST").toString())));
+    }
+
+    @Test
     public void personQueryWithoutSearchKey() throws Exception {
         final String response = DummyWhoisClient.query(QueryServer.port, "-rT person");
 
-        assertThat(response, containsString("no search key specified"));
+        assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
         assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
     }
 

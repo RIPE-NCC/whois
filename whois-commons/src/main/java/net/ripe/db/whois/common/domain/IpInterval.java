@@ -30,7 +30,7 @@ public abstract class IpInterval<K extends Interval<K>> implements Interval<K> {
     }
 
     public static IpInterval<?> parseReverseDomain(String reverse) {
-        reverse = removeTrailingDot(reverse);
+        reverse = removeTrailingDot(reverse).toLowerCase();
 
         if (reverse.endsWith(Ipv4Resource.IPV4_REVERSE_DOMAIN)) {
             return Ipv4Resource.parseReverseDomain(reverse);
