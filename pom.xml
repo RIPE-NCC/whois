@@ -65,6 +65,7 @@
         <module>whois-db</module>
         <module>whois-endtoend</module>
         <module>whois-oneshot</module>
+        <module>whois-logsearch</module>
     </modules>
 
     <dependencyManagement>
@@ -758,14 +759,6 @@
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>None</test.files.integration>
             </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-shade-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>

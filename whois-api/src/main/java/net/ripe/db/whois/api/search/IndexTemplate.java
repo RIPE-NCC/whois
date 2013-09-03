@@ -112,7 +112,7 @@ public class IndexTemplate implements Closeable {
         taxonomyWriter.commit();
         indexWriter.commit();
 
-        readerManager = new ReaderManager(indexWriter, false);
+        readerManager = new ReaderManager(indexWriter, true);
     }
 
     public <T> T read(final ReadCallback<T> readCallback) throws IOException {
