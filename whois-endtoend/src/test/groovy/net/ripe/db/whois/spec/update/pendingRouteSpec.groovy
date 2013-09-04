@@ -3,7 +3,6 @@ package net.ripe.db.whois.spec.update
 import net.ripe.db.whois.spec.BaseSpec
 import spec.domain.AckResponse
 import spec.domain.Message
-import spock.lang.Ignore
 
 /**
  * Created with IntelliJ IDEA.
@@ -482,15 +481,15 @@ class pendingRouteSpec extends BaseSpec {
         def ack2 = ackFor message2
 
         ack2.summary.nrFound == 1
-//        ack2.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack2.summary.assertSuccess(1, 1, 0, 0, 0)
         ack2.summary.assertErrors(0, 0, 0, 0)
         ack2.countErrorWarnInfo(0, 0, 1)
-//        ack2.successes.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
-//        ack2.infoSuccessMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
-//                "This update concludes a pending update on route 192.168.0.0/16AS100"]
+        ack2.successes.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+        ack2.infoSuccessMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
+                "This update concludes a pending update on route 192.168.0.0/16AS100"]
 
         def notif2 = notificationFor "mntnfy_owner@ripe.net"
-        notif2.subject =~ "RIPE Database updates, auth request notification"
+        notif2.subject =~ "Notification of RIPE Database changes"
 
         noMoreMessages()
 
