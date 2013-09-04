@@ -14,6 +14,7 @@ public abstract class JmxBase {
 
     public static final String OBJECT_NAME_BASE = "net.ripe.db.whois:name=";
 
+    // TODO: [AH] add flag for starting in daemon thread
     protected <T> T invokeOperation(final String description, final String comment, final Callable<T> callable) {
         final Stopwatch stopwatch = new Stopwatch().start();
 
