@@ -26,8 +26,9 @@ import java.util.regex.Pattern;
 
 @Component
 public class NewLogFormatProcessor implements LogFormatProcessor {
+    public static final Pattern INDEXED_LOG_ENTRIES = Pattern.compile("(?:^|.*/)[0-9]+\\.(?:msg-in|ack)\\.txt\\.gz$");
+
     private static final Logger LOGGER = LoggerFactory.getLogger(NewLogFormatProcessor.class);
-    private static final Pattern INDEXED_LOG_ENTRIES = Pattern.compile("(?:^|.*/)[0-9]+\\.(?:msg-in|ack)\\.txt\\.gz$");
 
     private final LogFileIndex logFileIndex;
     private final String logDirectory;
@@ -73,24 +74,27 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
         });
     }
 
+    private void indexDailyLogFolder(DailyLogFolder dailyLogFolder, final IndexWriter indexWriter) {
+        LOGGER.debug("Indexing {}", dailyLogFolder);
+
+        dailyLogFolder.processLoggedFiles(new LoggedUpdateProcessor<DailyLogEntry>() {
+            @Override
+            public boolean accept(DailyLogEntry dailyLogEntry) {
+                return INDEXED_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches();
+            }
+
+            @Override
+            public void process(DailyLogEntry dailyLogEntry, String contents) {
+                LogFileIndex.addToIndex(dailyLogEntry, contents, indexWriter);
+            }
+        });
+    }
+
     public void addDailyLogFolderToIndex(final String path) throws IOException {
-        final DailyLogFolder dailyLogFolder = new DailyLogFolder(new File(path));
         logFileIndex.update(new IndexTemplate.WriteCallback() {
             @Override
             public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                dailyLogFolder.processLoggedFiles(new LoggedUpdateProcessor<DailyLogEntry>() {
-
-                    @Override
-                    public boolean accept(DailyLogEntry dailyLogEntry) {
-                        return INDEXED_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches();
-                    }
-
-                    @Override
-                    public void process(DailyLogEntry dailyLogEntry, String contents) {
-                        LOGGER.debug("Add {} to index", dailyLogEntry.getUpdateId());
-                        LogFileIndex.addToIndex(dailyLogEntry, contents, indexWriter);
-                    }
-                });
+                indexDailyLogFolder(new DailyLogFolder(Paths.get(path)), indexWriter);
             }
         });
     }
@@ -146,7 +150,7 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                     @Override
                     public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
                         if (dir.getFileName().toString().equals(todaysFolder)) {
-                            indexDailyLogFolderEntry(dir, updateFrom, updateTo, indexWriter);
+                            indexDailyLogFolder(new DailyLogFolder(dir, updateFrom, updateTo), indexWriter);
                             return FileVisitResult.SKIP_SUBTREE;
                         }
                         return FileVisitResult.CONTINUE;
@@ -192,24 +196,6 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
             } catch (IllegalArgumentException | IOException e) {
                 LOGGER.warn(e.getMessage());
             }
-        }
-    }
-
-    private void indexDailyLogFolderEntry(Path dir, long updateFrom, long updateTo, final IndexWriter indexWriter) {
-        for (DailyLogFolder dailyLogFolder : DailyLogFolder.getDailyLogFolders(dir, updateFrom, updateTo)) {
-            LOGGER.info("Folder: {}", dailyLogFolder.toString());
-
-            dailyLogFolder.processLoggedFiles(new LoggedUpdateProcessor<DailyLogEntry>() {
-                @Override
-                public boolean accept(final DailyLogEntry dailyLogEntry) {
-                    return true;
-                }
-
-                @Override
-                public void process(final DailyLogEntry loggedUpdate, final String contents) {
-                    LogFileIndex.addToIndex(loggedUpdate, contents, indexWriter);
-                }
-            });
         }
     }
 

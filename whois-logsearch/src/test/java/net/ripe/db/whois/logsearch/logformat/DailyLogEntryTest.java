@@ -38,32 +38,27 @@ public class DailyLogEntryTest {
         DailyLogEntry.parse("20130312/101010.update/filename", "", Type.DAILY);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void parse_audit() {
-        final DailyLogEntry dailyLogEntry = new DailyLogEntry("/some/ignored/path/prefix/20130312/101010.update/000.audit.gz", "20130312");
-        assertThat(dailyLogEntry.getUpdateId(), is("/some/ignored/path/prefix/20130312/101010.update/000.audit.gz"));
-        assertThat(dailyLogEntry.getDate(), is("20130312"));
-        assertThat(dailyLogEntry.getType(), is(Type.DAILY));
+        final DailyLogEntry dailyLogEntry = new DailyLogEntry("/some/ignored/path/prefix/20130312/101010.update/000.audit.xml.gz", "20130312");
     }
 
     @Test
     public void parse_update() {
-        final DailyLogEntry dailyLogEntry = new DailyLogEntry("20130312/101010.update/001.in.gz", "20130312");
-        assertThat(dailyLogEntry.getUpdateId(), is("20130312/101010.update/001.in.gz"));
+        final DailyLogEntry dailyLogEntry = new DailyLogEntry("20130312/101010.update/001.msg-in.txt.gz", "20130312");
+        assertThat(dailyLogEntry.getUpdateId(), is("20130312/101010.update/001.msg-in.txt.gz"));
         assertThat(dailyLogEntry.getDate(), is("20130312"));
     }
 
     @Test
     public void parse_ack() {
-        final DailyLogEntry dailyLogEntry = new DailyLogEntry("20130312/101010.update/002.ack.gz", "20130312");
-        assertThat(dailyLogEntry.getUpdateId(), is("20130312/101010.update/002.ack.gz"));
+        final DailyLogEntry dailyLogEntry = new DailyLogEntry("20130312/101010.update/002.ack.txt.gz", "20130312");
+        assertThat(dailyLogEntry.getUpdateId(), is("20130312/101010.update/002.ack.txt.gz"));
         assertThat(dailyLogEntry.getDate(), is("20130312"));
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void parse_notification() {
-        final DailyLogEntry dailyLogEntry = new DailyLogEntry("20130312/101010.update/666.out.gz", "20130312");
-        assertThat(dailyLogEntry.getUpdateId(), is("20130312/101010.update/666.out.gz"));
-        assertThat(dailyLogEntry.getDate(), is("20130312"));
+        final DailyLogEntry dailyLogEntry = new DailyLogEntry("20130312/101010.update/666.msg-out.txt.gz", "20130312");
     }
 }

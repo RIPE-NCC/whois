@@ -1,17 +1,14 @@
 package net.ripe.db.whois.logsearch.logformat;
 
+import net.ripe.db.whois.logsearch.NewLogFormatProcessor;
 import org.apache.commons.lang.Validate;
 
-import java.util.regex.Pattern;
-
 public class DailyLogEntry extends LoggedUpdate {
-    public static final Pattern UPDATE_LOG_FILE_PATTERN = Pattern.compile("(?i)(?:^|.*/)(\\d+)\\.[\\-.\\w]+\\.gz");
-
     private final String updateId;
     private final String date;
 
     public DailyLogEntry(final String updateId, final String date) {
-        Validate.isTrue(UPDATE_LOG_FILE_PATTERN.matcher(updateId).matches());
+        Validate.isTrue(NewLogFormatProcessor.INDEXED_LOG_ENTRIES.matcher(updateId).matches());
         this.updateId = updateId;
         this.date = date;
     }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// TODO: switch this to Path ipv File
 public class TarredLogFile extends LogSource {
     private static final Logger LOGGER = LoggerFactory.getLogger(TarredLogFile.class);
     public static final Pattern LOGFILE_PATTERN = Pattern.compile("(?:^|.*/)(\\d{8})(\\.tar)");

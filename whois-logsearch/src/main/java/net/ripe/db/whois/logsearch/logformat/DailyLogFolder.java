@@ -1,24 +1,15 @@
 package net.ripe.db.whois.logsearch.logformat;
 
-import com.google.common.collect.Maps;
 import net.ripe.db.whois.logsearch.LoggedUpdateProcessor;
+import net.ripe.db.whois.logsearch.NewLogFormatProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileVisitResult;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,67 +19,70 @@ public class DailyLogFolder extends LogSource {
     public static final Pattern DAILY_LOG_FOLDER_PATTERN = Pattern.compile("(?:^|.*/)(\\d{8})$");
     public static final Pattern UPDATE_LOG_FOLDER_PATTERN = Pattern.compile("(?:^|.*/)(\\d{6})\\..*");
 
-    private final File dailyLogFolder;
+    private final Path dailyLogFolder;
     private final String path;
     private final String date;
+    private final long updateFrom;
+    private final long updateTo;
 
-    public DailyLogFolder(final File dailyLogFolder) {
-        final Matcher folderNameMatcher = DAILY_LOG_FOLDER_PATTERN.matcher(dailyLogFolder.getName());
+    public DailyLogFolder(final Path dailyLogFolder) {
+        this(dailyLogFolder, Long.MIN_VALUE, Long.MAX_VALUE);
+    }
+
+    public DailyLogFolder(final Path dailyLogFolder, long updateFrom, long updateTo) {
+        final Matcher folderNameMatcher = DAILY_LOG_FOLDER_PATTERN.matcher(dailyLogFolder.toString());
         if (!folderNameMatcher.matches()) {
-            throw new IllegalArgumentException("Invalid dailyLogFolder: " + dailyLogFolder.getName() + " (should match pattern '" + DAILY_LOG_FOLDER_PATTERN.pattern() + "')");
+            throw new IllegalArgumentException("Invalid dailyLogFolder: " + dailyLogFolder + " (should match pattern '" + DAILY_LOG_FOLDER_PATTERN.pattern() + "')");
         }
 
         this.date = folderNameMatcher.group(1);
 
-        if (!dailyLogFolder.exists() || !dailyLogFolder.isDirectory()) {
-            throw new IllegalArgumentException("Folder " + dailyLogFolder.getAbsolutePath() + " does not exist");
+        if (!Files.exists(dailyLogFolder) || !Files.isDirectory(dailyLogFolder)) {
+            throw new IllegalArgumentException("Folder " + dailyLogFolder + " does not exist");
         }
 
         this.dailyLogFolder = dailyLogFolder;
-        this.path = dailyLogFolder.getAbsolutePath();
+        this.path = dailyLogFolder.toAbsolutePath().toString();
+        this.updateFrom = updateFrom;
+        this.updateTo = updateTo;
     }
 
     public void processLoggedFiles(final LoggedUpdateProcessor loggedUpdateProcessor) {
-        final File[] updateLogFolders = dailyLogFolder.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(final File pathName) {
-                return pathName.isDirectory() && UPDATE_LOG_FOLDER_PATTERN.matcher(pathName.getName()).matches();
-            }
-        });
-
-        final SortedMap<LoggedUpdate, File> loggedUpdates = Maps.newTreeMap();
-
-        for (final File updateLogFolder : updateLogFolders) {
-            final File[] files = updateLogFolder.listFiles(new FileFilter() {
+        try {
+            DirectoryStream<Path> updateLogFolders = Files.newDirectoryStream(dailyLogFolder, new DirectoryStream.Filter<Path>() {
                 @Override
-                public boolean accept(final File pathName) {
-                    return pathName.isFile();
+                public boolean accept(Path entry) throws IOException {
+                    if (Files.isDirectory(entry) && UPDATE_LOG_FOLDER_PATTERN.matcher(entry.toString()).matches()) {
+                        final long lastModifiedTime = Files.getLastModifiedTime(entry).toMillis();
+                        return lastModifiedTime >= updateFrom && lastModifiedTime < updateTo;
+                    }
+                    return false;
                 }
             });
 
-            for (final File file : files) {
-                try {
-                    loggedUpdates.put(new DailyLogEntry(file.getAbsolutePath(), date), file);
-                } catch (IllegalArgumentException e) {
-                    LOGGER.debug("Ignoring {}", file.getAbsolutePath());
+            for (final Path updateLogFolder : updateLogFolders) {
+                final DirectoryStream<Path> updateLogEntries = Files.newDirectoryStream(updateLogFolder, new DirectoryStream.Filter<Path>() {
+                    @Override
+                    public boolean accept(Path entry) throws IOException {
+                        return Files.isRegularFile(entry) && NewLogFormatProcessor.INDEXED_LOG_ENTRIES.matcher(entry.toString()).matches();
+                    }
+                });
+
+                for (final Path updateLogEntry : updateLogEntries) {
+                    final DailyLogEntry dailyLogEntry = new DailyLogEntry(updateLogEntry.toAbsolutePath().toString(), date);
+
+                    if (loggedUpdateProcessor.accept(dailyLogEntry)) {
+                        try (InputStream is = Files.newInputStream(updateLogEntry)) {
+                            loggedUpdateProcessor.process(dailyLogEntry, getGzippedContent(is, Files.size(updateLogEntry)));
+                        } catch (IOException e) {
+                            LOGGER.warn("IO exception processing file: {}", updateLogEntry, e);
+                        } catch (RuntimeException e) {
+                            LOGGER.warn("Unexpected exception processing file: {}", updateLogEntry, e);
+                        }
+                    }
                 }
             }
-        }
-
-        for (final Map.Entry<LoggedUpdate, File> updateInfoFileEntry : loggedUpdates.entrySet()) {
-            final LoggedUpdate loggedUpdate = updateInfoFileEntry.getKey();
-            final File file = updateInfoFileEntry.getValue();
-
-            if (loggedUpdateProcessor.accept(loggedUpdate)) {
-                try (InputStream is = new FileInputStream(file)) {
-                    loggedUpdateProcessor.process(loggedUpdate, getGzippedContent(is, file.length()));
-                } catch (IOException e) {
-                    LOGGER.warn("IO exception processing file: {}", file.getAbsolutePath(), e);
-                } catch (RuntimeException e) {
-                    LOGGER.warn("Unexpected exception processing file: {}", file.getAbsolutePath(), e);
-                }
-            }
-        }
+        } catch (IOException e) {}
     }
 
     @Override
@@ -113,30 +107,5 @@ public class DailyLogFolder extends LogSource {
     @Override
     public String toString() {
         return path;
-    }
-
-    public static List<DailyLogFolder> getDailyLogFolders(final Path path, final long lastUpdatedFrom, final long lastUpdatedTo) {
-        final List<DailyLogFolder> dailyLogFolders = new ArrayList<DailyLogFolder>();
-
-        try {
-            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    if (DAILY_LOG_FOLDER_PATTERN.matcher(dir.toString()).matches()) {
-                        final long fileLastMofified = attrs.lastModifiedTime().toMillis();
-                        if (fileLastMofified >= lastUpdatedFrom && fileLastMofified < lastUpdatedTo) {
-                            dailyLogFolders.add(new DailyLogFolder(dir.toFile()));
-                        }
-                        return FileVisitResult.SKIP_SUBTREE;
-                    } else {
-                        return FileVisitResult.CONTINUE;
-                    }
-                }
-            });
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-
-        return dailyLogFolders;
     }
 }

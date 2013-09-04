@@ -17,6 +17,7 @@ import java.util.Set;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -31,8 +32,8 @@ public class LogFileSearchTest {
     @Before
     public void setUp() throws Exception {
         final String logDir = new ClassPathResource("/log/update").getFile().getAbsolutePath();
-        loggedUpdateWithPasswordId = new DailyLogEntry(logDir + "/20130306/123623.428054357.0.1362569782886.JavaMail.andre/002.msg-out.txt.gz", "20130306");
-        loggedUpdateWithOverrideId = new DailyLogEntry(logDir + "/20130306/123623.428054357.0.1362569782886.JavaMail.andre/002.msg-out.txt.gz", "20130306");
+        loggedUpdateWithPasswordId = new DailyLogEntry(logDir + "/20130306/123623.428054357.0.1362569782886.JavaMail.andre/001.msg-in.txt.gz", "20130306");
+        loggedUpdateWithOverrideId = new DailyLogEntry(logDir + "/20130306/123624.428054357.0.1362569782886.JavaMail.andre/001.msg-in.txt.gz", "20130306");
 
         subject = new LogFileSearch(new ClassPathResource("/log/update").getFile().getAbsolutePath(), logFileIndex);
     }
@@ -62,7 +63,7 @@ public class LogFileSearchTest {
         subject.writeLoggedUpdate(loggedUpdateWithPasswordId, writer);
 
         final String output = writer.toString();
-        assertThat(output, containsString("***Error:   \"admin-c\" is not valid for this object type"));
+        assertThat(output, not(containsString("dbm")));
     }
 
     @Test
@@ -71,7 +72,7 @@ public class LogFileSearchTest {
         subject.writeLoggedUpdate(loggedUpdateWithOverrideId, writer);
 
         final String output = writer.toString();
-        assertThat(output, containsString("Modify FAILED: [as-block] AS222 - AS333"));
+        assertThat(output, not(containsString("dbm")));
     }
 
 }

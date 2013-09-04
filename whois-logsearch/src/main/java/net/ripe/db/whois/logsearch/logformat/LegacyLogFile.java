@@ -2,15 +2,9 @@ package net.ripe.db.whois.logsearch.logformat;
 
 import net.ripe.db.whois.logsearch.LoggedUpdateProcessor;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,19 +27,9 @@ public class LegacyLogFile extends LogSource {
     }
 
     public void processLogFile(final LoggedUpdateProcessor processor) {
-        InputStream istream = null;
-        BufferedReader bufferedReader = null;
-        try {
-            istream = new BZip2CompressorInputStream(new FileInputStream(path));
-            bufferedReader = new BufferedReader(new InputStreamReader(istream));
-
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new BZip2CompressorInputStream(new FileInputStream(path))))) {
             createLegacyLog(date, bufferedReader, processor);
-
-        } catch (final IOException ignore) {
-        } finally {
-            IOUtils.closeQuietly(bufferedReader);
-            IOUtils.closeQuietly(istream);
-        }
+        } catch (IOException ignore) {}
     }
 
     private void createLegacyLog(final String date, final BufferedReader reader, final LoggedUpdateProcessor processor) throws IOException {
