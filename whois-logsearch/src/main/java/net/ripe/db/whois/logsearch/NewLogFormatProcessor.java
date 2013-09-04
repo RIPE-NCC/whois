@@ -65,9 +65,8 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                     }
 
                     @Override
-                    public void process(final TarredLogEntry loggedUpdate, final String contents) {
-                        LOGGER.debug("Add {} to index", loggedUpdate.getUpdateId());
-                        LogFileIndex.addToIndex(loggedUpdate, contents, indexWriter);
+                    public void process(final TarredLogEntry tarredLogEntry, final String contents) {
+                        LogFileIndex.addToIndex(tarredLogEntry, contents, indexWriter);
                     }
                 });
             }
@@ -75,8 +74,6 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
     }
 
     private void indexDailyLogFolder(DailyLogFolder dailyLogFolder, final IndexWriter indexWriter) {
-        LOGGER.debug("Indexing {}", dailyLogFolder);
-
         dailyLogFolder.processLoggedFiles(new LoggedUpdateProcessor<DailyLogEntry>() {
             @Override
             public boolean accept(DailyLogEntry dailyLogEntry) {

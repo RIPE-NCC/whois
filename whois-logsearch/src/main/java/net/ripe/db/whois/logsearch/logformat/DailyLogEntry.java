@@ -27,4 +27,9 @@ public class DailyLogEntry extends LoggedUpdate {
     public LoggedUpdate.Type getType() {
         return LoggedUpdate.Type.DAILY;
     }
+
+    @Override
+    public String toString() {
+        return updateId;
+    }
 }

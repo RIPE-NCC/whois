@@ -113,6 +113,7 @@ public class LogFileIndex {
 
     public static void addToIndex(final LoggedUpdate loggedUpdate, final String contents, final IndexWriter indexWriter) {
         try {
+            LOGGER.debug("Indexing {}", loggedUpdate);
             indexWriter.deleteDocuments(new Term("updateId", loggedUpdate.getUpdateId()));
 
             final Document document = new Document();

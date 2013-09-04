@@ -23,4 +23,9 @@ public class LegacyLogEntry extends LoggedUpdate {
     public Type getType() {
         return Type.LEGACY;
     }
+
+    @Override
+    public String toString() {
+        return updateId;
+    }
 }

@@ -63,7 +63,6 @@ public class LegacyLogFormatProcessor implements LogFormatProcessor {
 
                     @Override
                     public void process(final LegacyLogEntry legacyLogEntry, final String contents) {
-                        LOGGER.debug("Add {} to index", legacyLogEntry.getUpdateId());
                         LogFileIndex.addToIndex(legacyLogEntry, contents, indexWriter);
                     }
                 });

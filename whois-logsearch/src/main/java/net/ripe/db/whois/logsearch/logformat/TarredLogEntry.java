@@ -35,4 +35,9 @@ public class TarredLogEntry extends LoggedUpdate {
     public Type getType() {
         return Type.TARRED;
     }
+
+    @Override
+    public String toString() {
+        return updateId;
+    }
 }
