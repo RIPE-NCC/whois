@@ -137,7 +137,7 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
     }
 
     // scheduled incremental update
-    @Scheduled(fixedRate = 60 * 1000)
+    @Scheduled(fixedDelay = 60 * 1000)
     public void update() {
         logFileIndex.update(new IndexTemplate.WriteCallback() {
             @Override

@@ -2,8 +2,8 @@ package net.ripe.db.whois.logsearch;
 
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.search.IndexTemplate;
-import net.ripe.db.whois.api.search.RebuildableIndex;
 import net.ripe.db.whois.logsearch.logformat.LoggedUpdate;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -28,17 +28,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
 @Component
-public class LogFileIndex extends RebuildableIndex {
+public class LogFileIndex {
     private static final Logger LOGGER = LoggerFactory.getLogger(LogFileIndex.class);
 
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
@@ -84,27 +82,33 @@ public class LogFileIndex extends RebuildableIndex {
         INDEXED_INTEGER.freeze();
     }
 
+    protected IndexTemplate index;
+
     @Autowired
     LogFileIndex(
             @Value("${dir.logsearch.index}") final String indexDir,
             @Value("${logsearch.result.limit}") final int resultLimit) {
-        super(LOGGER, indexDir);
-       this.resultLimit = resultLimit;
-    }
 
-    @PostConstruct
-    public void init() {
-        super.init(new IndexWriterConfig(Version.LUCENE_41, INDEX_ANALYZER).setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND), new IndexTemplate.WriteCallback() {
-            @Override
-            public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                // do nothing at startup
-            }
-        });
+        try {
+            final IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_41, INDEX_ANALYZER).setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+            index = new IndexTemplate(indexDir, config);
+            this.resultLimit = resultLimit;
+        } catch (IOException e) {
+            throw new IllegalStateException(String.format("Initializing index in %s", indexDir), e);
+        }
     }
 
     @PreDestroy
     public void destroy() {
-        cleanup();
+        IOUtils.closeQuietly(index);
+    }
+
+    public void update(IndexTemplate.WriteCallback writeCallback) {
+        try {
+            index.write(writeCallback);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public static void addToIndex(final LoggedUpdate loggedUpdate, final String contents, final IndexWriter indexWriter) {
@@ -122,12 +126,22 @@ public class LogFileIndex extends RebuildableIndex {
         }
     }
 
-    public void removeAllByIdPrefix(String updateIdPrefix) {
-        delete(new PrefixQuery(new Term("date", updateIdPrefix)));
+    public void removeAllByIdPrefix(final String updateIdPrefix) {
+        update(new IndexTemplate.WriteCallback() {
+            @Override
+            public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
+                indexWriter.deleteDocuments(new PrefixQuery(new Term("date", updateIdPrefix)));
+            }
+        });
     }
 
     public void removeAllByDate(final LocalDate date) {
-        delete(createDateQuery(date, null));
+        update(new IndexTemplate.WriteCallback() {
+            @Override
+            public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
+                indexWriter.deleteDocuments(createDateQuery(date, null));
+            }
+        });
     }
 
     public void removeAll() {
@@ -172,7 +186,7 @@ public class LogFileIndex extends RebuildableIndex {
 
     private Set<LoggedUpdate> search(final Query query) {
         try {
-            return search(new IndexTemplate.SearchCallback<Set<LoggedUpdate>>() {
+            return index.search(new IndexTemplate.SearchCallback<Set<LoggedUpdate>>() {
                 @Override
                 public Set<LoggedUpdate> search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
                     LOGGER.debug("executing lucene query: {}", query);
@@ -240,15 +254,5 @@ public class LogFileIndex extends RebuildableIndex {
         }
 
         return booleanQuery;
-    }
-
-    @Override
-    protected void update(IndexWriter indexWriter, TaxonomyWriter taxonomyWriter) throws IOException {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    protected void rebuild(IndexWriter indexWriter, TaxonomyWriter taxonomyWriter) throws IOException {
-        throw new NotImplementedException();
     }
 }
