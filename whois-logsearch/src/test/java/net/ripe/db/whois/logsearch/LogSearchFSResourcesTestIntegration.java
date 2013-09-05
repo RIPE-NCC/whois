@@ -21,8 +21,8 @@ import java.util.Set;
 
 import static net.ripe.db.whois.logsearch.LogFileHelper.getAbsolutePath;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertTrue;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -115,10 +115,12 @@ public class LogSearchFSResourcesTestIntegration extends AbstractJUnit4SpringCon
 
         final Set<LoggedUpdate> loggedUpdates = logFileIndex.searchByDateRangeAndContent("OWNER-MNT", null, null);
 
-        assertThat(loggedUpdates, hasSize(1));
-        final LoggedUpdate loggedUpdate = Iterables.get(loggedUpdates, 0);
-        assertThat(loggedUpdate.getUpdateId(), is(path + "/140319.syncupdate_127.0.0.1_1362488599134839000/001.msg-in.txt.gz"));
-        assertThat(loggedUpdate.getDate(), is("20130305"));
+        assertThat(loggedUpdates, hasSize(3));
+        for (LoggedUpdate loggedUpdate : loggedUpdates) {
+            assertTrue(NewLogFormatProcessor.INDEXED_LOG_ENTRIES.matcher(loggedUpdate.getUpdateId()).matches());
+            assertThat(loggedUpdate.getUpdateId(), startsWith(path + "/140319.syncupdate_127.0.0.1_1362488599134839000/"));
+            assertThat(loggedUpdate.getDate(), is("20130305"));
+        }
     }
 
     @Test
@@ -128,8 +130,12 @@ public class LogSearchFSResourcesTestIntegration extends AbstractJUnit4SpringCon
         newLogFormatProcessor.addDirectoryToIndex(path);
 
         final Set<LoggedUpdate> result = logFileIndex.searchByDateRangeAndContent("mnt-by:", null, null);
-
-        assertThat(result, hasSize(11));
+        assertThat(result, hasSize(23));
+        for (LoggedUpdate loggedUpdate : result) {
+            assertThat(loggedUpdate.getUpdateId(), not(containsString("audit")));
+            assertThat(loggedUpdate.getUpdateId(), not(containsString("ack")));
+            assertTrue(NewLogFormatProcessor.INDEXED_LOG_ENTRIES.matcher(loggedUpdate.getUpdateId()).matches());
+        }
     }
 
     @Test
@@ -139,12 +145,12 @@ public class LogSearchFSResourcesTestIntegration extends AbstractJUnit4SpringCon
         newLogFormatProcessor.addDirectoryToIndex(path);
 
         final Set<LoggedUpdate> untarred = logFileIndex.searchByDateRangeAndContent("mnt-by:", new LocalDate(2013, 3, 6), null);
-        assertThat(untarred, hasSize(2));
+        assertThat(untarred, hasSize(4));
 
         final Set<LoggedUpdate> tarred1 = logFileIndex.searchByDateRangeAndContent("mnt-by:", new LocalDate(2012, 8, 16), null);
-        assertThat(tarred1, hasSize(7));
+        assertThat(tarred1, hasSize(14));
 
         final Set<LoggedUpdate> tarred2 = logFileIndex.searchByDateRangeAndContent("mnt-by:", new LocalDate(2013, 3, 5), null);
-        assertThat(tarred2, hasSize(2));
+        assertThat(tarred2, hasSize(5));
     }
 }

@@ -21,62 +21,6 @@ public class LegacyLogFileTest {
         logDirectory = new ClassPathResource("/log/legacy").getFile().getAbsolutePath();
     }
 
-//    @Ignore
-//    @Test
-//    public void readLogs() throws IOException {
-//        final List<LegacyLogEntry> logs = Lists.newArrayList();
-//        subject.processLogFile(new LoggedUpdateProcessor() {
-//
-//            @Override
-//            public boolean accept(LoggedUpdate loggedUpdateInfo) {
-//                return true;
-//            }
-//
-//            @Override
-//            public void process(final LoggedUpdate loggedUpdate, final String contents) {
-//                logs.add((LegacyLogEntry)loggedUpdate);
-//            }
-//        });
-//
-//        assertThat(logs, hasSize(7));
-//
-//        LegacyLogEntry logEntry0 = Iterables.get(logs, 0);
-//        assertThat(logEntry0.getDate(), is("20110506"));
-//        assertThat(logEntry0.getType(), is(LoggedUpdate.Type.LEGACY));
-//        assertThat(logEntry0.getUpdateId(), is(new File(logDir).getCanonicalPath() + "/acklog.20110506.bz2/0"));
-//
-//        LegacyLogEntry logEntry1 = Iterables.get(logs, 1);
-//        assertThat(logEntry1.getDate(), is("20110506"));
-//        assertThat(logEntry1.getType(), is(LoggedUpdate.Type.LEGACY));
-//        assertThat(logEntry1.getUpdateId(), is(new File(logDir).getCanonicalPath() + "/acklog.20110506.bz2/1"));
-//
-//        LegacyLogEntry logEntry2 = Iterables.get(logs, 2);
-//        assertThat(logEntry2.getDate(), is("20110506"));
-//        assertThat(logEntry2.getType(), is(LoggedUpdate.Type.LEGACY));
-//        assertThat(logEntry2.getUpdateId(), is(new File(logDir).getCanonicalPath() + "/acklog.20110506.bz2/2"));
-//
-//        LegacyLogEntry helpLog = Iterables.get(logs, 3);
-//        assertThat(helpLog.getDate(), is("20030726"));
-//        assertThat(helpLog.getType(), is(LoggedUpdate.Type.LEGACY));
-//        assertThat(helpLog.getUpdateId(), is(new File(logDir).getCanonicalPath() + "/updlog.20030726.bz2/0"));
-//
-//        LegacyLogEntry legacyLog = Iterables.get(logs, 4);
-//        assertThat(legacyLog.getDate(), is("20030726"));
-//        assertThat(legacyLog.getUpdateId(), is(new File(logDir).getCanonicalPath() + "/updlog.20030726.bz2/1"));
-//        assertThat(legacyLog.getType(), is(LoggedUpdate.Type.LEGACY));
-//
-//        legacyLog = Iterables.get(logs, 5);
-//        assertThat(legacyLog.getDate(), is("20030726"));
-//        assertThat(legacyLog.getUpdateId(), is(new File(logDir).getCanonicalPath() + "/updlog.20030726.bz2/2"));
-//        assertThat(legacyLog.getType(), is(LoggedUpdate.Type.LEGACY));
-//
-//        LegacyLogEntry syncAckLog = Iterables.get(logs, 6);
-//        assertThat(syncAckLog.getDate(), is("20030726"));
-//        assertThat(syncAckLog.getType(), is(LoggedUpdate.Type.LEGACY));
-//        assertThat(syncAckLog.getUpdateId(), is(new File(logDir).getCanonicalPath() + "/updlog.20030726.bz2/3"));
-//
-//    }
-
     @Test
     public void validFilenamePattern() {
         final LegacyLogFile legacyLogFile = new LegacyLogFile(logDirectory + "/updlog.20030726.bz2");
