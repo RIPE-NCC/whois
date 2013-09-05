@@ -225,6 +225,22 @@ public class ParagraphParserTest {
     }
 
     @Test
+    public void dryrun_anywhere() {
+        final String content = "" +
+                "dry-run:\n" +
+                "mntner: DEV1-MNT\n" +
+                "password:pwd\n";
+
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        assertThat(paragraphs, hasSize(1));
+
+        final Paragraph paragraph = paragraphs.get(0);
+        assertThat(paragraph.getContent(), is("mntner: DEV1-MNT"));
+
+        verify(updateContext).dryRun();
+    }
+
+    @Test
     public void password_with_whitespace() throws Exception {
         final String content = "" +
                 "mntner: DEV-MNT\n" +

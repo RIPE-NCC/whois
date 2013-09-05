@@ -2,26 +2,9 @@ package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.spec.BaseSpec
 import spec.domain.AckResponse
-import spec.domain.Message
 import spec.domain.SyncUpdate
-import spock.lang.Ignore
 
-/**
- * Created with IntelliJ IDEA.
- * User: denis
- * Date: 04/09/2013
- * Time: 11:41
- * To change this template use File | Settings | File Templates.
- */
 class DryRunSpec extends BaseSpec {
-
-//    @Override
-//    Map<String, String> getFixtures() {
-//        [
-//                "NULL": """\
-//                """,
-//        ]
-//    }
 
     @Override
     Map<String, String> getTransients() {
@@ -143,6 +126,8 @@ class DryRunSpec extends BaseSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[person] Fp11-RIpe   First Person" }
         ack.infoSuccessMessagesFor("Create", "[person] Fp11-RIpe") == [
                 "Dry-run performed, no changes to the database have been made"]
+
+        def notif = notificationFor "mntnfy_owner@ripe.net"
 
         noMoreMessages()
 
