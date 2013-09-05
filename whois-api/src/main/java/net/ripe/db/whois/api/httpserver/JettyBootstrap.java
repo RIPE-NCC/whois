@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.ApplicationService;
-import net.ripe.db.whois.common.ServerHelper;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -88,24 +87,32 @@ public class JettyBootstrap implements ApplicationService {
     }
 
     private Server createAndStartServer(int port, HandlerList handlers, Audience audience) throws Exception {
+        int retryIterations = 5;
         Server server = null;
-        int tryPort = -1;
+        int tryPort = (port <= 0) ? 0 : port;
         int retry = 0;
-        try {
-            tryPort = (port <= 0) ? ServerHelper.getAvailablePort() : port;
-            LOGGER.info("Trying port {}", tryPort);
-            server = new Server(tryPort);
-            server.setHandler(handlers);
-            server.setStopAtShutdown(true);
-
-            server.start();
-            jettyConfig.setPort(audience, tryPort);
-            LOGGER.info("Jetty started on port {} ({})", tryPort, audience);
-        } catch (Exception ex) {
-            ++retry;
-            LOGGER.info("Tried port {} but failed to start server", tryPort);
-            if (retry > 5) {
-                throw ex;
+        int listeningPort = 0;
+        while (listeningPort == 0) {
+            try {
+                // 0 value, auto port assignment
+                LOGGER.info("Attempting to start Jetty on port {} ({})", tryPort, audience);
+                server = new Server(tryPort);
+                server.setHandler(handlers);
+                server.setStopAtShutdown(true);
+                server.start();
+                listeningPort = server.getConnectors()[0].getLocalPort();
+                jettyConfig.setPort(audience, listeningPort);
+                LOGGER.info("Jetty started on port {} ({})", listeningPort, audience);
+            } catch (Exception ex) {
+                // Dont retry on auto port assignment, just fail
+                if (tryPort == 0) {
+                    retry = retryIterations;
+                }
+                ++retry;
+                LOGGER.info("Tried port {} ({}) but failed to start server", tryPort, audience);
+                if (retry > retryIterations) {
+                    throw ex;
+                }
             }
         }
         return server;
