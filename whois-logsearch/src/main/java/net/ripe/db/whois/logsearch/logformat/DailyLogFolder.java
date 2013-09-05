@@ -48,41 +48,42 @@ public class DailyLogFolder extends LogSource {
     }
 
     public void processLoggedFiles(final LoggedUpdateProcessor loggedUpdateProcessor) {
-        try {
-            DirectoryStream<Path> updateLogFolders = Files.newDirectoryStream(dailyLogFolder, new DirectoryStream.Filter<Path>() {
-                @Override
-                public boolean accept(Path entry) throws IOException {
-                    if (Files.isDirectory(entry) && UPDATE_LOG_FOLDER_PATTERN.matcher(entry.toString()).matches()) {
-                        final long lastModifiedTime = Files.getLastModifiedTime(entry).toMillis();
-                        return lastModifiedTime >= updateFrom && lastModifiedTime < updateTo;
-                    }
-                    return false;
+        try (final DirectoryStream<Path> updateLogFolders = Files.newDirectoryStream(dailyLogFolder, new DirectoryStream.Filter<Path>() {
+            @Override
+            public boolean accept(Path entry) throws IOException {
+                if (Files.isDirectory(entry) && UPDATE_LOG_FOLDER_PATTERN.matcher(entry.toString()).matches()) {
+                    final long lastModifiedTime = Files.getLastModifiedTime(entry).toMillis();
+                    return lastModifiedTime >= updateFrom && lastModifiedTime < updateTo;
                 }
-            });
+                return false;
+            }
+        })) {
 
             for (final Path updateLogFolder : updateLogFolders) {
-                final DirectoryStream<Path> updateLogEntries = Files.newDirectoryStream(updateLogFolder, new DirectoryStream.Filter<Path>() {
+                try (final DirectoryStream<Path> updateLogEntries = Files.newDirectoryStream(updateLogFolder, new DirectoryStream.Filter<Path>() {
                     @Override
                     public boolean accept(Path entry) throws IOException {
                         return Files.isRegularFile(entry) && NewLogFormatProcessor.INDEXED_LOG_ENTRIES.matcher(entry.toString()).matches();
                     }
-                });
+                })) {
 
-                for (final Path updateLogEntry : updateLogEntries) {
-                    final DailyLogEntry dailyLogEntry = new DailyLogEntry(updateLogEntry.toAbsolutePath().toString(), date);
+                    for (final Path updateLogEntry : updateLogEntries) {
+                        final DailyLogEntry dailyLogEntry = new DailyLogEntry(updateLogEntry.toAbsolutePath().toString(), date);
 
-                    if (loggedUpdateProcessor.accept(dailyLogEntry)) {
-                        try (InputStream is = Files.newInputStream(updateLogEntry)) {
-                            loggedUpdateProcessor.process(dailyLogEntry, getGzippedContent(is, Files.size(updateLogEntry)));
-                        } catch (IOException e) {
-                            LOGGER.warn("IO exception processing file: {}", updateLogEntry, e);
-                        } catch (RuntimeException e) {
-                            LOGGER.warn("Unexpected exception processing file: {}", updateLogEntry, e);
+                        if (loggedUpdateProcessor.accept(dailyLogEntry)) {
+                            try (InputStream is = Files.newInputStream(updateLogEntry)) {
+                                loggedUpdateProcessor.process(dailyLogEntry, getGzippedContent(is, Files.size(updateLogEntry)));
+                            } catch (IOException e) {
+                                LOGGER.warn("IO exception processing file: {}", updateLogEntry, e);
+                            } catch (RuntimeException e) {
+                                LOGGER.warn("Unexpected exception processing file: {}", updateLogEntry, e);
+                            }
                         }
                     }
                 }
             }
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
     }
 
     @Override
