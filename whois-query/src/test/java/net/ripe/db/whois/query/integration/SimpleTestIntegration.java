@@ -26,6 +26,8 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoLastAndUpdateSerials;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoTablesIgnoreMissing;
+import static net.ripe.db.whois.query.support.PatternCountMatcher.matchesPatternCount;
+import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -36,6 +38,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     @Autowired IpTreeUpdater ipTreeUpdater;
     @Autowired DateTimeProvider dateTimeProvider;
 
+    // TODO: [AH] most tests don't taint the DB; have a 'tainted' flag in DBHelper, reinit only if needed
     @Before
     public void startupWhoisServer() {
         final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nchanged: dbtest@ripe.net 20120707\nnic-hdl: ADM-TEST");
@@ -46,6 +49,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         databaseHelper.addObject("domain: 117.80.81.in-addr.arpa");
         databaseHelper.addObject("inetnum: 81.80.117.237 - 81.80.117.237\nnetname: NN\nstatus: OTHER");
         databaseHelper.addObject("route: 81.80.117.0/24\norigin: AS123\n");
+        databaseHelper.addObject("route: 81.80.0.0/16\norigin: AS123\n");
         ipTreeUpdater.rebuild();
         queryServer.start();
     }
@@ -219,6 +223,87 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
         assertThat(response, containsString("117.80.81.in-addr.arpa"));
         assertThat(response, not(containsString(QueryMessages.noResults("TEST").toString())));
+    }
+
+    @Test
+    public void routeSimpleHierarchySearch() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.0/24AS123");
+        assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
+    }
+
+    @Test
+    public void routeSimpleHierarchySearchWrongAS() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.0/24AS456");
+        assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
+    }
+
+    @Test
+    public void routeDefaultHierarchySearchForNonexistant() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.54/32AS123");
+        assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
+    }
+
+    @Test
+    public void routeAllLessSpecificHierarchySearchForNonexistant() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-L 81.80.117.54/32AS123");
+        assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
+        assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 4));
+    }
+
+    @Test
+    public void routeOneLessSpecificHierarchySearchForExisting() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-l 81.80.117.0/24AS123");
+        assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
+    }
+
+    @Test
+    public void routeOneLessSpecificHierarchySearchAtTopLevel() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-l 81.80.0.0/16AS123");
+        assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
+    }
+
+    @Test
+    public void routeOneMoreSpecificHierarchySearchAtBottomLevel() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-m 81.80.117.0/24AS123");
+        assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
+    }
+
+    @Test
+    public void routeOneMoreSpecificHierarchySearch() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-m 81.80.0.0/16AS123");
+        assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
+    }
+
+    @Test
+    public void routeOneMoreSpecificHierarchySearchAtTopLevel() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-m 0.0.0.0/0AS123");
+        assertThat(response, containsString("query options are not allowed on very large ranges/prefixes"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 0));
+    }
+
+    @Test
+    public void routeOneMoreSpecificHierarchySearchAtAlmostTopLevel() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-m 81.0.0.0/8AS123");
+        assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
+    }
+
+    @Test
+    public void routeAllMoreSpecificHierarchySearchAtAlmostTopLevel() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-M 81.0.0.0/8AS123");
+        assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
+        assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 4));
+    }
+
+    @Test
+    public void routeAllMoreSpecificHierarchySearchAtTopLevelWrongAS() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-M 81.0.0.0/8A456");
+        assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
