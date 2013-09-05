@@ -1,8 +1,11 @@
 package net.ripe.db.whois.update.handler;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.dao.*;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -25,13 +28,15 @@ public class UpdateNotifier {
     private final ResponseFactory responseFactory;
     private final MailGateway mailGateway;
     private final VersionDao versionDao;
+    private final Maintainers maintainers;
 
     @Autowired
-    public UpdateNotifier(final RpslObjectDao rpslObjectDao, final ResponseFactory responseFactory, final MailGateway mailGateway, final VersionDao versionDao) {
+    public UpdateNotifier(final RpslObjectDao rpslObjectDao, final ResponseFactory responseFactory, final MailGateway mailGateway, final VersionDao versionDao, final Maintainers maintainers) {
         this.rpslObjectDao = rpslObjectDao;
         this.responseFactory = responseFactory;
         this.mailGateway = mailGateway;
         this.versionDao = versionDao;
+        this.maintainers = maintainers;
     }
 
     public void sendNotifications(final UpdateRequest updateRequest, final UpdateContext updateContext) {
@@ -94,7 +99,13 @@ public class UpdateNotifier {
                 break;
 
             case PENDING_AUTHENTICATION:
-                add(notifications, updateContext, update, Notification.Type.PENDING_UPDATE, updateContext.getSubject(update).getPendingAuthenticationCandidates(), AttributeType.UPD_TO);
+                final Iterable<RpslObject> pendingAuthenticationCandidates = Iterables.filter(updateContext.getSubject(update).getPendingAuthenticationCandidates(), new Predicate<RpslObject>() {
+                    @Override
+                    public boolean apply(final RpslObject input) {
+                        return !maintainers.getRsMaintainers().contains(input.getKey());
+                    }
+                });
+                add(notifications, updateContext, update, Notification.Type.PENDING_UPDATE, pendingAuthenticationCandidates, AttributeType.UPD_TO);
                 break;
 
             default:
