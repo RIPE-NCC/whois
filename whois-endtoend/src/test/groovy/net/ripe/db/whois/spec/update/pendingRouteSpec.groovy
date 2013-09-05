@@ -3,6 +3,8 @@ package net.ripe.db.whois.spec.update
 import net.ripe.db.whois.spec.BaseSpec
 import spec.domain.AckResponse
 import spec.domain.Message
+import spec.domain.SyncUpdate
+import spock.lang.Ignore
 
 /**
  * Created with IntelliJ IDEA.
@@ -120,7 +122,7 @@ class pendingRouteSpec extends BaseSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
         when:
-        def message = syncUpdate("""\
+        def message = syncUpdate(new SyncUpdate(data: """
                 route:          192.168.0.0/16
                 descr:          Route
                 origin:         AS100
@@ -131,7 +133,7 @@ class pendingRouteSpec extends BaseSpec {
                 password:   owner
                 password:   pinet
                 password:   as
-                """.stripIndent()
+                """.stripIndent(), redirect: false)
         )
 
         then:
@@ -351,8 +353,8 @@ class pendingRouteSpec extends BaseSpec {
                 ["Authorisation for [aut-num] AS100 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-END-MNT, AS-MNT",
                         "The route object 192.168.0.0/16AS100 will be saved for one week pending the second authorisation"]
 
-//        def notif = notificationFor "updto_hm@ripe.net"
-//        notif.subject =~ "RIPE Database updates, auth request notification"
+        def notif = notificationFor "updto_hm@ripe.net"
+        notif.subject =~ "RIPE Database updates, auth request notification"
 
         def notif2 = notificationFor "updto_as@ripe.net"
         notif2.subject =~ "RIPE Database updates, auth request notification"
