@@ -360,13 +360,6 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
         assertThat(response, not(containsString("UPD-MNT")));
     }
 
-    @Test
-    public void search_by_updateId() throws Exception {
-        addToIndex(LogFileHelper.createTarredLogFile(logDirectory, "20130102", "100102", "random", "mntner: UPD-MNT"));
-
-        assertThat(logFileIndex.searchByUpdateId(".*"), hasSize(1));
-    }
-
     // API calls
 
     private String getUpdates(final String searchTerm) throws IOException {
