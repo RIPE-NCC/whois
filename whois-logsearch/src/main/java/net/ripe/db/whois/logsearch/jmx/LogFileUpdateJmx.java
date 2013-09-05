@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.jmx.JmxBase;
 import net.ripe.db.whois.logsearch.LegacyLogFormatProcessor;
 import net.ripe.db.whois.logsearch.LogFileIndex;
 import net.ripe.db.whois.logsearch.NewLogFormatProcessor;
+import net.ripe.db.whois.logsearch.logformat.LoggedUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 @Component
@@ -125,4 +127,28 @@ public class LogFileUpdateJmx extends JmxBase {
         });
         return "Started indexing " + path;
     }
+
+    @ManagedOperation(description = "Search for Updates By Path")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "regex", description = "Regex to match updateId path"),
+    })
+    public String searchByUpdateId(final String regex) {
+        final Set<LoggedUpdate> loggedUpdates = invokeOperation("index path", "", new Callable<Set<LoggedUpdate>>() {
+            @Override
+            public Set<LoggedUpdate> call() throws Exception {
+                return logFileIndex.searchByUpdateId(regex);
+            }
+        });
+
+        final StringBuilder builder = new StringBuilder();
+        builder.append(String.format("Found %d updates matching regex %s\n", loggedUpdates.size(), regex));
+
+        for (LoggedUpdate loggedUpdate : loggedUpdates) {
+            builder.append(loggedUpdate.getUpdateId());
+            builder.append('\n');
+        }
+
+        return builder.toString();
+    }
+
 }

@@ -159,6 +159,12 @@ public class LogFileIndex {
     //   searching
     //
 
+    public Set<LoggedUpdate> searchByUpdateId(final String regex) {
+        final Set<LoggedUpdate> loggedUpdates = search(new RegexpQuery(new Term("updateId", regex)));
+        LOGGER.debug("Found {} updates matching regex {}", loggedUpdates.size(), regex);
+        return loggedUpdates;
+    }
+
     public Set<LoggedUpdate> searchByDate(final LocalDate date) {
         return search(createDateQuery(date, null));
     }
