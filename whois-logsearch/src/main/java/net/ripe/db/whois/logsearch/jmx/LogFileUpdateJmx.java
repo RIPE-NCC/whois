@@ -41,7 +41,7 @@ public class LogFileUpdateJmx extends JmxBase {
             @ManagedOperationParameter(name = "idPrefix", description = "prefix (not regex, not wildcards; just prefix!)"),
     })
     public String deleteIndexByIdPrefix(final String idPrefix) {
-        invokeOperation("deleteIndexByIdPrefix", "", new Callable<Void>() {
+        invokeOperation("delete all indexes beginning with ", idPrefix, new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 logFileIndex.removeAllByIdPrefix(idPrefix);
@@ -60,7 +60,7 @@ public class LogFileUpdateJmx extends JmxBase {
             return path + " does not exist on the filesystem";
         }
 
-        invokeOperation("index path", "", new Callable<Void>() {
+        invokeOperation("index legacy log directory", path, new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 legacyLogFormatProcessor.addDirectoryToIndex(path);
@@ -79,7 +79,7 @@ public class LogFileUpdateJmx extends JmxBase {
             return path + " does not exist on the filesystem";
         }
 
-        invokeOperation("index path", "", new Callable<Void>() {
+        invokeOperation("index legacy log file", path, new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 legacyLogFormatProcessor.addFileToIndex(path);
@@ -98,7 +98,7 @@ public class LogFileUpdateJmx extends JmxBase {
             return path + " does not exist on the filesystem";
         }
 
-        invokeOperation("index path", "", new Callable<Void>() {
+        invokeOperation("index daily log directory", path, new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 newLogFormatProcessor.addDirectoryToIndex(path);
@@ -118,7 +118,7 @@ public class LogFileUpdateJmx extends JmxBase {
             return path + " is not a valid file path";
         }
 
-        invokeOperation("index path", "", new Callable<Void>() {
+        invokeOperation("index daily log file", path, new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 newLogFormatProcessor.addFileToIndex(path);
