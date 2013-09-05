@@ -241,6 +241,26 @@ public class ParagraphParserTest {
     }
 
     @Test
+    public void dryrun_removal_leaves_no_blankline() {
+        final String content = "" +
+                "person:  First Person\n" +
+                "address: Burnley\n" +
+                "dry-run:\n" +
+                "nic-hdl: TEST-TEST\n" +
+                "source:  TEST\n" +
+                "\n" +
+                "password:   owner";
+
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        assertThat(paragraphs, hasSize(2));
+        assertThat(paragraphs.get(0).getContent(), is("person:  First Person\n" +
+                "address: Burnley\n" +
+                "nic-hdl: TEST-TEST\n" +
+                "source:  TEST"));
+        assertThat(paragraphs.get(1).getContent(), is(""));
+    }
+
+    @Test
     public void password_with_whitespace() throws Exception {
         final String content = "" +
                 "mntner: DEV-MNT\n" +
