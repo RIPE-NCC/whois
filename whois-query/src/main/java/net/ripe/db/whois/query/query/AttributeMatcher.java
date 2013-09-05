@@ -38,7 +38,7 @@ abstract class AttributeMatcher { // TODO [AK] Figure out what can be delegated 
         @Override
         public boolean matches(final Query query) {
             final IpInterval<?> ipKeyOrNull = query.getIpKeyOrNull();
-            return ipKeyOrNull != null && ipKeyOrNull.getAttributeType().equals(AttributeType.INETNUM);
+            return query.getRouteOrigin() == null && ipKeyOrNull != null && ipKeyOrNull.getAttributeType().equals(AttributeType.INETNUM);
         }
     };
 
@@ -46,27 +46,21 @@ abstract class AttributeMatcher { // TODO [AK] Figure out what can be delegated 
         @Override
         public boolean matches(final Query query) {
             final IpInterval<?> ipKeyOrNull = query.getIpKeyOrNull();
-            return ipKeyOrNull != null && ipKeyOrNull.getAttributeType().equals(AttributeType.INET6NUM);
+            return query.getRouteOrigin() == null && ipKeyOrNull != null && ipKeyOrNull.getAttributeType().equals(AttributeType.INET6NUM);
         }
     };
 
     static final AttributeMatcher ROUTE4_MATCHER = new AttributeMatcher() {
         @Override
         public boolean matches(final Query query) {
-            if (query.getRouteOrigin() == null) {
-                return false;
-            }
-            return query.getIpKeyOrNull().getAttributeType().equals(AttributeType.INETNUM);
+            return query.getRouteOrigin() != null && query.getIpKeyOrNull().getAttributeType().equals(AttributeType.INETNUM);
         }
     };
 
     static final AttributeMatcher ROUTE6_MATCHER = new AttributeMatcher() {
         @Override
         public boolean matches(final Query query) {
-            if (query.getRouteOrigin() == null) {
-                return false;
-            }
-            return query.getIpKeyOrNull().getAttributeType().equals(AttributeType.INET6NUM);
+            return query.getRouteOrigin() != null && query.getIpKeyOrNull().getAttributeType().equals(AttributeType.INET6NUM);
         }
     };
 

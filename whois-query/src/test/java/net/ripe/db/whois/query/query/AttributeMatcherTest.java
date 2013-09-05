@@ -39,6 +39,38 @@ public class AttributeMatcherTest {
     }
 
     @Test
+    public void searchInetnum() {
+        assertTrue(AttributeMatcher.fetchableBy(AttributeType.ROUTE, Query.parse("10.11.12.0/24")));
+        assertTrue(AttributeMatcher.fetchableBy(AttributeType.INETNUM, Query.parse("10.11.12.0/24")));
+        assertFalse(AttributeMatcher.fetchableBy(AttributeType.INET6NUM, Query.parse("10.11.12.0/24")));
+        assertFalse(AttributeMatcher.fetchableBy(AttributeType.ROUTE6, Query.parse("10.11.12.0/24")));
+    }
+
+    @Test
+    public void searchInet6num() {
+        assertTrue(AttributeMatcher.fetchableBy(AttributeType.INET6NUM, Query.parse("2001::/32")));
+        assertTrue(AttributeMatcher.fetchableBy(AttributeType.ROUTE6, Query.parse("2001::/32")));
+        assertFalse(AttributeMatcher.fetchableBy(AttributeType.ROUTE, Query.parse("2001::/32")));
+        assertFalse(AttributeMatcher.fetchableBy(AttributeType.INETNUM, Query.parse("2001::/32")));
+    }
+
+    @Test
+    public void searchRoute() {
+        assertTrue(AttributeMatcher.fetchableBy(AttributeType.ROUTE, Query.parse("10.11.12.0/24AS3333")));
+        assertFalse(AttributeMatcher.fetchableBy(AttributeType.INETNUM, Query.parse("10.11.12.0/24AS3333")));
+        assertFalse(AttributeMatcher.fetchableBy(AttributeType.INET6NUM, Query.parse("10.11.12.0/24AS3333")));
+        assertFalse(AttributeMatcher.fetchableBy(AttributeType.ROUTE6, Query.parse("10.11.12.0/24AS3333")));
+    }
+
+    @Test
+    public void searchRoute6() {
+        assertTrue(AttributeMatcher.fetchableBy(AttributeType.ROUTE6, Query.parse("2001::/32AS3333")));
+        assertFalse(AttributeMatcher.fetchableBy(AttributeType.ROUTE, Query.parse("2001::/32AS3333")));
+        assertFalse(AttributeMatcher.fetchableBy(AttributeType.INETNUM, Query.parse("2001::/32AS3333")));
+        assertFalse(AttributeMatcher.fetchableBy(AttributeType.INET6NUM, Query.parse("2001::/32AS3333")));
+    }
+
+    @Test
     public void checkAllSupported() {
         for (final ObjectType objectType : ObjectType.values()) {
             final ObjectTemplate template = ObjectTemplate.getTemplate(objectType);
