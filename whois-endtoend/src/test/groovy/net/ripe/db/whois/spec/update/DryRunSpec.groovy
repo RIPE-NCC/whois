@@ -127,8 +127,6 @@ class DryRunSpec extends BaseSpec {
         ack.infoSuccessMessagesFor("Create", "[person] Fp11-RIpe") == [
                 "Dry-run performed, no changes to the database have been made"]
 
-        def notif = notificationFor "mntnfy_owner@ripe.net"
-
         noMoreMessages()
 
         queryObjectNotFound("-rGBT person Fp11-RIpe", "person", "First Person")

@@ -35,6 +35,10 @@ public class UpdateNotifier {
     }
 
     public void sendNotifications(final UpdateRequest updateRequest, final UpdateContext updateContext) {
+        if (updateContext.isDryRun()) {
+            return;
+        }
+
         final Map<CIString, Notification> notifications = Maps.newHashMap();
 
         for (final Update update : updateRequest.getUpdates()) {
