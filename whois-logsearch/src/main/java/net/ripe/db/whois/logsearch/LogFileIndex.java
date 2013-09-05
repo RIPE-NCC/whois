@@ -50,7 +50,7 @@ public class LogFileIndex {
     private static final FieldType INDEXED_TOKENIZED;
     private static final FieldType INDEXED_STORED;
     private static final FieldType INDEXED_TOKENIZED_STORED;
-    private static final FieldType INDEXED_INTEGER;
+    private static final FieldType INDEXED_TOKENIZED_STORED_INTEGER;
 
     static {
         STORED = new FieldType();
@@ -77,9 +77,9 @@ public class LogFileIndex {
         INDEXED_TOKENIZED_STORED.setStored(true);
         INDEXED_TOKENIZED_STORED.freeze();
 
-        INDEXED_INTEGER = new FieldType(INDEXED_TOKENIZED_STORED);
-        INDEXED_INTEGER.setNumericType(FieldType.NumericType.INT);
-        INDEXED_INTEGER.freeze();
+        INDEXED_TOKENIZED_STORED_INTEGER = new FieldType(INDEXED_TOKENIZED_STORED);
+        INDEXED_TOKENIZED_STORED_INTEGER.setNumericType(FieldType.NumericType.INT);
+        INDEXED_TOKENIZED_STORED_INTEGER.freeze();
     }
 
     protected IndexTemplate index;
@@ -117,8 +117,11 @@ public class LogFileIndex {
             indexWriter.deleteDocuments(new Term("updateId", loggedUpdate.getUpdateId()));
 
             final Document document = new Document();
+            // TODO: [AH] do we need to store updateId? Index should be enough
             document.add(new Field("updateId", loggedUpdate.getUpdateId(), INDEXED_STORED));
-            document.add(new IntField("date", Integer.parseInt(loggedUpdate.getDate()), INDEXED_INTEGER));
+            // TODO: [AH] Why tokenize date? Why store date?
+            document.add(new IntField("date", Integer.parseInt(loggedUpdate.getDate()), INDEXED_TOKENIZED_STORED_INTEGER));
+            // TODO: [AH] type could be derived from updateId
             document.add(new Field("type", loggedUpdate.getType().name(), STORED));
             document.add(new Field("contents", contents, INDEXED_TOKENIZED));
             indexWriter.addDocument(document);
