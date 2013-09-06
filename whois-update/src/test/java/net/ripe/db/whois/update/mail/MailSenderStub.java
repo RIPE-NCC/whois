@@ -30,7 +30,9 @@ public class MailSenderStub extends MailSenderBase implements Stub {
 
     @Override
     public void reset() {
-        messages.clear();
+        synchronized (messages) {
+            messages.clear();
+        }
     }
 
     @Override
@@ -38,8 +40,10 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         try {
             final MimeMessage mimeMessage = new MimeMessage((Session) null);
             mimeMessagePreparator.prepare(mimeMessage);
-            LOGGER.info("Send message: {}\n\n{}\n\n", EnumerationUtils.toList(mimeMessage.getAllHeaderLines()), mimeMessage.getContent());
-            messages.add(mimeMessage);
+            synchronized (messages) {
+                LOGGER.info("Send message: {}\n\n{}\n\n", EnumerationUtils.toList(mimeMessage.getAllHeaderLines()), mimeMessage.getContent());
+                messages.add(mimeMessage);
+            }
         } catch (Exception e) {
             throw new RuntimeException("Send message", e);
         }
@@ -51,13 +55,16 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         try {
             Awaitility.await().atMost(30, TimeUnit.SECONDS).until(getResponse);
             final MimeMessage message = getResponse.getMessage();
-            messages.remove(message);
+            synchronized (messages) {
+                messages.remove(message);
+            }
             return message;
         } catch (Exception e) {
-            for (final MimeMessage message : messages) {
-                LOGGER.warn("Got message for: {}", message.getRecipients(Message.RecipientType.TO)[0].toString());
+            synchronized (messages) {
+                for (final MimeMessage message : messages) {
+                    LOGGER.warn("Got message for: {}", message.getRecipients(Message.RecipientType.TO)[0].toString());
+                }
             }
-
             throw new AssertionError("Unable to get message for: " + to + ": " + e.getMessage());
         }
     }
@@ -72,13 +79,14 @@ public class MailSenderStub extends MailSenderBase implements Stub {
 
         @Override
         public Boolean call() throws Exception {
-            for (MimeMessage message : messages) {
-                if (message.getRecipients(Message.RecipientType.TO)[0].toString().equalsIgnoreCase(to)) {
-                    this.message = message;
-                    return true;
+            synchronized (messages) {
+                for (MimeMessage message : messages) {
+                    if (message.getRecipients(Message.RecipientType.TO)[0].toString().equalsIgnoreCase(to)) {
+                        this.message = message;
+                        return true;
+                    }
                 }
             }
-
             return false;
         }
 
@@ -89,12 +97,14 @@ public class MailSenderStub extends MailSenderBase implements Stub {
 
     public boolean anyMoreMessages() {
         if (!messages.isEmpty()) {
-            for (Message message : messages) {
-                try {
-                    Address[] to = message.getRecipients(Message.RecipientType.TO);
-                    LOGGER.warn("Found message to: {}, subject: {}",Arrays.deepToString(to), message.getSubject());
-                } catch (MessagingException e) {
-                    throw new IllegalStateException(e);
+            synchronized (messages) {
+                for (Message message : messages) {
+                    try {
+                        Address[] to = message.getRecipients(Message.RecipientType.TO);
+                        LOGGER.warn("Found message to: {}, subject: {}", Arrays.deepToString(to), message.getSubject());
+                    } catch (MessagingException e) {
+                        throw new IllegalStateException(e);
+                    }
                 }
             }
         }

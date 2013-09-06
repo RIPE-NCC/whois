@@ -141,7 +141,16 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <executable>src/main/resources/bin/generateByaccs</executable>
+                    <!-- @TODO generateByaccs - this should be converted - Maven/Ant script, maybe use CUP or JavaCC and remove platform specific binaries. -->
+                    <!-- To run the x86 yacc binary under x64 linux, you'll need to install the following: -->
+                    <!-- UBUNTU: sudo apt-get install ia32-libs-multiarch -->
+                    <!-- CENTOS: yum install xulrunner.i686 -->
+                    <!-- WINDOWS: cygwin -->
+                    <executable>bash</executable>
+                    <arguments>
+                        <argument>src/main/resources/bin/generateByaccs</argument>
+                        <argument>${os.name}</argument>
+                    </arguments>
                 </configuration>
             </plugin>
             <plugin>

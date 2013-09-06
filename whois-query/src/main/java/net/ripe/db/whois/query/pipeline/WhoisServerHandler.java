@@ -33,7 +33,9 @@ public class WhoisServerHandler extends SimpleChannelUpstreamHandler {
                     throw new QueryException(QueryCompletionInfo.DISCONNECTED);
                 }
 
-                channel.write(responseObject);
+                // Write syncronously
+                // This write could be ignored/dropped if any "channel.close()" event happens earlier than this write()
+                channel.write(responseObject).awaitUninterruptibly();
             }
         });
 

@@ -9,19 +9,23 @@ if [[ $(find $GENERATED_PATH -name '*.java' | wc -l) -gt 5 ]]; then
 	exit 0
 fi
 
-case $OSTYPE in
-	darwin*)
-		echo 'using byacc for OSX'
+OS=`echo $1 | tr '[A-Z]' '[a-z]'`
+echo 'using byacc for $OS'
+case $OS in
+	mac*)
 		YACC='src/main/resources/bin/yacc.macosx'
 		;;
 
 	linux*)
-		echo 'using byacc for Linux'
 		YACC='src/main/resources/bin/yacc.linux'
 		;;
 
+	windows*)
+		YACC='src/main/resources/bin/yacc.exe'
+		;;
+
 	*)
-		echo "ERROR: unknown OS '$OSTYPE', failing"
+		echo "ERROR: unknown OS '$OS', failing"
 		exit 1
 		;;
 esac
