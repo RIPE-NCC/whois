@@ -80,7 +80,7 @@ public class LogFileIndex {
     @Autowired
     LogFileIndex(
             @Value("${dir.logsearch.index}") final String indexDir,
-            @Value("${logsearch.result.limit}") final int resultLimit) {
+            @Value("${logsearch.result.limit:-1}") final int resultLimit) {
 
         try {
             final IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_41, INDEX_ANALYZER).setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
@@ -188,12 +188,12 @@ public class LogFileIndex {
                 @Override
                 public Set<LoggedUpdate> search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
                     LOGGER.debug("executing lucene query: {}", query);
-                    final int maxResults = Math.max(Math.min(LogFileIndex.this.resultLimit, indexReader.numDocs()), 1);
+                    final int maxResults = (resultLimit == -1) ? indexReader.numDocs() : Math.max(Math.min(resultLimit, indexReader.numDocs()), 1);
                     final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_DATE, maxResults, false, false, false, false);
 
                     indexSearcher.search(query, topFieldCollector);
 
-                    LOGGER.debug("total hits: {} from total documents: {}", topFieldCollector.getTotalHits(), indexReader.numDocs());
+                    LOGGER.debug("search hits: {} from total documents: {}", topFieldCollector.getTotalHits(), indexReader.numDocs());
                     final TopDocs topDocs = topFieldCollector.topDocs();
                     final ScoreDoc[] scoreDocs = topDocs.scoreDocs;
 
