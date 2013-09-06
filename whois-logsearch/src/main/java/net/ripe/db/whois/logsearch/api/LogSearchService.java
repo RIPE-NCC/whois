@@ -12,14 +12,22 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Set;
 
 /**
@@ -34,14 +42,10 @@ public class LogSearchService {
 
     private final Hosts host = Hosts.getLocalHost();
     private final LogFileSearch logFileSearch;
-    private final int streamResultsLimit;
 
     @Autowired
-    public LogSearchService(
-            final LogFileSearch logFileSearch,
-            @Value("${logsearch.result.limit}") final int streamResultLimit) {
+    public LogSearchService(final LogFileSearch logFileSearch) {
         this.logFileSearch = logFileSearch;
-        this.streamResultsLimit = streamResultLimit;
     }
 
     @GET
@@ -57,21 +61,15 @@ public class LogSearchService {
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 try {
                     final Writer writer = new BufferedWriter(new OutputStreamWriter(output, Charsets.UTF_8));
-                    if (updateIds.size() > streamResultsLimit) {
-                        writer.write(String.format("!!! Found %s update logs, limiting to %s", updateIds.size(), streamResultsLimit));
-                    } else {
-                        writer.write(String.format("*** Found %s update log(s)", updateIds.size()));
-                    }
+                    writer.write(String.format("*** Found %s update log(s)", updateIds.size()));
 
                     int count = 1;
                     for (final LoggedUpdate update : updateIds) {
-                        writer.write(String.format("\n\n*** %03d ***\n\n", count));
+                        writer.write(String.format("\n\n*** %03d ***\n\n", count++));
                         logFileSearch.writeLoggedUpdate(update, writer);
                         writer.flush();
-                        if (++count > streamResultsLimit) {
-                            break;
-                        }
                     }
+
                 } catch (IOException | RuntimeException e) {
                     LOGGER.error(e.getMessage(), e);
                     throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
