@@ -20,6 +20,22 @@ class DryRunSpec extends BaseSpec {
                    changed: denis@ripe.net 20121016
                    source:  TEST
                 """,
+                "ALLOC-PA-LOW-DOM-R": """\
+                inetnum:      193.0.0.0 - 193.255.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                mnt-domains:  LIR2-MNT
+                mnt-routes:   LIR3-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
         ]
     }
 
@@ -557,6 +573,47 @@ class DryRunSpec extends BaseSpec {
         noMoreMessages()
 
         query_object_not_matches("-rGBT person TP1-TEST", "person", "Test Person", "just added")
+    }
+
+    def "create reverse domain, with dry run"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
+
+        expect:
+        queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
+        queryObjectNotFound("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
+
+        when:
+        def message = syncUpdate("""\
+                domain:         0.0.193.in-addr.arpa
+                descr:          reverse domain
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net
+                nserver:        ns3.nic.fr
+                mnt-by:         owner-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                dry-run:
+                password:   lir2
+                password:   owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
+        ack.infoSuccessMessagesFor("Create", "[domain] 0.0.193.in-addr.arpa") == [
+                "Dry-run performed, no changes to the database have been made"]
+
+        queryObjectNotFound("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
     }
 
 }
