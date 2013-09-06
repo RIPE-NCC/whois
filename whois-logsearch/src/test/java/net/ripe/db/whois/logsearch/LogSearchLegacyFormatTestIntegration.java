@@ -129,6 +129,20 @@ public class LogSearchLegacyFormatTestIntegration extends AbstractJUnit4SpringCo
         assertThat(response, containsString("the quick brown fox"));
     }
 
+    @Test
+    public void override_is_filtered() throws Exception {
+        addToIndex(LogFileHelper.createBzippedLogFile(logDirectory, "20100101",
+                "REQUEST FROM:127.0.0.1\n" +
+                "PARAMS:\n" +
+                "DATA=\n" +
+                "\n" +
+                "inet6num:      2001::/64\n" +
+                "source:        RIPE\n" +
+                "override: username,password,remark\n"));
+
+        assertThat(getUpdates("2001::/64"), containsString("override: FILTERED\n"));
+    }
+
     // API calls
 
     private String getUpdates(final String searchTerm) throws IOException {

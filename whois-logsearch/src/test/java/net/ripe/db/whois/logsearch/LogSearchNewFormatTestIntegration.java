@@ -360,6 +360,16 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
         assertThat(response, not(containsString("UPD-MNT")));
     }
 
+    @Test
+    public void override_is_filtered() throws Exception {
+        addToIndex(LogFileHelper.createTarredLogFile(logDirectory, "20130102", "100102", "random",
+                "mntner:    UPD-MNT\n" +
+                "source:    RIPE\n" +
+                "override:  username,password\n"));
+
+        assertThat(getUpdates("UPD-MNT"), containsString("override:  FILTERED"));
+    }
+
     // API calls
 
     private String getUpdates(final String searchTerm) throws IOException {
