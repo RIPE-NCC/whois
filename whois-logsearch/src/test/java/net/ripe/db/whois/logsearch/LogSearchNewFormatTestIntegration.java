@@ -220,7 +220,7 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
 
         String response = getUpdates("mntner", "20130506");
 
-        assertThat(response, isEmptyOrNullString());
+        assertThat(response, containsString("Found 0 update log(s)"));
     }
 
     @Test
