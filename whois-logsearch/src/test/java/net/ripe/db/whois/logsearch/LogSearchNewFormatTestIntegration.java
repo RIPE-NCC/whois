@@ -361,14 +361,25 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
     }
 
     @Test
-    public void override_is_filtered() throws Exception {
+    public void override_without_reason_is_filtered() throws Exception {
         addToIndex(LogFileHelper.createTarredLogFile(logDirectory, "20130102", "100102", "random",
                 "mntner:    UPD-MNT\n" +
                 "source:    RIPE\n" +
                 "override:  username,password\n"));
 
-        assertThat(getUpdates("UPD-MNT"), containsString("override:  FILTERED"));
+        assertThat(getUpdates("UPD-MNT"), containsString("override: FILTERED\n"));
     }
+
+    @Test
+    public void override_with_reason_is_filtered() throws Exception {
+        addToIndex(LogFileHelper.createTarredLogFile(logDirectory, "20130102", "100102", "random",
+                "mntner:    UPD-MNT\n" +
+                "source:    RIPE\n" +
+                "override:  username,password,reason\n"));
+
+        assertThat(getUpdates("UPD-MNT"), containsString("override: username, FILTERED, reason\n"));
+    }
+
 
     // API calls
 

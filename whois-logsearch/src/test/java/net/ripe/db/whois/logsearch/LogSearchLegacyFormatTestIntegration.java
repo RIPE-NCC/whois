@@ -140,7 +140,7 @@ public class LogSearchLegacyFormatTestIntegration extends AbstractJUnit4SpringCo
                 "source:        RIPE\n" +
                 "override: username,password,remark\n"));
 
-        assertThat(getUpdates("2001::/64"), containsString("override: FILTERED\n"));
+        assertThat(getUpdates("2001::/64"), containsString("override: username, FILTERED, remark\n"));
     }
 
     // API calls
