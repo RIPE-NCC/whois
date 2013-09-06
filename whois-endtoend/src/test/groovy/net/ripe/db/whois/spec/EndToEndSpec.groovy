@@ -316,6 +316,8 @@ ${ack.contents}
         print """\
 >>>>> RECEIVE NOTIFICATION
 
+to: ${to}
+
 subject: ${notification.subject}
 
 ----
