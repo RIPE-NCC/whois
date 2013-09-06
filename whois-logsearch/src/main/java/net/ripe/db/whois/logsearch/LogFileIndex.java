@@ -48,7 +48,6 @@ public class LogFileIndex {
 
     private static final FieldType UPDATE_ID_FIELD_TYPE;
     private static final FieldType DATE_FIELD_TYPE;
-    private static final FieldType TYPE_FIELD_TYPE;
     private static final FieldType CONTENTS_FIELD_TYPE;
 
     static {
@@ -66,12 +65,6 @@ public class LogFileIndex {
         DATE_FIELD_TYPE.setStored(true);
         DATE_FIELD_TYPE.setIndexOptions(FieldInfo.IndexOptions.DOCS_ONLY);
         DATE_FIELD_TYPE.freeze();
-
-        TYPE_FIELD_TYPE = new FieldType();
-        TYPE_FIELD_TYPE.setIndexed(false);
-        TYPE_FIELD_TYPE.setTokenized(false);
-        TYPE_FIELD_TYPE.setStored(true);
-        TYPE_FIELD_TYPE.freeze();
 
         CONTENTS_FIELD_TYPE = new FieldType();
         CONTENTS_FIELD_TYPE.setIndexed(true);
@@ -115,12 +108,9 @@ public class LogFileIndex {
         try {
             LOGGER.debug("Indexing {}", loggedUpdate);
             indexWriter.deleteDocuments(new Term("updateId", loggedUpdate.getUpdateId()));
-
             final Document document = new Document();
             document.add(new Field("updateId", loggedUpdate.getUpdateId(), UPDATE_ID_FIELD_TYPE));
             document.add(new IntField("date", Integer.parseInt(loggedUpdate.getDate()), DATE_FIELD_TYPE));
-            // TODO: [AH] type could be derived from updateId
-            document.add(new Field("type", loggedUpdate.getType().name(), TYPE_FIELD_TYPE));
             document.add(new Field("contents", contents, CONTENTS_FIELD_TYPE));
             indexWriter.addDocument(document);
         } catch (IOException e) {
@@ -213,8 +203,7 @@ public class LogFileIndex {
                         loggedUpdates.add(
                                 LoggedUpdate.parse(
                                         doc.getField("updateId").stringValue(),
-                                        doc.getField("date").stringValue(),
-                                        LoggedUpdate.Type.valueOf(doc.getField("type").stringValue())));
+                                        doc.getField("date").stringValue()));
                     }
 
                     return loggedUpdates;

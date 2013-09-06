@@ -13,20 +13,33 @@ public abstract class LoggedUpdate implements Comparable<LoggedUpdate> {
     public abstract String getDate();
     public abstract Type getType();
 
-    public static final LoggedUpdate parse(final String updateId, final String date, final Type type) {
-        switch (type) {
+    public static final LoggedUpdate parse(final String updateId, final String date) {
+        switch (getUpdateType(updateId)) {
             case DAILY:
                 return new DailyLogEntry(updateId, date);
             case TARRED:
                 return new TarredLogEntry(updateId, date);
             case LEGACY:
                 return new LegacyLogEntry(updateId, date);
+            default:
+                throw new IllegalStateException("Unknown type");
         }
-        throw new IllegalArgumentException("No such type: " + type);
     }
 
     @Override
     public int compareTo(LoggedUpdate o) {
         return getUpdateId().compareTo(o.getUpdateId());
+    }
+
+    private static Type getUpdateType(final String updateId) {
+        if (updateId.contains(".bz2")) {
+            return Type.LEGACY;
+        } else {
+            if (updateId.contains(".tar")) {
+                return Type.TARRED;
+            } else {
+                return Type.DAILY;
+            }
+        }
     }
 }
