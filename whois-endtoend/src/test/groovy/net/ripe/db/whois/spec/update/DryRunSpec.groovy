@@ -560,15 +560,10 @@ class DryRunSpec extends BaseSpec {
 
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(2, 0, 2, 0)
-        ack.countErrorWarnInfo(0, 0, 2)
-        ack.errors.any { it.operation == "Modify" && it.key == "[person] TP1-TEST   Test Person" }
-        ack.errorMessagesFor("Modify", "[person] TP1-TEST") == [
-                "Dry-run is only supported when a single update is specified"]
-        ack.errors.any { it.operation == "Modify" && it.key == "[person] Fp11-RIpe   First Person" }
-        ack.errorMessagesFor("Modify", "[person] Fp11-RIpe") == [
-                "Dry-run is only supported when a single update is specified"]
-        ! ack.contents =~ /@@/
+        ack.summary.assertErrors(2, 0, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.contents =~ /(?s)Dry-run is only supported when a single update is specified.*?Dry-run is only supported when a single update is specified/
+        ! (ack.contents =~ /\@\@/)
 
         noMoreMessages()
 
