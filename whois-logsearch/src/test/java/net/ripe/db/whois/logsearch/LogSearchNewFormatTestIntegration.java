@@ -367,7 +367,7 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
                 "source:    RIPE\n" +
                 "override:  username,password\n"));
 
-        assertThat(getUpdates("UPD-MNT"), containsString("override: FILTERED\n"));
+        assertThat(getUpdates("UPD-MNT"), containsString("override: username, FILTERED\n"));
     }
 
     @Test
