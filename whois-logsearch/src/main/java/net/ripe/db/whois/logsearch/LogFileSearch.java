@@ -165,6 +165,8 @@ public class LogFileSearch {
                 final String[] override = StringUtils.split(matcher.group(2), ',');
                 if (override.length == 3) {
                     matcher.appendReplacement(result, String.format("override: %s, FILTERED, %s", override[0], override[2]));
+                } else if (override.length == 2) {
+                    matcher.appendReplacement(result, String.format("override: %s, FILTERED", override[0]));
                 } else {
                     matcher.appendReplacement(result, "override: FILTERED");
                 }
