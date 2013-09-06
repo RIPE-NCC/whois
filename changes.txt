@@ -1,4 +1,6 @@
-## next
+## 1.69
+[update] enable dry-run
+[all] in-addr.arpa bugfix
 [api] changed rest API create: POST supports '/ripe/person' format only
 [api] adjust mod_proxy config for POST accordingly
 [api] added unfiltered queryparam to lookup (adjust documentation on deployment!)
