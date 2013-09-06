@@ -62,6 +62,7 @@ public class LogSearchService {
                 try {
                     final Writer writer = new BufferedWriter(new OutputStreamWriter(output, Charsets.UTF_8));
                     writer.write(String.format("*** Found %s update log(s)", updateIds.size()));
+                    writer.flush();
 
                     int count = 1;
                     for (final LoggedUpdate update : updateIds) {

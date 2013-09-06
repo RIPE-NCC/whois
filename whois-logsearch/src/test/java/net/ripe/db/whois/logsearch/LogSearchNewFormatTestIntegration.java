@@ -87,6 +87,11 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
     }
 
     @Test
+    public void no_results() throws Exception {
+        assertThat(getUpdates("quick"), containsString("Found 0 update log(s)"));
+    }
+
+    @Test
     public void tarfile_single_term() throws Exception {
         addToIndex(LogFileHelper.createTarredLogFile(logDirectory, "20100101", "100102", "the quick brown fox"));
 
