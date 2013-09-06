@@ -12,6 +12,7 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
+import org.apache.lucene.index.FieldInfo;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -44,45 +45,44 @@ public class LogFileIndex {
     private static final Analyzer INDEX_ANALYZER = new LogFileAnalyzer(Version.LUCENE_41);
     private static final Analyzer QUERY_ANALYZER = new LogSearchQueryAnalyzer(Version.LUCENE_41);
     private static final Sort SORT_BY_DATE = new Sort(new SortField("date", SortField.Type.STRING, true));
-    private final int resultLimit;
 
-    private static final FieldType STORED;
-    private static final FieldType INDEXED_TOKENIZED;
-    private static final FieldType INDEXED_STORED;
-    private static final FieldType INDEXED_TOKENIZED_STORED;
-    private static final FieldType INDEXED_TOKENIZED_STORED_INTEGER;
+    private static final FieldType UPDATE_ID_FIELD_TYPE;
+    private static final FieldType DATE_FIELD_TYPE;
+    private static final FieldType TYPE_FIELD_TYPE;
+    private static final FieldType CONTENTS_FIELD_TYPE;
 
     static {
-        STORED = new FieldType();
-        STORED.setIndexed(false);
-        STORED.setTokenized(false);
-        STORED.setStored(true);
-        STORED.freeze();
+        UPDATE_ID_FIELD_TYPE = new FieldType();
+        UPDATE_ID_FIELD_TYPE.setIndexed(true);
+        UPDATE_ID_FIELD_TYPE.setTokenized(false);
+        UPDATE_ID_FIELD_TYPE.setStored(true);
+        UPDATE_ID_FIELD_TYPE.setIndexOptions(FieldInfo.IndexOptions.DOCS_ONLY);
+        UPDATE_ID_FIELD_TYPE.freeze();
 
-        INDEXED_TOKENIZED = new FieldType();
-        INDEXED_TOKENIZED.setIndexed(true);
-        INDEXED_TOKENIZED.setTokenized(true);
-        INDEXED_TOKENIZED.setStored(false);
-        INDEXED_TOKENIZED.freeze();
+        DATE_FIELD_TYPE = new FieldType();
+        DATE_FIELD_TYPE.setNumericType(FieldType.NumericType.INT);
+        DATE_FIELD_TYPE.setIndexed(true);
+        DATE_FIELD_TYPE.setTokenized(false);
+        DATE_FIELD_TYPE.setStored(true);
+        DATE_FIELD_TYPE.setIndexOptions(FieldInfo.IndexOptions.DOCS_ONLY);
+        DATE_FIELD_TYPE.freeze();
 
-        INDEXED_STORED = new FieldType();
-        INDEXED_STORED.setIndexed(true);
-        INDEXED_STORED.setTokenized(false);
-        INDEXED_STORED.setStored(true);
-        INDEXED_STORED.freeze();
+        TYPE_FIELD_TYPE = new FieldType();
+        TYPE_FIELD_TYPE.setIndexed(false);
+        TYPE_FIELD_TYPE.setTokenized(false);
+        TYPE_FIELD_TYPE.setStored(true);
+        TYPE_FIELD_TYPE.freeze();
 
-        INDEXED_TOKENIZED_STORED = new FieldType();
-        INDEXED_TOKENIZED_STORED.setIndexed(true);
-        INDEXED_TOKENIZED_STORED.setTokenized(true);
-        INDEXED_TOKENIZED_STORED.setStored(true);
-        INDEXED_TOKENIZED_STORED.freeze();
-
-        INDEXED_TOKENIZED_STORED_INTEGER = new FieldType(INDEXED_TOKENIZED_STORED);
-        INDEXED_TOKENIZED_STORED_INTEGER.setNumericType(FieldType.NumericType.INT);
-        INDEXED_TOKENIZED_STORED_INTEGER.freeze();
+        CONTENTS_FIELD_TYPE = new FieldType();
+        CONTENTS_FIELD_TYPE.setIndexed(true);
+        CONTENTS_FIELD_TYPE.setTokenized(true);
+        CONTENTS_FIELD_TYPE.setStored(false);
+        CONTENTS_FIELD_TYPE.setIndexOptions(FieldInfo.IndexOptions.DOCS_ONLY);
+        CONTENTS_FIELD_TYPE.freeze();
     }
 
-    protected IndexTemplate index;
+    private final int resultLimit;
+    private final IndexTemplate index;
 
     @Autowired
     LogFileIndex(
@@ -117,13 +117,11 @@ public class LogFileIndex {
             indexWriter.deleteDocuments(new Term("updateId", loggedUpdate.getUpdateId()));
 
             final Document document = new Document();
-            // TODO: [AH] do we need to store updateId? Index should be enough
-            document.add(new Field("updateId", loggedUpdate.getUpdateId(), INDEXED_STORED));
-            // TODO: [AH] Why tokenize date? Why store date?
-            document.add(new IntField("date", Integer.parseInt(loggedUpdate.getDate()), INDEXED_TOKENIZED_STORED_INTEGER));
+            document.add(new Field("updateId", loggedUpdate.getUpdateId(), UPDATE_ID_FIELD_TYPE));
+            document.add(new IntField("date", Integer.parseInt(loggedUpdate.getDate()), DATE_FIELD_TYPE));
             // TODO: [AH] type could be derived from updateId
-            document.add(new Field("type", loggedUpdate.getType().name(), STORED));
-            document.add(new Field("contents", contents, INDEXED_TOKENIZED));
+            document.add(new Field("type", loggedUpdate.getType().name(), TYPE_FIELD_TYPE));
+            document.add(new Field("contents", contents, CONTENTS_FIELD_TYPE));
             indexWriter.addDocument(document);
         } catch (IOException e) {
             throw new IllegalStateException(e);
