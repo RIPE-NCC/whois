@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.mail;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.jayway.awaitility.Awaitility;
 import net.ripe.db.whois.common.Stub;
@@ -17,6 +18,7 @@ import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -92,7 +94,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
             for (Message message : messages) {
                 try {
                     Address[] to = message.getRecipients(Message.RecipientType.TO);
-                    LOGGER.warn("Found message to: {}, subject: {}",Arrays.deepToString(to), message.getSubject());
+                    LOGGER.warn("Found message to: {}, subject: {}", Arrays.deepToString(to), message.getSubject());
                 } catch (MessagingException e) {
                     throw new IllegalStateException(e);
                 }
@@ -100,5 +102,17 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         }
 
         return !messages.isEmpty();
+    }
+
+    public List<Address> getAllRecipients() {
+        final List<Address> addresses = Lists.newArrayList();
+        for (Message message : messages) {
+            try {
+                addresses.addAll(Arrays.asList(message.getRecipients(Message.RecipientType.TO)));
+            } catch (MessagingException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        return addresses;
     }
 }

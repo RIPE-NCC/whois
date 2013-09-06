@@ -29,6 +29,8 @@ import spec.domain.NotificationResponse
 import spec.domain.SyncUpdate
 import spock.lang.Specification
 
+import javax.mail.Address
+
 import static net.ripe.db.whois.common.domain.CIString.ciString
 
 class EndToEndSpec extends Specification {
@@ -293,6 +295,19 @@ ${ack.contents}
         AckResponse ackResponse = new AckResponse(mailSenderStub.getMessage(from))
         println "\n\n>>>>> RECEIVE ACK\n\nto: " + from + "\nsubject: " + ackResponse.subject + "\n\n" + ackResponse.contents + "\n\n<<<<<\n\n"
         ackResponse
+    }
+
+    void printAllRecipients() {
+        def recipients = mailSenderStub.getAllRecipients()
+        println ">>>>> (TO)"
+        if (recipients.isEmpty()) {
+            print "no mails left"
+        } else {
+            for (Address recipient : recipients) {
+                println recipient
+            }
+        }
+        println "<<<<<\n"
     }
 
     NotificationResponse notificationFor(String to) {
