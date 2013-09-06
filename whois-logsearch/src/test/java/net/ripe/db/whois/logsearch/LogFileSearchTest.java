@@ -24,7 +24,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class LogFileSearchTest {
     LoggedUpdate loggedUpdateWithPasswordId;
-    LoggedUpdate loggedUpdateWithOverrideId;
+    LoggedUpdate loggedUpdateWithOldOverride;
+    LoggedUpdate loggedUpdateWithNewOverride;
 
     @Mock LogFileIndex logFileIndex;
     LogFileSearch subject;
@@ -33,7 +34,8 @@ public class LogFileSearchTest {
     public void setUp() throws Exception {
         final String logDir = new ClassPathResource("/log/update").getFile().getAbsolutePath();
         loggedUpdateWithPasswordId = new DailyLogEntry(logDir + "/20130306/123623.428054357.0.1362569782886.JavaMail.andre/001.msg-in.txt.gz", "20130306");
-        loggedUpdateWithOverrideId = new DailyLogEntry(logDir + "/20130306/123624.428054357.0.1362569782886.JavaMail.andre/001.msg-in.txt.gz", "20130306");
+        loggedUpdateWithOldOverride = new DailyLogEntry(logDir + "/20130306/123624.428054357.0.1362569782886.JavaMail.andre/001.msg-in.txt.gz", "20130306");
+        loggedUpdateWithNewOverride = new DailyLogEntry(logDir + "/20130306/123625.428054357.0.1362569782886.JavaMail.andre/001.msg-in.txt.gz", "20130306");
 
         subject = new LogFileSearch(new ClassPathResource("/log/update").getFile().getAbsolutePath(), logFileIndex);
     }
@@ -63,16 +65,27 @@ public class LogFileSearchTest {
         subject.writeLoggedUpdate(loggedUpdateWithPasswordId, writer);
 
         final String output = writer.toString();
+        assertThat(output, containsString("password: FILTERED\n"));
         assertThat(output, not(containsString("dbm")));
     }
 
     @Test
-    public void writeLoggedUpdates_filters_override() throws IOException {
+    public void writeLoggedUpdates_filters_old_override() throws IOException {
         final StringWriter writer = new StringWriter();
-        subject.writeLoggedUpdate(loggedUpdateWithOverrideId, writer);
+        subject.writeLoggedUpdate(loggedUpdateWithOldOverride, writer);
 
         final String output = writer.toString();
+        assertThat(output, containsString("override: FILTERED\n"));
         assertThat(output, not(containsString("dbm")));
     }
 
+    @Test
+    public void writeLoggedUpdates_filters_new_override_password_only() throws IOException {
+        final StringWriter writer = new StringWriter();
+        subject.writeLoggedUpdate(loggedUpdateWithNewOverride, writer);
+
+        final String output = writer.toString();
+        assertThat(output, containsString("override: dbm, FILTERED, reason\n"));
+        assertThat(output, not(containsString("password")));
+    }
 }

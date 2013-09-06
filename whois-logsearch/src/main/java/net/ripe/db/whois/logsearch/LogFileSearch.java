@@ -19,11 +19,12 @@ import org.springframework.util.FileCopyUtils;
 import java.io.*;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
 public class LogFileSearch {
-    private static final Pattern PASSWORD_PATTERN = Pattern.compile("(?im)^((?:password|override):\\s*)(.*)\\s?");
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile("(?im)^(override|password):\\s*(.+)\\s*$");
     private static final Splitter PATH_ELEMENT_SPLITTER = Splitter.on(File.separatorChar).omitEmptyStrings();
 
     private final File logDir;
@@ -153,7 +154,23 @@ public class LogFileSearch {
         return result.toString();
     }
 
+    // we have to support historical override/password formats here, so we can't rely on whois-update for this functionality
     private String filterContents(final String contents) {
-        return PASSWORD_PATTERN.matcher(contents).replaceAll("$1FILTERED\n");
+        final Matcher matcher = PASSWORD_PATTERN.matcher(contents);
+        final StringBuffer result = new StringBuffer();
+        while (matcher.find()) {
+            if (matcher.group(1).equalsIgnoreCase("password")) {
+                matcher.appendReplacement(result, "password: FILTERED");
+            } else {
+                final String[] override = StringUtils.split(matcher.group(2), ',');
+                if (override.length == 3) {
+                    matcher.appendReplacement(result, String.format("override: %s, FILTERED, %s", override[0], override[2]));
+                } else {
+                    matcher.appendReplacement(result, "override: FILTERED");
+                }
+            }
+        }
+        matcher.appendTail(result);
+        return result.toString();
     }
 }
