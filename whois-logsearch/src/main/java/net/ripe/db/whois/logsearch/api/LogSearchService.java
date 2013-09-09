@@ -70,8 +70,10 @@ public class LogSearchService {
                         logFileSearch.writeLoggedUpdate(update, writer);
                         writer.flush();
                     }
-
-                } catch (IOException | RuntimeException e) {
+                } catch (IOException e) {
+                    LOGGER.info(e.getMessage(), e);
+                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+                } catch (RuntimeException e) {
                     LOGGER.error(e.getMessage(), e);
                     throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
                 }
