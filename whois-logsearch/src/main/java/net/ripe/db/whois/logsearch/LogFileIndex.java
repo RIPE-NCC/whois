@@ -154,7 +154,7 @@ public class LogFileIndex {
     //
 
     public Set<LoggedUpdate> searchByUpdateId(final String regex) {
-        final Set<LoggedUpdate> loggedUpdates = search(new RegexpQuery(new Term("updateId", regex)));
+        final Set<LoggedUpdate> loggedUpdates = search(new RegexpQuery(new Term("updateId", regex)), -1);
         LOGGER.debug("Found {} updates matching regex {}", loggedUpdates.size(), regex);
         return loggedUpdates;
     }
@@ -186,17 +186,20 @@ public class LogFileIndex {
     }
 
     private Set<LoggedUpdate> search(final Query query) {
+        return search(query, resultLimit);
+    }
+
+    private Set<LoggedUpdate> search(final Query query, final int maxResults) {
         try {
             return index.search(new IndexTemplate.SearchCallback<Set<LoggedUpdate>>() {
                 @Override
                 public Set<LoggedUpdate> search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
                     LOGGER.debug("executing lucene query: {}", query);
-                    final int maxResults = (resultLimit == -1) ? indexReader.numDocs() : Math.max(Math.min(resultLimit, indexReader.numDocs()), 1);
-                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_DATE, maxResults, false, false, false, false);
+                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_DATE, getResultLimit(maxResults, indexReader.numDocs()), false, false, false, false);
 
                     indexSearcher.search(query, topFieldCollector);
 
-                    LOGGER.debug("search hits: {} from total documents: {}", topFieldCollector.getTotalHits(), indexReader.numDocs());
+                    LOGGER.debug("Matched documents: {} from total documents: {}", topFieldCollector.getTotalHits(), indexReader.numDocs());
                     final TopDocs topDocs = topFieldCollector.topDocs();
                     final ScoreDoc[] scoreDocs = topDocs.scoreDocs;
 
@@ -210,6 +213,10 @@ public class LogFileIndex {
                     }
 
                     return loggedUpdates;
+                }
+
+                private int getResultLimit(final int maxResults, final int numDocs) {
+                    return (maxResults <= 0) ? numDocs : Math.max(Math.min(maxResults, numDocs), 1);
                 }
             });
         } catch (IOException e) {
