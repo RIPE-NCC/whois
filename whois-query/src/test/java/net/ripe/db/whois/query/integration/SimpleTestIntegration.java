@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -15,6 +16,7 @@ import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -707,5 +709,34 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-v role -v person");
         assertThat(response, containsString("ERROR:110: multiple use of flag"));
         assertThat(response, containsString("The flag \"-v\" cannot be used multiple times."));
+    }
+
+    @Test
+    public void query_utf8_encoded_object() throws Exception {
+        databaseHelper.getWhoisTemplate().execute(
+                "UPDATE last SET object = CONVERT(_latin1'" +
+                        "domain:         117.80.81.in-addr.arpa\n" +
+                        "descr:          66121 Saarbrücken\n" +
+                        "' USING utf8) WHERE pkey = '117.80.81.in-addr.arpa'");
+
+        final String response = DummyWhoisClient.query(QueryServer.port, "117.80.81.in-addr.arpa");
+
+        //  0x00FC is UTF-8 representation of u-umlaut (2 bytes)
+        assertThat(response, containsString("Saarbr\u00FCcken"));
+    }
+
+    @Ignore("TODO: single byte latin1 characters > ASCII in object BLOB column will need to be converted to UTF8")
+    @Test
+    public void query_latin1_encoded_object_in_utf8_table() throws Exception {
+        // 0xFC is latin1 representation of u-umlaut (1 byte)
+        databaseHelper.getWhoisTemplate().execute(
+                    "UPDATE last SET object = _latin1'" +
+                            "domain:         117.80.81.in-addr.arpa\n" +
+                            "descr:           66121 Saarbrücken" +
+                            "' WHERE pkey = '117.80.81.in-addr.arpa'");
+
+        final String response = DummyWhoisClient.query(QueryServer.port, "117.80.81.in-addr.arpa");
+
+        assertThat(response, containsString("Saarbr\u00FCcken"));
     }
 }
