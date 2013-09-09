@@ -246,8 +246,11 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
                     } catch (SocketTimeoutException ignored) {
                     }
 
+                    // Allow main calling junit thread to execute
+                    Thread.yield();
+
                     if (stop) {
-                        return;
+                        break;
                     }
                 }
             } catch (Exception e) {
@@ -268,8 +271,6 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
             if (Integer.parseInt(serial) >= lastSerial) {
                 countDownLatchMap.get(method).countDown();
             }
-            // Allow main calling junit thread to execute
-            Thread.yield();
         }
     }
 }
