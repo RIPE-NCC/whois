@@ -1,3 +1,5 @@
+## next
+
 ## 1.69
 [update] enable dry-run
 [all] in-addr.arpa bugfix
@@ -5,6 +7,14 @@
 [api] adjust mod_proxy config for POST accordingly
 [api] added unfiltered queryparam to lookup (adjust documentation on deployment!)
 [grs] dummifier comments are now per-source (massive update expected on deployment)
+[grs] expand AS Number ranges in ARIN GRS delegated stats
+[query] adjusted hierarchical lookup of direct route object keys
+[query] fixed search on mixed-case domain postfix
+[update] pending route creation notifications (#47)
+[update] pending route creation, 2nd acknowledgement (#48)
+[update] dry-run should not send notifications (#64)
+[update] dry-run value (#65)
+[update] dry-run leaves blank line where dry-run was (#66)
 
 ## 1.68
 [api] revamped API to follow the REST paradigm more closely
