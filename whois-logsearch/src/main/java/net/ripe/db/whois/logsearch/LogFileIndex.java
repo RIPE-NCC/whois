@@ -45,7 +45,7 @@ public class LogFileIndex {
     private static final Analyzer INDEX_ANALYZER = new LogFileAnalyzer(Version.LUCENE_41);
     private static final Analyzer QUERY_ANALYZER = new LogSearchQueryAnalyzer(Version.LUCENE_41);
     private static final Sort SORT_BY_DATE = new Sort(new SortField("date", SortField.Type.STRING, true));
-    private static final double INDEX_WRITER_RAM_BUFFER_SIZE = 128d;
+    private static final double INDEX_WRITER_RAM_BUFFER_SIZE = 16d;
 
     private static final FieldType UPDATE_ID_FIELD_TYPE;
     private static final FieldType DATE_FIELD_TYPE;
