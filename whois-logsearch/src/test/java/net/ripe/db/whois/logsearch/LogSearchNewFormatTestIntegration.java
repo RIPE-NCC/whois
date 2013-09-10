@@ -385,6 +385,20 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
         assertThat(getUpdates("UPD-MNT"), containsString("override: username, FILTERED, reason\n"));
     }
 
+    @Test
+    public void search_by_update_id_no_match() throws Exception {
+        assertThat(logFileIndex.searchByUpdateId(".*20130102.*"), hasSize(0));
+    }
+
+    @Test
+    public void search_by_update_id_with_match() throws Exception {
+        addToIndex(LogFileHelper.createTarredLogFile(logDirectory, "20130102", "100102", "random",
+                "mntner:    UPD-MNT\n" +
+                "source:    RIPE\n" +
+                "override:  username,password,reason\n"));
+
+        assertThat(logFileIndex.searchByUpdateId(".*20130102.*"), hasSize(1));
+    }
 
     // API calls
 

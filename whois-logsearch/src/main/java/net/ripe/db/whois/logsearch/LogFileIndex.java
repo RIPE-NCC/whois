@@ -195,6 +195,7 @@ public class LogFileIndex {
                 @Override
                 public Set<LoggedUpdate> search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
                     LOGGER.debug("executing lucene query: {}", query);
+
                     final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_DATE, getResultLimit(maxResults, indexReader.numDocs()), false, false, false, false);
 
                     indexSearcher.search(query, topFieldCollector);
@@ -216,7 +217,7 @@ public class LogFileIndex {
                 }
 
                 private int getResultLimit(final int maxResults, final int numDocs) {
-                    return (maxResults <= 0) ? numDocs : Math.max(Math.min(maxResults, numDocs), 1);
+                    return Math.max(Math.min(maxResults, numDocs), 1);
                 }
             });
         } catch (IOException e) {
