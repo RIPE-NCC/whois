@@ -1,5 +1,6 @@
 ## next
 [all] removed useless thread_id, prev_serial, serial fields from SQL schema
+[all] remove leftover wsearch.* from properties file
 
 ## 1.69
 [update] enable dry-run
