@@ -6,19 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.io.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.zip.GZIPInputStream;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.*;
 
 @Component
 public class LoaderImpl implements Loader {
+    private static final int NUM_LOADER_THREADS = 8;
     private final UpdateLockDao updateLockDao;
     private final JdbcTemplate whoisTemplate;
     private final ObjectLoader objectLoader;
@@ -32,7 +31,6 @@ public class LoaderImpl implements Loader {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void resetDatabase() {
         sanityCheck(whoisTemplate);
         updateLockDao.setUpdateLock();
@@ -64,6 +62,26 @@ public class LoaderImpl implements Loader {
         return result.toString();
     }
 
+    private String getNextObject(BufferedReader reader) throws IOException {
+        String line;
+        StringBuilder partialObject = new StringBuilder(1024);
+        while ((line = reader.readLine()) != null) {
+            if (StringUtils.isEmptyOrWhitespaceOnly(line)) {
+                return partialObject.toString();
+            } else {
+                if (line.charAt(0) != '#') {
+                    partialObject.append(line).append('\n');
+                }
+            }
+        }
+
+        if (partialObject.length() > 0) {
+            return partialObject.toString();
+        } else {
+            return null; // terminator
+        }
+    }
+
     private void runPass(Result result, String entry, int pass) {
         InputStream in;
 
@@ -78,29 +96,35 @@ public class LoaderImpl implements Loader {
         }
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String line;
-        StringBuilder partialObject = new StringBuilder(1024);
 
+        final ExecutorService executorService = Executors.newFixedThreadPool(NUM_LOADER_THREADS);
         try {
-            while ((line = reader.readLine()) != null) {
-                if (StringUtils.isEmptyOrWhitespaceOnly(line)) {
-                    try {
-                        objectLoader.processObject(partialObject.toString(), result, pass);
-                    } catch (TransactionException e) {}     // error is already added to result
-                    partialObject = new StringBuilder(1024);
-                } else {
-                    if (line.charAt(0) != '#') {
-                        partialObject.append(line).append('\n');
-                    }
-                }
+            for (String nextObject = getNextObject(reader); nextObject != null; nextObject = getNextObject(reader)) {
+                executorService.submit(new RpslObjectProcessor(nextObject, result, pass));
             }
         } catch (IOException e) {
             result.addText(String.format("Error reading '%s': %s\n", entry, e.getMessage()));
             return;
+        } finally {
+            executorService.shutdown();
         }
 
-        if (partialObject.length() > 0) {
-            objectLoader.processObject(partialObject.toString(), result, pass);
+    }
+
+    class RpslObjectProcessor implements Runnable {
+        private final String rpslObject;
+        private final Result result;
+        private final int pass;
+
+        RpslObjectProcessor(String rpslObject, Result result, int pass) {
+            this.rpslObject = rpslObject;
+            this.result = result;
+            this.pass = pass;
+        }
+
+        @Override
+        public void run() {
+            objectLoader.processObject(rpslObject, result, pass);
         }
     }
 }
