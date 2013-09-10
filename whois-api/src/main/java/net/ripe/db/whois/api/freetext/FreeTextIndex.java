@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -96,7 +97,7 @@ public class FreeTextIndex extends RebuildableIndex {
     FreeTextIndex(
             @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
             @Value("${whois.source}") final String source,
-            @Value("${dir.freetext.index}") final String indexDir) {
+            @Value("${dir.freetext.index:}") final String indexDir) {
 
         super(LOGGER, indexDir);
 
@@ -106,6 +107,7 @@ public class FreeTextIndex extends RebuildableIndex {
 
     @PostConstruct
     public void init() {
+        if (StringUtils.isBlank(indexDir)) return;
         super.init(new IndexWriterConfig(Version.LUCENE_41, INDEX_ANALYZER)
                 .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
 
@@ -149,6 +151,8 @@ public class FreeTextIndex extends RebuildableIndex {
     }
 
     protected void rebuild(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
+        if (StringUtils.isBlank(indexDir)) return;
+
         indexWriter.deleteAll();
         final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
 
@@ -201,6 +205,8 @@ public class FreeTextIndex extends RebuildableIndex {
     }
 
     protected void update(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
+        if (StringUtils.isBlank(indexDir)) return;
+
         final Map<String, String> metadata = indexWriter.getCommitData();
         final int end = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
         final int last = Integer.parseInt(metadata.get("serial"));
