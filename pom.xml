@@ -637,25 +637,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>1.5</version>
-                <configuration>
-                    <finalName>${project.artifactId}-${project.version}</finalName>
-                    <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>${whois.main}</mainClass>
-                        </transformer>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                            <resource>META-INF/spring.handlers</resource>
-                        </transformer>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                            <resource>META-INF/spring.schemas</resource>
-                        </transformer>
-                    </transformers>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
                 <version>1.4</version>
