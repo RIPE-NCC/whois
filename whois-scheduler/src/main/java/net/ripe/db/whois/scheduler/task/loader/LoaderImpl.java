@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.zip.GZIPInputStream;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.*;
@@ -97,7 +96,11 @@ public class LoaderImpl implements Loader {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-        final ExecutorService executorService = Executors.newFixedThreadPool(NUM_LOADER_THREADS);
+        // sadly Executors don't offer a bounded/blocking submit() implementation
+        final ExecutorService executorService = new ThreadPoolExecutor(NUM_LOADER_THREADS, NUM_LOADER_THREADS,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(256), new ThreadPoolExecutor.CallerRunsPolicy());
+
         try {
             for (String nextObject = getNextObject(reader); nextObject != null; nextObject = getNextObject(reader)) {
                 executorService.submit(new RpslObjectProcessor(nextObject, result, pass));
