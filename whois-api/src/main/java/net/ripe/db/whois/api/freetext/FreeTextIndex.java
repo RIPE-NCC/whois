@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+// TODO: instead of relying on scattered 'if (StringUtils.isBlank(indexDir) {...}', we should use profiles/...
 @Component
 public class FreeTextIndex extends RebuildableIndex {
     private static final Logger LOGGER = LoggerFactory.getLogger(FreeTextIndex.class);
@@ -201,12 +202,11 @@ public class FreeTextIndex extends RebuildableIndex {
 
     @Scheduled(fixedDelay = INDEX_UPDATE_INTERVAL_IN_SECONDS * 1000)
     public void scheduledUpdate() {
+        if (StringUtils.isBlank(indexDir)) return;
         update();
     }
 
     protected void update(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-        if (StringUtils.isBlank(indexDir)) return;
-
         final Map<String, String> metadata = indexWriter.getCommitData();
         final int end = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
         final int last = Integer.parseInt(metadata.get("serial"));
