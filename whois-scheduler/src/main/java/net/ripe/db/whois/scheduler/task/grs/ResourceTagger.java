@@ -103,6 +103,6 @@ class ResourceTagger {
 
         tagsDao.updateTags(tagTypes, deletes, creates);
 
-        // TODO [AK] Delete all tags that still exists but where no RPSL Object exists in last
+        tagsDao.deleteOrphanedTags();
     }
 }
