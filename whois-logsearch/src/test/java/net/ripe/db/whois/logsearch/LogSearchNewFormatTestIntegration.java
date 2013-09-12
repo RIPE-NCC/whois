@@ -54,12 +54,14 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
     public static void setupClass() {
         System.setProperty("dir.logsearch.index", indexDirectory.getAbsolutePath());
         System.setProperty("dir.update.audit.log", logDirectory.getAbsolutePath());
+        System.setProperty("logsearch.result.limit", Integer.toString(1000));
     }
 
     @AfterClass
     public static void cleanupClass() {
         System.clearProperty("dir.logsearch.index");
         System.clearProperty("dir.update.audit.log");
+        System.clearProperty("logsearch.result.limit");
     }
 
     @Before
@@ -398,6 +400,14 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
                 "override:  username,password,reason\n"));
 
         assertThat(logFileIndex.searchByUpdateId(".*20130102.*"), hasSize(1));
+    }
+
+    @Test
+    public void search_by_update_id_with_multiple_matches() throws Exception {
+        addToIndex(LogFileHelper.createTarredLogFile(logDirectory, "20130102", "100101", "random", "mntner: UPD-MNT"));
+        addToIndex(LogFileHelper.createTarredLogFile(logDirectory, "20130102", "100102", "random", "mntner: UPD-MNT"));
+
+        assertThat(logFileIndex.searchByUpdateId(".*20130102.*"), hasSize(2));
     }
 
     // API calls

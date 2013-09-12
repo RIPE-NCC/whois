@@ -202,11 +202,10 @@ public class LogFileIndex {
 
                     LOGGER.debug("Matched documents: {} from total documents: {}", topFieldCollector.getTotalHits(), indexReader.numDocs());
                     final TopDocs topDocs = topFieldCollector.topDocs();
-                    final ScoreDoc[] scoreDocs = topDocs.scoreDocs;
 
-                    final Set<LoggedUpdate> loggedUpdates = Sets.newLinkedHashSetWithExpectedSize(scoreDocs.length);
-                    for (final ScoreDoc scoreDoc : scoreDocs) {
-                        final Document doc = indexReader.document(scoreDoc.doc);
+                    final Set<LoggedUpdate> loggedUpdates = Sets.newLinkedHashSetWithExpectedSize(topDocs.scoreDocs.length);
+                    for (final ScoreDoc scoreDoc : topDocs.scoreDocs) {
+                        final Document doc = indexSearcher.doc(scoreDoc.doc);
                         loggedUpdates.add(
                                 LoggedUpdate.parse(
                                         doc.getField("updateId").stringValue(),
@@ -217,7 +216,10 @@ public class LogFileIndex {
                 }
 
                 private int getResultLimit(final int maxResults, final int numDocs) {
-                    return Math.max(Math.min(maxResults, numDocs), 1);
+                    if (numDocs == 0) {
+                        return 1;
+                    }
+                    return (maxResults < 1) ? numDocs : Math.min(maxResults, numDocs);
                 }
             });
         } catch (IOException e) {
