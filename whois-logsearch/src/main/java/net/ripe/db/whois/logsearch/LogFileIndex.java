@@ -230,6 +230,7 @@ public class LogFileIndex {
     private Query createContentQuery(@Nullable final String queryString) {
         try {
             final QueryParser queryParser = new QueryParser(Version.LUCENE_44, "contents", LogFileIndex.QUERY_ANALYZER);
+            queryParser.setDefaultOperator(org.apache.lucene.queryparser.classic.QueryParser.Operator.AND);
             return queryParser.parse(QueryParser.escape(queryString));
         } catch (ParseException e) {
             throw new IllegalArgumentException(e);

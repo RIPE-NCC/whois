@@ -109,6 +109,14 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
     }
 
     @Test
+    public void multiple_terms() throws Exception {
+        addToIndex(LogFileHelper.createLogFile(logDirectory, "the quick brown fox"));
+
+        assertThat(getUpdates("quick fox"), containsString("Found 1 update log(s)"));
+        assertThat(getUpdates("quick fox"), containsString("the quick brown fox"));
+    }
+
+    @Test
     public void single_term_inetnum_with_prefix_length() throws Exception {
         addToIndex(LogFileHelper.createLogFile(logDirectory, "inetnum: 10.0.0.0/24"));
 
