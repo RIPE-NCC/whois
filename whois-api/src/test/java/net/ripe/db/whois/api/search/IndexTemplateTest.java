@@ -37,9 +37,9 @@ public class IndexTemplateTest {
 
     @Before
     public void setUp() throws Exception {
-        analyzer = new WhitespaceAnalyzer(Version.LUCENE_41);
+        analyzer = new WhitespaceAnalyzer(Version.LUCENE_44);
 
-        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_41, analyzer);
+        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_44, analyzer);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         subject = new IndexTemplate(folder.getRoot().getAbsolutePath(), config);
     }
@@ -63,7 +63,7 @@ public class IndexTemplateTest {
             }
         });
 
-        final Query query = new QueryParser(Version.LUCENE_41, "title", analyzer).parse("Lucene");
+        final Query query = new QueryParser(Version.LUCENE_44, "title", analyzer).parse("Lucene");
         subject.search(new IndexTemplate.SearchCallback<Void>() {
             @Override
             public Void search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
@@ -129,7 +129,7 @@ public class IndexTemplateTest {
 
         final CountDownLatch countDownLatch = new CountDownLatch(nrThreads);
         final ExecutorService executorService = Executors.newFixedThreadPool(nrThreads);
-        final Query query = new QueryParser(Version.LUCENE_41, "title", analyzer).parse("title");
+        final Query query = new QueryParser(Version.LUCENE_44, "title", analyzer).parse("title");
         for (int i = 0; i < nrThreads; i++) {
             executorService.submit(new Callable<Void>() {
                 @Override
