@@ -52,6 +52,7 @@ public class ResourceTaggerTest {
         verify(sourceContext).setCurrent(any(Source.class));
         verify(sourceContext).removeCurrentSource();
         verify(tagsDao).updateTags(any(Iterable.class), any(List.class), any(List.class));
+        verify(tagsDao).deleteOrphanedTags();
     }
 
     @Test
