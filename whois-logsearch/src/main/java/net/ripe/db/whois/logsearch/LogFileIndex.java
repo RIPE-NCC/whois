@@ -154,7 +154,7 @@ public class LogFileIndex {
     //
 
     public Set<LoggedUpdate> searchByUpdateId(final String regex) {
-        final Set<LoggedUpdate> loggedUpdates = search(new RegexpQuery(new Term("updateId", regex)), -1);
+        final Set<LoggedUpdate> loggedUpdates = search(new RegexpQuery(new Term("updateId", regex)), 1_000_000);
         LOGGER.debug("Found {} updates matching regex {}", loggedUpdates.size(), regex);
         return loggedUpdates;
     }
