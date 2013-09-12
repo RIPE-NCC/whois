@@ -54,14 +54,12 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
     public static void setupClass() {
         System.setProperty("dir.logsearch.index", indexDirectory.getAbsolutePath());
         System.setProperty("dir.update.audit.log", logDirectory.getAbsolutePath());
-        System.setProperty("logsearch.result.limit", Integer.toString(1000));
     }
 
     @AfterClass
     public static void cleanupClass() {
         System.clearProperty("dir.logsearch.index");
         System.clearProperty("dir.update.audit.log");
-        System.clearProperty("logsearch.result.limit");
     }
 
     @Before
