@@ -12,14 +12,15 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.*;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
-import net.ripe.db.whois.update.domain.*;
-import net.ripe.db.whois.update.handler.UpdateRequestHandler;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.IOException;
@@ -36,8 +36,6 @@ import java.net.InetAddress;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.query.query.QueryFlag.*;
@@ -46,7 +44,7 @@ import static net.ripe.db.whois.query.query.QueryFlag.*;
 @Path("/")
 public class WhoisRestService {
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
-    private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
+
     private static final Joiner JOINER = Joiner.on(",");
     private static final Splitter AMPERSAND = Splitter.on("&");
     private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(Iterables.concat(
@@ -67,22 +65,22 @@ public class WhoisRestService {
     ));
 
     private final DateTimeProvider dateTimeProvider;
-    private final UpdateRequestHandler updateRequestHandler;
     private final LoggerContext loggerContext;
     private final RpslObjectDao rpslObjectDao;
     private final SourceContext sourceContext;
     private final QueryHandler queryHandler;
     private final WhoisObjectMapper whoisObjectMapper;
+    private final InternalUpdatePerformer updatePerformer;
 
     @Autowired
-    public WhoisRestService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler, final WhoisObjectMapper whoisObjectMapper) {
+    public WhoisRestService(final DateTimeProvider dateTimeProvider, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler, final WhoisObjectMapper whoisObjectMapper, final InternalUpdatePerformer updatePerformer) {
         this.dateTimeProvider = dateTimeProvider;
-        this.updateRequestHandler = updateRequestHandler;
         this.loggerContext = loggerContext;
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
         this.whoisObjectMapper = whoisObjectMapper;
+        this.updatePerformer = updatePerformer;
     }
 
     @DELETE
@@ -100,11 +98,12 @@ public class WhoisRestService {
 
         final RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
 
-        performUpdate(
+        updatePerformer.performUpdate(
                 createOrigin(request),
-                createUpdate(originalObject, passwords, reason),
+                updatePerformer.createUpdate(originalObject, passwords, reason),
                 createContent(originalObject, passwords, reason),
-                Keyword.NONE);
+                Keyword.NONE,
+                loggerContext);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -126,11 +125,12 @@ public class WhoisRestService {
         final RpslObject submittedObject = getSubmittedObject(resource);
         validateSubmittedObject(submittedObject, objectType, key);
 
-        final RpslObject response = performUpdate(
+        final RpslObject response = updatePerformer.performUpdate(
                 createOrigin(request),
-                createUpdate(submittedObject, passwords, null),
+                updatePerformer.createUpdate(submittedObject, passwords, null),
                 createContent(submittedObject, passwords, null),
-                Keyword.NONE);
+                Keyword.NONE,
+                loggerContext);
 
         return Response.ok(createWhoisResources(request, response, false)).build();
     }
@@ -150,11 +150,12 @@ public class WhoisRestService {
 
         final RpslObject submittedObject = getSubmittedObject(resource);
 
-        final RpslObject response = performUpdate(
+        final RpslObject response = updatePerformer.performUpdate(
                 createOrigin(request),
-                createUpdate(submittedObject, passwords, null),
+                updatePerformer.createUpdate(submittedObject, passwords, null),
                 createContent(submittedObject, passwords, null),
-                Keyword.NEW);
+                Keyword.NEW,
+                loggerContext);
 
         return Response.ok(createWhoisResources(request, response, false)).build();
     }
@@ -481,34 +482,6 @@ public class WhoisRestService {
         }
     }
 
-    private RpslObject performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword) {
-        loggerContext.init(getRequestId(origin.getFrom()));
-        try {
-            final UpdateContext updateContext = new UpdateContext(loggerContext);
-            final boolean notificationsEnabled = true;
-
-            final UpdateRequest updateRequest = new UpdateRequest(
-                    origin,
-                    keyword,
-                    content,
-                    Lists.newArrayList(update),
-                    notificationsEnabled);
-
-            final UpdateResponse response = updateRequestHandler.handle(updateRequest, updateContext);
-
-            if (updateContext.getStatus(update) == UpdateStatus.FAILED_AUTHENTICATION) {
-                throw new WebApplicationException(getResponse(new UpdateResponse(UpdateStatus.FAILED_AUTHENTICATION, response.getResponse())));
-            }
-            if (response.getStatus() != UpdateStatus.SUCCESS) {
-                throw new WebApplicationException(getResponse(response));
-            }
-
-            return update.getOperation() == Operation.DELETE ? null : rpslObjectDao.getById(updateContext.getUpdateInfo(update).getObjectId());
-        } finally {
-            loggerContext.remove();
-        }
-    }
-
     private String createContent(final RpslObject rpslObject, final List<String> passwords, final String deleteReason) {
         final StringBuilder builder = new StringBuilder();
         builder.append(rpslObject.toString());
@@ -532,23 +505,6 @@ public class WhoisRestService {
         return builder.toString();
     }
 
-    private Update createUpdate(final RpslObject rpslObject, final List<String> passwords, final String deleteReason) {
-        return new Update(
-                createParagraph(rpslObject, passwords),
-                deleteReason != null ? Operation.DELETE : Operation.UNSPECIFIED,
-                deleteReason != null ? Lists.newArrayList(deleteReason) : null,
-                rpslObject);
-    }
-
-    private Paragraph createParagraph(final RpslObject rpslObject, final List<String> passwords) {
-        final Set<PasswordCredential> passwordCredentials = Sets.newHashSet();
-        for (String password : passwords) {
-            passwordCredentials.add(new PasswordCredential(password));
-        }
-
-        return new Paragraph(rpslObject.toString(), new Credentials(passwordCredentials));
-    }
-
     private Origin createOrigin(final HttpServletRequest request) {
         return new WhoisRestApi(dateTimeProvider, request.getRemoteAddr());
     }
@@ -565,53 +521,6 @@ public class WhoisRestService {
             throw new IllegalArgumentException("Expected a single RPSL object");
         }
         return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
-    }
-
-    private Response getResponse(final UpdateResponse updateResponse) {
-        int status;
-        switch (updateResponse.getStatus()) {
-            case FAILED: {
-                status = HttpServletResponse.SC_BAD_REQUEST;
-
-                final String errors = findAllErrors(updateResponse);
-                if (!errors.isEmpty()) {
-                    if (errors.contains("Enforced new keyword specified, but the object already exists")) {
-                        status = HttpServletResponse.SC_CONFLICT;
-                    }
-                    return Response.status(status).entity(errors).build();
-                }
-
-                break;
-            }
-            case EXCEPTION:
-                status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-                break;
-            case FAILED_AUTHENTICATION:
-                status = HttpServletResponse.SC_UNAUTHORIZED;
-                final String errors = findAllErrors(updateResponse);
-                if (!errors.isEmpty()) {
-                    return Response.status(status).entity(errors).build();
-                }
-                break;
-            default:
-                status = HttpServletResponse.SC_OK;
-        }
-
-        return Response.status(status).build();
-    }
-
-    private String getRequestId(final String remoteAddress) {
-        return String.format("rest_%s_%s", remoteAddress, System.nanoTime());
-    }
-
-    private String findAllErrors(final UpdateResponse updateResponse) {
-        final StringBuilder builder = new StringBuilder();
-        final Matcher matcher = UPDATE_RESPONSE_ERRORS.matcher(updateResponse.getResponse());
-        while (matcher.find()) {
-            builder.append(matcher.group(1).replaceAll("[\\n ]+", " "));
-            builder.append('\n');
-        }
-        return builder.toString();
     }
 
     private void validateSubmittedObject(final RpslObject object, final String objectType, final String key) {

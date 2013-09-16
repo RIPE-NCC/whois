@@ -2,9 +2,15 @@ package spec.integration
 
 import com.google.common.collect.Maps
 import net.ripe.db.whois.common.IntegrationTest
+import org.junit.Before
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class AclIntegrationSpec extends BaseWhoisSourceSpec {
+
+    @Before
+    def "setup"() {
+        getDatabaseHelper().insertApiKey("DB-WHOIS-testapikey", "/api/acl/bans", "acl api key");
+    }
 
     @Override
     Map<String, String> getFixtures() {
@@ -15,6 +21,7 @@ class AclIntegrationSpec extends BaseWhoisSourceSpec {
       when:
         def response = saveAcl(
                 "bans",
+                "DB-WHOIS-testapikey",
                 """
                     {
                       "prefix" : "10.1.2.1/32",
@@ -32,6 +39,7 @@ class AclIntegrationSpec extends BaseWhoisSourceSpec {
       when:
         def response = saveAcl(
                 "bans",
+                "DB-WHOIS-testapikey",
                 """
                     {
                       "prefix" : "10.1.2.0/24",

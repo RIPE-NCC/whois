@@ -7,7 +7,6 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.httpserver.Audience;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.junit.Before;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -15,14 +14,17 @@ import java.net.URLEncoder;
 public abstract class AbstractRestClientTest extends AbstractIntegrationTest {
     protected Client client;
 
-    @Value("${api.key}")
-    private String apiKey;
+    protected String apiKey;
 
     @Before
     public void setUpClient() throws Exception {
         ClientConfig cc = new DefaultClientConfig();
         cc.getClasses().add(JacksonJaxbJsonProvider.class);
         client = Client.create(cc);
+    }
+
+    protected void setApiKey(final String apiKey) {
+        this.apiKey = apiKey;
     }
 
     protected WebResource createStaticResource(final Audience audience, final String path) {

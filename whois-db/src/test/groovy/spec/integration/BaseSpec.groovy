@@ -53,8 +53,8 @@ abstract class BaseSpec extends Specification {
         response
     }
 
-    String saveAcl(String path, String data, final int responseCode) {
-        whoisFixture.aclPost(path, data, responseCode)
+    String saveAcl(String path, String apiKey, String data, final int responseCode) {
+        whoisFixture.aclPost(path, apiKey, data, responseCode)
     }
 
     def noMoreMessages() {

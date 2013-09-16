@@ -1,11 +1,11 @@
-package net.ripe.db.whois.scheduler;
+package net.ripe.db.whois.api.whois;
 
 import net.ripe.db.whois.update.domain.Origin;
 
-public class MaintenanceJob implements Origin {
+public class InternalJob implements Origin {
     private final String id;
 
-    public MaintenanceJob(final String id) {
+    public InternalJob(final String id) {
         this.id = id;
     }
 
@@ -46,6 +46,6 @@ public class MaintenanceJob implements Origin {
 
     @Override
     public String toString() {
-        return "MaintenanceJob(" + getId() + ")";
+        return "InternalJob(" + getId() + ")";
     }
 }

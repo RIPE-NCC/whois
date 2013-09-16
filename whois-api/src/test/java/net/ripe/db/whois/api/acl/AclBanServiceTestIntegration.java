@@ -28,6 +28,8 @@ public class AclBanServiceTestIntegration extends AbstractRestClientTest {
     @Before
     public void setUp() throws Exception {
         databaseHelper.insertAclIpDenied("10.0.0.0/32");
+        databaseHelper.insertApiKey("DB-WHOIS-testapikey", "/api/acl", "acl api key");
+        setApiKey("DB-WHOIS-testapikey");
     }
 
     @Test

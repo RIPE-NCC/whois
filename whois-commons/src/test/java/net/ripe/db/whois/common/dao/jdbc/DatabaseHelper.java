@@ -389,6 +389,12 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         );
     }
 
+    public void insertApiKey(final String apiKey, final String uri, final String comment) {
+        aclTemplate.update(
+                "INSERT INTO apikeys (apikey, uri_prefix, comment) VALUES(?, ?, ?)",
+                apiKey, uri, comment);
+    }
+
     public void insertUser(final User user) {
         aclTemplate.update(
                 "INSERT INTO override_users (username, password, objecttypes, last_changed) VALUES (?, ?, ?, ?)",
