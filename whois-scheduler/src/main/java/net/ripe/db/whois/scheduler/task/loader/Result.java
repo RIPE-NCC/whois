@@ -1,18 +1,16 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
 public class Result {
-    private int success = 0, fail = 0;
-    private final StringBuilder text = new StringBuilder();
+    private volatile int success = 0, fail = 0;
+    private final StringBuffer text = new StringBuffer();
 
-    public void addSuccess(int pass) {
-        if (pass > 1) success++;
+    public void addSuccess() {
+        success++;
     }
 
-    public void addFail(int pass, String reason) {
-        if (pass > 1) {
-            fail++;
-            text.append(reason);
-        }
+    public void addFail(String reason) {
+        text.append(reason);
+        fail++;
     }
 
     public int getSuccess() {
