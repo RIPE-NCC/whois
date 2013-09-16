@@ -46,7 +46,7 @@ class ResourceTagger {
             sourceContext.setCurrent(Source.master(grsSource.getName()));
             tagObjectsInContext(grsSource);
 
-            if (grsSource instanceof RipeGrsSource) {
+            if (sourceContext.isTagRoutes()) {
                 tagRouteObjectsInContext(grsSource);
             }
 
