@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
 import java.util.Set;
@@ -810,4 +809,68 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         assertThat(response, containsString("81.80.117.0/24"));
     }
 
+    @Test
+    public void validSyntax_missing_attribute() {
+        databaseHelper.addObject("" +
+                "mntner:      DEL-MNT\n" +
+                "descr:       MNTNER for test\n" +
+                "descr:       object not identical to one above\n" +
+                "admin-c:     ADM-TEST\n" +
+                "upd-to:      dbtest@ripe.net\n" +
+                "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
+                "referral-by: DEL-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST");
+
+        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+
+        assertThat(result, containsString("% 'DEL-MNT' invalid syntax"));
+    }
+
+    @Test
+    public void validSyntax_incorrect_attribute() {
+        databaseHelper.addObject("" +
+                "mntner:      DEL-MNT\n" +
+                "descr:       MNTNER for test\n" +
+                "descr:       object not identical to one above\n" +
+                "admin-c:     ADM-TEST\n" +
+                "upd-to:      dbtest_at_ripe.net\n" +
+                "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
+                "referral-by: DEL-MNT\n" +
+                "mnt-by:      DEL-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST");
+
+        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+
+        assertThat(result, containsString("% 'DEL-MNT' invalid syntax"));
+    }
+
+    @Test
+    public void validSyntax_correct_syntax() {
+        databaseHelper.addObject("" +
+                "mntner:      DEL-MNT\n" +
+                "descr:       MNTNER for test\n" +
+                "descr:       object not identical to one above\n" +
+                "admin-c:     ADM-TEST\n" +
+                "upd-to:      dbtest@ripe.net\n" +
+                "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
+                "referral-by: DEL-MNT\n" +
+                "mnt-by:      DEL-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST");
+
+        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+
+        assertThat(result, not(containsString("% 'DEL-MNT' invalid syntax")));
+    }
+
+    @Test
+    public void validSyntax_wrong_queryflag_combination() {
+        final String wrongFlag1 = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --show-version 1 ADM-TEST");
+        assertThat(wrongFlag1, containsString("The flags \"--valid-syntax\" and \"--show-version\" cannot be used together."));
+
+        final String wrongFlag2 = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --list-versions 1 ADM-TEST");
+        assertThat(wrongFlag2, containsString("The flags \"--valid-syntax\" and \"--list-versions\" cannot be used together."));
+    }
 }

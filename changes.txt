@@ -1,4 +1,7 @@
 ## next
+[query] added support for --valid-syntax
+[api] added abuse contact creation "for dummies" rest call
+[api] added table 'apikeys' to acl schema
 [all] removed useless thread_id, prev_serial, serial fields from SQL schema
 [all] remove leftover wsearch.* from properties file
 
