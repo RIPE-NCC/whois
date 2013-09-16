@@ -24,8 +24,12 @@ public final class CollectionHelper {
     }
 
     // TODO: [AH] result is wrapped by 2 iterable wrappers in this method - optimize!
-    public static Iterable<ResponseObject> iterateProxy(final ProxyLoader<Identifiable, RpslObject> rpslObjectLoader, final Iterable<? extends Identifiable> identifiables) {
-        final ProxyIterable<Identifiable, ? extends ResponseObject> rpslObjects = new ProxyIterable<>((Iterable<Identifiable>) identifiables, rpslObjectLoader, 100);
-        return (Iterable<ResponseObject>) Iterables.filter(rpslObjects, Predicates.notNull());
+    public static Iterable<ResponseObject> iterateProxy(
+            final ProxyLoader<Identifiable,
+                    RpslObject> rpslObjectLoader,
+            final Iterable<? extends Identifiable> identifiables) {
+        final ProxyIterable<Identifiable, ? extends ResponseObject> rpslObjects =
+                new ProxyIterable<>((Iterable<Identifiable>) identifiables, rpslObjectLoader, 100);
+        return Iterables.filter((Iterable<ResponseObject>)rpslObjects, Predicates.notNull());
     }
 }
