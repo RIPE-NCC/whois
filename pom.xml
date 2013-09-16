@@ -523,6 +523,11 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <compilerArgs>
+                        <arg>-Xlint</arg>
+                    </compilerArgs>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
             <plugin>
@@ -644,10 +649,11 @@
                     <showWeaveInfo>false</showWeaveInfo>
                     <source>${compiler.version}</source>
                     <target>${compiler.version}</target>
-                    <Xlint>ignore</Xlint>
+                    <Xlint>warning</Xlint>
                     <complianceLevel>${compiler.version}</complianceLevel>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <verbose>false</verbose>
+                    <warn>true</warn>
                     <aspectLibraries>
                         <aspectLibrary>
                             <groupId>org.springframework</groupId>
