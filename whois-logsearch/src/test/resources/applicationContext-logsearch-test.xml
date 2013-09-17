@@ -19,7 +19,27 @@
             <bean class="net.ripe.db.whois.common.domain.IpRanges" />
         </constructor-arg>
     </bean>
+
+    <bean class="net.ripe.db.whois.api.abusec.JdbcApiKeyDao"/>
     <bean class="net.ripe.db.whois.api.acl.ApiKeyFilter"/>
     <bean class="net.ripe.db.whois.api.DefaultExceptionMapper" />
     <bean class="net.ripe.db.whois.common.TestDateTimeProvider" />
+
+    <!--datasource bean definitions copied from applicationContext-common.xml-->
+
+    <bean id="abstractDataSource" abstract="true" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+          destroy-method="close">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"/>
+        <property name="minPoolSize" value="0"/>
+        <property name="maxPoolSize" value="20"/>
+        <property name="maxIdleTime" value="7200"/>
+        <property name="preferredTestQuery" value="SELECT 1"/>
+        <property name="idleConnectionTestPeriod" value="15"/>
+    </bean>
+
+    <bean id="aclDataSource" parent="abstractDataSource">
+        <property name="jdbcUrl" value="${acl.database.url}"/>
+        <property name="user" value="${acl.database.username}"/>
+        <property name="password" value="${acl.database.password}"/>
+    </bean>
 </beans>

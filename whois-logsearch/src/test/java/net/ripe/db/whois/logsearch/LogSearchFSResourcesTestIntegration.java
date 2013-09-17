@@ -10,7 +10,6 @@ import org.joda.time.LocalDate;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
@@ -38,9 +37,6 @@ public class LogSearchFSResourcesTestIntegration extends AbstractJUnit4SpringCon
     private LogFileIndex logFileIndex;
 
     private static File indexDirectory = Files.createTempDir();
-
-    @Value("${api.key}")
-    private String apiKey;
 
     @BeforeClass
     public static void setupClass() throws IOException {

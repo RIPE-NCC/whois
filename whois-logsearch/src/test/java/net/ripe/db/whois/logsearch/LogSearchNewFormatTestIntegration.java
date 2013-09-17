@@ -8,18 +8,15 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.logsearch.bootstrap.LogSearchJettyBootstrap;
 import net.ripe.db.whois.logsearch.bootstrap.LogSearchJettyConfig;
 import org.joda.time.LocalDate;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -42,18 +39,21 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
     @Autowired
     private LogFileIndex logFileIndex;
 
+    @Autowired
+    private DataSource dataSource;
+
     private Client client;
 
     private static File indexDirectory = Files.createTempDir();
     private static File logDirectory = Files.createTempDir();
-
-    @Value("${api.key}")
-    private String apiKey;
+    private static final String API_KEY = "DB-WHOIS-logsearchtestapikey";
 
     @BeforeClass
     public static void setupClass() {
         System.setProperty("dir.logsearch.index", indexDirectory.getAbsolutePath());
         System.setProperty("dir.update.audit.log", logDirectory.getAbsolutePath());
+
+        LogsearchTestHelper.setupDatabase(new JdbcTemplate(LogsearchTestHelper.createDataSource("")), "acl.database", "ACL", "acl_schema.sql");
     }
 
     @AfterClass
@@ -67,6 +67,8 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
         LogFileHelper.createLogDirectory(logDirectory);
         logSearchJettyBootstrap.start();
         client = Client.create(new DefaultClientConfig());
+
+        LogsearchTestHelper.insertApiKey(API_KEY, dataSource);
     }
 
     @After
@@ -420,19 +422,19 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
 
     private String getUpdates(final String searchTerm) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs?search=%s&fromdate=&todate=&apiKey=%s", logSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), apiKey))
+                .resource(String.format("http://localhost:%s/api/logs?search=%s&fromdate=&todate=&apiKey=%s", logSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), API_KEY))
                 .get(String.class);
     }
 
     private String getUpdates(final String searchTerm, final String date) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs?search=%s&fromdate=%s&apiKey=%s", logSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, apiKey))
+                .resource(String.format("http://localhost:%s/api/logs?search=%s&fromdate=%s&apiKey=%s", logSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, API_KEY))
                 .get(String.class);
     }
 
     private String getUpdates(final String searchTerm, final String fromDate, final String toDate) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs?search=%s&fromdate=%s&todate=%s&apiKey=%s", logSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), fromDate, toDate, apiKey))
+                .resource(String.format("http://localhost:%s/api/logs?search=%s&fromdate=%s&todate=%s&apiKey=%s", logSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), fromDate, toDate, API_KEY))
                 .get(String.class);
     }
 

@@ -1,7 +1,6 @@
 package net.ripe.db.whois.logsearch.api;
 
 import com.google.common.base.Charsets;
-import net.ripe.db.whois.common.domain.Hosts;
 import net.ripe.db.whois.logsearch.LogFileSearch;
 import net.ripe.db.whois.logsearch.logformat.LoggedUpdate;
 import org.apache.commons.lang.StringUtils;
@@ -14,20 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.util.Set;
 
 /**
@@ -40,7 +30,6 @@ public class LogSearchService {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
 
-    private final Hosts host = Hosts.getLocalHost();
     private final LogFileSearch logFileSearch;
 
     @Autowired
