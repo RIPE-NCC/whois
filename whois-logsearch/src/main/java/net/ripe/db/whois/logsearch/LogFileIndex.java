@@ -42,8 +42,8 @@ public class LogFileIndex {
 
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
 
-    private static final Analyzer INDEX_ANALYZER = new LogFileAnalyzer(Version.LUCENE_44);
-    private static final Analyzer QUERY_ANALYZER = new LogSearchQueryAnalyzer(Version.LUCENE_44);
+    private static final Analyzer INDEX_ANALYZER = new LogFileAnalyzer(Version.LUCENE_41);
+    private static final Analyzer QUERY_ANALYZER = new LogSearchQueryAnalyzer(Version.LUCENE_41);
     private static final Sort SORT_BY_DATE = new Sort(new SortField("date", SortField.Type.STRING, true));
     private static final double INDEX_WRITER_RAM_BUFFER_SIZE = 16d;
 
@@ -84,7 +84,7 @@ public class LogFileIndex {
             @Value("${logsearch.result.limit:-1}") final int resultLimit) {
 
         try {
-            final IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_44, INDEX_ANALYZER);
+            final IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_41, INDEX_ANALYZER);                  // TODO: update to LUCENE_44 (will need to re-generate index).
             config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
             config.setRAMBufferSizeMB(INDEX_WRITER_RAM_BUFFER_SIZE);
             index = new IndexTemplate(indexDir, config);
@@ -229,7 +229,7 @@ public class LogFileIndex {
 
     private Query createContentQuery(@Nullable final String queryString) {
         try {
-            final QueryParser queryParser = new QueryParser(Version.LUCENE_44, "contents", LogFileIndex.QUERY_ANALYZER);
+            final QueryParser queryParser = new QueryParser(Version.LUCENE_41, "contents", LogFileIndex.QUERY_ANALYZER);
             queryParser.setDefaultOperator(org.apache.lucene.queryparser.classic.QueryParser.Operator.AND);
             return queryParser.parse(QueryParser.escape(queryString));
         } catch (ParseException e) {
