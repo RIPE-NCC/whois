@@ -89,6 +89,16 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
     }
 
     @Test
+    public void single_term_multiple_matches() throws Exception {
+        addToIndex(LogFileHelper.createLogFile(logDirectory, "inetnum: 10.0.0.0/24"));
+        addToIndex(LogFileHelper.createLogFile(logDirectory, "inetnum: 10.0.0.0/24"));
+        addToIndex(LogFileHelper.createLogFile(logDirectory, "inetnum: 10.0.0.0/24"));
+
+        assertThat(getUpdates("inetnum"), containsString("Found 3 update log(s)"));
+    }
+
+
+    @Test
     public void no_results() throws Exception {
         assertThat(getUpdates("quick"), containsString("Found 0 update log(s)"));
     }
@@ -442,12 +452,12 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
 
     private void addToIndex(final File file) throws IOException {
         if (file.isDirectory()) {
-            newLogFormatProcessor.update();
+            newLogFormatProcessor.incrementalUpdate();
         } else {
             if (file.getAbsolutePath().endsWith(".tar")) {
                 newLogFormatProcessor.addFileToIndex(file.getAbsolutePath());
             } else {
-                newLogFormatProcessor.update();
+                newLogFormatProcessor.incrementalUpdate();
             }
         }
     }

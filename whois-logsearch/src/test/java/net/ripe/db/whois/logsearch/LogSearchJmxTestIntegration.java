@@ -77,12 +77,12 @@ public class LogSearchJmxTestIntegration extends AbstractJUnit4SpringContextTest
 
     private void addToIndex(final File file) throws IOException {
         if (file.isDirectory()) {
-            newLogFormatProcessor.update();
+            newLogFormatProcessor.incrementalUpdate();
         } else {
             if (file.getAbsolutePath().endsWith(".tar")) {
                 newLogFormatProcessor.addFileToIndex(file.getAbsolutePath());
             } else {
-                newLogFormatProcessor.update();
+                newLogFormatProcessor.incrementalUpdate();
             }
         }
     }

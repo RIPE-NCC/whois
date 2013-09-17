@@ -144,7 +144,6 @@ public class LogFileIndex {
             @Override
             public void write(IndexWriter indexWriter, TaxonomyWriter taxonomyWriter) throws IOException {
                 indexWriter.deleteAll();
-                indexWriter.getCommitData().clear();
             }
         });
     }

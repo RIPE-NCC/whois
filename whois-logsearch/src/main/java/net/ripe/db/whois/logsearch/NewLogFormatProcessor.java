@@ -1,9 +1,12 @@
 package net.ripe.db.whois.logsearch;
 
-import com.google.common.collect.Maps;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.search.IndexTemplate;
 import net.ripe.db.whois.logsearch.logformat.DailyLogEntry;
 import net.ripe.db.whois.logsearch.logformat.DailyLogFolder;
+import net.ripe.db.whois.logsearch.logformat.LoggedUpdate;
 import net.ripe.db.whois.logsearch.logformat.TarredLogEntry;
 import net.ripe.db.whois.logsearch.logformat.TarredLogFile;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
@@ -19,9 +22,14 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @Component
@@ -73,25 +81,21 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
         });
     }
 
-    private void indexDailyLogFolder(DailyLogFolder dailyLogFolder, final IndexWriter indexWriter) {
-        dailyLogFolder.processLoggedFiles(new LoggedUpdateProcessor<DailyLogEntry>() {
-            @Override
-            public boolean accept(DailyLogEntry dailyLogEntry) {
-                return INDEXED_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches();
-            }
-
-            @Override
-            public void process(DailyLogEntry dailyLogEntry, String contents) {
-                LogFileIndex.addToIndex(dailyLogEntry, contents, indexWriter);
-            }
-        });
-    }
-
     public void addDailyLogFolderToIndex(final String path) throws IOException {
         logFileIndex.update(new IndexTemplate.WriteCallback() {
             @Override
             public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                indexDailyLogFolder(new DailyLogFolder(Paths.get(path)), indexWriter);
+                new DailyLogFolder(Paths.get(path)).processLoggedFiles(new LoggedUpdateProcessor<DailyLogEntry>() {
+                    @Override
+                    public boolean accept(DailyLogEntry dailyLogEntry) {
+                        return INDEXED_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches();
+                    }
+
+                    @Override
+                    public void process(DailyLogEntry dailyLogEntry, String contents) {
+                        LogFileIndex.addToIndex(dailyLogEntry, contents, indexWriter);
+                    }
+                });
             }
         });
     }
@@ -133,28 +137,41 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
         }
     }
 
-    // scheduled incremental update
     @Scheduled(fixedDelay = 60 * 1000)
-    public void update() {
+    public void incrementalUpdate() {
         logFileIndex.update(new IndexTemplate.WriteCallback() {
             @Override
             public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                final long updateFrom = readLastUpdatedFromIndex(indexWriter);
-                final long updateTo = System.currentTimeMillis();
-                final String todaysFolder = LogFileIndex.DATE_FORMATTER.print(updateTo);
+                final Set<String> todaysIndexedFiles = Sets.newHashSet(Iterables.transform(logFileIndex.searchByDate(LocalDate.now()), new Function<LoggedUpdate, String>() {
+                    @Override
+                    public String apply(final LoggedUpdate input) {
+                        return input.getUpdateId();
+                    }
+                }));
 
+                final String todaysFolder = LogFileIndex.DATE_FORMATTER.print(LocalDate.now());
                 Files.walkFileTree(Paths.get(logDirectory), new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
                         if (dir.getFileName().toString().equals(todaysFolder)) {
-                            indexDailyLogFolder(new DailyLogFolder(dir, updateFrom, updateTo), indexWriter);
+                            new DailyLogFolder(dir).processLoggedFiles(new LoggedUpdateProcessor<DailyLogEntry>() {
+                                @Override
+                                public boolean accept(DailyLogEntry dailyLogEntry) {
+                                    return INDEXED_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches() &&
+                                            !todaysIndexedFiles.contains(dailyLogEntry.getUpdateId());
+                                }
+
+                                @Override
+                                public void process(DailyLogEntry dailyLogEntry, String contents) {
+                                    LogFileIndex.addToIndex(dailyLogEntry, contents, indexWriter);
+                                }
+                            });
+
                             return FileVisitResult.SKIP_SUBTREE;
                         }
                         return FileVisitResult.CONTINUE;
                     }
                 });
-
-                writeLastUpdatedToIndex(indexWriter, updateTo);
             }
         });
     }
@@ -194,16 +211,5 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                 LOGGER.warn(e.getMessage());
             }
         }
-    }
-
-    private long readLastUpdatedFromIndex(final IndexWriter indexWriter) {
-        final Map<String, String> commitData = indexWriter.getCommitData();
-        return commitData.containsKey("lastUpdated") ? Long.parseLong(commitData.get("lastUpdated")) : 0;
-    }
-
-    private void writeLastUpdatedToIndex(final IndexWriter indexWriter, final long lastUpdated) {
-        final Map<String, String> metadata = Maps.newHashMap();
-        metadata.put("lastUpdated", Long.toString(lastUpdated));
-        indexWriter.setCommitData(metadata);
     }
 }

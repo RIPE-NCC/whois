@@ -22,14 +22,8 @@ public class DailyLogFolder extends LogSource {
     private final Path dailyLogFolder;
     private final String path;
     private final String date;
-    private final long updateFrom;
-    private final long updateTo;
 
     public DailyLogFolder(final Path dailyLogFolder) {
-        this(dailyLogFolder, Long.MIN_VALUE, Long.MAX_VALUE);
-    }
-
-    public DailyLogFolder(final Path dailyLogFolder, long updateFrom, long updateTo) {
         final Matcher folderNameMatcher = DAILY_LOG_FOLDER_PATTERN.matcher(dailyLogFolder.toString());
         if (!folderNameMatcher.matches()) {
             throw new IllegalArgumentException("Invalid dailyLogFolder: " + dailyLogFolder + " (should match pattern '" + DAILY_LOG_FOLDER_PATTERN.pattern() + "')");
@@ -43,8 +37,6 @@ public class DailyLogFolder extends LogSource {
 
         this.dailyLogFolder = dailyLogFolder;
         this.path = dailyLogFolder.toAbsolutePath().toString();
-        this.updateFrom = updateFrom;
-        this.updateTo = updateTo;
     }
 
     public void processLoggedFiles(final LoggedUpdateProcessor loggedUpdateProcessor) {
@@ -52,8 +44,7 @@ public class DailyLogFolder extends LogSource {
             @Override
             public boolean accept(Path entry) throws IOException {
                 if (Files.isDirectory(entry) && UPDATE_LOG_FOLDER_PATTERN.matcher(entry.toString()).matches()) {
-                    final long lastModifiedTime = Files.getLastModifiedTime(entry).toMillis();
-                    return lastModifiedTime >= updateFrom && lastModifiedTime < updateTo;
+                    return true;
                 }
                 return false;
             }
