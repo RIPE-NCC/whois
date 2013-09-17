@@ -26,7 +26,7 @@ public class LogSearchServer {
         final Stopwatch stopwatch = new Stopwatch().start();
         WhoisProfile.setDeployed();
 
-        final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("applicationContext-logsearch.xml");
+        final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("applicationContext-logsearch-base.xml", "applicationContext-logsearch.xml");
 
         final LogSearchServer logSearchServer = applicationContext.getBean(LogSearchServer.class);
         Runtime.getRuntime().addShutdownHook(new Thread() {

@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.containsString;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(locations = {"classpath:applicationContext-logsearch-test.xml"})
+@ContextConfiguration(locations = {"classpath:applicationContext-logsearch-base.xml", "classpath:applicationContext-logsearch-test.xml"})
 public class LogSearchLegacyFormatTestIntegration extends AbstractJUnit4SpringContextTests {
     @Autowired
     private LogSearchJettyBootstrap logSearchJettyBootstrap;
