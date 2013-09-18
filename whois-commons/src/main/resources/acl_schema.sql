@@ -123,6 +123,20 @@ CREATE TABLE `override_users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `apikeys`
+--
+
+DROP TABLE IF EXISTS `apikeys`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `apikeys` (
+  `apikey` varchar(128) NOT NULL,
+  `uri_prefix` varchar(128) NOT NULL,
+  `comment` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `version`
 --
 

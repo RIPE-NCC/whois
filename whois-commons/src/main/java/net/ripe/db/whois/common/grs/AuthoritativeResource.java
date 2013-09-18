@@ -58,7 +58,7 @@ public class AuthoritativeResource {
     private static AuthoritativeResource load(final Logger logger, final String name, final Scanner scanner) {
         scanner.useDelimiter("\n");
 
-        final Set<String> allowedStatus = Sets.newHashSet("allocated", "assigned");
+        final Set<String> allowedStatus = Sets.newHashSet("allocated", "assigned", "available", "reserved");
         final Pattern linePattern = Pattern.compile("^([a-zA-Z]+)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)(?:\\|.*|$)");
 
         return new Callable<AuthoritativeResource>() {

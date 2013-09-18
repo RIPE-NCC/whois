@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class ParagraphParser {
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("(?im)^password:\\s*(.*)\\s*");
     private static final Pattern OVERRIDE_PATTERN = Pattern.compile("(?im)^override:\\s*(.*)\\s*");
-    private static final Pattern DRY_RUN_PATTERN = Pattern.compile("(?im)^dry-run:\\s*(.*)\\s*");
+    private static final Pattern DRY_RUN_PATTERN = Pattern.compile("(?im)^dry-run:(.*)\n*");
 
     private static final Splitter CONTENT_SPLITTER = Splitter.on(Pattern.compile("\\n[ \\t]*\\n")).omitEmptyStrings();
 

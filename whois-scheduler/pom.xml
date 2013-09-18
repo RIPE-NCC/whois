@@ -3,12 +3,12 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.67.5-SNAPSHOT</version>
+        <version>1.69.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>whois-scheduler</artifactId>
-    <version>1.67.5-SNAPSHOT</version>
+    <version>1.69.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -19,10 +19,6 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-update</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-nrtm</artifactId>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>

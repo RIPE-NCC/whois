@@ -129,28 +129,28 @@ public class QueryTest {
     public void match_operations_default_inetnum() {
         parse("-T inetnum 10.0.0.0");
 
-        assertThat(subject.matchOperations(), hasSize(0));
+        assertNull(subject.matchOperation());
     }
 
     @Test
     public void match_operations_default_inet6num() {
         parse("-T inet6num ::0/0");
 
-        assertThat(subject.matchOperations(), hasSize(0));
+        assertNull(subject.matchOperation());
     }
 
     @Test
     public void match_operations_no_default_for_maintainer() {
         parse("-T mntner foo");
 
-        assertThat(subject.matchOperations(), hasSize(0));
+        assertNull(subject.matchOperation());
     }
 
     @Test
     public void match_operations_empty() {
         parse("foo");
 
-        assertThat(subject.matchOperations(), hasSize(0));
+        assertNull(subject.matchOperation());
     }
 
     @Test
@@ -224,12 +224,16 @@ public class QueryTest {
         parse("-T aut-num,iNet6nUM,iNETnUm foo");
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INET6NUM));
-        assertTrue(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertFalse(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
     }
 
     @Test
     public void multiple_types_with_empty_element() {
         parse("-T aut-num,,iNETnUm foo");
+        assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
+        assertFalse(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+
+        parse("-T aut-num,,iNETnUm as112");
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
         assertTrue(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
     }
@@ -238,8 +242,8 @@ public class QueryTest {
     public void short_types_casing() {
         parse("-T in,rT,An foo");
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
-        assertTrue(subject.hasObjectTypeFilter(ObjectType.ROUTE));
-        assertTrue(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertFalse(subject.hasObjectTypeFilter(ObjectType.ROUTE));
+        assertFalse(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
     }
 
     @Test
@@ -387,7 +391,7 @@ public class QueryTest {
         assertThat(query.isInverse(), is(true));
         assertThat(query.getAttributeTypes(), containsInAnyOrder(AttributeType.MNT_BY));
         assertThat(query.getSearchValue(), is("aardvark-mnt"));
-        assertThat(query.matchOperations(), hasSize(0));
+        assertNull(query.matchOperation());
     }
 
     @Test
@@ -397,7 +401,7 @@ public class QueryTest {
         assertThat(query.isInverse(), is(true));
         assertThat(query.getAttributeTypes(), containsInAnyOrder(AttributeType.MNT_BY));
         assertThat(query.getSearchValue(), is("aardvark-mnt"));
-        assertThat(query.matchOperations(), hasSize(0));
+        assertNull(query.matchOperation());
     }
 
     @Test
@@ -783,7 +787,7 @@ public class QueryTest {
             Query.parse("...");
             fail("Expected exception");
         } catch (QueryException e) {
-            assertThat(e.getMessages(), contains(QueryMessages.unsupportedQuery()));
+            assertThat(e.getMessages(), contains(QueryMessages.invalidSearchKey()));
         }
     }
 
@@ -929,10 +933,7 @@ public class QueryTest {
         final Query query = Query.parse("--resource 10.0.0.0");
         assertThat(query.getObjectTypes(), contains(
                 ObjectType.INETNUM,
-                ObjectType.INET6NUM,
-                ObjectType.AUT_NUM,
                 ObjectType.ROUTE,
-                ObjectType.ROUTE6,
                 ObjectType.DOMAIN));
     }
 
@@ -940,6 +941,12 @@ public class QueryTest {
     public void grs_search_types_specified_single() {
         final Query query = Query.parse("--resource -Tinetnum 10.0.0.0");
         assertThat(query.getObjectTypes(), contains(ObjectType.INETNUM));
+    }
+
+    @Test
+    public void inverse_query_should_not_filter_object_types() {
+        final Query query = Query.parse("-i nic-hdl 10.0.0.1");
+        assertThat(query.getObjectTypes(), hasSize(21));
     }
 
     @Test

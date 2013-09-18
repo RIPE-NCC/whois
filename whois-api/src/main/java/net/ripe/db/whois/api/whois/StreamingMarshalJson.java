@@ -26,10 +26,11 @@ class StreamingMarshalJson implements StreamingMarshal {
     protected JsonGenerator generator;
 
     @Override
-    public void open(final OutputStream outputStream) {
+    public void open(final OutputStream outputStream, String ignore) {
         try {
             generator = jsonFactory.createJsonGenerator(outputStream);
             generator.writeStartObject();
+            // json document has a natural root, ignore arg
         } catch (IOException e) {
             throw new StreamingException(e);
         }

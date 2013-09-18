@@ -4,6 +4,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.api.whois.InternalJob;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -12,7 +13,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.DailyScheduledTask;
-import net.ripe.db.whois.scheduler.MaintenanceJob;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.response.ResponseFactory;
@@ -83,7 +83,7 @@ public class PendingUpdatesCleanup implements DailyScheduledTask {
     private void logUpdateAndSendNotifications(final PendingUpdate pendingUpdate) {
         loggerContext.init(String.format("%s_%d", ID, pendingUpdate.getId()));
         try {
-            final Origin origin = new MaintenanceJob(ID);
+            final Origin origin = new InternalJob(ID);
             final RpslObject rpslObject = pendingUpdate.getObject();
             final String updateMessage = rpslObject.toString();
             final Update update = new Update(new Paragraph(updateMessage), Operation.UNSPECIFIED, Lists.<String>newArrayList(), rpslObject);

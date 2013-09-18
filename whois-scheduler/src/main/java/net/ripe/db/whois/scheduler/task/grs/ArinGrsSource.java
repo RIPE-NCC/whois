@@ -42,6 +42,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 @Component
 class ArinGrsSource extends GrsSource {
     private static final Pattern IPV6_SPLIT_PATTERN = Pattern.compile("(?i)([0-9a-f:]*)\\s*-\\s*([0-9a-f:]*)\\s*");
+    private static final Pattern AS_NUMBER_RANGE = Pattern.compile("^(\\d+) [-] (\\d+)$");
 
     private final String download;
     private final String zipEntryName;
@@ -87,11 +88,39 @@ class ArinGrsSource extends GrsSource {
                         return;
                     }
 
-                    final String rpslObjectString = Joiner.on("").join(lines);
-                    RpslObjectBuilder rpslObjectBuilder = new RpslObjectBuilder(rpslObjectString);
+                    final RpslObjectBuilder rpslObjectBuilder = new RpslObjectBuilder(Joiner.on("").join(lines));
+                    for (RpslObject next : expand(rpslObjectBuilder.getAttributes())) {
+                        handler.handle(next);
+                    }
+                }
 
+                private List<RpslObject> expand(final List<RpslAttribute> attributes) {
+                    if (attributes.get(0).getKey().equals("ashandle")) {
+                        final String asnumber = findAttributeValue(attributes, "asnumber");
+                        if (asnumber != null) {
+                            final Matcher rangeMatcher = AS_NUMBER_RANGE.matcher(asnumber);
+                            if (rangeMatcher.find()) {
+                                final List<RpslObject> objects = Lists.newArrayList();
+
+                                final int begin = Integer.parseInt(rangeMatcher.group(1));
+                                final int end = Integer.parseInt(rangeMatcher.group(2));
+
+                                for (int index = begin; index <= end; index++) {
+                                    attributes.set(0, new RpslAttribute(AttributeType.AUT_NUM, String.format("AS%d", index)));
+                                    objects.add(new RpslObject(transform(attributes)));
+                                }
+
+                                return objects;
+                            }
+                        }
+                    }
+
+                    return Lists.newArrayList(new RpslObject(transform(attributes)));
+                }
+
+                private List<RpslAttribute> transform(final List<RpslAttribute> attributes) {
                     final List<RpslAttribute> newAttributes = Lists.newArrayList();
-                    for (RpslAttribute attribute : rpslObjectBuilder.getAttributes()) {
+                    for (RpslAttribute attribute : attributes) {
                         final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
                         if (transformFunction != null) {
                             attribute = transformFunction.apply(attribute);
@@ -107,7 +136,17 @@ class ArinGrsSource extends GrsSource {
                         }
                     }
 
-                    handler.handle(new RpslObject(newAttributes));
+                    return newAttributes;
+                }
+
+                @Nullable
+                private String findAttributeValue(final List<RpslAttribute> attributes, final String key) {
+                    for (RpslAttribute attribute : attributes) {
+                        if (attribute.getKey().equals(key)) {
+                            return attribute.getCleanValue().toString();
+                        }
+                    }
+                    return null;
                 }
             });
         } finally {

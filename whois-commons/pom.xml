@@ -4,12 +4,12 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.67.5-SNAPSHOT</version>
+        <version>1.69.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>whois-commons</artifactId>
-    <version>1.67.5-SNAPSHOT</version>
+    <version>1.69.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -102,6 +102,12 @@
             <groupId>com.googlecode.java-diff-utils</groupId>
             <artifactId>diffutils</artifactId>
         </dependency>
+        <!-- test -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -118,12 +124,6 @@
                 <excludes>
                     <exclude>**/version.properties</exclude>
                 </excludes>
-            </resource>
-            <resource>
-                <directory>target/generated-sources/enunciate</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
             </resource>
         </resources>
         <plugins>

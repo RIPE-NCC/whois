@@ -195,7 +195,7 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
         return Action.MODIFY;
     }
 
-    // `TODO: [AH] once the modify REST call is processed here, this can be dropped
+    // `TODO: [AH] Optimize the DAO call to work on objectid
     private void checkForUnexpectedModification(final Update update) {
         if (update.getSubmittedObjectInfo() != null) {
             final RpslObjectUpdateInfo latestUpdateInfo = rpslObjectUpdateDao.lookupObject(

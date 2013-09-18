@@ -125,7 +125,7 @@ public class Authenticator {
                     return new Subject(Principal.OVERRIDE_MAINTAINER);
                 }
             } catch (EmptyResultDataAccessException ignore) {
-                loggerContext.logMessage(update, new Message(Messages.Type.INFO, "Unknown override user", username));
+                loggerContext.logMessage(update, new Message(Messages.Type.INFO, "Unknown override user: %s", username));
             }
         }
 

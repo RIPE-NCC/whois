@@ -9,6 +9,8 @@
 -Km 2001:638::/32
 ############### BUG ###############
 -KL 2001:638::/32
+############### BUG ###############
+-r -K -i origin AS3333
 
 # -b queries
 ############### BUG ###############
@@ -202,6 +204,7 @@ OPS4-RIPE
 2001:67c:2e8:26::2
 ORG-Bb2-RIPE
 0.0.193.in-addr.arpa
+0.0.193.IN-Addr.ARPA
 
 # -T queries without -r and with -G
 -T ineTnum -G 193.0.0.0 - 193.0.7.255
@@ -562,3 +565,9 @@ e164.arpa
 
 # test mirror source
 -r -s ARIN-GRS MIRR-RIPE
+
+# --resource queries
+--resource AS3333
+--resource 193.0.0.0 - 193.0.7.255
+--resource 2001:638::/32
+

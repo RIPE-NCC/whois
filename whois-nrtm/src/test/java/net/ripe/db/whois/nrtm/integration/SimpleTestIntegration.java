@@ -134,10 +134,11 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     @Test
     public void mirrorQueryLegacyStillAvailable() throws Exception {
         databaseHelper.addObject("" +
-                "role: Denis Walker\n" +
-                "nic-hdl: DW-RIPE\n" +
+                "role:          Denis Walker\n" +
+                "nic-hdl:       DW-RIPE\n" +
                 "abuse-mailbox: abuse@ripe.net\n" +
-                "e-mail: test@ripe.net");
+                "e-mail:        test@ripe.net\n" +
+                "source:        TEST");
 
         final String legacyResponse = DummyWhoisClient.query(NrtmServer.legacyPort, "-g TEST:3:1-LAST");
 
@@ -150,6 +151,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
                 "role:           Denis Walker\n" +
                 "nic-hdl:        DW-RIPE\n" +
                 "abuse-mailbox:  abuse@ripe.net\n" +
-                "e-mail:         ***@ripe.net"));
+                "e-mail:         ***@ripe.net\n" +
+                "source:         TEST"));
     }
 }

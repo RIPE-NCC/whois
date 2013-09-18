@@ -17,7 +17,7 @@ class RouteAuthIPSpec extends BaseSpec {
                 changed:        dbtest@ripe.net
                 source:         TEST
                 """,
-            "AS100": """
+            "AS100": """\
                 aut-num:        AS100
                 as-name:        ASTEST
                 descr:          description
@@ -28,7 +28,7 @@ class RouteAuthIPSpec extends BaseSpec {
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
-            "AS200": """
+            "AS200": """\
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
@@ -39,7 +39,7 @@ class RouteAuthIPSpec extends BaseSpec {
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
-            "AS300": """
+            "AS300": """\
                 aut-num:        AS300
                 as-name:        ASTEST
                 descr:          description
@@ -58,7 +58,7 @@ class RouteAuthIPSpec extends BaseSpec {
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
-            "PARENT-ROUTE-LOW-ROUTES": """
+            "PARENT-ROUTE-LOW-ROUTES": """\
                 route:   20.128.0.0/9
                 descr:   parent route object
                 origin:  AS1000
@@ -68,7 +68,7 @@ class RouteAuthIPSpec extends BaseSpec {
                 changed: dbtest@ripe.net 20020101
                 source:  TEST
                 """,
-            "PARENT-ROUTE-ROUTES": """
+            "PARENT-ROUTE-ROUTES": """\
                 route:   20.128.0.0/9
                 descr:   parent route object
                 origin:  AS1000
@@ -95,7 +95,7 @@ class RouteAuthIPSpec extends BaseSpec {
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
-            "EXACT-MATCH-ROUTE-AS2000": """
+            "EXACT-MATCH-ROUTE-AS2000": """\
                 route:   20.13.0.0/16
                 descr:   exact match route object
                 origin:  AS2000

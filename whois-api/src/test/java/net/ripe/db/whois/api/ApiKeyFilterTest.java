@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api;
 
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.abusec.JdbcApiKeyDao;
 import net.ripe.db.whois.api.acl.ApiKeyFilter;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,13 +26,15 @@ public class ApiKeyFilterTest {
     @Mock HttpServletRequest request;
     @Mock HttpServletResponse response;
     @Mock FilterChain filterChain;
+    @Mock JdbcApiKeyDao apiKeyDao;
 
     @InjectMocks
     ApiKeyFilter subject;
 
     @Before
     public void setUp() throws Exception {
-        subject.setApiKey("KEY");
+        when(apiKeyDao.getUrisForApiKey("KEY")).thenReturn(Lists.newArrayList("/testuri"));
+        when(request.getRequestURI()).thenReturn("/testuri");
 
         writer = new StringWriter();
         when(response.getWriter()).thenReturn(new PrintWriter(writer));

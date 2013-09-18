@@ -1,9 +1,5 @@
 package net.ripe.db.whois.api.acl;
 
-import org.codehaus.enunciate.jaxrs.ResponseCode;
-import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.codehaus.enunciate.jaxrs.TypeHint;
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -20,7 +16,6 @@ import static net.ripe.db.whois.api.acl.AclServiceHelper.getNormalizedPrefix;
  * <p/>
  * Requests from prefix ranges with proxy support are allowed to use the proxy option in queries.
  */
-@ExternallyManagedLifecycle
 @Component
 @Path("/acl/proxies")
 public class AclProxyService {
@@ -38,7 +33,6 @@ public class AclProxyService {
      */
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Proxy.class)
     public List<Proxy> getProxies() {
         return aclServiceDao.getProxies();
     }
@@ -53,8 +47,6 @@ public class AclProxyService {
     @GET
     @Path("/{prefix}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Proxy.class)
-    @StatusCodes(@ResponseCode(code = 404, condition = "Proxy with the specified prefix does not exist"))
     public Response getProxy(@PathParam("prefix") final String prefix) {
         final String normalizedPrefix = getNormalizedPrefix(prefix);
 
@@ -76,7 +68,6 @@ public class AclProxyService {
     @POST
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Proxy.class)
     public Response saveProxy(final Proxy proxy) {
         final String normalizedPrefix = getNormalizedPrefix(proxy.getPrefix());
         proxy.setPrefix(normalizedPrefix);
@@ -101,8 +92,6 @@ public class AclProxyService {
     @DELETE
     @Path("/{prefix}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Proxy.class)
-    @StatusCodes(@ResponseCode(code = 404, condition = "Proxy with the specified prefix does not exist"))
     public Response deleteProxy(@PathParam("prefix") final String prefix) {
         try {
             final String normalizedPrefix = getNormalizedPrefix(prefix);

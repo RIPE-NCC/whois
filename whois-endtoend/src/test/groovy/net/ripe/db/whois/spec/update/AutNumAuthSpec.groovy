@@ -1483,15 +1483,15 @@ class AutNumAuthSpec extends BaseSpec {
     def "delete aut-num, RS auth, referenced in route"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
-        queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
         syncUpdate(getTransient("ROUTE") + "override: override1")
-        queryObject("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16")
 
       expect:
-        def aaa = queryObject("-r -T route -i origin AS200", "route", "20.13.0.0/16")
-        println "*************\n${aaa}\n************\n"
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
+        queryObject("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16")
+        query_object_matches("-r -T route -i origin AS200", "route", "20.13.0.0/16", "origin:\\s*AS200")
+//        println "*************\n${aaa}\n************\n"
 
       when:
         def message = send new Message(
@@ -1526,7 +1526,7 @@ class AutNumAuthSpec extends BaseSpec {
         ack.successes.any { it.operation == "Delete" && it.key == "[aut-num] AS200" }
 
         queryObjectNotFound("-rGBT aut-num AS200", "aut-num", "AS200")
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS200")
+        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "origin:\\s*AS200")
     }
 
     def "delete aut-num, RS auth, referenced in other aut-num"() {

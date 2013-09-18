@@ -11,7 +11,9 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.util.NamedList;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,17 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
     private static final Audience AUDIENCE = Audience.PUBLIC;
 
     @Autowired FreeTextIndex freeTextIndex;
+
+    @BeforeClass
+    public static void setProperty() {
+        // We only enable freetext indexing here, so it doesn't slow down the rest of the test suite
+        System.setProperty("dir.freetext.index", "${dir.var}/idx");
+    }
+
+    @AfterClass
+    public static void clearProperty() {
+        System.clearProperty("dir.freetext.index");
+    }
 
     @Before
     public void setUp() throws Exception {

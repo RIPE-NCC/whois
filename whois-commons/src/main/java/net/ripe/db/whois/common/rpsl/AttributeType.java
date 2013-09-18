@@ -1,15 +1,11 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 
 import javax.annotation.CheckForNull;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.*;
@@ -586,7 +582,7 @@ public enum AttributeType implements Documented {
         }
 
         private Builder references(final ObjectType... objectTypes) {
-            this.references = Collections.unmodifiableSet(Sets.newEnumSet(Lists.newArrayList(objectTypes), ObjectType.class));
+            this.references = Collections.unmodifiableSet(Sets.newEnumSet(Arrays.asList(objectTypes), ObjectType.class));
             return this;
         }
     }

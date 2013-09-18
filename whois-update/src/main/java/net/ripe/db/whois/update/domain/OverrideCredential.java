@@ -7,10 +7,10 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+// TODO: [AH] remove default users once phased out legacy overrides
 @Immutable
 public class OverrideCredential implements Credential {
     private static final Splitter OVERRIDE_SPLITTER = Splitter.on(',').limit(3);

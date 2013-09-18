@@ -35,7 +35,6 @@ public class DummifierLegacyTest {
         }
 
         attributeList.addAll(Arrays.asList(rpslAttributes));
-
         return new RpslObject(0, attributeList);
     }
 
@@ -47,7 +46,7 @@ public class DummifierLegacyTest {
     @Test
     public void skip_objects_version_1_2() {
         for (ObjectType objectType : DummifierLegacy.SKIPPED_OBJECT_TYPES) {
-            RpslObject object = makeObject(objectType, "YAY", new RpslAttribute(AttributeType.REMARKS, "Remark!"));
+            RpslObject object = makeObject(objectType, "YAY", new RpslAttribute(AttributeType.REMARKS, "Remark!"), new RpslAttribute(AttributeType.SOURCE, "TEST"));
 
             assertTrue(subject.isAllowed(1, object));
             assertTrue(subject.isAllowed(2, object));
@@ -101,6 +100,8 @@ public class DummifierLegacyTest {
 
         assertThat(attributes, hasSize(1 + 2 * DummifierLegacy.PERSON_ROLE_REFERENCES.size()));
 
+        attributes.add(new RpslAttribute(AttributeType.SOURCE, "TEST"));
+
         final RpslObject rpslObject = new RpslObject(0, attributes);
         final RpslObject dummifiedObject = subject.dummify(3, rpslObject);
 
@@ -113,9 +114,9 @@ public class DummifierLegacyTest {
 
     @Test
     public void dummify_adds_remarks() {
-        RpslObject dummifiedObject = subject.dummify(3, makeObject(ObjectType.ROUTE, "10/8"));
+        RpslObject dummifiedObject = subject.dummify(3, makeObject(ObjectType.ROUTE, "10/8", new RpslAttribute(AttributeType.SOURCE, "TEST")));
 
-        assertThat(dummifiedObject.findAttributes(AttributeType.REMARKS), hasSize(DummifierLegacy.DUMMIFICATION_REMARKS.size()));
+        assertThat(dummifiedObject.findAttributes(AttributeType.REMARKS), hasSize(7));
     }
 
     @Test
@@ -135,7 +136,7 @@ public class DummifierLegacyTest {
             final RpslObject rpslObject = makeObject(objectType, "FOO", optionalAttributes.toArray(new RpslAttribute[optionalAttributes.size()]));
             final RpslObject dummifiedObject = subject.dummify(3, rpslObject);
 
-            assertThat(dummifiedObject.getAttributes(), hasSize(ObjectTemplate.getTemplate(objectType).getMandatoryAttributes().size() + DummifierLegacy.DUMMIFICATION_REMARKS.size() + 1));
+            assertThat(dummifiedObject.getAttributes(), hasSize(ObjectTemplate.getTemplate(objectType).getMandatoryAttributes().size() + 1));
             assertThat(dummifiedObject.findAttributes(AttributeType.ABUSE_C), hasSize(1));
         }
     }
@@ -156,6 +157,8 @@ public class DummifierLegacyTest {
                     optionalAttributes.add(rpslAttribute);
                 }
             }
+
+            optionalAttributes.add(new RpslAttribute(AttributeType.SOURCE, "TEST"));
 
             final RpslObject rpslObject = makeObject(objectType, "FOO", optionalAttributes.toArray(new RpslAttribute[optionalAttributes.size()]));
             final RpslObject dummifiedObject = subject.dummify(3, rpslObject);

@@ -9,5 +9,6 @@
     <context:mbean-server/>
     <context:mbean-export/>
 
+    <import resource="applicationContext-nrtm.xml"/>
     <import resource="applicationContext-scheduler.xml"/>
 </beans>

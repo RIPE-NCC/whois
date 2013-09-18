@@ -44,9 +44,9 @@ public class AuthoritativeResourceTest {
     @Test
     public void load_apnic() throws IOException {
         final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "APNIC-GRS", getScanner("delegated-apnic-extended-latest"));
-        assertThat(resourceData.getNrAutNums(), is(8625));
-        assertThat(resourceData.getNrInetnums(), is(21587));
-        assertThat(resourceData.getNrInet6nums(), is(2897));
+        assertThat(resourceData.getNrAutNums(), is(9876));
+        assertThat(resourceData.getNrInetnums(), is(22204));
+        assertThat(resourceData.getNrInet6nums(), is(18909));
         assertThat(resourceData.isEmpty(), is(false));
     }
 
@@ -69,9 +69,9 @@ public class AuthoritativeResourceTest {
     @Test
     public void load_ripe() throws IOException {
         final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", getScanner("delegated-ripencc-extended-latest"));
-        assertThat(resourceData.getNrAutNums(), is(25412));
-        assertThat(resourceData.getNrInetnums(), is(49125));
-        assertThat(resourceData.getNrInet6nums(), is(6912));
+        assertThat(resourceData.getNrAutNums(), is(28184));
+        assertThat(resourceData.getNrInetnums(), is(49504));
+        assertThat(resourceData.getNrInet6nums(), is(33535));
         assertThat(resourceData.isEmpty(), is(false));
     }
 
@@ -323,6 +323,30 @@ public class AuthoritativeResourceTest {
                 "ripencc|DE|ipv6|2001:2002:2003:2005::|64|19990812|allocated\n"));
 
         assertThat(resourceData.isMaintainedByRir(ObjectType.INET6NUM, ciString("2001:2002:2003:2004::/64")), is(false));
+    }
+
+    @Test
+    public void available_resources() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "ARIN-GRS", new Scanner("" +
+                "arin||ipv4|162.218.216.0|337920||available|\n" +
+                "arin||ipv6|2620:106:c100::|40||available|\n" +
+                "arin||asn|62681|807||available|\n"));
+
+        assertThat(resourceData.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS62681")), is(true));
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("162.218.216.0 - 162.223.255.255")), is(true));
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INET6NUM, ciString("2620:0106:c100::/40")), is(true));
+    }
+
+    @Test
+    public void reserved_resource() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "ARIN-GRS", new Scanner("" +
+                "arin||ipv4|23.128.0.0|4194304||reserved|\n" +
+                "arin||ipv6|2620:1d1::|32||reserved|\n" +
+                "arin||asn|2733|1||reserved|\n"));
+
+        assertThat(resourceData.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS2733")), is(true));
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("23.128.0.0/10")), is(true));
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INET6NUM, ciString("2620:1d1::/32")), is(true));
     }
 
     @Test

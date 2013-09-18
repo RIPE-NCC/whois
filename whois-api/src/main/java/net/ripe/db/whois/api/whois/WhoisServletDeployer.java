@@ -57,7 +57,6 @@ public class WhoisServletDeployer implements ServletDeployer {
             public Set<Object> getSingletons() {
                 final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
                 jaxbJsonProvider.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
-                jaxbJsonProvider.configure(SerializationConfig.Feature.WRAP_ROOT_VALUE, true);
                 return Sets.newLinkedHashSet(Lists.<Object>newArrayList(
                         whoisRestService,
                         syncUpdatesService,

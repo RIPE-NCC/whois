@@ -2,6 +2,9 @@ package net.ripe.db.whois.api.whois;
 
 import net.ripe.db.whois.api.whois.domain.*;
 
+import net.ripe.db.whois.api.whois.domain.Link;
+import net.ripe.db.whois.api.whois.domain.WhoisResources;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -22,7 +25,6 @@ class StreamingMarshalXml implements StreamingMarshal {
             this.context = JAXBContext.newInstance(
                     Attribute.class,
                     Attributes.class,
-                    DirectLookup.class,
                     Flag.class,
                     Flags.class,
                     GeolocationAttributes.class,
@@ -63,10 +65,13 @@ class StreamingMarshalXml implements StreamingMarshal {
     private XMLStreamWriter xmlOut;
 
     @Override
-    public void open(final OutputStream outputStream) {
+    public void open(final OutputStream outputStream, String root) {
         try {
             xmlOut = xmlOutputFactory.createXMLStreamWriter(outputStream);
             xmlOut.writeStartDocument();
+            xmlOut.writeStartElement(root);
+            // TODO: this is ugly, should come from package info instead (which is the case with no streaming)
+            xmlOut.writeNamespace("xlink", Link.XLINK_URI);
         } catch (XMLStreamException e) {
             throw new StreamingException(e);
         }
@@ -88,14 +93,6 @@ class StreamingMarshalXml implements StreamingMarshal {
         } catch (XMLStreamException e) {
             throw new StreamingException(e);
         }
-    }
-
-    @Override
-    public void writeRaw(final String str) {
-    }
-
-    @Override
-    public void writeObject(final Object o) {
     }
 
     @Override

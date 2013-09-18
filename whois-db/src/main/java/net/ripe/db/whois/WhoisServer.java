@@ -52,7 +52,6 @@ public class WhoisServer {
         LOGGER.info("Whois server started in {}", stopwatch.stop());
     }
 
-
     public void start() {
         for (final ApplicationService applicationService : applicationServices) {
             LOGGER.info("Initializing: {}", applicationService);

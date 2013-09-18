@@ -21,9 +21,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.codehaus.enunciate.jaxrs.ResponseCode;
-import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +40,6 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
 
-@ExternallyManagedLifecycle
 @Component
 @Path("/geolocation")
 public class GeolocationService {
@@ -52,10 +48,7 @@ public class GeolocationService {
 
     private static final String SERVICE_NAME = "geolocation-finder";
 
-    private static final String LOOKUP_URL = "http://apps.db.ripe.net/whois/lookup";
-
-    private static final String TEXT_JSON = "text/json";
-    private static final String TEXT_XML = "text/xml";
+    private static final String LOOKUP_URL = "http://rest.db.ripe.net/lookup";
 
     private static final Set<InetnumStatus> STOP_AT_STATUS_IPV4 = Sets.immutableEnumSet(
             InetnumStatus.ASSIGNED_PI,
@@ -84,87 +77,21 @@ public class GeolocationService {
     }
 
     /**
-     * <p>Lookup geolocation and language attributes for a particular IPv4 or IPv6 address.</p>
-     *
-     * <p>The response format is specified using a HTTP Accept header. If not specified, the default response format is XML.</p>
-     *
-     * <p><div>Example request using the CURL command:</div>
-     * <pre>curl https://apps.db.ripe.net/whois/geolocation?source=test&ipkey=10.0.0.0</pre></p>
-     *
-     * <p><div>Example XML response:</div>
-     * <pre>
-     * &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
-     * &lt;whois-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     * xmlns:xlink="http://www.w3.org/1999/xlink" service="geolocation-finder"
-     * xsi:noNamespaceSchemaLocation="http://apps.db.ripe.net/whois/xsd/whois-resources.xsd"&gt;
-     * &lt;link xlink:type="locator" xlink:href="https://apps.db.ripe.net/whois/geolocation?source=test&amp;ipkey=10.0.0.0"/&gt;
-     * &lt;geolocation-attributes&gt;
-     *     &lt;location value="52.375599 4.899902"&gt;
-     *         &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255"/&gt;
-     *     &lt;/location&gt;
-     *     &lt;language value="EN"&gt;
-     *         &lt;link xlink:type="locator" xlink:href="http://apps.db.ripe.net/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255"/&gt;
-     *     &lt;/language&gt;
-     * &lt;/geolocation-attributes&gt;
-     * &lt;/whois-resources&gt;
-     * </pre>
-     * </p>
-     *
-     * <p><div>Example JSON response:</div>
-     * <pre>
-     * {
-     *     "whois-resources": {
-     *       "service": "geolocation-finder",
-     *       "link": {
-     *         "xlink:type": "locator",
-     *         "xlink:href": "https://apps.db.ripe.net/whois/geolocation?source=test&ipkey=10.0.0.0"
-     *       },
-     *       "geolocation-attributes": {
-     *         "location": [
-     *           {
-     *             "value": "52.375599 4.899902",
-     *             "link": {
-     *               "xlink:type": "locator",
-     *               "xlink:href": "https://apps.db.ripe.net/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255"
-     *             }
-     *           }
-     *         ],
-     *         "language": [
-     *           {
-     *             "value": "EN",
-     *             "link": {
-     *               "xlink:type": "locator",
-     *               "xlink:href": "https://apps.db.ripe.net/whois/lookup/test/inetnum/10.0.0.0 - 10.255.255.255"
-     *             }
-     *           }
-     *         ]
-     *       }
-     *     }
-     * }
-     * </pre>
-     * </p>
-     *
-     * <p>For further background information on the Geolocation feature, refer to the RIPE Labs article here:
-     * <a href="https://labs.ripe.net/Members/denis/geolocation-prototype-for-ripe-database" class="external-link" rel="nofollow" target="_blank">
-     *     https://labs.ripe.net/Members/denis/geolocation-prototype-for-ripe-database</a></p>
-     *
-     * @param source Source name (TEST or RIPE)
      * @param ipkey IPv4 or IPv6 address
      * @return Returns geolocation information for the specified address.
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, TEXT_XML, TEXT_JSON})
-    @StatusCodes({
-        @ResponseCode(code = 200, condition = "Geolocation and/or language data was found for the specified address"),
-        @ResponseCode(code = 404, condition = "No geolocation data found, or the address does not exist")
-    })
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public WhoisResources geolocation(
             @Context final HttpServletRequest request,
-            @QueryParam(value = "source") final String source,      // TODO: validate source
             @QueryParam(value = "ipkey") final String ipkey) {
 
         List<Language> languages = null;
         Location location = null;
+
+        if (ipkey == null) {
+            throw new IllegalArgumentException("ipkey is required");
+        }
 
         try {
             final IpInterval interval = IpInterval.parse(ipkey);

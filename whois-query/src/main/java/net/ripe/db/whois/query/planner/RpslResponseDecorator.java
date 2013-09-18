@@ -46,6 +46,7 @@ public class RpslResponseDecorator {
     private final AbuseCFunction abuseCFunction;
     private final ToBriefFunction toBriefFunction;
     private final DummifyFunction dummifyFunction;
+    private final ValidSyntaxFunction validSyntaxFunction;
     private final FilterTagsDecorator filterTagsDecorator;
     private final FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
@@ -65,6 +66,7 @@ public class RpslResponseDecorator {
         this.filterPersonalDecorator = filterPersonalDecorator;
         this.sourceContext = sourceContext;
         this.dummifyFunction = dummifyFunction;
+        this.validSyntaxFunction = new ValidSyntaxFunction();
         this.filterTagsDecorator = filterTagsDecorator;
         this.filterPlaceholdersDecorator = filterPlaceholdersDecorator;
         this.abuseCFunction = new AbuseCFunction(abuseCFinder);
@@ -82,6 +84,7 @@ public class RpslResponseDecorator {
         result = filterPersonalDecorator.decorate(query, result);
 
         result = applyAbuseC(query, result);
+        result = applyValidSyntax(query, result);
         result = filterEmail(query, result);
         result = filterAuth(result);
 
@@ -93,6 +96,14 @@ public class RpslResponseDecorator {
     private Iterable<? extends ResponseObject> applyAbuseC(final Query query, final Iterable<? extends ResponseObject> result) {
         if (!query.isBrief() && sourceContext.getCurrentSource().getName().equals(CIString.ciString(mainSource))) {
             return Iterables.concat(Iterables.transform(result, abuseCFunction));
+        }
+
+        return result;
+    }
+
+    private Iterable<? extends ResponseObject> applyValidSyntax(final Query query, final Iterable<? extends ResponseObject> result) {
+        if (query.isValidSyntax()) {
+            return Iterables.concat(Iterables.transform(result, validSyntaxFunction));
         }
 
         return result;

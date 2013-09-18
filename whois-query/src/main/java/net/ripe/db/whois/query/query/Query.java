@@ -128,7 +128,7 @@ public final class Query {
     private final Set<String> sources;
     private final Set<ObjectType> objectTypeFilter;
     private final Set<AttributeType> attributeTypeFilter;
-    private final Set<Query.MatchOperation> matchOperations;
+    private final MatchOperation matchOperation;
     private final SearchKey searchKey;
 
     private Query(final String query) {
@@ -144,7 +144,7 @@ public final class Query {
         sources = parseSources();
         objectTypeFilter = parseObjectTypes();
         attributeTypeFilter = parseAttributeTypes();
-        matchOperations = parseMatchOperations();
+        matchOperation = parseMatchOperations();
     }
 
     @SuppressWarnings("PMD.PreserveStackTrace")
@@ -291,6 +291,10 @@ public final class Query {
         return hasOption(QueryFlag.VERBOSE);
     }
 
+    public boolean isValidSyntax() {
+        return hasOption(QueryFlag.VALID_SYNTAX);
+    }
+
     public SystemInfoOption getSystemInfoOption() {
         if (hasOption(QueryFlag.LIST_SOURCES_OR_VERSION)) {
             final String optionValue = getOptionValue(QueryFlag.LIST_SOURCES_OR_VERSION).trim();
@@ -332,12 +336,12 @@ public final class Query {
         return attributeTypeFilter;
     }
 
-    public Set<Query.MatchOperation> matchOperations() {
-        return matchOperations;
+    public Query.MatchOperation matchOperation() {
+        return matchOperation;
     }
 
     public boolean hasIpFlags() {
-        return isLookupInBothDirections() || isBrief() || !matchOperations().isEmpty();
+        return isLookupInBothDirections() || isBrief() || matchOperation != null;
     }
 
     public boolean hasObjectTypeFilter(ObjectType objectType) {
@@ -372,6 +376,10 @@ public final class Query {
         }
 
         return null;
+    }
+
+    public String getRouteOrigin() {
+        return searchKey.getOrigin();
     }
 
     public AsBlockRange getAsBlockRangeOrNull() {
@@ -448,7 +456,7 @@ public final class Query {
 
     private Set<ObjectType> parseObjectTypes() {
         final Set<String> objectTypes = getOptionValues(QueryFlag.SELECT_TYPES);
-        final Set<ObjectType> response = Sets.newTreeSet(ObjectType.COMPARATOR);    // whois query results returned in correct order
+        final Set<ObjectType> response = Sets.newTreeSet(ObjectType.COMPARATOR);    // whois query results returned in correct order depends on this comparator
 
         if (objectTypes.isEmpty()) {
             if (isLookupInBothDirections()) {
@@ -473,6 +481,19 @@ public final class Query {
 
         if (hasOption(QueryFlag.RESOURCE)) {
             response.retainAll(GRS_LIMIT_TYPES);
+        }
+
+        if (!isInverse()) {
+            nextObjectType:
+            for (Iterator<ObjectType> it = response.iterator(); it.hasNext(); ) {
+                ObjectType objectType = it.next();
+                for (final AttributeType attribute : ObjectTemplate.getTemplate(objectType).getLookupAttributes()) {
+                    if (AttributeMatcher.fetchableBy(attribute, this)) {
+                        continue nextObjectType;
+                    }
+                }
+                it.remove();
+            }
         }
 
         return Collections.unmodifiableSet(response);
@@ -566,14 +587,19 @@ public final class Query {
         return optionValue;
     }
 
-    private Set<MatchOperation> parseMatchOperations() {
-        final Set<MatchOperation> result = Sets.newHashSet();
+    private MatchOperation parseMatchOperations() {
+        MatchOperation result = null;
+
         for (final Query.MatchOperation matchOperation : Query.MatchOperation.values()) {
             if (matchOperation.hasFlag() && hasOption(matchOperation.getQueryFlag())) {
-                result.add(matchOperation);
+                if (result == null) {
+                    result = matchOperation;
+                } else {
+                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.duplicateIpFlagsPassed());
+                }
             }
         }
-        return Collections.unmodifiableSet(result);
+        return result;
     }
 
 
@@ -604,16 +630,6 @@ public final class Query {
     @Override
     public String toString() {
         return originalStringQuery;
-    }
-
-    public boolean matchesObjectType(final ObjectType objectType) { // TODO [AK] Merge this with getObjectTypes, we're never interested in stuff we don't query anyway
-        for (final AttributeType attribute : ObjectTemplate.getTemplate(objectType).getLookupAttributes()) {
-            if (AttributeMatcher.fetchableBy(attribute, this)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public boolean MatchesObjectTypeAndAttribute(final ObjectType objectType, final AttributeType attributeType) {

@@ -1283,7 +1283,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             password: update2
                             """.stripIndent()))
       then:
-        inetnumWithIpAuth =~ /SUCCEEDED: \[route6\] 5353::0\/24AS456\n/
+        inetnumWithIpAuth =~ /SUCCEEDED: \[route6\] 5353::\/24AS456\n/
         inetnumWithIpAuth =~ /\*\*\*Info:    This update concludes a pending update on route6 5353::\/24AS456\n/
         noMoreMessages()
 

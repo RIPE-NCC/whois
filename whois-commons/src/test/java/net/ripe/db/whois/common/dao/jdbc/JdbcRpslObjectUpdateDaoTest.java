@@ -430,7 +430,6 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
         final int objectTypeId = ObjectTypeIds.getId(objectType);
         assertThat(added.getTable("last"), hasSize(1));
 
-        // We do not have to check: thread_id, serial, prev_serial
         added.get("last",
                 with("object_id", created.getObjectId()),
                 with("sequence_id", 1),
@@ -443,7 +442,6 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
         // Serials
         assertThat(added.getTable("serials"), hasSize(1));
 
-        // We do not have to check: thread_id
         added.get("serials",
                 with("serial_id", greaterThan(0)),
                 with("object_id", created.getObjectId()),
@@ -457,7 +455,6 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
         assertThat(added.getTable(tableName), hasSize(1));
 
-        // We do not have to check: thread_id
         final Row lookupRow = added.get(tableName,
                 with("object_id", created.getObjectId())
         );

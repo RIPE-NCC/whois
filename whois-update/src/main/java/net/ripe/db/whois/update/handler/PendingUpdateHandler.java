@@ -9,10 +9,7 @@ import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
-import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.domain.UpdateMessages;
-import net.ripe.db.whois.update.domain.UpdateStatus;
+import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +59,10 @@ class PendingUpdateHandler {
 
                 updateContext.prepareForReattempt(preparedUpdate);
                 updateContext.addMessage(preparedUpdate, UpdateMessages.updateConcludesPendingUpdate(preparedUpdate.getUpdatedObject()));
+
+                final PreparedUpdate freshPreparedUpdate = new PreparedUpdate(preparedUpdate.getUpdate(), null, preparedUpdate.getUpdatedObject(), Action.CREATE);
+                updateContext.setPreparedUpdate(freshPreparedUpdate);
+                updateContext.setAction(freshPreparedUpdate, Action.CREATE);
 
                 updateObjectHandler.execute(preparedUpdate, updateContext);
             } else {

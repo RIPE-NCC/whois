@@ -1,4 +1,37 @@
-## 1.67.4
+## next
+[query] added support for --valid-syntax
+[api] added abuse contact creation "for dummies" rest call
+[api] added table 'apikeys' to acl schema
+[all] removed useless thread_id, prev_serial, serial fields from SQL schema
+[all] remove leftover wsearch.* from properties file
+[api] Updated to Lucene 4.4 (TODO re-generate freetext index)
+
+## 1.69
+[update] enable dry-run
+[api] changed rest API create: POST supports '/ripe/person' format only
+[api] adjust mod_proxy config for POST accordingly
+[api] added unfiltered queryparam to lookup (adjust documentation on deployment!)
+[grs] dummifier comments are now per-source (massive update expected on deployment)
+[grs] expand AS Number ranges in ARIN GRS delegated stats
+[query] adjusted hierarchical lookup of direct route object keys
+[query] fixed search on mixed-case domain postfix
+
+## 1.68
+[api] revamped API to follow the REST paradigm more closely
+
+## 1.67.7
+[api] added api.rest.lookup.baseurl to properties
+[query] added option to directly lookup route object by specifying search key '10.0.0.0/24AS123'
+[api] fully revamped REST API
+
+## 1.67.5
+[update] Allow 2-10 letters in nic-hdl suffix.
+[update] Allow SHA384 hashes in ds-rdata attribute in domain objects.
+[update] Improved update logging.
+[api] Create JAXB marshaller instance per thread.
+[api] Updated embedded Jetty server from 8.1.8 to 8.1.12.
+
+## 1.67.4 (deployed on 2013-08-07)
 [update] removed unused and incorrect text aliases for specifying ds-rdata digest/algorithm
 [query] fixed verbose help for route-set member: attribute
 [update] ds-rdata: attribute is now sanitized before persisting in database
@@ -28,7 +61,7 @@
 [query] All GRS sources are now filtered on AuthoritativeResource regardless of --resource flag
 [query] --resource now enables --no-referenced by default
 
-## 1.67 (not yet deployed)
+## 1.67
 [update] added pending auth support for route(6) creation
 [update] added dry-run support for a single object update via the 'dry-run: reason' pseudo-attribute
 [update] display diff instead of original object in update notifications

@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.jdbc.DataSourceFactory;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.support.FileHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,4 +80,113 @@ public class ArinGrsSourceTest {
                         "source:         ARIN\n")
         ));
     }
+
+    @Test
+    public void as_number_range() throws Exception {
+        File zipFile = FileHelper.addToZipFile("arin.test", "arin_db.txt",
+                "ASHandle:       AS701\n" +
+                "OrgID:          MCICS\n" +
+                "ASName:         UUNET\n" +
+                "ASNumber:       701 - 705\n" +
+                "RegDate:        1990-08-03\n" +
+                "Updated:        2012-03-20\n" +
+                "Source:         ARIN\n");
+
+        try {
+            subject.handleObjects(zipFile, objectHandler);
+
+            assertThat(objectHandler.getLines(), hasSize(0));
+            assertThat(objectHandler.getObjects(), hasSize(5));
+            assertThat(objectHandler.getObjects(), contains(
+                    RpslObject.parse(
+                            "aut-num:        AS701\n" +
+                            "org:            MCICS\n" +
+                            "as-name:        UUNET\n" +
+                            "changed:        unread@ripe.net 20120320\n" +
+                            "source:         ARIN"),
+                    RpslObject.parse(
+                            "aut-num:        AS702\n" +
+                            "org:            MCICS\n" +
+                            "as-name:        UUNET\n" +
+                            "changed:        unread@ripe.net 20120320\n" +
+                            "source:         ARIN"),
+                    RpslObject.parse(
+                            "aut-num:        AS703\n" +
+                            "org:            MCICS\n" +
+                            "as-name:        UUNET\n" +
+                            "changed:        unread@ripe.net 20120320\n" +
+                            "source:         ARIN"),
+                    RpslObject.parse(
+                            "aut-num:        AS704\n" +
+                            "org:            MCICS\n" +
+                            "as-name:        UUNET\n" +
+                            "changed:        unread@ripe.net 20120320\n" +
+                            "source:         ARIN"),
+                    RpslObject.parse(
+                            "aut-num:        AS705\n" +
+                            "org:            MCICS\n" +
+                            "as-name:        UUNET\n" +
+                            "changed:        unread@ripe.net 20120320\n" +
+                            "source:         ARIN")
+                    ));
+        } finally {
+            zipFile.delete();
+        }
+    }
+
+    @Test
+    public void single_as_number() throws Exception {
+        File zipFile = FileHelper.addToZipFile("arin.test", "arin_db.txt",
+                "ASHandle:       AS701\n" +
+                "OrgID:          MCICS\n" +
+                "ASName:         UUNET\n" +
+                "ASNumber:       701\n" +
+                "RegDate:        1990-08-03\n" +
+                "Updated:        2012-03-20\n" +
+                "Source:         ARIN\n");
+
+        try {
+            subject.handleObjects(zipFile, objectHandler);
+
+            assertThat(objectHandler.getLines(), hasSize(0));
+            assertThat(objectHandler.getObjects(), hasSize(1));
+            assertThat(objectHandler.getObjects(), contains(
+                    RpslObject.parse(
+                            "aut-num:        AS701\n" +
+                            "org:            MCICS\n" +
+                            "as-name:        UUNET\n" +
+                            "changed:        unread@ripe.net 20120320\n" +
+                            "source:         ARIN")));
+        } finally {
+            zipFile.delete();
+        }
+    }
+
+    @Test
+    public void as_number_without_range() throws Exception {
+        File zipFile = FileHelper.addToZipFile("arin.test", "arin_db.txt",
+                "ASHandle:       AS701\n" +
+                "OrgID:          MCICS\n" +
+                "ASName:         UUNET\n" +
+                "RegDate:        1990-08-03\n" +
+                "Updated:        2012-03-20\n" +
+                "Source:         ARIN\n");
+
+        try {
+            subject.handleObjects(zipFile, objectHandler);
+
+            assertThat(objectHandler.getLines(), hasSize(0));
+            assertThat(objectHandler.getObjects(), hasSize(1));
+            assertThat(objectHandler.getObjects(), contains(
+                    RpslObject.parse(
+                            "aut-num:        AS701\n" +
+                            "org:            MCICS\n" +
+                            "as-name:        UUNET\n" +
+                            "changed:        unread@ripe.net 20120320\n" +
+                            "source:         ARIN")));
+        } finally {
+            zipFile.delete();
+        }
+    }
+
 }

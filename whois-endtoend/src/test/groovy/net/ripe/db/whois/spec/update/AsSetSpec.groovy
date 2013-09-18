@@ -100,6 +100,7 @@ class AsSetSpec extends BaseSpec {
     def "create top level as-set object"() {
       expect:
         queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
+        queryObjectNotFound("-r -T aut-num AS1", "aut-num", "AS1")
 
       when:
         def message = send new Message(

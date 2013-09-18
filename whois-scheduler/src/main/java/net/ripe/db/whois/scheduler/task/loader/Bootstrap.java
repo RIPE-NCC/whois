@@ -43,8 +43,7 @@ public class Bootstrap implements DailyScheduledTask {
             // treeupdaters not recognising rebuild is needed
             ServerHelper.sleep((IpTreeUpdater.TREE_UPDATE_IN_SECONDS) * 1000);
 
-            final String result = loader.loadSplitFiles(dumpFileLocation);
-            return result;
+            return loader.loadSplitFiles(dumpFileLocation);
         } finally {
             sourceContext.removeCurrentSource();
         }
@@ -53,8 +52,7 @@ public class Bootstrap implements DailyScheduledTask {
     public String loadTextDump(String[] dumpfile) {
         try {
             sourceContext.setCurrentSourceToWhoisMaster();
-            final String result = loader.loadSplitFiles(dumpfile);
-            return result;
+            return loader.loadSplitFiles(dumpfile);
         } finally {
             sourceContext.removeCurrentSource();
         }

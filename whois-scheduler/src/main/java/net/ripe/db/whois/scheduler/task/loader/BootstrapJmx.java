@@ -26,7 +26,7 @@ public class BootstrapJmx extends JmxBase {
         this.bootstrap = bootstrap;
     }
 
-    @ManagedOperation(description = "Load text dump into main database (non-destructive, only adds new objects")
+    @ManagedOperation(description = "Load text dump into main database (non-destructive, only adds new objects) (DOES NOT use global update lock!)")
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation"),
             @ManagedOperationParameter(name = "filenames", description = "Comma separated list of paths to the dump files")
@@ -40,7 +40,7 @@ public class BootstrapJmx extends JmxBase {
         });
     }
 
-    @ManagedOperation(description = "Run nightly bootstrap (destructive, deletes database)")
+    @ManagedOperation(description = "Run nightly bootstrap (destructive, deletes database before load)  (DOES NOT use global update lock!)")
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation")
     })

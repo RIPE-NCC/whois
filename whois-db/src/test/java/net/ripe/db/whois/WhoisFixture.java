@@ -79,7 +79,6 @@ public class WhoisFixture {
     protected SourceContext sourceContext;
     protected UnrefCleanup unrefCleanup;
     protected IndexDao indexDao;
-    protected String apiKey;
 
     private static final String SYNCUPDATES_INSTANCE = "TEST";
 
@@ -124,7 +123,6 @@ public class WhoisFixture {
         sourceContext = applicationContext.getBean(SourceContext.class);
         unrefCleanup = applicationContext.getBean(UnrefCleanup.class);
         indexDao = applicationContext.getBean(IndexDao.class);
-        apiKey = applicationContext.getBeanFactory().resolveEmbeddedValue("${api.key}");
 
         databaseHelper.setup();
         applicationContext.getBean(WhoisServer.class).start();
@@ -193,11 +191,11 @@ public class WhoisFixture {
         }
     }
 
-    public String aclPost(final String path, final String data, final int responseCode) throws IOException {
+    public String aclPost(final String path, final String apiKey, final String data, final int responseCode) throws IOException {
         Map<String, String> properties = Maps.newLinkedHashMap();
         properties.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
         properties.put(HttpHeaders.CONTENT_LENGTH, Integer.toString(data.length()));
-        return doPostRequest(getAclUrl(path), data, properties, responseCode);
+        return doPostRequest(getAclUrl(path, apiKey), data, properties, responseCode);
     }
 
     public boolean dnsCheckedFor(final String key) {
@@ -236,7 +234,7 @@ public class WhoisFixture {
         return builder.toString();
     }
 
-    private String getAclUrl(final String path) {
+    private String getAclUrl(final String path, final String apiKey) {
         final StringBuilder builder = new StringBuilder();
         builder.append("http://localhost:");
         builder.append(jettyConfig.getPort(Audience.INTERNAL));

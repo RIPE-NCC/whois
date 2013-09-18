@@ -26,6 +26,8 @@ public class AclLimitServiceTestIntegration extends AbstractRestClientTest {
     public void setUp() throws Exception {
         databaseHelper.insertAclIpLimit("0/0", 1000, false);
         databaseHelper.insertAclIpLimit("::0/0", 1000, false);
+        databaseHelper.insertApiKey("DB-WHOIS-testapikey", "/api/acl", "acl api key");
+        setApiKey("DB-WHOIS-testapikey");
     }
 
     @Test

@@ -2,10 +2,6 @@ package net.ripe.db.whois.api.acl;
 
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.IpResourceTree;
-import org.codehaus.enunciate.jaxrs.ResponseCode;
-import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.codehaus.enunciate.jaxrs.TypeHint;
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +13,6 @@ import java.util.List;
 /**
  * Managing ACL limits.
  */
-@ExternallyManagedLifecycle
 @Component
 @Path("/acl/limits")
 public class AclLimitService {
@@ -35,7 +30,6 @@ public class AclLimitService {
      */
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Limit.class)
     public List<Limit> getLimits() {
         return aclServiceDao.getLimits();
     }
@@ -51,7 +45,6 @@ public class AclLimitService {
     @GET
     @Path("/{prefix}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Limit.class)
     public Response getLimit(@PathParam("prefix") final String prefix) {
         final IpInterval<?> ipInterval = IpInterval.parse(prefix);
         final Limit limit = getLimitsTree().getValue(ipInterval);
@@ -70,7 +63,6 @@ public class AclLimitService {
     @POST
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Limit.class)
     public Response saveLimit(final Limit limit) {
         final IpInterval<?> ipInterval = IpInterval.parse(limit.getPrefix());
         limit.setPrefix(ipInterval.toString());
@@ -105,10 +97,6 @@ public class AclLimitService {
     @DELETE
     @Path("/{prefix}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Limit.class)
-    @StatusCodes({
-            @ResponseCode(code = 404, condition = "Limit with the specified prefix does not exist")
-    })
     public Response deleteLimit(@PathParam("prefix") final String prefix) {
         final IpInterval<?> ipInterval = IpInterval.parse(prefix);
 
