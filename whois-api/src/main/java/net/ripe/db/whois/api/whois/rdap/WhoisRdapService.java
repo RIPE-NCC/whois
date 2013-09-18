@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.whois.ApiResponseHandler;
-import net.ripe.db.whois.api.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -24,10 +23,6 @@ import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.enunciate.jaxrs.ResponseCode;
-import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.codehaus.enunciate.jaxrs.TypeHint;
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +49,6 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static net.ripe.db.whois.common.rpsl.ObjectType.*;
 
-@ExternallyManagedLifecycle
 @Component
 @Path("/")
 public class WhoisRdapService {
@@ -87,102 +81,9 @@ public class WhoisRdapService {
         this.baseUrl = baseUrl;
     }
 
-    /**
-     * <h3>Queries</h3>
-     * <p>
-     * <div>Queries to the RIPE NCC RDAP implementation should be directed to http://rdap.db.ripe.net. For testing
-     * purposes, queries can also be directed to http://rdap-test.db.ripe.net</div>
-     * <div>The RDAP server accepts Content Media type "application/json" and "application/rdap+json", but will always respond with "application/rdap+json".</div>
-     * </p>
-     *
-     * <h3>Examples</h3>
-     * <ul>
-     *     <li>
-     *      <div>Successfully querying for an IP resource: http://rdap.db.ripe.net/ip/2003:2004:2005::/64</div>
-     *      <div>Response header<pre>HTTP/1.1 200 OK</pre></div>
-     *      <div>Content<pre>
-     *    {
-     *      "handle" : "2001:2002:2003::/48",
-     *      "startAddress" : "2001:2002:2003::/128",
-     *      "endAddress" : "2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128",
-     *      "ipVersion" : "v6",
-     *      "name" : "RIPE-NCC",
-     *      "type" : "ASSIGNED PA",
-     *      "country" : "NL",
-     *      "remarks" : [ {
-     *        "description" : [ "Private Network" ]
-     *      } ],
-     *      "links" : [ {
-     *     "value" : "http://localhost:56579/rdap/ip/2001:2002:2003::/48",
-     *     "rel" : "self",
-     *     "href" : "http://localhost:56579/rdap/ip/2001:2002:2003::/48"
-     *         }, {
-     *           "value" : "http://www.ripe.net/data-tools/support/documentation/terms",
-     *           "rel" : "copyright",
-     *           "href" : "http://www.ripe.net/data-tools/support/documentation/terms"
-     *         } ],
-     *         "events" : [ {
-     *           "eventAction" : "last changed",
-     *           "eventDate" : "2013-07-23T08:32:39Z"
-     *         } ],
-     *          "lang" : "EN",
-     *          "rdapConformance" : [ "rdap_level_0" ],
-     *          "notices" : [ {
-     *            "title" : "Terms and Conditions",
-     *            "description" : [ "This is the RIPE Database query service. The objects are in RDAP format." ],
-     *            "links" : {
-     *              "value" : "http://localhost:56579/rdap/ip/2001:2002:2003::/48/ip/2001:2002:2003::/48",
-     *              "rel" : "terms-of-service",
-     *              "href" : "http://www.ripe.net/db/support/db-terms-conditions.pdf",
-     *              "type" : "application/pdf"
-     *            }
-     *          }, {
-     *            "title" : "Filtered",
-     *            "description" : [ "This output has been filtered." ]
-     *          }, {
-     *            "title" : "Source",
-     *            "description" : [ "Objects returned came from source", "TEST" ]
-     *          } ],
-     *          "port43" : "whois.ripe.net"
-     *        }
-     *      </pre></div>
-     *     </li>
-     *
-     *     <li>
-     *         <div>Unsuccessfully querying for an autnum: http://rdap.db.ripe.net/entity/fred-mnt</div>
-     *         <div>Response header<pre>
-     *             HTTP/1.1 404 Not Found
-     *         </pre>
-     *         </div>
-     *         <p>Note that queries for nameserver (ie, http://rdap.db.ripe.net/nameserver/whatever) will always result in
-     *         404 Not Found since RIPE NCC does not have this information.</p>
-     *     </li>
-     *
-     *     <li>
-     *         <div>Querying for an autnum that exists at a different RIR: http://rdap.db.ripe.net/autnum/1840</div>
-     *         <div>Response header<pre>
-     *             HTTP/1.1 301 Moved Permanently
-     *             Location: http://rdap.lacnic.net/autnum/1840
-     *         </pre></div>
-     *     </li>
-     * </ul>
-     *
-     *
-     * @param objectType The object type requested, one of ip, autnum, entity, domain, nameserver
-     * @param key Primary key of the given object.
-     * @return A JSON response is returned, containing the object requested. If the object is maintained at a different RIR
-     * the response header will contain a pointer to where it can be found
-     */
     @GET
-    @TypeHint(RdapObject.class)
     @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
     @Path("/{objectType}/{key:.*}")
-    @StatusCodes({
-            @ResponseCode(code = 200, condition = "Object found for the specified key"),
-            @ResponseCode(code = 301, condition = "Object can be found at a different RIR"),
-            @ResponseCode(code = 400, condition = "Incorrect search value"),
-            @ResponseCode(code = 404, condition = "The query didn't return any valid object")
-    })
     public Response lookup(@Context final HttpServletRequest request,
                            @PathParam("objectType") final String objectType,
                            @PathParam("key") final String key) {
