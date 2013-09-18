@@ -57,7 +57,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(defaultExceptionMapper);
         final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
         jaxbJsonProvider.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
-        jaxbJsonProvider.configure(SerializationConfig.Feature.WRAP_ROOT_VALUE, true);
+        jaxbJsonProvider.configure(SerializationConfig.Feature.WRAP_ROOT_VALUE, false);
         resourceConfig.register(jaxbJsonProvider);
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");
     }

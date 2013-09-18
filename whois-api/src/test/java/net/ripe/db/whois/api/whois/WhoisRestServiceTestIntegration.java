@@ -22,6 +22,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.ClientBuilder;
@@ -183,7 +184,17 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/inet6num/2001::/48").request().get(WhoisResources.class);
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getAttributes(), contains(new Attribute("inet6num", "2001::/48"), new Attribute("netname", "RIPE-NCC"), new Attribute("descr", "some description"), new Attribute("country", "DK"), new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")), new Attribute("tech-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")), new Attribute("status", "ASSIGNED"), new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")), new Attribute("source", "TEST", "Filtered", null, null)));
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("inet6num", "2001::/48"),
+                new Attribute("netname", "RIPE-NCC"),
+                new Attribute("descr", "some description"),
+                new Attribute("country", "DK"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("tech-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("status", "ASSIGNED"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST", "Filtered", null, null)
+        ));
     }
 
     @Test
@@ -201,12 +212,20 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/route/193.254.30.0/24AS12726").request().get(WhoisResources.class);
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
         assertThat(whoisObject.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route/193.254.30.0/24AS12726"));
-        assertThat(whoisObject.getAttributes(), containsInAnyOrder(new Attribute("route", "193.254.30.0/24"), new Attribute("descr", "Test route"), new Attribute("origin", "AS12726", null, "aut-num", new Link("locator", "http://rest-test.db.ripe.net/test/aut-num/AS12726")), new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")), new Attribute("source", "TEST", "Filtered", null, null)));
+        assertThat(whoisObject.getAttributes(), containsInAnyOrder(
+                new Attribute("route", "193.254.30.0/24"),
+                new Attribute("descr", "Test route"),
+                new Attribute("origin", "AS12726", null, "aut-num", new Link("locator", "http://rest-test.db.ripe.net/test/aut-num/AS12726")),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST", "Filtered", null, null)
+        ));
     }
 
     @Test
     public void rest_get_person_json() throws Exception {
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST").request(MediaType.APPLICATION_JSON_TYPE).get(WhoisResources.class);
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
@@ -221,7 +240,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void json_lookup_correct_object() {
-        final String whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST").request(MediaType.APPLICATION_JSON_TYPE).get(String.class);
+        final String whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
         assertThat(whoisResources, containsString("{\"object\":[{\"type\":\"person"));
         assertThat(whoisResources, containsString("\"tags\":{\"tag\":[]}}]}}"));
     }
@@ -453,19 +474,19 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void create_delete_method_not_found() {
+    public void create_delete_method_not_allowed() {
         try {
             createResource(AUDIENCE, "whois/test/person")
                     .request()
                     .delete(String.class);
             fail();
-        } catch (NotFoundException e) {
+        } catch (NotAllowedException e) {
             // expected
         }
     }
 
     @Test
-    public void create_get_method_not_allowed() {
+    public void create_get_resource_not_found() {
         try {
             createResource(AUDIENCE, "whois/test")
                     .request(MediaType.APPLICATION_XML)
@@ -555,30 +576,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         }
     }
 
-    @Test
-    public void delete_post_not_allowed() {
-        try {
-            createResource(AUDIENCE, "whois/delete")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
-            fail();
-        } catch (NotFoundException ignored) {
-            // expected
-        }
-    }
-
-    @Test
-    public void delete_get_not_allowed() {
-        try {
-            createResource(AUDIENCE, "whois/delete")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-            fail();
-        } catch (NotFoundException ignored) {
-            // expected
-        }
-    }
-
     // update
 
     @Test
@@ -615,7 +612,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                     .request(MediaType.APPLICATION_XML)
                     .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
-        } catch (NotFoundException ignored) {
+        } catch (BadRequestException ignored) {
             // expected
         }
     }
@@ -623,12 +620,12 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void update_path_vs_object_mismatch_key() throws Exception {
         try {
-            createResource(AUDIENCE, "whois/test/person/PP1-TEST?password=test")
+            createResource(AUDIENCE, "whois/test/mntner/OWNER-MNT?password=test")
                     .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
-        } catch (ClientErrorException e) {
-            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_BAD_METHOD));
+        } catch (BadRequestException ignored) {
+            // expected
         }
     }
 
@@ -640,7 +637,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                     .request(MediaType.APPLICATION_XML)
                     .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
-        } catch (NotAuthorizedException e) {
+        } catch (NotAuthorizedException ignored) {
             // expected
         }
     }
@@ -652,7 +649,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                     .request(MediaType.APPLICATION_XML)
                     .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
             fail();
-        } catch (BadRequestException ignored) {
+        } catch (NotAllowedException ignored) {
             // expected
         }
     }
@@ -942,7 +939,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .get(String.class);
 
         assertThat(response, containsString("<?xml version='1.0' encoding='UTF-8'?>"));
-        assertThat(response, containsString("<whois-resources>"));
+        assertThat(response, containsString("<whois-resources"));
     }
 
     @Test
@@ -1010,7 +1007,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                         "   }\n" +
                         "}";
 
-        final String response = createResource(AUDIENCE, "whois/mntner/OWNER-MNT?password=test")
+        final String response = createResource(AUDIENCE, "whois/test/mntner/OWNER-MNT?password=test")
                 .request(MediaType.APPLICATION_JSON)
                 .put(Entity.entity(update, MediaType.APPLICATION_JSON), String.class);
 
@@ -1628,18 +1625,18 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         assertThat(createResource(AUDIENCE, "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity("{ \"objects\": { \"object\": [ {\n" +
-                                "\"source\": { \"id\": \"RIPE\" },\n" +
-                                "\"attributes\": {\n \"attribute\": [\n" +
-                                "{ \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
-                                "{ \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
-                                "{ \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
-                                "{ \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
-                                "{ \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
-                                "{ \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
-                                "{ \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
-                                "{ \"name\": \"remarks\", \"value\": \"created\" },\n" +
-                                "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
-                                "] } } ] } }", MediaType.APPLICATION_XML), String.class), containsString("Flughafenstraße 109/a"));
+                        "\"source\": { \"id\": \"RIPE\" },\n" +
+                        "\"attributes\": {\n \"attribute\": [\n" +
+                        "{ \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                        "{ \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
+                        "{ \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                        "{ \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "{ \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                        "{ \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                        "{ \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "{ \"name\": \"remarks\", \"value\": \"created\" },\n" +
+                        "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                        "] } } ] } }", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
 
         assertThat(createResource(AUDIENCE, "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON)
