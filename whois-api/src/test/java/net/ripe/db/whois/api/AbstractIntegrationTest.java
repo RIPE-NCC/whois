@@ -50,25 +50,21 @@ public abstract class AbstractIntegrationTest extends AbstractDatabaseHelperTest
         return readResponse(connection);
     }
 
-    public String doPostRequest(final String url, final String data, final int responseCode) throws IOException {
-        return doPostOrPutRequest(url, "POST", data, MediaType.APPLICATION_XML, responseCode);
+    public String doPostRequest(final String url, final String content, final MediaType contentType, final int responseCode) throws IOException {
+        return doPostOrPutRequest(url, "POST", content, contentType, null, responseCode);
     }
 
-    public String doPutRequest(final String url, final String data, final int responseCode) throws IOException {
-        return doPostOrPutRequest(url, "PUT", data, MediaType.APPLICATION_XML, responseCode);
+    public String doPutRequest(final String url, final String content, final MediaType contentType, final int responseCode) throws IOException {
+        return doPostOrPutRequest(url, "PUT", content, contentType, null, responseCode);
     }
 
-    public String doPostOrPutRequest(final String url, final String method, final String data, final String contentType, final int responseCode) throws IOException {
-        return doPostOrPutRequest(url, method, data, contentType, null, responseCode);
-    }
-
-    public String doPostOrPutRequest(final String url, final String method, final String data, final String contentType, final String accept, final int responseCode) throws IOException {
+    private String doPostOrPutRequest(final String url, final String method, final String data, final MediaType contentType, final MediaType accepts, final int responseCode) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) (new URL(url)).openConnection();
         connection.setRequestMethod(method);
         connection.setRequestProperty(HttpHeaders.CONTENT_LENGTH, Integer.toString(data.length()));
-        connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, contentType);
-        if (accept != null) {
-            connection.setRequestProperty(HttpHeaders.ACCEPT, accept);
+        connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, contentType.toString());
+        if (accepts != null) {
+            connection.setRequestProperty(HttpHeaders.ACCEPT, accepts.toString());
         }
 
         connection.setDoInput(true);

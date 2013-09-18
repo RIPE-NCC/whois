@@ -14,13 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.mail.internet.MimeMessage;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
-@Ignore
+@Ignore("TODO: Ignored?")
 @ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
 public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegrationTest {
     @Autowired IpRanges ipRanges;
@@ -101,7 +103,7 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
                         "  </objects>\n" +
                         "</whois-resources>\n";
 
-        final String result = doPostRequest(url, person, 401);
+        final String result = doPostRequest(url, person, MediaType.APPLICATION_XML_TYPE, HttpURLConnection.HTTP_UNAUTHORIZED);
         assertThat(result, containsString("Unauthorized"));
     }
 
@@ -130,7 +132,7 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
                         "  </objects>\n" +
                         "</whois-resources>\n";
 
-        final String result = doPostRequest(url, person, 401);
+        final String result = doPostRequest(url, person, MediaType.APPLICATION_XML_TYPE, HttpURLConnection.HTTP_FORBIDDEN);
         assertThat(result, containsString("Unauthorized"));
     }
 

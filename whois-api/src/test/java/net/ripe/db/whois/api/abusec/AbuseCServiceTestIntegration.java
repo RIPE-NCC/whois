@@ -13,15 +13,20 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.*;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
@@ -49,14 +54,11 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
                 "changed: denis@ripe.net 20121016\n" +
                 "source: test"));
 
-        final String response = doPostOrPutRequest(
-                "http://localhost:" + getPort(AUDIENCE) + "/api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey",
-                "POST",
-                "email=email@email.net",
-                MediaType.APPLICATION_FORM_URLENCODED,
-                HttpURLConnection.HTTP_OK);
+        final String response = createResource(AUDIENCE, "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
+                .request(MediaType.TEXT_PLAIN)
+                .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
-        assertThat(response, is("http://apps.db.ripe.net/whois/lookup/TEST/organisation/ORG-TOL1-TEST.html\n"));
+        assertThat(response, containsString("http://apps.db.ripe.net/whois/lookup/TEST/organisation/ORG-TOL1-TEST.html"));
         final RpslObject organisation = databaseHelper.lookupObject(ORGANISATION, "ORG-TOL1-TEST");
         assertThat(organisation.getValueForAttribute(AttributeType.ABUSE_C), is(CIString.ciString("AR1-TEST")));
         final RpslObject role = databaseHelper.lookupObject(ROLE, "AR1-TEST");
@@ -82,25 +84,30 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
                 "changed: denis@ripe.net 20121016\n" +
                 "source: test"));
 
-        final String response = doPostOrPutRequest(
-                "http://localhost:" + getPort(AUDIENCE) + "/api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey",
-                "POST",
-                "email=email@email.net",
-                MediaType.APPLICATION_FORM_URLENCODED,
-                HttpURLConnection.HTTP_CONFLICT);
-
-        assertThat(response, is("This organisation already has an abuse contact\n"));
+        try {
+            createResource(AUDIENCE, "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
+                    .request(MediaType.TEXT_PLAIN)
+                    .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+            fail();
+        } catch (ClientErrorException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("This organisation already has an abuse contact"));
+        }
     }
 
     @Test
     public void wrong_apikey() throws IOException {
-        final String response = doPostOrPutRequest(
-                "http://localhost:" + getPort(AUDIENCE) + "/api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-totallywrongkey",
-                "POST",
-                "email=email@email.net",
-                MediaType.APPLICATION_FORM_URLENCODED,
-                HttpURLConnection.HTTP_FORBIDDEN);
+        try {
+            createResource(AUDIENCE, "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-totallywrongkey")
+                    .request(MediaType.TEXT_PLAIN)
+                    .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+            fail();
+        } catch (ForbiddenException e) {
+            // expected
+        }
+    }
 
-        assertThat(response, is("Invalid apiKey\n"));
+    @Override
+    protected WebTarget createResource(final Audience audience, final String path) {
+        return client.target(String.format("http://localhost:%s/%s", getPort(audience), path));
     }
 }
