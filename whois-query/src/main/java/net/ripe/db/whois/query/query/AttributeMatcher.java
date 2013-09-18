@@ -38,7 +38,7 @@ abstract class AttributeMatcher { // TODO [AK] Figure out what can be delegated 
         @Override
         public boolean matches(final Query query) {
             final IpInterval<?> ipKeyOrNull = query.getIpKeyOrNull();
-            return ipKeyOrNull != null && ipKeyOrNull.getAttributeType().equals(AttributeType.INETNUM);
+            return query.getRouteOrigin() == null && ipKeyOrNull != null && ipKeyOrNull.getAttributeType().equals(AttributeType.INETNUM);
         }
     };
 
@@ -46,7 +46,21 @@ abstract class AttributeMatcher { // TODO [AK] Figure out what can be delegated 
         @Override
         public boolean matches(final Query query) {
             final IpInterval<?> ipKeyOrNull = query.getIpKeyOrNull();
-            return ipKeyOrNull != null && ipKeyOrNull.getAttributeType().equals(AttributeType.INET6NUM);
+            return query.getRouteOrigin() == null && ipKeyOrNull != null && ipKeyOrNull.getAttributeType().equals(AttributeType.INET6NUM);
+        }
+    };
+
+    static final AttributeMatcher ROUTE4_MATCHER = new AttributeMatcher() {
+        @Override
+        public boolean matches(final Query query) {
+            return query.getRouteOrigin() != null && query.getIpKeyOrNull().getAttributeType().equals(AttributeType.INETNUM);
+        }
+    };
+
+    static final AttributeMatcher ROUTE6_MATCHER = new AttributeMatcher() {
+        @Override
+        public boolean matches(final Query query) {
+            return query.getRouteOrigin() != null && query.getIpKeyOrNull().getAttributeType().equals(AttributeType.INET6NUM);
         }
     };
 
@@ -54,7 +68,7 @@ abstract class AttributeMatcher { // TODO [AK] Figure out what can be delegated 
         private final Pattern pattern;
 
         public RegExpMatcher(final String pattern) {
-            this.pattern = Pattern.compile("(?i)" + pattern);
+            this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
         }
 
         @Override
@@ -87,31 +101,22 @@ abstract class AttributeMatcher { // TODO [AK] Figure out what can be delegated 
         attributeMatchers.put(AttributeType.POEM, Sets.newHashSet(AttributeMatcher.POEM_MATCHER));
         attributeMatchers.put(AttributeType.POETIC_FORM, Sets.newHashSet(AttributeMatcher.POETIC_FORM_MATCHER));
         attributeMatchers.put(AttributeType.ROLE, Sets.newHashSet(AttributeMatcher.ANYTHING_CONTAINING_ALPHA_MATCHER));
-        attributeMatchers.put(AttributeType.ROUTE, Sets.newHashSet(AttributeMatcher.IPV4_MATCHER));
-        attributeMatchers.put(AttributeType.ROUTE6, Sets.newHashSet(AttributeMatcher.IPV6_MATCHER));
+        attributeMatchers.put(AttributeType.ROUTE, Sets.newHashSet(AttributeMatcher.IPV4_MATCHER, AttributeMatcher.ROUTE4_MATCHER));
+        attributeMatchers.put(AttributeType.ROUTE6, Sets.newHashSet(AttributeMatcher.IPV6_MATCHER, AttributeMatcher.ROUTE6_MATCHER));
         attributeMatchers.put(AttributeType.ROUTE_SET, Sets.newHashSet(AttributeMatcher.ROUTE_SET_MATCHER));
         attributeMatchers.put(AttributeType.RTR_SET, Sets.newHashSet(AttributeMatcher.RTR_SET_MATCHER));
     }
 
     static boolean fetchableBy(final AttributeType attributeType, final Query query) {
-        final Collection<AttributeMatcher> matchers = attributeMatchers.get(attributeType);
-        if (matchers == null) {
-            return false;
-        }
-
-        for (final AttributeMatcher matcher : matchers) {
+        for (final AttributeMatcher matcher : attributeMatchers.get(attributeType)) {
             try {
                 if (matcher.matches(query)) {
                     return true;
                 }
-            } catch (IllegalArgumentException ignored) {
-            }
+            } catch (IllegalArgumentException ignored) {}
         }
 
         return false;
-    }
-
-    private AttributeMatcher() {
     }
 
     abstract boolean matches(Query query);

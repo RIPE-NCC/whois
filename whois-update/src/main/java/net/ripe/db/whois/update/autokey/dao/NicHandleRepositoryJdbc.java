@@ -165,9 +165,9 @@ class NicHandleRepositoryJdbc implements NicHandleRepository {
 
     public void createRange(final String space, final String suffix, final int start, final int end) {
         jdbcTemplate.update("" +
-                "insert into nic_hdl(range_start, range_end, space, source, thread_id) " +
-                "  values(?, ?, ?, ?, ?)",
-                start, end, space, getSuffixForSql(suffix), 0);
+                "insert into nic_hdl(range_start, range_end, space, source) " +
+                "  values(?, ?, ?, ?)",
+                start, end, space, getSuffixForSql(suffix));
     }
 
     private void updateRange(final int rangeId, final int start, final int end) {

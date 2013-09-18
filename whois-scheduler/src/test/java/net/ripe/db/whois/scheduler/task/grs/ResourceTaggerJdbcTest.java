@@ -14,7 +14,9 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,9 +41,19 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
     @Autowired RpslObjectDao objectDao;
     @Autowired Downloader downloader;
 
-    GrsSource grsSource;
+    GrsSource testGrsSource;
     AuthoritativeResource authoritativeResource;
     AuthoritativeResourceData authoritativeResourceData;
+
+    @BeforeClass
+    public static void beforeClass() {
+        System.setProperty("grs.sources.tagRoutes", "TEST-GRS");
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        System.clearProperty("grs.sources.tagRoutes");
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -51,7 +63,7 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
         authoritativeResourceData = mock(AuthoritativeResourceData.class);
         when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
 
-        grsSource = new GrsSource("TEST-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader) {
+        testGrsSource = new GrsSource("TEST-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader) {
             @Override
             void acquireDump(final File file) throws IOException {
             }
@@ -94,7 +106,7 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
         when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2a01:4f8:191:34f1::/64"))).thenReturn(true);
         when(authoritativeResource.isMaintainedInRirSpace(ObjectType.PERSON, ciString("TP1-TEST"))).thenReturn(true);
 
-        subject.tagObjects(grsSource);
+        subject.tagObjects(testGrsSource);
 
         final List<Tag> registryResources = tagsDao.getTagsOfType(ciString("TEST-REGISTRY-RESOURCE"));
         assertThat(registryResources, hasSize(2));
@@ -130,5 +142,140 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
                     break;
             }
         }
+    }
+
+    @Test
+    public void tagRouteNone() {
+        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(false);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("193.1.0.0/24"))).thenReturn(false);
+        databaseHelper.addObjects(Lists.newArrayList(
+                RpslObject.parse("" +
+                        "inetnum:        193.1.0.0 - 193.1.0.255\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "source:         TEST-GRS\n"),
+                RpslObject.parse("" +
+                        "aut-num:        AS1\n" +
+                        "source:         TEST-GRS\n"
+                ),
+                RpslObject.parse("" +
+                        "route:          193.1.0.0/24\n" +
+                        "origin:         AS1\n" +
+                        "source:         TEST-GRS\n"
+                )
+        ));
+
+        subject.tagObjects(testGrsSource);
+
+        final List<Tag> tags = tagsDao.getTags(objectDao.findByKey(ObjectType.ROUTE, "193.1.0.0/24AS1").getObjectId());
+        assertThat(tags, hasSize(0));
+    }
+
+
+    @Test
+    public void tagRoutePrefixOnly() {
+        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(false);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("193.1.0.0/24"))).thenReturn(true);
+        databaseHelper.addObjects(Lists.newArrayList(
+                RpslObject.parse("" +
+                        "inetnum:        193.1.0.0 - 193.1.0.255\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "source:         TEST-GRS\n"),
+                RpslObject.parse("" +
+                        "aut-num:        AS1\n" +
+                        "source:         TEST-GRS\n"
+                ),
+                RpslObject.parse("" +
+                        "route:          193.1.0.0/24\n" +
+                        "origin:         AS1\n" +
+                        "source:         TEST-GRS\n"
+                )
+        ));
+
+        subject.tagObjects(testGrsSource);
+
+        final List<Tag> tagsByType = tagsDao.getTagsOfType(ciString("TEST-PREFIX-ONLY-RESOURCE"));
+        assertThat(tagsByType, hasSize(1));
+        assertThat(objectDao.getById(tagsByType.get(0).getObjectId()).getKey().toString(), is("193.1.0.0/24AS1"));
+    }
+
+    @Test
+    public void tagRouteASNOnly() {
+        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("193.1.0.0/24"))).thenReturn(false);
+        databaseHelper.addObjects(Lists.newArrayList(
+                RpslObject.parse("" +
+                        "inetnum:        193.1.0.0 - 193.1.0.255\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "source:         TEST-GRS\n"),
+                RpslObject.parse("" +
+                        "aut-num:        AS1\n" +
+                        "source:         TEST-GRS\n"
+                ),
+                RpslObject.parse("" +
+                        "route:          193.1.0.0/24\n" +
+                        "origin:         AS1\n" +
+                        "source:         TEST-GRS\n"
+                )
+        ));
+
+        subject.tagObjects(testGrsSource);
+
+        final List<Tag> tagsByType = tagsDao.getTagsOfType(ciString("TEST-ASN-ONLY-RESOURCE"));
+        assertThat(tagsByType, hasSize(1));
+        assertThat(objectDao.getById(tagsByType.get(0).getObjectId()).getKey().toString(), is("193.1.0.0/24AS1"));
+    }
+
+    @Test
+    public void tagRouteBothPrefixAndASN() {
+        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("193.1.0.0/24"))).thenReturn(true);
+        databaseHelper.addObjects(Lists.newArrayList(
+                RpslObject.parse("" +
+                        "inetnum:        193.1.0.0 - 193.1.0.255\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "source:         TEST-GRS\n"),
+                RpslObject.parse("" +
+                        "aut-num:        AS1\n" +
+                        "source:         TEST-GRS\n"
+                ),
+                RpslObject.parse("" +
+                        "route:          193.1.0.0/24\n" +
+                        "origin:         AS1\n" +
+                        "source:         TEST-GRS\n"
+                )
+        ));
+
+        subject.tagObjects(testGrsSource);
+
+        final List<Tag> tagsByType = tagsDao.getTagsOfType(ciString("TEST-ASN-AND-PREFIX-RESOURCE"));
+        assertThat(tagsByType, hasSize(1));
+        assertThat(objectDao.getById(tagsByType.get(0).getObjectId()).getKey().toString(), is("193.1.0.0/24AS1"));
+    }
+
+    @Test
+    public void tagRoute6BothPrefixAndASN() {
+        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001:2002::/64"))).thenReturn(true);
+        databaseHelper.addObjects(Lists.newArrayList(
+                RpslObject.parse("" +
+                        "inet6num:       2001:2002::/64\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "source:         TEST-GRS\n"),
+                RpslObject.parse("" +
+                        "aut-num:        AS1\n" +
+                        "source:         TEST-GRS\n"
+                ),
+                RpslObject.parse("" +
+                        "route6:         2001:2002::/64\n" +
+                        "origin:         AS1\n" +
+                        "source:         TEST-GRS\n"
+                )
+        ));
+
+        subject.tagObjects(testGrsSource);
+
+        final List<Tag> tagsByType = tagsDao.getTagsOfType(ciString("TEST-ASN-AND-PREFIX-RESOURCE"));
+        assertThat(tagsByType, hasSize(1));
+        assertThat(objectDao.getById(tagsByType.get(0).getObjectId()).getKey().toString(), is("2001:2002::/64AS1"));
     }
 }

@@ -81,14 +81,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link DirectLookup }
-     *
-     */
-    public DirectLookup createDirectLookup() {
-        return new DirectLookup();
-    }
-
-    /**
      * Create an instance of {@link TypeFilter }
      *
      */

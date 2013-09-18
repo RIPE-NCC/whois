@@ -10,11 +10,11 @@
     <import resource="applicationContext-commons.xml"/>
     <import resource="applicationContext-query.xml"/>
     <import resource="applicationContext-update.xml"/>
-    <import resource="applicationContext-nrtm.xml"/>
 
     <oxm:jaxb2-marshaller id="marshaller">
         <oxm:class-to-be-bound name="net.ripe.db.whois.api.freetext.SearchResponse"/>
         <oxm:class-to-be-bound name="net.ripe.db.whois.api.whois.domain.WhoisResources"/>
         <oxm:class-to-be-bound name="net.ripe.db.whois.api.whois.domain.WhoisModify"/>
     </oxm:jaxb2-marshaller>
+
 </beans>

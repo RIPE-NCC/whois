@@ -1,8 +1,5 @@
 package net.ripe.db.whois.query.support;
 
-// Because I could not find the PatternMatcher in the current version of org.hamcrest
-// Taken from http://piotrga.wordpress.com/2009/03/27/hamcrest-regex-matcher/
-
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;

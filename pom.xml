@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.67.5-SNAPSHOT</version>
+    <version>1.69.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -24,11 +24,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring.version>3.2.0.RELEASE</spring.version>
-        <aspectj.version>1.7.2</aspectj.version>
+        <aspectj.version>1.7.3</aspectj.version>
         <compiler.version>1.7</compiler.version>
         <java.version>1.7</java.version>
-        <jersey.version>2.1</jersey.version>
-        <lucene.version>4.1.0</lucene.version>
+        <jersey.version>2.2</jersey.version>
+        <lucene.version>4.4.0</lucene.version>
+        <jetty.version>8.1.12.v20130726</jetty.version>
+        <lucene.version>4.4.0</lucene.version>
         <whois.main>OVERRIDE</whois.main>
         <sonar.skippedModules>whois-oneshot</sonar.skippedModules>
         <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
@@ -64,6 +66,7 @@
         <module>whois-db</module>
         <module>whois-endtoend</module>
         <module>whois-oneshot</module>
+        <module>whois-logsearch</module>
     </modules>
 
     <dependencyManagement>
@@ -337,11 +340,10 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-webapp</artifactId>
-                <version>8.1.8.v20121106</version>
+                <version>${jetty.version}</version>
             </dependency>
 
-
-            <!-- Jersey JAX-RS implementation -->
+            <!-- Jersey JAX-RS 2.0 implementation -->
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet-core</artifactId>
@@ -351,6 +353,13 @@
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-client</artifactId>
                 <version>${jersey.version}</version>
+            </dependency>
+
+            <!-- Jackson -->
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-jaxrs-base</artifactId>
+                <version>2.2.3</version>
             </dependency>
 
             <!-- lucene for fulltext search -->
@@ -515,6 +524,11 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <compilerArgs>
+                        <arg>-Xlint</arg>
+                    </compilerArgs>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
             <plugin>
@@ -629,25 +643,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>1.5</version>
-                <configuration>
-                    <finalName>${project.artifactId}-${project.version}</finalName>
-                    <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>${whois.main}</mainClass>
-                        </transformer>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                            <resource>META-INF/spring.handlers</resource>
-                        </transformer>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                            <resource>META-INF/spring.schemas</resource>
-                        </transformer>
-                    </transformers>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
                 <version>1.4</version>
@@ -655,10 +650,11 @@
                     <showWeaveInfo>false</showWeaveInfo>
                     <source>${compiler.version}</source>
                     <target>${compiler.version}</target>
-                    <Xlint>ignore</Xlint>
+                    <Xlint>warning</Xlint>
                     <complianceLevel>${compiler.version}</complianceLevel>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <verbose>false</verbose>
+                    <warn>true</warn>
                     <aspectLibraries>
                         <aspectLibrary>
                             <groupId>org.springframework</groupId>
@@ -751,14 +747,6 @@
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>None</test.files.integration>
             </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-shade-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>

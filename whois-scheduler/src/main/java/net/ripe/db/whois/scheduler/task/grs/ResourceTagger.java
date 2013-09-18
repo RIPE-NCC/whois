@@ -10,7 +10,9 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,11 @@ class ResourceTagger {
         try {
             sourceContext.setCurrent(Source.master(grsSource.getName()));
             tagObjectsInContext(grsSource);
+
+            if (sourceContext.isTagRoutes()) {
+                tagRouteObjectsInContext(grsSource);
+            }
+
         } finally {
             sourceContext.removeCurrentSource();
             grsSource.getLogger().info("Tagging objects complete in {}", stopwatch.stop());
@@ -63,7 +70,7 @@ class ResourceTagger {
                 String.format("" +
                         "SELECT object_id, object_type, pkey " +
                         "FROM last " +
-                        "WHERE object_type in (%s) " +
+                        "WHERE object_type IN (%s) " +
                         "AND sequence_id != 0 ",
                         Joiner.on(',').join(Iterables.transform(authoritativeResource.getResourceTypes(), new Function<ObjectType, Integer>() {
                             @Nullable
@@ -90,9 +97,7 @@ class ResourceTagger {
                             }
 
                             if (creates.size() > BATCH_SIZE) {
-                                tagsDao.updateTags(tagTypes, deletes, creates);
-                                deletes.clear();
-                                creates.clear();
+                                updateTags(tagTypes, deletes, creates);
                             }
 
                         } catch (RuntimeException e) {
@@ -101,8 +106,83 @@ class ResourceTagger {
                     }
                 });
 
-        tagsDao.updateTags(tagTypes, deletes, creates);
+        updateTags(tagTypes, deletes, creates);
 
-        // TODO [AK] Delete all tags that still exists but where no RPSL Object exists in last
+        tagsDao.deleteOrphanedTags();
+    }
+
+    private void tagRouteObjectsInContext(final GrsSource grsSource) {
+        final AuthoritativeResource authoritativeResource = grsSource.getAuthoritativeResource();
+        final String rirName = grsSource.getName().toUpperCase().replace("-GRS", "");
+        final CIString asnOnlyTagType = ciString(String.format("%s-ASN-ONLY-RESOURCE", rirName));
+        final CIString prefixOnlyTagType = ciString(String.format("%s-PREFIX-ONLY-RESOURCE", rirName));
+        final CIString asnAndPrefixTagTag = ciString(String.format("%s-ASN-AND-PREFIX-RESOURCE", rirName));
+
+        final List<Integer> deletes = Lists.newArrayList();
+        final List<Tag> creates = Lists.newArrayList();
+        final List<CIString> tagTypes = Lists.newArrayList(asnOnlyTagType, prefixOnlyTagType, asnAndPrefixTagTag);
+
+        executeStreaming(
+                sourceContext.getCurrentSourceConfiguration().getJdbcTemplate(),
+                String.format("" +
+                        "SELECT object_id, object " +
+                        "FROM last " +
+                        "WHERE object_type IN (%d, %d) " +
+                        "AND sequence_id != 0",
+                ObjectTypeIds.getId(ObjectType.ROUTE), ObjectTypeIds.getId(ObjectType.ROUTE6)),
+                new RowCallbackHandler() {
+                    @Override
+                    public void processRow(ResultSet rs) throws SQLException {
+                        try {
+                            final RpslObject object = RpslObject.parse(rs.getInt(1), rs.getBytes(2));
+
+                            final boolean autnumMaintainedByRir = isAutnumMaintainedByRir(object);
+                            final boolean prefixMaintainedByRir = isRouteMaintainedInRirSpace(object);
+
+                            if (autnumMaintainedByRir) {
+                                if (prefixMaintainedByRir) {
+                                    creates.add(new Tag(asnAndPrefixTagTag, object.getObjectId()));
+                                } else {
+                                    creates.add(new Tag(asnOnlyTagType, object.getObjectId()));
+                                }
+                            } else {
+                                if (prefixMaintainedByRir) {
+                                    creates.add(new Tag(prefixOnlyTagType, object.getObjectId()));
+                                }
+                            }
+
+                            if (creates.size() > BATCH_SIZE) {
+                                updateTags(tagTypes, deletes, creates);
+                            }
+
+                        } catch (RuntimeException e) {
+                            grsSource.getLogger().error("Unexpected", e);
+                        }
+                    }
+
+                    private boolean isAutnumMaintainedByRir(final RpslObject object) {
+                        return authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, object.getValueForAttribute(AttributeType.ORIGIN));
+                    }
+
+                    private boolean isRouteMaintainedInRirSpace(final RpslObject object) {
+                        switch (object.getType()) {
+                            case ROUTE:
+                                return authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, object.getValueForAttribute(AttributeType.ROUTE));
+                            case ROUTE6:
+                                return authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, object.getValueForAttribute(AttributeType.ROUTE6));
+                            default:
+                                throw new IllegalArgumentException("Unhandled type " + object.getType());
+                        }
+                    }
+                }
+        );
+
+        updateTags(tagTypes, deletes, creates);
+    }
+
+    private void updateTags(final Iterable<CIString> tagTypes, final List<Integer> deletes, final List<Tag> creates) {
+        tagsDao.updateTags(tagTypes, deletes, creates);
+        deletes.clear();
+        creates.clear();
     }
 }

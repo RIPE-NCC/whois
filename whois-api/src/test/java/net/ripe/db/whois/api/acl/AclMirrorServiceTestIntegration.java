@@ -28,6 +28,8 @@ public class AclMirrorServiceTestIntegration extends AbstractRestClientTest {
         databaseHelper.insertAclMirror("0/0");
         databaseHelper.insertAclMirror("10.0.0.2/32");
         databaseHelper.insertAclMirror("::0/0");
+        databaseHelper.insertApiKey("DB-WHOIS-testapikey", "/api/acl", "acl api key");
+        setApiKey("DB-WHOIS-testapikey");
     }
 
     @Test

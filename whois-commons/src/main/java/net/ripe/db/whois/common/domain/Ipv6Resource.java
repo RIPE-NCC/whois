@@ -15,9 +15,9 @@ import java.util.regex.Pattern;
 
 // TODO: [AH] make parseXXXAddress(), parseXXXPrefix() methods, refer to the specific ones from the rest of the code, depending on expectations
 public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable<Ipv6Resource> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Ipv4Resource.class);
+    public static final String IPV6_REVERSE_DOMAIN = ".ip6.arpa";
 
-    private static final String IPV6_REVERSE_DOMAIN = ".ip6.arpa";
+    private static final Logger LOGGER = LoggerFactory.getLogger(Ipv4Resource.class);
 
     private static final int LONG_BITCOUNT = 64;
     private static final int IPV6_BITCOUNT = 128;

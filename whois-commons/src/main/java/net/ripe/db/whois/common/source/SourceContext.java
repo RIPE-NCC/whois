@@ -40,6 +40,7 @@ public class SourceContext {
 
     private final Set<CIString> grsSourceNames;
     private final Set<CIString> grsSourceNamesForDummification;
+    private final Set<CIString> grsSourceNamesToTagRoutes;
     private final Set<CIString> allSourceNames;
     private final Set<CIString> additionalSourceNames;
     private final Map<CIString, CIString> aliases;
@@ -52,7 +53,8 @@ public class SourceContext {
             @Value("${whois.additional.sources}") final String additionalSourceNames,
             @Value("${grs.sources}") final String grsSourceNames,
             @Value("${nrtm.import.sources}") final String nrtmSourceNames,
-            @Value("${grs.sources.dummify}") final String grsSourceNamesForDummification,
+            @Value("${grs.sources.dummify:}") final String grsSourceNamesForDummification,
+            @Value("${grs.sources.tagRoutes:}") final String grsSourceNamesToTagRoutes,
             @Value("${whois.db.grs.master.baseurl}") final String grsMasterBaseUrl,
             @Value("${whois.db.master.username}") final String whoisMasterUsername,
             @Value("${whois.db.master.password}") final String whoisMasterPassword,
@@ -124,6 +126,7 @@ public class SourceContext {
 
         this.grsSourceNames = Collections.unmodifiableSet(grsSources);
         this.grsSourceNamesForDummification = ciSet(COMMA_SPLITTER.split(grsSourceNamesForDummification));
+        this.grsSourceNamesToTagRoutes = ciSet(COMMA_SPLITTER.split(grsSourceNamesToTagRoutes));
         this.aliases = Collections.unmodifiableMap(aliases);
         this.allSourceNames = Collections.unmodifiableSet(Sets.newLinkedHashSet(Iterables.transform(sourceConfigurations.keySet(), new Function<Source, CIString>() {
             @Nullable
@@ -244,5 +247,10 @@ public class SourceContext {
     public boolean isDummificationRequired() {
         final CIString sourceName = getCurrentSource().getName();
         return grsSourceNamesForDummification.contains(sourceName);
+    }
+
+    public boolean isTagRoutes() {
+        final CIString sourceName = getCurrentSource().getName();
+        return grsSourceNamesToTagRoutes.contains(sourceName);
     }
 }

@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+// TODO: instead of relying on scattered 'if (StringUtils.isBlank(indexDir) {...}', we should use profiles/...
 @Component
 public class FreeTextIndex extends RebuildableIndex {
     private static final Logger LOGGER = LoggerFactory.getLogger(FreeTextIndex.class);
@@ -54,8 +56,8 @@ public class FreeTextIndex extends RebuildableIndex {
     static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
     static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
 
-    static final Analyzer QUERY_ANALYZER = new FreeTextAnalyzer(Version.LUCENE_41, FreeTextAnalyzer.Operation.QUERY);
-    static final Analyzer INDEX_ANALYZER = new FreeTextAnalyzer(Version.LUCENE_41, FreeTextAnalyzer.Operation.INDEX);
+    static final Analyzer QUERY_ANALYZER = new FreeTextAnalyzer(Version.LUCENE_44, FreeTextAnalyzer.Operation.QUERY);
+    static final Analyzer INDEX_ANALYZER = new FreeTextAnalyzer(Version.LUCENE_44, FreeTextAnalyzer.Operation.INDEX);
 
     static final String[] FIELD_NAMES;
 
@@ -96,7 +98,7 @@ public class FreeTextIndex extends RebuildableIndex {
     FreeTextIndex(
             @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
             @Value("${whois.source}") final String source,
-            @Value("${dir.freetext.index}") final String indexDir) {
+            @Value("${dir.freetext.index:}") final String indexDir) {
 
         super(LOGGER, indexDir);
 
@@ -106,7 +108,8 @@ public class FreeTextIndex extends RebuildableIndex {
 
     @PostConstruct
     public void init() {
-        super.init(new IndexWriterConfig(Version.LUCENE_41, INDEX_ANALYZER)
+        if (StringUtils.isBlank(indexDir)) return;
+        super.init(new IndexWriterConfig(Version.LUCENE_44, INDEX_ANALYZER)
                 .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
 
                 new IndexTemplate.WriteCallback() {
@@ -149,6 +152,8 @@ public class FreeTextIndex extends RebuildableIndex {
     }
 
     protected void rebuild(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
+        if (StringUtils.isBlank(indexDir)) return;
+
         indexWriter.deleteAll();
         final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
 
@@ -197,6 +202,7 @@ public class FreeTextIndex extends RebuildableIndex {
 
     @Scheduled(fixedDelay = INDEX_UPDATE_INTERVAL_IN_SECONDS * 1000)
     public void scheduledUpdate() {
+        if (StringUtils.isBlank(indexDir)) return;
         update();
     }
 

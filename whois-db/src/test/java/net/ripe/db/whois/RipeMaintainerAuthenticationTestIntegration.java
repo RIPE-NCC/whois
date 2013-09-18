@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @Ignore
+@ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
 public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegrationTest {
     @Autowired IpRanges ipRanges;
     @Autowired MailUpdatesTestSupport mailUpdatesTestSupport;

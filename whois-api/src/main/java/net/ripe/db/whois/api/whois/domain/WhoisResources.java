@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.whois.domain;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import javax.xml.bind.annotation.*;
@@ -18,20 +17,15 @@ import java.util.List;
         "geolocationAttributes",
         "versions"
 })
-@JsonIgnoreProperties({"noNamespaceSchemaLocation"})
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @XmlRootElement(name = "whois-resources")
 public class WhoisResources {
 
-    private static final String XSI_NAMESPACE_URI = "http://www.w3.org/2001/XMLSchema-instance";
-    private static final String WHOIS_RESOURCES_SCHEMA_LOCATION = "http://apps.db.ripe.net/whois/xsd/whois-resources.xsd";
-
     protected Parameters parameters;
 
+    // TODO: not filled in many cases; e.g. search
     @XmlAttribute
     protected String service;
-    @XmlAttribute(namespace = XSI_NAMESPACE_URI)
-    private String noNamespaceSchemaLocation = WHOIS_RESOURCES_SCHEMA_LOCATION;
     @XmlElement(name = "objects")
     protected WhoisObjects objects;
     @XmlElement(name = "sources")

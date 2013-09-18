@@ -5,10 +5,10 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.search.IndexTemplate;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.search.FacetsCollector;
-import org.apache.lucene.facet.search.params.CountFacetRequest;
-import org.apache.lucene.facet.search.params.FacetSearchParams;
-import org.apache.lucene.facet.search.results.FacetResult;
-import org.apache.lucene.facet.search.results.FacetResultNode;
+import org.apache.lucene.facet.search.CountFacetRequest;
+import org.apache.lucene.facet.params.FacetSearchParams;
+import org.apache.lucene.facet.search.FacetResult;
+import org.apache.lucene.facet.search.FacetResultNode;
 import org.apache.lucene.facet.taxonomy.CategoryPath;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.index.IndexReader;
@@ -78,7 +78,7 @@ class FreeTextSearch {
     private void search(final SearchRequest searchRequest, final Writer writer) throws IOException, ParseException {
         final Stopwatch stopwatch = new Stopwatch().start();
 
-        final QueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_41, FreeTextIndex.FIELD_NAMES, FreeTextIndex.QUERY_ANALYZER);
+        final QueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_44, FreeTextIndex.FIELD_NAMES, FreeTextIndex.QUERY_ANALYZER);
         queryParser.setDefaultOperator(org.apache.lucene.queryparser.classic.QueryParser.Operator.AND);
         final Query query = queryParser.parse(searchRequest.getQuery());
 
@@ -87,7 +87,7 @@ class FreeTextSearch {
             public Void search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
                 final int maxResults = Math.max(100, indexReader.numDocs());
                 final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResults, false, false, false, false);
-                final FacetsCollector facetsCollector = new FacetsCollector(FACET_SEARCH_PARAMS, indexReader, taxonomyReader);
+                final FacetsCollector facetsCollector = FacetsCollector.create(FACET_SEARCH_PARAMS, indexReader, taxonomyReader);
 
                 indexSearcher.search(query, MultiCollector.wrap(topFieldCollector, facetsCollector));
 
@@ -201,14 +201,14 @@ class FreeTextSearch {
         final List<SearchResponse.Lst> facetFieldsList = Lists.newArrayList();
 
         for (final FacetResult facetResult : facetResults) {
-            final String label = facetResult.getFacetResultNode().getLabel().toString();
+            final String label = facetResult.getFacetResultNode().label.toString();
 
             final SearchResponse.Lst facetLst = new SearchResponse.Lst(label);
             final List<SearchResponse.Int> facetInts = Lists.newArrayList();
 
-            for (final FacetResultNode facetResultNode : facetResult.getFacetResultNode().getSubResults()) {
-                final String name = facetResultNode.getLabel().toString();
-                final String value = Integer.toString(Double.valueOf(facetResultNode.getValue()).intValue());
+            for (final FacetResultNode facetResultNode : facetResult.getFacetResultNode().subResults) {
+                final String name = facetResultNode.label.toString();
+                final String value = Integer.toString(Double.valueOf(facetResultNode.value).intValue());
                 facetInts.add(new SearchResponse.Int(name.substring(name.indexOf('/') + 1), value));
             }
 

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/task
+                        http://www.springframework.org/schema/task/spring-task.xsd">
+    <context:mbean-server/>
+    <context:mbean-export/>
+
+    <context:annotation-config/>
+    <context:component-scan base-package="net.ripe.db.whois.logsearch" />
+    <context:property-placeholder
+            location="classpath:logsearch.properties,
+            file:${whois.config}"
+            system-properties-mode="OVERRIDE"/>
+
+    <task:annotation-driven scheduler="logsearchScheduler"/>
+    <task:scheduler id="logsearchScheduler" pool-size="10"/>
+
+    <bean class="net.ripe.db.whois.api.httpserver.RemoteAddressFilter">
+        <constructor-arg>
+            <bean class="net.ripe.db.whois.common.domain.IpRanges" />
+        </constructor-arg>
+    </bean>
+    <bean class="net.ripe.db.whois.api.abusec.JdbcApiKeyDao"/>
+    <bean class="net.ripe.db.whois.api.acl.ApiKeyFilter"/>
+    <bean class="net.ripe.db.whois.api.DefaultExceptionMapper" />
+    <bean class="net.ripe.db.whois.common.ClockDateTimeProvider" />
+
+    <!--datasource bean definitions copied from applicationContext-common.xml-->
+
+    <bean id="abstractDataSource" abstract="true" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+          destroy-method="close">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"/>
+        <property name="minPoolSize" value="0"/>
+        <property name="maxPoolSize" value="20"/>
+        <property name="maxIdleTime" value="7200"/>
+        <property name="preferredTestQuery" value="SELECT 1"/>
+        <property name="idleConnectionTestPeriod" value="15"/>
+    </bean>
+
+    <bean id="aclDataSource" parent="abstractDataSource">
+        <property name="jdbcUrl" value="${acl.database.url}"/>
+        <property name="user" value="${acl.database.username}"/>
+        <property name="password" value="${acl.database.password}"/>
+    </bean>
+</beans>

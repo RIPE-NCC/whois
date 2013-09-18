@@ -25,6 +25,8 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoLastAndUpdateSerials;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoTablesIgnoreMissing;
+import static net.ripe.db.whois.query.support.PatternCountMatcher.matchesPatternCount;
+import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -35,6 +37,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     @Autowired IpTreeUpdater ipTreeUpdater;
     @Autowired DateTimeProvider dateTimeProvider;
 
+    // TODO: [AH] most tests don't taint the DB; have a 'tainted' flag in DBHelper, reinit only if needed
     @Before
     public void startupWhoisServer() {
         final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nchanged: dbtest@ripe.net 20120707\nnic-hdl: ADM-TEST");
@@ -44,6 +47,8 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         databaseHelper.addObject("inetnum: 81.0.0.0 - 82.255.255.255\nnetname: NE\nmnt-by:RIPE-NCC-HM-MNT");
         databaseHelper.addObject("domain: 117.80.81.in-addr.arpa");
         databaseHelper.addObject("inetnum: 81.80.117.237 - 81.80.117.237\nnetname: NN\nstatus: OTHER");
+        databaseHelper.addObject("route: 81.80.117.0/24\norigin: AS123\n");
+        databaseHelper.addObject("route: 81.80.0.0/16\norigin: AS123\n");
         ipTreeUpdater.rebuild();
         queryServer.start();
     }
@@ -212,10 +217,99 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     }
 
     @Test
+    public void reverseDomainUppercaseSearch() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "117.80.81.IN-ADDR.ARPA");
+
+        assertThat(response, containsString("117.80.81.in-addr.arpa"));
+        assertThat(response, not(containsString(QueryMessages.noResults("TEST").toString())));
+    }
+
+    @Test
+    public void routeSimpleHierarchySearch() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.0/24AS123");
+        assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
+    }
+
+    @Test
+    public void routeSimpleHierarchySearchWrongAS() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.0/24AS456");
+        assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
+    }
+
+    @Test
+    public void routeDefaultHierarchySearchForNonexistant() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.54/32AS123");
+        assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
+    }
+
+    @Test
+    public void routeAllLessSpecificHierarchySearchForNonexistant() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-L 81.80.117.54/32AS123");
+        assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
+        assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 4));
+    }
+
+    @Test
+    public void routeOneLessSpecificHierarchySearchForExisting() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-l 81.80.117.0/24AS123");
+        assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
+    }
+
+    @Test
+    public void routeOneLessSpecificHierarchySearchAtTopLevel() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-l 81.80.0.0/16AS123");
+        assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
+    }
+
+    @Test
+    public void routeOneMoreSpecificHierarchySearchAtBottomLevel() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-m 81.80.117.0/24AS123");
+        assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
+    }
+
+    @Test
+    public void routeOneMoreSpecificHierarchySearch() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-m 81.80.0.0/16AS123");
+        assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
+    }
+
+    @Test
+    public void routeOneMoreSpecificHierarchySearchAtTopLevel() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-m 0.0.0.0/0AS123");
+        assertThat(response, containsString("query options are not allowed on very large ranges/prefixes"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 0));
+    }
+
+    @Test
+    public void routeOneMoreSpecificHierarchySearchAtAlmostTopLevel() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-m 81.0.0.0/8AS123");
+        assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
+    }
+
+    @Test
+    public void routeAllMoreSpecificHierarchySearchAtAlmostTopLevel() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-M 81.0.0.0/8AS123");
+        assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
+        assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
+        assertThat(response, matchesPatternCount("(?m)^\\w+: *", 4));
+    }
+
+    @Test
+    public void routeAllMoreSpecificHierarchySearchAtTopLevelWrongAS() throws Exception {
+        final String response = DummyWhoisClient.query(QueryServer.port, "-M 81.0.0.0/8A456");
+        assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
+    }
+
+    @Test
     public void personQueryWithoutSearchKey() throws Exception {
         final String response = DummyWhoisClient.query(QueryServer.port, "-rT person");
 
-        assertThat(response, containsString("no search key specified"));
+        assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
         assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
     }
 
@@ -253,7 +347,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     @Test
     public void unsupported_query() {
         final String response = DummyWhoisClient.query(QueryServer.port, "(85.115.248.176)");
-        assertThat(response, containsString(QueryMessages.unsupportedQuery().toString()));
+        assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
     }
 
     @Test
@@ -707,5 +801,76 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-v role -v person");
         assertThat(response, containsString("ERROR:110: multiple use of flag"));
         assertThat(response, containsString("The flag \"-v\" cannot be used multiple times."));
+    }
+
+    @Test
+    public void testDirectRouteLookup() {
+        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.0/24AS123");
+        assertThat(response, containsString("81.80.117.0/24"));
+    }
+
+    @Test
+    public void validSyntax_missing_attribute() {
+        databaseHelper.addObject("" +
+                "mntner:      DEL-MNT\n" +
+                "descr:       MNTNER for test\n" +
+                "descr:       object not identical to one above\n" +
+                "admin-c:     ADM-TEST\n" +
+                "upd-to:      dbtest@ripe.net\n" +
+                "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
+                "referral-by: DEL-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST");
+
+        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+
+        assertThat(result, containsString("% 'DEL-MNT' invalid syntax"));
+    }
+
+    @Test
+    public void validSyntax_incorrect_attribute() {
+        databaseHelper.addObject("" +
+                "mntner:      DEL-MNT\n" +
+                "descr:       MNTNER for test\n" +
+                "descr:       object not identical to one above\n" +
+                "admin-c:     ADM-TEST\n" +
+                "upd-to:      dbtest_at_ripe.net\n" +
+                "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
+                "referral-by: DEL-MNT\n" +
+                "mnt-by:      DEL-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST");
+
+        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+
+        assertThat(result, containsString("% 'DEL-MNT' invalid syntax"));
+    }
+
+    @Test
+    public void validSyntax_correct_syntax() {
+        databaseHelper.addObject("" +
+                "mntner:      DEL-MNT\n" +
+                "descr:       MNTNER for test\n" +
+                "descr:       object not identical to one above\n" +
+                "admin-c:     ADM-TEST\n" +
+                "upd-to:      dbtest@ripe.net\n" +
+                "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
+                "referral-by: DEL-MNT\n" +
+                "mnt-by:      DEL-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST");
+
+        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+
+        assertThat(result, not(containsString("% 'DEL-MNT' invalid syntax")));
+    }
+
+    @Test
+    public void validSyntax_wrong_queryflag_combination() {
+        final String wrongFlag1 = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --show-version 1 ADM-TEST");
+        assertThat(wrongFlag1, containsString("The flags \"--valid-syntax\" and \"--show-version\" cannot be used together."));
+
+        final String wrongFlag2 = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --list-versions 1 ADM-TEST");
+        assertThat(wrongFlag2, containsString("The flags \"--valid-syntax\" and \"--list-versions\" cannot be used together."));
     }
 }

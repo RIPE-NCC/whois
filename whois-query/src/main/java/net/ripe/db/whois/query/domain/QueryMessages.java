@@ -331,4 +331,8 @@ public final class QueryMessages {
 
         return new Message(Type.INFO, message.toString());
     }
+
+    public static Message invalidSyntax(final CharSequence objectKey) {
+        return new Message(Type.INFO, "%% '%s' invalid syntax", objectKey);
+    }
 }

@@ -1,10 +1,6 @@
 package net.ripe.db.whois.api.acl;
 
 import net.ripe.db.whois.common.domain.BlockEvent;
-import org.codehaus.enunciate.jaxrs.ResponseCode;
-import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.codehaus.enunciate.jaxrs.TypeHint;
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -19,7 +15,6 @@ import static net.ripe.db.whois.api.acl.AclServiceHelper.getNormalizedPrefix;
 /**
  * Manage permanent bans.
  */
-@ExternallyManagedLifecycle
 @Component
 @Path("/acl/bans")
 public class AclBanService {
@@ -37,7 +32,6 @@ public class AclBanService {
      */
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Ban.class)
     public List<Ban> getBans() {
         return aclServiceDao.getBans();
     }
@@ -52,8 +46,6 @@ public class AclBanService {
     @GET
     @Path("/{prefix}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Ban.class)
-    @StatusCodes(@ResponseCode(code = 404, condition = "Permanent ban with the specified prefix does not exist"))
     public Response getBan(@PathParam("prefix") final String prefix) {
         final String normalizedPrefix = getNormalizedPrefix(prefix);
 
@@ -75,7 +67,6 @@ public class AclBanService {
     @POST
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Ban.class)
     public Response saveBan(final Ban ban) {
         final String normalizedPrefix = getNormalizedPrefix(ban.getPrefix());
         ban.setPrefix(normalizedPrefix);
@@ -100,10 +91,6 @@ public class AclBanService {
     @DELETE
     @Path("/{prefix}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Ban.class)
-    @StatusCodes({
-            @ResponseCode(code = 404, condition = "Permanent ban with the specified prefix does not exist")
-    })
     public Response deleteBan(@PathParam("prefix") final String prefix) {
         try {
             final String normalizedPrefix = getNormalizedPrefix(prefix);
@@ -127,8 +114,6 @@ public class AclBanService {
     @GET
     @Path("/{prefix}/events")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @TypeHint(Ban.class)
-    @StatusCodes(@ResponseCode(code = 404, condition = "Permanent ban with the specified prefix does not exist"))
     public List<BanEvent> getBanEvents(@PathParam("prefix") final String prefix) {
         final String normalizedPrefix = getNormalizedPrefix(prefix);
         return aclServiceDao.getBanEvents(normalizedPrefix);

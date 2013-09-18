@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.whois;
 
+import net.ripe.db.whois.api.whois.domain.Link;
 import net.ripe.db.whois.api.whois.domain.WhoisResources;
 
 import javax.xml.bind.JAXBContext;
@@ -28,10 +29,13 @@ class StreamingMarshalXml implements StreamingMarshal {
     private XMLStreamWriter xmlOut;
 
     @Override
-    public void open(final OutputStream outputStream) {
+    public void open(final OutputStream outputStream, String root) {
         try {
             xmlOut = xmlOutputFactory.createXMLStreamWriter(outputStream);
             xmlOut.writeStartDocument();
+            xmlOut.writeStartElement(root);
+            // TODO: this is ugly, should come from package info instead (which is the case with no streaming)
+            xmlOut.writeNamespace("xlink", Link.XLINK_URI);
         } catch (XMLStreamException e) {
             throw new StreamingException(e);
         }

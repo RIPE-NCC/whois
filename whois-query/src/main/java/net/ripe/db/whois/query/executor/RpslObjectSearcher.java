@@ -21,10 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 class RpslObjectSearcher {
@@ -79,9 +76,7 @@ class RpslObjectSearcher {
         }
 
         for (final ObjectType objectType : query.getObjectTypes()) {
-            if (query.matchesObjectType(objectType)) {
-                result = Iterables.concat(result, executeForObjectType(query, objectType));
-            }
+            result = Iterables.concat(result, executeForObjectType(query, objectType));
         }
 
         return result;
@@ -92,17 +87,32 @@ class RpslObjectSearcher {
             case AS_BLOCK:
                 return asBlockLookup(query);
             case INETNUM:
-                return query.getIpKeyOrNull() != null ? ipTreeLookup(ipv4Tree, query.getIpKeyOrNull(), query.matchOperations()) : proxy(inetnumDao.findByNetname(query.getSearchValue()));
+                return query.getIpKeyOrNull() != null ? proxy(ipTreeLookup(ipv4Tree, query.getIpKeyOrNull(), query)) : proxy(inetnumDao.findByNetname(query.getSearchValue()));
             case INET6NUM:
-                return query.getIpKeyOrNull() != null ? ipTreeLookup(ipv6Tree, query.getIpKeyOrNull(), query.matchOperations()) : proxy(inet6numDao.findByNetname(query.getSearchValue()));
+                return query.getIpKeyOrNull() != null ? proxy(ipTreeLookup(ipv6Tree, query.getIpKeyOrNull(), query)) : proxy(inet6numDao.findByNetname(query.getSearchValue()));
             case DOMAIN:
                 return domainLookup(query);
             case ROUTE:
-                return ipTreeLookup(route4Tree, query.getIpKeyOrNull(), query.matchOperations());
+                return routeLookup(route4Tree, query);
             case ROUTE6:
-                return ipTreeLookup(route6Tree, query.getIpKeyOrNull(), query.matchOperations());
+                return routeLookup(route6Tree, query);
             default:
                 return indexLookup(query, type);
+        }
+    }
+
+    private Iterable<ResponseObject> routeLookup(IpTree routeTree, Query query) {
+        final String origin = query.getRouteOrigin();
+        if (origin != null) {
+            final List newEntries = new ArrayList();
+            for (IpEntry ipEntry : ipTreeLookup(routeTree, query.getIpKeyOrNull(), query)) {
+                if (((RouteEntry)ipEntry).getOrigin().equals(origin)) {
+                    newEntries.add(ipEntry);
+                }
+            }
+            return proxy(newEntries);
+        } else {
+            return proxy(ipTreeLookup(routeTree, query.getIpKeyOrNull(), query));
         }
     }
 
@@ -132,24 +142,29 @@ class RpslObjectSearcher {
 
         switch (ipInterval.getAttributeType()) {
             case INETNUM:
-                return ipTreeLookup(ipv4DomainTree, ipInterval, query.matchOperations());
+                return proxy(ipTreeLookup(ipv4DomainTree, ipInterval, query));
             case INET6NUM:
-                return ipTreeLookup(ipv6DomainTree, ipInterval, query.matchOperations());
+                return proxy(ipTreeLookup(ipv6DomainTree, ipInterval, query));
             default:
                 throw new IllegalArgumentException(String.format("Unexpected type: %s", ipInterval.getAttributeType()));
         }
     }
 
-    private Iterable<ResponseObject> ipTreeLookup(final IpTree tree, final IpInterval<?> key, final Set<Query.MatchOperation> matchOperations) {
+    private List<IpEntry> ipTreeLookup(final IpTree tree, final IpInterval<?> key, Query query) {
         if (key == null) {
             return Collections.emptyList();
         }
 
-        final Query.MatchOperation operation = matchOperations.isEmpty() ?
-                Query.MatchOperation.MATCH_EXACT_OR_FIRST_LEVEL_LESS_SPECIFIC :
-                matchOperations.iterator().next();
+        Query.MatchOperation matchOperation = query.matchOperation();
+        if (matchOperation == null) {
+            if (query.getRouteOrigin() != null) {
+                matchOperation = Query.MatchOperation.MATCH_EXACT;
+            } else {
+                matchOperation = Query.MatchOperation.MATCH_EXACT_OR_FIRST_LEVEL_LESS_SPECIFIC;
+            }
+        }
 
-        return proxy(findEntries(key, tree, operation));
+        return findEntries(key, tree, matchOperation);
     }
 
     @SuppressWarnings("unchecked")

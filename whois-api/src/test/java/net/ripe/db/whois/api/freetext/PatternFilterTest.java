@@ -61,7 +61,7 @@ public class PatternFilterTest {
     private List<String> tokenize(final String input) throws IOException {
         final List<String> tokens = Lists.newArrayList();
 
-        final WhitespaceTokenizer whitespaceTokenizer = new WhitespaceTokenizer(Version.LUCENE_41, new StringReader(input));
+        final WhitespaceTokenizer whitespaceTokenizer = new WhitespaceTokenizer(Version.LUCENE_44, new StringReader(input));
         final PatternFilter subject = new PatternFilter(whitespaceTokenizer);
 
         try {

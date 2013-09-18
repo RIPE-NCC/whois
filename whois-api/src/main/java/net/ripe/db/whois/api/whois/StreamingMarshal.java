@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.whois;
 import java.io.OutputStream;
 
 interface StreamingMarshal {
-    void open(OutputStream outputStream);
+    void open(OutputStream outputStream, String root);
 
     void start(String name);
 
@@ -12,5 +12,4 @@ interface StreamingMarshal {
     <T> void write(String name, T t);
 
     void close();
-
 }

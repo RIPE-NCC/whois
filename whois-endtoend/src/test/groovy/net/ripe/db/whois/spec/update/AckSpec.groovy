@@ -35,8 +35,7 @@ class AckSpec extends BaseSpec {
       then:
         def ack = ackFor message
         ack.subject == "SUCCESS: delete MNTNER DEL-MNT"
-        ack.contents =~ /(?s)>  From:.+?SUMMARY OF UPDATE:.+?DETAILED EXPLANATION:.+?~~~~\nThe following.+?~~~~\n+The RIPE Database is subject to Terms and Conditions:/
-//      ack.contents =~ "(?s)(>  From:)|(- From-Host:).+?SUMMARY OF UPDATE:.+?DETAILED EXPLANATION:.+?~~~~\nThe following.+?~~~~\nThe RIPE Database is subject to Terms and Conditions:"
+        ack.contents =~ "(?s)>  From:.+?SUMMARY OF UPDATE:.+?Number of objects found:.+?DETAILED EXPLANATION:.+?~~~~\nThe following.+?---\nDelete SUCCEEDED:.+?~~~~\n+The RIPE Database is subject to Terms and Conditions:"
     }
 
     // Check basic structure of a sync ack message
@@ -44,7 +43,13 @@ class AckSpec extends BaseSpec {
       when:
         def result = syncUpdate(getTransient("DEL-MNT") + "password: owner")
       then:
-        result =~ /(?s)- From-Host:.+?SUMMARY OF UPDATE:.+?DETAILED EXPLANATION:.+?~~~~\nThe following.+?~~~~\n+The RIPE Database is subject to Terms and Conditions:/
+        result =~ "(?s)- From-Host:.+?" +
+                  "SUMMARY OF UPDATE:.+?" +
+                  "Number of objects found:.+?" +
+                  "DETAILED EXPLANATION:.+?" +
+                  "~~~~\nThe following.+?" +
+                  "---\nCreate FAILED:.+?" +
+                  "~~~~\n+The RIPE Database is subject to Terms and Conditions:"
     }
 
     // Check the ack message summary structure

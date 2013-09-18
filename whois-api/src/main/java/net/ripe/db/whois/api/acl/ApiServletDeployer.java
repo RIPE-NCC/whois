@@ -1,9 +1,9 @@
 package net.ripe.db.whois.api.acl;
 
 import net.ripe.db.whois.api.DefaultExceptionMapper;
+import net.ripe.db.whois.api.abusec.AbuseCService;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
-import net.ripe.db.whois.api.wsearch.LogSearchService;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -23,19 +23,20 @@ public class ApiServletDeployer implements ServletDeployer {
     private final AclLimitService aclLimitService;
     private final AclMirrorService aclMirrorService;
     private final AclProxyService aclProxyService;
-    private final LogSearchService logSearchService;
+    private final AbuseCService abuseCService;
     private final DefaultExceptionMapper defaultExceptionMapper;
 
     @Autowired
-    public ApiServletDeployer(final ApiKeyFilter apiKeyFilter, final AclBanService aclBanService, final AclLimitService aclLimitService, final AclMirrorService aclMirrorService, final AclProxyService aclProxyService, final LogSearchService logSearchService, final DefaultExceptionMapper defaultExceptionMapper) {
-        this.apiKeyFilter = apiKeyFilter;
+    public ApiServletDeployer(final ApiKeyFilter apiKeyFilter, final AclBanService aclBanService, final AclLimitService aclLimitService, final AclMirrorService aclMirrorService, final AclProxyService aclProxyService, final AbuseCService abuseCService, final DefaultExceptionMapper defaultExceptionMapper) {
         this.aclBanService = aclBanService;
         this.aclLimitService = aclLimitService;
         this.aclMirrorService = aclMirrorService;
         this.aclProxyService = aclProxyService;
-        this.logSearchService = logSearchService;
+        this.abuseCService = abuseCService;
         this.defaultExceptionMapper = defaultExceptionMapper;
+        this.apiKeyFilter = apiKeyFilter;
     }
+
 
     @Override
     public Audience getAudience() {
@@ -51,7 +52,7 @@ public class ApiServletDeployer implements ServletDeployer {
         resourceConfig.register(aclLimitService);
         resourceConfig.register(aclMirrorService);
         resourceConfig.register(aclProxyService);
-        resourceConfig.register(logSearchService);
+        resourceConfig.register(abuseCService);
         resourceConfig.register(defaultExceptionMapper);
         resourceConfig.register(new JacksonJaxbJsonProvider());
 

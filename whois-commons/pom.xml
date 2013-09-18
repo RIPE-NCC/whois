@@ -4,13 +4,13 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.67.5-SNAPSHOT</version>
+        <version>1.69.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois-commons</artifactId>
-    <version>1.67.5-SNAPSHOT</version>
+    <version>1.69.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -102,6 +102,12 @@
         <dependency>
             <groupId>com.googlecode.java-diff-utils</groupId>
             <artifactId>diffutils</artifactId>
+        </dependency>
+        <!-- test -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

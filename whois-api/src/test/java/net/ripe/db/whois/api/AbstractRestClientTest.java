@@ -3,7 +3,6 @@ package net.ripe.db.whois.api;
 import net.ripe.db.whois.api.httpserver.Audience;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.junit.Before;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -15,8 +14,7 @@ import java.net.URLEncoder;
 public abstract class AbstractRestClientTest extends AbstractIntegrationTest {
     protected Client client;
 
-    @Value("${api.key}")
-    private String apiKey;
+    protected String apiKey;
 
     @Before
     public void setUpClient() throws Exception {
@@ -27,6 +25,10 @@ public abstract class AbstractRestClientTest extends AbstractIntegrationTest {
 
     protected WebTarget createStaticResource(final Audience audience, final String path) {
        return client.target(String.format("http://localhost:%s/%s", getPort(audience), path));
+    }
+
+    protected void setApiKey(final String apiKey) {
+        this.apiKey = apiKey;
     }
 
     protected WebTarget createResource(final Audience audience, final String path) {

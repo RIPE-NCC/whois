@@ -97,6 +97,11 @@ public class JdbcTagsDao implements TagsDao {
     }
 
     @Override
+    public void deleteOrphanedTags() {
+        jdbcTemplate.update("DELETE tags FROM tags LEFT OUTER JOIN last ON last.object_id = tags.object_id WHERE last.sequence_id = 0");
+    }
+
+    @Override
     public void deleteTagsOfType(CIString type) {
         jdbcTemplate.update("DELETE FROM tags WHERE tag_id = ?", type.toString());
     }
