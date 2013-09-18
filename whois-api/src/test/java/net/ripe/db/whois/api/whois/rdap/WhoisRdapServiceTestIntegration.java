@@ -15,7 +15,6 @@ import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -954,29 +953,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
         assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/entity/ORG-ONE-TEST"));
-    }
-
-    // HTML Documentation
-
-    @Test
-    public void html_documentation() {
-        String response = createStaticResource(AUDIENCE, "rdap-doc/")
-                .get(String.class);
-
-        assertThat(response, containsString("RIPE RDAP API"));
-    }
-
-    @Ignore("TODO: fix redirect")
-    @Test
-    public void redirect_to_html_documentation() {
-        try {
-            createResource(AUDIENCE, "")
-                .get(String.class);
-            fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-            assertThat(e.getResponse().getHeaders().get("Location").get(0), is("/rdap-doc/"));
-        }
     }
 
     @Override

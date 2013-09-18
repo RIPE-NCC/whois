@@ -126,12 +126,6 @@ public class WhoisRdapService {
         return lookupObject(request, whoisObjectTypes, getKey(whoisObjectTypes, key));
     }
 
-    @GET
-    @Path("/")
-    public Response redirectToDocumentation() {
-        return Response.status(Response.Status.MOVED_PERMANENTLY).location(URI.create("/rdap-doc/")).build();
-    }
-
     private void validateDomain(final String key) {
         try {
             Domain.parse(key);
