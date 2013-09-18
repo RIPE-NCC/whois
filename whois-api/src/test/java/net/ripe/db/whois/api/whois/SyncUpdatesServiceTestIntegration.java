@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.mail.MailSenderStub;
-import org.junit.Ignore;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,6 @@ import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import java.net.HttpURLConnection;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -72,12 +71,12 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         assertThat(response, not(containsString("$")));
     }
 
-    @Ignore("TODO: [ES] support multipart form data")
     @Test
     public void post_multipart_form_help_parameter_only() {
+        final FormDataMultiPart multipart = new FormDataMultiPart().field("HELP", "help");
         String response = createResource(AUDIENCE, "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity("HELP=help", MediaType.MULTIPART_FORM_DATA), String.class);
+                .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
         assertThat(response, containsString("You have requested Help information from the RIPE NCC Database"));
     }
@@ -234,17 +233,21 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     public void new_and_data_parameters_urlencoded_post_request() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = doPostRequest(getUrl("test", ""), "DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED_TYPE, HttpURLConnection.HTTP_OK);
+        String response = createResource(AUDIENCE, "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity("DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
     }
 
-    @Ignore("TODO: [ES] support multipart form data")
     @Test
     public void new_and_data_parameters_multipart_post_request() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = doPostRequest(getUrl("test", ""), "DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes", MediaType.MULTIPART_FORM_DATA_TYPE, HttpURLConnection.HTTP_OK);
+        final FormDataMultiPart multipart = new FormDataMultiPart().field("DATA", MNTNER_TEST_MNTNER + "\npassword: emptypassword").field("NEW", "yes");
+        String response = createResource(AUDIENCE, "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
     }
@@ -269,10 +272,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
     private boolean anyMoreMessages() {
         return mailSender.anyMoreMessages();
-    }
-
-    private String getUrl(final String instance, final String command) {
-        return "http://localhost:" + getPort(AUDIENCE) + String.format("/whois/syncupdates/%s?%s", instance, command);
     }
 
     @Override

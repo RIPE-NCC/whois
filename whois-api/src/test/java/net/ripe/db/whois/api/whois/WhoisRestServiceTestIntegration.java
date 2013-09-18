@@ -11,8 +11,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
-import org.codehaus.jackson.map.DeserializationConfig;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -25,7 +23,6 @@ import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -96,17 +93,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.updateObject(TEST_ROLE);
-    }
-
-    @Before
-    @Override
-    public void setUpClient() {
-        final JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
-        provider.configure(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE, false);
-        provider.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        client = ClientBuilder.newBuilder()
-                .register(provider)
-                .build();
     }
 
     @Test

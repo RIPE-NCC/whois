@@ -8,6 +8,7 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     public void deploy(WebAppContext context) {
         context.addFilter(new FilterHolder(maintenanceModeFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
         final ResourceConfig resourceConfig = new ResourceConfig();
+        resourceConfig.register(MultiPartFeature.class);
         resourceConfig.register(whoisRestService);
         resourceConfig.register(syncUpdatesService);
         resourceConfig.register(whoisMetadata);

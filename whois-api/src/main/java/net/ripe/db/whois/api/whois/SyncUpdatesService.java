@@ -16,6 +16,7 @@ import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -100,11 +101,11 @@ public class SyncUpdatesService {
     public Response doMultipartPost(
             @Context final HttpServletRequest httpServletRequest,
             @PathParam(SOURCE) final String source,
-            @FormParam(Command.DATA) final String data,
-            @FormParam(Command.HELP) final String help,
-            @FormParam(Command.NEW) final String nnew,
-            @FormParam(Command.DIFF) final String diff,
-            @FormParam(Command.REDIRECT) final String redirect) {
+            @FormDataParam(Command.DATA) final String data,
+            @FormDataParam(Command.HELP) final String help,
+            @FormDataParam(Command.NEW) final String nnew,
+            @FormDataParam(Command.DIFF) final String diff,
+            @FormDataParam(Command.REDIRECT) final String redirect) {
         final Request request = new Request(data, nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source);
         return doSyncUpdate(request);
     }
