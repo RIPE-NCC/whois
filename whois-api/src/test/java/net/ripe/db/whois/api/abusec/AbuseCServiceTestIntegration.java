@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.*;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
@@ -48,13 +49,16 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
                 "changed: denis@ripe.net 20121016\n" +
                 "source: test"));
 
-        final String response = doPostOrPutRequest("http://localhost:" + getPort(AUDIENCE) + "/api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey", "POST", "email=email@email.net", MediaType.TEXT_PLAIN, 200);
+        final String response = doPostOrPutRequest(
+                "http://localhost:" + getPort(AUDIENCE) + "/api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey",
+                "POST",
+                "email=email@email.net",
+                MediaType.APPLICATION_FORM_URLENCODED,
+                HttpURLConnection.HTTP_OK);
 
         assertThat(response, is("http://apps.db.ripe.net/whois/lookup/TEST/organisation/ORG-TOL1-TEST.html\n"));
-
         final RpslObject organisation = databaseHelper.lookupObject(ORGANISATION, "ORG-TOL1-TEST");
         assertThat(organisation.getValueForAttribute(AttributeType.ABUSE_C), is(CIString.ciString("AR1-TEST")));
-
         final RpslObject role = databaseHelper.lookupObject(ROLE, "AR1-TEST");
         assertThat(role.getValueForAttribute(ABUSE_MAILBOX), is(CIString.ciString("email@email.net")));
         assertThat(role.findAttribute(ADDRESS), is(organisation.findAttribute(ADDRESS)));
@@ -78,13 +82,25 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
                 "changed: denis@ripe.net 20121016\n" +
                 "source: test"));
 
-        final String response = doPostOrPutRequest("http://localhost:" + getPort(AUDIENCE) + "/api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey", "POST", "email=email@email.net", MediaType.TEXT_PLAIN, 409);
+        final String response = doPostOrPutRequest(
+                "http://localhost:" + getPort(AUDIENCE) + "/api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey",
+                "POST",
+                "email=email@email.net",
+                MediaType.APPLICATION_FORM_URLENCODED,
+                HttpURLConnection.HTTP_CONFLICT);
+
         assertThat(response, is("This organisation already has an abuse contact\n"));
     }
 
     @Test
     public void wrong_apikey() throws IOException {
-        final String response = doPostOrPutRequest("http://localhost:" + getPort(AUDIENCE) + "/api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-totallywrongkey", "POST", "email=email@email.net", MediaType.TEXT_PLAIN, 403);
+        final String response = doPostOrPutRequest(
+                "http://localhost:" + getPort(AUDIENCE) + "/api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-totallywrongkey",
+                "POST",
+                "email=email@email.net",
+                MediaType.APPLICATION_FORM_URLENCODED,
+                HttpURLConnection.HTTP_FORBIDDEN);
+
         assertThat(response, is("Invalid apiKey\n"));
     }
 }
