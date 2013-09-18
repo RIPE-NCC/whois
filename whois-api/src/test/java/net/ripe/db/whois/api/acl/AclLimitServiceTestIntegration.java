@@ -8,12 +8,11 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -109,8 +108,7 @@ public class AclLimitServiceTestIntegration extends AbstractRestClientTest {
             createResource(AUDIENCE, LIMITS_PATH, "0/0")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .delete(Limit.class);
-        } catch (ClientErrorException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.FORBIDDEN.getStatusCode()));
+        } catch (ForbiddenException e) {
             assertThat(e.getResponse().readEntity(String.class), is("Deleting the root object is not allowed"));
         }
     }

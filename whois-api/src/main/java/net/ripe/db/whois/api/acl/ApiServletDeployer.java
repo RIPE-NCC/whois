@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.abusec.AbuseCService;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -54,7 +55,11 @@ public class ApiServletDeployer implements ServletDeployer {
         resourceConfig.register(aclProxyService);
         resourceConfig.register(abuseCService);
         resourceConfig.register(defaultExceptionMapper);
-        resourceConfig.register(new JacksonJaxbJsonProvider());
+
+        final JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
+        provider.configure(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE, false);
+        provider.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        resourceConfig.register(provider);
 
         context.addServlet(new ServletHolder("REST API", new ServletContainer(resourceConfig)), "/api/*");
     }

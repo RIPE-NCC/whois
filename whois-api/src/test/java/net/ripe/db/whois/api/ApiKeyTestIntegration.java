@@ -5,11 +5,11 @@ import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.ForbiddenException;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class ApiKeyTestIntegration extends AbstractRestClientTest {
@@ -19,8 +19,8 @@ public class ApiKeyTestIntegration extends AbstractRestClientTest {
     public void no_api_key() {
         try {
             client.target(String.format("http://localhost:%s/api", getPort(AUDIENCE))).request().get(String.class);
-        } catch (ClientErrorException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.FORBIDDEN.getStatusCode()));
+            fail();
+        } catch (ForbiddenException e) {
             assertThat(e.getResponse().readEntity(String.class), is("No apiKey parameter specified"));
         }
     }
@@ -29,8 +29,8 @@ public class ApiKeyTestIntegration extends AbstractRestClientTest {
     public void invalid_api_key() {
         try {
             client.target(String.format("http://localhost:%s/api?apiKey=INVALID", getPort(AUDIENCE))).request().get(String.class);
-        } catch (ClientErrorException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.FORBIDDEN.getStatusCode()));
+            fail();
+        } catch (ForbiddenException e) {
             assertThat(e.getResponse().readEntity(String.class), is("Invalid apiKey"));
         }
     }
