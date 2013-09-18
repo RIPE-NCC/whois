@@ -27,7 +27,7 @@ class GrsIntegrationSpec extends BaseSpec {
 
     def "query --list-sources"() {
       when:
-        def response = query("--list-sources")
+        def response = query("--list-sourceNames")
 
       then:
         response =~ "TEST"

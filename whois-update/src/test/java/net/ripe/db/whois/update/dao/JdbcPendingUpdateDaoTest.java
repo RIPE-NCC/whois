@@ -26,7 +26,7 @@ import static org.hamcrest.core.Is.is;
 public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
     @Autowired private PendingUpdateDao subject;
     @Autowired private DateTimeProvider dateTimeProvider;
-    @Autowired @Qualifier("pendingUpdateDataSource") private DataSource dataSource;
+    @Autowired @Qualifier("internalsDataSource") private DataSource dataSource;
 
     @Test
     public void findByTypeAndPkey_existing_object() throws SQLException {
@@ -98,7 +98,7 @@ public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
     }
 
     private List<Map<String, Object>> getPendingUpdates(RpslObject object) {
-        return databaseHelper.getPendingUpdatesTemplate().queryForList(
+        return databaseHelper.getInternalsTemplate().queryForList(
                 "SELECT * FROM pending_updates WHERE pkey = ?",
                 object.getKey().toString());
     }
@@ -116,6 +116,6 @@ public class JdbcPendingUpdateDaoTest extends AbstractDaoTest {
     }
 
     private int getPendingUpdateCount() {
-        return databaseHelper.getPendingUpdatesTemplate().queryForInt("SELECT count(*) FROM pending_updates");
+        return databaseHelper.getInternalsTemplate().queryForInt("SELECT count(*) FROM pending_updates");
     }
 }

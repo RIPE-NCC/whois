@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.grs;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -31,9 +30,9 @@ class AuthoritativeResourceDataValidator {
 
     @Autowired
     AuthoritativeResourceDataValidator(
-            @Value("${grs.sources}") final String grsSourceNames,
+            @Value("${grs.sources}") final String[] grsSourceNames,
             final AuthoritativeResourceData authoritativeResourceData) {
-        this.sources = Lists.newArrayList(ciSet(Splitter.on(',').split(grsSourceNames)));
+        this.sources = Lists.newArrayList(ciSet(grsSourceNames));
         this.authoritativeResourceData = authoritativeResourceData;
 
         int maxSourceLength = 0;

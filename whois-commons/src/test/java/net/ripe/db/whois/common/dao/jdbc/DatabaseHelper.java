@@ -60,7 +60,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private JdbcTemplate aclTemplate;
     private JdbcTemplate schedulerTemplate;
     private JdbcTemplate mailupdatesTemplate;
-    private JdbcTemplate pendingUpdatesTemplate;
+    private JdbcTemplate internalsTemplate;
 
     @Autowired Environment environment;
     @Autowired DateTimeProvider dateTimeProvider;
@@ -97,9 +97,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     @Autowired(required = false)
-    @Qualifier("pendingUpdateDataSource")
+    @Qualifier("internalsDataSource")
     public void setPendingDataSource(DataSource pendingDataSource) {
-        pendingUpdatesTemplate = new JdbcTemplate(pendingDataSource);
+        internalsTemplate = new JdbcTemplate(pendingDataSource);
     }
 
     @Override
@@ -127,10 +127,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
         setupDatabase(jdbcTemplate, "acl.database", "ACL", "acl_schema.sql");
         setupDatabase(jdbcTemplate, "dnscheck.database", "DNSCHECK", "dnscheck_schema.sql");
-        setupDatabase(jdbcTemplate, "scheduler.database", "SCHEDULER", "scheduler_schema.sql");
         setupDatabase(jdbcTemplate, "mailupdates.database", "MAILUPDATES", "mailupdates_schema.sql");
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
-        setupDatabase(jdbcTemplate, "pending.database", "PENDING", "pending_schema.sql");
+        setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
 
         final String masterUrl = String.format("jdbc:log:mysql://localhost/%s_WHOIS;driver=%s;logger=%s", dbBaseName, JDBC_DRIVER, LOGGING_HANDLER);
         System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
@@ -241,7 +240,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             }
         }
 
-        truncateTables(aclTemplate, schedulerTemplate, mailupdatesTemplate, pendingUpdatesTemplate);
+        truncateTables(aclTemplate, schedulerTemplate, mailupdatesTemplate, internalsTemplate);
     }
 
     public DataSource getMailupdatesDataSource() {
@@ -252,8 +251,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return dnsCheckDataSource;
     }
 
-    public JdbcTemplate getPendingUpdatesTemplate() {
-        return pendingUpdatesTemplate;
+    public JdbcTemplate getInternalsTemplate() {
+        return internalsTemplate;
     }
 
     public JdbcTemplate getWhoisTemplate() {

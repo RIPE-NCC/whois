@@ -514,7 +514,7 @@ class LongOptionsSpec extends BaseSpec {
         queryObject("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       and:
-        queryMatches("--list-sources", "TEST:")
+        queryMatches("--list-sourceNames", "TEST:")
         queryMatches("--version", "whois-server-")
         queryMatches("--types", "inet6num")
     }
