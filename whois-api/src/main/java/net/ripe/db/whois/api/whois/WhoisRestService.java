@@ -207,7 +207,7 @@ public class WhoisRestService {
                 noFilter ? QueryFlag.NO_FILTERING.getLongFlag() : "",
                 key));
 
-        return handleQuery(query, key, request, null);
+        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), System.identityHashCode(Thread.currentThread()), null);
     }
 
     @GET
@@ -222,7 +222,24 @@ public class WhoisRestService {
         checkForMainSource(source);
 
         final Query query = Query.parse(String.format("--list-versions %s", key));
-        return handleQuery(query, key, request, null);
+
+        final ApiResponseHandlerVersions apiResponseHandlerVersions = new ApiResponseHandlerVersions();
+        queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), System.identityHashCode(Thread.currentThread()), apiResponseHandlerVersions);
+
+        final List<DeletedVersionResponseObject> deleted = apiResponseHandlerVersions.getDeletedObjects();
+        final List<VersionResponseObject> versions = apiResponseHandlerVersions.getVersionObjects();
+
+        if (versions.isEmpty() && deleted.isEmpty()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
+        final WhoisVersions whoisVersions = new WhoisVersions(type, key, whoisObjectMapper.mapVersions(deleted, versions));
+
+        final WhoisResources whoisResources = new WhoisResources();
+        whoisResources.setVersions(whoisVersions);
+
+        return Response.ok(whoisResources).build();
     }
 
     @GET
@@ -241,34 +258,13 @@ public class WhoisRestService {
                 "--show-version %s %s",
                 version,
                 key));
-        return handleQuery(query, key, request, null);
-    }
 
-    // TODO: [AH] refactor this looks-generic-but-is-not method
-    private Response handleQuery(final Query query, final String key, final HttpServletRequest request, @Nullable final Parameters parameters) {
-        final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
-        final int contextId = System.identityHashCode(Thread.currentThread());
-
-        if (query.isVersionList() || query.isObjectVersion()) {
-            return handleVersionQuery(query, key, remoteAddress, contextId);
-        }
-
-        return handleQueryAndStreamResponse(query, request, remoteAddress, contextId, parameters);
-    }
-
-    // TODO: [AH] refactor this spaghetti
-    private Response handleVersionQuery(final Query query, final String key, final InetAddress remoteAddress, final int contextId) {
         final ApiResponseHandlerVersions apiResponseHandlerVersions = new ApiResponseHandlerVersions();
-        queryHandler.streamResults(query, remoteAddress, contextId, apiResponseHandlerVersions);
-
+        queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), System.identityHashCode(Thread.currentThread()), apiResponseHandlerVersions);
         final VersionWithRpslResponseObject versionResponseObject = apiResponseHandlerVersions.getVersionWithRpslResponseObject();
-        final List<DeletedVersionResponseObject> deleted = apiResponseHandlerVersions.getDeletedObjects();
-        final List<VersionResponseObject> versions = apiResponseHandlerVersions.getVersionObjects();
 
-        if (versionResponseObject == null && versions.isEmpty()) {
-            if (deleted.isEmpty() || query.isObjectVersion()) {
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
-            }
+        if (versionResponseObject == null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
         final WhoisResources whoisResources = new WhoisResources();
@@ -277,12 +273,7 @@ public class WhoisRestService {
             final WhoisObject whoisObject = whoisObjectMapper.map(versionResponseObject.getRpslObject());
             whoisObject.setVersion(versionResponseObject.getVersion());
             whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
-        } else {
-            final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
-            final WhoisVersions whoisVersions = new WhoisVersions(type, key, whoisObjectMapper.mapVersions(deleted, versions));
-            whoisResources.setVersions(whoisVersions);
         }
-
         return Response.ok(whoisResources).build();
     }
 
@@ -457,7 +448,7 @@ public class WhoisRestService {
         parameters.setTypeFilters(types);
         parameters.setFlags(separateFlags);
 
-        return handleQuery(query, queryString, request, parameters);
+        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), System.identityHashCode(Thread.currentThread()), parameters);
     }
 
     private void checkForInvalidSources(final Set<String> sources) {
