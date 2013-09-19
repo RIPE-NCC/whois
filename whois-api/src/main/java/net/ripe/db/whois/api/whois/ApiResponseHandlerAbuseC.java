@@ -8,7 +8,6 @@ public class ApiResponseHandlerAbuseC extends ApiResponseHandler  {
 
     @Override
     public void handle(final ResponseObject responseObject) {
-        System.out.println("APIRESPONSEHANDLER:" + responseObject + "," + responseObject.getClass());
         if (responseObject instanceof RpslAttributes) {
             this.abuseContactInfo = (RpslAttributes)responseObject;
         }

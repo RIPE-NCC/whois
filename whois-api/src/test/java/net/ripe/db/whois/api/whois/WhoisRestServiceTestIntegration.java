@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -659,7 +660,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "abuse-c: TR1-TEST\n" +
                 "mnt-by: OWNER-MNT\n" +
                 "source: TEST");
-        final RpslObject object = databaseHelper.addObject("" +
+        databaseHelper.addObject("" +
                 "inet6num: 2a00:1f78::fffe/48\n" +
                 "netname: RIPE-NCC\n" +
                 "descr: some description\n" +
@@ -672,8 +673,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "changed: org@ripe.net 20120505\n" +
                 "source: TEST");
         ipTreeUpdater.rebuild();
-
-        assertThat(object,  is(not(nullValue())));
 
         final String result = createResource(AUDIENCE, "whois/abuse-finder/test/2a00:1f78::fffe/48")
                 .accept(MediaType.APPLICATION_JSON)
@@ -714,7 +713,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "abuse-c: TR1-TEST\n" +
                 "mnt-by: OWNER-MNT\n" +
                 "source: TEST");
-        final RpslObject object = databaseHelper.addObject("" +
+        databaseHelper.addObject("" +
                 "inet6num: 2a00:1f78::fffe/48\n" +
                 "netname: RIPE-NCC\n" +
                 "descr: some description\n" +
@@ -727,8 +726,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "changed: org@ripe.net 20120505\n" +
                 "source: TEST");
         ipTreeUpdater.rebuild();
-
-        assertThat(object, is(not(nullValue())));
 
         final String result = createResource(AUDIENCE, "whois/abuse-finder/test/2a00:1f78::fffe/48")
                 .accept(MediaType.APPLICATION_XML)
@@ -747,6 +744,49 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "<abuse-contacts email=\"abuse@test.net\"/>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
                 "</abuse-resources>"));
+    }
+
+    @Test
+    public void abusec_autnum_found() {
+        databaseHelper.addObject("" +
+                "organisation: ORG-OT1-TEST\n" +
+                "org-type: OTHER\n" +
+                "abuse-c: TR1-TEST\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: test");
+        databaseHelper.addObject("" +
+                "aut-num: AS333\n" +
+                "as-name: Test-User-1\n" +
+                "descr: some description\n" +
+                "org: ORG-OT1-TEST\n" +
+                "admin-c: TP1-TEST\n" +
+                "tech-c: TP1-TEST\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "changed: org@ripe.net 20120505\n" +
+                "source: test");
+
+        final AbuseResources result = createResource(AUDIENCE, "whois/abuse-finder/test/AS333")
+                .accept(MediaType.APPLICATION_XML)
+                .get(AbuseResources.class);
+
+        assertThat(result.getAbuseContact().getEmail(), is("abuse@test.net"));
+        assertThat(result.getParameters().getSources().getSources().get(0).getId(), is("test"));
+    }
+
+    @Test
+    public void abuse_contact_not_found() {
+
+    }
+
+    @Test
+    public void abuse_object_not_found() {
+        try {
+            createResource(AUDIENCE, "whois/abuse-finder/test/AS333")
+                    .accept(MediaType.APPLICATION_XML)
+                    .get(String.class);
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getClientResponseStatus(), is(ClientResponse.Status.NOT_FOUND));
+        }
     }
 
     // versions

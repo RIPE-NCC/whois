@@ -12,11 +12,14 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import javax.annotation.Nullable;
 import java.util.*;
 
-class ToBriefFunction implements Function<ResponseObject, ResponseObject> {
+import static net.ripe.db.whois.common.rpsl.ObjectType.*;
+
+class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
     private static final Set<AttributeType> BRIEF_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.ABUSE_MAILBOX);
+    private static final Set<ObjectType> ABUSE_CONTACT_OBJECT_TYPES = Sets.immutableEnumSet(INET6NUM, INETNUM, AUT_NUM);
     private final AbuseCFinder abuseCFinder;
 
-    public ToBriefFunction(final AbuseCFinder abuseCFinder) {
+    public BriefAbuseCFunction(final AbuseCFinder abuseCFinder) {
         this.abuseCFinder = abuseCFinder;
     }
 
@@ -31,7 +34,7 @@ class ToBriefFunction implements Function<ResponseObject, ResponseObject> {
         final List<RpslAttribute> newAttributes = new ArrayList<>();
         final List<RpslAttribute> abuseCAttributes = new ArrayList<>();
 
-        if (rpslObject.getType() == ObjectType.INETNUM || rpslObject.getType() == ObjectType.INET6NUM) {
+        if (ABUSE_CONTACT_OBJECT_TYPES.contains(rpslObject.getType())) {
             final Map<CIString, CIString> abuseContacts = abuseCFinder.getAbuseContacts(rpslObject);
             if (!abuseContacts.isEmpty()) {
                 abuseCAttributes.add(rpslObject.getTypeAttribute());

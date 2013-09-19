@@ -21,9 +21,9 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class AbuseCFunctionTest {
+public class AbuseCInfoFunctionTest {
     @Mock private AbuseCFinder abuseCFinder;
-    @InjectMocks AbuseCFunction subject;
+    @InjectMocks AbuseCInfoFunction subject;
 
     @Test
     public void notApplicable() {
@@ -44,7 +44,7 @@ public class AbuseCFunctionTest {
 
         when(abuseCFinder.getAbuseContacts(object)).thenReturn(map);
 
-        AbuseCFunction subject = new AbuseCFunction(abuseCFinder);
+        AbuseCInfoFunction subject = new AbuseCInfoFunction(abuseCFinder);
         final Iterator<? extends ResponseObject> iterator = subject.apply(object).iterator();
 
         final MessageObject result = (MessageObject) iterator.next();

@@ -16,11 +16,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-class AbuseCFunction implements Function<ResponseObject, Iterable<? extends ResponseObject>> {
+class AbuseCInfoFunction implements Function<ResponseObject, Iterable<? extends ResponseObject>> {
     private static final Set<ObjectType> OBJECT_TYPES = Sets.newHashSet(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
     private final AbuseCFinder abuseCFinder;
 
-    public AbuseCFunction(final AbuseCFinder abuseCFinder) {
+    public AbuseCInfoFunction(final AbuseCFinder abuseCFinder) {
         this.abuseCFinder = abuseCFinder;
     }
 

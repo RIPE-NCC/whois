@@ -43,8 +43,8 @@ public class RpslResponseDecorator {
     private final RpslObjectDao rpslObjectDao;
     private final FilterPersonalDecorator filterPersonalDecorator;
     private final SourceContext sourceContext;
-    private final AbuseCFunction abuseCFunction;
-    private final ToBriefFunction toBriefFunction;
+    private final AbuseCInfoFunction abuseCInfoFunction;
+    private final BriefAbuseCFunction briefAbuseCFunction;
     private final DummifyFunction dummifyFunction;
     private final ValidSyntaxFunction validSyntaxFunction;
     private final FilterTagsDecorator filterTagsDecorator;
@@ -69,8 +69,8 @@ public class RpslResponseDecorator {
         this.validSyntaxFunction = new ValidSyntaxFunction();
         this.filterTagsDecorator = filterTagsDecorator;
         this.filterPlaceholdersDecorator = filterPlaceholdersDecorator;
-        this.abuseCFunction = new AbuseCFunction(abuseCFinder);
-        this.toBriefFunction = new ToBriefFunction(abuseCFinder);
+        this.abuseCInfoFunction = new AbuseCInfoFunction(abuseCFinder);
+        this.briefAbuseCFunction = new BriefAbuseCFunction(abuseCFinder);
         this.decorators = Sets.newHashSet(decorators);
         this.mainSource = mainSource;
     }
@@ -94,8 +94,8 @@ public class RpslResponseDecorator {
     }
 
     private Iterable<? extends ResponseObject> applyAbuseC(final Query query, final Iterable<? extends ResponseObject> result) {
-        if (!query.isBrief() && sourceContext.getCurrentSource().getName().equals(CIString.ciString(mainSource))) {
-            return Iterables.concat(Iterables.transform(result, abuseCFunction));
+        if (!query.isAbuseContact() && sourceContext.getCurrentSource().getName().equals(CIString.ciString(mainSource))) {
+            return Iterables.concat(Iterables.transform(result, abuseCInfoFunction));
         }
 
         return result;
@@ -158,7 +158,7 @@ public class RpslResponseDecorator {
     }
 
     private Iterable<? extends ResponseObject> filterEmail(final Query query, final Iterable<? extends ResponseObject> groupedObjects) {
-        if (!sourceContext.isAcl() || !query.isFiltered() || query.isBrief()) {
+        if (!sourceContext.isAcl() || !query.isFiltered() || query.isAbuseContact()) {
             return groupedObjects;
         }
 
@@ -180,8 +180,8 @@ public class RpslResponseDecorator {
             return Iterables.transform(objects, new ToShorthandFunction());
         }
 
-        if (query.isBrief()) {
-            return Iterables.filter(Iterables.transform(objects, toBriefFunction), Predicates.notNull());
+        if (query.isAbuseContact()) {
+            return Iterables.filter(Iterables.transform(objects, briefAbuseCFunction), Predicates.notNull());
         }
 
         if (query.isKeysOnly()) {

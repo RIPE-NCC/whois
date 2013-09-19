@@ -642,13 +642,13 @@ public class QueryTest {
     @Test
     public void isBrief() {
         Query query = Query.parse("-b 10.0.0.0");
-        assertThat(query.isBrief(), is(true));
+        assertThat(query.isAbuseContact(), is(true));
     }
 
     @Test
     public void isBrief_forces_grouping_and_irt() {
         Query query = Query.parse("-b -C 10.0.0.0");
-        assertThat(query.isBrief(), is(true));
+        assertThat(query.isAbuseContact(), is(true));
         assertThat(query.isGrouping(), is(false));
         assertThat(query.isReturningIrt(), is(true));
     }
@@ -656,7 +656,7 @@ public class QueryTest {
     @Test
     public void not_isBrief() {
         Query query = Query.parse("foo");
-        assertThat(query.isBrief(), is(false));
+        assertThat(query.isAbuseContact(), is(false));
     }
 
     @Test
