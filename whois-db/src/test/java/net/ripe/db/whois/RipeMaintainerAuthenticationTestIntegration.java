@@ -1,33 +1,41 @@
 package net.ripe.db.whois;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.Audience;
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.mail.internet.MimeMessage;
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
-@Ignore("TODO: Ignored?")
-@ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
-public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegrationTest {
+@Ignore("TODO: ignored until WhoisProfile.isDeployed() check is removed from Authenticator")
+@ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
+@Category(IntegrationTest.class)
+public class RipeMaintainerAuthenticationTestIntegration extends AbstractRestClientTest {
     @Autowired IpRanges ipRanges;
     @Autowired MailUpdatesTestSupport mailUpdatesTestSupport;
     @Autowired MailSenderStub mailSenderStub;
+
+    private static final Audience AUDIENCE = Audience.PUBLIC;
 
     private static final String RPSL_PERSON_WITH_RIPE_MAINTAINER = "" +
             "person:    TEST Person\n" +
@@ -81,9 +89,7 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
     @Test
     public void rest_api_update_from_outside_ripe_network() throws IOException {
         ipRanges.setTrusted("53.67.0.1");
-
-        String url = "http://localhost:" + getPort(Audience.PUBLIC) + "/whois/create?password=emptypassword";
-        String person =
+        final String person =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n" +
                         "<whois-resources>\n" +
                         "  <objects>\n" +
@@ -103,16 +109,20 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
                         "  </objects>\n" +
                         "</whois-resources>\n";
 
-        final String result = doPostRequest(url, person, MediaType.APPLICATION_XML_TYPE, HttpURLConnection.HTTP_UNAUTHORIZED);
-        assertThat(result, containsString("Unauthorized"));
+        try {
+            createResource(AUDIENCE, "whois/test/person?password=emptypassword")
+                .request()
+                .post(Entity.entity(person, MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (NotAuthorizedException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("Unauthorized"));
+        }
     }
 
     @Test
     public void rest_api_update_from_within_ripe_network() throws IOException {
         ipRanges.setTrusted("127.0.0.1", "::1");
-
-        String url = "http://localhost:" + getPort(Audience.PUBLIC) + "/whois/create?password=emptypassword";
-        String person =
+        final String person =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n" +
                         "<whois-resources>\n" +
                         "  <objects>\n" +
@@ -132,8 +142,14 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
                         "  </objects>\n" +
                         "</whois-resources>\n";
 
-        final String result = doPostRequest(url, person, MediaType.APPLICATION_XML_TYPE, HttpURLConnection.HTTP_FORBIDDEN);
-        assertThat(result, containsString("Unauthorized"));
+        try {
+            createResource(AUDIENCE, "whois/test/person?password=emptypassword")
+                .request()
+                .post(Entity.entity(person, MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (NotAuthorizedException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("Unauthorized"));
+        }
     }
 
     @Test
@@ -184,5 +200,10 @@ public class RipeMaintainerAuthenticationTestIntegration extends AbstractIntegra
         assertThat(response, not(containsString("" +
                 "***Error:   Authentication by RIPE NCC maintainers only allowed from within the\n" +
                 "            RIPE NCC network")));
+    }
+
+    @Override
+    protected WebTarget createResource(final Audience audience, final String path) {
+        return client.target(String.format("http://localhost:%s/%s", getPort(audience), path));
     }
 }
