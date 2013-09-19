@@ -168,9 +168,23 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void only_data_parameter_create_object_incorrect_source() throws Exception {
+    public void create_object_invalid_source_in_url() throws Exception {
+        try {
+            createResource(AUDIENCE, "whois/syncupdates/invalid?DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+                    .request()
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("Invalid source specified: invalid"));
+        }
+    }
+
+    @Test
+    public void create_object_invalid_source_in_data() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
-        final String mntnerInvalidSource = MNTNER_TEST_MNTNER.replaceAll("source: TEST", "source: invalid");
+        final String mntnerInvalidSource = MNTNER_TEST_MNTNER.replaceAll("source:\\s+TEST", "source: invalid");
+
+        System.out.println("mntner = " + mntnerInvalidSource);
 
         String response = createResource(AUDIENCE, "whois/syncupdates/test?" + "DATA=" + encode(mntnerInvalidSource + "\npassword: emptypassword"))
                     .request()
@@ -270,18 +284,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
         assertThat(response, containsString("Flughafenstraße 109/a"));
-    }
-
-    @Test
-    public void invalid_source() throws Exception {
-        try {
-            createResource(AUDIENCE, "whois/syncupdates/invalid?DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
-                    .request()
-                    .get(String.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), containsString("Invalid source specified: invalid"));
-        }
     }
 
     // helper methods
