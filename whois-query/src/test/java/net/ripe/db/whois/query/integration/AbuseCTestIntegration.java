@@ -113,6 +113,8 @@ public class AbuseCTestIntegration extends AbstractWhoisIntegrationTest {
         assertThat(response, containsString(
                 "% Information related to 'AS102'\n" +
                         "\n" +
+                        "% No abuse contact registered for AS102\n" +
+                        "\n" +
                         "aut-num:        AS102"));
         assertThat(response, not(containsString("Abuse contact")));
     }

@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.MessageObject;
+import net.ripe.db.whois.query.domain.QueryMessages;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -53,5 +54,18 @@ public class AbuseCInfoFunctionTest {
 
         assertThat(iterator.next(), is(instanceOf(ResponseObject.class)));
         assertThat(iterator.hasNext(), is(false));
+    }
+
+    @Test
+    public void autnum_without_abuse_contact() {
+        final RpslObject autnum = RpslObject.parse("aut-num: AS333\nas-name: TEST-NAME\norg: ORG-TOL1-TEST");
+        when(abuseCFinder.getAbuseContacts(autnum)).thenReturn(new HashMap<CIString, CIString>());
+
+        final AbuseCInfoFunction subject = new AbuseCInfoFunction(abuseCFinder);
+        final Iterator<? extends ResponseObject> iterator = subject.apply(autnum).iterator();
+
+        final MessageObject result = (MessageObject) iterator.next();
+
+        assertThat(result.toString(), is(QueryMessages.abuseCNotRegistered("AS333").getValue()));
     }
 }

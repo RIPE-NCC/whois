@@ -94,7 +94,7 @@ public class RpslResponseDecorator {
     }
 
     private Iterable<? extends ResponseObject> applyAbuseC(final Query query, final Iterable<? extends ResponseObject> result) {
-        if (!query.isAbuseContact() && sourceContext.getCurrentSource().getName().equals(CIString.ciString(mainSource))) {
+        if (!query.isBriefAbuseContact() && sourceContext.getCurrentSource().getName().equals(CIString.ciString(mainSource))) {
             return Iterables.concat(Iterables.transform(result, abuseCInfoFunction));
         }
 
@@ -158,7 +158,7 @@ public class RpslResponseDecorator {
     }
 
     private Iterable<? extends ResponseObject> filterEmail(final Query query, final Iterable<? extends ResponseObject> groupedObjects) {
-        if (!sourceContext.isAcl() || !query.isFiltered() || query.isAbuseContact()) {
+        if (!sourceContext.isAcl() || !query.isFiltered() || query.isBriefAbuseContact()) {
             return groupedObjects;
         }
 
@@ -180,7 +180,7 @@ public class RpslResponseDecorator {
             return Iterables.transform(objects, new ToShorthandFunction());
         }
 
-        if (query.isAbuseContact()) {
+        if (query.isBriefAbuseContact()) {
             return Iterables.filter(Iterables.transform(objects, briefAbuseCFunction), Predicates.notNull());
         }
 

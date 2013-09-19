@@ -198,14 +198,14 @@ public final class Query {
     }
 
     public boolean isReturningIrt() {
-        return isAbuseContact() || (!isKeysOnly() && hasOption(QueryFlag.IRT));
+        return isBriefAbuseContact() || (!isKeysOnly() && hasOption(QueryFlag.IRT));
     }
 
     public boolean isGrouping() {
-        return (!isKeysOnly() && !hasOption(QueryFlag.NO_GROUPING)) && !isAbuseContact();
+        return (!isKeysOnly() && !hasOption(QueryFlag.NO_GROUPING)) && !isBriefAbuseContact();
     }
 
-    public boolean isAbuseContact() {
+    public boolean isBriefAbuseContact() {
         return hasOption(QueryFlag.ABUSE_CONTACT);
     }
 
@@ -230,7 +230,7 @@ public final class Query {
     }
 
     public boolean isReturningReferencedObjects() {
-        return !(hasOption(QueryFlag.NO_REFERENCED) || isShortHand() || isKeysOnly() || isResource() || isAbuseContact());
+        return !(hasOption(QueryFlag.NO_REFERENCED) || isShortHand() || isKeysOnly() || isResource() || isBriefAbuseContact());
     }
 
     public boolean isInverse() {
@@ -341,7 +341,7 @@ public final class Query {
     }
 
     public boolean hasIpFlags() {
-        return isLookupInBothDirections() || isAbuseContact() || matchOperation != null;
+        return isLookupInBothDirections() || isBriefAbuseContact() || matchOperation != null;
     }
 
     public boolean hasObjectTypeFilter(ObjectType objectType) {

@@ -32,7 +32,9 @@ class AbuseCInfoFunction implements Function<ResponseObject, Iterable<? extends 
             if (OBJECT_TYPES.contains(object.getType())) {
                 final Map<CIString, CIString> abuseContacts = abuseCFinder.getAbuseContacts(object);
 
-                if (!abuseContacts.isEmpty()) {
+                if (abuseContacts.isEmpty()) {
+                    return Arrays.asList(new MessageObject(QueryMessages.abuseCNotRegistered(object.getKey())), input);
+                }  else {
                     return Arrays.asList(new MessageObject(QueryMessages.abuseCShown(abuseContacts)), input);
                 }
             }

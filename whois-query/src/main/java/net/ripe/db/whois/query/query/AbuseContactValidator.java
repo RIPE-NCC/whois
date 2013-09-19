@@ -7,7 +7,7 @@ import net.ripe.db.whois.query.domain.QueryMessages;
 class AbuseContactValidator implements QueryValidator {
     @Override
     public void validate(final Query query, final Messages messages) {
-        if (!query.isAbuseContact()) {
+        if (!query.isBriefAbuseContact()) {
             return;
         }
 

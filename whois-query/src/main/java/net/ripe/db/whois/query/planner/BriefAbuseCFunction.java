@@ -10,7 +10,10 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.*;
 
@@ -30,7 +33,6 @@ class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
         }
 
         final RpslObject rpslObject = (RpslObject) input;
-        final List<RpslAttribute> attributes = rpslObject.getAttributes();
         final List<RpslAttribute> newAttributes = new ArrayList<>();
         final List<RpslAttribute> abuseCAttributes = new ArrayList<>();
 
@@ -38,16 +40,14 @@ class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
             final Map<CIString, CIString> abuseContacts = abuseCFinder.getAbuseContacts(rpslObject);
             if (!abuseContacts.isEmpty()) {
                 abuseCAttributes.add(rpslObject.getTypeAttribute());
-                final Iterator<CIString> iterator = abuseContacts.keySet().iterator();
-                while (iterator.hasNext()) {
-                    final CIString abuseContact = abuseContacts.get(iterator.next());
+                for (final CIString abuseContact : abuseContacts.keySet()) {
                     abuseCAttributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseContact.toString()));
                 }
                 return new RpslAttributes(abuseCAttributes);
             }
         }
 
-        for (final RpslAttribute attribute : attributes) {
+        for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             if (BRIEF_ATTRIBUTES.contains(attribute.getType())) {
                 newAttributes.add(attribute);
             }

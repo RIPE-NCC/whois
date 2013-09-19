@@ -218,7 +218,7 @@ public class RpslResponseDecoratorTest {
     public void non_grouping_and_recursive_no_rpsl_objects() {
         String result = execute("-G -B -T inetnum 10.0.0.0", RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.0"));
 
-        assertThat(result, is("inetnum:        10.0.0.0 - 10.0.0.0\n\n"));
+        assertThat(result, is("% No abuse contact registered for 10.0.0.0 - 10.0.0.0\n\ninetnum:        10.0.0.0 - 10.0.0.0\n\n"));
     }
 
     @Test

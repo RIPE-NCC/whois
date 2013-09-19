@@ -52,6 +52,10 @@ public final class QueryMessages {
         return new Message(Type.INFO, "%% Abuse contact for '%s' is '%s'\n", entry.getKey(), entry.getValue());
     }
 
+    public static Message abuseCNotRegistered(final CharSequence key) {
+        return new Message(Type.INFO, "%% No abuse contact registered for %s\n", key);
+    }
+
     public static Message outputFilterNotice() {
         return new Message(Type.INFO, ""
                 + "% Note: this output has been filtered.\n"
