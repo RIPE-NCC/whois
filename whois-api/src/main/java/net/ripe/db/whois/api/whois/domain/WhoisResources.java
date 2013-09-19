@@ -15,7 +15,8 @@ import java.util.List;
         "sources",
         "grsSources",
         "geolocationAttributes",
-        "versions"
+        "versions",
+        "termsAndConditions"
 })
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @XmlRootElement(name = "whois-resources")
@@ -35,9 +36,11 @@ public class WhoisResources {
     @XmlElement
     private Link link;
     @XmlElement(name = "geolocation-attributes")
-    private GeolocationAttributes geolocationAttributes; // TODO [AK] What about this one? are we using getters or field access?
+    private GeolocationAttributes geolocationAttributes;
     @XmlElement(name = "versions")
     protected WhoisVersions versions;
+    @XmlElement(name = "terms-and-conditions")
+    private Link termsAndConditions;
 
     public Link getLink() {
         return link;
@@ -104,6 +107,15 @@ public class WhoisResources {
 
     public WhoisResources setVersions(WhoisVersions versions) {
         this.versions = versions;
+        return this;
+    }
+
+    public Link getTermsAndConditions() {
+        return termsAndConditions;
+    }
+
+    public WhoisResources setTermsAndConditions(Link termsAndConditions) {
+        this.termsAndConditions = termsAndConditions;
         return this;
     }
 }

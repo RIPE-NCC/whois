@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -55,33 +54,13 @@ public class WhoisObjectMapper {
         this.baseUrl = baseUrl;
     }
 
-    // TODO: [AH] converting between object by parse(toString()) is the most inefficient; reimplement using direct translation
     public RpslObject map(final WhoisObject whoisObject) {
-        final StringBuilder builder = new StringBuilder();
-        for (Attribute attribute : whoisObject.getAttributes()) {
-
-            Iterable<String> values;
-
-            AttributeType attributeType = AttributeType.getByName(attribute.getName());
-            if (CSV_ATTRIBUTES.contains(attributeType)) {
-                values = CSV_SPLITTER.split(attribute.getValue());  // TODO: [AH] don't do this! see getCleanValues()
-            } else {
-                values = Collections.singletonList(attribute.getValue());
-            }
-
-            for (String value : values) {
-                builder.append(attribute.getName());
-                builder.append(": ");
-                builder.append(value);
-                if (attribute.getComment() != null) {
-                    builder.append(" # ");
-                    builder.append(attribute.getComment());
-                }
-                builder.append('\n');
-            }
+        final List<RpslAttribute> rpslAttributes = Lists.newArrayList();
+        for (final Attribute attribute : whoisObject.getAttributes()) {
+            rpslAttributes.add(new RpslAttribute(attribute.getName(), attribute.getValue()));
         }
 
-        return RpslObject.parse(builder.toString());
+        return new RpslObject(rpslAttributes);
     }
 
     public WhoisResources map(final List<RpslObject> rpslObjects) {
@@ -231,6 +210,8 @@ public class WhoisObjectMapper {
         parameters.setPrimaryKey(new AbusePKey(foundKey));
         parameters.setSources(Lists.newArrayList(new Source(source).setName(source.toUpperCase())));
         abuseResources.setParameters(parameters);
+
+        abuseResources.setTermsAndConditions(new Link("locator", WhoisRestService.TERMS_AND_CONDITIONS));
 
         return abuseResources;
     }

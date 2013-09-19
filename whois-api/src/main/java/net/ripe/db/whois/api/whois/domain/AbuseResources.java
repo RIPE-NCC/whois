@@ -10,7 +10,8 @@ import javax.xml.bind.annotation.*;
         "service",
         "link",
         "parameters",
-        "abuseContact"
+        "abuseContact",
+        "termsAndConditions"
 })
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @XmlRootElement(name = "abuse-resources")
@@ -23,6 +24,8 @@ public class AbuseResources {
     private Parameters parameters;
     @XmlElement(name = "abuse-contacts")
     private AbuseContact abuseContact;
+    @XmlElement(name = "terms-and-conditions")
+    private Link termsAndConditions;
 
     public String getService() {
         return service;
@@ -53,5 +56,13 @@ public class AbuseResources {
     public AbuseResources setAbuseContact(final AbuseContact abuseContact) {
         this.abuseContact = abuseContact;
         return this;
+    }
+
+    public Link getTermsAndConditions() {
+        return termsAndConditions;
+    }
+
+    public void setTermsAndConditions(final Link termsAndConditions) {
+        this.termsAndConditions = termsAndConditions;
     }
 }

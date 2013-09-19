@@ -232,13 +232,16 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("nic-hdl", "TP1-TEST"),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)));
+
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisRestService.TERMS_AND_CONDITIONS));
     }
 
     @Test
     public void json_lookup_correct_object() throws Exception {
         final String whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST").accept(MediaType.APPLICATION_JSON_TYPE).get(String.class);
         assertThat(whoisResources, containsString("{\"object\":[{\"type\":\"person"));
-        assertThat(whoisResources, containsString("\"tags\":{\"tag\":[]}}]}}"));
+        assertThat(whoisResources, containsString("\"tags\":{\"tag\":[]}}]}"));
+        assertThat(whoisResources, containsString("\"terms-and-conditions\":{\"xlink:type\":\"locator\",\"xlink:href\":\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"}}"));
     }
 
     @Test
@@ -253,6 +256,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("phone", "+31 6 12345678"),
                 new Attribute("nic-hdl", "TR1-TEST"),
                 new Attribute("admin-c", "TR1-TEST", null, "role", new Link("locator", "http://rest-test.db.ripe.net/test/role/TR1-TEST")),
+                new Attribute("abuse-mailbox", "abuse@test.net"),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
@@ -358,6 +362,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("changed", "noreply@ripe.net 20120101"),
                 new Attribute("remarks", "remark"),
                 new Attribute("source", "TEST")));
+
+        assertThat(response.getTermsAndConditions().getHref(), is(WhoisRestService.TERMS_AND_CONDITIONS));
     }
 
     @Test
@@ -592,6 +598,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
                 new Attribute("source", "TEST")));
+
+        assertThat(response.getTermsAndConditions().getHref(), is(WhoisRestService.TERMS_AND_CONDITIONS));
     }
 
     @Test
@@ -670,7 +678,6 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         final String result = createResource(AUDIENCE, "whois/abuse-finder/test/2a00:1f78::fffe/48")
                 .accept(MediaType.APPLICATION_JSON)
                 .get(String.class);
-
         assertThat(result, is("" +
                 "{\n" +
                 "  \"service\" : \"abuse-finder\",\n" +
@@ -691,6 +698,10 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
                 "    \"email\" : \"abuse@test.net\"\n" +
+                "  },\n" +
+                "  \"terms-and-conditions\" : {\n" +
+                "    \"xlink:type\" : \"locator\",\n" +
+                "    \"xlink:href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
                 "  }\n" +
                 "}"));
     }
@@ -722,8 +733,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         final String result = createResource(AUDIENCE, "whois/abuse-finder/test/2a00:1f78::fffe/48")
                 .accept(MediaType.APPLICATION_XML)
                 .get(String.class);
-
-        final String readable = Joiner.on(">\n").join(Splitter.on(">").split(result));
+        final String readable = Joiner.on(">\n").join(Splitter.on(">").split(result)).trim();
         assertThat(readable, is("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                 "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-finder\">\n" +
@@ -735,6 +745,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "</sources>\n" +
                 "</parameters>\n" +
                 "<abuse-contacts email=\"abuse@test.net\"/>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
                 "</abuse-resources>"));
     }
 
@@ -1185,6 +1196,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)
         ));
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisRestService.TERMS_AND_CONDITIONS));
     }
 
     @Test

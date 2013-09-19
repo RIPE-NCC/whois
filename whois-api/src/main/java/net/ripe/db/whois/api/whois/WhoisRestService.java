@@ -46,6 +46,7 @@ import static net.ripe.db.whois.query.query.QueryFlag.*;
 @Path("/")
 public class WhoisRestService {
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
+    static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/db/support/db-terms-conditions.pdf";
 
     private static final Joiner JOINER = Joiner.on(",");
     private static final Splitter AMPERSAND = Splitter.on("&");
@@ -223,6 +224,7 @@ public class WhoisRestService {
 
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setVersions(whoisVersions);
+        whoisResources.setTermsAndConditions(new Link("locator", TERMS_AND_CONDITIONS));
 
         return Response.ok(whoisResources).build();
     }
@@ -259,6 +261,7 @@ public class WhoisRestService {
             whoisObject.setVersion(versionResponseObject.getVersion());
             whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         }
+        whoisResources.setTermsAndConditions(new Link("locator", TERMS_AND_CONDITIONS));
         return Response.ok(whoisResources).build();
     }
 
@@ -308,6 +311,8 @@ public class WhoisRestService {
                     }
                 }
 
+                streamingMarshal.end();
+                streamingMarshal.write("terms-and-conditions", new Link("locator", TERMS_AND_CONDITIONS));
                 streamingMarshal.close();
             }
 
@@ -537,6 +542,7 @@ public class WhoisRestService {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(rpslObject, filter)));
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
+        whoisResources.setTermsAndConditions(new Link("locator", TERMS_AND_CONDITIONS));
         return whoisResources;
     }
 
