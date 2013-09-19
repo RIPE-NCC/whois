@@ -50,8 +50,12 @@ public abstract class AbstractRestClientTest extends AbstractIntegrationTest {
     }
 
     protected String encode(final String param) {
+        return encode(param, "UTF-8");
+    }
+
+    protected String encode(final String param, final String encoding) {
         try {
-            return URLEncoder.encode(param, "UTF-8");
+            return URLEncoder.encode(param, encoding);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
