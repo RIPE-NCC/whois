@@ -1,4 +1,4 @@
-package net.ripe.db.whois;
+package net.ripe.db.whois.api.whois;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractRestClientTest;
@@ -12,7 +12,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.client.Entity;
@@ -25,7 +24,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Ignore("TODO: ignored until WhoisProfile.isDeployed() check is removed from Authenticator")
-@ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
 @Category(IntegrationTest.class)
 public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractRestClientTest {
 

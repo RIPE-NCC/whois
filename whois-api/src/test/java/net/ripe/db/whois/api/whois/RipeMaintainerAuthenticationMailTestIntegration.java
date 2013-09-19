@@ -1,27 +1,35 @@
-package net.ripe.db.whois;
+package net.ripe.db.whois.api.whois;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.MailUpdatesTestSupport;
+import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
+
+import javax.mail.internet.MimeMessage;
+import javax.ws.rs.client.WebTarget;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @Ignore("TODO: ignored until WhoisProfile.isDeployed() check is removed from Authenticator")
-@ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
 @Category(IntegrationTest.class)
-public class RipeMaintainerAuthenticationSyncupdatesTestIntegration extends AbstractIntegrationTest {
-
+public class RipeMaintainerAuthenticationMailTestIntegration extends AbstractIntegrationTest {
     @Autowired IpRanges ipRanges;
+    @Autowired MailUpdatesTestSupport mailUpdatesTestSupport;
+    @Autowired MailSenderStub mailSenderStub;
 
     private static final String RPSL_PERSON_WITH_RIPE_MAINTAINER = "" +
             "person:    TEST Person\n" +
@@ -70,26 +78,28 @@ public class RipeMaintainerAuthenticationSyncupdatesTestIntegration extends Abst
     }
 
     @Test
-    public void sync_update_from_outside_ripe_network() throws Exception {
+    public void mail_update_from_outside_ripe_network() throws Exception {
         ipRanges.setTrusted("53.67.0.1");
 
-        final String response = WhoisFixture.syncupdate(jettyConfig, RPSL_PERSON_WITH_RIPE_MAINTAINER,
-                false, false, true, false, true, 200);
+        final String response = mailUpdatesTestSupport.insert("NEW", RPSL_PERSON_WITH_RIPE_MAINTAINER);
 
-        assertThat(response, containsString("" +
+        final MimeMessage message = mailSenderStub.getMessage(response);
+
+        assertThat(message.getContent().toString(), containsString("" +
                 "***Error:   Authentication by RIPE NCC maintainers only allowed from within the\n" +
                 "            RIPE NCC network"));
     }
 
     @Test
-    public void sync_update_from_within_ripe_network() throws Exception {
+    public void mail_update_from_within_ripe_network() throws Exception {
         ipRanges.setTrusted("127.0.0.1", "::1");
 
-        final String response = WhoisFixture.syncupdate(jettyConfig, RPSL_PERSON_WITH_RIPE_MAINTAINER,
-                false, false, true, false, true, 200);
+        final String response = mailUpdatesTestSupport.insert("NEW", RPSL_PERSON_WITH_RIPE_MAINTAINER);
 
-        assertThat(response, not(containsString("" +
+        final MimeMessage message = mailSenderStub.getMessage(response);
+
+        assertThat(message.getContent().toString(), containsString("" +
                 "***Error:   Authentication by RIPE NCC maintainers only allowed from within the\n" +
-                "            RIPE NCC network")));
+                "            RIPE NCC network"));
     }
 }
