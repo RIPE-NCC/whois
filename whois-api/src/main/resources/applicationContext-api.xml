@@ -15,6 +15,7 @@
         <oxm:class-to-be-bound name="net.ripe.db.whois.api.freetext.SearchResponse"/>
         <oxm:class-to-be-bound name="net.ripe.db.whois.api.whois.domain.WhoisResources"/>
         <oxm:class-to-be-bound name="net.ripe.db.whois.api.whois.domain.WhoisModify"/>
+        <oxm:class-to-be-bound name="net.ripe.db.whois.api.whois.domain.AbuseResources"/>
     </oxm:jaxb2-marshaller>
 
 </beans>

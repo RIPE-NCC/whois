@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.whois;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -77,6 +79,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
             "phone:     +31 6 12345678\n" +
             "nic-hdl:   TR1-TEST\n" +
             "admin-c:   TR1-TEST\n" +
+            "abuse-mailbox: abuse@test.net\n" +
             "mnt-by:    OWNER-MNT\n" +
             "changed:   dbtest@ripe.net 20120101\n" +
             "source:    TEST\n");
@@ -638,6 +641,101 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_BAD_METHOD));
         }
+    }
+
+    @Test
+    public void abusec_inetnum_found_json() throws IOException {
+        databaseHelper.addObject("" +
+                "organisation: ORG-OT1-TEST\n" +
+                "org-type: OTHER\n" +
+                "abuse-c: TR1-TEST\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: TEST");
+        final RpslObject object = databaseHelper.addObject("" +
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                "netname: RIPE-NCC\n" +
+                "descr: some description\n" +
+                "org: ORG-OT1-TEST\n" +
+                "country: DK\n" +
+                "admin-c: TP1-TEST\n" +
+                "tech-c: TP1-TEST\n" +
+                "status: SUB-ALLOCATED PA\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "changed: org@ripe.net 20120505\n" +
+                "source: TEST");
+        ipTreeUpdater.rebuild();
+
+        assertThat(object,  is(not(nullValue())));
+
+        final String result = createResource(AUDIENCE, "whois/abuse-finder/test/2a00:1f78::fffe/48")
+                .accept(MediaType.APPLICATION_JSON)
+                .get(String.class);
+
+        assertThat(result, is("" +
+                "{\n" +
+                "  \"service\" : \"abuse-finder\",\n" +
+                "  \"link\" : {\n" +
+                "    \"xlink:type\" : \"locator\",\n" +
+                "    \"xlink:href\" : \"http://rest.db.ripe.net/abuse-contact/test/2a00:1f78::fffe/48\"\n" +
+                "  },\n" +
+                "  \"parameters\" : {\n" +
+                "    \"primary-key\" : {\n" +
+                "      \"value\" : \"2a00:1f78::fffe/48\"\n" +
+                "    },\n" +
+                "    \"sources\" : {\n" +
+                "      \"source\" : [ {\n" +
+                "        \"name\" : \"TEST\",\n" +
+                "        \"id\" : \"test\"\n" +
+                "      } ]\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"abuse-contacts\" : {\n" +
+                "    \"email\" : \"abuse@test.net\"\n" +
+                "  }\n" +
+                "}"));
+    }
+
+    @Test
+    public void abusec_inetnum_found_xml() {
+        databaseHelper.addObject("" +
+                "organisation: ORG-OT1-TEST\n" +
+                "org-type: OTHER\n" +
+                "abuse-c: TR1-TEST\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: TEST");
+        final RpslObject object = databaseHelper.addObject("" +
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                "netname: RIPE-NCC\n" +
+                "descr: some description\n" +
+                "org: ORG-OT1-TEST\n" +
+                "country: DK\n" +
+                "admin-c: TP1-TEST\n" +
+                "tech-c: TP1-TEST\n" +
+                "status: SUB-ALLOCATED PA\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "changed: org@ripe.net 20120505\n" +
+                "source: TEST");
+        ipTreeUpdater.rebuild();
+
+        assertThat(object, is(not(nullValue())));
+
+        final String result = createResource(AUDIENCE, "whois/abuse-finder/test/2a00:1f78::fffe/48")
+                .accept(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        final String readable = Joiner.on(">\n").join(Splitter.on(">").split(result));
+        assertThat(readable, is("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-finder\">\n" +
+                "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/test/2a00:1f78::fffe/48\"/>\n" +
+                "<parameters>\n" +
+                "<primary-key value=\"2a00:1f78::fffe/48\"/>\n" +
+                "<sources>\n" +
+                "<source name=\"TEST\" id=\"test\"/>\n" +
+                "</sources>\n" +
+                "</parameters>\n" +
+                "<abuse-contacts email=\"abuse@test.net\"/>\n" +
+                "</abuse-resources>"));
     }
 
     // versions

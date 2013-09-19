@@ -1,10 +1,6 @@
 package net.ripe.db.whois.api.whois.domain;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.util.Collection;
 import java.util.List;
 
@@ -14,6 +10,7 @@ import java.util.List;
     "typeFilters",
     "flags",
     "queryStrings",
+    "primaryKey",
     "sources"
 })
 @XmlRootElement(name = "parameters")
@@ -28,6 +25,8 @@ public class Parameters {
     protected QueryStrings queryStrings;
     @XmlElement(name = "sources", required = true)
     protected Sources sources;
+    @XmlElement(name = "primary-key")
+    protected AbusePKey primaryKey;
 
     public void setInverseLookup(List<InverseAttribute> values) {
         this.inverseAttributes = new InverseAttributes(values);
@@ -87,5 +86,13 @@ public class Parameters {
 
     public Sources getSources() {
         return sources;
+    }
+
+    public AbusePKey getPrimaryKey() {
+        return primaryKey;
+    }
+
+    public void setPrimaryKey(AbusePKey primaryKey) {
+        this.primaryKey = primaryKey;
     }
 }

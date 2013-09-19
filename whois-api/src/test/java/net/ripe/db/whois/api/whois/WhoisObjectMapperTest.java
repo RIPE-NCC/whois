@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.xml.stream.XMLStreamException;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -171,5 +172,16 @@ public class WhoisObjectMapperTest {
         final WhoisTag tag3 = tags.get(2);
         assertThat(tag3.getId(), is("barf"));
         assertThat(tag3.getData(), is("barf data"));
+    }
+
+    @Test
+    public void map_abuseContact() throws XMLStreamException {
+        final AbuseResources result = subject.mapAbuseContact("AS333", "AS333", "abuse@net.net", "test");
+
+        assertThat(result.getAbuseContact().getEmail(), is("abuse@net.net"));
+        assertThat(result.getLink().getHref(), is("http://rest.db.ripe.net/abuse-contact/test/AS333"));
+        assertThat(result.getParameters().getPrimaryKey().getValue(), is("AS333"));
+        assertThat(result.getParameters().getSources().getSources().get(0).getId(), is("test"));
+        assertThat(result.getService(), is("abuse-finder"));
     }
 }

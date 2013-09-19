@@ -1,0 +1,57 @@
+package net.ripe.db.whois.api.whois.domain;
+
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+import javax.xml.bind.annotation.*;
+
+@SuppressWarnings("UnusedDeclaration")
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "", propOrder = {
+        "service",
+        "link",
+        "parameters",
+        "abuseContact"
+})
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@XmlRootElement(name = "abuse-resources")
+public class AbuseResources {
+    @XmlAttribute
+    private String service;
+    @XmlElement
+    private Link link;
+    @XmlElement
+    private Parameters parameters;
+    @XmlElement(name = "abuse-contacts")
+    private AbuseContact abuseContact;
+
+    public String getService() {
+        return service;
+    }
+    public AbuseResources setService(final String service) {
+        this.service = service;
+        return this;
+    }
+
+    public Link getLink() {
+        return link;
+    }
+    public void setLink(Link link) {
+        this.link = link;
+    }
+
+    public Parameters getParameters() {
+        return parameters;
+    }
+    public AbuseResources setParameters(final Parameters value) {
+        this.parameters = value;
+        return this;
+    }
+
+    public AbuseContact getAbuseContact() {
+        return abuseContact;
+    }
+    public AbuseResources setAbuseContact(final AbuseContact abuseContact) {
+        this.abuseContact = abuseContact;
+        return this;
+    }
+}

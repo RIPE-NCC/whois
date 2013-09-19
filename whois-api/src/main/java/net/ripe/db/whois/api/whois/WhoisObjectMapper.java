@@ -3,13 +3,7 @@ package net.ripe.db.whois.api.whois;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.whois.domain.Attribute;
-import net.ripe.db.whois.api.whois.domain.Link;
-import net.ripe.db.whois.api.whois.domain.Source;
-import net.ripe.db.whois.api.whois.domain.WhoisObject;
-import net.ripe.db.whois.api.whois.domain.WhoisResources;
-import net.ripe.db.whois.api.whois.domain.WhoisTag;
-import net.ripe.db.whois.api.whois.domain.WhoisVersion;
+import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -225,5 +219,19 @@ public class WhoisObjectMapper {
         }
 
         return whoisVersions;
+    }
+
+    public AbuseResources mapAbuseContact(String key, String foundKey, String abuseEmail, String source) {
+        final AbuseResources abuseResources = new AbuseResources();
+        abuseResources.setAbuseContact(new AbuseContact().setEmail(abuseEmail));
+        abuseResources.setLink(new Link("locator", String.format("http://rest.db.ripe.net/abuse-contact/%s/%s", source, key)));
+        abuseResources.setService("abuse-finder");
+
+        final Parameters parameters = new Parameters();
+        parameters.setPrimaryKey(new AbusePKey(foundKey));
+        parameters.setSources(Lists.newArrayList(new Source(source).setName(source.toUpperCase())));
+        abuseResources.setParameters(parameters);
+
+        return abuseResources;
     }
 }

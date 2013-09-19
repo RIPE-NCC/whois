@@ -8,6 +8,8 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.handler.QueryHandler;
+import net.ripe.db.whois.query.query.Query;
+import net.ripe.db.whois.query.query.QueryFlag;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
@@ -45,6 +47,17 @@ public class WhoisRestServiceTest {
     public void setup() {
         when(sourceContext.getCurrentSource()).thenReturn(source);
         when(sourceContext.getAllSourceNames()).thenReturn(CIString.ciSet("TEST", "TEST-GRS"));
+    }
+
+    @Test
+    public void bla() {
+        final Query query = Query.parse(String.format("%s %s %s %s",
+
+                QueryFlag.SOURCES.getLongFlag(),
+                source,
+                QueryFlag.ABUSE_CONTACT.getLongFlag(),
+                "AS333"));
+
     }
 
     @Test
