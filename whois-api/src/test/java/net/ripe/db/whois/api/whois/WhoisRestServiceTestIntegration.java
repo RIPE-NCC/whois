@@ -486,7 +486,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void create_json_request() {
         final String response = createResource(AUDIENCE, "whois/test/person?password=test")
-                .request()
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), false), MediaType.APPLICATION_JSON), String.class);
 
         assertThat(response, containsString("" +
