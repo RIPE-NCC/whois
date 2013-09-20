@@ -99,21 +99,6 @@
             <artifactId>whois-update</artifactId>
             <type>test-jar</type>
         </dependency>
-
-        <!-- enunciate to generate API docs -->
-        <dependency>
-            <groupId>org.codehaus.enunciate</groupId>
-            <artifactId>enunciate-core-annotations</artifactId>
-            <version>1.27</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.enunciate</groupId>
-            <artifactId>enunciate-jersey-rt</artifactId>
-            <version>1.27</version>
-            <scope>compile</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
