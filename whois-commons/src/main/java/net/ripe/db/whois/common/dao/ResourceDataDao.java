@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
@@ -27,6 +28,7 @@ import java.util.Set;
 
 @Repository
 @RetryFor(RecoverableDataAccessException.class)
+@Transactional(isolation = Isolation.READ_COMMITTED)
 public class ResourceDataDao {
     private final JdbcTemplate jdbcTemplate;
 
@@ -35,7 +37,6 @@ public class ResourceDataDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    @Transactional
     public AuthoritativeResource load(final Logger logger, final String source) {
         final Set<CIString> autNums = Sets.newHashSet();
         final IntervalMap<Ipv4Resource, Ipv4Resource> inetnums = new NestedIntervalMap<>();
@@ -59,7 +60,6 @@ public class ResourceDataDao {
         return new AuthoritativeResource(logger, autNums, inetnums, inet6nums);
     }
 
-    @Transactional
     public void store(final String source, final AuthoritativeResource authoritativeResource) {
         jdbcTemplate.update("DELETE FROM authoritative_resource WHERE source = ?", source);
 

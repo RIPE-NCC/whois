@@ -1,11 +1,6 @@
 package spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.common.Stub
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
-import net.ripe.db.whois.common.source.Source
-
-import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class GrsIntegrationSpec extends BaseSpec {
@@ -27,7 +22,7 @@ class GrsIntegrationSpec extends BaseSpec {
 
     def "query --list-sources"() {
       when:
-        def response = query("--list-sourceNames")
+        def response = query("--list-sources")
 
       then:
         response =~ "TEST"

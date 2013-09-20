@@ -16,7 +16,7 @@ class GrsQuerySpec extends EndToEndSpec {
 
     def "query --list-sources"() {
       when:
-        def response = query("--list-sourceNames")
+        def response = query("--list-sources")
 
       then:
         response =~ "TEST"

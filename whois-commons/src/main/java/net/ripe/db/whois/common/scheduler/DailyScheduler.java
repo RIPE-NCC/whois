@@ -3,17 +3,15 @@ package net.ripe.db.whois.common.scheduler;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.domain.Hosts;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.NonTransientDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,13 +20,13 @@ public class DailyScheduler {
     private static final Logger LOGGER = LoggerFactory.getLogger(DailyScheduler.class);
 
     private final DateTimeProvider dateTimeProvider;
-    private final JdbcTemplate internalsTemplate;
+    private final DailySchedulerDao dailySchedulerDao;
     private List<DailyScheduledTask> scheduledTasks = Collections.emptyList();
 
     @Autowired
-    public DailyScheduler(final DateTimeProvider dateTimeProvider, @Qualifier("internalsDataSource") final DataSource internalsDataSource) {
+    public DailyScheduler(final DateTimeProvider dateTimeProvider, DailySchedulerDao dailySchedulerDao) {
         this.dateTimeProvider = dateTimeProvider;
-        this.internalsTemplate = new JdbcTemplate(internalsDataSource);
+        this.dailySchedulerDao = dailySchedulerDao;
     }
 
     @Autowired(required = false)
@@ -38,12 +36,11 @@ public class DailyScheduler {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void executeScheduledTasks() {
-        final String date = dateTimeProvider.getCurrentDate().toString();
+        final LocalDate date = dateTimeProvider.getCurrentDate();
         final String hostName = Hosts.getLocalHost().getHostName();
 
         for (final DailyScheduledTask task : scheduledTasks) {
-            final String taskName = task.getClass().getSimpleName();
-            if (!acquireDailyTask(date, taskName, hostName)) {
+            if (!dailySchedulerDao.acquireDailyTask(date, task.getClass(), hostName)) {
                 continue;
             }
 
@@ -51,7 +48,7 @@ public class DailyScheduler {
             try {
                 LOGGER.debug("Starting scheduled task: {}", task);
                 task.run();
-                internalsTemplate.update("UPDATE scheduler SET done = ? WHERE date = ? AND task = ?", System.currentTimeMillis(), date, taskName);
+                dailySchedulerDao.markTaskDone(System.currentTimeMillis(), date, task.getClass());
             } catch (RuntimeException e) {
                 LOGGER.error("Exception in scheduled task: {}", task, e);
             } finally {
@@ -59,33 +56,7 @@ public class DailyScheduler {
             }
         }
 
-        final int deletedRows = internalsTemplate.update("DELETE FROM scheduler WHERE date < ?", date);
+        final int deletedRows = dailySchedulerDao.removeOldScheduledEntries(date);
         LOGGER.info("Performing daily cluster maintenance (key: {}, purged {} old entries)", date, deletedRows);
-    }
-
-    public long getDailyTaskFinishTime(Class taskClass) {
-        final String date = dateTimeProvider.getCurrentDate().toString();
-        final String taskName = taskClass.getSimpleName();
-        final List<Long> result = internalsTemplate.queryForList("SELECT done FROM scheduler WHERE date = ? AND task = ?", Long.class, date, taskName);
-        return result.isEmpty() ? -1 : result.get(0);
-    }
-
-    public void removeFinishedScheduledTasks() {
-        internalsTemplate.update("TRUNCATE scheduler");
-    }
-
-    public void removeFinishedScheduledTask(Class taskClass) {
-        final String taskName = taskClass.getSimpleName();
-        internalsTemplate.update("DELETE FROM scheduler WHERE task = ?", taskName);
-    }
-
-    private boolean acquireDailyTask(final String date, final String taskName, final String hostName) {
-        try {
-            internalsTemplate.update("INSERT INTO scheduler (date, task, host) VALUES (?, ?, ?)", date, taskName, hostName);
-        } catch (NonTransientDataAccessException ignored) {
-            LOGGER.debug("Scheduled task already run on different cluster member");
-            return false;
-        }
-        return true;
     }
 }

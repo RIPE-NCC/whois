@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.scheduler;
 
+import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +19,13 @@ public class DailySchedulerJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DailySchedulerJmx.class);
 
     private final DailyScheduler dailyScheduler;
+    private final DailySchedulerDao dailySchedulerDao;
 
     @Autowired
-    public DailySchedulerJmx(final DailyScheduler dailyScheduler) {
+    public DailySchedulerJmx(final DailyScheduler dailyScheduler, DailySchedulerDao dailySchedulerDao) {
         super(LOGGER);
         this.dailyScheduler = dailyScheduler;
+        this.dailySchedulerDao = dailySchedulerDao;
     }
 
     @ManagedOperation(description = "Run daily scheduled tasks that are not marked as done in the scheduler table")
@@ -33,7 +36,7 @@ public class DailySchedulerJmx extends JmxBase {
         return invokeOperation("runMaintenance", "", new Callable<String>() {
             @Override
             public String call() {
-                if (force) dailyScheduler.removeFinishedScheduledTasks();
+                if (force) dailySchedulerDao.removeFinishedScheduledTasks();
                 dailyScheduler.executeScheduledTasks();
                 return "Daily scheduled tasks executed";
             }
@@ -54,7 +57,7 @@ public class DailySchedulerJmx extends JmxBase {
                 } catch (ClassNotFoundException e) {
                     return "Class " + className +" not found";
                 }
-                dailyScheduler.removeFinishedScheduledTask(taskClass);
+                dailySchedulerDao.removeFinishedScheduledTask(taskClass);
                 dailyScheduler.executeScheduledTasks();
                 return "Daily scheduled tasks executed";
             }

@@ -1,8 +1,10 @@
 package net.ripe.db.whois.common.grs;
 
+import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
-import net.ripe.db.whois.common.scheduler.DailyScheduler;
 import net.ripe.db.whois.common.source.IllegalSourceException;
+import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,19 +28,20 @@ import static org.mockito.Mockito.when;
 public class AuthoritativeResourceDataTest {
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
-    @Mock DailyScheduler dailyScheduler;
+    @Mock DailySchedulerDao dailySchedulerDao;
     @Mock ResourceDataDao resourceDataDao;
     @Mock Logger logger;
+    @Mock DateTimeProvider dateTimeProvider;
     AuthoritativeResourceData subject;
 
     @Before
     public void setUp() {
-        subject = new AuthoritativeResourceData(Arrays.asList("TEST"), resourceDataDao, dailyScheduler);
+        subject = new AuthoritativeResourceData(Arrays.asList("TEST"), resourceDataDao, dailySchedulerDao, dateTimeProvider);
     }
 
     @Test
     public void refresh() {
-        when(dailyScheduler.getDailyTaskFinishTime(any(Class.class))).thenReturn(new Long(10));
+        when(dailySchedulerDao.getDailyTaskFinishTime(any(LocalDate.class), any(Class.class))).thenReturn(new Long(10));
         final AuthoritativeResource unknown = AuthoritativeResource.unknown(logger);
         when(resourceDataDao.load(any(Logger.class), any(String.class))).thenReturn(unknown);
         subject.init();

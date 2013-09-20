@@ -4,10 +4,12 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.scheduler.DailyScheduler;
 import net.ripe.db.whois.common.source.IllegalSourceException;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,8 @@ public class AuthoritativeResourceData {
     private final static int REFRESH_DELAY = 60 * 60 * 1000;
 
     private final ResourceDataDao resourceDataDao;
-    private final DailyScheduler dailyScheduler;
+    private final DailySchedulerDao dailySchedulerDao;
+    private final DateTimeProvider dateTimeProvider;
     private long lastRefresh = Long.MIN_VALUE;
 
     private final Set<String> sourceNames;
@@ -37,9 +40,10 @@ public class AuthoritativeResourceData {
     @Autowired
     public AuthoritativeResourceData(@Value("${grs.sources}") final List<String> grsSourceNames,
                                      final ResourceDataDao resourceDataDao,
-                                     final DailyScheduler dailyScheduler) {
+                                     final DailySchedulerDao dailySchedulerDao, DateTimeProvider dateTimeProvider) {
         this.resourceDataDao = resourceDataDao;
-        this.dailyScheduler = dailyScheduler;
+        this.dailySchedulerDao = dailySchedulerDao;
+        this.dateTimeProvider = dateTimeProvider;
         this.sourceNames = Sets.newHashSet(Iterables.transform(grsSourceNames, new Function<String, String>() {
             @Nullable
             @Override
@@ -56,7 +60,8 @@ public class AuthoritativeResourceData {
 
     @Scheduled(fixedDelay = REFRESH_DELAY)
     synchronized public void refreshAuthoritativeResourceCache() {
-        final long lastImportTime = dailyScheduler.getDailyTaskFinishTime(AuthoritativeResourceImportTask.class);
+        final LocalDate date = dateTimeProvider.getCurrentDate();
+        final long lastImportTime = dailySchedulerDao.getDailyTaskFinishTime(date, AuthoritativeResourceImportTask.class);
         if (lastImportTime > lastRefresh) {
             LOGGER.debug("Authoritative resource data import detected, finished at {} (previous run: {})", new LocalDateTime(lastImportTime), new LocalDateTime(lastRefresh));
             lastRefresh = lastImportTime;
