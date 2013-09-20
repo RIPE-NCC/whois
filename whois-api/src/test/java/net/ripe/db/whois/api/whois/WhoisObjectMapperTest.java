@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.TagResponseObject;
@@ -176,7 +177,9 @@ public class WhoisObjectMapperTest {
 
     @Test
     public void map_abuseContact() throws XMLStreamException {
-        final AbuseResources result = subject.mapAbuseContact("AS333", "AS333", "abuse@net.net", "test");
+        final AbuseResources result = subject.mapAbuseContact("AS333", "test", Lists.newArrayList(
+                new RpslAttribute("aut-num", "AS333"),
+                new RpslAttribute("abuse-mailbox", "abuse@net.net")));
 
         assertThat(result.getAbuseContact().getEmail(), is("abuse@net.net"));
         assertThat(result.getLink().getHref(), is("http://rest.db.ripe.net/abuse-contact/test/AS333"));
