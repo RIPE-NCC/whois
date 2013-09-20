@@ -21,6 +21,7 @@ import java.util.List;
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @XmlRootElement(name = "whois-resources")
 public class WhoisResources {
+    public static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/db/support/db-terms-conditions.pdf";
 
     protected Parameters parameters;
 
@@ -114,8 +115,8 @@ public class WhoisResources {
         return termsAndConditions;
     }
 
-    public WhoisResources setTermsAndConditions(Link termsAndConditions) {
-        this.termsAndConditions = termsAndConditions;
+    public WhoisResources includeTermsAndConditions() {
+        this.termsAndConditions = new Link("locator", TERMS_AND_CONDITIONS);
         return this;
     }
 }

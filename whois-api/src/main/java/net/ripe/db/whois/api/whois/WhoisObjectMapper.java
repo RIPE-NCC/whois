@@ -221,7 +221,7 @@ public class WhoisObjectMapper {
         parameters.setSources(Lists.newArrayList(new Source(source).setName(source.toUpperCase())));
         abuseResources.setParameters(parameters);
 
-        abuseResources.setTermsAndConditions(new Link("locator", WhoisRestService.TERMS_AND_CONDITIONS));
+        abuseResources.setTermsAndConditions(new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
 
         return abuseResources;
     }

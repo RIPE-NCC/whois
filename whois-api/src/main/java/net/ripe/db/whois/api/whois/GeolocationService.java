@@ -2,11 +2,7 @@ package net.ripe.db.whois.api.whois;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.whois.domain.GeolocationAttributes;
-import net.ripe.db.whois.api.whois.domain.Language;
-import net.ripe.db.whois.api.whois.domain.Link;
-import net.ripe.db.whois.api.whois.domain.Location;
-import net.ripe.db.whois.api.whois.domain.WhoisResources;
+import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
@@ -29,11 +25,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -142,6 +134,7 @@ public class GeolocationService {
         whoisResources.setService(SERVICE_NAME);
         whoisResources.setGeolocationAttributes(new GeolocationAttributes(location, languages));
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
+        whoisResources.includeTermsAndConditions();
         return whoisResources;
     }
 
@@ -205,18 +198,12 @@ public class GeolocationService {
             case INETNUM:
             {
                 final CIString status = rpslObject.getValueForAttribute(AttributeType.STATUS);
-                if (STOP_AT_STATUS_IPV4.contains(InetnumStatus.getStatusFor(status))) {
-                    return true;
-                }
-                return false;
+                return STOP_AT_STATUS_IPV4.contains(InetnumStatus.getStatusFor(status));
             }
             case INET6NUM:
             {
                 final CIString status = rpslObject.getValueForAttribute(AttributeType.STATUS);
-                if (STOP_AT_STATUS_IPV6.contains(InetnumStatus.getStatusFor(status))) {
-                    return true;
-                }
-                return false;
+                return STOP_AT_STATUS_IPV6.contains(InetnumStatus.getStatusFor(status));
             }
             default:
                 throw new IllegalArgumentException("not an inetnum or inet6num");

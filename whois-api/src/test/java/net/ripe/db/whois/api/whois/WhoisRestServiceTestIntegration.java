@@ -234,7 +234,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)));
 
-        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisRestService.TERMS_AND_CONDITIONS));
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
     @Test
@@ -364,7 +364,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("remarks", "remark"),
                 new Attribute("source", "TEST")));
 
-        assertThat(response.getTermsAndConditions().getHref(), is(WhoisRestService.TERMS_AND_CONDITIONS));
+        assertThat(response.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
     @Test
@@ -600,7 +600,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("changed", "noreply@ripe.net 20120101"),
                 new Attribute("source", "TEST")));
 
-        assertThat(response.getTermsAndConditions().getHref(), is(WhoisRestService.TERMS_AND_CONDITIONS));
+        assertThat(response.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
     @Test
@@ -1289,7 +1289,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)
         ));
-        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisRestService.TERMS_AND_CONDITIONS));
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
     @Test

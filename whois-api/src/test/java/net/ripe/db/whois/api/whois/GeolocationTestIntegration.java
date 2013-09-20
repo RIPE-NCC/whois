@@ -14,9 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -89,13 +87,14 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         final String response = createResource("whois/geolocation?ipkey=10.0.0.0")
                     .accept(MediaType.APPLICATION_XML)
                     .get(String.class);
-
+        System.out.println(response);
         assertThat(response, containsString("service=\"geolocation-finder\""));
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\""));
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<language value=\"EN\">"));
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
+        assertThat(response, containsString("<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>"));
     }
 
     @Test
