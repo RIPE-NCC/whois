@@ -5,6 +5,10 @@
 [all] removed useless thread_id, prev_serial, serial fields from SQL schema
 [all] remove leftover wsearch.* from properties file
 [api] Updated to Lucene 4.4 (TODO re-generate freetext index)
+[all] merged pending and scheduler databases into internals
+[all] added table autoritative_data to interals database
+[all] changed dailyscheduledtasks to run distributed in the cluster
+[all] changed scheduler database to accommodate to distributed run
 
 ## 1.69
 [update] enable dry-run

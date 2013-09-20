@@ -28,7 +28,7 @@ public class JdbcPendingUpdateDao implements PendingUpdateDao {
     private final Joiner COMMA_JOINER = Joiner.on(",");
 
     @Autowired
-    public JdbcPendingUpdateDao(@Qualifier("pendingUpdateDataSource") final DataSource dataSource) {
+    public JdbcPendingUpdateDao(@Qualifier("internalsDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.domain.BlockEvents;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
-import net.ripe.db.whois.scheduler.DailyScheduledTask;
+import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

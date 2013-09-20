@@ -1,124 +1,88 @@
 package net.ripe.db.whois.common.grs;
 
-import com.google.common.base.Splitter;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.dao.DailySchedulerDao;
+import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.source.IllegalSourceException;
-import org.apache.commons.lang.StringUtils;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.EmbeddedValueResolverAware;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringValueResolver;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import static net.ripe.db.whois.common.domain.CIString.ciSet;
 
 @Component
-public class AuthoritativeResourceData implements EmbeddedValueResolverAware {
+public class AuthoritativeResourceData {
     private final static Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceData.class);
-    private final static int DAILY_MS = 24 * 60 * 60 * 1000;
+    private final static int REFRESH_DELAY = 60 * 60 * 1000;
 
-    private final Downloader downloader;
-    private final String downloadDir;
-    private StringValueResolver valueResolver;
+    private final ResourceDataDao resourceDataDao;
+    private final DailySchedulerDao dailySchedulerDao;
+    private final DateTimeProvider dateTimeProvider;
+    private long lastRefresh = Long.MIN_VALUE;
 
-    private final Set<CIString> sources;
-    private final Map<CIString, AuthoritativeResource> authoritativeResourceCache = Maps.newHashMap();
-    private Timer timer;
+    private final Set<String> sourceNames;
+    private final Map<String, AuthoritativeResource> authoritativeResourceCache = Maps.newHashMap();
 
     @Autowired
-    public AuthoritativeResourceData(
-            @Value("${grs.sources}") String grsSourceNames,
-            @Value("${dir.grs.import.download:}") final String downloadDir,
-            final Downloader downloader) {
-        this.sources = ciSet(Splitter.on(',').split(grsSourceNames));
-        this.downloadDir = downloadDir;
-        this.downloader = downloader;
-    }
-
-    @Override
-    public void setEmbeddedValueResolver(final StringValueResolver valueResolver) {
-        this.valueResolver = valueResolver;
+    public AuthoritativeResourceData(@Value("${grs.sources}") final List<String> grsSourceNames,
+                                     final ResourceDataDao resourceDataDao,
+                                     final DailySchedulerDao dailySchedulerDao, DateTimeProvider dateTimeProvider) {
+        this.resourceDataDao = resourceDataDao;
+        this.dailySchedulerDao = dailySchedulerDao;
+        this.dateTimeProvider = dateTimeProvider;
+        this.sourceNames = Sets.newHashSet(Iterables.transform(grsSourceNames, new Function<String, String>() {
+            @Nullable
+            @Override
+            public String apply(@Nullable String input) {
+                return input.toLowerCase().replace("-grs", "");
+            }
+        }));
     }
 
     @PostConstruct
     void init() {
-        for (final CIString source : sources) {
-            authoritativeResourceCache.put(source, loadAuthoritativeResource(source));
-        }
-
-        timer = new Timer(String.format("%s-refresh", getClass().getSimpleName()), true);
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                refreshAuthoritativeResourceCache();
-            }
-        }, DAILY_MS, DAILY_MS);
+        refreshAuthoritativeResourceCache();
     }
 
-    @PreDestroy
-    void cleanup() {
-        timer.cancel();
-    }
-
+    @Scheduled(fixedDelay = REFRESH_DELAY)
     synchronized public void refreshAuthoritativeResourceCache() {
-        for (final CIString source : sources) {
-            try {
-                LOGGER.debug("Refresh: {}", source);
-                authoritativeResourceCache.put(source, loadAuthoritativeResource(source));
-            } catch (RuntimeException e) {
-                LOGGER.error("Refreshing: {}", source, e);
+        final LocalDate date = dateTimeProvider.getCurrentDate();
+        final long lastImportTime = dailySchedulerDao.getDailyTaskFinishTime(date, AuthoritativeResourceImportTask.class);
+        if (lastImportTime > lastRefresh) {
+            LOGGER.debug("Authoritative resource data import detected, finished at {} (previous run: {})", new LocalDateTime(lastImportTime), new LocalDateTime(lastRefresh));
+            lastRefresh = lastImportTime;
+            for (final String sourceName : sourceNames) {
+                try {
+                    LOGGER.debug("Refresh: {}", sourceName);
+                    authoritativeResourceCache.put(sourceName, resourceDataDao.load(LOGGER, sourceName));
+                } catch (RuntimeException e) {
+                    LOGGER.error("Refreshing: {}", sourceName, e);
+                }
             }
         }
     }
 
     public AuthoritativeResource getAuthoritativeResource(final CIString source) {
-        final AuthoritativeResource authoritativeResource = authoritativeResourceCache.get(source);
+        final String sourceName = source.toLowerCase().replace("-grs", "");
+        final AuthoritativeResource authoritativeResource = authoritativeResourceCache.get(sourceName);
         if (authoritativeResource == null) {
             throw new IllegalSourceException(source);
         }
 
         return authoritativeResource;
-    }
-
-    private AuthoritativeResource loadAuthoritativeResource(final CIString source) {
-        final Logger logger = LoggerFactory.getLogger(String.format("%s_%s", getClass().getName(), source));
-        final String sourceName = source.toLowerCase().replace("-grs", "");
-        final String propertyName = String.format("${grs.import.%s.resourceDataUrl:}", sourceName);
-        final String resourceDataUrl = valueResolver.resolveStringValue(propertyName);
-        if (StringUtils.isBlank(resourceDataUrl)) {
-            return AuthoritativeResource.unknown(logger);
-        }
-
-        final File resourceDataDownload = new File(downloadDir, source + "-RES.tmp");
-        final File resourceDataFile = new File(downloadDir, source + "-RES");
-        try {
-            downloader.downloadGrsData(logger, new URL(resourceDataUrl), resourceDataDownload);
-
-            if (resourceDataFile.exists() && !resourceDataFile.delete()) {
-                logger.warn("Unable to delete previous resource data file: {}", resourceDataFile.getAbsolutePath());
-            }
-
-            if (!resourceDataFile.exists() && !resourceDataDownload.renameTo(resourceDataFile)) {
-                logger.warn("Unable to rename downloaded resource data file: {}", resourceDataFile.getAbsolutePath());
-            }
-        } catch (IOException e) {
-            logger.warn("Download {} failed: {}", source, resourceDataUrl, e);
-        }
-
-        return AuthoritativeResource.loadFromFile(logger, sourceName, resourceDataFile);
     }
 }
