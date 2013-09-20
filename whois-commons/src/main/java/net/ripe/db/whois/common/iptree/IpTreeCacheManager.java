@@ -110,7 +110,7 @@ public class IpTreeCacheManager {
                             update(ipv6DomainTreeCache, new Ipv6Entry((Ipv6Resource) domain.getReverseIp(), ipTreeUpdate.objectId), ipTreeUpdate.operation);
                             break;
                         default:
-                            LOGGER.debug("Ignoring domain: {}", domain);
+                            LOGGER.debug("Ignoring domain: {}", domain.getValue());
                             break;
                     }
 

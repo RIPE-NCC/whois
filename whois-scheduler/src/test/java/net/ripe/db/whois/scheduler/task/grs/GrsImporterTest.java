@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -78,9 +79,9 @@ public class GrsImporterTest {
         subject.run();
 
         verifyZeroInteractions(grsSourceImporter);
-        verify(grsSourceRipe, never()).acquireDump(any(File.class));
+        verify(grsSourceRipe, never()).acquireDump(any(Path.class));
         verify(grsSourceRipe, never()).handleObjects(any(File.class), any(ObjectHandler.class));
-        verify(grsSourceOther, never()).acquireDump(any(File.class));
+        verify(grsSourceOther, never()).acquireDump(any(Path.class));
         verify(grsSourceOther, never()).handleObjects(any(File.class), any(ObjectHandler.class));
     }
 
@@ -104,7 +105,7 @@ public class GrsImporterTest {
     public void grsImport_unknown_source() throws Exception {
         await(subject.grsImport("UNKNOWN-GRS", true));
 
-        verify(grsSourceRipe, never()).acquireDump(any(File.class));
+        verify(grsSourceRipe, never()).acquireDump(any(Path.class));
         verify(grsSourceRipe, never()).handleObjects(any(File.class), any(ObjectHandler.class));
 
         verify(grsDao, never()).cleanDatabase();
@@ -112,7 +113,7 @@ public class GrsImporterTest {
 
     @Test
     public void grsImport_RIPE_GRS_acquire_fails() throws Exception {
-        doThrow(RuntimeException.class).when(grsSourceRipe).acquireDump(any(File.class));
+        doThrow(RuntimeException.class).when(grsSourceRipe).acquireDump(any(Path.class));
 
         await(subject.grsImport("RIPE-GRS", false));
 

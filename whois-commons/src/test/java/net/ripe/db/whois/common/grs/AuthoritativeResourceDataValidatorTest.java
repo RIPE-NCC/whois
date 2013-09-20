@@ -36,7 +36,7 @@ public class AuthoritativeResourceDataValidatorTest {
 
     @Before
     public void setUp() throws Exception {
-        subject = new AuthoritativeResourceDataValidator("GRS1,GRS2,GRS3", authoritativeResourceData);
+        subject = new AuthoritativeResourceDataValidator(new String[] {"GRS1","GRS2","GRS3"}, authoritativeResourceData);
 
         prepareAuthoritativeResourceData(
                 "GRS1",

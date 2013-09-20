@@ -1,10 +1,10 @@
 package net.ripe.db.whois.common.domain;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.Arrays;
 import java.util.Set;
 
 @Immutable
@@ -25,17 +25,27 @@ public class CIString implements Comparable<CIString>, CharSequence {
         for (final String value : values) {
             result.add(ciString(value));
         }
-
         return result;
     }
 
+    public static Set<CIString> ciImmutableSet(final String... values) {
+        return ciImmutableSet(Arrays.asList(values));
+    }
+
     public static Set<CIString> ciSet(final Iterable<String> values) {
-        return Sets.newLinkedHashSet(Iterables.transform(values, new Function<String, CIString>() {
-            @Override
-            public CIString apply(final String input) {
-                return CIString.ciString(input);
-            }
-        }));
+        final Set<CIString> result = Sets.newLinkedHashSet();
+        for (final String value : values) {
+            result.add(ciString(value));
+        }
+        return result;
+    }
+
+    public static Set<CIString> ciImmutableSet(final Iterable<String> values) {
+        final ImmutableSet.Builder<CIString> builder = ImmutableSet.builder();
+        for (final String value : values) {
+            builder.add(ciString(value));
+        }
+        return builder.build();
     }
 
     private CIString(final String value) {

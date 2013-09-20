@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.zip.GZIPInputStream;
@@ -29,12 +28,12 @@ public class AuthoritativeResourceTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void unknown_file() throws IOException {
-        AuthoritativeResource.loadFromFile(logger, "unknown", new File(folder.getRoot(), "unknown"));
+        AuthoritativeResource.loadFromFile(logger, "unknown", folder.getRoot().toPath().resolve("unknown"));
     }
 
     @Test
     public void empty_file() throws IOException {
-        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromFile(logger, "RIPE-GRS", folder.newFile());
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromFile(logger, "RIPE-GRS", folder.newFile().toPath());
         assertThat(resourceData.getNrAutNums(), is(0));
         assertThat(resourceData.getNrInetnums(), is(0));
         assertThat(resourceData.getNrInet6nums(), is(0));

@@ -14,7 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -44,9 +49,11 @@ public class AbuseCService {
 
     @POST
     @Path("/{orgkey}")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_PLAIN)
     public Response createAbuseRole(
-            @PathParam("orgkey") final String orgkey, @FormParam("email") final String email) {
+            @PathParam("orgkey") final String orgkey,
+            @FormParam("email") final String email) {
         final RpslObject organisation = objectDao.getByKey(ORGANISATION, orgkey);
         if (hasAbuseC(organisation)) {
             return Response.status(Response.Status.CONFLICT).entity("This organisation already has an abuse contact").build();

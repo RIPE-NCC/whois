@@ -47,16 +47,10 @@
         <property name="password" value="${mailupdates.database.password}"/>
     </bean>
 
-    <bean id="schedulerDataSource" parent="abstractDataSource">
-        <property name="jdbcUrl" value="${scheduler.database.url}"/>
-        <property name="user" value="${scheduler.database.username}"/>
-        <property name="password" value="${scheduler.database.password}"/>
-    </bean>
-
-    <bean id="pendingUpdateDataSource" parent="abstractDataSource">
-        <property name="jdbcUrl" value="${pending.database.url}"/>
-        <property name="user" value="${pending.database.username}"/>
-        <property name="password" value="${pending.database.password}"/>
+    <bean id="internalsDataSource" parent="abstractDataSource">
+        <property name="jdbcUrl" value="${internals.database.url}"/>
+        <property name="user" value="${internals.database.username}"/>
+        <property name="password" value="${internals.database.password}"/>
     </bean>
 
     <bean id="whoisMasterDataSource" parent="abstractDataSource">

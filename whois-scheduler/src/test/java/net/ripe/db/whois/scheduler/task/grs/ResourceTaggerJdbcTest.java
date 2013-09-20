@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -65,7 +66,7 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
 
         testGrsSource = new GrsSource("TEST-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader) {
             @Override
-            void acquireDump(final File file) throws IOException {
+            void acquireDump(final Path path) throws IOException {
             }
 
             @Override
