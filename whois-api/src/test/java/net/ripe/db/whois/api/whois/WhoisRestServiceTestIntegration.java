@@ -811,6 +811,37 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         }
     }
 
+    @Test
+    public void abuse_explicit_json() {
+        databaseHelper.addObject("" +
+                "organisation: ORG-OT1-TEST\n" +
+                "org-type: OTHER\n" +
+                "abuse-c: TR1-TEST\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: test");
+        databaseHelper.addObject("" +
+                "aut-num: AS333\n" +
+                "as-name: Test-User-1\n" +
+                "descr: some description\n" +
+                "org: ORG-OT1-TEST\n" +
+                "admin-c: TP1-TEST\n" +
+                "tech-c: TP1-TEST\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "changed: org@ripe.net 20120505\n" +
+                "source: test");
+
+        final String result = createResource(AUDIENCE, "whois/abuse-finder/test/AS333.json")
+                .get(String.class);
+
+        assertThat(result, containsString("" +
+                "{\n" +
+                "  \"service\" : \"abuse-finder\",\n" +
+                "  \"link\" : {\n" +
+                "    \"xlink:type\" : \"locator\",\n" +
+                "    \"xlink:href\" : \"http://rest.db.ripe.net/abuse-contact/test/AS333\"\n" +
+                "  },"));
+    }
+
     // versions
 
     @Test
