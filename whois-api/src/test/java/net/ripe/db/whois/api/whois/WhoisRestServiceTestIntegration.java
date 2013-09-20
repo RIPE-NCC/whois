@@ -775,7 +775,29 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void abuse_contact_not_found() {
+        databaseHelper.addObject("" +
+                "organisation: ORG-OT1-TEST\n" +
+                "org-type: OTHER\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: test");
+        databaseHelper.addObject("" +
+                "aut-num: AS333\n" +
+                "as-name: Test-User-1\n" +
+                "descr: some description\n" +
+                "org: ORG-OT1-TEST\n" +
+                "admin-c: TP1-TEST\n" +
+                "tech-c: TP1-TEST\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "changed: org@ripe.net 20120505\n" +
+                "source: test");
 
+        try {
+            createResource(AUDIENCE, "whois/abuse-finder/test/AS333")
+                .accept(MediaType.APPLICATION_XML)
+                .get(AbuseResources.class);
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        }
     }
 
     @Test

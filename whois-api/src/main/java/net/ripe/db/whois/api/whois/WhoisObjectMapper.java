@@ -200,10 +200,20 @@ public class WhoisObjectMapper {
         return whoisVersions;
     }
 
-    public AbuseResources mapAbuseContact(String key, String foundKey, String abuseEmail, String source) {
+    public AbuseResources mapAbuseContact(final String soughtKey, final String source, final Iterable<RpslAttribute> attributes) {
+        String foundKey = "";
+        String abuseEmail = "";
+        for (final RpslAttribute attribute : attributes) {
+            if (attribute.getType() == AttributeType.ABUSE_MAILBOX) {
+                abuseEmail = attribute.getCleanValue().toString();
+            } else {
+                foundKey = attribute.getCleanValue().toString();
+            }
+        }
+
         final AbuseResources abuseResources = new AbuseResources();
         abuseResources.setAbuseContact(new AbuseContact().setEmail(abuseEmail));
-        abuseResources.setLink(new Link("locator", String.format("http://rest.db.ripe.net/abuse-contact/%s/%s", source, key)));
+        abuseResources.setLink(new Link("locator", String.format("http://rest.db.ripe.net/abuse-contact/%s/%s", source, soughtKey)));
         abuseResources.setService("abuse-finder");
 
         final Parameters parameters = new Parameters();

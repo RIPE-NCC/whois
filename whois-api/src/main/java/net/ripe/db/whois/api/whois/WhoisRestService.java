@@ -13,9 +13,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.*;
@@ -397,22 +395,12 @@ public class WhoisRestService {
         final ApiResponseHandlerAbuseC apiResponseHandlerAbuseC = new ApiResponseHandlerAbuseC();
         queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), System.identityHashCode(Thread.currentThread()), apiResponseHandlerAbuseC);
 
-        String foundKey = "";
-        String abuseEmail = "";
         final RpslAttributes abuseContactInfo = apiResponseHandlerAbuseC.getAbuseContactInfo();
         if (abuseContactInfo == null) {
             throw new NotFoundException();
         }
 
-        for (final RpslAttribute attribute : abuseContactInfo.getAttributes()) {
-            if (attribute.getType() == AttributeType.ABUSE_MAILBOX) {
-                abuseEmail = attribute.getCleanValue().toString();
-            } else {
-                foundKey = attribute.getCleanValue().toString();
-            }
-        }
-
-        return Response.ok(whoisObjectMapper.mapAbuseContact(key, foundKey, abuseEmail, source)).build();
+        return Response.ok(whoisObjectMapper.mapAbuseContact(key, source, abuseContactInfo.getAttributes())).build();
     }
 
     /**

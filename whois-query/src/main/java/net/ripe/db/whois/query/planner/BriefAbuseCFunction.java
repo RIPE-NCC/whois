@@ -41,7 +41,7 @@ class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
             if (!abuseContacts.isEmpty()) {
                 abuseCAttributes.add(rpslObject.getTypeAttribute());
                 for (final CIString abuseContact : abuseContacts.keySet()) {
-                    abuseCAttributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseContact.toString()));
+                    abuseCAttributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseContacts.get(abuseContact).toString()));
                 }
                 return new RpslAttributes(abuseCAttributes);
             }
