@@ -29,12 +29,12 @@ public class DailySchedulerDao {
     }
 
     public void markTaskDone(final long when, final LocalDate date, final Class taskClass) {
-        jdbcTemplate.update("UPDATE scheduler SET done = ? WHERE date = ? AND task = ?", System.currentTimeMillis(), date, taskClass.getSimpleName());
+        jdbcTemplate.update("UPDATE scheduler SET done = ? WHERE date = ? AND task = ?", when/1000, date.toString(), taskClass.getSimpleName());
     }
 
     public long getDailyTaskFinishTime(final LocalDate date, final Class taskClass) {
-        final List<Long> result = jdbcTemplate.queryForList("SELECT done FROM scheduler WHERE date = ? AND task = ?", Long.class, date, taskClass.getSimpleName());
-        return result.isEmpty() ? -1 : result.get(0);
+        final List<Long> result = jdbcTemplate.queryForList("SELECT done FROM scheduler WHERE date = ? AND task = ?", Long.class, date.toString(), taskClass.getSimpleName());
+        return result.isEmpty() ? -1 : result.get(0) * 1000;
     }
 
     public void removeFinishedScheduledTasks() {
@@ -46,14 +46,14 @@ public class DailySchedulerDao {
     }
 
     public int removeOldScheduledEntries(final LocalDate date) {
-        return jdbcTemplate.update("DELETE FROM scheduler WHERE date < ?", date);
+        return jdbcTemplate.update("DELETE FROM scheduler WHERE date < ?", date.toString());
     }
 
     public boolean acquireDailyTask(final LocalDate date, final Class taskClass, final String hostName) {
         try {
-            jdbcTemplate.update("INSERT INTO scheduler (date, task, host) VALUES (?, ?, ?)", date, taskClass.getSimpleName(), hostName);
+            jdbcTemplate.update("INSERT INTO scheduler (date, task, host) VALUES (?, ?, ?)", date.toString(), taskClass.getSimpleName(), hostName);
         } catch (NonTransientDataAccessException ignored) {
-            LOGGER.debug("Scheduled task already run on different cluster member");
+            LOGGER.debug("Scheduled task already run on different cluster member", ignored);
             return false;
         }
         return true;

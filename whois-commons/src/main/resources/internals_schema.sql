@@ -14,7 +14,7 @@ CREATE TABLE `scheduler` (
   `date` date NOT NULL,
   `task` varchar(256) NOT NULL,
   `host` varchar(50) NOT NULL,
-  `done` int(11) unsigned DEFAULT NULL,
+  `done` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`date`, `task`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

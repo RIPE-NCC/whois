@@ -28,6 +28,8 @@ import java.util.Set;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
+// TODO: [AH] internals and acl databases should be also read-local/write-master
+
 @Component
 public class SourceContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(SourceContext.class);

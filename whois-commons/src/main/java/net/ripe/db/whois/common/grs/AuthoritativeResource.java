@@ -13,7 +13,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -45,7 +44,7 @@ public class AuthoritativeResource {
         return new AuthoritativeResource(logger, Collections.<CIString>emptySet(), new NestedIntervalMap<Ipv4Resource, Ipv4Resource>(), new NestedIntervalMap<Ipv6Resource, Ipv6Resource>());
     }
 
-    static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner) {
+    public static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner) {
         return new AuthoritativeResourceLoader(logger, name, scanner).load();
     }
 
@@ -199,26 +198,33 @@ public class AuthoritativeResource {
         return inet6Ranges;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AuthoritativeResource that = (AuthoritativeResource) o;
+
+        return autNums.equals(that.autNums) && inet6Ranges.equals(that.inet6Ranges) && inetRanges.equals(that.inetRanges);
+    }
+
     public List<String> getResources() {
         return Lists.newArrayList(Iterables.concat(
                 Iterables.transform(autNums, new Function<CIString, String>() {
-                    @Nullable
                     @Override
-                    public String apply(@Nullable CIString input) {
+                    public String apply(CIString input) {
                         return input.toString();
                     }
                 }),
                 Iterables.transform(inetRanges.findExactAndAllMoreSpecific(Ipv4Resource.MAX_RANGE), new Function<Ipv4Resource, String>() {
-                    @Nullable
                     @Override
-                    public String apply(@Nullable Ipv4Resource input) {
+                    public String apply(Ipv4Resource input) {
                         return input.toRangeString();
                     }
                 }),
                 Iterables.transform(inet6Ranges.findExactAndAllMoreSpecific(Ipv6Resource.MAX_RANGE), new Function<Ipv6Resource, String>() {
-                    @Nullable
                     @Override
-                    public String apply(@Nullable Ipv6Resource input) {
+                    public String apply(Ipv6Resource input) {
                         return input.toString();
                     }
                 })

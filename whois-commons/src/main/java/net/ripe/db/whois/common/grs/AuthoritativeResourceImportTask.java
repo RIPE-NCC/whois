@@ -60,7 +60,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
     public void run() {
         for (String sourceName: sourceNames) {
             try {
-                final AuthoritativeResource authoritativeResource = loadAuthoritativeResource(sourceName);
+                final AuthoritativeResource authoritativeResource = downloadAuthoritativeResource(sourceName);
                 resourceDataDao.store(sourceName, authoritativeResource);
             } catch (IOException e) {
                 logger.warn("Exception processing " + sourceName, e);
@@ -68,10 +68,9 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
         }
     }
 
-    AuthoritativeResource loadAuthoritativeResource(final String sourceName) throws IOException {
+    AuthoritativeResource downloadAuthoritativeResource(final String sourceName) throws IOException {
         final Logger logger = LoggerFactory.getLogger(String.format("%s_%s", getClass().getName(), sourceName));
-        final String propertyName = String.format("${grs.import.%s.resourceDataUrl:}", sourceName);
-        final String resourceDataUrl = valueResolver.resolveStringValue(propertyName);
+        final String resourceDataUrl = valueResolver.resolveStringValue(String.format("${grs.import.%s.resourceDataUrl:}", sourceName));
         if (StringUtils.isBlank(resourceDataUrl)) {
             return AuthoritativeResource.unknown(logger);
         }
