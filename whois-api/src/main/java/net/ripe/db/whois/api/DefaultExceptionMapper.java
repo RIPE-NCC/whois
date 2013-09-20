@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.codehaus.jackson.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;

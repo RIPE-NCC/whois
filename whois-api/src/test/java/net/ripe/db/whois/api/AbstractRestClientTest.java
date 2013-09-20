@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.api.httpserver.Audience;
-import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
-import org.codehaus.jackson.map.DeserializationConfig;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.junit.Before;
 
@@ -12,7 +12,6 @@ import javax.ws.rs.client.WebTarget;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-
 public abstract class AbstractRestClientTest extends AbstractIntegrationTest {
     protected Client client;
 
@@ -21,8 +20,8 @@ public abstract class AbstractRestClientTest extends AbstractIntegrationTest {
     @Before
     public void setUpClient() throws Exception {
         final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
-        jsonProvider.configure(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE, false);
-        jsonProvider.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        jsonProvider.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
+        jsonProvider.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         this.client = ClientBuilder.newBuilder()
                 .register(MultiPartFeature.class)
                 .register(jsonProvider)
