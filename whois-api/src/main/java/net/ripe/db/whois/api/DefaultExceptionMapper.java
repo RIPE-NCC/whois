@@ -1,10 +1,8 @@
 package net.ripe.db.whois.api;
 
-import com.sun.jersey.api.NotFoundException;
-import com.sun.jersey.api.client.ClientHandlerException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.codehaus.jackson.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -23,9 +21,6 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
 
     @Override
     public Response toResponse(final Exception exception) {
-        if (exception instanceof NotFoundException) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
 
         if (exception instanceof IllegalSourceException) {
             return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(exception.getMessage()).build();
@@ -41,10 +36,6 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
 
         if (exception instanceof JsonProcessingException) {
             return Response.status(Response.Status.BAD_REQUEST).entity(exception.getMessage()).build();
-        }
-
-        if (exception instanceof ClientHandlerException) {
-            return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(exception.getMessage()).build();
         }
 
         if (exception instanceof EmptyResultDataAccessException) {

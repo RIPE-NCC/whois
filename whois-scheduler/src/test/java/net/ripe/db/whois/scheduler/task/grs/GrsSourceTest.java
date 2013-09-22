@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -35,7 +36,7 @@ public class GrsSourceTest {
     public void setUp() throws Exception {
         subject = new GrsSource("SOME-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader) {
             @Override
-            void acquireDump(File file) throws IOException {
+            void acquireDump(Path path) throws IOException {
             }
 
             @Override

@@ -27,9 +27,9 @@
         <aspectj.version>1.7.3</aspectj.version>
         <compiler.version>1.7</compiler.version>
         <java.version>1.7</java.version>
-        <jersey.version>1.17</jersey.version>
-        <jetty.version>8.1.12.v20130726</jetty.version>
+        <jersey.version>2.2</jersey.version>
         <lucene.version>4.4.0</lucene.version>
+        <jetty.version>8.1.12.v20130726</jetty.version>
         <whois.main>OVERRIDE</whois.main>
         <sonar.skippedModules>whois-oneshot</sonar.skippedModules>
         <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
@@ -342,24 +342,33 @@
                 <version>${jetty.version}</version>
             </dependency>
 
-            <!-- TODO: split jersey-bundle dependency into only necessary parts -->
-
-            <!-- Jersey -->
+            <!-- Jersey JAX-RS 2.0 implementation -->
             <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-bundle</artifactId>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-servlet-core</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
-            <!-- Jackson -->
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-jaxrs</artifactId>
-                <version>1.9.13</version>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-client</artifactId>
+                <version>${jersey.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-xc</artifactId>
-                <version>1.9.13</version>
+                <groupId>org.glassfish.jersey.media</groupId>
+                <artifactId>jersey-media-multipart</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+
+            <!-- Jackson -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-base</artifactId>
+                <version>2.2.3</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <version>2.2.3</version>
             </dependency>
 
             <!-- lucene for fulltext search -->
@@ -394,6 +403,7 @@
                 <version>${lucene.version}</version>
             </dependency>
 
+            <!-- diffutils -->
             <dependency>
                 <groupId>com.googlecode.java-diff-utils</groupId>
                 <artifactId>diffutils</artifactId>

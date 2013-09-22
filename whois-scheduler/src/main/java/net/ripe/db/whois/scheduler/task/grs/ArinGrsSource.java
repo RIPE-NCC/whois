@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,8 +64,8 @@ class ArinGrsSource extends GrsSource {
     }
 
     @Override
-    public void acquireDump(final File file) throws IOException {
-        downloader.downloadToFile(logger, new URL(download), file);
+    public void acquireDump(final Path path) throws IOException {
+        downloader.downloadToFile(logger, new URL(download), path);
     }
 
     @Override

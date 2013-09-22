@@ -16,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +34,7 @@ class GrsSourceImporter {
     private final ResourceTagger resourceTagger;
     private final SourceContext sourceContext;
 
-    private File downloadDir;
+    private Path downloadDir;
 
     @Autowired
     public GrsSourceImporter(
@@ -40,17 +43,14 @@ class GrsSourceImporter {
             final ResourceTagger resourceTagger,
             final SourceContext sourceContext) {
         this.sourceContext = sourceContext;
-        this.downloadDir = new File(downloadDir);
+        this.downloadDir = Paths.get(downloadDir);
         this.sanitizer = sanitizer;
         this.resourceTagger = resourceTagger;
 
-        final String path = this.downloadDir.getAbsolutePath();
-        if (this.downloadDir.exists()) {
-            LOGGER.info("Using download dir: {}", path);
-        } else if (this.downloadDir.mkdirs()) {
-            LOGGER.info("Created download dir: {}", path);
-        } else {
-            LOGGER.warn("Invalid download dir: {}", path);
+        try {
+            Files.createDirectories(this.downloadDir);
+        } catch (IOException e) {
+            LOGGER.warn("Create directory structure", e);
         }
     }
 
@@ -80,10 +80,10 @@ class GrsSourceImporter {
 
             @Override
             public void run() {
-                final File dumpFile = new File(downloadDir, String.format("%s-DMP", grsSource.getName().toUpperCase()));
+                final Path dump = downloadDir.resolve(String.format("%s-DMP", grsSource.getName().toUpperCase()));
 
                 try {
-                    grsSource.acquireDump(dumpFile);
+                    grsSource.acquireDump(dump);
                 } catch (IOException e) {
                     throw new RuntimeException("Unable to acquire dump", e);
                 }
@@ -100,7 +100,8 @@ class GrsSourceImporter {
                 }
 
                 try {
-                    importObjects(dumpFile);
+                    // TODO: continue from here to switch to Path
+                    importObjects(dump.toFile());
                     deleteNotFoundInImport();
                 } catch (IOException e) {
                     throw new RuntimeException(e);

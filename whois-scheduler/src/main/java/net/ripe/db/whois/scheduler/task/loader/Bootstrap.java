@@ -3,7 +3,7 @@ package net.ripe.db.whois.scheduler.task.loader;
 import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.scheduler.DailyScheduledTask;
+import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

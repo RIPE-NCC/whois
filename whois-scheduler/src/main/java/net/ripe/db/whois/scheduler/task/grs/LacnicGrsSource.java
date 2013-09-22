@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ class LacnicGrsSource extends GrsSource {
     }
 
     @Override
-    public void acquireDump(final File file) throws IOException {
+    public void acquireDump(final Path path) throws IOException {
         final String action = "http://lacnic.net" + Jsoup.connect("http://www.lacnic.net/login")
                 .timeout(10000)
                 .get()
@@ -66,7 +67,7 @@ class LacnicGrsSource extends GrsSource {
 
 
         final String downloadAction = action.replace("stini", "bulkWhoisLoader");
-        downloader.downloadToFile(logger, new URL(downloadAction), file);
+        downloader.downloadToFile(logger, new URL(downloadAction), path);
     }
 
     @Override

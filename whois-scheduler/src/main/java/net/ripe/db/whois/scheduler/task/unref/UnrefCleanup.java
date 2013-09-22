@@ -17,7 +17,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.scheduler.DailyScheduledTask;
+import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.SingleUpdateHandler;
 import net.ripe.db.whois.update.handler.UpdateFailedException;

@@ -1,5 +1,9 @@
 package net.ripe.db.whois.common.grs;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Rule;
@@ -12,14 +16,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
 import java.util.zip.GZIPInputStream;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,12 +32,12 @@ public class AuthoritativeResourceTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void unknown_file() throws IOException {
-        AuthoritativeResource.loadFromFile(logger, "unknown", new File(folder.getRoot(), "unknown"));
+        AuthoritativeResource.loadFromFile(logger, "unknown", folder.getRoot().toPath().resolve("unknown"));
     }
 
     @Test
     public void empty_file() throws IOException {
-        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromFile(logger, "RIPE-GRS", folder.newFile());
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromFile(logger, "RIPE-GRS", folder.newFile().toPath());
         assertThat(resourceData.getNrAutNums(), is(0));
         assertThat(resourceData.getNrInetnums(), is(0));
         assertThat(resourceData.getNrInet6nums(), is(0));
@@ -347,6 +350,21 @@ public class AuthoritativeResourceTest {
         assertThat(resourceData.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS2733")), is(true));
         assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("23.128.0.0/10")), is(true));
         assertThat(resourceData.isMaintainedByRir(ObjectType.INET6NUM, ciString("2620:1d1::/32")), is(true));
+    }
+
+    @Test
+    public void as_always_parsed_uppercase() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "TEST-GRS", new Scanner("" +
+                "test|EU|asn|7|1|19930901|allocated\n" +
+                "test|EU|asn|28|2|19930901|allocated\n"));
+        final List<String> asnums = Lists.newArrayList(Iterables.transform(resourceData.getAutNums(), new Function<CIString, String>() {
+            @Override
+            public String apply(CIString input) {
+                return input.toString();
+            }
+        }));
+        assertThat(asnums, hasSize(3));
+        assertThat(asnums, containsInAnyOrder("AS7", "AS28", "AS29"));
     }
 
     @Test

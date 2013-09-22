@@ -48,7 +48,6 @@ class StreamingMarshalXml implements StreamingMarshal {
                     Templates.class,
                     TypeFilter.class,
                     TypeFilters.class,
-                    WhoisModify.class,
                     WhoisObject.class,
                     WhoisObjects.class,
                     WhoisResources.class,

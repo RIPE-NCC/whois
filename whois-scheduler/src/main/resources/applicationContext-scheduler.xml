@@ -9,8 +9,6 @@
 
     <import resource="applicationContext-api.xml"/>
 
-    <beans profile="DEPLOYED">
-        <task:scheduler id="whoisScheduler" pool-size="10"/>
-        <task:annotation-driven scheduler="whoisScheduler"/>
-    </beans>
+    <task:scheduler id="whoisScheduler" pool-size="10"/>
+    <task:annotation-driven scheduler="whoisScheduler"/>
 </beans>

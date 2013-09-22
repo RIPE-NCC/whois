@@ -1,12 +1,6 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.collect.Lists;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.api.AbstractRestClientTest;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.whois.rdap.domain.*;
@@ -18,10 +12,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.RedirectionException;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.Collections;
 import java.util.List;
 
@@ -152,14 +148,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
     }
 
-    @Before
-    @Override
-    public void setUpClient() throws Exception {
-        ClientConfig cc = new DefaultClientConfig();
-        cc.getSingletons().add(new RdapJsonProvider());
-        client = Client.create(cc);
-    }
-
     // inetnum
 
     // Ref. draft-ietf-weirds-json-response, section 5.9 "An Example"
@@ -179,7 +167,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         final Ip ip = createResource(AUDIENCE, "ip/192.0.2.0/24")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255"));
@@ -238,7 +226,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         final Ip ip = createResource(AUDIENCE, "ip/192.0.0.255")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
@@ -254,11 +242,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_inetnum_not_found() {
         try {
             createResource(AUDIENCE, "ip/193.0.0.0")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
             fail();
-        } catch (final UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        } catch (final NotFoundException e) {
+            // expected
         }
     }
 
@@ -266,11 +254,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_inetnum_invalid_syntax() {
         try {
             createResource(AUDIENCE, "ip/invalid")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
             fail();
-        } catch (final UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+        } catch (final BadRequestException e) {
+            // expected
         }
     }
 
@@ -292,10 +280,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         final Ip ip = createResource(AUDIENCE, "ip/2001:2002:2003::/48")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
         System.out.println(createResource(AUDIENCE, "ip/2001:2002:2003::/48")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class));
 
         assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
@@ -344,7 +332,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         final Ip ip = createResource(AUDIENCE, "ip/2001:2002:2003:2004::")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
@@ -359,11 +347,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_inet6num_not_found() {
         try {
             createResource(AUDIENCE, "ip/2001:2002:2003::/48")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
             fail();
-        } catch (final UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        } catch (final NotFoundException e) {
+            // expected
         }
     }
 
@@ -372,7 +360,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_person_entity() throws Exception {
         final Entity entity = createResource(AUDIENCE, "entity/PP1-TEST")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("PP1-TEST"));
@@ -412,11 +400,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_entity_not_found() throws Exception {
         try {
             createResource(AUDIENCE, "entity/ORG-BAD1-TEST")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (final UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        } catch (final NotFoundException e) {
+            // expected
         }
     }
 
@@ -424,17 +412,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_entity_invalid_syntax() throws Exception {
         try {
             createResource(AUDIENCE, "entity/12345")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+        } catch (BadRequestException e) {
+            // expected
         }
     }
 
     @Test
     public void lookup_entity_no_accept_header() {
         final Entity entity = createResource(AUDIENCE, "entity/PP1-TEST")
+                .request()
                 .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("PP1-TEST"));
@@ -447,7 +436,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_role_entity() throws Exception {
         final Entity entity = createResource(AUDIENCE, "entity/FR1-TEST")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("FR1-TEST"));
@@ -492,7 +481,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_domain_object() throws Exception {
         final Domain domain = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
@@ -548,11 +537,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void domain_not_found() throws Exception {
         try {
             createResource(AUDIENCE, "domain/10.in-addr.arpa")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
             fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        } catch (NotFoundException e) {
+            // expected
         }
     }
 
@@ -560,12 +549,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_forward_domain() {
         try {
             createResource(AUDIENCE, "domain/ripe.net")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
             fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-            assertThat(e.getResponse().getEntity(String.class), is("RIPE NCC does not support forward domain queries."));
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), is("RIPE NCC does not support forward domain queries."));
         }
     }
 
@@ -575,11 +563,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_autnum_not_found() throws Exception {
         try {
             createResource(AUDIENCE, "autnum/1")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
             fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        } catch (NotFoundException e) {
+            // expected
         }
     }
 
@@ -587,12 +575,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_autnum_redirect_to_test() {
         try {
             createResource(AUDIENCE, "autnum/102")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
             fail();
-        } catch (final UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-            assertThat(e.getResponse().getHeaders().get("Location").get(0), is("https://rdap.test.net/rdap/autnum/102"));
+        } catch (final RedirectionException e) {
+            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.test.net/rdap/autnum/102"));
         }
     }
 
@@ -600,24 +587,24 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_autnum_invalid_syntax() throws Exception {
         try {
             createResource(AUDIENCE, "autnum/XYZ")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
             fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+        } catch (BadRequestException e) {
+            // expected
         }
     }
 
     @Test
     public void lookup_autnum_head_method() {
-        final ClientResponse response = createResource(AUDIENCE, "autnum/123").head();
+        final Response response = createResource(AUDIENCE, "autnum/123").request().head();
 
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
     }
 
     @Test
     public void lookup_autnum_not_found_head_method() {
-        final ClientResponse response = createResource(AUDIENCE, "autnum/1").head();
+        final Response response = createResource(AUDIENCE, "autnum/1").request().head();
 
         assertThat(response.getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
     }
@@ -625,7 +612,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_single_autnum() throws Exception {
         final Autnum autnum = createResource(AUDIENCE, "autnum/123")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
         assertThat(autnum.getHandle(), equalTo("AS123"));
@@ -665,24 +652,24 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_autnum_with_rdap_json_content_type() {
-        final ClientResponse response = createResource(AUDIENCE, "autnum/123")
-                .accept("application/rdap+json")
-                .get(ClientResponse.class);
+        final Response response = createResource(AUDIENCE, "autnum/123")
+                .request("application/rdap+json")
+                .get();
 
-        assertThat(response.getType(), is(new MediaType("application", "rdap+json")));
-        final String entity = response.getEntity(String.class);
+        assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
+        final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS123\""));
         assertThat(entity, containsString("\"rdapConformance\" : [ \"rdap_level_0\" ]"));
     }
 
     @Test
     public void lookup_autnum_with_application_json_content_type() {
-        final ClientResponse response = createResource(AUDIENCE, "autnum/123")
-                .accept("application/json")
-                .get(ClientResponse.class);
+        final Response response = createResource(AUDIENCE, "autnum/123")
+                .request("application/json")
+                .get();
 
-        assertThat(response.getType(), is(new MediaType("application", "rdap+json")));
-        final String entity = response.getEntity(String.class);
+        assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
+        final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS123\""));
         assertThat(entity, containsString("\"rdapConformance\" : [ \"rdap_level_0\" ]"));
     }
@@ -691,11 +678,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_autnum_within_block() throws Exception {
         try {
             createResource(AUDIENCE, "autnum/1500")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
             fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        } catch (NotFoundException e) {
+            // expected
         }
     }
 
@@ -736,7 +723,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:        TEST\n");
 
         final Autnum autnum = createResource(AUDIENCE, "autnum/123")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
         assertThat(autnum.getEntities().get(0).getHandle(), is("OWNER-MNT"));
@@ -757,21 +744,20 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void multiple_modification_gives_correct_events() throws Exception {
-        final String rpslObject = "" +
-                "aut-num:   AS123\n" +
-                "as-name:   AS-TEST\n" +
-                "descr:     Modified ASN\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "changed:   test@test.net.au 20010816\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "source:    TEST\n" +
-                "password:  test\n";
-        final String response = syncupdate(rpslObject);
+        final String response = syncupdate(
+                        "aut-num:   AS123\n" +
+                        "as-name:   AS-TEST\n" +
+                        "descr:     Modified ASN\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "changed:   test@test.net.au 20010816\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n" +
+                        "password: test");
         assertThat(response, containsString("Modify SUCCEEDED: [aut-num] AS123"));
 
         final Autnum autnum = createResource(AUDIENCE, "autnum/123")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
         final List<Event> events = autnum.getEvents();
@@ -829,7 +815,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         final Ip ip = createResource(AUDIENCE, "ip/192.0.0.128")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
         assertThat(ip.getEntities().get(0).getHandle(), is("AB-TEST"));
@@ -849,7 +835,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_org_entity_handle() throws Exception {
         final Entity response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
@@ -859,11 +845,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_org_not_found() throws Exception {
         try {
             createResource(AUDIENCE, "entity/ORG-NONE-TEST")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+        } catch (NotFoundException e) {
+            // expected
         }
     }
 
@@ -871,11 +857,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_org_invalid_syntax() throws Exception {
         try {
             createResource(AUDIENCE, "entity/ORG-INVALID")
-                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+        } catch (BadRequestException e) {
+            // expected
         }
     }
 
@@ -898,7 +884,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:        TEST\n");
 
         final Entity entity = createResource(AUDIENCE, "entity/ORG-ONE-TEST")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("ORG-ONE-TEST"));
@@ -956,15 +942,16 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Override
-    protected WebResource createResource(final Audience audience, final String path) {
-        return client.resource(String.format("http://localhost:%s/rdap/%s", getPort(audience), path));
+    protected WebTarget createResource(final Audience audience, final String path) {
+        return client.target(String.format("http://localhost:%s/rdap/%s", getPort(audience), path));
     }
 
-    private String syncupdate(final String data) throws IOException {
-        return doPostOrPutRequest(getSyncupdatesUrl("test", ""), "POST", "DATA=" + encode(data), MediaType.APPLICATION_FORM_URLENCODED, HttpURLConnection.HTTP_OK);
-    }
+    private String syncupdate(String data) {
+        WebTarget resource = client.target(String.format("http://localhost:%s/whois/syncupdates/test", getPort(AUDIENCE)));
+        return resource.request()
+                .post(javax.ws.rs.client.Entity.entity("DATA=" + encode(data),
+                        MediaType.APPLICATION_FORM_URLENCODED),
+                        String.class);
 
-    private String getSyncupdatesUrl(final String instance, final String command) {
-        return "http://localhost:" + getPort(Audience.PUBLIC) + String.format("/whois/syncupdates/%s?%s", instance, command);
     }
 }

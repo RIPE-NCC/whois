@@ -1,23 +1,21 @@
 package net.ripe.db.whois.api.whois;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.sun.jersey.spi.container.servlet.ServletContainer;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.api.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
-import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
-import org.codehaus.jackson.map.SerializationConfig;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import javax.servlet.DispatcherType;
-import javax.ws.rs.core.Application;
 import java.util.EnumSet;
-import java.util.Set;
 
 @Component
 public class WhoisServletDeployer implements ServletDeployer {
@@ -52,19 +50,17 @@ public class WhoisServletDeployer implements ServletDeployer {
     @Override
     public void deploy(WebAppContext context) {
         context.addFilter(new FilterHolder(maintenanceModeFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
-        context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(new Application() {
-            @Override
-            public Set<Object> getSingletons() {
-                final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
-                jaxbJsonProvider.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
-                return Sets.newLinkedHashSet(Lists.<Object>newArrayList(
-                        whoisRestService,
-                        syncUpdatesService,
-                        whoisMetadata,
-                        geolocationService,
-                        defaultExceptionMapper,
-                        jaxbJsonProvider));
-            }
-        })), "/whois/*");
+        final ResourceConfig resourceConfig = new ResourceConfig();
+        resourceConfig.register(MultiPartFeature.class);
+        resourceConfig.register(whoisRestService);
+        resourceConfig.register(syncUpdatesService);
+        resourceConfig.register(whoisMetadata);
+        resourceConfig.register(geolocationService);
+        resourceConfig.register(defaultExceptionMapper);
+        final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
+        jaxbJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
+        jaxbJsonProvider.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        resourceConfig.register(jaxbJsonProvider);
+        context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");
     }
 }

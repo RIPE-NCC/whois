@@ -12,13 +12,13 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 @Component
 class ApnicGrsSource extends GrsSource {
     private final String download;
-
 
     @Autowired
     ApnicGrsSource(
@@ -34,8 +34,8 @@ class ApnicGrsSource extends GrsSource {
     }
 
     @Override
-    public void acquireDump(final File file) throws IOException {
-        downloader.downloadToFile(logger, new URL(download), file);
+    public void acquireDump(final Path path) throws IOException {
+        downloader.downloadToFile(logger, new URL(download), path);
     }
 
     @Override

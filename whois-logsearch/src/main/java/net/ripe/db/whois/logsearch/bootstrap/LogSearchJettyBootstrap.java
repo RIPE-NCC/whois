@@ -1,8 +1,6 @@
 package net.ripe.db.whois.logsearch.bootstrap;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.sun.jersey.spi.container.servlet.ServletContainer;
 import net.ripe.db.whois.api.DefaultExceptionMapper;
 import net.ripe.db.whois.api.acl.ApiKeyFilter;
 import net.ripe.db.whois.api.httpserver.Audience;
@@ -15,6 +13,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +22,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.DispatcherType;
-import javax.ws.rs.core.Application;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class LogSearchJettyBootstrap implements ApplicationService {
@@ -66,15 +64,10 @@ public class LogSearchJettyBootstrap implements ApplicationService {
         servletContextHandler.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
         servletContextHandler.addFilter(new FilterHolder(apiKeyFilter), "/api/*", EnumSet.of(DispatcherType.REQUEST));
         servletContextHandler.addServlet(new ServletHolder(logSearchServlet), "/logsearch/*");
-
-        servletContextHandler.addServlet(new ServletHolder("LOGSEARCH API", new ServletContainer(new Application() {
-            @Override
-            public Set<Object> getSingletons() {
-                return Sets.newHashSet(
-                        logSearchService,
-                        defaultExceptionMapper);
-            }
-        })), "/api/*");
+        final ResourceConfig resourceConfig = new ResourceConfig();
+        resourceConfig.register(logSearchService);
+        resourceConfig.register(defaultExceptionMapper);
+        servletContextHandler.addServlet(new ServletHolder("LOGSEARCH API", new ServletContainer(resourceConfig)), "/api/*");
 
         try {
             servers.add(createAndStartServer(internalPort, servletContextHandler, Audience.INTERNAL));

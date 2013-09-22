@@ -1,14 +1,15 @@
 package net.ripe.db.whois.logsearch;
 
 import com.google.common.io.Files;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.logsearch.bootstrap.LogSearchJettyBootstrap;
 import net.ripe.db.whois.logsearch.bootstrap.LogSearchJettyConfig;
 import org.joda.time.LocalDate;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,6 +18,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import javax.sql.DataSource;
+import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -27,7 +31,7 @@ import static org.hamcrest.Matchers.*;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(locations = {"classpath:applicationContext-logsearch-test.xml"})
+@ContextConfiguration(locations = {"classpath:applicationContext-logsearch-base.xml", "classpath:applicationContext-logsearch-test.xml"})
 public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringContextTests {
 
     @Autowired
@@ -66,8 +70,7 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
     public void setup() {
         LogFileHelper.createLogDirectory(logDirectory);
         logSearchJettyBootstrap.start();
-        client = Client.create(new DefaultClientConfig());
-
+        client = ClientBuilder.newBuilder().build();
         LogsearchTestHelper.insertApiKey(API_KEY, dataSource);
     }
 
@@ -278,14 +281,14 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
     @Test
     public void search_incorrect_api_key() throws IOException {
         try {
-            client.resource(String.format(
+            client.target(String.format(
                     "http://localhost:%s/api/logs?search=%s&apiKey=WRONG",
-                    logSearchJettyConfig.getPort(),
-                    URLEncoder.encode("mntner", "ISO-8859-1")))
-                    .get(String.class);
+                    logSearchJettyConfig.getPort(), URLEncoder.encode("mntner", "ISO-8859-1")))
+                .request()
+                .get(String.class);
             fail();
-        } catch (final UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus(), is(403));
+        } catch (ForbiddenException ignored) {
+            // expected
         }
     }
 
@@ -432,19 +435,28 @@ public class LogSearchNewFormatTestIntegration extends AbstractJUnit4SpringConte
 
     private String getUpdates(final String searchTerm) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs?search=%s&fromdate=&todate=&apiKey=%s", logSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), API_KEY))
+                .target(String.format("http://localhost:%s/api/logs?search=%s&fromdate=&todate=&apiKey=%s",
+                        logSearchJettyConfig.getPort(),
+                        URLEncoder.encode(searchTerm, "ISO-8859-1"), API_KEY))
+                .request()
                 .get(String.class);
     }
 
     private String getUpdates(final String searchTerm, final String date) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs?search=%s&fromdate=%s&apiKey=%s", logSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, API_KEY))
+                .target(String.format("http://localhost:%s/api/logs?search=%s&fromdate=%s&apiKey=%s",
+                        logSearchJettyConfig.getPort(),
+                        URLEncoder.encode(searchTerm, "ISO-8859-1"), date, API_KEY))
+                .request()
                 .get(String.class);
     }
 
     private String getUpdates(final String searchTerm, final String fromDate, final String toDate) throws IOException {
         return client
-                .resource(String.format("http://localhost:%s/api/logs?search=%s&fromdate=%s&todate=%s&apiKey=%s", logSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), fromDate, toDate, API_KEY))
+                .target(String.format("http://localhost:%s/api/logs?search=%s&fromdate=%s&todate=%s&apiKey=%s",
+                        logSearchJettyConfig.getPort(),
+                        URLEncoder.encode(searchTerm, "ISO-8859-1"), fromDate, toDate, API_KEY))
+                .request()
                 .get(String.class);
     }
 

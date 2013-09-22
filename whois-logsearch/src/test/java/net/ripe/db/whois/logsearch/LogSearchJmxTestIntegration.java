@@ -4,11 +4,7 @@ import com.google.common.io.Files;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.logsearch.bootstrap.LogSearchJettyBootstrap;
 import net.ripe.db.whois.logsearch.jmx.LogFileUpdateJmx;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -23,7 +19,7 @@ import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(locations = {"classpath:applicationContext-logsearch-test.xml"})
+@ContextConfiguration(locations = {"classpath:applicationContext-logsearch-base.xml", "classpath:applicationContext-logsearch-test.xml"})
 public class LogSearchJmxTestIntegration extends AbstractJUnit4SpringContextTests {
 
     @Autowired

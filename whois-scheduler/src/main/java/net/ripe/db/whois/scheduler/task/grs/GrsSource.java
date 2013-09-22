@@ -15,6 +15,7 @@ import org.springframework.beans.factory.InitializingBean;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -51,7 +52,7 @@ abstract class GrsSource implements InitializingBean {
         return grsDao;
     }
 
-    abstract void acquireDump(File file) throws IOException;
+    abstract void acquireDump(Path path) throws IOException;
 
     abstract void handleObjects(File file, ObjectHandler handler) throws IOException;
 

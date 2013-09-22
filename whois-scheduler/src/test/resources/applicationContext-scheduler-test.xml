@@ -12,7 +12,4 @@
             system-properties-mode="OVERRIDE"/>
 
     <import resource="applicationContext-scheduler.xml"/>
-
-    <task:scheduler id="whoisScheduler" pool-size="10"/>
-    <task:annotation-driven scheduler="whoisScheduler"/>
 </beans>

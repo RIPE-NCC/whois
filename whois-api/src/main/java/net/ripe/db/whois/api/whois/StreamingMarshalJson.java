@@ -1,11 +1,12 @@
 package net.ripe.db.whois.api.whois;
 
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.AnnotationIntrospector;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.introspect.JacksonAnnotationIntrospector;
-import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -16,11 +17,11 @@ class StreamingMarshalJson implements StreamingMarshal {
     static {
         final ObjectMapper objectMapper = new ObjectMapper();
 
-        objectMapper.setAnnotationIntrospector(new AnnotationIntrospector.Pair(
+        objectMapper.setAnnotationIntrospector(new AnnotationIntrospectorPair(
                 new JacksonAnnotationIntrospector(),
-                new JaxbAnnotationIntrospector()));
+                new JaxbAnnotationIntrospector(TypeFactory.defaultInstance())));
 
-        jsonFactory = objectMapper.getJsonFactory();
+        jsonFactory = objectMapper.getFactory();
     }
 
     protected JsonGenerator generator;
@@ -28,7 +29,7 @@ class StreamingMarshalJson implements StreamingMarshal {
     @Override
     public void open(final OutputStream outputStream, String ignore) {
         try {
-            generator = jsonFactory.createJsonGenerator(outputStream);
+            generator = jsonFactory.createGenerator(outputStream);
             generator.writeStartObject();
             // json document has a natural root, ignore arg
         } catch (IOException e) {

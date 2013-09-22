@@ -1,16 +1,17 @@
 package net.ripe.db.whois.api.whois.rdap;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.VCard;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.AnnotationIntrospector;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.codehaus.jackson.map.introspect.JacksonAnnotationIntrospector;
-import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
 import org.codehaus.plexus.util.StringOutputStream;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
@@ -517,7 +518,7 @@ public class RdapResponseJsonTest {
         final StringOutputStream outputStream = new StringOutputStream();
 
         final JsonFactory jsonFactory = createJsonFactory();
-        final JsonGenerator generator = jsonFactory.createJsonGenerator(outputStream).useDefaultPrettyPrinter();
+        final JsonGenerator generator = jsonFactory.createGenerator(outputStream).useDefaultPrettyPrinter();
         generator.writeObject(o);
         generator.close();
 
@@ -528,18 +529,18 @@ public class RdapResponseJsonTest {
         final ObjectMapper objectMapper = new ObjectMapper();
 
         objectMapper.setAnnotationIntrospector(
-                new AnnotationIntrospector.Pair(
+                new AnnotationIntrospectorPair(
                         new JacksonAnnotationIntrospector(),
-                        new JaxbAnnotationIntrospector()));
+                        new JaxbAnnotationIntrospector(TypeFactory.defaultInstance())));
 
-        objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
-        objectMapper.configure(SerializationConfig.Feature.WRITE_EMPTY_JSON_ARRAYS, true);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, true);
 
         final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
         objectMapper.setDateFormat(df);
 
-        return objectMapper.getJsonFactory();
+        return objectMapper.getFactory();
     }
 
     private <K, V> Map createMap(final Map.Entry<K, V>... entries) {

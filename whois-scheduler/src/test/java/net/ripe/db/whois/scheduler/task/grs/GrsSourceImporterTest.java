@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.junit.Assert.fail;
@@ -108,9 +109,9 @@ public class GrsSourceImporterTest {
 
         subject.grsImport(grsSource, false);
 
-        final File dumpFile = new File(folder.getRoot(), "APNIC-GRS-DMP");
+        final Path dumpFile = folder.getRoot().toPath().resolve("APNIC-GRS-DMP");
         verify(grsSource).acquireDump(dumpFile);
-        verify(grsSource).handleObjects(eq(dumpFile), any(ObjectHandler.class));
+        verify(grsSource).handleObjects(eq(dumpFile.toFile()), any(ObjectHandler.class));
     }
 
     @Test
@@ -120,7 +121,7 @@ public class GrsSourceImporterTest {
 
         subject.grsImport(grsSource, false);
 
-        verify(grsSource, never()).acquireDump(any(File.class));
+        verify(grsSource, never()).acquireDump(any(Path.class));
         verify(grsSource, never()).handleObjects(any(File.class), any(ObjectHandler.class));
     }
 
