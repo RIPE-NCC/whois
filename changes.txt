@@ -1,13 +1,14 @@
 ## next
 [query] added support for --valid-syntax
-[api] added abuse contact creation "for dummies" rest call
-[api] added table 'apikeys' to acl schema (on deployment, fill from whois-common/sql/apikeys.sql)
-[all] removed useless thread_id, prev_serial, serial fields from SQL schema
+[api] added abuse contact creation helper rest call
+[api] added table 'apikeys' to acl schema (TODO: fill DB from whois-common/sql/apikeys.sql)
+[all] removed useless thread_id, prev_serial, serial fields from SQL schema (TODO: remove from production DB)
 [all] remove leftover wsearch.* from properties file
-[api] Updated to Lucene 4.4 (TODO re-generate freetext index)
-[all] merged pending and scheduler databases into internals
-[all] added table autoritative_data to interals database
-[all] changed dailyscheduledtasks to run distributed in the cluster
+[api] Updated to Lucene 4.4 (TODO: re-generate freetext index)
+[all] merged pending and scheduler databases into internals (TODO: use RENAME TABLE command to move them to their new location)
+[all] added table autoritative_data to interals database (TODO: add to production)
+[all] changed dailyscheduledtasks to run distributed in the cluster (TODO: execute JMX call DailyScheduler.runDailyScheduledTask net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask)
+[all] TODO: run JMX call AuthoritativeResources.refreshCache on all servers started before AuthoritativeResourceImport finished
 [all] changed scheduler database to accommodate to distributed run
 
 ## 1.69

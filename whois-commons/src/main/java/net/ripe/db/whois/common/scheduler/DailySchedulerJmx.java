@@ -47,7 +47,7 @@ public class DailySchedulerJmx extends JmxBase {
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "className", description = "Name of the DailyScheduledTask to run")
     })
-    public String runDailyScheduledTasks(final String className) {
+    public String runDailyScheduledTask(final String className) {
         return invokeOperation("runMaintenance", "", new Callable<String>() {
             @Override
             public String call() {
