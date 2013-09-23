@@ -600,6 +600,44 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void update_spaces_in_password_succeeds() {
+        databaseHelper.addObject(RpslObject.parse(
+            "mntner:      OWNER2-MNT\n" +
+            "descr:       Owner Maintainer\n" +
+            "admin-c:     TP1-TEST\n" +
+            "upd-to:      noreply@ripe.net\n" +
+            "auth:        MD5-PW $1$d9fKeTr2$NitG3QQZnA4z6zp1o.qmm/ # ' spaces '\n" +
+            "mnt-by:      OWNER2-MNT\n" +
+            "referral-by: OWNER2-MNT\n" +
+            "changed:     dbtest@ripe.net 20120101\n" +
+            "source:      TEST"));
+
+        final String response = createResource(AUDIENCE, "whois/test/mntner/OWNER2-MNT?password=%20spaces%20")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity("<whois-resources>\n" +
+                                    "    <objects>\n" +
+                                    "        <object type=\"mntner\">\n" +
+                                    "            <source id=\"TEST\"/>\n" +
+                                    "            <attributes>\n" +
+                                    "                <attribute name=\"mntner\" value=\"OWNER2-MNT\"/>\n" +
+                                    "                <attribute name=\"descr\" value=\"Owner Maintainer\"/>\n" +
+                                    "                <attribute name=\"admin-c\" value=\"TP1-TEST\"/>\n" +
+                                    "                <attribute name=\"upd-to\" value=\"noreply@ripe.net\"/>\n" +
+                                    "                <attribute name=\"auth\" value=\"MD5-PW $1$d9fKeTr2$NitG3QQZnA4z6zp1o.qmm/\"/>\n" +
+                                    "                <attribute name=\"remarks\" value=\"updated\"/>\n" +
+                                    "                <attribute name=\"mnt-by\" value=\"OWNER2-MNT\"/>\n" +
+                                    "                <attribute name=\"referral-by\" value=\"OWNER2-MNT\"/>\n" +
+                                    "                <attribute name=\"changed\" value=\"dbtest@ripe.net 20120102\"/>\n" +
+                                    "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                                    "            </attributes>\n" +
+                                    "        </object>\n" +
+                                    "    </objects>\n" +
+                                    "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+
+        assertThat(response, containsString("<attribute name=\"remarks\" value=\"updated\"/>"));
+    }
+
+    @Test
     public void update_path_vs_object_mismatch_objecttype() throws Exception {
         try {
             databaseHelper.addObject(PAULETH_PALTHEN);
