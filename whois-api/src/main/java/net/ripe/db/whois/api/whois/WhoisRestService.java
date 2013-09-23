@@ -194,7 +194,8 @@ public class WhoisRestService {
 
         checkForInvalidSource(source);
 
-        final boolean noFilter = hasUnfilteredQueryParameter(request.getQueryString());
+        final boolean unfiltered = Iterables.contains(getQueryParamNames(request.getQueryString()), "unfiltered");
+
         final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s",
                 QueryFlag.EXACT.getLongFlag(),
                 QueryFlag.NO_GROUPING.getLongFlag(),
@@ -204,7 +205,7 @@ public class WhoisRestService {
                 QueryFlag.SELECT_TYPES.getLongFlag(),
                 ObjectType.getByName(objectType).getName(),
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
-                noFilter ? QueryFlag.NO_FILTERING.getLongFlag() : "",
+                unfiltered ? QueryFlag.NO_FILTERING.getLongFlag() : "",
                 key));
 
         return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null);
@@ -221,7 +222,11 @@ public class WhoisRestService {
 
         checkForMainSource(source);
 
-        final Query query = Query.parse(String.format("%s %s", QueryFlag.LIST_VERSIONS.getLongFlag(), key));
+        final Query query = Query.parse(String.format("%s %s %s %s",
+                QueryFlag.SELECT_TYPES.getLongFlag(),
+                ObjectType.getByName(objectType).getName(),
+                QueryFlag.LIST_VERSIONS.getLongFlag(),
+                key));
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
@@ -256,7 +261,12 @@ public class WhoisRestService {
 
         checkForMainSource(source);
 
-        final Query query = Query.parse(String.format("%s %s %s", QueryFlag.SHOW_VERSION.getLongFlag(), version, key));
+        final Query query = Query.parse(String.format("%s %s %s %s %s",
+                QueryFlag.SELECT_TYPES.getLongFlag(),
+                ObjectType.getByName(objectType).getName(),
+                QueryFlag.SHOW_VERSION.getLongFlag(),
+                version,
+                key));
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
@@ -375,19 +385,21 @@ public class WhoisRestService {
         return new StreamingMarshalXml();
     }
 
-    private boolean hasUnfilteredQueryParameter(final String queryString) {
-        return !StringUtils.isBlank(queryString) &&
-                Iterables.contains(Iterables.transform(AMPERSAND.split(queryString), new Function<String, String>() {
-                    @Override
-                    public String apply(final String input) {
-                        String result = input.toLowerCase();
-                        if (result.contains("=")) {
-                            return result.substring(0, result.indexOf("="));
-                        }
+    private Iterable<String> getQueryParamNames(final String queryString) {
+        if (StringUtils.isBlank(queryString)) {
+            return Collections.emptyList();
+        }
 
-                        return result;
-                    }
-                }), "unfiltered");
+        return Iterables.transform(AMPERSAND.split(queryString), new Function<String, String>() {
+            @Override
+            public String apply(final String input) {
+                String result = input.toLowerCase();
+                if (result.contains("=")) {
+                    return result.substring(0, result.indexOf("="));
+                }
+                return result;
+            }
+        });
     }
 
     /**

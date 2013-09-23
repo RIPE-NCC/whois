@@ -863,6 +863,28 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void version_wrong_object_type() throws IOException {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST\n");
+
+        try {
+            createResource(AUDIENCE, "whois/test/inetnum/AS102/versions/1")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (NotFoundException ignored) {
+            // expected
+        }
+    }
+
+    @Test
     public void version_returns_xml() throws IOException {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
