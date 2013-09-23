@@ -93,7 +93,7 @@ public class AbuseFinderTestIntegration extends AbstractRestClientTest {
                 "  \"service\" : \"abuse-finder\",\n" +
                 "  \"link\" : {\n" +
                 "    \"xlink:type\" : \"locator\",\n" +
-                "    \"xlink:href\" : \"http://rest.db.ripe.net/abuse-contact/test/2a00:1f78::fffe/48\"\n" +
+                "    \"xlink:href\" : \"http://rest.db.ripe.net/abuse-finder/test/2a00:1f78::fffe/48\"\n" +
                 "  },\n" +
                 "  \"parameters\" : {\n" +
                 "    \"primary-key\" : {\n" +
@@ -142,10 +142,11 @@ public class AbuseFinderTestIntegration extends AbstractRestClientTest {
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
         final String readable = Joiner.on(">\n").join(Splitter.on(">").split(result)).trim();
+
         assertThat(readable, is("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                 "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-finder\">\n" +
-                "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/test/2a00:1f78::fffe/48\"/>\n" +
+                "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-finder/test/2a00:1f78::fffe/48\"/>\n" +
                 "<parameters>\n" +
                 "<primary-key value=\"2a00:1f78::fffe/48\"/>\n" +
                 "<sources>\n" +
@@ -252,7 +253,7 @@ public class AbuseFinderTestIntegration extends AbstractRestClientTest {
                 "  \"service\" : \"abuse-finder\",\n" +
                 "  \"link\" : {\n" +
                 "    \"xlink:type\" : \"locator\",\n" +
-                "    \"xlink:href\" : \"http://rest.db.ripe.net/abuse-contact/test/AS333\"\n" +
+                "    \"xlink:href\" : \"http://rest.db.ripe.net/abuse-finder/test/AS333\"\n" +
                 "  },"));
     }
 

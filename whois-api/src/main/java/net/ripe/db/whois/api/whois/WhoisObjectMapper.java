@@ -213,7 +213,7 @@ public class WhoisObjectMapper {
 
         final AbuseResources abuseResources = new AbuseResources();
         abuseResources.setAbuseContact(new AbuseContact().setEmail(abuseEmail));
-        abuseResources.setLink(new Link("locator", String.format("http://rest.db.ripe.net/abuse-contact/%s/%s", source, key)));
+        abuseResources.setLink(new Link("locator", String.format("http://rest.db.ripe.net/abuse-finder/%s/%s", source, key)));
         abuseResources.setService("abuse-finder");
 
         final Parameters parameters = new Parameters();

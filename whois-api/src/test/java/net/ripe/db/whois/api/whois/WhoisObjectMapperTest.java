@@ -182,7 +182,7 @@ public class WhoisObjectMapperTest {
                 new RpslAttribute("abuse-mailbox", "abuse@net.net")));
 
         assertThat(result.getAbuseContact().getEmail(), is("abuse@net.net"));
-        assertThat(result.getLink().getHref(), is("http://rest.db.ripe.net/abuse-contact/test/AS333"));
+        assertThat(result.getLink().getHref(), is("http://rest.db.ripe.net/abuse-finder/test/AS333"));
         assertThat(result.getParameters().getPrimaryKey().getValue(), is("AS333"));
         assertThat(result.getParameters().getSources().getSources().get(0).getId(), is("test"));
         assertThat(result.getService(), is("abuse-finder"));
