@@ -26,7 +26,6 @@ import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
-import net.ripe.db.whois.query.planner.RpslAttributes;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -208,7 +207,7 @@ public class WhoisRestService {
                 noFilter ? QueryFlag.NO_FILTERING.getLongFlag() : "",
                 key));
 
-        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), System.identityHashCode(Thread.currentThread()), null);
+        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null);
     }
 
     @GET
@@ -222,13 +221,14 @@ public class WhoisRestService {
 
         checkForMainSource(source);
 
-        final Query query = Query.parse(String.format("--list-versions %s", key));
+        final Query query = Query.parse(String.format("%s %s", QueryFlag.LIST_VERSIONS.getLongFlag(), key));
 
-        final ApiResponseHandlerVersions apiResponseHandlerVersions = new ApiResponseHandlerVersions();
-        queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), System.identityHashCode(Thread.currentThread()), apiResponseHandlerVersions);
+        final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
+        final int contextId = System.identityHashCode(Thread.currentThread());
+        queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), contextId, versionsResponseHandler);
 
-        final List<DeletedVersionResponseObject> deleted = apiResponseHandlerVersions.getDeletedObjects();
-        final List<VersionResponseObject> versions = apiResponseHandlerVersions.getVersionObjects();
+        final List<DeletedVersionResponseObject> deleted = versionsResponseHandler.getDeletedObjects();
+        final List<VersionResponseObject> versions = versionsResponseHandler.getVersionObjects();
 
         if (versions.isEmpty() && deleted.isEmpty()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -256,31 +256,28 @@ public class WhoisRestService {
 
         checkForMainSource(source);
 
-        final Query query = Query.parse(String.format("" +
-                "--show-version %s %s",
-                version,
-                key));
+        final Query query = Query.parse(String.format("%s %s %s", QueryFlag.SHOW_VERSION.getLongFlag(), version, key));
 
-        final ApiResponseHandlerVersions apiResponseHandlerVersions = new ApiResponseHandlerVersions();
-        queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), System.identityHashCode(Thread.currentThread()), apiResponseHandlerVersions);
-        final VersionWithRpslResponseObject versionResponseObject = apiResponseHandlerVersions.getVersionWithRpslResponseObject();
+        final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
+        final int contextId = System.identityHashCode(Thread.currentThread());
+        queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), contextId, versionsResponseHandler);
 
-        if (versionResponseObject == null) {
+        final VersionWithRpslResponseObject versionWithRpslResponseObject = versionsResponseHandler.getVersionWithRpslResponseObject();
+
+        if (versionWithRpslResponseObject == null) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
         final WhoisResources whoisResources = new WhoisResources();
-
-        if (versionResponseObject != null) {
-            final WhoisObject whoisObject = whoisObjectMapper.map(versionResponseObject.getRpslObject());
-            whoisObject.setVersion(versionResponseObject.getVersion());
-            whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
-        }
+        final WhoisObject whoisObject = whoisObjectMapper.map(versionWithRpslResponseObject.getRpslObject());
+        whoisObject.setVersion(versionWithRpslResponseObject.getVersion());
+        whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         whoisResources.includeTermsAndConditions();
+
         return Response.ok(whoisResources).build();
     }
 
-    private Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, final int contextId, @Nullable final Parameters parameters) {
+    private Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, @Nullable final Parameters parameters) {
         final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
 
         return Response.ok(new StreamingOutput() {
@@ -294,6 +291,7 @@ public class WhoisRestService {
                 final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
 
                 try {
+                    final int contextId = System.identityHashCode(Thread.currentThread());
                     queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
 
                         @Override
@@ -392,32 +390,6 @@ public class WhoisRestService {
                 }), "unfiltered");
     }
 
-    @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @Path("/abuse-finder/{source}/{key:.*}")
-    public Response abuseFind
-            (@Context HttpServletRequest request,
-             @PathParam("source") String source,
-             @PathParam("key") String key) {
-
-        checkForMainSource(source);
-
-        final String format = String.format("%s %s ",
-                QueryFlag.ABUSE_CONTACT.getLongFlag(),
-                key == null ? "" : key);
-        final Query query = Query.parse(format);
-
-        final ApiResponseHandlerAbuseC apiResponseHandlerAbuseC = new ApiResponseHandlerAbuseC();
-        queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), System.identityHashCode(Thread.currentThread()), apiResponseHandlerAbuseC);
-
-        final RpslAttributes abuseContactInfo = apiResponseHandlerAbuseC.getAbuseContactInfo();
-        if (abuseContactInfo == null) {
-            throw new NotFoundException();
-        }
-
-        return Response.ok(whoisObjectMapper.mapAbuseContact(key, source, abuseContactInfo.getAttributes())).build();
-    }
-
     /**
      * The search interface resembles a standard Whois client query with the extra features of multi-registry client, multiple response styles that can be selected via content negotiation and with an extensible URL parameters schema.
      *
@@ -479,7 +451,7 @@ public class WhoisRestService {
         parameters.setTypeFilters(types);
         parameters.setFlags(separateFlags);
 
-        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), System.identityHashCode(Thread.currentThread()), parameters);
+        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters);
     }
 
     private void checkForInvalidSources(final Set<String> sources) {
@@ -569,4 +541,38 @@ public class WhoisRestService {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
     }
+
+    private class VersionsResponseHandler extends ApiResponseHandler {
+        final List<VersionResponseObject> versionObjects = Lists.newArrayList();
+        final List<DeletedVersionResponseObject> deletedObjects = Lists.newArrayList();
+        VersionWithRpslResponseObject versionWithRpslResponseObject;
+
+        public List<VersionResponseObject> getVersionObjects() {
+            return versionObjects;
+        }
+
+        public List<DeletedVersionResponseObject> getDeletedObjects() {
+            return deletedObjects;
+        }
+
+        public VersionWithRpslResponseObject getVersionWithRpslResponseObject() {
+            return versionWithRpslResponseObject;
+        }
+
+        @Override
+        public void handle(final ResponseObject responseObject) {
+            if (responseObject instanceof VersionWithRpslResponseObject) {
+                versionWithRpslResponseObject = (VersionWithRpslResponseObject) responseObject;
+            }
+
+            if (responseObject instanceof VersionResponseObject) {
+                versionObjects.add((VersionResponseObject) responseObject);
+            }
+
+            if (responseObject instanceof DeletedVersionResponseObject) {
+                deletedObjects.add((DeletedVersionResponseObject) responseObject);
+            }
+        }
+    }
+
 }
