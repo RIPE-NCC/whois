@@ -5,7 +5,6 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
@@ -18,7 +17,6 @@ import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
@@ -50,7 +48,6 @@ public class RpslResponseDecorator {
     private final FilterTagsDecorator filterTagsDecorator;
     private final FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
-    private final String mainSource;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -60,7 +57,6 @@ public class RpslResponseDecorator {
                                  final DummifyFunction dummifyFunction,
                                  final FilterTagsDecorator filterTagsDecorator,
                                  final FilterPlaceholdersDecorator filterPlaceholdersDecorator,
-                                 final @Value("${whois.source}") String mainSource,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -72,7 +68,6 @@ public class RpslResponseDecorator {
         this.abuseCInfoFunction = new AbuseCInfoFunction(abuseCFinder);
         this.briefAbuseCFunction = new BriefAbuseCFunction(abuseCFinder);
         this.decorators = Sets.newHashSet(decorators);
-        this.mainSource = mainSource;
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
@@ -94,7 +89,7 @@ public class RpslResponseDecorator {
     }
 
     private Iterable<? extends ResponseObject> applyAbuseC(final Query query, final Iterable<? extends ResponseObject> result) {
-        if (!query.isBriefAbuseContact() && sourceContext.getCurrentSource().getName().equals(CIString.ciString(mainSource))) {
+        if (!query.isBriefAbuseContact() && sourceContext.isMain()) {
             return Iterables.concat(Iterables.transform(result, abuseCInfoFunction));
         }
 

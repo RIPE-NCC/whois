@@ -50,16 +50,16 @@ public class RpslResponseDecoratorTest {
     @Mock DummifyFunction dummifyFunction;
     @Mock FilterTagsDecorator filterTagsDecorator;
     @Mock FilterPlaceholdersDecorator filterPlaceholdersDecorator;
-    final String source = "RIPE";
 
     RpslResponseDecorator subject;
 
     @Before
     public void setup() {
-        subject = new RpslResponseDecorator(rpslObjectDaoMock, filterPersonalDecorator, sourceContext, abuseCFinder, dummifyFunction, filterTagsDecorator, filterPlaceholdersDecorator, source, decorator);
+        subject = new RpslResponseDecorator(rpslObjectDaoMock, filterPersonalDecorator, sourceContext, abuseCFinder, dummifyFunction, filterTagsDecorator, filterPlaceholdersDecorator, decorator);
         when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);
+        when(sourceContext.isMain()).thenReturn(true);
         Fixture.mockRpslObjectDaoLoadingBehavior(rpslObjectDaoMock);
 
         when(filterPersonalDecorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
