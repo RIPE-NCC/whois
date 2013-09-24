@@ -65,20 +65,40 @@ public class WhoisRestService {
     private static final Joiner JOINER = Joiner.on(",");
     private static final Splitter AMPERSAND = Splitter.on("&");
     private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(Iterables.concat(
+            // flags for port43 communication only
+            VERSION.getFlags(),
+            PERSISTENT_CONNECTION.getFlags(),
+
+            // flags that make no sense for an xml/json output
+            NO_GROUPING.getFlags(),
+
+            // misc. flags that have path/queryparams or other URLs to gather from
             TEMPLATE.getFlags(),
             VERBOSE.getFlags(),
             CLIENT.getFlags(),
-            NO_GROUPING.getFlags(),
+            LIST_SOURCES.getFlags(),
+            LIST_SOURCES_OR_VERSION.getFlags(),
+
+            // sources & types are handled from queryparams
             SOURCES.getFlags(),
+            ALL_SOURCES.getFlags(),
+            SELECT_TYPES.getFlags(),
+
+            // tags are handled from queryparam
             NO_TAG_INFO.getFlags(),
             SHOW_TAG_INFO.getFlags(),
-            ALL_SOURCES.getFlags(),
-            LIST_SOURCES_OR_VERSION.getFlags(),
-            LIST_SOURCES.getFlags(),
+            FILTER_TAG_EXCLUDE.getFlags(),
+            FILTER_TAG_INCLUDE.getFlags(),
+
+            // versions are accessible via REST URL /versions/
             DIFF_VERSIONS.getFlags(),
             LIST_VERSIONS.getFlags(),
             SHOW_VERSION.getFlags(),
-            PERSISTENT_CONNECTION.getFlags()
+
+            // port43 filter flags that make no sense in xml/json
+            BRIEF.getFlags(),
+            ABUSE_CONTACT.getFlags(),
+            PRIMARY_KEYS.getFlags()
     ));
 
     private final DateTimeProvider dateTimeProvider;
