@@ -1528,6 +1528,33 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void search_hierarchical_flags() {
+        databaseHelper.addObject(
+                "inet6num:       2001:2002:2003::/48\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=2001:2002:2003:2004::5&flags=Lr")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        whoisResources = createResource(AUDIENCE, "whois/search?query-string=2001:2002::/32&flags=M&flags=r")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+    }
+
+    @Test
     public void search_invalid_flags() {
         try {
             createResource(AUDIENCE, "whois/search?query-string=TP1-TEST&source=TEST&flags=kq")
