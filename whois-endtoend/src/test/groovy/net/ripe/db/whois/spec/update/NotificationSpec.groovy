@@ -3,6 +3,7 @@ package net.ripe.db.whois.spec.update
 import net.ripe.db.whois.spec.BaseSpec
 import spec.domain.AckResponse
 import spec.domain.Message
+import spec.domain.SyncUpdate
 
 class NotificationSpec extends BaseSpec {
 
@@ -1652,7 +1653,7 @@ class NotificationSpec extends BaseSpec {
         queryNothing("-rBGT mntner CREATE-MNT")
 
         when:
-        def message = syncUpdate("""\
+        def message = syncUpdate(new SyncUpdate(data: """
                 mntner:      CREATE-MNT
                 descr:       to be created
                 admin-c:     TP1-TEST
@@ -1666,7 +1667,7 @@ class NotificationSpec extends BaseSpec {
                 source:      TEST
                 password: null
 
-                """.stripIndent()
+                """.stripIndent(), redirect: false)
         )
 
         then:
