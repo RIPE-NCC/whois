@@ -815,17 +815,18 @@ public class QueryTest {
     }
 
     @Test
-    public void allow_only_k_and_V_options_for_version_queries() {
+    public void allow_only_k_T_and_V_options_for_version_queries() {
         final String[] validQueries = {
-            "--show-version 1 AS12 -k",
-            "--show-version 1 AS12 -V fred",
-            "--show-version 1 AS12 -k -V fred",
-            "--list-versions AS12 -k -V fred",
-            "--list-versions AS12 -V fred",
-            "--list-versions AS12 -k",
-            "--diff-versions 1:2 AS12",
-            "--diff-versions 1:2 AS12 -k",
-            "--diff-versions 1:2 AS12 -V fred"
+                "--show-version 1 AS12 -k",
+                "--show-version 1 AS12 -V fred",
+                "--show-version 1 AS12 -k -V fred",
+                "--list-versions AS12 -k -V fred",
+                "--list-versions AS12 -V fred",
+                "--list-versions AS12 -k",
+                "--diff-versions 1:2 AS12",
+                "--diff-versions 1:2 AS12 -k",
+                "--diff-versions 1:2 AS12 -V fred",
+                "--show-version 1 AS12 -T aut-num",
         };
 
         for (String query : validQueries) {
@@ -833,14 +834,13 @@ public class QueryTest {
         }
 
         final String[] invalidQueries = {
-            "--show-version 1 AS12 -T aut-num",
-            "--show-version 1 AS12 -B",
-            "--list-versions AS12 -G",
-            "--list-versions AS12 -V fred --no-tag-info",
-            "--list-versions AS12 -k --show-version 1 AS12",
-            "--diff-versions 1:2 AS12 -k --show-version 1",
-            "--diff-versions 1:2 AS12 -B",
-            "--diff-versions 1:2 AS12 -V fred --no-tag-info"
+                "--show-version 1 AS12 -B",
+                "--list-versions AS12 -G",
+                "--list-versions AS12 -V fred --no-tag-info",
+                "--list-versions AS12 -k --show-version 1 AS12",
+                "--diff-versions 1:2 AS12 -k --show-version 1",
+                "--diff-versions 1:2 AS12 -B",
+                "--diff-versions 1:2 AS12 -V fred --no-tag-info"
         };
 
         for (String query : invalidQueries) {
