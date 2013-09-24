@@ -1,8 +1,8 @@
 package spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
 import spec.domain.Message
 import spec.domain.SyncUpdate
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
@@ -172,6 +172,26 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         result.contains("***Error:   Override authentication failed")
     }
+
+    @Ignore("TODO: override with spaces fails")
+    def "override with spaces"() {
+      given:
+        def data = fixtures["ORG1"].stripIndent() + "override: dbase1, override1, NCC#1234567890"
+        data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
+
+        def update = new SyncUpdate(data: data)
+
+      when:
+        def result = syncUpdate update
+
+      then:
+        result.contains("" +
+                "Modify SUCCEEDED: [organisation] ORG-TOL1-TEST\n" +
+                "\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
+    }
+
 
     def "override specified multiple times"() {
       given:
