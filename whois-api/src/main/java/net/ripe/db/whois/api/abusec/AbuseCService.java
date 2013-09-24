@@ -35,7 +35,7 @@ public class AbuseCService {
     private final InternalUpdatePerformer updatePerformer;
     private final LoggerContext loggerContext;
 
-
+    // TODO: use SourceContext to get main source name
     @Autowired
     public AbuseCService(@Value("${whois.source}") final String source,
                          final RpslObjectDao objectDao,
@@ -78,6 +78,7 @@ public class AbuseCService {
                 Keyword.NONE,
                 loggerContext);
 
+        // TODO: emit URLs for rest.db instead
         return Response.ok(String.format("http://apps.db.ripe.net/whois/lookup/%s/organisation/%s.html", source, orgkey)).build();
     }
 

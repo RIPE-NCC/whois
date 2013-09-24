@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+// TODO: [AH] it's really inefficient to make an Iterable<ResponseObject> for each ResponseObject; should use IterableTransformer
 class AbuseCInfoFunction implements Function<ResponseObject, Iterable<? extends ResponseObject>> {
     private static final Set<ObjectType> OBJECT_TYPES = Sets.newHashSet(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
     private final AbuseCFinder abuseCFinder;
@@ -32,6 +33,7 @@ class AbuseCInfoFunction implements Function<ResponseObject, Iterable<? extends 
             if (OBJECT_TYPES.contains(object.getType())) {
                 final Map<CIString, CIString> abuseContacts = abuseCFinder.getAbuseContacts(object);
 
+                // TODO: [AH] make this into a distinct responseobject, so that rest api can also display it
                 if (abuseContacts.isEmpty()) {
                     return Arrays.asList(new MessageObject(QueryMessages.abuseCNotRegistered(object.getKey())), input);
                 }  else {

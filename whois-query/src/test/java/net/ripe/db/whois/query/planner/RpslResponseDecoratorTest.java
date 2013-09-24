@@ -268,7 +268,7 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void non_grouping_and_recursive_with_recursive_objects() {
-        RpslObject rpslObject = RpslObject.parse(1, "inetnum: 10.0.0.0\ntech-c:NICHDL\norg:ORG1-TEST\nstatus:OTHER");
+        RpslObject rpslObject = RpslObject.parse("inetnum: 10.0.0.0\ntech-c:NICHDL\norg:ORG1-TEST\nstatus:OTHER");
         final HashMap<CIString, CIString> map = Maps.newHashMap();
         map.put(CIString.ciString("10.0.0.0"), CIString.ciString("abuse@ripe.net"));
         when(decorator.appliesToQuery(any(Query.class))).thenReturn(true);

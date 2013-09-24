@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.query;
 
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.rpsl.AttributeParser;
+import net.ripe.db.whois.common.domain.attrs.AutNum;
 import net.ripe.db.whois.query.domain.QueryMessages;
 
 class AbuseContactValidator implements QueryValidator {
@@ -11,10 +11,10 @@ class AbuseContactValidator implements QueryValidator {
             return;
         }
 
-        try {
-            new AttributeParser.AutNumParser().parse(query.getSearchValue());
-        } catch (final Exception ignored) {
-            if (query.getIpKeyOrNull() == null) {
+        if (query.getIpKeyOrNull() == null) {
+            try {
+                AutNum.parse(query.getSearchValue());
+            } catch (final Exception ignored) {
                 messages.add(QueryMessages.malformedQuery());
             }
         }

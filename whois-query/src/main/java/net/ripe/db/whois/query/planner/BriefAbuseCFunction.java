@@ -33,12 +33,11 @@ class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
         }
 
         final RpslObject rpslObject = (RpslObject) input;
-        final List<RpslAttribute> newAttributes = new ArrayList<>();
-        final List<RpslAttribute> abuseCAttributes = new ArrayList<>();
 
         if (ABUSE_CONTACT_OBJECT_TYPES.contains(rpslObject.getType())) {
             final Map<CIString, CIString> abuseContacts = abuseCFinder.getAbuseContacts(rpslObject);
             if (!abuseContacts.isEmpty()) {
+                final List<RpslAttribute> abuseCAttributes = new ArrayList<>(2);
                 abuseCAttributes.add(rpslObject.getTypeAttribute());
                 for (final CIString abuseContact : abuseContacts.keySet()) {
                     abuseCAttributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseContacts.get(abuseContact).toString()));
@@ -47,6 +46,7 @@ class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
             }
         }
 
+        final List<RpslAttribute> newAttributes = new ArrayList<>(2);
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             if (BRIEF_ATTRIBUTES.contains(attribute.getType())) {
                 newAttributes.add(attribute);
