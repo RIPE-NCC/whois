@@ -102,6 +102,7 @@ public class AuthoritativeResource {
         return new Ipv6Resource(resources.get(0).begin(), resources.get(resources.size() - 1).end());
     }
 
+    // TODO: since authresource is a dumb container of resources, perhaps containsExactly() would be a better name for this
     public boolean isMaintainedByRir(final ObjectType objectType, final CIString pkey) {
         try {
             switch (objectType) {
@@ -161,6 +162,7 @@ public class AuthoritativeResource {
         }
     }
 
+    // TODO: since authresource is a dumb container of resources, perhaps contains() or encompasses() would be a better name for this
     public boolean isMaintainedInRirSpace(final RpslObject rpslObject) {
         return isMaintainedInRirSpace(rpslObject.getType(), rpslObject.getKey());
     }
@@ -229,15 +231,6 @@ public class AuthoritativeResource {
                     }
                 })
         ));
-    }
-
-    public List<String> getAutNumResources() {
-        return Lists.newArrayList(Iterables.transform(autNums, new Function<CIString, String>() {
-            @Override
-            public String apply(CIString input) {
-                return input.toString();
-            }
-        }));
     }
 }
 
