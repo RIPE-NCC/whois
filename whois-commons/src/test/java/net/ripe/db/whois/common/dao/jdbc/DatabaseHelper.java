@@ -224,7 +224,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     public void setup() {
         // Setup configured sources
-        final Splitter splitter = Splitter.on(',');
+        final Splitter splitter = Splitter.on(',').trimResults();
         final Iterable<String> mainSources = Collections.singletonList(valueResolver.resolveStringValue("${whois.source}"));
         final Iterable<String> grsSources = splitter.split(valueResolver.resolveStringValue("${grs.sources:}"));
         final Iterable<String> nrtmSources = splitter.split(valueResolver.resolveStringValue("${nrtm.import.sources:}"));
@@ -241,6 +241,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         }
 
         truncateTables(aclTemplate, schedulerTemplate, mailupdatesTemplate, internalsTemplate);
+        loadScripts(internalsTemplate, "internals_data.sql");
     }
 
     public DataSource getMailupdatesDataSource() {
