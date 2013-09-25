@@ -6,11 +6,7 @@ import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.rpsl.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,11 +14,7 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.NotAllowedException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
+import javax.ws.rs.*;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -615,24 +607,24 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         final String response = createResource(AUDIENCE, "whois/test/mntner/OWNER2-MNT?password=%20spaces%20")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity("<whois-resources>\n" +
-                                    "    <objects>\n" +
-                                    "        <object type=\"mntner\">\n" +
-                                    "            <source id=\"TEST\"/>\n" +
-                                    "            <attributes>\n" +
-                                    "                <attribute name=\"mntner\" value=\"OWNER2-MNT\"/>\n" +
-                                    "                <attribute name=\"descr\" value=\"Owner Maintainer\"/>\n" +
-                                    "                <attribute name=\"admin-c\" value=\"TP1-TEST\"/>\n" +
-                                    "                <attribute name=\"upd-to\" value=\"noreply@ripe.net\"/>\n" +
-                                    "                <attribute name=\"auth\" value=\"MD5-PW $1$d9fKeTr2$NitG3QQZnA4z6zp1o.qmm/\"/>\n" +
-                                    "                <attribute name=\"remarks\" value=\"updated\"/>\n" +
-                                    "                <attribute name=\"mnt-by\" value=\"OWNER2-MNT\"/>\n" +
-                                    "                <attribute name=\"referral-by\" value=\"OWNER2-MNT\"/>\n" +
-                                    "                <attribute name=\"changed\" value=\"dbtest@ripe.net 20120102\"/>\n" +
-                                    "                <attribute name=\"source\" value=\"TEST\"/>\n" +
-                                    "            </attributes>\n" +
-                                    "        </object>\n" +
-                                    "    </objects>\n" +
-                                    "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+                        "    <objects>\n" +
+                        "        <object type=\"mntner\">\n" +
+                        "            <source id=\"TEST\"/>\n" +
+                        "            <attributes>\n" +
+                        "                <attribute name=\"mntner\" value=\"OWNER2-MNT\"/>\n" +
+                        "                <attribute name=\"descr\" value=\"Owner Maintainer\"/>\n" +
+                        "                <attribute name=\"admin-c\" value=\"TP1-TEST\"/>\n" +
+                        "                <attribute name=\"upd-to\" value=\"noreply@ripe.net\"/>\n" +
+                        "                <attribute name=\"auth\" value=\"MD5-PW $1$d9fKeTr2$NitG3QQZnA4z6zp1o.qmm/\"/>\n" +
+                        "                <attribute name=\"remarks\" value=\"updated\"/>\n" +
+                        "                <attribute name=\"mnt-by\" value=\"OWNER2-MNT\"/>\n" +
+                        "                <attribute name=\"referral-by\" value=\"OWNER2-MNT\"/>\n" +
+                        "                <attribute name=\"changed\" value=\"dbtest@ripe.net 20120102\"/>\n" +
+                        "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                        "            </attributes>\n" +
+                        "        </object>\n" +
+                        "    </objects>\n" +
+                        "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
         assertThat(response, containsString("<attribute name=\"remarks\" value=\"updated\"/>"));
     }

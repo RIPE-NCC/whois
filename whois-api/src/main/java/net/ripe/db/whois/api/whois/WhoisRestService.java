@@ -65,21 +65,22 @@ public class WhoisRestService {
     private static final Joiner JOINER = Joiner.on(",");
     private static final Splitter AMPERSAND = Splitter.on("&");
     private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(Iterables.concat(
-            // flags for port43 communication only
+            // flags for port43 only
             VERSION.getFlags(),
             PERSISTENT_CONNECTION.getFlags(),
 
-            // flags that make no sense for an xml/json output
+            // port43 filter flags that make no sense in xml/json
             NO_GROUPING.getFlags(),
+            BRIEF.getFlags(),
+            ABUSE_CONTACT.getFlags(),
+            PRIMARY_KEYS.getFlags(),
 
-            // misc. flags that have path/queryparams or other URLs to gather from
+            // flags that are covered by path/query params or other rest calls
             TEMPLATE.getFlags(),
             VERBOSE.getFlags(),
             CLIENT.getFlags(),
             LIST_SOURCES.getFlags(),
             LIST_SOURCES_OR_VERSION.getFlags(),
-
-            // sources & types are handled from queryparams
             SOURCES.getFlags(),
             ALL_SOURCES.getFlags(),
             SELECT_TYPES.getFlags(),
@@ -93,12 +94,7 @@ public class WhoisRestService {
             // versions are accessible via REST URL /versions/
             DIFF_VERSIONS.getFlags(),
             LIST_VERSIONS.getFlags(),
-            SHOW_VERSION.getFlags(),
-
-            // port43 filter flags that make no sense in xml/json
-            BRIEF.getFlags(),
-            ABUSE_CONTACT.getFlags(),
-            PRIMARY_KEYS.getFlags()
+            SHOW_VERSION.getFlags()
     ));
 
     private final DateTimeProvider dateTimeProvider;
