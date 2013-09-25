@@ -11,7 +11,7 @@
 [all] TODO: run JMX call AuthoritativeResources.refreshCache on all servers started before AuthoritativeResourceImport finished
 [all] changed scheduler database to accommodate to distributed run
 
-## 1.69
+## 1.69 (deployed on 2013-09-23)
 [update] enable dry-run
 [api] changed rest API create: POST supports '/ripe/person' format only
 [api] adjust mod_proxy config for POST accordingly
@@ -21,7 +21,7 @@
 [query] adjusted hierarchical lookup of direct route object keys
 [query] fixed search on mixed-case domain postfix
 
-## 1.68
+## 1.68.1 (deployed on 2013-08-29)
 [api] revamped API to follow the REST paradigm more closely
 
 ## 1.67.7
