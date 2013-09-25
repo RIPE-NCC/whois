@@ -67,7 +67,7 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
 
     public ChannelFuture connectAndWait() throws InterruptedException {
         ChannelFuture future = connect();
-        success = future.await(1, TimeUnit.SECONDS);
+        success = future.await(3, TimeUnit.SECONDS);
         return future;
     }
 
@@ -78,7 +78,7 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     public ChannelFuture sendLine(String query) throws InterruptedException {
         Assert.assertTrue(success);
         ChannelFuture future = channel.write(query + "\n");
-        success = future.await(1, TimeUnit.SECONDS);
+        success = future.await(3, TimeUnit.SECONDS);
         return future;
     }
 
@@ -111,7 +111,7 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     }
 
     private void waitForResponse(Matcher<String> anwserMatcher) throws Exception {
-        Awaitility.waitAtMost(1, TimeUnit.SECONDS).until(new Callable<String>() {
+        Awaitility.waitAtMost(3, TimeUnit.SECONDS).until(new Callable<String>() {
             @Override
             public String call() throws Exception {
                 return getResponse();
