@@ -479,4 +479,12 @@ public class AttributeSanitizerTest {
 
         verifyNoMoreInteractions(objectMessages);
     }
+
+    @Test
+    public void transform_source_to_upper() {
+        final RpslObject rpslObject = RpslObject.parse("person: Person A\nnic-hdl: tst-test\nsource: test");
+        final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
+
+        assertThat(result.findAttribute(AttributeType.SOURCE).getValue(), is("TEST"));
+    }
 }

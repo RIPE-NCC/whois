@@ -190,7 +190,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
                     .request()
                     .get(String.class);
 
-        assertThat(response, containsString("Error:   Unrecognized source: invalid"));
+        assertThat(response, containsString("Error:   Unrecognized source: INVALID"));
     }
 
     @Test
