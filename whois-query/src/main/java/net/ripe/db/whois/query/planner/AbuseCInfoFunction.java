@@ -33,7 +33,6 @@ class AbuseCInfoFunction implements Function<ResponseObject, Iterable<? extends 
             if (OBJECT_TYPES.contains(object.getType())) {
                 final Map<CIString, CIString> abuseContacts = abuseCFinder.getAbuseContacts(object);
 
-                // TODO: [AH] make this into a distinct responseobject, so that rest api can also display it
                 if (abuseContacts.isEmpty()) {
                     return Arrays.asList(new MessageObject(QueryMessages.abuseCNotRegistered(object.getKey())), input);
                 }  else {
