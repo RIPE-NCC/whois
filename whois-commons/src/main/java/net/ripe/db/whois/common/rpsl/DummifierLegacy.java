@@ -158,19 +158,11 @@ public class DummifierLegacy implements Dummifier {
                 continue;
             }
 
-            final RpslAttribute replacement;
             if (seenAttributes.add(attribute.getType())) {
-                replacement = new RpslAttribute(attribute.getKey(), PERSON_ROLE_PLACEHOLDER);
+                attributes.set(i, new RpslAttribute(attribute.getKey(), PERSON_ROLE_PLACEHOLDER));
             } else {
-                replacement = null;
-            }
-
-            attributes.set(i, replacement);
-        }
-
-        for (Iterator<RpslAttribute> iterator = attributes.iterator(); iterator.hasNext(); ) {
-            if (iterator.next() == null) {
-                iterator.remove();
+                attributes.remove(i);
+                i--;
             }
         }
     }
