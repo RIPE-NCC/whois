@@ -68,7 +68,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
         }
     }
 
-    AuthoritativeResource downloadAuthoritativeResource(final String sourceName) throws IOException {
+    public AuthoritativeResource downloadAuthoritativeResource(final String sourceName) throws IOException {
         final Logger logger = LoggerFactory.getLogger(String.format("%s_%s", getClass().getName(), sourceName));
         final String resourceDataUrl = valueResolver.resolveStringValue(String.format("${grs.import.%s.resourceDataUrl:}", sourceName));
         if (StringUtils.isBlank(resourceDataUrl)) {

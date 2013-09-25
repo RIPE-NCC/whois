@@ -231,4 +231,13 @@ public class AuthoritativeResource {
         ));
     }
 
+    public List<String> getAutNumResources() {
+        return Lists.newArrayList(Iterables.transform(autNums, new Function<CIString, String>() {
+            @Override
+            public String apply(CIString input) {
+                return input.toString();
+            }
+        }));
+    }
 }
+
