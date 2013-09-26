@@ -58,7 +58,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private DataSource dnsCheckDataSource;
 
     private JdbcTemplate aclTemplate;
-    private JdbcTemplate schedulerTemplate;
     private JdbcTemplate mailupdatesTemplate;
     private JdbcTemplate internalsTemplate;
 
@@ -75,12 +74,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     @Qualifier("aclDataSource")
     public void setAclTemplate(final DataSource aclDataSource) {
         this.aclTemplate = new JdbcTemplate(aclDataSource);
-    }
-
-    @Autowired(required = false)
-    @Qualifier("schedulerDataSource")
-    public void setSchedulerDataSource(DataSource schedulerDataSource) {
-        schedulerTemplate = new JdbcTemplate(schedulerDataSource);
     }
 
     @Autowired(required = false)
@@ -240,7 +233,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             }
         }
 
-        truncateTables(aclTemplate, schedulerTemplate, mailupdatesTemplate, internalsTemplate);
+        truncateTables(aclTemplate, mailupdatesTemplate, internalsTemplate);
         loadScripts(internalsTemplate, "internals_data.sql");
     }
 
