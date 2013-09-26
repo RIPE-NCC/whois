@@ -57,7 +57,7 @@ public class SourceContext {
             @Value("${grs.sources}") final String grsSourceNames,
             @Value("${nrtm.import.sources}") final String nrtmSourceNames,
             @Value("${grs.sources.dummify:}") final String grsSourceNamesForDummification,
-            @Value("${grs.sources.tagRoutes:}") final String grsSourceNamesToTagRoutes,
+            @Value("${grs.import.sources.tagRoutes:}") final String grsSourceNamesToTagRoutes,
             @Value("${whois.db.grs.master.baseurl}") final String grsMasterBaseUrl,
             @Value("${whois.db.master.username}") final String whoisMasterUsername,
             @Value("${whois.db.master.password}") final String whoisMasterPassword,

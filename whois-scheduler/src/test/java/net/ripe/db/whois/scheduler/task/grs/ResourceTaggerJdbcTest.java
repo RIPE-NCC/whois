@@ -49,12 +49,12 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
 
     @BeforeClass
     public static void beforeClass() {
-        System.setProperty("grs.sources.tagRoutes", "TEST-GRS");
+        System.setProperty("grs.import.sources.tagRoutes", "TEST-GRS");
     }
 
     @AfterClass
     public static void afterClass() {
-        System.clearProperty("grs.sources.tagRoutes");
+        System.clearProperty("grs.import.sources.tagRoutes");
     }
 
     @Before
