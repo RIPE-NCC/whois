@@ -18,6 +18,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
@@ -40,7 +41,7 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
     @Autowired DateTimeProvider dateTimeProvider;
     @Autowired TagsDao tagsDao;
     @Autowired RpslObjectDao objectDao;
-    @Autowired Downloader downloader;
+    @Mock Downloader downloader;
 
     GrsSource testGrsSource;
     AuthoritativeResource authoritativeResource;
