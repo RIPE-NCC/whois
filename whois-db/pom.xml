@@ -3,13 +3,13 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.70.1-SNAPSHOT</version>
+        <version>1.70</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois-db</artifactId>
-    <version>1.70.1-SNAPSHOT</version>
+    <version>1.70</version>
     <packaging>jar</packaging>
 
     <dependencies>
