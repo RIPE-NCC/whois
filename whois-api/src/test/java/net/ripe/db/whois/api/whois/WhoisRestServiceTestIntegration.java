@@ -6,11 +6,13 @@ import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.rpsl.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -20,6 +22,9 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -86,6 +91,16 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.updateObject(TEST_ROLE);
+    }
+
+    @Test
+    public void downloader_test() throws Exception {
+        Path path = Files.createTempFile("downloader_test", "");
+        Downloader downloader = new Downloader();
+        downloader.downloadTo(LoggerFactory.getLogger("downloader_test"), new URL(String.format("http://localhost:%d/whois/test/mntner/owner-mnt", getPort(AUDIENCE))), path);
+        final String result = new String(Files.readAllBytes(path));
+        assertThat(result, containsString("OWNER-MNT"));
+        assertThat(result, endsWith("</whois-resources>"));
     }
 
     @Test
@@ -1679,7 +1694,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         assertThat(whoisResources, containsString("<objects>"));
     }
 
-    @Ignore("TODO: [ES] don't set the content-type on an error response")
+    // TODO: [ES] don't set the content-type on an error response
+    @Ignore
     @Test
     public void search_dont_set_content_type_on_error() {
         try {

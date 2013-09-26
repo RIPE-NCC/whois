@@ -21,6 +21,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// downloader is tested in whois-api integration tests, so that tests run without internet access
 @Component
 public class Downloader {
     private static final Pattern MD5_CAPTURE_PATTERN = Pattern.compile("([a-fA-F0-9]{32})");
