@@ -24,6 +24,12 @@ public class MailConfiguration {
 
     private Session session;
 
+    public MailConfiguration() {}
+
+    public MailConfiguration(final String from) {
+        this.from = from;
+    }
+
     @PostConstruct
     public void initSession() {
         final Properties props = new Properties();

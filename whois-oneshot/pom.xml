@@ -31,6 +31,10 @@
             <artifactId>whois-query</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-update</artifactId>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
