@@ -62,7 +62,7 @@ public class AuthoritativeResourceImportTaskTest {
     @Test
     public void downloaded_fails() throws IOException {
         when(valueResolver.resolveStringValue(anyString())).thenReturn("http://www.ripe.net/download");
-        doThrow(IOException.class).when(downloader).downloadGrsData(any(Logger.class), any(URL.class), any(Path.class));
+        doThrow(IOException.class).when(downloader).downloadToWithMd5Check(any(Logger.class), any(URL.class), any(Path.class));
 
         subject.run();
     }
@@ -78,7 +78,7 @@ public class AuthoritativeResourceImportTaskTest {
                 Files.createFile(path);
                 return null;
             }
-        }).when(downloader).downloadGrsData(any(Logger.class), any(URL.class), any(Path.class));
+        }).when(downloader).downloadToWithMd5Check(any(Logger.class), any(URL.class), any(Path.class));
 
         subject.run();
 

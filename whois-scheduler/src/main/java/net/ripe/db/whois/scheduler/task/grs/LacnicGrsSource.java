@@ -67,7 +67,7 @@ class LacnicGrsSource extends GrsSource {
 
 
         final String downloadAction = action.replace("stini", "bulkWhoisLoader");
-        downloader.downloadToFile(logger, new URL(downloadAction), path);
+        downloader.downloadTo(logger, new URL(downloadAction), path);
     }
 
     @Override

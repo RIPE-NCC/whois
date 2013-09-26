@@ -77,7 +77,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
 
         final Path resourceDataFile = Paths.get(downloadDir, sourceName + "-RES");
 
-        downloader.downloadGrsData(logger, new URL(resourceDataUrl), resourceDataFile);
+        downloader.downloadToWithMd5Check(logger, new URL(resourceDataUrl), resourceDataFile);
         final AuthoritativeResource authoritativeResource = AuthoritativeResource.loadFromFile(logger, sourceName, resourceDataFile);
         return authoritativeResource;
     }

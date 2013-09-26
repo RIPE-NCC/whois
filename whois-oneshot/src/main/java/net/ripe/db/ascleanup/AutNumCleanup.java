@@ -76,14 +76,15 @@ public class AutNumCleanup {
 
     private static final Map<RpslObject, Set<String>> autnumPerObjectMap = Maps.newHashMap();
     private static final String MAIL_FROM = "RIPE Database Administration local <unread@ripe.net>";
-    private static final String MAIL_HOST = "FOO";
+    private static final String MAIL_HOST = "massmailer.ripe.net";
     private static final int MAIL_PORT = 25;
     private static final String LOG_DIR = "var";
     private final MailGateway mailGateway;
 
 
     public static void main(String[] argv) throws Exception {
-        new AutNumCleanup(createMailGateway()).execute(argv[0]);
+//        new AutNumCleanup(createMailGateway()).execute(argv[0]);
+        new AutNumCleanup(null).execute(argv[0]);
     }
 
     public AutNumCleanup(final MailGateway mailGateway) {
@@ -106,7 +107,7 @@ public class AutNumCleanup {
 
         final Downloader downloader = new Downloader();
 
-        downloader.downloadGrsData(LOGGER, new URL("ftp://ftp.ripe.net/ripe/stats/delegated-ripencc-extended-latest"), resourceDataFile);
+        downloader.downloadToWithMd5Check(LOGGER, new URL("ftp://ftp.ripe.net/ripe/stats/delegated-ripencc-extended-latest"), resourceDataFile);
 
         final AuthoritativeResourceLoader authoritativeResourceLoader = new AuthoritativeResourceLoader(LOGGER, "ripe", new Scanner(resourceDataFile), Sets.newHashSet("reserved"));
         final AuthoritativeResource authoritativeResource = authoritativeResourceLoader.load();
@@ -152,7 +153,9 @@ public class AutNumCleanup {
 
                             if (object != null) {
                                 for (final CIString email : object.getValuesForAttribute(AttributeType.UPD_TO)) {
-                                    mailGateway.sendEmail(email.toString(), "RIPE NCC Aut-num cleanup", createMailContent(autnumPerObjectMap.get(rpslObject)));
+//                                    mailGateway.sendEmail(email.toString(), "RIPE NCC Aut-num cleanup", createMailContent(autnumPerObjectMap.get(rpslObject)));
+                                    System.err.println(createMailContent(autnumPerObjectMap.get(rpslObject)));
+                                    System.err.println("---");
                                 }
                             }
                         }
@@ -210,20 +213,4 @@ public class AutNumCleanup {
             }
         }
     }
-
-//    private void sendEmail(final String to, final String subject, final String text) {
-//        .send(new MimeMessagePreparator() {
-//            @Override
-//            public void prepare(final MimeMessage mimeMessage) throws MessagingException {
-//                final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
-//                message.setFrom("RIPE NCC or something");
-//                message.setTo(to);
-//                message.setSubject(subject);
-//                message.setText(text);
-//
-//                mimeMessage.addHeader("Precedence", "bulk");
-//                mimeMessage.addHeader("Auto-Submitted", "auto-generated");
-//            }
-//        });
-//    }
 }
