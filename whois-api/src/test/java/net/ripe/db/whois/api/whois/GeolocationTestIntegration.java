@@ -287,6 +287,6 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
     }
 
     protected WebTarget createResource(final String path) {
-        return client.target(String.format("http://localhost:%s/%s", getPort(Audience.PUBLIC), path));
+        return client.target(String.format("http://localhost:%d/%s", getPort(Audience.PUBLIC), path));
     }
 }

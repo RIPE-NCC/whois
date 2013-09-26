@@ -29,7 +29,7 @@ public abstract class AbstractRestClientTest extends AbstractIntegrationTest {
     }
 
     protected WebTarget createStaticResource(final Audience audience, final String path) {
-       return client.target(String.format("http://localhost:%s/%s", getPort(audience), path));
+       return client.target(String.format("http://localhost:%d/%s", getPort(audience), path));
     }
 
     protected void setApiKey(final String apiKey) {
@@ -37,15 +37,15 @@ public abstract class AbstractRestClientTest extends AbstractIntegrationTest {
     }
 
     protected WebTarget createResource(final Audience audience, final String path) {
-        return client.target(String.format("http://localhost:%s/%s?apiKey=%s", getPort(audience), path, apiKey));
+        return client.target(String.format("http://localhost:%d/%s?apiKey=%s", getPort(audience), path, apiKey));
     }
 
     protected WebTarget createResourceGet(final Audience audience, final String pathAndParams) {
-        return client.target(String.format("http://localhost:%s/%s&apiKey=%s", getPort(audience), pathAndParams, apiKey));
+        return client.target(String.format("http://localhost:%d/%s&apiKey=%s", getPort(audience), pathAndParams, apiKey));
     }
 
     protected WebTarget createResource(final Audience audience, final String path, final String param) {
-        return client.target(String.format("http://localhost:%s/%s/%s?apiKey=%s", getPort(audience), path, encode(param), apiKey));
+        return client.target(String.format("http://localhost:%d/%s/%s?apiKey=%s", getPort(audience), path, encode(param), apiKey));
     }
 
     protected String encode(final String param) {

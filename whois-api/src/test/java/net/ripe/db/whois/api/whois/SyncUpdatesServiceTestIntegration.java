@@ -298,6 +298,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
     @Override
     protected WebTarget createResource(final Audience audience, final String path) {
-        return client.target(String.format("http://localhost:%s/%s", getPort(audience), path));
+        return client.target(String.format("http://localhost:%d/%s", getPort(audience), path));
     }
 }
