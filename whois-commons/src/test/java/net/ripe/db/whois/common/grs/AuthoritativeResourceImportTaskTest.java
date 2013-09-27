@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -40,7 +39,7 @@ public class AuthoritativeResourceImportTaskTest {
 
     @Before
     public void setUp() {
-        subject = new AuthoritativeResourceImportTask(Arrays.asList("TEST"), resourceDataDao, downloader, folder.getRoot().getAbsolutePath());
+        subject = new AuthoritativeResourceImportTask("TEST", resourceDataDao, downloader, folder.getRoot().getAbsolutePath());
         subject.setEmbeddedValueResolver(valueResolver);
     }
 
