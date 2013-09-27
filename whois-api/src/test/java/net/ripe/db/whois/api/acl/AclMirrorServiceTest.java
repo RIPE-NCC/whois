@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.acl;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.IpInterval;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -36,7 +38,7 @@ public class AclMirrorServiceTest {
     public void getMirror_existing() {
         Mirror mirror = new Mirror("10.0.0.0/32", "comment");
 
-        when(aclServiceDao.getMirror("10.0.0.0/32")).thenReturn(mirror);
+        when(aclServiceDao.getMirror(IpInterval.parse(CIString.ciString("10.0.0.0/32")))).thenReturn(mirror);
 
         final Response response = subject.getMirror("10.0.0.0/32");
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
@@ -46,7 +48,7 @@ public class AclMirrorServiceTest {
 
     @Test
     public void getMirror_non_existing() {
-        when(aclServiceDao.getMirror("10.0.0.1/32")).thenThrow(EmptyResultDataAccessException.class);
+        when(aclServiceDao.getMirror(IpInterval.parse(CIString.ciString("10.0.0.1/32")))).thenThrow(EmptyResultDataAccessException.class);
 
         final Response response = subject.getMirror("10.0.0.1/32");
         assertThat(response.getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
@@ -65,7 +67,7 @@ public class AclMirrorServiceTest {
 
     @Test
     public void getMirror_parent() {
-        when(aclServiceDao.getMirror("10.0.0.1/32")).thenThrow(EmptyResultDataAccessException.class);
+        when(aclServiceDao.getMirror(IpInterval.parse("10.0.0.1/32"))).thenThrow(EmptyResultDataAccessException.class);
 
         final Response response = subject.getMirror("10.0.0.1/32");
         assertThat(response.getStatus(), is(404));
@@ -75,7 +77,7 @@ public class AclMirrorServiceTest {
     public void saveMirror_create() {
         List<Mirror> mirrors = Lists.newArrayList(new Mirror("10.0.0.1/32", "comment"));
         when(aclServiceDao.getMirrors()).thenReturn(mirrors);
-        when(aclServiceDao.getMirror("10.0.0.0/32")).thenThrow(EmptyResultDataAccessException.class);
+        when(aclServiceDao.getMirror(IpInterval.parse("10.0.0.0/32"))).thenThrow(EmptyResultDataAccessException.class);
         Mirror mirror = new Mirror("10.0.0.0/32", "more comments");
 
         final Response response = subject.saveMirror(mirror);
@@ -106,36 +108,36 @@ public class AclMirrorServiceTest {
 
     @Test
     public void deleteMirror() {
-        when(aclServiceDao.getMirror("10.0.0.0/32")).thenReturn(new Mirror("10.0.0.0/32", "comment"));
+        when(aclServiceDao.getMirror(IpInterval.parse("10.0.0.0/32"))).thenReturn(new Mirror("10.0.0.0/32", "comment"));
 
         Response response = subject.deleteMirror("10.0.0.0/32");
 
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
         assertThat(((Mirror) response.getEntity()).getPrefix(), is("10.0.0.0/32"));
 
-        verify(aclServiceDao).deleteMirror("10.0.0.0/32");
+        verify(aclServiceDao).deleteMirror(IpInterval.parse("10.0.0.0/32"));
     }
 
     @Test
     public void deleteInvalidMirror() {
-        when(aclServiceDao.getMirror("10.0.0.0/32")).thenThrow(EmptyResultDataAccessException.class);
+        when(aclServiceDao.getMirror(IpInterval.parse("10.0.0.0/32"))).thenThrow(EmptyResultDataAccessException.class);
         Response response = subject.deleteMirror("10.0.0.0/32");
 
         assertThat(response.getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
-        verify(aclServiceDao, never()).deleteMirror("10.0.0.0/32");
+        verify(aclServiceDao, never()).deleteMirror(IpInterval.parse("10.0.0.0/32"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void deleteMirror_rootObjectIpv4() {
         subject.deleteMirror("0/0");
 
-        verify(aclServiceDao, never()).deleteMirror("0.0.0.0/0");
+        verify(aclServiceDao, never()).deleteMirror(IpInterval.parse("0.0.0.0/0"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void deleteMirror_rootObjectIpv6() {
         subject.deleteMirror("::0/0");
 
-        verify(aclServiceDao, never()).deleteMirror("::0/0");
+        verify(aclServiceDao, never()).deleteMirror(IpInterval.parse("::0/0"));
     }
 }

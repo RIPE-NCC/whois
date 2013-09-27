@@ -49,7 +49,7 @@ public class AclLimitServiceTestIntegration extends AbstractRestClientTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Limit.class);
 
-        assertThat(limit.getPrefix(), is("0/0"));
+        assertThat(limit.getPrefix(), is("0.0.0.0/0"));
     }
 
     @Test
@@ -58,7 +58,7 @@ public class AclLimitServiceTestIntegration extends AbstractRestClientTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Limit.class);
 
-        assertThat(limit.getPrefix(), is("::0/0"));
+        assertThat(limit.getPrefix(), is("::/0"));
     }
 
     @Test

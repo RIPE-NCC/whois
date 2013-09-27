@@ -12,6 +12,8 @@ import java.util.List;
 
 /**
  * Managing ACL limits.
+ *
+ * The limit prefix length may or may not be /64, normalize but do not validate
  */
 @Component
 @Path("/acl/limits")
@@ -103,7 +105,7 @@ public class AclLimitService {
         for (final Limit limit : aclServiceDao.getLimits()) {
             final IpInterval<?> existingIpInterval = IpInterval.parse(limit.getPrefix());
             if (ipInterval.equals(existingIpInterval)) {
-                aclServiceDao.deleteLimit(existingIpInterval.toString());
+                aclServiceDao.deleteLimit(existingIpInterval);
                 return Response.ok(limit).build();
             }
         }

@@ -8,7 +8,7 @@ class AclServiceHelper {
     private AclServiceHelper() {
     }
 
-    public static String getNormalizedPrefix(final String prefix) {
+    public static IpInterval<?> getNormalizedPrefix(final String prefix) {
         final IpInterval<?> ipInterval = IpInterval.parse(prefix);
 
         if (ipInterval instanceof Ipv6Resource && ipInterval.getPrefixLength() != 64) {
@@ -19,6 +19,6 @@ class AclServiceHelper {
             throw new IllegalArgumentException("IPv4 must be a single address");
         }
 
-        return ipInterval.toString();
+        return ipInterval;
     }
 }

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.acl;
 
+import net.ripe.db.whois.common.domain.IpInterval;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -48,7 +49,7 @@ public class AclProxyService {
     @Path("/{prefix}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getProxy(@PathParam("prefix") final String prefix) {
-        final String normalizedPrefix = getNormalizedPrefix(prefix);
+        final IpInterval normalizedPrefix = getNormalizedPrefix(prefix);
 
         try {
             return Response.ok(aclServiceDao.getProxy(normalizedPrefix)).build();
@@ -69,8 +70,8 @@ public class AclProxyService {
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response saveProxy(final Proxy proxy) {
-        final String normalizedPrefix = getNormalizedPrefix(proxy.getPrefix());
-        proxy.setPrefix(normalizedPrefix);
+        final IpInterval normalizedPrefix = getNormalizedPrefix(proxy.getPrefix());
+        proxy.setPrefix(normalizedPrefix.toString());
 
         try {
             aclServiceDao.getProxy(normalizedPrefix);
@@ -94,7 +95,7 @@ public class AclProxyService {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response deleteProxy(@PathParam("prefix") final String prefix) {
         try {
-            final String normalizedPrefix = getNormalizedPrefix(prefix);
+            final IpInterval normalizedPrefix = getNormalizedPrefix(prefix);
 
             final Proxy proxy = aclServiceDao.getProxy(normalizedPrefix);
             aclServiceDao.deleteProxy(normalizedPrefix);

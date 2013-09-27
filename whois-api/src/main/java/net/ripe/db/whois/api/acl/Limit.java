@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.acl;
 
+import net.ripe.db.whois.common.domain.IpInterval;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -20,7 +22,7 @@ public class Limit {
     }
 
     public Limit(final String prefix, final String comment, final int personObjectLimit, final boolean unlimitedConnections) {
-        this.prefix = prefix;
+        this.prefix = IpInterval.parse(prefix).toString();
         this.comment = comment;
         this.personObjectLimit = personObjectLimit;
         this.unlimitedConnections = unlimitedConnections;
@@ -35,7 +37,7 @@ public class Limit {
     }
 
     public void setPrefix(final String prefix) {
-        this.prefix = prefix;
+        this.prefix = IpInterval.parse(prefix).toString();
     }
 
     /**
