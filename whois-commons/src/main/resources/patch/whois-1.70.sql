@@ -48,6 +48,7 @@ ALTER TABLE peering_set DROP COLUMN thread_id;
 ALTER TABLE person_role DROP COLUMN thread_id;
 ALTER TABLE ping_hdl DROP COLUMN thread_id;
 ALTER TABLE poetic_form DROP COLUMN thread_id;
+ALTER TABLE poem DROP COLUMN thread_id;
 ALTER TABLE ref_nfy DROP COLUMN thread_id;
 ALTER TABLE refer DROP COLUMN thread_id;
 ALTER TABLE referral_by DROP COLUMN thread_id;
