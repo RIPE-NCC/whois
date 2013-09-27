@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.grs;
 
 import com.google.common.base.Function;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
@@ -20,12 +21,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Set;
 
 @Component
 public class AuthoritativeResourceImportTask implements DailyScheduledTask, EmbeddedValueResolverAware {
     private static final Logger logger = LoggerFactory.getLogger(AuthoritativeResourceImportTask.class);
+    private static final Splitter PROPERTY_LIST_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
     private final ResourceDataDao resourceDataDao;
     private StringValueResolver valueResolver;
@@ -34,12 +35,12 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
     private final Set<String> sourceNames;
 
     @Autowired
-    public AuthoritativeResourceImportTask(@Value("${grs.sources}") final List<String> grsSourceNames,
+    public AuthoritativeResourceImportTask(@Value("${grs.sources}") final String grsSourceNames,
                                            final ResourceDataDao resourceDataDao,
                                            final Downloader downloader,
                                            @Value("${dir.grs.import.download:}") final String downloadDir)
     {
-        this.sourceNames = Sets.newHashSet(Iterables.transform(grsSourceNames, new Function<String, String>() {
+        this.sourceNames = Sets.newHashSet(Iterables.transform(PROPERTY_LIST_SPLITTER.split(grsSourceNames), new Function<String, String>() {
             @Nullable
             @Override
             public String apply(@Nullable String input) {
@@ -79,6 +80,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
 
         downloader.downloadToWithMd5Check(logger, new URL(resourceDataUrl), resourceDataFile);
         final AuthoritativeResource authoritativeResource = AuthoritativeResource.loadFromFile(logger, sourceName, resourceDataFile);
+        logger.info("Downloaded {}; asn: {}, ipv4: {}, ipv6: {}", sourceName, authoritativeResource.getNrAutNums(), authoritativeResource.getNrInetnums(), authoritativeResource.getNrInet6nums());
         return authoritativeResource;
     }
 }

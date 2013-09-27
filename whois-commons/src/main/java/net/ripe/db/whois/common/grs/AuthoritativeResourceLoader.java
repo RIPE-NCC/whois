@@ -41,7 +41,7 @@ public class AuthoritativeResourceLoader {
     public AuthoritativeResource load() {
         scanner.useDelimiter("\n");
 
-        final String expectedSource = name.replace("-GRS", "").toLowerCase();
+        final String expectedSource = name.toLowerCase().replace("-grs", "");
 
         while (scanner.hasNext()) {
             final String line = scanner.next();
