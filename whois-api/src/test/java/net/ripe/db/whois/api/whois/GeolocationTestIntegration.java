@@ -66,6 +66,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
+        assertThat(response, containsString("<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>"));
     }
 
     @Test
@@ -122,6 +123,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         assertThat(response, containsString("\"geolocation-attributes\""));
         assertThat(response, containsString("\"location\""));
         assertThat(response, containsString("\"language\""));
+        assertThat(response, containsString("\"terms-and-conditions\""));
     }
 
     @Test
