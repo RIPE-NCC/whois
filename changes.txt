@@ -14,7 +14,7 @@
 [DEPLOY] delete var/idx before starting 1.70
 [DEPLOY] execute JMX call DailyScheduler.runDailyScheduledTask net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask, on the first server only
 [DEPLOY] run JMX call AuthoritativeResources.refreshCache on all servers started before AuthoritativeResourceImport finished
-[DEPLOY] run whois-1.70.sql after all nodes run 1.70 (warning: blocks updates & takes a long time!)
+[DEPLOY] run whois-1.70.sql after all nodes run 1.70 (warning: blocks updates & takes a long time!) (65 mins on pre-production)
 
 ## 1.69 (deployed on 2013-09-23)
 [update] enable dry-run
