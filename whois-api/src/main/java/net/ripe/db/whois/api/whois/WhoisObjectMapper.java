@@ -200,7 +200,7 @@ public class WhoisObjectMapper {
         return whoisVersions;
     }
 
-    public AbuseResources mapAbuseContact(final String key, final String source, final Iterable<RpslAttribute> attributes) {
+    public AbuseResources mapAbuseContact(final String key, final Iterable<RpslAttribute> attributes) {
         String foundKey = "";
         String abuseEmail = "";
         for (final RpslAttribute attribute : attributes) {
@@ -213,12 +213,11 @@ public class WhoisObjectMapper {
 
         final AbuseResources abuseResources = new AbuseResources();
         abuseResources.setAbuseContact(new AbuseContact().setEmail(abuseEmail));
-        abuseResources.setLink(new Link("locator", String.format("http://rest.db.ripe.net/abuse-finder/%s/%s", source, key)));
-        abuseResources.setService("abuse-finder");
+        abuseResources.setLink(new Link("locator", String.format("http://rest.db.ripe.net/abuse-contact/%s", key)));
+        abuseResources.setService("abuse-contact");
 
         final Parameters parameters = new Parameters();
         parameters.setPrimaryKey(new AbusePKey(foundKey));
-        parameters.setSources(Lists.newArrayList(new Source(source).setName(source.toUpperCase())));
         abuseResources.setParameters(parameters);
 
         abuseResources.setTermsAndConditions(new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));

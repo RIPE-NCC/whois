@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.whois.domain.AbuseResources;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.planner.RpslAttributes;
 import net.ripe.db.whois.query.query.Query;
@@ -20,34 +19,27 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Component
-@Path("/abuse-finder")
-public class AbuseFinderService {
+@Path("/abuse-contact")
+public class AbuseContactService {
 
     private final WhoisObjectMapper whoisObjectMapper;
-    private final SourceContext sourceContext;
     private final QueryHandler queryHandler;
 
     @Autowired
-    public AbuseFinderService(final WhoisObjectMapper whoisObjectMapper, final SourceContext sourceContext, final QueryHandler queryHandler) {
+    public AbuseContactService(final WhoisObjectMapper whoisObjectMapper, final QueryHandler queryHandler) {
         this.whoisObjectMapper = whoisObjectMapper;
-        this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
     }
 
-
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @Path("/{source}/{key:.*}")
-    public Response abuseFinder
-            (@Context final HttpServletRequest request,
-             @PathParam("source") final String source,
-             @PathParam("key") final String key) {
-
-        checkForMainSource(source);
+    @Path("/{key:.*}")
+    public AbuseResources abuseContact(
+            @Context final HttpServletRequest request,
+            @PathParam("key") final String key) {
 
         final String format = String.format("%s %s ", QueryFlag.ABUSE_CONTACT.getLongFlag(), (key == null ? "" : key));
         final Query query = Query.parse(format);
@@ -61,7 +53,7 @@ public class AbuseFinderService {
             public void handle(final ResponseObject responseObject) {
                 if (responseObject instanceof RpslAttributes) {
                     final RpslAttributes abuseContactInfo = (RpslAttributes)responseObject;
-                    abuseResources.add(whoisObjectMapper.mapAbuseContact(key, source, abuseContactInfo.getAttributes()));
+                    abuseResources.add(whoisObjectMapper.mapAbuseContact(key, abuseContactInfo.getAttributes()));
                 }
             }
         });
@@ -70,12 +62,6 @@ public class AbuseFinderService {
             throw new NotFoundException();
         }
 
-        return Response.ok(abuseResources.get(0)).build();
-    }
-
-    private void checkForMainSource(String source) {
-        if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
-            throw new IllegalArgumentException("Invalid source: " + source);
-        }
+        return abuseResources.get(0);
     }
 }

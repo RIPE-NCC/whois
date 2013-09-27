@@ -21,7 +21,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
-public class AbuseFinderTestIntegration extends AbstractRestClientTest {
+public class AbuseContactTestIntegration extends AbstractRestClientTest {
 
     private static final Audience AUDIENCE = Audience.PUBLIC;
 
@@ -85,25 +85,19 @@ public class AbuseFinderTestIntegration extends AbstractRestClientTest {
                 "source: TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = createResource(AUDIENCE, "whois/abuse-finder/test/2a00:1f78::fffe/48")
+        final String result = createResource(AUDIENCE, "whois/abuse-contact/2a00:1f78::fffe/48")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
         assertThat(result, is("" +
                 "{\n" +
-                "  \"service\" : \"abuse-finder\",\n" +
+                "  \"service\" : \"abuse-contact\",\n" +
                 "  \"link\" : {\n" +
                 "    \"xlink:type\" : \"locator\",\n" +
-                "    \"xlink:href\" : \"http://rest.db.ripe.net/abuse-finder/test/2a00:1f78::fffe/48\"\n" +
+                "    \"xlink:href\" : \"http://rest.db.ripe.net/abuse-contact/2a00:1f78::fffe/48\"\n" +
                 "  },\n" +
                 "  \"parameters\" : {\n" +
                 "    \"primary-key\" : {\n" +
                 "      \"value\" : \"2a00:1f78::fffe/48\"\n" +
-                "    },\n" +
-                "    \"sources\" : {\n" +
-                "      \"source\" : [ {\n" +
-                "        \"name\" : \"TEST\",\n" +
-                "        \"id\" : \"test\"\n" +
-                "      } ]\n" +
                 "    }\n" +
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
@@ -138,20 +132,17 @@ public class AbuseFinderTestIntegration extends AbstractRestClientTest {
                 "source: TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = createResource(AUDIENCE, "whois/abuse-finder/test/2a00:1f78::fffe/48")
+        final String result = createResource(AUDIENCE, "whois/abuse-contact/2a00:1f78::fffe/48")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
         final String readable = Joiner.on(">\n").join(Splitter.on(">").split(result)).trim();
 
         assertThat(readable, is("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
-                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-finder\">\n" +
-                "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-finder/test/2a00:1f78::fffe/48\"/>\n" +
+                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-contact\">\n" +
+                "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/2a00:1f78::fffe/48\"/>\n" +
                 "<parameters>\n" +
                 "<primary-key value=\"2a00:1f78::fffe/48\"/>\n" +
-                "<sources>\n" +
-                "<source name=\"TEST\" id=\"test\"/>\n" +
-                "</sources>\n" +
                 "</parameters>\n" +
                 "<abuse-contacts email=\"abuse@test.net\"/>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
@@ -177,12 +168,11 @@ public class AbuseFinderTestIntegration extends AbstractRestClientTest {
                 "changed: org@ripe.net 20120505\n" +
                 "source: test");
 
-        final AbuseResources result = createResource(AUDIENCE, "whois/abuse-finder/test/AS333")
+        final AbuseResources result = createResource(AUDIENCE, "whois/abuse-contact/AS333")
                 .request(MediaType.APPLICATION_XML)
                 .get(AbuseResources.class);
 
         assertThat(result.getAbuseContact().getEmail(), is("abuse@test.net"));
-        assertThat(result.getParameters().getSources().getSources().get(0).getId(), is("test"));
     }
 
     @Test
@@ -204,7 +194,7 @@ public class AbuseFinderTestIntegration extends AbstractRestClientTest {
                 "source: test");
 
         try {
-            createResource(AUDIENCE, "whois/abuse-finder/test/AS333")
+            createResource(AUDIENCE, "whois/abuse-contact/AS333")
                 .request(MediaType.APPLICATION_XML)
                 .get(AbuseResources.class);
             fail();
@@ -216,7 +206,7 @@ public class AbuseFinderTestIntegration extends AbstractRestClientTest {
     @Test
     public void abuse_object_not_found() {
         try {
-            createResource(AUDIENCE, "whois/abuse-finder/test/AS333")
+            createResource(AUDIENCE, "whois/abuse-contact/AS333")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
             fail();
@@ -244,16 +234,16 @@ public class AbuseFinderTestIntegration extends AbstractRestClientTest {
                 "changed: org@ripe.net 20120505\n" +
                 "source: test");
 
-        final String result = createResource(AUDIENCE, "whois/abuse-finder/test/AS333.json")
+        final String result = createResource(AUDIENCE, "whois/abuse-contact/AS333.json")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
 
         assertThat(result, containsString("" +
                 "{\n" +
-                "  \"service\" : \"abuse-finder\",\n" +
+                "  \"service\" : \"abuse-contact\",\n" +
                 "  \"link\" : {\n" +
                 "    \"xlink:type\" : \"locator\",\n" +
-                "    \"xlink:href\" : \"http://rest.db.ripe.net/abuse-finder/test/AS333\"\n" +
+                "    \"xlink:href\" : \"http://rest.db.ripe.net/abuse-contact/AS333\"\n" +
                 "  },"));
     }
 

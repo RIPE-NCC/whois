@@ -176,15 +176,16 @@ public class WhoisObjectMapperTest {
     }
 
     @Test
-    public void map_abuseContact() throws XMLStreamException {
-        final AbuseResources result = subject.mapAbuseContact("AS333", "test", Lists.newArrayList(
-                new RpslAttribute("aut-num", "AS333"),
-                new RpslAttribute("abuse-mailbox", "abuse@net.net")));
+    public void map_abuse_contact() throws XMLStreamException {
+        final AbuseResources result = subject.mapAbuseContact(
+                "AS333",
+                Lists.newArrayList(
+                        new RpslAttribute("aut-num", "AS333"),
+                        new RpslAttribute("abuse-mailbox", "abuse@net.net")));
 
         assertThat(result.getAbuseContact().getEmail(), is("abuse@net.net"));
-        assertThat(result.getLink().getHref(), is("http://rest.db.ripe.net/abuse-finder/test/AS333"));
+        assertThat(result.getLink().getHref(), is("http://rest.db.ripe.net/abuse-contact/AS333"));
         assertThat(result.getParameters().getPrimaryKey().getValue(), is("AS333"));
-        assertThat(result.getParameters().getSources().getSources().get(0).getId(), is("test"));
-        assertThat(result.getService(), is("abuse-finder"));
+        assertThat(result.getService(), is("abuse-contact"));
     }
 }
