@@ -42,12 +42,13 @@ public class Downloader {
 
     @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
     public void downloadToWithMd5Check(final Logger logger, final URL url, final Path path) throws IOException {
-        try (InputStream is = url.openStream();
-             InputStream md5Stream = new URL(String.format("%s.md5", url)).openStream();
-             InputStream resourceDataStream = Files.newInputStream(path, StandardOpenOption.READ);
-        ) {
+        try (InputStream is = url.openStream()) {
             downloadToFile(logger, is, path);
-            checkMD5(resourceDataStream, md5Stream);
+
+            try (InputStream resourceDataStream = Files.newInputStream(path, StandardOpenOption.READ);
+                 InputStream md5Stream = new URL(url + ".md5").openStream()) {
+                checkMD5(resourceDataStream, md5Stream);
+            }
         }
     }
 
