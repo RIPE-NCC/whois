@@ -1,3 +1,7 @@
+## next
+
+[api] renamed abuse-finder to abuse-contact (also changed references on DbWebWar abusefinder branch).
+
 ## 1.70
 [query] added option --valid-syntax
 [update] added pending route creation
