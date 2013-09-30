@@ -84,6 +84,7 @@
                                     <goal>shade</goal>
                                 </goals>
                                 <configuration>
+                                    <createDependencyReducedPom>false</createDependencyReducedPom>
                                     <!-- exclude Manifest signature files (bouncy castle) -->
                                     <filters>
                                         <filter>
