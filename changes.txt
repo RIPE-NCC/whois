@@ -1,10 +1,8 @@
-## next
-
-[api] renamed abuse-finder to abuse-contact (also changed references on DbWebWar abusefinder branch).
 
 ## 1.70
 [query] added option --valid-syntax
 [update] added pending route creation
+[api] renamed abuse-finder to abuse-contact (also changed references on DbWebWar abusefinder branch)
 [api] added abuse contact creation helper rest call
 [api] moved apikeys from properties to acl database
 [api] Updated to Lucene 4.4
@@ -19,6 +17,7 @@
 [DEPLOY] execute JMX call DailyScheduler.runDailyScheduledTask net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask, on the first server only
 [DEPLOY] run JMX call AuthoritativeResources.refreshCache on all servers started before AuthoritativeResourceImport finished
 [DEPLOY] run whois-1.70.sql after all nodes run 1.70 (warning: blocks updates & takes a long time!) (65 mins on pre-production)
+[DEPLOY] run whois-1.70.sql on all GRS databases, too
 
 ## 1.69 (deployed on 2013-09-23)
 [update] enable dry-run

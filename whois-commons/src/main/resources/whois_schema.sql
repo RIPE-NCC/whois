@@ -838,22 +838,6 @@ CREATE TABLE `ref_nfy` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `refer`
---
-
-DROP TABLE IF EXISTS `refer`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `refer` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `port` int(5) unsigned NOT NULL DEFAULT '43',
-  `host` varchar(80) NOT NULL DEFAULT '',
-  PRIMARY KEY (`object_id`,`host`,`port`,`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `referral_by`
 --
 
