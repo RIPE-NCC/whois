@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 
 public class AutNumCleanup {
     private static final Logger LOGGER = LoggerFactory.getLogger("AutNumCleanup");
-    private static final Pattern AS_PATTERN = Pattern.compile("(i)(?<!\\w)AS\\d+(?!\\w)");
+    private static final Pattern AS_PATTERN = Pattern.compile("(?i)(?<![\\w:])(AS\\d+)(?![\\w:])");
     private static final List<AttributeType> ATTRIBUTES_TO_CHECK = Lists.newArrayList(
             AttributeType.IMPORT,
             AttributeType.EXPORT,
@@ -52,43 +52,35 @@ public class AutNumCleanup {
             AttributeType.MP_DEFAULT,
             AttributeType.AGGR_BNDRY,
             AttributeType.AGGR_MTD,
-            AttributeType.AS_SET,
             AttributeType.COMPONENTS,
             AttributeType.EXPORT_COMPS,
             AttributeType.FILTER,
             AttributeType.MP_FILTER,
-            AttributeType.FILTER_SET,
             AttributeType.IFADDR,
             AttributeType.INTERFACE,
             AttributeType.INJECT,
             AttributeType.LOCAL_AS,
             AttributeType.MP_MEMBERS,
             AttributeType.MEMBERS,
-            AttributeType.MEMBER_OF,
             AttributeType.PEER,
             AttributeType.PEERING,
-            AttributeType.PEERING_SET,
             AttributeType.MP_PEER,
             AttributeType.MP_PEERING,
-            AttributeType.ORIGIN,
-            AttributeType.ROUTE_SET,
-            AttributeType.RTR_SET);
+            AttributeType.ORIGIN
+    );
 
-    private static final Map<RpslObject, Set<String>> autnumPerObjectMap = Maps.newHashMap();
     private static final String MAIL_FROM = "RIPE Database Administration local <unread@ripe.net>";
     private static final String MAIL_HOST = "massmailer.ripe.net";
     private static final int MAIL_PORT = 25;
     private static final String LOG_DIR = "var";
+    private static final Joiner JOINER = Joiner.on(',');
     private final MailGateway mailGateway;
+    private final Map<RpslObject, Set<String>> objectWithReferencedAutnums = Maps.newHashMap();
 
 
     public static void main(String[] argv) throws Exception {
 //        new AutNumCleanup(createMailGateway()).execute(argv[0]);
         new AutNumCleanup(null).execute(argv[0]);
-    }
-
-    public AutNumCleanup(final MailGateway mailGateway) {
-        this.mailGateway = mailGateway;
     }
 
     private static MailGateway createMailGateway() {
@@ -100,6 +92,10 @@ public class AutNumCleanup {
         loggerContext.setBaseDir(LOG_DIR);
 
         return new MailGatewaySmtp(loggerContext, new MailConfiguration(MAIL_FROM), mailSender);
+    }
+
+    public AutNumCleanup(final MailGateway mailGateway) {
+        this.mailGateway = mailGateway;
     }
 
     public void execute(final String mysqlConnectionPassword) throws Exception {
@@ -115,7 +111,13 @@ public class AutNumCleanup {
         final DataSource dataSource = new SimpleDriverDataSource(new Driver(), "jdbc:mysql://dbc-whois5.ripe.net/WHOIS_UPDATE_RIPE", "rdonly", mysqlConnectionPassword);
         final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        final Joiner JOINER = Joiner.on(',');
+        System.out.println("There are " + authoritativeResource.getNrAutNums() + " reserved autnums");
+
+        findAutnumReferencesPerObject(jdbcTemplate, authoritativeResource);
+        sendMails(jdbcTemplate);
+    }
+
+    private void findAutnumReferencesPerObject(final JdbcTemplate jdbcTemplate, final AuthoritativeResource authoritativeResource) {
         JdbcStreamingHelper.executeStreaming(jdbcTemplate,
                 "SELECT object_id, object " +
                         "FROM last " +
@@ -129,88 +131,129 @@ public class AutNumCleanup {
                                 ObjectTypeIds.getId(ObjectType.INET6NUM),
                                 ObjectTypeIds.getId(ObjectType.DOMAIN)
                         ) + ")",
-                new CleanupRowCallbackHandler(authoritativeResource));
+                new RowCallbackHandler() {
+                    @Override
+                    public void processRow(final ResultSet rs) throws SQLException {
+                        final int objectId = rs.getInt(1);
+                        RpslObject object = null;
+                        try {
+                            object = RpslObject.parse(objectId, rs.getBytes(2));
+                        } catch (RuntimeException e) {
+                            LOGGER.warn("Unable to parse RPSL object with object_id: {}", objectId);
+                        }
 
+                        if (object == null) {
+                            return;
+                        }
 
-        for (final RpslObject rpslObject : autnumPerObjectMap.keySet()) {
+                        final Set<String> foundAutnums = Sets.newHashSet();
 
-            JdbcStreamingHelper.executeStreaming(jdbcTemplate,
-                    "SELECT object_id, object " +
-                            "FROM last " +
-                            "WHERE sequence_id != 0 " +
-                            "AND object_type = " + ObjectTypeIds.getId(ObjectType.MNTNER) +
-                            "AND pkey in ('" + JOINER.join(rpslObject.getValuesForAttribute(AttributeType.MNT_BY)) + "')",
-                    new RowCallbackHandler() {
-                        @Override
-                        public void processRow(final ResultSet rs) throws SQLException {
-                            final int objectId = rs.getInt(1);
-                            RpslObject object = null;
-                            try {
-                                object = RpslObject.parse(objectId, rs.getBytes(2));
-                            } catch (RuntimeException e) {
-                                LOGGER.warn("Unable to parse RPSL object with object_id: {}", objectId);
-                            }
-
-                            if (object != null) {
-                                for (final CIString email : object.getValuesForAttribute(AttributeType.UPD_TO)) {
-//                                    mailGateway.sendEmail(email.toString(), "RIPE NCC Aut-num cleanup", createMailContent(autnumPerObjectMap.get(rpslObject)));
-                                    System.err.println(createMailContent(autnumPerObjectMap.get(rpslObject)));
-                                    System.err.println("---");
+                        for (final RpslAttribute attribute : object.findAttributes(ATTRIBUTES_TO_CHECK)) {
+                            for (final CIString value : attribute.getCleanValues()) {
+                                final Matcher matcher = AS_PATTERN.matcher(value.toString());
+                                while (matcher.find()) {
+                                    final String match = matcher.group();
+                                    if (authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, CIString.ciString(match))) {
+                                        foundAutnums.add(match);
+                                    }
                                 }
                             }
                         }
-                    });
+
+                        if (!foundAutnums.isEmpty()) {
+                            if (objectWithReferencedAutnums.get(object) == null) {
+                                objectWithReferencedAutnums.put(object, foundAutnums);
+                            } else {
+                                objectWithReferencedAutnums.get(object).addAll(foundAutnums);
+                            }
+                        }
+                    }
+                });
+        //debug
+        System.out.println(" Found " + objectWithReferencedAutnums.values().size() + " non-unique autnums");
+    }
+
+    private void sendMails(final JdbcTemplate jdbcTemplate) {
+        final Map<CIString, List<Container>> mntnerPerContainers = Maps.newHashMap();
+
+        for (final RpslObject rpslObject : objectWithReferencedAutnums.keySet()) {
+            if (!objectWithReferencedAutnums.get(rpslObject).isEmpty()) {
+                final Set<CIString> mntners = Sets.newHashSet();
+                JdbcStreamingHelper.executeStreaming(jdbcTemplate,
+                        "SELECT object_id, object" +
+                                " FROM last" +
+                                " WHERE sequence_id != 0" +
+                                " AND object_type = " + ObjectTypeIds.getId(ObjectType.MNTNER) +
+                                " AND pkey in ('" + JOINER.join(rpslObject.getValuesForAttribute(AttributeType.MNT_BY)) + "')",
+                        new RowCallbackHandler() {
+                            @Override
+                            public void processRow(final ResultSet rs) throws SQLException {
+                                final int objectId = rs.getInt(1);
+                                try {
+                                    mntners.addAll(RpslObject.parse(objectId, rs.getBytes(2)).getValuesForAttribute(AttributeType.UPD_TO));
+                                } catch (RuntimeException e) {
+                                    LOGGER.warn("Unable to parse RPSL object with object_id: {}", objectId);
+                                }
+                            }
+                        });
+
+                for (final CIString email : mntners) {
+                    if (mntnerPerContainers.get(email) == null || mntnerPerContainers.get(email).isEmpty()) {
+                        mntnerPerContainers.put(email, Lists.newArrayList(new Container(rpslObject, objectWithReferencedAutnums.get(rpslObject))));
+                    } else {
+                        mntnerPerContainers.get(email).add(new Container(rpslObject, objectWithReferencedAutnums.get(rpslObject)));
+                    }
+                }
+            }
+        }
+
+        System.out.println("About to send " + mntnerPerContainers.size() + " emails");
+
+        int count = 0;
+        for (final CIString email : mntnerPerContainers.keySet()) {
+            count++;
+
+//            mailGateway.sendEmail(email.toString(), "RIPE NCC Aut-num cleanup", createMailContent(mntnerPerContainers.get(email)));
+            if (count == 2) {
+                System.out.println(createMailContent(mntnerPerContainers.get(email), email.toString()));
+            }
         }
     }
 
-    private String createMailContent(final Set<String> autnums) {
+    private String createMailContent(final List<Container> containers, final String email) {
         final StringBuilder builder = new StringBuilder();
-        builder.append("Dear Maintainer, ")
+        builder.append("Dear Maintainer ").append(email)
                 .append("We're inclined to inform you that you maintain referenced stuff that we want to get rid of.")
-                .append("Therefore, clean out your fridge yet more urgently your RIPE database objects, infact ")
-                .append("the objects containing references to these autnums:\n")
-                .append(Joiner.on(',').join(autnums))
-                .append("\nand we shan't bother you again.\n\n")
-                .append("Kindly, \nThe RIPE database people.");
+                .append("Therefore, clean out your fridge yet more urgently your RIPE database objects\n")
+                .append("In these object there are the following references to aut-nums that we'd like you to remove:\n")
+                .append("RpslObject\tReferenced aut-num\n");
+        for (final Container container : containers) {
+            builder.append(container.getObjectWithAutnumReferences().getKey())
+                    .append("\t ")
+                    .append(JOINER.join(container.getAutnumsFoundInObject()))
+                    .append("\n");
+        }
+
+        builder.append("\n\nKindly, \nThe RIPE database people.");
         return builder.toString();
     }
 
-    private static class CleanupRowCallbackHandler implements RowCallbackHandler {
-        private final AuthoritativeResource authoritativeResource;
+    private class Container {
+        private RpslObject objectWithAutnumReferences;
+        private Set<String> autnumsFoundInObject;
 
-        public CleanupRowCallbackHandler(AuthoritativeResource authoritativeResource) {
-            this.authoritativeResource = authoritativeResource;
+        public Container(final RpslObject object, final Set<String> autnums) {
+            this.objectWithAutnumReferences = object;
+            this.autnumsFoundInObject = autnums;
+            System.out.println("new container: " + object.getKey() + ", and autnums " + JOINER.join(autnums));
         }
 
-        @Override
-        public void processRow(final ResultSet rs) throws SQLException {
+        private RpslObject getObjectWithAutnumReferences() {
+            return objectWithAutnumReferences;
+        }
 
-            final int objectId = rs.getInt(1);
-            RpslObject object = null;
-            try {
-                object = RpslObject.parse(objectId, rs.getBytes(2));
-            } catch (RuntimeException e) {
-                LOGGER.warn("Unable to parse RPSL object with object_id: {}", objectId);
-            }
-
-            if (object != null && authoritativeResource.isMaintainedInRirSpace(object)) {
-                final Set<String> foundAutnums = Sets.newHashSet();
-
-                for (final RpslAttribute attribute : object.findAttributes(ATTRIBUTES_TO_CHECK)) {
-                    for (final CIString value : attribute.getCleanValues()) {
-                        final Matcher matcher = AS_PATTERN.matcher(value.toString());
-                        while (matcher.find()) {
-                            foundAutnums.add(matcher.group());
-                        }
-                    }
-                }
-
-                if (autnumPerObjectMap.get(object) == null) {
-                    autnumPerObjectMap.put(object, foundAutnums);
-                } else {
-                    autnumPerObjectMap.get(object).addAll(foundAutnums);
-                }
-            }
+        private Set<String> getAutnumsFoundInObject() {
+            return autnumsFoundInObject;
         }
     }
 }
