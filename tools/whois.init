@@ -16,11 +16,6 @@ JMXPORT="1099"
 # Default memory
 MEM="-Xms1024m -Xmx8g"
 
-### SNMP (if needed)
-if [[ -e snmp.acl ]]; then
-	SNMP="-Dcom.sun.management.snmp.port=1666 -Dcom.sun.management.snmp.acl.file=snmp.acl -Dcom.sun.management.snmp.interface=0.0.0.0"
-fi
-
 ### JMX
 JMX="-Dcom.sun.management.jmxremote -Dhazelcast.jmx=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=${JMXPORT}"
 
