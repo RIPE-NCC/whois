@@ -10,7 +10,7 @@ class AsBlockSpec extends BaseSpec {
     @Override
     Map<String, String> getTransients() {
         [
-            "AS222 - AS333": """\
+                "AS222 - AS333": """\
                 as-block:       AS222 - AS333
                 descr:          ARIN ASN block
                 remarks:        These AS numbers are further assigned by ARIN
@@ -28,7 +28,7 @@ class AsBlockSpec extends BaseSpec {
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
                 """,
-            "RIPE-DBM-STARTUP-MNT": """\
+                "RIPE-DBM-STARTUP-MNT": """\
                 mntner:      RIPE-DBM-STARTUP-MNT
                 descr:       Mntner for creating as-objects.
                 upd-to:      updto_hm@ripe.net
@@ -41,13 +41,14 @@ class AsBlockSpec extends BaseSpec {
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """
-    ]}
+        ]
+    }
 
     def "create as-block with RIPE mnt-by, mnt-by pw supplied"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -73,7 +74,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -88,7 +89,7 @@ class AsBlockSpec extends BaseSpec {
 
     def "create as-block with RIPE mnt-by, mnt-by pw supplied, no as-block end value"() {
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -114,7 +115,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -130,10 +131,10 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create as-block with RIPE mnt-by, with override"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
-      when:
+        when:
         def message = syncUpdate("""\
                 as-block:       AS222 - AS333
                 descr:          ARIN ASN block
@@ -155,7 +156,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
@@ -171,10 +172,10 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create as-block with RIPE mnt-by, no mnt-by pw supplied"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -197,7 +198,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -206,17 +207,18 @@ class AsBlockSpec extends BaseSpec {
         ack.countErrorWarnInfo(3, 0, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
-        ack.errorMessagesFor("Create", "[as-block] AS222 - AS333").sort() ==
-                ["Authorisation for [as-block] AS222 - AS333 failed using \"mnt-by:\" not authenticated by: RIPE-DBM-MNT",
-                        "As-block object are maintained by RIPE NCC",
-                        "Adding or removing a RIPE NCC maintainer requires administrative authorisation"].sort()
+        ack.errorMessagesFor("Create", "[as-block] AS222 - AS333") == [
+                "Authorisation for [as-block] AS222 - AS333 failed using \"mnt-by:\" not authenticated by: RIPE-DBM-MNT",
+                "As-block object are maintained by RIPE NCC",
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+        ]
         queryObjectNotFound("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
     }
 
     def "create as-block with RIPE mnt-by, mnt-by pw supplied, syntax error negative second value"() {
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -240,7 +242,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -257,7 +259,7 @@ class AsBlockSpec extends BaseSpec {
 
     def "create as-block with RIPE mnt-by, mnt-by pw supplied, syntax error negative first value"() {
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -281,7 +283,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -297,10 +299,10 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create as-block with RIPE mnt-by, with range of single value"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T as-block AS222 - AS222", "as-block", "AS222 - AS222")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -325,7 +327,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -339,10 +341,10 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create as-block with non-RIPE mnt-by, mnt-by pw supplied"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -366,7 +368,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -375,16 +377,17 @@ class AsBlockSpec extends BaseSpec {
         ack.countErrorWarnInfo(2, 0, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
-        ack.errorMessagesFor("Create", "[as-block] AS222 - AS333").sort() ==
-                ["As-block object are maintained by RIPE NCC",
-                        "Adding or removing a RIPE NCC maintainer requires administrative authorisation"].sort()
+        ack.errorMessagesFor("Create", "[as-block] AS222 - AS333") == [
+                "As-block object are maintained by RIPE NCC",
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+        ]
         queryObjectNotFound("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
     }
 
     def "create as-block, with RIPE mnt-by, mnt-by pw supplied, reversed values"() {
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -408,7 +411,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -424,9 +427,10 @@ class AsBlockSpec extends BaseSpec {
     }
 
     // Create as-block with RIPE mnt-by, mnt-by pw supplied, diff mnt-lower
-    @Ignore def "create as-block with RIPE mnt-by, mnt-by pw supplied, diff mnt-lower"() {
+    @Ignore
+    def "create as-block with RIPE mnt-by, mnt-by pw supplied, diff mnt-lower"() {
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -451,7 +455,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -467,14 +471,14 @@ class AsBlockSpec extends BaseSpec {
 
     def "modify as-block, change mnt-by, old mnt-by pw supplied, new mnt-by pw not supplied"() {
 
-      given:
+        given:
         syncUpdate(getTransient("RIPE-DBM-STARTUP-MNT") + "password:startup")
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\npassword: owner3")
-      expect:
+        expect:
         queryObject("-rBGT mntner RIPE-DBM-STARTUP-MNT", "mntner", "RIPE-DBM-STARTUP-MNT")
         queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -498,7 +502,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
@@ -511,12 +515,12 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "modify as-block, add org, change remarks"() {
-      given:
+        given:
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\npassword: owner3")
-      expect:
+        expect:
         queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -535,7 +539,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -550,14 +554,14 @@ class AsBlockSpec extends BaseSpec {
 
     def "modify as-block, add multiple mnt-by"() {
 
-      given:
+        given:
         syncUpdate(getTransient("RIPE-DBM-STARTUP-MNT") + "password:startup")
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\npassword: owner3")
-      expect:
+        expect:
         queryObject("-rBGT mntner RIPE-DBM-STARTUP-MNT", "mntner", "RIPE-DBM-STARTUP-MNT")
         queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -583,7 +587,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -599,12 +603,12 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "modify as-block, add admin-c and add tech-c"() {
-      given:
+        given:
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\npassword: owner3")
-      expect:
+        expect:
         queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -631,7 +635,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -650,12 +654,12 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "delete as-block"() {
-      given:
+        given:
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\npassword: owner3")
-      expect:
+        expect:
         queryObject("-rBG -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -681,7 +685,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -695,10 +699,10 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create as-block, with full 16 bit range"() {
-      expect:
+        expect:
         queryObjectNotFound("-rBG -T as-block AS0 - AS65535", "as-block", "AS0 - AS65535")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -715,7 +719,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -728,10 +732,10 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create as-block, crossing 16/32 bit ranges"() {
-      expect:
+        expect:
         queryObjectNotFound("-rBG -T as-block AS655 - AS7775535", "as-block", "AS655 - AS7775535")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -747,7 +751,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -760,11 +764,11 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create as-block with hierarchy parent exists"() {
-      expect:
+        expect:
         queryObjectNotFound("-rBG -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T as-block AS250 - AS300", "as-block", "AS250 - AS300")
 
-      when:
+        when:
         def message = syncUpdate("""\
                 as-block:       AS222 - AS333
                 descr:          ASN block
@@ -788,7 +792,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 2
@@ -806,11 +810,11 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create as-block with hierarchy child exists"() {
-      expect:
+        expect:
         queryObjectNotFound("-rBG -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T as-block AS250 - AS300", "as-block", "AS250 - AS300")
 
-      when:
+        when:
         def message = syncUpdate("""\
                 as-block:       AS250 - AS300
                 descr:          ASN block
@@ -834,7 +838,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 2
@@ -852,11 +856,11 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create overlapping as-block scenario1"() {
-      expect:
+        expect:
         queryObjectNotFound("-rBG -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T as-block AS250 - AS350", "as-block", "AS250 - AS350")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -883,7 +887,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 2
@@ -901,11 +905,11 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create overlapping as-block scenario2 "() {
-      expect:
+        expect:
         queryObjectNotFound("-rBG -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T as-block AS250 - AS350", "as-block", "AS250 - AS350")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -931,7 +935,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 2
@@ -949,10 +953,10 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create as-block ranging from 16 bit to 32 bit number"() {
-      expect:
+        expect:
         queryObjectNotFound("-rBG -T as-block AS777 - AS7775535", "as-block", "AS777 - AS7775535")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -969,7 +973,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -982,10 +986,10 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create as-block ranging from AS0-AS0"() {
-      expect:
+        expect:
         queryObjectNotFound("-rBG -T as-block AS0-AS0", "as-block", "AS0-AS0")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1002,7 +1006,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1015,10 +1019,10 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create as-block ranging from AS4294967295 - AS4294967295"() {
-      expect:
+        expect:
         queryObjectNotFound("-rBG -T as-block AS4294967295 - AS4294967295", "as-block", "AS4294967295 - AS4294967295")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1035,7 +1039,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1048,10 +1052,10 @@ class AsBlockSpec extends BaseSpec {
     }
 
     def "create as-block covering full range"() {
-      expect:
+        expect:
         queryObjectNotFound("-rBG -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1068,7 +1072,7 @@ class AsBlockSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1

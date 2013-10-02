@@ -4,21 +4,13 @@ import net.ripe.db.whois.spec.BaseSpec
 import spec.domain.AckResponse
 import spec.domain.Message
 import spec.domain.SyncUpdate
-import spock.lang.Ignore
 
-/**
- * Created with IntelliJ IDEA.
- * User: denis
- * Date: 26/08/2013
- * Time: 14:42
- * To change this template use File | Settings | File Templates.
- */
 class pendingRouteSpec extends BaseSpec {
 
     @Override
     Map<String, String> getFixtures() {
         [
-            "AS-MNT": """\
+                "AS-MNT": """\
                 mntner:      AS-MNT
                 descr:       used for aut-num
                 admin-c:     TP1-TEST
@@ -31,7 +23,7 @@ class pendingRouteSpec extends BaseSpec {
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
-            "AS2-MNT": """\
+                "AS2-MNT": """\
                 mntner:      AS2-MNT
                 descr:       used for aut-num
                 admin-c:     TP1-TEST
@@ -44,7 +36,7 @@ class pendingRouteSpec extends BaseSpec {
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
-            "P-INET-MNT": """\
+                "P-INET-MNT": """\
                 mntner:      P-INET-MNT
                 descr:       used for aut-num
                 admin-c:     TP1-TEST
@@ -63,7 +55,7 @@ class pendingRouteSpec extends BaseSpec {
     @Override
     Map<String, String> getTransients() {
         [
-            "AS0 - AS4294967295": """\
+                "AS0 - AS4294967295": """\
                 as-block:       AS0 - AS4294967295
                 descr:          Full ASN range
                 mnt-by:         RIPE-DBM-MNT
@@ -71,7 +63,7 @@ class pendingRouteSpec extends BaseSpec {
                 changed:        dbtest@ripe.net
                 source:         TEST
                 """,
-            "AS100": """\
+                "AS100": """\
                 aut-num:        AS100
                 as-name:        ASTEST
                 descr:          description
@@ -83,7 +75,7 @@ class pendingRouteSpec extends BaseSpec {
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
-            "AS200": """\
+                "AS200": """\
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
@@ -95,7 +87,7 @@ class pendingRouteSpec extends BaseSpec {
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
-            "PARENT-INET": """\
+                "PARENT-INET": """\
                 inetnum:        192.168.0.0 - 192.169.255.255
                 netname:        EXACT-INETNUM
                 descr:          Exact match inetnum object
@@ -186,9 +178,10 @@ class pendingRouteSpec extends BaseSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
         ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
-        ack.errorMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
-                ["Authorisation for [aut-num] AS100 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-END-MNT, AS-MNT",
-                        "Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT"]
+        ack.errorMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
+                "Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT",
+                "Authorisation for [aut-num] AS100 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-END-MNT, AS-MNT"
+        ]
 
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
     }
@@ -266,9 +259,10 @@ class pendingRouteSpec extends BaseSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
         ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
-        ack.errorMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
-                ["Authorisation for [route] 192.168.0.0/16AS100 failed using \"mnt-by:\" not authenticated by: OWNER-MNT",
-                        "Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT"]
+        ack.errorMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
+                "Authorisation for [route] 192.168.0.0/16AS100 failed using \"mnt-by:\" not authenticated by: OWNER-MNT",
+                "Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT"
+        ]
 
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
     }
@@ -306,9 +300,10 @@ class pendingRouteSpec extends BaseSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
         ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
-        ack.errorMessagesFor("Create", "[route] 192.168.0.0/16AS100").sort() ==
-                ["Authorisation for [route] 192.168.0.0/16AS100 failed using \"mnt-by:\" not authenticated by: OWNER-MNT",
-                        "Authorisation for [aut-num] AS100 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-END-MNT, AS-MNT"].sort()
+        ack.errorMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
+                "Authorisation for [route] 192.168.0.0/16AS100 failed using \"mnt-by:\" not authenticated by: OWNER-MNT",
+                "Authorisation for [aut-num] AS100 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-END-MNT, AS-MNT"
+        ]
 
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
     }
@@ -644,20 +639,20 @@ class pendingRouteSpec extends BaseSpec {
         )
 
         then:
-            def ack2 = ackFor message2
+        def ack2 = ackFor message2
 
-            ack2.summary.nrFound == 1
-            ack2.summary.assertSuccess(0, 0, 0, 0, 0)
-            ack2.summary.assertErrors(1, 1, 0, 0)
-            ack2.countErrorWarnInfo(2, 0, 0)
-            ack2.errors.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
-            ack2.errorMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
+        ack2.summary.nrFound == 1
+        ack2.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack2.summary.assertErrors(1, 1, 0, 0)
+        ack2.countErrorWarnInfo(2, 0, 0)
+        ack2.errors.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+        ack2.errorMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
                 "Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT",
                 "There is already an identical update pending authentication"]
 
-            noMoreMessages()
+        noMoreMessages()
 
-            queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
 
         when:
@@ -677,22 +672,22 @@ class pendingRouteSpec extends BaseSpec {
         )
 
         then:
-            def ack3 = ackFor message3
+        def ack3 = ackFor message3
 
-            ack3.summary.nrFound == 1
-            ack3.summary.assertSuccess(1, 1, 0, 0, 0)
-            ack3.summary.assertErrors(0, 0, 0, 0)
-            ack3.countErrorWarnInfo(0, 0, 1)
+        ack3.summary.nrFound == 1
+        ack3.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack3.summary.assertErrors(0, 0, 0, 0)
+        ack3.countErrorWarnInfo(0, 0, 1)
         ack3.successes.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
         ack3.infoSuccessMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
                 "This update concludes a pending update on route 192.168.0.0/16AS100"]
 
-         def notif3 = notificationFor "mntnfy_owner@ripe.net"
-         notif3.subject =~ "Notification of RIPE Database changes"
-         notif3.contents =~ /(?ms)OBJECT BELOW CREATED:\n\nroute:\s*192.168.0.0\/16/
-         noMoreMessages()
+        def notif3 = notificationFor "mntnfy_owner@ripe.net"
+        notif3.subject =~ "Notification of RIPE Database changes"
+        notif3.contents =~ /(?ms)OBJECT BELOW CREATED:\n\nroute:\s*192.168.0.0\/16/
+        noMoreMessages()
 
-         queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+        queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
     }
 
     def "create route, mnt-by & parent inet pw supplied, then AS pw supplied"() {
