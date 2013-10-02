@@ -2,7 +2,6 @@ package net.ripe.db.whois.common.dao.jdbc;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -217,11 +216,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     public void setup() {
         // Setup configured sources
-        final Splitter splitter = Splitter.on(',').trimResults();
-        final Iterable<String> mainSources = Collections.singletonList(valueResolver.resolveStringValue("${whois.source}"));
-        final Iterable<String> grsSources = splitter.split(valueResolver.resolveStringValue("${grs.sources:}"));
-        final Iterable<String> nrtmSources = splitter.split(valueResolver.resolveStringValue("${nrtm.import.sources:}"));
-        final Set<String> sources = Sets.newLinkedHashSet(Iterables.concat(mainSources, grsSources, nrtmSources));
+        final Splitter splitter = Splitter.on(',').trimResults().omitEmptyStrings();
+        final String sourcesConfig = valueResolver.resolveStringValue("${whois.source},${nrtm.import.sources:},${grs.sources:}");
+        final Set<String> sources = Sets.newHashSet(splitter.split(sourcesConfig));
 
         for (final String source : sources) {
             try {

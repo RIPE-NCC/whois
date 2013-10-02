@@ -80,9 +80,6 @@ class EndToEndSpec extends Specification {
     }
 
     protected def stop() {
-        messageDequeue.forceStopNow()
-        ipTreeUpdater.stop()
-        applicationContext.close()
         whoisServer.stop()
     }
 
@@ -100,7 +97,7 @@ class EndToEndSpec extends Specification {
 
         stubs.each { it.reset() }
 
-        ipRanges.setTrusted("127.0.0.1", "0:0:0:0:0:0:0:1")
+        ipRanges.setTrusted("127.0.0.1", "::1")
         ipTreeUpdater.rebuild()
     }
 
