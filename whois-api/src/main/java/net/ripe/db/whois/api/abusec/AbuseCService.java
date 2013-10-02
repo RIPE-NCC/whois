@@ -5,6 +5,8 @@ import net.ripe.db.whois.api.whois.InternalJob;
 import net.ripe.db.whois.api.whois.InternalUpdatePerformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
@@ -15,6 +17,7 @@ import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -50,8 +53,9 @@ public class AbuseCService {
             @PathParam("orgkey") final String orgkey,
             @FormParam("email") final String email) {
         final RpslObject organisation = objectDao.getByKey(ORGANISATION, orgkey);
-        if (hasAbuseC(organisation)) {
-            return Response.status(Response.Status.CONFLICT).entity("This organisation already has an abuse contact").build();
+        final CIString abuseContact = getAbuseContact(organisation);
+        if (abuseContact != null) {
+            return Response.status(Response.Status.CONFLICT).entity(abuseContact.toString()).build();
         }
 
         final RpslObject role = buildRole(organisation, email);
@@ -73,12 +77,15 @@ public class AbuseCService {
                 Keyword.NONE,
                 loggerContext);
 
-        // TODO: emit URLs for rest.db instead
-        return Response.ok(String.format("http://apps.db.ripe.net/whois/lookup/%s/organisation/%s.html", source.getName(), orgkey)).build();
+        return Response.ok(String.format("http://rest.db.ripe.net/%s/organisation/%s.html", source.getName(), orgkey)).build();
     }
 
-    private boolean hasAbuseC(final RpslObject organisation) {
-        return !organisation.findAttributes(ABUSE_C).isEmpty();
+    @Nullable
+    private CIString getAbuseContact(final RpslObject organisation) {
+        final List<RpslAttribute> abuseContactAttribute = organisation.findAttributes(ABUSE_C);
+        return abuseContactAttribute.isEmpty() ?
+                null :
+                objectDao.getByKey(ObjectType.ROLE, abuseContactAttribute.get(0).getCleanValue().toString()).getValueForAttribute(AttributeType.ABUSE_MAILBOX);
     }
 
     private RpslObject buildRole(final RpslObject organisation, final String email) {
