@@ -13,8 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -25,10 +23,10 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisClientHandler.class);
 
     private final ClientBootstrap bootstrap;
-    private InetSocketAddress host;
+    private final InetSocketAddress host;
     private Channel channel;
 
-    private ChannelBuffer response = ChannelBuffers.dynamicBuffer(8192);
+    private final ChannelBuffer response = ChannelBuffers.dynamicBuffer(8192);
     private boolean success;
 
     public WhoisClientHandler(ClientBootstrap bootstrap, String hostName, int port) {
@@ -87,19 +85,11 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     }
 
     public String getResponse() {
-        return getResponse(Charsets.UTF_8);
-    }
-
-    public String getResponse(Charset encoding) {
-        return new String(response.array(), 0, response.readableBytes(), encoding);
-    }
-
-    public byte[] getResponseBytes() {
-        return Arrays.copyOfRange(response.array(), 0, response.readableBytes());
+        return response.toString(Charsets.UTF_8);
     }
 
     public void waitForClose() throws InterruptedException {
-        success = channel.getCloseFuture().await(10, TimeUnit.SECONDS);
+        success = channel.getCloseFuture().await(3, TimeUnit.SECONDS);
     }
 
     public void waitForResponseContains(final String assertText) throws Exception {
