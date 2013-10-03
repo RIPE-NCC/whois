@@ -2,7 +2,6 @@ package net.ripe.db.whois.api;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.*;
 import org.slf4j.Logger;
@@ -20,7 +19,6 @@ public class UpdatesParser {
 
     private static final Splitter LINE_SPLITTER = Splitter.on('\n');
     private static final Pattern DELETE_PATTERN = Pattern.compile("(?i)^delete:\\s*(.*)\\s*$");
-    private static final Pattern OBJECT_PATTERN = Pattern.compile("(?ms)^[a-zA-Z0-9-]+:.+");
 
     private final ParagraphParser paragraphParser;
 
@@ -53,29 +51,16 @@ public class UpdatesParser {
             }
             content = contentWithoutDeleteBuilder.toString().trim();
 
-            final RpslObject rpslObject = parseRpslObject(content);
-            if (rpslObject == null || rpslObject.getValuesForAttribute(AttributeType.SOURCE).isEmpty()) {
+            RpslObject rpslObject = null;
+            try {
+                 rpslObject = RpslObject.parse(content);
+            } catch (IllegalArgumentException e) {
                 updateContext.ignore(paragraph);
-                continue;
             }
 
             updates.add(new Update(paragraph, operation, deleteReasons, rpslObject));
         }
 
         return updates;
-    }
-
-    private RpslObject parseRpslObject(final String content) {
-        final Matcher objectMatcher = OBJECT_PATTERN.matcher(content);
-        if (objectMatcher.find()) {
-            final String rpslObjectString = objectMatcher.group(0);
-            try {
-                return RpslObject.parse(rpslObjectString);
-            } catch (IllegalArgumentException e) {
-                LOGGER.debug("Unable to parse {}", rpslObjectString);
-            }
-        }
-
-        return null;
     }
 }
