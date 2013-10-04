@@ -318,6 +318,25 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void grs_lookup_found() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST-GRS\n");
+
+        final String result = createResource(AUDIENCE, "whois/test-grs/aut-num/AS102").request().get(String.class);
+
+        assertThat(result, containsString("" +
+                "<source id=\"test-grs\" /><primary-key><attribute name=\"aut-num\" value=\"AS102\" /></primary-key><attributes><attribute name=\"aut-num\" value=\"AS102\" /><attribute name=\"as-name\" value=\"End-User-2\" />"));
+        assertThat(result, containsString("" +
+                "<attribute name=\"source\" value=\"TEST-GRS\" /><attribute name=\"remarks\" value=\"****************************\" /><attribute name=\"remarks\" value=\"* THIS OBJECT IS MODIFIED\" />"));
+    }
+
+    @Test
     public void lookup_autnum_includes_tags() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
