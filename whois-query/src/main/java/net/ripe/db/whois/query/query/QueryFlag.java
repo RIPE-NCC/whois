@@ -115,7 +115,7 @@ public enum QueryFlag {
             .requiresArgument(String.class)),
 
     ALL_SOURCES(new Builder("a", "all-sources")
-            .describedAs("Specifies that the server should perform lookups in all available sources. See also \"-q sources\" or \"--all-sources\" query.")),
+            .describedAs("Specifies that the server should perform lookups in all available sources. See also the \"-q sources\" query.")),
 
     SOURCES(new Builder("s", "sources")
             .withSearchKey("(comma separated list of sources, no white space is allowed)")
