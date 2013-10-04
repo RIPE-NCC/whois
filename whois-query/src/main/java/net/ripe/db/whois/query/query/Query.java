@@ -341,7 +341,7 @@ public final class Query {
     }
 
     public boolean hasIpFlags() {
-        return isLookupInBothDirections() || isBriefAbuseContact() || matchOperation != null;
+        return isLookupInBothDirections() || matchOperation != null;
     }
 
     public boolean hasObjectTypeFilter(ObjectType objectType) {

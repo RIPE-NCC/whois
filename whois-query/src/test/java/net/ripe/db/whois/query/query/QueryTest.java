@@ -110,7 +110,7 @@ public class QueryTest {
 
     @Test
     public void has_ip_flags() {
-        final Set<QueryFlag> flags = Sets.newHashSet(QueryFlag.ABUSE_CONTACT, QueryFlag.REVERSE_DOMAIN);
+        final Set<QueryFlag> flags = Sets.newHashSet(QueryFlag.REVERSE_DOMAIN);
         for (final Query.MatchOperation matchOperation : Query.MatchOperation.values()) {
             if (matchOperation.getQueryFlag() != null) {
                 flags.add(matchOperation.getQueryFlag());
