@@ -12,4 +12,8 @@ class SyncUpdate {
     def setData(String data) {
         this.data = data.stripIndent()
     }
+
+    def setRawData(String rawData) {
+        this.data = rawData;
+    }
 }

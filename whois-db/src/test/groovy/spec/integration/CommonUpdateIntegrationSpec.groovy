@@ -35,25 +35,19 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "send object without source"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """
             mntner:      DEL-MNT
-            delete:      reason
             password:    password
             """)
 
-      then:
-        response =~ """\
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            The following paragraph\\(s\\) do not look like objects
-            and were NOT PROCESSED:
-
-            mntner:      DEL-MNT
-        """.stripIndent()
+        then:
+        response =~ /(?m)^Create FAILED: \[mntner\] DEL-MNT$/
+        response =~ /(?m)^\*\*\*Error:   Mandatory attribute "source" is missing$/
     }
 
     def "send object with space in attribute key"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """
             mntner:      DEL-MNT
             source:      TEST
@@ -61,36 +55,28 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
             password:    password
             """)
 
-      then:
+        then:
         response =~ "\\*\\*\\*Error:   \"mnt-by     \" is not a known RPSL attribute"
     }
 
-    def "send update without source"() {
-      given:
-        def update = new SyncUpdate(data: """
+    def "delete object without source"() {
+        given:
+        def update = new SyncUpdate(data: """\
             mntner: DEV-TST-MNT
             delete: reason
             password: password
             """)
 
-      when:
+        when:
         def response = syncUpdate update
 
-      then:
-        response =~ """
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            The following paragraph\\(s\\) do not look like objects
-            and were NOT PROCESSED:
-
-            mntner: DEV-TST-MNT
-            delete: reason
-
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        """.stripIndent()
+        then:
+        response =~ /(?m)^Delete FAILED: \[mntner\] DEV-TST-MNT$/
+        response =~ /(?m)^\*\*\*Error:   Object \[mntner\] DEV-TST-MNT does not exist in the database$/
     }
 
     def "delete object with NEW keyword"() {
-      given:
+        given:
         def update = new SyncUpdate(forceNew: true, data: """
             mntner: DEV-TST-MNT
             source: TEST
@@ -98,15 +84,15 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
             password: password
             """)
 
-      when:
+        when:
         def response = syncUpdate update
 
-      then:
+        then:
         response =~ /\*\*\*Error:   DELETE is not allowed when keyword NEW is specified/
     }
 
     def "delete object that looks like RPSL object but is not"() {
-      given:
+        given:
         def update = new SyncUpdate(data: """
             mtner: not-an-object
             source: TEST
@@ -121,10 +107,10 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
 
             """)
 
-      when:
+        when:
         def response = syncUpdate update
 
-      then:
+        then:
         response =~ """
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             The following paragraph\\(s\\) do not look like objects
@@ -135,7 +121,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "send object with space in type attribute name"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """
             mntner :      DEL-MNT
             delete:      reason
@@ -143,7 +129,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
             source: TEST
             """)
 
-      then:
+        then:
         response =~ """\
             The following paragraph\\(s\\) do not look like objects
             and were NOT PROCESSED:
@@ -153,7 +139,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "send object with unbalanced indent type not contains key"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: "password: owner\n\n" +
                 """\
                person:  First Person Error
@@ -166,7 +152,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                changed: dbtest@ripe.net 20121016
                source:  TEST
                """)
-      then:
+        then:
         response =~ """\
             The following paragraph\\(s\\) do not look like objects
             and were NOT PROCESSED:
@@ -177,25 +163,24 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                            address: UK""".stripIndent()
     }
 
-    def "send object with unbalanced indent type contains key"() {
-      when:
-        def response = syncUpdate new SyncUpdate(data: "password: owner\n\n" +
-                """\
+    def "send object with extra spaces before each line"() {
+        def update = new SyncUpdate(rawData: "password: owner\n\n" + """
                mntner:  DEV-MNT
                source:  TEST
-               """)
-      then:
-        response =~ """\
-            The following paragraph\\(s\\) do not look like objects
-            and were NOT PROCESSED:
+               """);
+        when:
+        def response = syncUpdate update
+        then:
+        response =~ """
+            The following object\\(s\\) were found to have ERRORS:
 
-            mntner:  DEV-MNT
-                           source:  TEST
+            ---
+            Create FAILED: \\[mntner\\] DEV-MNT source: TEST
         """.stripIndent()
     }
 
     def "send object with too many passwords"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """\
                 person:  Test Person2
                 address: UK
@@ -231,22 +216,22 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                 password: pw24
                 password: pw25
                 """)
-      then:
+        then:
         response.contains("***Error:   Too many passwords specified")
     }
 
     def "non-ascii password"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data:
                 getFixtures().get("OWNER-MNT").stripIndent()
                         + "remarks: changed\n"
                         + "password: C'était\n")
-      then:
+        then:
         response =~ "\\*\\*\\*Error:   Authorisation for \\[mntner\\] OWNER-MNT failed"
     }
 
     def "comment in source attribute"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """
                 mntner:      OWNER-MNT
                 descr:       has end of line comment on source
@@ -260,7 +245,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                 password:    owner
                 """.stripIndent())
 
-      then:
+        then:
         response =~ /End of line comments not allowed on "source:" attribute/
     }
 }

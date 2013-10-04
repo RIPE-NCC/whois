@@ -157,7 +157,7 @@ class TransactionalSingleUpdateHandler implements SingleUpdateHandler {
         }
 
         final CIString objectSource = new RpslObjectFilter(updatedObject).getSource();
-        if (!source.equals(objectSource)) {
+        if (objectSource != null && !source.equals(objectSource)) {
             updateContext.addMessage(update, UpdateMessages.unrecognizedSource(objectSource));
         }
 

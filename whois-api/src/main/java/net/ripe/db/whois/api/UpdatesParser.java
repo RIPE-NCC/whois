@@ -54,11 +54,10 @@ public class UpdatesParser {
             RpslObject rpslObject = null;
             try {
                  rpslObject = RpslObject.parse(content);
+                updates.add(new Update(paragraph, operation, deleteReasons, rpslObject));
             } catch (IllegalArgumentException e) {
                 updateContext.ignore(paragraph);
             }
-
-            updates.add(new Update(paragraph, operation, deleteReasons, rpslObject));
         }
 
         return updates;
