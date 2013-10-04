@@ -6,6 +6,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mysql.jdbc.Driver;
 import net.ripe.db.whois.common.ClockDateTimeProvider;
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
@@ -16,17 +18,27 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
-import net.ripe.db.whois.update.mail.MailConfiguration;
 import net.ripe.db.whois.update.mail.MailGateway;
-import net.ripe.db.whois.update.mail.MailGatewaySmtp;
+import net.ripe.db.whois.update.mail.MailMessageLogCallback;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.mail.MailException;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 import java.net.URL;
 import java.nio.file.Files;
@@ -69,33 +81,43 @@ public class AutNumCleanup {
             AttributeType.ORIGIN
     );
 
-    private static final String MAIL_FROM = "RIPE Database Administration local <unread@ripe.net>";
+
     private static final String MAIL_HOST = "massmailer.ripe.net";
     private static final int MAIL_PORT = 25;
     private static final String LOG_DIR = "var";
     private static final Joiner JOINER = Joiner.on(',');
     private final MailGateway mailGateway;
-    private final Map<RpslObject, Set<String>> objectWithReferencedAutnums = Maps.newHashMap();
 
 
     public static void main(String[] argv) throws Exception {
-//        new AutNumCleanup(createMailGateway()).execute(argv[0]);
-        new AutNumCleanup(null).execute(argv[0]);
+        setupLogging();
+
+        new AutNumCleanup().execute(argv[0]);
     }
 
-    private static MailGateway createMailGateway() {
+    private static void setupLogging() {
+        LogManager.getRootLogger().setLevel(Level.INFO);
+        ConsoleAppender console = new ConsoleAppender();
+        console.setLayout(new PatternLayout("%d [%c|%C{1}] %m%n"));
+        console.setThreshold(Level.INFO);
+        console.activateOptions();
+        LogManager.getRootLogger().addAppender(console);
+    }
+
+    public AutNumCleanup() {
+        this.mailGateway = createMailGateway();
+    }
+
+    private MailGateway createMailGateway() {
         final JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setPort(MAIL_PORT);
         mailSender.setHost(MAIL_HOST);
 
         final LoggerContext loggerContext = new LoggerContext(new ClockDateTimeProvider());
         loggerContext.setBaseDir(LOG_DIR);
+        loggerContext.init("AUTNUMCLEANUP");
 
-        return new MailGatewaySmtp(loggerContext, new MailConfiguration(MAIL_FROM), mailSender);
-    }
-
-    public AutNumCleanup(final MailGateway mailGateway) {
-        this.mailGateway = mailGateway;
+        return new MailGatewayImpl(mailSender, loggerContext);
     }
 
     public void execute(final String mysqlConnectionPassword) throws Exception {
@@ -111,13 +133,13 @@ public class AutNumCleanup {
         final DataSource dataSource = new SimpleDriverDataSource(new Driver(), "jdbc:mysql://dbc-whois5.ripe.net/WHOIS_UPDATE_RIPE", "rdonly", mysqlConnectionPassword);
         final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        System.out.println("There are " + authoritativeResource.getNrAutNums() + " reserved autnums");
+        LOGGER.info("There are " + authoritativeResource.getNrAutNums() + " reserved autnums");
 
-        findAutnumReferencesPerObject(jdbcTemplate, authoritativeResource);
-        sendMails(jdbcTemplate);
+        sendMails(jdbcTemplate, findAutnumReferencesPerObject(jdbcTemplate, authoritativeResource));
     }
 
-    private void findAutnumReferencesPerObject(final JdbcTemplate jdbcTemplate, final AuthoritativeResource authoritativeResource) {
+    private Map<RpslObject, Set<String>> findAutnumReferencesPerObject(final JdbcTemplate jdbcTemplate, final AuthoritativeResource authoritativeResource) {
+        final Map<RpslObject, Set<String>> referencedAutnumsPerObject = Maps.newHashMap();
         JdbcStreamingHelper.executeStreaming(jdbcTemplate,
                 "SELECT object_id, object " +
                         "FROM last " +
@@ -161,23 +183,22 @@ public class AutNumCleanup {
                         }
 
                         if (!foundAutnums.isEmpty()) {
-                            if (objectWithReferencedAutnums.get(object) == null) {
-                                objectWithReferencedAutnums.put(object, foundAutnums);
+                            if (referencedAutnumsPerObject.get(object) == null) {
+                                referencedAutnumsPerObject.put(object, foundAutnums);
                             } else {
-                                objectWithReferencedAutnums.get(object).addAll(foundAutnums);
+                                referencedAutnumsPerObject.get(object).addAll(foundAutnums);
                             }
                         }
                     }
                 });
-        //debug
-        System.out.println(" Found " + objectWithReferencedAutnums.values().size() + " non-unique autnums");
+        return referencedAutnumsPerObject;
     }
 
-    private void sendMails(final JdbcTemplate jdbcTemplate) {
-        final Map<CIString, List<Container>> mntnerPerContainers = Maps.newHashMap();
+    private void sendMails(final JdbcTemplate jdbcTemplate, final Map<RpslObject, Set<String>> referencedAutnumsPerObject) {
+        final Map<CIString, List<Container>> cleanupsPerMntnerEmail = Maps.newHashMap();
 
-        for (final RpslObject rpslObject : objectWithReferencedAutnums.keySet()) {
-            if (!objectWithReferencedAutnums.get(rpslObject).isEmpty()) {
+        for (final RpslObject rpslObject : referencedAutnumsPerObject.keySet()) {
+            if (!referencedAutnumsPerObject.get(rpslObject).isEmpty()) {
                 final Set<CIString> mntners = Sets.newHashSet();
                 JdbcStreamingHelper.executeStreaming(jdbcTemplate,
                         "SELECT object_id, object" +
@@ -198,43 +219,45 @@ public class AutNumCleanup {
                         });
 
                 for (final CIString email : mntners) {
-                    if (mntnerPerContainers.get(email) == null || mntnerPerContainers.get(email).isEmpty()) {
-                        mntnerPerContainers.put(email, Lists.newArrayList(new Container(rpslObject, objectWithReferencedAutnums.get(rpslObject))));
+                    if (cleanupsPerMntnerEmail.get(email) == null || cleanupsPerMntnerEmail.get(email).isEmpty()) {
+                        cleanupsPerMntnerEmail.put(email, Lists.newArrayList(new Container(rpslObject, referencedAutnumsPerObject.get(rpslObject))));
                     } else {
-                        mntnerPerContainers.get(email).add(new Container(rpslObject, objectWithReferencedAutnums.get(rpslObject)));
+                        cleanupsPerMntnerEmail.get(email).add(new Container(rpslObject, referencedAutnumsPerObject.get(rpslObject)));
                     }
                 }
             }
         }
 
-        System.out.println("About to send " + mntnerPerContainers.size() + " emails");
+        LOGGER.info("About to send {} emails", cleanupsPerMntnerEmail.size());
 
-        int count = 0;
-        for (final CIString email : mntnerPerContainers.keySet()) {
-            count++;
-
-//            mailGateway.sendEmail(email.toString(), "RIPE NCC Aut-num cleanup", createMailContent(mntnerPerContainers.get(email)));
-            if (count == 2) {
-                System.out.println(createMailContent(mntnerPerContainers.get(email), email.toString()));
-            }
+        for (final CIString email : cleanupsPerMntnerEmail.keySet()) {
+            mailGateway.sendEmail(email.toString(), "Clean up of old ASN references in the RIPE Database", createMailContent(cleanupsPerMntnerEmail.get(email)));
+            LOGGER.info("Mailing {}, content: {}", email, createMailContent(cleanupsPerMntnerEmail.get(email)));
         }
     }
 
-    private String createMailContent(final List<Container> containers, final String email) {
+    private String createMailContent(final List<Container> containers) {
         final StringBuilder builder = new StringBuilder();
-        builder.append("Dear Maintainer ").append(email)
-                .append("We're inclined to inform you that you maintain referenced stuff that we want to get rid of.")
-                .append("Therefore, clean out your fridge yet more urgently your RIPE database objects\n")
-                .append("In these object there are the following references to aut-nums that we'd like you to remove:\n")
-                .append("RpslObject\tReferenced aut-num\n");
+        builder.append("Dear Colleagues,\n\n")
+                .append("The RIPE NCC is sending you this email as some of your objects in the RIPE Database still reference deleted AS Numbers.")
+                .append("Before these AS Numbers can be re-assigned all references to them need to be removed.")
+                .append("Below is a list of your objects that have these references.")
+                .append("Please update your objects to remove these references.\n\n")
+                .append("IMPORTANT: If you have any scripts or templates to auto-generate any of these objects, please also adjust them to prevent these references being re-generated.\n\n")
+                .append("For further details see https://labs.ripe.net/Members/denis/making-more-16-bit-as-numbers-available\n\n")
+                .append("Your Object:\t\treferences these deleted AS Numbers\n\n");
         for (final Container container : containers) {
             builder.append(container.getObjectWithAutnumReferences().getKey())
-                    .append("\t ")
+                    .append("\t\t")
                     .append(JOINER.join(container.getAutnumsFoundInObject()))
                     .append("\n");
         }
 
-        builder.append("\n\nKindly, \nThe RIPE database people.");
+        builder.append("\nIf you have any questions or need help to remove the references please contact our Customer Services ripe-dbm@ripe.net\n\n")
+                .append("Regards\n" +
+                        "Denis Walker\n" +
+                        "Business Analyst\n" +
+                        "RIPE NCC Database Team");
         return builder.toString();
     }
 
@@ -245,7 +268,6 @@ public class AutNumCleanup {
         public Container(final RpslObject object, final Set<String> autnums) {
             this.objectWithAutnumReferences = object;
             this.autnumsFoundInObject = autnums;
-            System.out.println("new container: " + object.getKey() + ", and autnums " + JOINER.join(autnums));
         }
 
         private RpslObject getObjectWithAutnumReferences() {
@@ -254,6 +276,49 @@ public class AutNumCleanup {
 
         private Set<String> getAutnumsFoundInObject() {
             return autnumsFoundInObject;
+        }
+    }
+
+    private class MailGatewayImpl implements MailGateway {
+        private static final String MAIL_FROM = "RIPE Database Administration <asnbounce@ripe.net>";
+        private static final String MAIL_REPLY_TO = "unread@ripe.net";
+
+        private final JavaMailSender mailSender;
+        private final LoggerContext loggerContext;
+
+        private MailGatewayImpl(final JavaMailSender mailSender, final LoggerContext loggerContext) {
+            this.mailSender = mailSender;
+            this.loggerContext = loggerContext;
+        }
+
+        @Override
+        public void sendEmail(String to, ResponseMessage responseMessage) {
+            throw new UnsupportedOperationException("not supported");
+        }
+
+        @Override
+        public void sendEmail(final String to, final String subject, final String text) {
+            try {
+                mailSender.send(new MimeMessagePreparator() {
+                    @Override
+                    public void prepare(final MimeMessage mimeMessage) throws MessagingException {
+                        final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
+                        message.setFrom(MAIL_FROM);
+                        message.setTo(to);
+                        message.setReplyTo(MAIL_REPLY_TO);
+                        message.setSubject(subject);
+                        message.setText(text);
+
+                        mimeMessage.addHeader("Precedence", "bulk");
+                        mimeMessage.addHeader("Auto-Submitted", "auto-generated");
+
+                        loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
+                    }
+                });
+            } catch (MailException e) {
+                loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail to {} with subject {}", to, subject), e);
+                LOGGER.error("Unable to send mail message to: {}", to, e);
+            }
         }
     }
 }
