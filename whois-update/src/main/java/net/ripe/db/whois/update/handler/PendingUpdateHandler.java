@@ -66,8 +66,7 @@ class PendingUpdateHandler {
 
                 updateObjectHandler.execute(preparedUpdate, updateContext);
             } else {
-                updateContext.status(preparedUpdate, UpdateStatus.FAILED);
-                updateContext.addMessage(preparedUpdate, UpdateMessages.updateAlreadyPendingAuthentication());
+                updateContext.setAction(preparedUpdate, Action.NOOP);
             }
         }
     }

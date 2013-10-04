@@ -642,13 +642,12 @@ class pendingRouteSpec extends BaseSpec {
         def ack2 = ackFor message2
 
         ack2.summary.nrFound == 1
-        ack2.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack2.summary.assertErrors(1, 1, 0, 0)
-        ack2.countErrorWarnInfo(2, 0, 0)
-        ack2.errors.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
-        ack2.errorMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
-                "Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT",
-                "There is already an identical update pending authentication"]
+        ack2.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack2.summary.assertErrors(0, 0, 0, 0)
+        ack2.countErrorWarnInfo(0, 0, 1)
+        ack2.infoMessagesFor("Noop", "[route] 192.168.0.0/16AS100") == [
+                "Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT"
+        ]
 
         noMoreMessages()
 
