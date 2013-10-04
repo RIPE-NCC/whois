@@ -46,7 +46,7 @@ public class ReferencedObjectsExistValidator implements BusinessRuleValidator {
         final ObjectMessages objectMessages = updateContext.getMessages(update);
         for (final Map.Entry<RpslAttribute, Set<String>> invalidReferenceEntry : invalidReferences.entrySet()) {
             final RpslAttribute attribute = invalidReferenceEntry.getKey();
-            if (objectMessages.getMessages(attribute).getErrors().isEmpty() && !objectMessages.contains(UpdateMessages.unknownObjectReferenced(StringUtils.join(invalidReferenceEntry.getValue(), ',')))) {
+            if (objectMessages.getMessages(attribute).getErrors().isEmpty()) {
                 updateContext.addMessage(update, attribute, UpdateMessages.unknownObjectReferenced(StringUtils.join(invalidReferenceEntry.getValue(), ',')));
             }
         }
