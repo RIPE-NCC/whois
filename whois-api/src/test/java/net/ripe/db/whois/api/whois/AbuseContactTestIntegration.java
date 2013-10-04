@@ -193,14 +193,11 @@ public class AbuseContactTestIntegration extends AbstractRestClientTest {
                 "changed: org@ripe.net 20120505\n" +
                 "source: test");
 
-        try {
-            createResource(AUDIENCE, "whois/abuse-contact/AS333")
+        final AbuseResources abuseResources = createResource(AUDIENCE, "whois/abuse-contact/AS333")
                 .request(MediaType.APPLICATION_XML)
                 .get(AbuseResources.class);
-            fail();
-        } catch (NotFoundException e) {
-            // expected
-        }
+        assertThat(abuseResources.getParameters().getPrimaryKey().getValue(), is("AS333"));
+        assertThat(abuseResources.getAbuseContact().getEmail(), is(""));
     }
 
     @Test

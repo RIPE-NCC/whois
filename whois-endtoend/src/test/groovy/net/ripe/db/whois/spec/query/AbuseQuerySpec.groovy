@@ -899,7 +899,6 @@ class AbuseQuerySpec extends BaseSpec {
             !(query("--abuse-contact AS200") =~ "%WARNING:902: useless IP flag passed")
     }
 
-    //TODO ? correct behaviour: not returning the aut-num when there's no abuse contact ?
     def "query -b aut-num without abuse-c"() {
         given:
             databaseHelper.addObject("" +

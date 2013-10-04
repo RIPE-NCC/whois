@@ -18,7 +18,7 @@ import java.util.Set;
 import static net.ripe.db.whois.common.rpsl.ObjectType.*;
 
 class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
-    private static final Set<AttributeType> BRIEF_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.ABUSE_MAILBOX);
+    private static final Set<AttributeType> BRIEF_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.AUT_NUM, AttributeType.ABUSE_MAILBOX);
     private static final Set<ObjectType> ABUSE_CONTACT_OBJECT_TYPES = Sets.immutableEnumSet(INET6NUM, INETNUM, AUT_NUM);
     private final AbuseCFinder abuseCFinder;
 
