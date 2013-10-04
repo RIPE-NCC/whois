@@ -61,7 +61,7 @@ public enum QueryFlag {
     PRIMARY_KEYS(new Builder("K", "primary-keys")
             .describedAs("" +
                     "Requests that only the primary keys of an object to be returned. " +
-                    "The exceptions are set objects, where the members attributes will also be returned. " +
+                    "The exceptions are set objects, where the (mp-)members attributes will also be returned. " +
                     "This flag does not apply to person and role objects.")),
 
     PERSISTENT_CONNECTION(new Builder("k", "persistent-connection")

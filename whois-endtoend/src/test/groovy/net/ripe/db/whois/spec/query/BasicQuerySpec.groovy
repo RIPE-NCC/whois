@@ -477,6 +477,7 @@ class BasicQuerySpec extends BaseSpec {
       expect:
         queryObject("--primary-keys AS200:RS-CUSTOMERS", "route-set", "AS200:RS-CUSTOMERS")
         queryObject("--primary-keys AS200:RS-CUSTOMERS", "members", "47.247.0.0/16,\n                rs-customers:AS123234:rs-test")
+        queryObject("--primary-keys AS200:RS-CUSTOMERS", "mp-members", "2001:1578::/32,\n" )
         queryObjectNotFound("--primary-keys AS200:RS-CUSTOMERS", "descr", "test route-set")
     }
 
