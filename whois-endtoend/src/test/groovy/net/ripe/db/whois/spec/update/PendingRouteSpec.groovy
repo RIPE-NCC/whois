@@ -5,7 +5,7 @@ import spec.domain.AckResponse
 import spec.domain.Message
 import spec.domain.SyncUpdate
 
-class pendingRouteSpec extends BaseSpec {
+class PendingRouteSpec extends BaseSpec {
 
     @Override
     Map<String, String> getFixtures() {
