@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
 import net.ripe.db.whois.update.domain.*;
@@ -119,12 +120,12 @@ public class AuthenticatorPendingTest {
 
     @Test
     public void isCompleteAuthentication_incomplete() {
-        assertThat(subject.isAuthenticationForTypeComplete(ObjectType.ROUTE, Sets.newHashSet("authStrategyPending1")), is(false));
+        assertThat(subject.isAuthenticationForTypeComplete(ObjectType.ROUTE, new PendingUpdate(null, Sets.newHashSet("authStrategyPending1"), null, null)), is(false));
     }
 
     @Test
     public void isCompleteAuthentication_complete() {
-        assertThat(subject.isAuthenticationForTypeComplete(ObjectType.ROUTE, Sets.newHashSet("mnt-by", "authStrategyPending1", "authStrategyPending2")), is(true));
+        assertThat(subject.isAuthenticationForTypeComplete(ObjectType.ROUTE, new PendingUpdate(null, Sets.newHashSet("mnt-by", "authStrategyPending1", "authStrategyPending2"), null, null)), is(true));
     }
 
 }

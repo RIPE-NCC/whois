@@ -1,9 +1,11 @@
 package net.ripe.db.whois.common.domain;
 
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.joda.time.LocalDateTime;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.HashSet;
 import java.util.Set;
 
 @Immutable
@@ -30,6 +32,12 @@ public class PendingUpdate {
 
     public Set<String> getPassedAuthentications() {
         return passedAuthentications;
+    }
+
+    public PendingUpdate addPassedAuthentications(Set<String> additionalPassedAuthentications) {
+        final HashSet<String> newAuths = Sets.newHashSet(additionalPassedAuthentications);
+        newAuths.addAll(passedAuthentications);
+        return new PendingUpdate(id, newAuths, object, storedDate);
     }
 
     public RpslObject getObject() {
