@@ -48,8 +48,16 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         ChannelBuffer cb = (ChannelBuffer) e.getMessage();
-        response.writeBytes(cb);
+        synchronized (response) {
+            response.writeBytes(cb);
+        }
         success = true;
+    }
+
+    public void clearBuffer() {
+        synchronized (response) {
+            response.clear();
+        }
     }
 
     @Override
@@ -59,12 +67,8 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
         e.getChannel().close();
     }
 
-    public ChannelFuture connect() {
-        return bootstrap.connect(host);
-    }
-
     public ChannelFuture connectAndWait() throws InterruptedException {
-        ChannelFuture future = connect();
+        ChannelFuture future = bootstrap.connect(host);
         success = future.await(3, TimeUnit.SECONDS);
         return future;
     }
@@ -85,7 +89,9 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     }
 
     public String getResponse() {
-        return response.toString(Charsets.UTF_8);
+        synchronized (response) {
+            return response.toString(Charsets.UTF_8);
+        }
     }
 
     public void waitForClose() throws InterruptedException {
