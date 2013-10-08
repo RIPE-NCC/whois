@@ -161,6 +161,12 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void lookup_person_no_object_xmlns() {
+        final String whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST").request().get(String.class);
+        assertThat(whoisResources, containsString("<object type=\"person\">"));
+    }
+
+    @Test
     public void get_inet6num() throws Exception {
         final RpslObject inet6num = RpslObject.parse("" +
                 "inet6num: 2001::/48\n" +
@@ -1140,7 +1146,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
         final WhoisObject autnum = whoisResources.getWhoisObjects().get(0);
         assertThat(autnum.getType(), is("aut-num"));
+        assertThat(autnum.getLink(), is(new Link("locator", "http://rest-test.db.ripe.net/test/aut-num/AS102")));
         assertThat(autnum.getPrimaryKey().get(0).getValue(), is("AS102"));
+
         assertThat(autnum.getAttributes(), contains(
                 new Attribute("aut-num", "AS102"),
                 new Attribute("as-name", "End-User-2"),
@@ -1154,6 +1162,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         final WhoisObject person = whoisResources.getWhoisObjects().get(1);
         assertThat(person.getType(), is("person"));
         assertThat(person.getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        assertThat(person.getLink(), is(new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")));
 
         assertThat(person.getAttributes(), contains(
                 new Attribute("person", "Test Person"),
@@ -1380,7 +1389,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .get(WhoisResources.class);
 
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-
+        assertThat(whoisObject.getLink(),is(new Link("locator", "http://rest-test.db.ripe.net/test/aut-num/AS102")));
         assertThat(whoisObject.getTags(), contains(
                 new WhoisTag("foobar", "foobar"),
                 new WhoisTag("unref", "28")));
@@ -1472,7 +1481,13 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(2));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), contains(
+
+        WhoisObject aut_num = whoisResources.getWhoisObjects().get(0);
+        WhoisObject person = whoisResources.getWhoisObjects().get(1);
+
+        assertThat(person.getLink(), is(new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")));
+        assertThat(aut_num.getLink(), is(new Link("locator", "http://rest-test.db.ripe.net/test/aut-num/AS102")));
+        assertThat(aut_num.getAttributes(), contains(
                 new Attribute("aut-num", "AS102"),
                 new Attribute("as-name", "End-User-2"),
                 new Attribute("descr", "description"),
@@ -1499,7 +1514,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(4));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), contains(
+        WhoisObject aut_num = whoisResources.getWhoisObjects().get(0);
+        assertThat(aut_num.getLink(), is(new Link("locator", "http://rest-test.db.ripe.net/test/aut-num/AS102")));
+        assertThat(aut_num.getAttributes(), contains(
                 new Attribute("aut-num", "AS102"),
                 new Attribute("as-name", "End-User-2"),
                 new Attribute("descr", "description"),
@@ -1508,7 +1525,10 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST")
         ));
-        assertThat(whoisResources.getWhoisObjects().get(1).getAttributes(), contains(
+
+        WhoisObject person = whoisResources.getWhoisObjects().get(1);
+        assertThat(person.getLink(), is(new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")));
+        assertThat(person.getAttributes(), contains(
                 new Attribute("person", "Test Person"),
                 new Attribute("address", "Singel 258"),
                 new Attribute("phone", "+31 6 12345678"),
@@ -1516,7 +1536,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)
         ));
-        assertThat(whoisResources.getWhoisObjects().get(2).getAttributes(), contains(
+        WhoisObject mntner = whoisResources.getWhoisObjects().get(2);
+        assertThat(mntner.getLink(), is(new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")));
+        assertThat(mntner.getAttributes(), contains(
                 new Attribute("mntner", "OWNER-MNT"),
                 new Attribute("descr", "Owner Maintainer"),
                 new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
@@ -1525,7 +1547,10 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)
         ));
-        assertThat(whoisResources.getWhoisObjects().get(3).getAttributes(), contains(
+
+        WhoisObject person2 = whoisResources.getWhoisObjects().get(3);
+        assertThat(person2.getLink(), is(new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")));
+        assertThat(person2.getAttributes(), contains(
                 new Attribute("person", "Test Person"),
                 new Attribute("address", "Singel 258"),
                 new Attribute("phone", "+31 6 12345678"),
@@ -1542,7 +1567,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), contains(
+        WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getLink(), is(new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")));
+        assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("person", "Test Person"),
                 new Attribute("address", "Singel 258"),
                 new Attribute("phone", "+31 6 12345678"),
@@ -1608,7 +1635,9 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), contains(
+        WhoisObject aut_num = whoisResources.getWhoisObjects().get(0);
+        assertThat(aut_num.getLink(), is(new Link("locator", "http://rest-test.db.ripe.net/test-grs/aut-num/AS102")));
+        assertThat(aut_num.getAttributes(), contains(
                 new Attribute("aut-num", "AS102"),
                 new Attribute("as-name", "End-User-2"),
                 new Attribute("descr", "description"),
@@ -1713,6 +1742,26 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         assertThat(whoisResources, containsString("<objects>"));
     }
 
+    @Test
+    public void search_returns_object_locator() {
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        final String resources = createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        int start = resources.indexOf("<object type=\"person\">");
+        int end = resources.indexOf("<primary-key>");
+        assertThat(resources.substring(start, end), containsString("http://rest-test.db.ripe.net/test/person/LP1-TEST"));
+    }
+    
+    
     // TODO: [ES] don't set the content-type on an error response
     @Ignore
     @Test
