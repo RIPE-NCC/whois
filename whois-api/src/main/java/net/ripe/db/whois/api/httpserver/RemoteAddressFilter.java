@@ -49,7 +49,7 @@ public class RemoteAddressFilter implements Filter {
     public void destroy() {
     }
 
-    private static class RemoteAddressRequestWrapper extends HttpServletRequestWrapper {
+    private static final class RemoteAddressRequestWrapper extends HttpServletRequestWrapper {
         private final IpRanges ipRanges;
         private final HttpServletRequest request;
         private String remoteAddress;

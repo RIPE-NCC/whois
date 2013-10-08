@@ -34,7 +34,7 @@ public class RpslObjectsExporterJmx extends JmxBase {
         });
     }
 
-    private static class DatabaseExporterThread extends Thread {
+    private static final class DatabaseExporterThread extends Thread {
         private final RpslObjectsExporter objectsExporter;
 
         private DatabaseExporterThread(final RpslObjectsExporter objectsExporter) {

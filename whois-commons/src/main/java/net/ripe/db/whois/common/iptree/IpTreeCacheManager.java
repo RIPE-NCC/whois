@@ -35,7 +35,7 @@ public class IpTreeCacheManager {
         this.sourceContext = sourceContext;
     }
 
-    private static class IpTreeUpdate {
+    private static final class IpTreeUpdate {
         private final ObjectType objectType;
         private final String pkey;
         private final int objectId;
@@ -54,7 +54,7 @@ public class IpTreeCacheManager {
         }
     }
 
-    private static class CacheEntry {
+    private static final class CacheEntry {
         final SourceConfiguration sourceConfiguration;
         final Semaphore updateLock = new Semaphore(1);
         NestedIntervalMaps nestedIntervalMaps = new NestedIntervalMaps();
