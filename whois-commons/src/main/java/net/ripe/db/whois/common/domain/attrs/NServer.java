@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
-public class NServer {
+public final class NServer {
     private static final Pattern HOSTNAME_PATTERN = Pattern.compile("(?i)^(([A-Z0-9]|[A-Z0-9][A-Z0-9\\-]*[A-Z0-9])\\.)*([A-Z0-9]|[A-Z0-9][A-Z0-9\\-]*[A-Z0-9])$");
     private static final Splitter SPLITTER = Splitter.on(' ').trimResults().omitEmptyStrings();
 

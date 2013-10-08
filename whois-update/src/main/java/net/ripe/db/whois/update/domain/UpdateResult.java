@@ -14,7 +14,6 @@ import java.util.Collection;
 
 public class UpdateResult {
 
-    private final Update update;
     private final RpslObject originalObject;
     private final RpslObject updatedObject;
     private final Action action;
@@ -23,8 +22,7 @@ public class UpdateResult {
     private final int retryCount;
     private final boolean dryRun;
 
-    public UpdateResult(final Update update, @Nullable final RpslObject originalObject, final RpslObject updatedObject, final Action action, final UpdateStatus status, final ObjectMessages objectMessages, final int retryCount, final boolean dryRun) {
-        this.update = update;
+    public UpdateResult(@Nullable final RpslObject originalObject, final RpslObject updatedObject, final Action action, final UpdateStatus status, final ObjectMessages objectMessages, final int retryCount, final boolean dryRun) {
         this.originalObject = originalObject;
         this.updatedObject = updatedObject;
         this.action = action;

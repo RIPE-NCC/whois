@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
+import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.Validate;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.CheckForNull;
 import java.util.*;
 
 @Component
@@ -28,16 +30,23 @@ public class Authenticator {
 
     private final IpRanges ipRanges;
     private final UserDao userDao;
+    private final PendingUpdateDao pendingUpdateDao;
     private final LoggerContext loggerContext;
     private final List<AuthenticationStrategy> authenticationStrategies;
     private final Map<CIString, Set<Principal>> principalsMap;
     private final Map<ObjectType, Set<String>> typesWithPendingAuthenticationSupport;
 
     @Autowired
-    public Authenticator(final IpRanges ipRanges, final UserDao userDao, final Maintainers maintainers, final LoggerContext loggerContext, final AuthenticationStrategy[] authenticationStrategies) {
+    public Authenticator(final IpRanges ipRanges,
+                         final UserDao userDao,
+                         final Maintainers maintainers,
+                         final LoggerContext loggerContext,
+                         final AuthenticationStrategy[] authenticationStrategies,
+                         final PendingUpdateDao pendingUpdateDao) {
         this.ipRanges = ipRanges;
         this.userDao = userDao;
         this.loggerContext = loggerContext;
+        this.pendingUpdateDao = pendingUpdateDao;
         this.authenticationStrategies = Arrays.asList(authenticationStrategies);
 
         final Map<CIString, Set<Principal>> tempPrincipalsMap = Maps.newHashMap();
@@ -174,6 +183,8 @@ public class Authenticator {
             }
         }
 
+        filterAuthentication(updateContext, update, principals, passedAuthentications, failedAuthentications, pendingAuthentications);
+
         final Subject subject = new Subject(principals, passedAuthentications, failedAuthentications, pendingAuthentications);
         if (!authenticationMessages.isEmpty()) {
             handleFailure(update, updateContext, subject, authenticationMessages);
@@ -196,7 +207,7 @@ public class Authenticator {
     }
 
     private void handleFailure(final PreparedUpdate update, final UpdateContext updateContext, final Subject subject, final Set<Message> authenticationMessages) {
-        if (isPending(update, updateContext, subject)) {
+        if (isPending(update, updateContext, subject.getPendingAuthentications()) && subject.getFailedAuthentications().isEmpty()) {
             updateContext.status(update, UpdateStatus.PENDING_AUTHENTICATION);
         } else {
             updateContext.status(update, UpdateStatus.FAILED_AUTHENTICATION);
@@ -207,15 +218,41 @@ public class Authenticator {
         }
     }
 
-    boolean isPending(final PreparedUpdate update, final UpdateContext updateContext, final Subject subject) {
+    boolean isPending(final PreparedUpdate update, final UpdateContext updateContext, final Set<String> pendingAuths) {
         if (!Action.CREATE.equals(update.getAction())) {
             return false;
         }
 
+        final Set<String> supportedPendingAuths = typesWithPendingAuthenticationSupport.get(update.getType());
+
         return !updateContext.hasErrors(update)
-                && subject.getFailedAuthentications().isEmpty()
-                && typesWithPendingAuthenticationSupport.containsKey(update.getType())
-                && subject.getPendingAuthentications().size() < typesWithPendingAuthenticationSupport.get(update.getType()).size();
+                && pendingAuths.size() > 0
+                && pendingAuths.size() < supportedPendingAuths.size();
+    }
+
+    private void filterAuthentication(UpdateContext updateContext, PreparedUpdate update, Set<Principal> principals, Set<String> passedAuthentications, Set<String> failedAuthentications, Map<String, Collection<RpslObject>> pendingAuthentications) {
+        // we only have pending filter ATM
+        if (isPending(update, updateContext, pendingAuthentications.keySet())) {
+            final PendingUpdate pendingUpdate = findAndStorePendingUpdate(updateContext, update);
+            if (pendingUpdate != null) {
+                if (failedAuthentications.remove("MntByAuthentication")) {
+                    passedAuthentications.add("MntByAuthentication");
+                }
+            }
+        }
+    }
+
+    @CheckForNull
+    private PendingUpdate findAndStorePendingUpdate(UpdateContext updateContext, final PreparedUpdate update) {
+        final RpslObject rpslObject = update.getUpdatedObject();
+
+        for (final PendingUpdate pendingUpdate : pendingUpdateDao.findByTypeAndKey(rpslObject.getType(), rpslObject.getKey().toString())) {
+            if (rpslObject.equals(pendingUpdate.getObject())) {
+                updateContext.addPendingUpdate(update, pendingUpdate);
+                return pendingUpdate;
+            }
+        }
+        return null;
     }
 
     public boolean isAuthenticationForTypeComplete(final ObjectType objectType, final PendingUpdate pendingUpdate) {

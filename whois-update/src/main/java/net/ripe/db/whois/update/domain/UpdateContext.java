@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -59,6 +60,14 @@ public class UpdateContext {
         if (previous != null) {
             throw new IllegalStateException("Existing response for request: " + request);
         }
+    }
+
+    public void addPendingUpdate(final UpdateContainer updateContainer, final PendingUpdate pendingUpdate) {
+        getOrCreateContext(updateContainer).pendingUpdate = pendingUpdate;
+    }
+
+    public PendingUpdate getPendingUpdate(final UpdateContainer updateContainer) {
+        return getOrCreateContext(updateContainer).pendingUpdate;
     }
 
     @CheckForNull
@@ -246,7 +255,7 @@ public class UpdateContext {
             updatedObject = update.getSubmittedObject();
         }
 
-        return new UpdateResult(update, originalObject, updatedObject, context.action, context.status, context.objectMessages, context.retryCount, dryRun);
+        return new UpdateResult(originalObject, updatedObject, context.action, context.status, context.objectMessages, context.retryCount, dryRun);
     }
 
     public void prepareForReattempt(final UpdateContainer update) {
@@ -275,5 +284,6 @@ public class UpdateContext {
         private int retryCount;
         private RpslObjectUpdateInfo updateInfo;
         private int versionId = -1;
+        private PendingUpdate pendingUpdate;
     }
 }

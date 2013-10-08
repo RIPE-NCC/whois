@@ -28,7 +28,7 @@ public class UpdateLogTest {
     @Test
     public void logUpdateResult_create_success() {
         final RpslObject maintainer = RpslObject.parse("mntner: TST-MNT");
-        final UpdateResult updateResult = new UpdateResult(update, maintainer, maintainer, Action.CREATE, UpdateStatus.SUCCESS, new ObjectMessages(), 0, false);
+        final UpdateResult updateResult = new UpdateResult(maintainer, maintainer, Action.CREATE, UpdateStatus.SUCCESS, new ObjectMessages(), 0, false);
         when(update.getCredentials()).thenReturn(new Credentials());
         when(updateContext.createUpdateResult(update)).thenReturn(updateResult);
 
@@ -40,7 +40,7 @@ public class UpdateLogTest {
     @Test
     public void logUpdateResult_create_success_dryRun() {
         final RpslObject maintainer = RpslObject.parse("mntner: TST-MNT");
-        final UpdateResult updateResult = new UpdateResult(update, maintainer, maintainer, Action.CREATE, UpdateStatus.SUCCESS, new ObjectMessages(), 0, true);
+        final UpdateResult updateResult = new UpdateResult(maintainer, maintainer, Action.CREATE, UpdateStatus.SUCCESS, new ObjectMessages(), 0, true);
         when(update.getCredentials()).thenReturn(new Credentials());
         when(updateContext.createUpdateResult(update)).thenReturn(updateResult);
 

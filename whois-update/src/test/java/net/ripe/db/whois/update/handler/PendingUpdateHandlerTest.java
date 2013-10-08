@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.handler;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.PendingUpdate;
@@ -49,7 +48,7 @@ public class PendingUpdateHandlerTest {
         RpslObject objectBase = RpslObject.parse("route: 193.0/16\norigin: AS12345");
         final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet("RouteAutnumAuthentication"), objectBase, dateTimeProvider.getCurrentDateTime());
 
-        when(pendingUpdateDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.newArrayList(pendingUpdate));
+        when(updateContext.getPendingUpdate(preparedUpdate)).thenReturn(pendingUpdate);
         when(preparedUpdate.getUpdatedObject()).thenReturn(object);
         when(updateContext.getSubject(preparedUpdate)).thenReturn(subject);
         when(subject.getPassedAuthentications()).thenReturn(Sets.newHashSet("RouteIpAddressAuthentication"));
@@ -65,7 +64,7 @@ public class PendingUpdateHandlerTest {
         RpslObject objectBase = RpslObject.parse("route: 193.0/16\norigin: AS12345");
         final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet("RouteAutnumAuthentication"), objectBase, dateTimeProvider.getCurrentDateTime());
 
-        when(pendingUpdateDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.newArrayList(pendingUpdate));
+        when(updateContext.getPendingUpdate(preparedUpdate)).thenReturn(pendingUpdate);
         when(preparedUpdate.getUpdatedObject()).thenReturn(object);
         when(updateContext.getSubject(preparedUpdate)).thenReturn(subject);
         when(subject.getPassedAuthentications()).thenReturn(Sets.newHashSet("RouteAutnumAuthentication"));
@@ -80,7 +79,7 @@ public class PendingUpdateHandlerTest {
     public void did_not_find_pendingUpdate() {
         RpslObject object = RpslObject.parse("route: 193.0/16\norigin: AS12345");
 
-        when(pendingUpdateDao.findByTypeAndKey(object.getType(), object.getKey().toString())).thenReturn(Lists.<PendingUpdate>newArrayList());
+        when(updateContext.getPendingUpdate(preparedUpdate)).thenReturn(null);
         when(preparedUpdate.getUpdatedObject()).thenReturn(object);
         when(updateContext.getSubject(preparedUpdate)).thenReturn(subject);
         when(subject.getPassedAuthentications()).thenReturn(Sets.newHashSet("RouteAutnumAuthentication"));

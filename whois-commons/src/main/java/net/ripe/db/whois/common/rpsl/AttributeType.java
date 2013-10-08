@@ -548,7 +548,7 @@ public enum AttributeType implements Documented {
         }
     }
 
-    private static class Builder {
+    private static final class Builder {
         private final String name;
         private final String flag;
         private Documented description;
