@@ -468,7 +468,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
     }
 
-    def "create route ipaddress exact match authentication fail"() {
+    def "create route ipaddress exact match autnum auth passes, ip authentication fail"() {
       when:
         def create = new SyncUpdate(data: """\
                 route: 180.0/24
@@ -606,7 +606,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: emptypassword
                             """.stripIndent()))
       expect:
-        insert =~ /SUCCESS/
+        insert =~ /SUCCESSFUL/
 
       when:
         def create = new SyncUpdate(data: """\
@@ -623,7 +623,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate create
 
       then:
-        response =~ /FAIL/
+        response =~ /FAILED:/
         response =~ /Authorisation for \[route\] 180.0.0.0\/16AS123 failed
             using "mnt-by:"
             not authenticated by: TEST-MNT/
@@ -1176,6 +1176,8 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create FAILED: \[route\] 212.166.64.0\/19AS456\n/
         response =~ /Authorisation for \[aut-num\] AS456 failed\n\s+using "mnt-routes:"\n\s+not authenticated by: ROUTES-MNT\n/
 
+        System.err.println(response)
+
         notificationFor("dbtest@ripe.net").authFailed("CREATE", "route", "212.166.64.0/19")
         noMoreMessages()
 
@@ -1325,13 +1327,11 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update3
                             """.stripIndent()))
       then:
-        inetnumWithIpAuth =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123\n/
-        inetnumWithIpAuth =~ /\*\*\*Error:   Authorisation for \[route\] 197.0.0.0\/24AS123 failed\n/
-        inetnumWithIpAuth =~ /\*\*\*Error:   Authorisation for \[aut-num\] AS123 failed\n/
-        notificationFor("dbtest@ripe.net").authFailed("CREATE", "route", "197.0.0.0/24")
+        inetnumWithIpAuth =~ /Create SUCCEEDED: \[route\] 197.0.0.0\/24AS123\n/
+        inetnumWithIpAuth =~ /\*\*\*Info:    This update concludes a pending update on route 197.0.0.0\/24AS123/
         noMoreMessages()
 
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
+        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 0
     }
 
     def "create route pending auth, 2nd update passes only mnt-by auth"() {

@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
+import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
@@ -47,6 +48,7 @@ public class AuthenticatorPrincipalTest {
     @Mock AuthenticationStrategy authenticationStrategy2;
     @Mock Maintainers maintainers;
     @Mock LoggerContext loggerContext;
+    @Mock PendingUpdateDao pendingUpdateDao;
 
     Authenticator subject;
     ArgumentCaptor<Subject> subjectCapture;
@@ -62,7 +64,7 @@ public class AuthenticatorPrincipalTest {
         when(update.getCredentials()).thenReturn(new Credentials());
 
         subjectCapture = ArgumentCaptor.forClass(Subject.class);
-        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2});
+        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2}, pendingUpdateDao);
     }
 
     @Test

@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
+import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
@@ -34,6 +35,7 @@ public class AuthenticatorPendingTest {
     @Mock Maintainers maintainers;
     @Mock LoggerContext loggerContext;
     @Mock Subject authSubject;
+    @Mock PendingUpdateDao pendingUpdateDao;
 
     Authenticator subject;
 
@@ -49,7 +51,7 @@ public class AuthenticatorPendingTest {
         when(authStrategyPending2.getTypesWithPendingAuthenticationSupport()).thenReturn(delayedAuthenticationTypes);
         when(updateContext.getSubject(update)).thenReturn(authSubject);
 
-        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authStrategyPending1, authStrategyPending2});
+        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authStrategyPending1, authStrategyPending2}, pendingUpdateDao);
     }
 
     @Test

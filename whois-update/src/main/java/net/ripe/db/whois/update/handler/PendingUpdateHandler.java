@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.CheckForNull;
+import java.text.MessageFormat;
 import java.util.Set;
 
 @Component
@@ -42,7 +42,7 @@ class PendingUpdateHandler {
 
     public void handle(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
         final RpslObject rpslObject = preparedUpdate.getUpdatedObject();
-        final PendingUpdate pendingUpdate = find(rpslObject);
+        final PendingUpdate pendingUpdate = updateContext.getPendingUpdate(preparedUpdate);
         final Set<String> passedAuthentications = updateContext.getSubject(preparedUpdate).getPassedAuthentications();
 
         if (pendingUpdate == null) {
@@ -66,6 +66,8 @@ class PendingUpdateHandler {
 
                 updateObjectHandler.execute(preparedUpdate, updateContext);
             } else {
+                loggerContext.log(new Message(Messages.Type.INFO, MessageFormat.format("Pending update found but still doesn't complete authentication; updating DB: {}", updatedPendingUpdate.getPassedAuthentications())));
+
                 if (updatedPendingUpdate.getPassedAuthentications().size() > pendingUpdate.getPassedAuthentications().size()) {
                     pendingUpdateDao.updatePassedAuthentications(updatedPendingUpdate);
                 } else {
@@ -73,15 +75,5 @@ class PendingUpdateHandler {
                 }
             }
         }
-    }
-
-    @CheckForNull
-    private PendingUpdate find(final RpslObject object) {
-        for (final PendingUpdate update : pendingUpdateDao.findByTypeAndKey(object.getType(), object.getKey().toString())) {
-            if (object.equals(update.getObject())) {
-                return update;
-            }
-        }
-        return null;
     }
 }
