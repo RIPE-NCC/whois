@@ -59,7 +59,7 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
                 .request(MediaType.TEXT_PLAIN)
                 .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
-        assertThat(response, containsString("http://apps.db.ripe.net/whois/lookup/TEST/organisation/ORG-TOL1-TEST.html"));
+        assertThat(response, containsString("http://rest.db.ripe.net/TEST/organisation/ORG-TOL1-TEST.html"));
         final RpslObject organisation = databaseHelper.lookupObject(ORGANISATION, "ORG-TOL1-TEST");
         assertThat(organisation.getValueForAttribute(AttributeType.ABUSE_C), is(CIString.ciString("AR1-TEST")));
         final RpslObject role = databaseHelper.lookupObject(ROLE, "AR1-TEST");
@@ -72,7 +72,7 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void abuseC_already_exists() throws IOException {
         databaseHelper.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT");
-        databaseHelper.addObject("role: Abuse Contact\nnic-hdl:tst-nic");
+        databaseHelper.addObject("role: Abuse Contact\nnic-hdl:tst-nic\nabuse-mailbox:abuse@test.net");
         databaseHelper.addObject(RpslObject.parse("" +
                 "organisation: ORG-TOL1-TEST\n" +
                 "org-name: Test Organisation Left\n" +
@@ -93,6 +93,7 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
         } catch (ClientErrorException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.CONFLICT.getStatusCode()));
             assertThat(e.getResponse().readEntity(String.class), containsString("This organisation already has an abuse contact"));
+            assertThat(e.getResponse().readEntity(String.class), containsString("abuse@test.net"));
         }
     }
 
@@ -110,6 +111,6 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
 
     @Override
     protected WebTarget createResource(final Audience audience, final String path) {
-        return client.target(String.format("http://localhost:%s/%s", getPort(audience), path));
+        return client.target(String.format("http://localhost:%d/%s", getPort(audience), path));
     }
 }

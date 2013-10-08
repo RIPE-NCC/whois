@@ -5,7 +5,6 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
@@ -18,7 +17,6 @@ import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
@@ -43,14 +41,13 @@ public class RpslResponseDecorator {
     private final RpslObjectDao rpslObjectDao;
     private final FilterPersonalDecorator filterPersonalDecorator;
     private final SourceContext sourceContext;
-    private final AbuseCFunction abuseCFunction;
-    private final ToBriefFunction toBriefFunction;
+    private final AbuseCInfoFunction abuseCInfoFunction;
+    private final BriefAbuseCFunction briefAbuseCFunction;
     private final DummifyFunction dummifyFunction;
     private final ValidSyntaxFunction validSyntaxFunction;
     private final FilterTagsDecorator filterTagsDecorator;
     private final FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
-    private final String mainSource;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -60,7 +57,6 @@ public class RpslResponseDecorator {
                                  final DummifyFunction dummifyFunction,
                                  final FilterTagsDecorator filterTagsDecorator,
                                  final FilterPlaceholdersDecorator filterPlaceholdersDecorator,
-                                 final @Value("${whois.source}") String mainSource,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -69,10 +65,9 @@ public class RpslResponseDecorator {
         this.validSyntaxFunction = new ValidSyntaxFunction();
         this.filterTagsDecorator = filterTagsDecorator;
         this.filterPlaceholdersDecorator = filterPlaceholdersDecorator;
-        this.abuseCFunction = new AbuseCFunction(abuseCFinder);
-        this.toBriefFunction = new ToBriefFunction(abuseCFinder);
+        this.abuseCInfoFunction = new AbuseCInfoFunction(abuseCFinder);
+        this.briefAbuseCFunction = new BriefAbuseCFunction(abuseCFinder);
         this.decorators = Sets.newHashSet(decorators);
-        this.mainSource = mainSource;
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
@@ -94,8 +89,8 @@ public class RpslResponseDecorator {
     }
 
     private Iterable<? extends ResponseObject> applyAbuseC(final Query query, final Iterable<? extends ResponseObject> result) {
-        if (!query.isBrief() && sourceContext.getCurrentSource().getName().equals(CIString.ciString(mainSource))) {
-            return Iterables.concat(Iterables.transform(result, abuseCFunction));
+        if (!query.isBriefAbuseContact() && sourceContext.isMain()) {
+            return Iterables.concat(Iterables.transform(result, abuseCInfoFunction));
         }
 
         return result;
@@ -158,7 +153,7 @@ public class RpslResponseDecorator {
     }
 
     private Iterable<? extends ResponseObject> filterEmail(final Query query, final Iterable<? extends ResponseObject> groupedObjects) {
-        if (!sourceContext.isAcl() || !query.isFiltered() || query.isBrief()) {
+        if (!sourceContext.isAcl() || !query.isFiltered() || query.isBriefAbuseContact()) {
             return groupedObjects;
         }
 
@@ -180,8 +175,8 @@ public class RpslResponseDecorator {
             return Iterables.transform(objects, new ToShorthandFunction());
         }
 
-        if (query.isBrief()) {
-            return Iterables.filter(Iterables.transform(objects, toBriefFunction), Predicates.notNull());
+        if (query.isBriefAbuseContact()) {
+            return Iterables.filter(Iterables.transform(objects, briefAbuseCFunction), Predicates.notNull());
         }
 
         if (query.isKeysOnly()) {

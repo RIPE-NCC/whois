@@ -3,13 +3,7 @@ package net.ripe.db.whois.api.whois;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.whois.domain.Attribute;
-import net.ripe.db.whois.api.whois.domain.Link;
-import net.ripe.db.whois.api.whois.domain.Source;
-import net.ripe.db.whois.api.whois.domain.WhoisObject;
-import net.ripe.db.whois.api.whois.domain.WhoisResources;
-import net.ripe.db.whois.api.whois.domain.WhoisTag;
-import net.ripe.db.whois.api.whois.domain.WhoisVersion;
+import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -25,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -61,33 +54,13 @@ public class WhoisObjectMapper {
         this.baseUrl = baseUrl;
     }
 
-    // TODO: [AH] converting between object by parse(toString()) is the most inefficient; reimplement using direct translation
     public RpslObject map(final WhoisObject whoisObject) {
-        final StringBuilder builder = new StringBuilder();
-        for (Attribute attribute : whoisObject.getAttributes()) {
-
-            Iterable<String> values;
-
-            AttributeType attributeType = AttributeType.getByName(attribute.getName());
-            if (CSV_ATTRIBUTES.contains(attributeType)) {
-                values = CSV_SPLITTER.split(attribute.getValue());  // TODO: [AH] don't do this! see getCleanValues()
-            } else {
-                values = Collections.singletonList(attribute.getValue());
-            }
-
-            for (String value : values) {
-                builder.append(attribute.getName());
-                builder.append(": ");
-                builder.append(value);
-                if (attribute.getComment() != null) {
-                    builder.append(" # ");
-                    builder.append(attribute.getComment());
-                }
-                builder.append('\n');
-            }
+        final List<RpslAttribute> rpslAttributes = Lists.newArrayList();
+        for (final Attribute attribute : whoisObject.getAttributes()) {
+            rpslAttributes.add(new RpslAttribute(attribute.getName(), attribute.getValue()));
         }
 
-        return RpslObject.parse(builder.toString());
+        return new RpslObject(rpslAttributes);
     }
 
     public WhoisResources map(final List<RpslObject> rpslObjects) {
@@ -225,5 +198,30 @@ public class WhoisObjectMapper {
         }
 
         return whoisVersions;
+    }
+
+    public AbuseResources mapAbuseContact(final String key, final Iterable<RpslAttribute> attributes) {
+        String foundKey = "";
+        String abuseEmail = "";
+        for (final RpslAttribute attribute : attributes) {
+            if (attribute.getType() == AttributeType.ABUSE_MAILBOX) {
+                abuseEmail = attribute.getCleanValue().toString();
+            } else {
+                foundKey = attribute.getCleanValue().toString();
+            }
+        }
+
+        final AbuseResources abuseResources = new AbuseResources();
+        abuseResources.setAbuseContact(new AbuseContact().setEmail(abuseEmail));
+        abuseResources.setLink(new Link("locator", String.format("http://rest.db.ripe.net/abuse-contact/%s", key)));
+        abuseResources.setService("abuse-contact");
+
+        final Parameters parameters = new Parameters();
+        parameters.setPrimaryKey(new AbusePKey(foundKey));
+        abuseResources.setParameters(parameters);
+
+        abuseResources.setTermsAndConditions(new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+
+        return abuseResources;
     }
 }

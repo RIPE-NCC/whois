@@ -36,4 +36,110 @@ class GrsQuerySpec extends EndToEndSpec {
         response =~ "aut-num:        AS10"
         response != ~"No entries found"
     }
+
+    def "--all-sources found in both"() {
+      given:
+        databaseHelper.addObject("" +
+                "role:    Abuse Me\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "e-mail:  dbtest@ripe.net\n" +
+                "admin-c: AB-TEST\n" +
+                "tech-c:  AB-TEST\n" +
+                "nic-hdl: AB-TEST\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:  TST-MNT2\n" +
+                "changed: dbtest@ripe.net 20121016\n" +
+                "source:  TEST")
+        databaseHelper.addObjectToSource("1-GRS", "role: Abuse Me\nnic-hdl: AB-TEST")
+
+      expect:
+        query("-q sources") =~ "TEST:3:N:0-0"
+        query("-q sources") =~ "1-GRS:3:N:0-0"
+        queryObject("--all-sources TEST,1- AB-TEST", "role", "Abuse Me")
+    }
+
+    def "--all-sources not found"() {
+      given:
+        databaseHelper.addObject("" +
+                "role:    Abuse Me\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "e-mail:  dbtest@ripe.net\n" +
+                "admin-c: AB-TEST\n" +
+                "tech-c:  AB-TEST\n" +
+                "nic-hdl: AB-TEST\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:  TST-MNT2\n" +
+                "changed: dbtest@ripe.net 20121016\n" +
+                "source:  TEST")
+        databaseHelper.addObjectToSource("1-GRS", "role: Abuse Me\nnic-hdl: AB-TEST")
+
+        expect:
+        queryObjectNotFound("--all-sources TEST,1- AB-TEST", "role", "Abuse Me")
+    }
+
+    def "--sources search only in test"() {
+      given:
+        databaseHelper.addObjectToSource("1-GRS", "role: Abuse Me\nnic-hdl: AB-TEST")
+        databaseHelper.addObject("" +
+                "role:    Abuse Me\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "e-mail:  dbtest@ripe.net\n" +
+                "admin-c: AB-TEST\n" +
+                "tech-c:  AB-TEST\n" +
+                "nic-hdl: AB-TEST\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:  TST-MNT2\n" +
+                "changed: dbtest@ripe.net 20121016\n" +
+                "source:  TEST")
+
+        expect:
+          queryObject("--sources TEST AB-TEST", "role", "Abuse Me")
+          queryCountObjects("--sources TEST AB-TEST") == 1
+    }
+
+    def "--sources search in test and grs"() {
+      given:
+        databaseHelper.addObjectToSource("1-GRS", "role: Grs Role\nnic-hdl: AB-TEST")
+        databaseHelper.addObject("" +
+                "role:    Abuse Me\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "e-mail:  dbtest@ripe.net\n" +
+                "admin-c: AB-TEST\n" +
+                "tech-c:  AB-TEST\n" +
+                "nic-hdl: AB-TEST\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:  TST-MNT2\n" +
+                "changed: dbtest@ripe.net 20121016\n" +
+                "source:  TEST")
+
+      expect:
+        queryObject("--sources TEST,1-GRS AB-TEST", "role", "Abuse Me")
+        queryObject("--sources TEST,1-GRS AB-TEST", "role", "Grs Role")
+        queryCountObjects("--sources TEST,1-GRS AB-TEST") == 2
+    }
+
+    def "--resource found in grs-source"() {
+      given:
+        databaseHelper.addObjectToSource("1-GRS", "inet6num: 2001:2002::/64\nnetname: TEST-NET")
+
+      expect:
+        queryObject("--resource 2001:2002::/64", "inet6num", "2001:2001::/64")
+    }
+
+    def "--resource aut-num "() {
+      given:
+        databaseHelper.addObjectToSource("1-GRS", "aut-num: AS123")
+
+      expect:
+        queryObject("--resource AS123", "aut-num", "AS123")
+    }
+
 }

@@ -2,7 +2,6 @@ package net.ripe.db.whois.common.dao.jdbc;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -58,7 +57,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private DataSource dnsCheckDataSource;
 
     private JdbcTemplate aclTemplate;
-    private JdbcTemplate schedulerTemplate;
     private JdbcTemplate mailupdatesTemplate;
     private JdbcTemplate pendingUpdatesTemplate;
     private JdbcTemplate delegatedStatsTemplate;
@@ -77,12 +75,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     @Qualifier("aclDataSource")
     public void setAclTemplate(final DataSource aclDataSource) {
         this.aclTemplate = new JdbcTemplate(aclDataSource);
-    }
-
-    @Autowired(required = false)
-    @Qualifier("schedulerDataSource")
-    public void setSchedulerDataSource(DataSource schedulerDataSource) {
-        schedulerTemplate = new JdbcTemplate(schedulerDataSource);
     }
 
     @Autowired(required = false)
@@ -226,11 +218,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     public void setup() {
         // Setup configured sources
-        final Splitter splitter = Splitter.on(',');
-        final Iterable<String> mainSources = Collections.singletonList(valueResolver.resolveStringValue("${whois.source}"));
-        final Iterable<String> grsSources = splitter.split(valueResolver.resolveStringValue("${grs.sources:}"));
-        final Iterable<String> nrtmSources = splitter.split(valueResolver.resolveStringValue("${nrtm.import.sources:}"));
-        final Set<String> sources = Sets.newLinkedHashSet(Iterables.concat(mainSources, grsSources, nrtmSources));
+        final Splitter splitter = Splitter.on(',').trimResults().omitEmptyStrings();
+        final String sourcesConfig = valueResolver.resolveStringValue("${whois.source},${nrtm.import.sources:},${grs.sources:}");
+        final Set<String> sources = Sets.newHashSet(splitter.split(sourcesConfig));
 
         for (final String source : sources) {
             try {
@@ -242,7 +232,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             }
         }
 
-        truncateTables(aclTemplate, schedulerTemplate, mailupdatesTemplate, internalsTemplate);
+        truncateTables(aclTemplate, mailupdatesTemplate, internalsTemplate);
+        loadScripts(internalsTemplate, "internals_data.sql");
     }
 
     public DataSource getMailupdatesDataSource() {

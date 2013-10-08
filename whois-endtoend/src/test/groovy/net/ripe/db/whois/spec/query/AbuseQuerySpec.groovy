@@ -209,6 +209,51 @@ class AbuseQuerySpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
+                "ROLE":"""\
+                role:    Abuse Me
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                admin-c: AB-TEST
+                tech-c:  AB-TEST
+                nic-hdl: AB-TEST
+                abuse-mailbox: abuse@test.net
+                mnt-by:  TST-MNT2
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+                """,
+                "ORG-W-ABUSE_C": """\
+                organisation:    ORG-FO1-TEST
+                org-type:        other
+                org-name:        First Org
+                org:             ORG-FO1-TEST
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                abuse-c:         AB-TEST
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                changed:         denis@ripe.net 20121016
+                source:          TEST
+                """,
+                "AUTNUM": """\
+                aut-num:        AS200
+                as-name:        ASTEST
+                descr:          description
+                org:            ORG-FO1-TEST
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                """
         ]
     }
 
@@ -842,4 +887,36 @@ class AbuseQuerySpec extends BaseSpec {
         ! queryLineMatches("-b 192.168.0.0 - 192.168.255.255", "% Information related to '192.168.0.0/16AS2000'")
     }
 
+    def "query -b aut-num with abuse-c"() {
+        given:
+            databaseHelper.addObject(getTransient("ROLE"))
+            databaseHelper.addObject(getTransient("ORG-W-ABUSE_C"))
+            databaseHelper.addObject(getTransient("AUTNUM"))
+
+        expect:
+            queryObject("--abuse-contact AS200", "aut-num", "AS200")
+            queryObject("--abuse-contact AS200", "abuse-mailbox", "abuse@test.net")
+            !(query("--abuse-contact AS200") =~ "%WARNING:902: useless IP flag passed")
+    }
+
+    def "query -b aut-num without abuse-c"() {
+        given:
+            databaseHelper.addObject("" +
+                    "aut-num:        AS200\n" +
+                    "as-name:        ASTEST\n" +
+                    "descr:          description\n" +
+                    "import:         from AS1 accept ANY\n" +
+                    "export:         to AS1 announce AS2\n" +
+                    "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                    "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                    "admin-c:        TP1-TEST\n" +
+                    "tech-c:         TP1-TEST\n" +
+                    "mnt-by:         OWNER-MNT\n" +
+                    "changed:        noreply@ripe.net 20120101\n" +
+                    "source:         TEST")
+
+        expect:
+            queryObject("--abuse-contact AS200", "aut-num", "AS200")
+            queryObjectNotFound("--abuse-contact AS200", "abuse-mailbox", "abuse@test.net")
+    }
 }

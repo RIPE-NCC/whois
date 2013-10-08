@@ -58,7 +58,7 @@ public class CompareQueryResults {
 
     public void runCompareTest() throws Exception {
         LOGGER.info("Diffs saved in: {}", targetDir.getAbsolutePath());
-        assertFalse("Dir should not exist: ls -la " + targetDir.getAbsolutePath(), targetDir.exists());
+        assertFalse("Dir should not exist: " + targetDir.getAbsolutePath(), targetDir.exists());
         assertTrue("Unable to create: " + targetDir.getAbsolutePath(), targetDir.mkdirs());
         assertTrue(new File(targetDir, "0_deltas_go_here.txt").createNewFile());
 

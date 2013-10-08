@@ -14,8 +14,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import java.util.Arrays;
-
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.Assert.assertThat;
@@ -36,7 +34,7 @@ public class AuthoritativeResourceDataTest {
 
     @Before
     public void setUp() {
-        subject = new AuthoritativeResourceData(Arrays.asList("TEST"), resourceDataDao, dailySchedulerDao, dateTimeProvider);
+        subject = new AuthoritativeResourceData("TEST", resourceDataDao, dailySchedulerDao, dateTimeProvider);
     }
 
     @Test

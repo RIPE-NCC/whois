@@ -15,28 +15,33 @@ import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
-class AuthoritativeResourceLoader {
+public class AuthoritativeResourceLoader {
     private static final Pattern RESOURCELINE = Pattern.compile("^([a-zA-Z]+)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)(?:\\|.*|$)");
-    private static final Set<String> ALLOWED_STATUS = Sets.newHashSet("allocated", "assigned", "available", "reserved");
 
     private final Logger logger;
     private final String name;
     private final Scanner scanner;
+    private final Set<String> allowedStatus;
 
     private final Set<CIString> autNums = Sets.newHashSet();
     private final IntervalMap<Ipv4Resource, Ipv4Resource> inetnums = new NestedIntervalMap<>();
     private final IntervalMap<Ipv6Resource, Ipv6Resource> inet6nums = new NestedIntervalMap<>();
 
     public AuthoritativeResourceLoader(final Logger logger, final String name, final Scanner scanner) {
+        this(logger, name, scanner, Sets.newHashSet("allocated", "assigned", "available", "reserved"));
+    }
+
+    public AuthoritativeResourceLoader(final Logger logger, final String name, final Scanner scanner, final Set<String> allowedStatus) {
         this.logger = logger;
         this.name = name;
         this.scanner = scanner;
+        this.allowedStatus = allowedStatus;
     }
 
     public AuthoritativeResource load() {
         scanner.useDelimiter("\n");
 
-        final String expectedSource = name.replace("-GRS", "").toLowerCase();
+        final String expectedSource = name.toLowerCase().replace("-grs", "");
 
         while (scanner.hasNext()) {
             final String line = scanner.next();
@@ -70,7 +75,7 @@ class AuthoritativeResourceLoader {
             return;
         }
 
-        if (!ALLOWED_STATUS.contains(status)) {
+        if (!allowedStatus.contains(status)) {
             logger.debug("Ignoring status '{}': {}", status, line);
             return;
         }

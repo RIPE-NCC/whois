@@ -190,7 +190,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
                     .request()
                     .get(String.class);
 
-        assertThat(response, containsString("Error:   Unrecognized source: invalid"));
+        assertThat(response, containsString("Error:   Unrecognized source: INVALID"));
     }
 
     @Test
@@ -298,6 +298,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
     @Override
     protected WebTarget createResource(final Audience audience, final String path) {
-        return client.target(String.format("http://localhost:%s/%s", getPort(audience), path));
+        return client.target(String.format("http://localhost:%d/%s", getPort(audience), path));
     }
 }

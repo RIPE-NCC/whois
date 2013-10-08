@@ -46,6 +46,7 @@ public class AttributeSanitizer {
         SANITIZER_MAP.put(AttributeType.ALIAS, new AliasSanitizer());
         SANITIZER_MAP.put(AttributeType.CHANGED, new ChangedSanitizer());
         SANITIZER_MAP.put(AttributeType.DS_RDATA, new DsRdataSanitizer());
+        SANITIZER_MAP.put(AttributeType.SOURCE, new SourceSanitizer());
 
         // add the default sanitizer for keys and primary attributes
         for (ObjectTemplate objectTemplate : ObjectTemplate.getTemplates()) {
@@ -237,6 +238,13 @@ public class AttributeSanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
             return Ipv6Resource.parse(attribute.getCleanValue()).toString();
+        }
+    }
+
+    private class SourceSanitizer extends Sanitizer {
+        @Override
+        public String sanitize(final RpslObject object, final RpslAttribute attribute) {
+            return attribute.getCleanValue().toUpperCase();
         }
     }
 }

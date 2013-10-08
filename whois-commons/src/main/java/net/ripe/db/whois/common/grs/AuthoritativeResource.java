@@ -54,19 +54,17 @@ public class AuthoritativeResource {
         this.inet6Ranges = inet6Ranges;
         this.nrInetRanges = inetRanges.findExactAndAllMoreSpecific(Ipv4Resource.MAX_RANGE).size();
         this.nrInet6Ranges = inet6Ranges.findExactAndAllMoreSpecific(Ipv6Resource.MAX_RANGE).size();
-
-        logger.info("Resources: {}", String.format("asn: %5d; ipv4: %5d; ipv6: %5d", getNrAutNums(), getNrInetnums(), getNrInet6nums()));
     }
 
-    int getNrAutNums() {
+    public int getNrAutNums() {
         return autNums.size();
     }
 
-    int getNrInetnums() {
+    public int getNrInetnums() {
         return nrInetRanges;
     }
 
-    int getNrInet6nums() {
+    public int getNrInet6nums() {
         return nrInet6Ranges;
     }
 
@@ -102,6 +100,7 @@ public class AuthoritativeResource {
         return new Ipv6Resource(resources.get(0).begin(), resources.get(resources.size() - 1).end());
     }
 
+    // TODO: since authresource is a dumb container of resources, perhaps containsExactly() would be a better name for this
     public boolean isMaintainedByRir(final ObjectType objectType, final CIString pkey) {
         try {
             switch (objectType) {
@@ -161,6 +160,7 @@ public class AuthoritativeResource {
         }
     }
 
+    // TODO: since authresource is a dumb container of resources, perhaps contains() or encompasses() would be a better name for this
     public boolean isMaintainedInRirSpace(final RpslObject rpslObject) {
         return isMaintainedInRirSpace(rpslObject.getType(), rpslObject.getKey());
     }
@@ -230,5 +230,5 @@ public class AuthoritativeResource {
                 })
         ));
     }
-
 }
+

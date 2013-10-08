@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.acl;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.common.domain.IpInterval;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -24,7 +25,7 @@ public class AclServiceDaoTest extends AbstractIntegrationTest {
         assertThat(limits, hasSize(1));
 
         final Limit limit = limits.get(0);
-        assertThat(limit.getPrefix(), is("0/0"));
+        assertThat(limit.getPrefix(), is("0.0.0.0/0"));
         assertThat(limit.getComment(), is("Root"));
         assertThat(limit.getPersonObjectLimit(), is(1000));
         assertThat(limit.isUnlimitedConnections(), is(false));
@@ -39,7 +40,7 @@ public class AclServiceDaoTest extends AbstractIntegrationTest {
         assertThat(limits, hasSize(1));
 
         final Limit limit = limits.get(0);
-        assertThat(limit.getPrefix(), is("0/0"));
+        assertThat(limit.getPrefix(), is("0.0.0.0/0"));
         assertThat(limit.getComment(), is("Root IPv4 object"));
         assertThat(limit.getPersonObjectLimit(), is(10));
         assertThat(limit.isUnlimitedConnections(), is(true));
@@ -48,7 +49,7 @@ public class AclServiceDaoTest extends AbstractIntegrationTest {
     @Test
     public void deleteLimit() {
         subject.createLimit(new Limit("0/0", "Root", 1000, false));
-        subject.deleteLimit("0/0");
+        subject.deleteLimit(IpInterval.parse("0/0"));
 
         final List<Limit> limits = subject.getLimits();
         assertThat(limits, hasSize(0));
@@ -70,15 +71,15 @@ public class AclServiceDaoTest extends AbstractIntegrationTest {
     public void getBan() {
         subject.createBan(new Ban("10.0.0.0/32", "Abuse", new Date()));
 
-        final Ban ban = subject.getBan("10.0.0.0/32");
+        final Ban ban = subject.getBan(IpInterval.parse("10.0.0.0/32"));
         assertThat(ban.getPrefix(), is("10.0.0.0/32"));
         assertThat(ban.getComment(), is("Abuse"));
     }
 
     @Test(expected = EmptyResultDataAccessException.class)
     public void getBan_not_found() {
-        subject.createBan(new Ban("10.0.0.0/32", "Abuse", new Date()));
-        subject.getBan("10.0.0.0");
+        subject.createBan(new Ban("192.0.0.0/32", "Abuse", new Date()));
+        subject.getBan(IpInterval.parse("10.0.0.0"));
     }
 
     @Test
@@ -97,7 +98,7 @@ public class AclServiceDaoTest extends AbstractIntegrationTest {
     @Test
     public void deleteBan() {
         subject.createBan(new Ban("10.0.0.0/32", "Abuse", new Date()));
-        subject.deleteBan("10.0.0.0/32");
+        subject.deleteBan(IpInterval.parse("10.0.0.0/32"));
 
         final List<Ban> bans = subject.getBans();
         assertThat(bans, hasSize(0));
@@ -105,9 +106,9 @@ public class AclServiceDaoTest extends AbstractIntegrationTest {
 
     @Test
     public void createBanEvent() throws Exception {
-        subject.createBanEvent("10.0.0.0/32", Type.BLOCK_TEMPORARY);
+        subject.createBanEvent(IpInterval.parse("10.0.0.0/32"), Type.BLOCK_TEMPORARY);
 
-        final List<BanEvent> banEvents = subject.getBanEvents("10.0.0.0/32");
+        final List<BanEvent> banEvents = subject.getBanEvents(IpInterval.parse("10.0.0.0/32"));
         assertThat(banEvents, hasSize(1));
         assertThat(banEvents.get(0).getPrefix(), is("10.0.0.0/32"));
         assertThat(banEvents.get(0).getType(), is(Type.BLOCK_TEMPORARY));
@@ -117,15 +118,15 @@ public class AclServiceDaoTest extends AbstractIntegrationTest {
     public void getProxy() {
         subject.createProxy(new Proxy("10.0.0.0/32", "test"));
 
-        final Proxy proxy = subject.getProxy("10.0.0.0/32");
+        final Proxy proxy = subject.getProxy(IpInterval.parse("10.0.0.0/32"));
         assertThat(proxy.getPrefix(), is("10.0.0.0/32"));
         assertThat(proxy.getComment(), is("test"));
     }
 
     @Test(expected = EmptyResultDataAccessException.class)
     public void getProxy_not_found() {
-        subject.createProxy(new Proxy("10.0.0.0/32", "test"));
-        subject.getProxy("10.0.0.0");
+        subject.createProxy(new Proxy("192.0.0.0/32", "test"));
+        subject.getProxy(IpInterval.parse("10.0.0.0"));
     }
 
     @Test
@@ -156,7 +157,7 @@ public class AclServiceDaoTest extends AbstractIntegrationTest {
     @Test
     public void deleteProxy() {
         subject.createProxy(new Proxy("10.0.0.0/32", "Test"));
-        subject.deleteProxy("10.0.0.0/32");
+        subject.deleteProxy(IpInterval.parse("10.0.0.0/32"));
 
         final List<Proxy> proxies = subject.getProxies();
         assertThat(proxies, hasSize(0));
@@ -176,7 +177,7 @@ public class AclServiceDaoTest extends AbstractIntegrationTest {
     @Test
     public void getMirror() {
         subject.createMirror(new Mirror("127.0.0.1/32", "comment"));
-        final Mirror mirror = subject.getMirror("127.0.0.1/32");
+        final Mirror mirror = subject.getMirror(IpInterval.parse("127.0.0.1/32"));
 
         assertThat(mirror.getPrefix(), is("127.0.0.1/32"));
         assertThat(mirror.getComment(), is("comment"));
@@ -202,7 +203,7 @@ public class AclServiceDaoTest extends AbstractIntegrationTest {
         List<Mirror> mirrors = subject.getMirrors();
         assertThat(mirrors, hasSize(1));
 
-        subject.deleteMirror("127.0.0.1/32");
+        subject.deleteMirror(IpInterval.parse("127.0.0.1/32"));
 
         mirrors = subject.getMirrors();
         assertThat(mirrors, hasSize(0));

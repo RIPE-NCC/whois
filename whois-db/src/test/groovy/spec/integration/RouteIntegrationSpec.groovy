@@ -1285,10 +1285,11 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update2
                             """.stripIndent()))
       then:
-        identical =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123\n/
-        identical =~ /\*\*\*Error:   Authorisation for \[inetnum\] 197.0.0.0 - 197.0.0.255 failed\n/
-        identical != ~/\*\*\*Warning: This update has only passed one of the two/
-        identical != ~/\*\*\*Info:    The route object 197.0.0.0\/24AS123 will be saved/
+        identical =~ /Noop PENDING:\s+\[route\] 197.0.0.0\/24AS123\n/
+        identical =~ /\*\*\*Info:\s+Authorisation for \[inetnum\] 197.0.0.0 - 197.0.0.255 failed\n/
+        identical != ~/\*\*\*Warning:\s+This update has only passed one of the two/
+        identical != ~/\*\*\*Info:\s+The route object 197.0.0.0\/24AS123 will be saved/
+        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1

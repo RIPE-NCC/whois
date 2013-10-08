@@ -21,6 +21,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// downloader is tested in whois-api integration tests, so that tests run without internet access
 @Component
 public class Downloader {
     private static final Pattern MD5_CAPTURE_PATTERN = Pattern.compile("([a-fA-F0-9]{32})");
@@ -40,18 +41,19 @@ public class Downloader {
     }
 
     @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
-    public void downloadGrsData(final Logger logger, final URL url, final Path path) throws IOException {
-        try (InputStream is = url.openStream();
-             InputStream md5Stream = new URL(String.format("%s.md5", url)).openStream();
-             InputStream resourceDataStream = Files.newInputStream(path, StandardOpenOption.READ);
-        ) {
+    public void downloadToWithMd5Check(final Logger logger, final URL url, final Path path) throws IOException {
+        try (InputStream is = url.openStream()) {
             downloadToFile(logger, is, path);
-            checkMD5(resourceDataStream, md5Stream);
+
+            try (InputStream resourceDataStream = Files.newInputStream(path, StandardOpenOption.READ);
+                 InputStream md5Stream = new URL(url + ".md5").openStream()) {
+                checkMD5(resourceDataStream, md5Stream);
+            }
         }
     }
 
     @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
-    public void downloadToFile(final Logger logger, final URL url, final Path path) throws IOException {
+    public void downloadTo(final Logger logger, final URL url, final Path path) throws IOException {
         logger.debug("Downloading {} from {}", path, url);
 
         try (InputStream is = url.openStream()) {
@@ -59,22 +61,21 @@ public class Downloader {
         }
     }
 
-    void downloadToFile(final Logger logger, final InputStream is, final Path path) throws IOException {
-        Files.createDirectories(path);
-        Files.deleteIfExists(path);
+    void downloadToFile(final Logger logger, final InputStream is, final Path file) throws IOException {
+        Files.createDirectories(file.getParent());
 
         final Stopwatch stopwatch = new Stopwatch().start();
 
         try (ReadableByteChannel rbc = Channels.newChannel(is);
-             FileChannel fc = FileChannel.open(path);
+             FileChannel fc = FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
         ) {
             fc.transferFrom(rbc, 0, Long.MAX_VALUE);
         }
 
-        if (Files.size(path) == 0) {
-            throw new IllegalStateException(String.format("Empty file: %s", path));
+        if (Files.size(file) == 0) {
+            throw new IllegalStateException(String.format("Empty file: %s", file));
         }
 
-        logger.debug("Downloaded {} in {}", path, stopwatch.stop());
+        logger.debug("Downloaded {} in {}", file, stopwatch.stop());
     }
 }

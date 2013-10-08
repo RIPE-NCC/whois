@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.acl;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.etree.IntersectingIntervalException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +39,7 @@ public class AclLimitServiceTest {
         final Response response = subject.getLimit("0/0");
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
         assertThat(response.getEntity(), instanceOf(Limit.class));
-        assertThat(((Limit) response.getEntity()).getPrefix(), is("0/0"));
+        assertThat(((Limit) response.getEntity()).getPrefix(), is("0.0.0.0/0"));
     }
 
     @Test
@@ -49,7 +50,7 @@ public class AclLimitServiceTest {
         final Response response = subject.getLimit("10.0.0.0/32");
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
         assertThat(response.getEntity(), instanceOf(Limit.class));
-        assertThat(((Limit) response.getEntity()).getPrefix(), is("0/0"));
+        assertThat(((Limit) response.getEntity()).getPrefix(), is("0.0.0.0/0"));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -114,7 +115,7 @@ public class AclLimitServiceTest {
         final Response response = subject.deleteLimit("0/0");
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
-        verify(aclServiceDao).deleteLimit(anyString());
+        verify(aclServiceDao).deleteLimit(any(IpInterval.class));
     }
 
     @Test
@@ -125,7 +126,7 @@ public class AclLimitServiceTest {
         final Response response = subject.deleteLimit("::0/0");
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
-        verify(aclServiceDao).deleteLimit(anyString());
+        verify(aclServiceDao).deleteLimit(any(IpInterval.class));
     }
 
     @Test
@@ -136,7 +137,7 @@ public class AclLimitServiceTest {
         final Response response = subject.deleteLimit("10.0.0.0/32");
         assertThat(response.getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
 
-        verify(aclServiceDao, never()).deleteLimit(anyString());
+        verify(aclServiceDao, never()).deleteLimit(any(IpInterval.class));
     }
 
     @Test
@@ -150,6 +151,6 @@ public class AclLimitServiceTest {
         final Response response = subject.deleteLimit("10.0.0.0/32");
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
-        verify(aclServiceDao).deleteLimit("10.0.0.0/32");
+        verify(aclServiceDao).deleteLimit(IpInterval.parse("10.0.0.0/32"));
     }
 }

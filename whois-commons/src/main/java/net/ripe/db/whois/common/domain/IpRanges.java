@@ -19,7 +19,7 @@ public class IpRanges {
     @Value("${ipranges.trusted}")
     public void setTrusted(final String... trusted) {
         this.trusted = getIntervals(trusted);
-        LOGGER.info("trusted ranges: {}", this.trusted);
+        LOGGER.info("Trusted ranges: {}", this.trusted);
     }
 
     public boolean isTrusted(final Interval ipResource) {

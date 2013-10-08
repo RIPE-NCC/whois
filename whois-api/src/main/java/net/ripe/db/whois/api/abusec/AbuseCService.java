@@ -5,21 +5,20 @@ import net.ripe.db.whois.api.whois.InternalJob;
 import net.ripe.db.whois.api.whois.InternalUpdatePerformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.Source;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.annotation.Nullable;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -31,18 +30,17 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 @Path("/abusec")
 public class AbuseCService {
     private final RpslObjectDao objectDao;
-    private final String source;
+    private Source source;
     private final InternalUpdatePerformer updatePerformer;
     private final LoggerContext loggerContext;
 
-
     @Autowired
-    public AbuseCService(@Value("${whois.source}") final String source,
+    public AbuseCService(final SourceContext sourceContext,
                          final RpslObjectDao objectDao,
                          final InternalUpdatePerformer updatePerformer,
                          final LoggerContext loggerContext) {
         this.objectDao = objectDao;
-        this.source = source;
+        this.source = sourceContext.getCurrentSource();
         this.updatePerformer = updatePerformer;
         this.loggerContext = loggerContext;
     }
@@ -55,8 +53,9 @@ public class AbuseCService {
             @PathParam("orgkey") final String orgkey,
             @FormParam("email") final String email) {
         final RpslObject organisation = objectDao.getByKey(ORGANISATION, orgkey);
-        if (hasAbuseC(organisation)) {
-            return Response.status(Response.Status.CONFLICT).entity("This organisation already has an abuse contact").build();
+        final CIString abuseContact = getAbuseContact(organisation);
+        if (abuseContact != null) {
+            return Response.status(Response.Status.CONFLICT).entity(abuseContact.toString()).build();
         }
 
         final RpslObject role = buildRole(organisation, email);
@@ -78,11 +77,15 @@ public class AbuseCService {
                 Keyword.NONE,
                 loggerContext);
 
-        return Response.ok(String.format("http://apps.db.ripe.net/whois/lookup/%s/organisation/%s.html", source, orgkey)).build();
+        return Response.ok(String.format("http://rest.db.ripe.net/%s/organisation/%s.html", source.getName(), orgkey)).build();
     }
 
-    private boolean hasAbuseC(final RpslObject organisation) {
-        return !organisation.findAttributes(ABUSE_C).isEmpty();
+    @Nullable
+    private CIString getAbuseContact(final RpslObject organisation) {
+        final List<RpslAttribute> abuseContactAttribute = organisation.findAttributes(ABUSE_C);
+        return abuseContactAttribute.isEmpty() ?
+                null :
+                objectDao.getByKey(ObjectType.ROLE, abuseContactAttribute.get(0).getCleanValue().toString()).getValueForAttribute(AttributeType.ABUSE_MAILBOX);
     }
 
     private RpslObject buildRole(final RpslObject organisation, final String email) {
@@ -96,7 +99,7 @@ public class AbuseCService {
         }
         builder.append("\ne-mail:").append(organisation.getValueForAttribute(E_MAIL));
         builder.append("\nchanged:").append(organisation.getValueForAttribute(E_MAIL));
-        builder.append("\nsource: ").append(source);
+        builder.append("\nsource: ").append(source.getName());
 
         return RpslObject.parse(builder.toString());
     }

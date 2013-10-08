@@ -1,0 +1,29 @@
+[mysqld]
+max_connections=1024
+back_log=200
+connect_timeout=20
+net_read_timeout=60
+net_retry_count=20
+net_write_timeout=60
+wait_timeout=31536000
+table_cache=2048
+
+max_connect_errors=4294967295
+open_files_limit=16384
+
+# we need big packet sizes as some objects are very big
+max_allowed_packet=20M
+
+innodb_thread_concurrency = 0
+
+# as we only have innodb databases, this should be set to use all the memory available
+innodb_buffer_pool_size=256M
+# Make sure it is big enough to store data about all your InnoDB tables (you will see warnings in the error log if the server is using OS memory instead).
+innodb_additional_mem_pool_size=32M
+innodb_data_file_path = ibdata1:1G:autoextend
+innodb_log_files_in_group=2
+innodb_log_file_size=32M
+innodb_log_buffer_size=32M
+innodb_flush_log_at_trx_commit=0
+
+default-storage-engine=innodb

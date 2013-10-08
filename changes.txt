@@ -1,16 +1,24 @@
-## next
-[query] added support for --valid-syntax
-[api] added abuse contact creation "for dummies" rest call
-[api] added table 'apikeys' to acl schema
-[all] removed useless thread_id, prev_serial, serial fields from SQL schema
-[all] remove leftover wsearch.* from properties file
-[api] Updated to Lucene 4.4 (TODO re-generate freetext index)
+## 1.70
+[query] added option --valid-syntax
+[update] added pending route creation
+[api] renamed abuse-finder to abuse-contact (also changed references on DbWebWar abusefinder branch)
+[api] added abuse contact creation helper rest call
+[api] moved apikeys from properties to acl database
+[api] Updated to Lucene 4.4
+[all] removed useless thread_id, prev_serial, serial fields and dropped unused tables from SQL schema
 [all] merged pending and scheduler databases into internals
 [all] added table autoritative_data to interals database
-[all] changed dailyscheduledtasks to run distributed in the cluster
-[all] changed scheduler database to accommodate to distributed run
+[all] dailyscheduledtasks now runs distributed in the cluster
+[DEPLOY] remove leftover wsearch.* from properties file
+[DEPLOY] run whois-common/sql/apikeys.sql on master before starting first 1.70
+[DEPLOY] run internals-1.70.sql on master before starting first 1.70
+[DEPLOY] delete var/idx before starting 1.70
+[DEPLOY] execute JMX call DailyScheduler.runDailyScheduledTask net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask, on the first server only
+[DEPLOY] run JMX call AuthoritativeResources.refreshCache on all servers started before AuthoritativeResourceImport finished
+[DEPLOY] run whois-1.70.sql after all nodes run 1.70 (warning: blocks updates & takes a long time!) (65 mins on pre-production)
+[DEPLOY] run whois-1.70.sql on all GRS databases, too
 
-## 1.69
+## 1.69 (deployed on 2013-09-23)
 [update] enable dry-run
 [api] changed rest API create: POST supports '/ripe/person' format only
 [api] adjust mod_proxy config for POST accordingly
@@ -20,7 +28,7 @@
 [query] adjusted hierarchical lookup of direct route object keys
 [query] fixed search on mixed-case domain postfix
 
-## 1.68
+## 1.68.1 (deployed on 2013-08-29)
 [api] revamped API to follow the REST paradigm more closely
 
 ## 1.67.7

@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.TagResponseObject;
@@ -18,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.xml.stream.XMLStreamException;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -171,5 +173,19 @@ public class WhoisObjectMapperTest {
         final WhoisTag tag3 = tags.get(2);
         assertThat(tag3.getId(), is("barf"));
         assertThat(tag3.getData(), is("barf data"));
+    }
+
+    @Test
+    public void map_abuse_contact() throws XMLStreamException {
+        final AbuseResources result = subject.mapAbuseContact(
+                "AS333",
+                Lists.newArrayList(
+                        new RpslAttribute("aut-num", "AS333"),
+                        new RpslAttribute("abuse-mailbox", "abuse@net.net")));
+
+        assertThat(result.getAbuseContact().getEmail(), is("abuse@net.net"));
+        assertThat(result.getLink().getHref(), is("http://rest.db.ripe.net/abuse-contact/AS333"));
+        assertThat(result.getParameters().getPrimaryKey().getValue(), is("AS333"));
+        assertThat(result.getService(), is("abuse-contact"));
     }
 }

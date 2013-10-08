@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.acl;
 
+import net.ripe.db.whois.common.domain.IpInterval;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -49,7 +50,7 @@ public class AclMirrorService {
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getMirror(@PathParam("prefix") String prefix) {
-        final String normalizedPrefix = getNormalizedPrefix(prefix);
+        final IpInterval<?> normalizedPrefix = getNormalizedPrefix(prefix);
 
         try {
             return Response.ok(aclServiceDao.getMirror(normalizedPrefix)).build();
@@ -70,8 +71,8 @@ public class AclMirrorService {
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response saveMirror(final Mirror mirror) {
-        final String normalizedPrefix = getNormalizedPrefix(mirror.getPrefix());
-        mirror.setPrefix(normalizedPrefix);
+        final IpInterval<?> normalizedPrefix = getNormalizedPrefix(mirror.getPrefix());
+        mirror.setPrefix(normalizedPrefix.toString());
 
         try {
             aclServiceDao.getMirror(normalizedPrefix);
@@ -95,7 +96,7 @@ public class AclMirrorService {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response deleteMirror(@PathParam("prefix") final String prefix) {
         try {
-            final String normalizedPrefix = getNormalizedPrefix(prefix);
+            final IpInterval<?> normalizedPrefix = getNormalizedPrefix(prefix);
 
             final Mirror mirror = aclServiceDao.getMirror(normalizedPrefix);
             aclServiceDao.deleteMirror(normalizedPrefix);

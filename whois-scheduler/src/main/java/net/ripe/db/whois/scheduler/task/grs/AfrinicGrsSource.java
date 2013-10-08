@@ -38,7 +38,7 @@ class AfrinicGrsSource extends GrsSource {
 
     @Override
     public void acquireDump(final Path path) throws IOException {
-        downloader.downloadToFile(logger, new URL(download), path);
+        downloader.downloadTo(logger, new URL(download), path);
     }
 
     @Override

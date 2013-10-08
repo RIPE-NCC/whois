@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.grs;
 
 import com.google.common.base.Function;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -20,13 +21,13 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Component
 public class AuthoritativeResourceData {
     private final static Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceData.class);
+    private static final Splitter PROPERTY_LIST_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
     private final static int REFRESH_DELAY = 60 * 60 * 1000;
 
     private final ResourceDataDao resourceDataDao;
@@ -38,13 +39,13 @@ public class AuthoritativeResourceData {
     private final Map<String, AuthoritativeResource> authoritativeResourceCache = Maps.newHashMap();
 
     @Autowired
-    public AuthoritativeResourceData(@Value("${grs.sources}") final List<String> grsSourceNames,
+    public AuthoritativeResourceData(@Value("${grs.sources}") final String grsSourceNames,
                                      final ResourceDataDao resourceDataDao,
                                      final DailySchedulerDao dailySchedulerDao, DateTimeProvider dateTimeProvider) {
         this.resourceDataDao = resourceDataDao;
         this.dailySchedulerDao = dailySchedulerDao;
         this.dateTimeProvider = dateTimeProvider;
-        this.sourceNames = Sets.newHashSet(Iterables.transform(grsSourceNames, new Function<String, String>() {
+        this.sourceNames = Sets.newHashSet(Iterables.transform(PROPERTY_LIST_SPLITTER.split(grsSourceNames), new Function<String, String>() {
             @Nullable
             @Override
             public String apply(@Nullable String input) {

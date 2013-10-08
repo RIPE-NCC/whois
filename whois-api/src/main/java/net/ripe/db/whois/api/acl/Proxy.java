@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.acl;
 
+import net.ripe.db.whois.common.domain.IpInterval;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -18,7 +20,7 @@ public class Proxy {
     }
 
     public Proxy(final String prefix, final String comment) {
-        this.prefix = prefix;
+        this.prefix = IpInterval.parse(prefix).toString();
         this.comment = comment;
     }
 
@@ -31,7 +33,7 @@ public class Proxy {
     }
 
     public void setPrefix(final String prefix) {
-        this.prefix = prefix;
+        this.prefix = IpInterval.parse(prefix).toString();
     }
 
     /**

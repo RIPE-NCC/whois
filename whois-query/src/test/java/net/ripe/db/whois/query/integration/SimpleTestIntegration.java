@@ -108,6 +108,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         client.sendLine("-k");
 
         client.waitForResponseEndsWith(END_OF_HEADER);
+        client.clearBuffer();
 
         client.sendLine("-rBGxTinetnum 81.80.117.237 - 81.80.117.237");
         client.waitForResponseEndsWith(END_OF_HEADER);

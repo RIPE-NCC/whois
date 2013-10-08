@@ -33,7 +33,7 @@ class ToKeysFunction implements Function<ResponseObject, ResponseObject> {
             for (final RpslAttribute attribute : attributes) {
                 final AttributeType attributeType = attribute.getType();
 
-                if (keyAttributes.contains(attributeType) || (template.isSet() && AttributeType.MEMBERS.equals(attributeType))) {
+                if (keyAttributes.contains(attributeType) || (template.isSet() && (AttributeType.MEMBERS.equals(attributeType) || AttributeType.MP_MEMBERS.equals(attributeType)))) {
                     newAttributes.add(attribute);
                 }
             }

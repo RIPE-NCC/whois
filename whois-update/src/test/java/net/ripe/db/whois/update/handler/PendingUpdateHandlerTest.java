@@ -8,9 +8,10 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
+import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -72,7 +73,7 @@ public class PendingUpdateHandlerTest {
         testSubject.handle(preparedUpdate, updateContext);
 
         verify(pendingUpdateDao, never()).store(any(PendingUpdate.class));
-        verify(updateContext).addMessage(preparedUpdate, UpdateMessages.updateAlreadyPendingAuthentication());
+        verify(updateContext).setAction(any(UpdateContainer.class), eq(Action.NOOP));
     }
 
     @Test

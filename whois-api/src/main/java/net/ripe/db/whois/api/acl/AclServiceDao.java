@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.domain.IpInterval;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -60,8 +61,8 @@ class AclServiceDao {
                 limit.getPrefix());
     }
 
-    public void deleteLimit(final String prefix) {
-        aclTemplate.update("DELETE FROM acl_limit where prefix = ?", prefix);
+    public void deleteLimit(final IpInterval<?> prefix) {
+        aclTemplate.update("DELETE FROM acl_limit where prefix = ?", prefix.toString());
     }
 
     public List<Ban> getBans() {
@@ -80,7 +81,7 @@ class AclServiceDao {
         );
     }
 
-    public Ban getBan(final String prefix) {
+    public Ban getBan(final IpInterval<?> prefix) {
         return aclTemplate.queryForObject(
                 "SELECT prefix, comment, denied_date FROM acl_denied WHERE prefix = ?",
                 new RowMapper<Ban>() {
@@ -93,7 +94,7 @@ class AclServiceDao {
                         );
                     }
                 },
-                prefix
+                prefix.toString()
         );
     }
 
@@ -107,16 +108,16 @@ class AclServiceDao {
                 ban.getComment(), ban.getPrefix());
     }
 
-    public void deleteBan(final String prefix) {
-        aclTemplate.update("DELETE FROM acl_denied where prefix = ?", prefix);
+    public void deleteBan(final IpInterval<?> prefix) {
+        aclTemplate.update("DELETE FROM acl_denied where prefix = ?", prefix.toString());
     }
 
-    public void createBanEvent(final String prefix, final Type type) {
+    public void createBanEvent(final IpInterval<?> prefix, final Type type) {
         aclTemplate.update("INSERT INTO acl_event (prefix, event_time, event_type, daily_limit) VALUES (?, ?, ?, 0)",
-                prefix, dateTimeProvider.getCurrentDateTime().toDate(), type.name());
+                prefix.toString(), dateTimeProvider.getCurrentDateTime().toDate(), type.name());
     }
 
-    public List<BanEvent> getBanEvents(final String prefix) {
+    public List<BanEvent> getBanEvents(final IpInterval<?> prefix) {
         return aclTemplate.query(
                 "SELECT prefix, event_time, event_type, daily_limit FROM acl_event WHERE prefix = ? ORDER BY event_time DESC",
                 new RowMapper<BanEvent>() {
@@ -130,7 +131,7 @@ class AclServiceDao {
                         );
                     }
                 },
-                prefix
+                prefix.toString()
         );
     }
 
@@ -146,7 +147,7 @@ class AclServiceDao {
         );
     }
 
-    public Proxy getProxy(final String prefix) {
+    public Proxy getProxy(final IpInterval<?> prefix) {
         return aclTemplate.queryForObject(
                 "SELECT prefix, comment FROM acl_proxy WHERE prefix = ?",
                 new RowMapper<Proxy>() {
@@ -155,7 +156,7 @@ class AclServiceDao {
                         return new Proxy(rs.getString(1), rs.getString(2));
                     }
                 },
-                prefix
+                prefix.toString()
         );
     }
 
@@ -169,8 +170,8 @@ class AclServiceDao {
                 proxy.getComment(), proxy.getPrefix());
     }
 
-    public void deleteProxy(final String prefix) {
-        aclTemplate.update("DELETE FROM acl_proxy WHERE prefix = ?", prefix);
+    public void deleteProxy(final IpInterval<?> prefix) {
+        aclTemplate.update("DELETE FROM acl_proxy WHERE prefix = ?", prefix.toString());
     }
 
     public List<Mirror> getMirrors() {
@@ -187,7 +188,7 @@ class AclServiceDao {
         );
     }
 
-    public Mirror getMirror(final String prefix) {
+    public Mirror getMirror(final IpInterval<?> prefix) {
         return aclTemplate.queryForObject(
                 "SELECT prefix, comment FROM acl_mirror WHERE prefix = ?",
                 new RowMapper<Mirror>() {
@@ -196,7 +197,7 @@ class AclServiceDao {
                         return new Mirror(rs.getString(1), rs.getString(2));
                     }
                 },
-                prefix
+                prefix.toString()
         );
     }
 
@@ -210,7 +211,7 @@ class AclServiceDao {
                 mirror.getComment(), mirror.getPrefix());
     }
 
-    public void deleteMirror(final String prefix) {
-        aclTemplate.update("DELETE FROM acl_mirror WHERE prefix = ?", prefix);
+    public void deleteMirror(final IpInterval<?> prefix) {
+        aclTemplate.update("DELETE FROM acl_mirror WHERE prefix = ?", prefix.toString());
     }
 }

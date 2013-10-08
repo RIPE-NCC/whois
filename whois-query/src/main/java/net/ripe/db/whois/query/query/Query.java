@@ -41,7 +41,7 @@ public final class Query {
     private static final List<QueryValidator> QUERY_VALIDATORS = Lists.newArrayList(
             new MatchOperationValidator(),
             new ProxyValidator(),
-            new BriefValidator(),
+            new AbuseContactValidator(),
             new CombinationValidator(),
             new SearchKeyValidator(),
             new TagValidator(),
@@ -198,14 +198,14 @@ public final class Query {
     }
 
     public boolean isReturningIrt() {
-        return isBrief() || (!isKeysOnly() && hasOption(QueryFlag.IRT));
+        return isBriefAbuseContact() || (!isKeysOnly() && hasOption(QueryFlag.IRT));
     }
 
     public boolean isGrouping() {
-        return (!isKeysOnly() && !hasOption(QueryFlag.NO_GROUPING)) && !isBrief();
+        return (!isKeysOnly() && !hasOption(QueryFlag.NO_GROUPING)) && !isBriefAbuseContact();
     }
 
-    public boolean isBrief() {
+    public boolean isBriefAbuseContact() {
         return hasOption(QueryFlag.ABUSE_CONTACT);
     }
 
@@ -230,7 +230,7 @@ public final class Query {
     }
 
     public boolean isReturningReferencedObjects() {
-        return !(hasOption(QueryFlag.NO_REFERENCED) || isShortHand() || isKeysOnly() || isResource() || isBrief());
+        return !(hasOption(QueryFlag.NO_REFERENCED) || isShortHand() || isKeysOnly() || isResource() || isBriefAbuseContact());
     }
 
     public boolean isInverse() {
@@ -341,7 +341,7 @@ public final class Query {
     }
 
     public boolean hasIpFlags() {
-        return isLookupInBothDirections() || isBrief() || matchOperation != null;
+        return isLookupInBothDirections() || matchOperation != null;
     }
 
     public boolean hasObjectTypeFilter(ObjectType objectType) {

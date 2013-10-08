@@ -102,12 +102,15 @@ class FirstUpdatesSpec extends BaseSpec {
         def ack = ackFor message
 
         ack.failed
-        ack.summary.nrFound == 0
+        ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.garbageContains("\nperson:  First Person Error")
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errorMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
+                "Syntax error in 20121016",
+                "Mandatory attribute \"source\" is missing",
+        ]
 
         queryNothing("-rGBT person FPE1-TEST")
     }
@@ -295,10 +298,14 @@ class FirstUpdatesSpec extends BaseSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 1)
         ack.errorMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
                 "Syntax error in 20121016",
-                "Unrecognized source: owner"]
+                "Unrecognized source: OWNER"
+        ]
+        ack.infoMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
+                "Value owner converted to OWNER"
+        ]
         ack.garbageContains("\nqwerty qwerty")
         ack.garbageContains("\nasdfg asdfg")
 

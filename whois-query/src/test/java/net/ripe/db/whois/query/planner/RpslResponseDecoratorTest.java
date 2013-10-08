@@ -50,16 +50,16 @@ public class RpslResponseDecoratorTest {
     @Mock DummifyFunction dummifyFunction;
     @Mock FilterTagsDecorator filterTagsDecorator;
     @Mock FilterPlaceholdersDecorator filterPlaceholdersDecorator;
-    final String source = "RIPE";
 
     RpslResponseDecorator subject;
 
     @Before
     public void setup() {
-        subject = new RpslResponseDecorator(rpslObjectDaoMock, filterPersonalDecorator, sourceContext, abuseCFinder, dummifyFunction, filterTagsDecorator, filterPlaceholdersDecorator, source, decorator);
+        subject = new RpslResponseDecorator(rpslObjectDaoMock, filterPersonalDecorator, sourceContext, abuseCFinder, dummifyFunction, filterTagsDecorator, filterPlaceholdersDecorator, decorator);
         when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);
+        when(sourceContext.isMain()).thenReturn(true);
         Fixture.mockRpslObjectDaoLoadingBehavior(rpslObjectDaoMock);
 
         when(filterPersonalDecorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
@@ -218,7 +218,7 @@ public class RpslResponseDecoratorTest {
     public void non_grouping_and_recursive_no_rpsl_objects() {
         String result = execute("-G -B -T inetnum 10.0.0.0", RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.0"));
 
-        assertThat(result, is("inetnum:        10.0.0.0 - 10.0.0.0\n\n"));
+        assertThat(result, is("% No abuse contact registered for 10.0.0.0 - 10.0.0.0\n\ninetnum:        10.0.0.0 - 10.0.0.0\n\n"));
     }
 
     @Test
@@ -268,7 +268,7 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void non_grouping_and_recursive_with_recursive_objects() {
-        RpslObject rpslObject = RpslObject.parse(1, "inetnum: 10.0.0.0\ntech-c:NICHDL\norg:ORG1-TEST\nstatus:OTHER");
+        RpslObject rpslObject = RpslObject.parse("inetnum: 10.0.0.0\ntech-c:NICHDL\norg:ORG1-TEST\nstatus:OTHER");
         final HashMap<CIString, CIString> map = Maps.newHashMap();
         map.put(CIString.ciString("10.0.0.0"), CIString.ciString("abuse@ripe.net"));
         when(decorator.appliesToQuery(any(Query.class))).thenReturn(true);

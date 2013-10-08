@@ -61,7 +61,7 @@ public enum QueryFlag {
     PRIMARY_KEYS(new Builder("K", "primary-keys")
             .describedAs("" +
                     "Requests that only the primary keys of an object to be returned. " +
-                    "The exceptions are set objects, where the members attributes will also be returned. " +
+                    "The exceptions are set objects, where the (mp-)members attributes will also be returned. " +
                     "This flag does not apply to person and role objects.")),
 
     PERSISTENT_CONNECTION(new Builder("k", "persistent-connection")
@@ -115,7 +115,7 @@ public enum QueryFlag {
             .requiresArgument(String.class)),
 
     ALL_SOURCES(new Builder("a", "all-sources")
-            .describedAs("Specifies that the server should perform lookups in all available sources. See also \"-q sources\" or \"--all-sources\" query.")),
+            .describedAs("Specifies that the server should perform lookups in all available sources. See also the \"-q sources\" query.")),
 
     SOURCES(new Builder("s", "sources")
             .withSearchKey("(comma separated list of sources, no white space is allowed)")

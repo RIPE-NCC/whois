@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.authentication;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
@@ -39,7 +38,7 @@ public class Authenticator {
         this.ipRanges = ipRanges;
         this.userDao = userDao;
         this.loggerContext = loggerContext;
-        this.authenticationStrategies = Lists.newArrayList(authenticationStrategies);
+        this.authenticationStrategies = Arrays.asList(authenticationStrategies);
 
         final Map<CIString, Set<Principal>> tempPrincipalsMap = Maps.newHashMap();
         addMaintainers(tempPrincipalsMap, maintainers.getPowerMaintainers(), Principal.POWER_MAINTAINER);
@@ -209,11 +208,6 @@ public class Authenticator {
     }
 
     boolean isPending(final PreparedUpdate update, final UpdateContext updateContext, final Subject subject) {
-        // TODO: [AH] delete this when deploying pending updates
-        if (WhoisProfile.isDeployed()) {
-            return false;
-        }
-
         if (!Action.CREATE.equals(update.getAction())) {
             return false;
         }
@@ -224,8 +218,8 @@ public class Authenticator {
                 && subject.getPendingAuthentications().size() < typesWithPendingAuthenticationSupport.get(update.getType()).size();
     }
 
-    public boolean isAuthenticationForTypeComplete(final ObjectType objectType, final Set<String> authentications) {
+    public boolean isAuthenticationForTypeComplete(final ObjectType objectType, final PendingUpdate pendingUpdate) {
         final Set<String> authenticationStrategyNames = typesWithPendingAuthenticationSupport.get(objectType);
-        return authentications.containsAll(authenticationStrategyNames);
+        return pendingUpdate.getPassedAuthentications().containsAll(authenticationStrategyNames);
     }
 }

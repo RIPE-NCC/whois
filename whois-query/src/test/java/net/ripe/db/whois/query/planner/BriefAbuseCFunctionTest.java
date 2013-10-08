@@ -19,9 +19,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ToBriefFunctionTest {
+public class BriefAbuseCFunctionTest {
     @Mock private AbuseCFinder abuseCFinder;
-    @InjectMocks ToBriefFunction subject;
+    @InjectMocks BriefAbuseCFunction subject;
 
     @Test
     public void apply_resonseObject() {

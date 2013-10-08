@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
@@ -18,7 +18,6 @@ import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.*;
 
 @Component
 public class Loader {
-    private static final int NUM_LOADER_THREADS = 8;
     private final JdbcTemplate whoisTemplate;
     private final ObjectLoader objectLoader;
 
@@ -93,9 +92,10 @@ public class Loader {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
         // sadly Executors don't offer a bounded/blocking submit() implementation
-        final ExecutorService executorService = new ThreadPoolExecutor(NUM_LOADER_THREADS, NUM_LOADER_THREADS,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(256), new ThreadPoolExecutor.CallerRunsPolicy());
+        final int numThreads = Runtime.getRuntime().availableProcessors();
+        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(256);
+        final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
+                0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
 
         try {
             for (String nextObject = getNextObject(reader); nextObject != null; nextObject = getNextObject(reader)) {
@@ -108,9 +108,9 @@ public class Loader {
             try {
                 executorService.awaitTermination(1, TimeUnit.MINUTES);
             } catch (InterruptedException e) {
+                result.addText(e.getMessage() + "\n");
             }
         }
-
     }
 
     class RpslObjectProcessor implements Runnable {

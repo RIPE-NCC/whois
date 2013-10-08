@@ -10,13 +10,19 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-class ToBriefFunction implements Function<ResponseObject, ResponseObject> {
-    private static final Set<AttributeType> BRIEF_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.ABUSE_MAILBOX);
+import static net.ripe.db.whois.common.rpsl.ObjectType.*;
+
+class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
+    private static final Set<AttributeType> BRIEF_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.AUT_NUM, AttributeType.ABUSE_MAILBOX);
+    private static final Set<ObjectType> ABUSE_CONTACT_OBJECT_TYPES = Sets.immutableEnumSet(INET6NUM, INETNUM, AUT_NUM);
     private final AbuseCFinder abuseCFinder;
 
-    public ToBriefFunction(final AbuseCFinder abuseCFinder) {
+    public BriefAbuseCFunction(final AbuseCFinder abuseCFinder) {
         this.abuseCFinder = abuseCFinder;
     }
 
@@ -27,24 +33,22 @@ class ToBriefFunction implements Function<ResponseObject, ResponseObject> {
         }
 
         final RpslObject rpslObject = (RpslObject) input;
-        final List<RpslAttribute> attributes = rpslObject.getAttributes();
-        final List<RpslAttribute> newAttributes = new ArrayList<>();
-        final List<RpslAttribute> abuseCAttributes = new ArrayList<>();
 
-        if (rpslObject.getType() == ObjectType.INETNUM || rpslObject.getType() == ObjectType.INET6NUM) {
+        if (ABUSE_CONTACT_OBJECT_TYPES.contains(rpslObject.getType())) {
             final Map<CIString, CIString> abuseContacts = abuseCFinder.getAbuseContacts(rpslObject);
             if (!abuseContacts.isEmpty()) {
+                final List<RpslAttribute> abuseCAttributes = new ArrayList<>(2);
                 abuseCAttributes.add(rpslObject.getTypeAttribute());
-                final Iterator<CIString> iterator = abuseContacts.keySet().iterator();
-                while (iterator.hasNext()) {
-                    final CIString abuseContact = abuseContacts.get(iterator.next());
-                    abuseCAttributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseContact.toString()));
+                for (final CIString abuseContact : abuseContacts.keySet()) {
+                    abuseCAttributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseContacts.get(abuseContact).toString()));
                 }
                 return new RpslAttributes(abuseCAttributes);
             }
         }
 
-        for (final RpslAttribute attribute : attributes) {
+        // TODO: [AH] make this into a distinct responseobject, so that rest api can also display it
+        final List<RpslAttribute> newAttributes = new ArrayList<>(2);
+        for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             if (BRIEF_ATTRIBUTES.contains(attribute.getType())) {
                 newAttributes.add(attribute);
             }

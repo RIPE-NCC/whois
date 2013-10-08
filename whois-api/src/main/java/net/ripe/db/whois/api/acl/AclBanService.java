@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.acl;
 
 import net.ripe.db.whois.common.domain.BlockEvent;
+import net.ripe.db.whois.common.domain.IpInterval;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -47,7 +48,7 @@ public class AclBanService {
     @Path("/{prefix}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getBan(@PathParam("prefix") final String prefix) {
-        final String normalizedPrefix = getNormalizedPrefix(prefix);
+        final IpInterval normalizedPrefix = getNormalizedPrefix(prefix);
 
         try {
             return Response.ok(aclServiceDao.getBan(normalizedPrefix)).build();
@@ -68,8 +69,8 @@ public class AclBanService {
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response saveBan(final Ban ban) {
-        final String normalizedPrefix = getNormalizedPrefix(ban.getPrefix());
-        ban.setPrefix(normalizedPrefix);
+        final IpInterval normalizedPrefix = getNormalizedPrefix(ban.getPrefix());
+        ban.setPrefix(normalizedPrefix.toString());
 
         try {
             aclServiceDao.getBan(normalizedPrefix);
@@ -93,7 +94,7 @@ public class AclBanService {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response deleteBan(@PathParam("prefix") final String prefix) {
         try {
-            final String normalizedPrefix = getNormalizedPrefix(prefix);
+            final IpInterval<?> normalizedPrefix = getNormalizedPrefix(prefix);
 
             final Ban ban = aclServiceDao.getBan(normalizedPrefix);
             aclServiceDao.createBanEvent(normalizedPrefix, BlockEvent.Type.UNBLOCK);
@@ -115,7 +116,7 @@ public class AclBanService {
     @Path("/{prefix}/events")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public List<BanEvent> getBanEvents(@PathParam("prefix") final String prefix) {
-        final String normalizedPrefix = getNormalizedPrefix(prefix);
+        final IpInterval normalizedPrefix = getNormalizedPrefix(prefix);
         return aclServiceDao.getBanEvents(normalizedPrefix);
     }
 }

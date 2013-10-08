@@ -55,6 +55,11 @@ class MntByAuthentication extends AuthenticationStrategyBase {
     }
 
     @Override
+    public Set<ObjectType> getTypesWithPendingAuthenticationSupport() {
+        return Sets.newHashSet(ObjectType.ROUTE, ObjectType.ROUTE6);
+    }
+
+    @Override
     public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext) {
         try {
             return authenticateMntBy(update, updateContext);

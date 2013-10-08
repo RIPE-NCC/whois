@@ -130,21 +130,6 @@ CREATE TABLE `auth` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `auth_override`
---
-
-DROP TABLE IF EXISTS `auth_override`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `auth_override` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `date` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`date`,`object_id`),
-  KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `author`
 --
 
@@ -459,21 +444,6 @@ CREATE TABLE `last` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `limerick`
---
-
-DROP TABLE IF EXISTS `limerick`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `limerick` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `limerick` varchar(80) NOT NULL DEFAULT '',
-  PRIMARY KEY (`object_id`),
-  KEY `limerick` (`limerick`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `mbrs_by_ref`
 --
 
@@ -613,23 +583,6 @@ DROP TABLE IF EXISTS `mnt_routes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mnt_routes` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `mnt_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`mnt_id`,`object_id`),
-  KEY `object_id` (`object_id`),
-  KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `mnt_routes6`
---
-
-DROP TABLE IF EXISTS `mnt_routes6`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `mnt_routes6` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mnt_id` int(10) unsigned NOT NULL DEFAULT '0',
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -885,22 +838,6 @@ CREATE TABLE `ref_nfy` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `refer`
---
-
-DROP TABLE IF EXISTS `refer`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `refer` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `port` int(5) unsigned NOT NULL DEFAULT '43',
-  `host` varchar(80) NOT NULL DEFAULT '',
-  PRIMARY KEY (`object_id`,`host`,`port`,`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `referral_by`
 --
 
@@ -914,22 +851,6 @@ CREATE TABLE `referral_by` (
   PRIMARY KEY (`mnt_id`,`object_id`),
   KEY `object_id` (`object_id`),
   KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `rev_srv`
---
-
-DROP TABLE IF EXISTS `rev_srv`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `rev_srv` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `rev_srv` varchar(254) NOT NULL DEFAULT '',
-  `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`rev_srv`,`object_id`),
-  KEY `object_id` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1023,17 +944,17 @@ CREATE TABLE `serials` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `sub_dom`
+-- Table structure for table `tags`
 --
 
-DROP TABLE IF EXISTS `sub_dom`;
+DROP TABLE IF EXISTS `tags`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sub_dom` (
+CREATE TABLE `tags` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `domain` varchar(254) NOT NULL DEFAULT '',
-  PRIMARY KEY (`domain`,`object_id`),
-  KEY `object_id` (`object_id`)
+  `tag_id` varchar(50) NOT NULL DEFAULT '',
+  `data` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`object_id`,`tag_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1133,14 +1054,4 @@ CREATE TABLE `zone_c` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-02-19 17:03:10
-
-
-DROP TABLE IF EXISTS `tags`;
-CREATE TABLE `tags` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `tag_id` varchar(50) NOT NULL DEFAULT '',
-  `data` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`object_id`, `tag_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
+-- Dump completed on 2013-09-27 12:13:22
