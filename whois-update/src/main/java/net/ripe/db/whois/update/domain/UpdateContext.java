@@ -255,7 +255,7 @@ public class UpdateContext {
             updatedObject = update.getSubmittedObject();
         }
 
-        return new UpdateResult(update, originalObject, updatedObject, context.action, context.status, context.objectMessages, context.retryCount, dryRun);
+        return new UpdateResult(originalObject, updatedObject, context.action, context.status, context.objectMessages, context.retryCount, dryRun);
     }
 
     public void prepareForReattempt(final UpdateContainer update) {

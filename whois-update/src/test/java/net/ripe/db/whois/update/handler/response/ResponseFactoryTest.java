@@ -122,8 +122,7 @@ public class ResponseFactoryTest {
     public void getAck_no_errors() {
         final RpslObject rpslObject = RpslObject.parse("mntner: DEV-ROOT-MNT");
 
-        final Update update = new Update(new Paragraph(rpslObject.toString()), Operation.DELETE, Lists.<String>newArrayList(), rpslObject);
-        updateResults.add(new UpdateResult(update, rpslObject, rpslObject, Action.DELETE, UpdateStatus.SUCCESS, new ObjectMessages(), 0, false));
+        updateResults.add(new UpdateResult(rpslObject, rpslObject, Action.DELETE, UpdateStatus.SUCCESS, new ObjectMessages(), 0, false));
 
         final Ack ack = new Ack(updateResults, ignoredParagraphs);
 
@@ -258,7 +257,7 @@ public class ResponseFactoryTest {
 
         objectMessages.addMessage(rpslObject.findAttribute(AttributeType.SOURCE), UpdateMessages.unrecognizedSource("RIPE"));
 
-        updateResults.add(new UpdateResult(update, rpslObject, rpslObject, Action.DELETE, UpdateStatus.FAILED, objectMessages, 0, false));
+        updateResults.add(new UpdateResult(rpslObject, rpslObject, Action.DELETE, UpdateStatus.FAILED, objectMessages, 0, false));
 
         final Ack ack = new Ack(updateResults, ignoredParagraphs);
 
