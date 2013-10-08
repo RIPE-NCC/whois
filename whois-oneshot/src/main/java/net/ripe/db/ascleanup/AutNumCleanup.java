@@ -5,6 +5,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mysql.jdbc.Driver;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import net.ripe.db.whois.common.ClockDateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -22,6 +24,8 @@ import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailMessageLogCallback;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -40,6 +44,10 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -86,13 +94,76 @@ public class AutNumCleanup {
     private static final int MAIL_PORT = 25;
     private static final String LOG_DIR = "var";
     private static final Joiner JOINER = Joiner.on(',');
+    private static final String ARG_SKIP = "skip";
+    private static final String ARG_SEND = "send";
+    private static final String ARG_PASSWD = "passwd";
     private final MailGateway mailGateway;
 
-
-    public static void main(String[] argv) throws Exception {
+    // Usage example: --skip 100 --send 500 --passwd <dbpassword>   skips the first 100 mntners and sends 500 emails
+    public static void main(final String[] argv) throws Exception {
         setupLogging();
 
-        new AutNumCleanup().execute(argv[0]);
+        final OptionSet options = setupOptionParser().parse(argv);
+        Validate.isTrue(options.hasArgument(ARG_SKIP));
+        Validate.isTrue(options.hasArgument(ARG_SEND));
+        Validate.isTrue(options.hasArgument(ARG_PASSWD));
+
+        final int skip = Integer.parseInt(options.valueOf(ARG_SKIP).toString());
+        final int send = Integer.parseInt(options.valueOf(ARG_SEND).toString());
+        validateLastRun(skip);
+
+        new AutNumCleanup().execute(
+                skip,
+                send,
+                options.valueOf(ARG_PASSWD).toString());
+
+        storeLastRun(argv);
+    }
+
+    private static void validateLastRun(final int skip) {
+        final String lastRun = readFile();
+        if (lastRun != null) {
+            final OptionSet lastOptions = setupOptionParser().parse(lastRun.split(" "));
+            final int lastSkip = Integer.parseInt(lastOptions.valueOf(ARG_SKIP).toString());
+            final int lastSend = Integer.parseInt(lastOptions.valueOf(ARG_SEND).toString());
+            Validate.isTrue(lastSkip + lastSend <= skip);
+        }
+    }
+
+    private static String readFile() {
+        if (new File("ascleanup_lastrun.txt").exists()) {
+            FileInputStream inputStream = null;
+            try {
+                inputStream = new FileInputStream("ascleanup_lastrun.txt");
+                return IOUtils.toString(inputStream);
+            } catch (IOException e) {
+                LOGGER.info("can't read ascleanup_lastrun.txt");
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {}
+                }
+            }
+        }
+        return null;
+    }
+
+    private static void storeLastRun(final String[] argv) {
+        final String lastRun = Joiner.on(" ").join(argv);
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream("ascleanup_lastrun.txt");
+            IOUtils.write(lastRun, outputStream);
+        } catch (IOException e) {
+            LOGGER.info("can't write ascleanup_lastrun.txt");
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {}
+            }
+        }
     }
 
     private static void setupLogging() {
@@ -102,6 +173,14 @@ public class AutNumCleanup {
         console.setThreshold(Level.INFO);
         console.activateOptions();
         LogManager.getRootLogger().addAppender(console);
+    }
+
+    private static OptionParser setupOptionParser() {
+        final OptionParser parser = new OptionParser();
+        parser.accepts(ARG_SKIP).withRequiredArg();
+        parser.accepts(ARG_SEND).withRequiredArg();
+        parser.accepts(ARG_PASSWD).withRequiredArg();
+        return parser;
     }
 
     public AutNumCleanup() {
@@ -120,7 +199,7 @@ public class AutNumCleanup {
         return new MailGatewayImpl(mailSender, loggerContext);
     }
 
-    public void execute(final String mysqlConnectionPassword) throws Exception {
+    public void execute(final int skip, final int send, final String mysqlConnectionPassword) throws Exception {
         final Path resourceDataFile = Files.createTempFile("autnumCleanup", "");
 
         final Downloader downloader = new Downloader();
@@ -135,7 +214,7 @@ public class AutNumCleanup {
 
         LOGGER.info("There are " + authoritativeResource.getNrAutNums() + " reserved autnums");
 
-        sendMails(jdbcTemplate, findAutnumReferencesPerObject(jdbcTemplate, authoritativeResource));
+        sendMails(skip, send, jdbcTemplate, findAutnumReferencesPerObject(jdbcTemplate, authoritativeResource));
     }
 
     private Map<RpslObject, Set<String>> findAutnumReferencesPerObject(final JdbcTemplate jdbcTemplate, final AuthoritativeResource authoritativeResource) {
@@ -194,7 +273,7 @@ public class AutNumCleanup {
         return referencedAutnumsPerObject;
     }
 
-    private void sendMails(final JdbcTemplate jdbcTemplate, final Map<RpslObject, Set<String>> referencedAutnumsPerObject) {
+    private void sendMails(final int skip, final int send, final JdbcTemplate jdbcTemplate, final Map<RpslObject, Set<String>> referencedAutnumsPerObject) {
         final Map<CIString, List<Container>> cleanupsPerMntnerEmail = Maps.newHashMap();
 
         for (final RpslObject rpslObject : referencedAutnumsPerObject.keySet()) {
@@ -228,11 +307,19 @@ public class AutNumCleanup {
             }
         }
 
-        LOGGER.info("About to send {} emails", cleanupsPerMntnerEmail.size());
+        LOGGER.info("About to send {} out of {} emails", send, cleanupsPerMntnerEmail.size());
 
+        int skipCounter = 0;
+        int sendCounter = 0;
         for (final CIString email : cleanupsPerMntnerEmail.keySet()) {
-            mailGateway.sendEmail(email.toString(), "Clean up of old ASN references in the RIPE Database", createMailContent(cleanupsPerMntnerEmail.get(email)));
-            LOGGER.info("Mailing {}, content: {}", email, createMailContent(cleanupsPerMntnerEmail.get(email)));
+            skipCounter++;
+            if (skipCounter > skip) {
+                sendCounter++;
+                if (sendCounter <= send) {
+//                    mailGateway.sendEmail(email.toString(), "Clean up of old ASN references in the RIPE Database", createMailContent(cleanupsPerMntnerEmail.get(email)));
+                    LOGGER.info("Mailing #{} {}, content: {}", sendCounter, email, createMailContent(cleanupsPerMntnerEmail.get(email)));
+                }
+            }
         }
     }
 
