@@ -1,3 +1,8 @@
+## next
+[api] normalize ip addresses. TODO: change database values
+[all] sanitize source attribute into uppercase letters
+[oneshot] added autnum cleanup
+
 ## 1.70
 [query] added option --valid-syntax
 [update] added pending route creation
