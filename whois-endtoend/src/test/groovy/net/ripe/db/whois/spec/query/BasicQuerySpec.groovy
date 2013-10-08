@@ -404,7 +404,7 @@ class BasicQuerySpec extends BaseSpec {
 
     // -b, --abuse-contact  - see AbuseQuerySpec
 
-    // -d, --reverse-domain  TODO
+    // -d, --reverse-domain
 
     def "--reverse-domain --all-less domain found"() {
       given:
@@ -416,7 +416,6 @@ class BasicQuerySpec extends BaseSpec {
         queryObject("--reverse-domain --all-less 192.0/32", "inetnum", "192.0.0.0 - 192.255.255.255")
         queryObject("--reverse-domain --all-less 192.0/32", "inetnum", "0.0.0.0 - 255.255.255.255")
     }
-    // ?? test all hierarchical flags with --reverse-domain?
 
     def "--reverse-domain --one-less domain"() {
       given:
