@@ -92,7 +92,6 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
             fail();
         } catch (ClientErrorException e) {
             assertThat(e.getResponse().getStatus(), is(Response.Status.CONFLICT.getStatusCode()));
-            assertThat(e.getResponse().readEntity(String.class), containsString("This organisation already has an abuse contact"));
             assertThat(e.getResponse().readEntity(String.class), containsString("abuse@test.net"));
         }
     }
