@@ -3,14 +3,9 @@ package net.ripe.db.whois.update.handler;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,10 +13,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-import static org.hamcrest.Matchers.endsWith;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @Transactional
@@ -31,7 +22,7 @@ public class UpdateObjectHandlerImplTest {
     @Mock UpdateContext updateContext;
     @Mock RpslObjectUpdateDao rpslObjectUpdateDao;
     @Mock DateTimeProvider dateTimeProvider;
-    private UpdateObjectHandlerImpl subject;
+    private UpdateObjectHandler subject;
 
     private final String RIPE_NCC_BA_MNT_MAINTAINER = "" +
             "mntner:            RIPE-NCC-BA-MNT\n" +
@@ -46,7 +37,7 @@ public class UpdateObjectHandlerImplTest {
 
     @Before
     public void setUp() throws Exception {
-        subject = new UpdateObjectHandlerImpl(rpslObjectUpdateDao, Lists.<BusinessRuleValidator>newArrayList(), dateTimeProvider);
+        subject = new UpdateObjectHandler(rpslObjectUpdateDao, Lists.<BusinessRuleValidator>newArrayList(), dateTimeProvider);
     }
 
     @Test
