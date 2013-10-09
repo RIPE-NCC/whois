@@ -711,7 +711,7 @@ class BasicQuerySpec extends BaseSpec {
 
     def "--template mntner"() {
       expect:
-        query("--template mntner") =~
+        query("--template mntner").contains("" +
                 "mntner:         [mandatory]  [single]     [primary/lookup key]\n" +
                 "descr:          [mandatory]  [multiple]   [ ]\n" +
                 "org:            [optional]   [multiple]   [inverse key]\n" +
@@ -726,14 +726,14 @@ class BasicQuerySpec extends BaseSpec {
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
                 "referral-by:    [mandatory]  [single]     [ ]\n" +
                 "changed:        [mandatory]  [multiple]   [ ]\n" +
-                "source:         [mandatory]  [single]     [ ]"
+                "source:         [mandatory]  [single]     [ ]")
     }
 
     // --verbose
 
     def "--verbose person"() {
       expect:
-        query("--verbose person") =~
+        query("--verbose person").contains(
                 "The person class:\n" +
                 "\n" +
                 "      A person object contains information about technical or\n" +
@@ -744,7 +744,7 @@ class BasicQuerySpec extends BaseSpec {
                 "person:         [mandatory]  [single]     [lookup key]\n" +
                 "address:        [mandatory]  [multiple]   [ ]\n" +
                 "phone:          [mandatory]  [multiple]   [ ]\n" +
-                "fax-no:         [optional]   [multiple]   [ ]"
+                "fax-no:         [optional]   [multiple]   [ ]")
     }
 
     // -V, --client
