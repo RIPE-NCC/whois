@@ -55,12 +55,8 @@ public class UpdateNotifier {
 
         for (final Notification notification : notifications.values()) {
             final ResponseMessage responseMessage = responseFactory.createNotification(updateContext, updateRequest.getOrigin(), notification);
-            mailGateway.sendEmail(sanitizeEmail(notification.getEmail()), responseMessage);
+            mailGateway.sendEmail(notification.getEmail(), responseMessage);
         }
-    }
-
-    private String sanitizeEmail(final String email) {
-        return email.replaceAll("mailto:", "");
     }
 
     private void addVersionId(PreparedUpdate preparedUpdate, UpdateContext context) {
