@@ -47,6 +47,7 @@ public class Authenticator {
         this.userDao = userDao;
         this.loggerContext = loggerContext;
         this.pendingUpdateDao = pendingUpdateDao;
+        Arrays.sort(authenticationStrategies);
         this.authenticationStrategies = Arrays.asList(authenticationStrategies);
 
         final Map<CIString, Set<Principal>> tempPrincipalsMap = Maps.newHashMap();
