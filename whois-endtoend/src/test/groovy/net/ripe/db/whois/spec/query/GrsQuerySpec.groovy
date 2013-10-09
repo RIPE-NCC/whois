@@ -52,12 +52,14 @@ class GrsQuerySpec extends EndToEndSpec {
                 "mnt-by:  TST-MNT2\n" +
                 "changed: dbtest@ripe.net 20121016\n" +
                 "source:  TEST")
-        databaseHelper.addObjectToSource("1-GRS", "role: Abuse Me\nnic-hdl: AB-TEST")
+        databaseHelper.addObjectToSource("1-GRS", "role: Abuse Me\nnic-hdl: AB-TEST\nsource: 1-GRS")
 
       expect:
         query("-q sources") =~ "TEST:3:N:0-0"
         query("-q sources") =~ "1-GRS:3:N:0-0"
-        queryObject("--all-sources TEST,1- AB-TEST", "role", "Abuse Me")
+        queryObject("--all-sources AB-TEST", "source", "TEST")
+        queryObject("--all-sources AB-TEST", "source", "1-GRS")
+
     }
 
     def "--all-sources not found"() {
@@ -131,7 +133,7 @@ class GrsQuerySpec extends EndToEndSpec {
         databaseHelper.addObjectToSource("1-GRS", "inet6num: 2001:2002::/64\nnetname: TEST-NET")
 
       expect:
-        queryObject("--resource 2001:2002::/64", "inet6num", "2001:2001::/64")
+        queryObject("--resource 2001:2002::/64", "inet6num", "2001:2002::/64")
     }
 
     def "--resource aut-num "() {
