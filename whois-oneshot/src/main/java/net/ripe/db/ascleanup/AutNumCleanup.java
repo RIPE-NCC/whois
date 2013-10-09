@@ -326,10 +326,10 @@ public class AutNumCleanup {
     private String createMailContent(final List<Container> containers) {
         final StringBuilder builder = new StringBuilder();
         builder.append("Dear Colleagues,\n\n")
-                .append("The RIPE NCC is sending you this email as some of your objects in the RIPE Database still reference deleted AS Numbers.")
-                .append("Before these AS Numbers can be re-assigned all references to them need to be removed.")
-                .append("Below is a list of your objects that have these references.")
-                .append("Please update your objects to remove these references.\n\n")
+                .append("Some of your objects in the RIPE Database continue to reference deleted AS Numbers. ")
+                .append("Before these AS Numbers can be re-assigned, all references to them need to be removed. ")
+                .append("Below is a list of your objects that reference deleted AS Numbers. ")
+                .append("Please update these objects to remove those references.\n\n")
                 .append("IMPORTANT: If you have any scripts or templates to auto-generate any of these objects, please also adjust them to prevent these references being re-generated.\n\n")
                 .append("For further details see https://labs.ripe.net/Members/denis/making-more-16-bit-as-numbers-available\n\n")
                 .append("Your Object:\t\treferences these deleted AS Numbers\n\n");
@@ -340,8 +340,10 @@ public class AutNumCleanup {
                     .append("\n");
         }
 
-        builder.append("\nIf you have any questions or need help to remove the references please contact our Customer Services ripe-dbm@ripe.net\n\n")
-                .append("Regards\n" +
+        builder.append("\nIMPORTANT: If you have any scripts or templates that auto-generate any of these objects, please also update them to prevent these references from being regenerated.\n\n")
+                .append("For further details see https://labs.ripe.net/Members/denis/making-more-16-bit-as-numbers-available\n\n")
+                .append("If you have any questions or need help to remove the references please contact our Customer Services ripe-dbm@ripe.net\n\n")
+                .append("Regards\n\n" +
                         "Denis Walker\n" +
                         "Business Analyst\n" +
                         "RIPE NCC Database Team");
