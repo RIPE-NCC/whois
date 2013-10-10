@@ -295,6 +295,10 @@ public final class Query {
         return hasOption(QueryFlag.VALID_SYNTAX);
     }
 
+    public boolean isNoValidSyntax() {
+        return hasOption(QueryFlag.NO_VALID_SYNTAX);
+    }
+
     public SystemInfoOption getSystemInfoOption() {
         if (hasOption(QueryFlag.LIST_SOURCES_OR_VERSION)) {
             final String optionValue = getOptionValue(QueryFlag.LIST_SOURCES_OR_VERSION).trim();

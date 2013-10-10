@@ -13,14 +13,23 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 
-class ValidSyntaxFunction implements Function<ResponseObject, Iterable<? extends ResponseObject>> {
+class SyntaxFilterFunction implements Function<ResponseObject, Iterable<? extends ResponseObject>> {
+    private final boolean isValidSyntaxQuery;
+
+    SyntaxFilterFunction(final boolean validSyntaxQuery) {
+        isValidSyntaxQuery = validSyntaxQuery;
+    }
+
     @Override
     public Iterable<? extends ResponseObject> apply(@Nullable final ResponseObject input) {
         if (input instanceof RpslObject) {
             final RpslObject object = (RpslObject) input;
 
-            if (!validSyntax(object)) {
+            if (!validSyntax(object) && isValidSyntaxQuery) {
                 return Arrays.asList(new MessageObject(QueryMessages.invalidSyntax(object.getKey())));
+            }
+            else if (validSyntax(object) && !isValidSyntaxQuery) {
+                return Arrays.asList(new MessageObject(QueryMessages.validSyntax(object.getKey())));
             }
         }
         return Collections.singletonList(input);
