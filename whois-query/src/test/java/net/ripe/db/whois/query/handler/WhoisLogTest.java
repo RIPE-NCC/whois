@@ -26,6 +26,6 @@ public class WhoisLogTest {
     @Test
     public void time_gets_logged() {
         subject.logQueryResult("API", 1, 2, null, 1001, InetAddresses.forString("127.0.0.1"), 0, "testQuery");
-        verify(loggerMock).info(anyString(), eq("         0"), eq("API"), eq(1), eq(2), eq(""), eq("1.00"), eq("127.0.0.1"), eq("testQuery"));
+        verify(loggerMock).info(anyString(), eq("         0"), eq("API"), eq(1), eq(2), eq(""), eq(1001L), eq("127.0.0.1"), eq("testQuery"));
     }
 }
