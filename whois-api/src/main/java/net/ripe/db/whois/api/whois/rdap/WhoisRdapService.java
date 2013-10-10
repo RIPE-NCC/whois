@@ -6,6 +6,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
+import net.ripe.db.whois.api.freetext.FreeTextIndex;
+import net.ripe.db.whois.api.search.IndexTemplate;
 import net.ripe.db.whois.api.whois.ApiResponseHandler;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.IpInterval;
@@ -15,7 +17,9 @@ import net.ripe.db.whois.common.domain.attrs.AutNum;
 import net.ripe.db.whois.common.domain.attrs.Domain;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.handler.QueryHandler;
@@ -23,6 +27,23 @@ import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
 import org.apache.commons.lang.StringUtils;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.core.LowerCaseFilter;
+import org.apache.lucene.analysis.core.WhitespaceTokenizer;
+import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
+import org.apache.lucene.analysis.util.CharArraySet;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.facet.taxonomy.TaxonomyReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +55,13 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.Reader;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.Collection;
@@ -58,11 +82,17 @@ public class WhoisRdapService {
     private static final String CONTENT_TYPE_RDAP_JSON = "application/rdap+json";
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 
+    private static final int SEARCH_MAX_RESULTS = 100;
+    private static final Set<String> SEARCH_INDEX_FIELDS_NOT_MAPPED_TO_RPSL_OBJECT = Sets.newHashSet("primary-key", "object-type", "lookup-key");
+
+
     private final QueryHandler queryHandler;
     private final RpslObjectDao objectDao;
     private final AbuseCFinder abuseCFinder;
     private final RdapObjectMapper rdapObjectMapper;
     private final DelegatedStatsService delegatedStatsService;
+    private final FreeTextIndex freeTextIndex;
+    private final String source;
     private final String baseUrl;
 
     @Autowired
@@ -71,6 +101,8 @@ public class WhoisRdapService {
                             final AbuseCFinder abuseCFinder,
                             final NoticeFactory noticeFactory,
                             final DelegatedStatsService delegatedStatsService,
+                            final FreeTextIndex freeTextIndex,
+                            final SourceContext sourceContext,
                             @Value("${rdap.port43:}") final String port43,
                             @Value("${rdap.public.baseUrl:}") final String baseUrl) {
         this.queryHandler = queryHandler;
@@ -78,12 +110,14 @@ public class WhoisRdapService {
         this.abuseCFinder = abuseCFinder;
         this.rdapObjectMapper = new RdapObjectMapper(noticeFactory, port43);
         this.delegatedStatsService = delegatedStatsService;
+        this.freeTextIndex = freeTextIndex;
+        this.source = sourceContext.getCurrentSource().getName().toString();
         this.baseUrl = baseUrl;
     }
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
-    @Path("/{objectType}/{key:.*}")
+    @Path("/{objectType:(autnum|domain|ip|entity|nameserver)}/{key:.*}")
     public Response lookup(@Context final HttpServletRequest request,
                            @PathParam("objectType") final String objectType,
                            @PathParam("key") final String key) {
@@ -124,6 +158,50 @@ public class WhoisRdapService {
         }
 
         return lookupObject(request, whoisObjectTypes, getKey(whoisObjectTypes, key));
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
+    @Path("/entities")
+    public Response searchEntities(
+            @Context final HttpServletRequest request,
+            @QueryParam("fn") final String name,
+            @QueryParam("handle") final String handle) {
+
+        if (name != null && handle == null) {
+            return handleSearch(new String[]{"person", "role", "org-name"}, name, request);
+        }
+
+        if (name == null && handle != null) {
+            return handleSearch(new String[]{"organisation", "nic-hdl"}, handle, request);
+        }
+
+        LOGGER.info("Bad request: {}", request.getRequestURI());
+        return Response.status(BAD_REQUEST).build();
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
+    @Path("/nameservers")
+    public Response searchNameservers(
+            @Context final HttpServletRequest request,
+            @QueryParam("name") final String name) {
+
+        if (StringUtils.isEmpty(name)) {
+            return Response.status(BAD_REQUEST).build();
+        }
+
+        return Response.status(NOT_FOUND).build();
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
+    @Path("/domains")
+    public Response searchDomains(
+            @Context final HttpServletRequest request,
+            @QueryParam("name") final String name) {
+
+        return handleSearch(new String[]{"domain"}, name, request);
     }
 
     private void validateDomain(final String key) {
@@ -270,5 +348,90 @@ public class WhoisRdapService {
                 return input.getName();
             }
         }));
+    }
+
+    private Response handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
+        LOGGER.info("Search {} for {}", fields, term);
+        try {
+            final List<RpslObject> objects = freeTextIndex.search(new IndexTemplate.SearchCallback<List<RpslObject>>() {
+                @Override
+                public List<RpslObject> search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
+                    final List<RpslObject> results = Lists.newArrayList();
+                    final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
+                    try {
+                        final QueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_44, fields, new RdapAnalyzer());
+                        queryParser.setAllowLeadingWildcard(true);                                                          // TODO: test performance
+                        queryParser.setDefaultOperator(QueryParser.Operator.AND);
+                        final org.apache.lucene.search.Query query = queryParser.parse(term);
+                        final TopDocs topDocs = indexSearcher.search(query, maxResults);
+                        for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+                            final Document document = indexSearcher.doc(scoreDoc.doc);
+                            results.add(convertLuceneDocumentToRpslObject(document));
+                        }
+
+                        LOGGER.info("Found {} objects", results.size());
+                        return results;
+
+                    } catch (ParseException e) {
+                        throw new IllegalArgumentException(e);
+                    }
+                }
+            });
+
+            if (objects.isEmpty()) {
+                return Response.status(NOT_FOUND).build();
+            }
+
+            if (objects.size() > 1) {
+                // TODO: add multiple objects to response
+                return Response.status(BAD_REQUEST).build();
+            }
+
+            return Response.ok(
+                    rdapObjectMapper.map(
+                            getRequestUrl(request),
+                            objects.get(0),
+                            objectDao.getLastUpdated(objects.get(0).getObjectId()),
+                            getAbuseContacts(objects.get(0))))
+                    .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
+                    .build();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private RpslObject convertLuceneDocumentToRpslObject(Document document) {
+        final List<RpslAttribute> attributes = Lists.newArrayList();
+        int objectId = 0;
+
+        for (final IndexableField field : document.getFields()) {
+            if (SEARCH_INDEX_FIELDS_NOT_MAPPED_TO_RPSL_OBJECT.contains(field.name())) {
+                if ("primary-key".equals(field.name())) {
+                    objectId = Integer.parseInt(field.stringValue());
+                }
+            } else {
+                attributes.add(new RpslAttribute(AttributeType.getByName(field.name()), field.stringValue()));
+            }
+        }
+
+        attributes.add(new RpslAttribute(AttributeType.SOURCE, source));
+        return new RpslObject(objectId, attributes);
+    }
+
+    private class RdapAnalyzer extends Analyzer {
+
+        @Override
+        protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
+            final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer(Version.LUCENE_44, reader);
+
+            TokenStream tok = new WordDelimiterFilter(
+                    tokenizer,
+                    WordDelimiterFilter.PRESERVE_ORIGINAL,
+                    CharArraySet.EMPTY_SET);
+
+            tok = new LowerCaseFilter(Version.LUCENE_44, tok);
+
+            return new TokenStreamComponents(tokenizer, tok);
+        }
     }
 }

@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractRestClientTest;
+import net.ripe.db.whois.api.freetext.FreeTextIndex;
 import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
@@ -11,6 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
@@ -30,18 +32,24 @@ import static org.junit.Assert.fail;
 public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     private static final Audience AUDIENCE = Audience.PUBLIC;
 
+    @Autowired
+    FreeTextIndex freeTextIndex;
+
     @BeforeClass
-    public static void beforeClass() throws Exception {
+    public static void setProperties() throws Exception {
         System.setProperty("rdap.sources", "TEST-GRS");                        // TODO: [ES] dependency on grs source configuration
         System.setProperty("rdap.redirect.test", "https://rdap.test.net");
         System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
+        // We only enable freetext indexing here, so it doesn't slow down the rest of the test suite
+        System.setProperty("dir.freetext.index", "${dir.var}/idx");
     }
 
     @AfterClass
-    public static void afterClass() throws Exception {
+    public static void clearProperties() throws Exception {
         System.clearProperty("rdap.sources");
         System.clearProperty("rdap.redirect.test");
         System.clearProperty("rdap.public.baseUrl");
+        System.clearProperty("dir.freetext.index");
     }
 
     @Before
@@ -940,6 +948,267 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
         assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/entity/ORG-ONE-TEST"));
     }
+
+    // search
+
+    // search - domain
+
+    @Test
+    public void search_domain_not_found() throws Exception {
+        try {
+            freeTextIndex.rebuild();
+            createResource(AUDIENCE, "domains?name=ripe.net")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+            fail();
+        } catch (NotFoundException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void search_domain_exact_match() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Domain response = createResource(AUDIENCE, "domains?name=31.12.202.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Domain.class);
+
+        assertThat(response.getHandle(), equalTo("31.12.202.in-addr.arpa"));
+    }
+
+    @Test
+    public void search_domain_with_wildcard() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Domain response = createResource(AUDIENCE, "domains?name=*.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Domain.class);
+
+        assertThat(response.getHandle(), equalTo("31.12.202.in-addr.arpa"));
+    }
+
+    // search - nameserver
+
+    @Test
+    public void search_nameserver_not_found() throws Exception {
+        try {
+            freeTextIndex.rebuild();
+            createResource(AUDIENCE, "nameservers?name=ns1.ripe.net")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+            fail();
+        } catch (NotFoundException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void search_nameserver_empty_name() throws Exception {
+        try {
+            freeTextIndex.rebuild();
+            createResource(AUDIENCE, "nameservers?name=")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+            fail();
+        } catch (BadRequestException e) {
+            // expected
+        }
+    }
+
+    // search - entities
+
+    // search - entities - person
+
+    @Test
+    public void search_entity_person_by_name() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Entity response = createResource(AUDIENCE, "entities?fn=Test%20Person")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("TP1-TEST"));
+    }
+
+    @Test
+    public void search_entity_person_by_name_not_found() throws Exception {
+        try {
+            freeTextIndex.rebuild();
+            createResource(AUDIENCE, "entities?fn=Santa%20Claus")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+            fail();
+        } catch (NotFoundException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void search_entity_person_by_handle() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Entity response = createResource(AUDIENCE, "entities?handle=TP2-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("TP2-TEST"));
+    }
+
+    @Test
+    public void search_entity_person_by_handle_not_found() throws Exception {
+        try {
+            freeTextIndex.rebuild();
+            createResource(AUDIENCE, "entities?handle=XYZ-TEST")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+            fail();
+        } catch (NotFoundException e) {
+            // expected
+        }
+    }
+
+    // search - entities - role
+
+    @Test
+    public void search_entity_role_by_name() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Entity response = createResource(AUDIENCE, "entities?handle=FR*-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("FR1-TEST"));
+    }
+
+    @Test
+    public void search_entity_role_by_handle() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Entity response = createResource(AUDIENCE, "entities?fn=F*st%20Role")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("FR1-TEST"));
+    }
+
+    // search - entities - organisation
+
+    @Test
+    public void search_entity_organisation_by_name() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Entity response = createResource(AUDIENCE, "entities?fn=organisation")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+    }
+
+    @Test
+    public void search_entity_organisation_by_name_with_wildcard() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Entity response = createResource(AUDIENCE, "entities?fn=organis*tion")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+    }
+
+    @Test
+    public void search_entity_organisation_by_handle() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Entity response = createResource(AUDIENCE, "entities?handle=ORG-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+    }
+
+    @Test
+    public void search_entity_organisation_by_handle_with_wildcard_prefix() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Entity response = createResource(AUDIENCE, "entities?handle=*TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+    }
+
+    @Test
+    public void search_entity_organisation_by_handle_with_wildcard_middle() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Entity response = createResource(AUDIENCE, "entities?handle=ORG*TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+    }
+
+    @Test
+    public void search_entity_organisation_by_handle_with_wildcard_suffix() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Entity response = createResource(AUDIENCE, "entities?handle=ORG*")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+    }
+
+    @Test
+    public void search_entity_without_query_params() throws Exception {
+        try {
+            createResource(AUDIENCE, "entities")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+            fail();
+        } catch (BadRequestException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void search_entity_both_fn_and_handle_query_params() throws Exception {
+        try {
+            createResource(AUDIENCE, "entities?fn=XXXX&handle=YYYY")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+            fail();
+        } catch (BadRequestException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void search_entity_empty_name() throws Exception {
+        try {
+            createResource(AUDIENCE, "entities?fn=")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+            fail();
+        } catch (BadRequestException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void search_entity_empty_handle() throws Exception {
+        try {
+            createResource(AUDIENCE, "entities?handle=")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+            fail();
+        } catch (BadRequestException e) {
+            // expected
+        }
+    }
+
+    // helper methods
 
     @Override
     protected WebTarget createResource(final Audience audience, final String path) {

@@ -23,8 +23,11 @@ import java.util.List;
 public class Nameserver extends RdapObject implements Serializable {
     @XmlElement(required = true)
     protected String handle;
+    @XmlElement
     protected String ldhName;
+    @XmlElement
     protected String unicodeName;
+    @XmlElement
     protected Nameserver.IpAddresses ipAddresses;
 
     public String getHandle() {
