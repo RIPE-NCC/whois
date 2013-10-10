@@ -79,7 +79,7 @@ public class SearchQueryExecutor implements QueryExecutor {
             }
         }
 
-        if (noResults) {
+        if (noResults) { //TODO intentional lack of RsplObject in results should not give below error
             responseHandler.handle(new MessageObject(QueryMessages.noResults(Joiner.on(',').join(Iterables.transform(sources, new Function<Source, String>() {
                 @Override
                 public String apply(final Source input) {
