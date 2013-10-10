@@ -25,10 +25,11 @@ class ComparisonQueriesHelpSpec extends BaseSpec {
 
     def "help"() {
       when:
-        def help = query "help"
+        def help = query "heLP"
 
       then:
         help.contains(expectedResponse)
+        getLastLineOfQueryLog().endsWith("PW-QRY-INFO <0+0+0>  0.00s [127.0.0.1] --  heLP")
     }
 
     def "HELP"() {

@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec
-
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
@@ -8,6 +7,7 @@ import net.ripe.db.whois.WhoisServer
 import net.ripe.db.whois.api.MailUpdatesTestSupport
 import net.ripe.db.whois.api.httpserver.JettyConfig
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue
+import net.ripe.db.whois.common.DateTimeProvider
 import net.ripe.db.whois.common.Messages
 import net.ripe.db.whois.common.Slf4JLogConfiguration
 import net.ripe.db.whois.common.Stub
@@ -22,6 +22,8 @@ import net.ripe.db.whois.common.support.DummyWhoisClient
 import net.ripe.db.whois.query.QueryServer
 import net.ripe.db.whois.update.dns.DnsGatewayStub
 import net.ripe.db.whois.update.mail.MailSenderStub
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import org.springframework.context.support.ClassPathXmlApplicationContext
 import spec.domain.AckResponse
 import spec.domain.Message
@@ -46,6 +48,7 @@ class EndToEndSpec extends Specification {
     protected static IpRanges ipRanges
     protected static Collection<Stub> stubs
     protected static MessageDequeue messageDequeue
+    protected static DateTimeProvider dateTimeProvider;
 
     def setupSpec() {
         Slf4JLogConfiguration.init();
@@ -76,6 +79,7 @@ class EndToEndSpec extends Specification {
         ipRanges = applicationContext.getBean(IpRanges.class)
         stubs = applicationContext.getBeansOfType(Stub.class).values()
         messageDequeue = applicationContext.getBean(MessageDequeue.class)
+        dateTimeProvider = applicationContext.getBean(DateTimeProvider.class)
         whoisServer.start()
     }
 
@@ -376,5 +380,14 @@ ${response}
 
     def addTag(String pkey, String tag, String data) {
         databaseHelper.getWhoisTemplate().update("INSERT INTO tags(object_id, tag_id, data) SELECT object_id, \"${tag}\", \"${data}\" from last where pkey='${pkey}'");
+    }
+
+    def getLastLineOfQueryLog() {
+        DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
+        File queryLogFile = new File("var/log/qry/qrylog."+DATE_FORMATTER.print(dateTimeProvider.currentDate));
+        String lastLine;
+        queryLogFile.eachLine { line ->
+                lastLine = line;
+        }
     }
 }
