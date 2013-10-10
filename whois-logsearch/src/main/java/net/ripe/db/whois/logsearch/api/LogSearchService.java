@@ -60,11 +60,10 @@ public class LogSearchService {
                         writer.flush();
                     }
                 } catch (IOException e) {
-                    LOGGER.info(e.getMessage(), e);
-                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+                    throw new InternalServerErrorException(e);
                 } catch (RuntimeException e) {
                     LOGGER.error(e.getMessage(), e);
-                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+                    throw new InternalServerErrorException(e);
                 }
             }
         }).build();
