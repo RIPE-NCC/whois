@@ -382,12 +382,14 @@ ${response}
         databaseHelper.getWhoisTemplate().update("INSERT INTO tags(object_id, tag_id, data) SELECT object_id, \"${tag}\", \"${data}\" from last where pkey='${pkey}'");
     }
 
-    def getLastLineOfQueryLog() {
+    def grepQueryLog(String pattern) {
         DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
-        File queryLogFile = new File("var/log/qry/qrylog."+DATE_FORMATTER.print(dateTimeProvider.currentDate));
-        String lastLine;
+        File queryLogFile = new File("var/log/qry/qrylog." + DATE_FORMATTER.print(dateTimeProvider.currentDate));
+
+        boolean result = false;
         queryLogFile.eachLine { line ->
-                lastLine = line;
+                if (line =~ pattern) result = true;
         }
+        result
     }
 }

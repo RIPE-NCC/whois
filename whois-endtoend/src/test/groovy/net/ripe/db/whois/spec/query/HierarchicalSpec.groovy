@@ -3,7 +3,7 @@ package net.ripe.db.whois.spec.query
 import net.ripe.db.whois.query.domain.QueryMessages
 import net.ripe.db.whois.spec.BaseSpec
 
-class ComparisonQueriesEverythingSpec extends BaseSpec {
+class HierarchicalSpec extends BaseSpec {
     def header = """\
 % This is the RIPE Database query service.
 % The objects are in RPSL format.
