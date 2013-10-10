@@ -7,22 +7,81 @@
     <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
         <errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler" />
         <param name="Target" value="System.out" />
-        <param name="Threshold" value="ALL" />
+        <param name="Threshold" value="INFO" />
         <layout class="org.apache.log4j.PatternLayout">
             <!-- The default pattern: Date Priority [Category] Message\n -->
-            <param name="ConversionPattern" value="%d{ISO8601} %-5p %t [%c{1}] %m%n" />
+            <param name="ConversionPattern" value="%d{ISO8601} %-5p [%c{1}] %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="QUERYLOG" class="org.apache.log4j.rolling.RollingFileAppender">
+        <param name="Append" value="true" />
+        <param name="Threshold" value="DEBUG" />
+
+        <rollingPolicy name="QUERYLOG" class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+            <param name="FileNamePattern" value="var/log/qry/qrylog.%d{yyyyMMdd}" />
+        </rollingPolicy>
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyyMMdd HH:mm:ss} %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="UPDATELOG" class="org.apache.log4j.rolling.RollingFileAppender">
+        <param name="Append" value="true" />
+        <param name="Threshold" value="DEBUG" />
+
+        <rollingPolicy name="UPDATELOG" class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+            <param name="FileNamePattern" value="var/log/upd/updlog.%d{yyyyMMdd}" />
+        </rollingPolicy>
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyyMMdd HH:mm:ss} %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="NRTMLOG" class="org.apache.log4j.rolling.RollingFileAppender">
+        <param name="Append" value="true" />
+        <param name="Threshold" value="DEBUG" />
+
+        <rollingPolicy name="NRTMLOG" class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+            <param name="FileNamePattern" value="var/log/nrtm/nrtmlog.%d{yyyyMMdd}" />
+        </rollingPolicy>
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyyMMdd HH:mm:ss} %m%n" />
         </layout>
     </appender>
 
     <!-- Loggers -->
-    <logger name="net.ripe.db.whois">
-        <level value="ERROR" />
+    <logger name="net.ripe.db.whois.query.handler.WhoisLog" additivity="false">
+        <level value="ALL" />
+        <appender-ref ref="QUERYLOG" />
+    </logger>
+
+    <logger name="net.ripe.db.whois.update.log.UpdateLog" additivity="false">
+        <level value="ALL" />
+        <appender-ref ref="UPDATELOG" />
+    </logger>
+
+    <logger name="net.ripe.db.whois.nrtm.NrtmLog" additivity="false">
+        <level value="ALL" />
+        <appender-ref ref="NRTMLOG" />
+    </logger>
+
+    <logger name="com.hazelcast">
+        <level value="WARN" />
+    </logger>
+
+    <logger name="net.ripe">
+        <level value="INFO" />
     </logger>
 
     <!-- Root -->
     <root>
-        <level value="ERROR" />
+        <level value="INFO" />
         <appender-ref ref="CONSOLE" />
     </root>
 
 </log4j:configuration>
+

@@ -875,10 +875,55 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void validSyntax_wrong_queryflag_combination() {
-        final String wrongFlag1 = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --show-version 1 ADM-TEST");
-        assertThat(wrongFlag1, containsString("The flags \"--valid-syntax\" and \"--show-version\" cannot be used together."));
+        final String wrongFlagShowVersion = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --show-version 1 ADM-TEST");
+        assertThat(wrongFlagShowVersion, containsString("The flags \"--valid-syntax\" and \"--show-version\" cannot be used together."));
 
-        final String wrongFlag2 = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --list-versions 1 ADM-TEST");
-        assertThat(wrongFlag2, containsString("The flags \"--valid-syntax\" and \"--list-versions\" cannot be used together."));
+        final String wrongFlagListVersions = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --list-versions 1 ADM-TEST");
+        assertThat(wrongFlagListVersions, containsString("The flags \"--valid-syntax\" and \"--list-versions\" cannot be used together."));
+
+        final String wrongFlagDiffVersions = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --diff-versions 1 ADM-TEST");
+        assertThat(wrongFlagDiffVersions, containsString("The flags \"--valid-syntax\" and \"--diff-versions\" cannot be used together."));
+
+        final String wrongFlagValidNovalid = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --no-valid-syntax 1 ADM-TEST");
+        assertThat(wrongFlagValidNovalid, containsString("The flags \"--valid-syntax\" and \"--no-valid-syntax\" cannot be used together."));
+    }
+
+    @Test
+    public void novalidSyntax_incorrect_syntax() {
+        databaseHelper.addObject("" +
+                "mntner:      DEL-MNT\n" +
+                "descr:       MNTNER for test\n" +
+                "descr:       object not identical to one above\n" +
+                "admin-c:     ADM-TEST\n" +
+                "upd-to:      dbtest_at_ripe.net\n" +
+                "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
+                "referral-by: DEL-MNT\n" +
+                "mnt-by:      DEL-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST");
+
+        final String result = DummyWhoisClient.query(QueryServer.port, "--no-valid-syntax DEL-MNT");
+        assertThat(result, containsString("MD5-PW # Filtered"));
+        assertThat(result, containsString("+312342343"));
+    }
+
+    @Test
+    public void novalidSyntax_correct_syntax() {
+        databaseHelper.addObject("" +
+                "mntner:      DEL-MNT\n" +
+                "descr:       MNTNER for test\n" +
+                "descr:       object not identical to one above\n" +
+                "admin-c:     ADM-TEST\n" +
+                "upd-to:      dbtest@ripe.net\n" +
+                "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
+                "referral-by: DEL-MNT\n" +
+                "mnt-by:      DEL-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST");
+
+        final String result = DummyWhoisClient.query(QueryServer.port, "--no-valid-syntax DEL-MNT");
+
+        assertThat(result, containsString("% 'DEL-MNT' has valid syntax"));
+        assertThat(result, not(containsString("MD5-PW # Filtered")));
     }
 }

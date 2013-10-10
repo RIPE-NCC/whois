@@ -44,6 +44,8 @@ public class AuthenticatorPendingTest {
 
         when(authStrategyPending1.getName()).thenReturn("authStrategyPending1");
         when(authStrategyPending2.getName()).thenReturn("authStrategyPending2");
+        when(authStrategyPending1.compareTo(authStrategyPending2)).thenReturn(-1);
+        when(authStrategyPending2.compareTo(authStrategyPending1)).thenReturn(1);
 
         final HashSet<ObjectType> delayedAuthenticationTypes = Sets.newHashSet(ObjectType.ROUTE, ObjectType.ROUTE6);
         when(authStrategyPending1.getTypesWithPendingAuthenticationSupport()).thenReturn(delayedAuthenticationTypes);

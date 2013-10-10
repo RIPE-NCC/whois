@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.net.InetAddress;
-import java.util.Locale;
 
 @Component
 public class WhoisLog {
@@ -23,19 +22,15 @@ public class WhoisLog {
 
     public void logQueryResult(final String api, final int personalObjects, final int nonPersonalObjects, @Nullable final QueryCompletionInfo completionInfo, final long executionTime, @Nullable final InetAddress remoteAddress, final Integer channelId, final String queryString) {
         logger.info(
-                "{} PW-{}-INFO <{}+{}+0> {} {}s [{}] --  {}",
+                "{} PW-{}-INFO <{}+{}+0> {} {}ms [{}] --  {}",
                 String.format("%10d", channelId),
                 api,
                 personalObjects,
                 nonPersonalObjects,
                 completionInfo == null ? "" : completionInfo.name(),
-                formatExecutionTime(executionTime),
+                executionTime,
                 remoteAddress != null ? remoteAddress.getHostAddress() : "NONE",
                 queryString
         );
-    }
-
-    private String formatExecutionTime(long elapsedMillis) {
-        return String.format((Locale) null, "%.2f", elapsedMillis / 1000.0);
     }
 }

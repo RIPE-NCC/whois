@@ -160,10 +160,17 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
+
     @Test
-    public void lookup_person_no_object_xmlns() {
+    public void lookup_person_not_contains_object_xmlns() {
         final String whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST").request().get(String.class);
         assertThat(whoisResources, containsString("<object type=\"person\">"));
+    }
+
+    @Test
+    public void lookup_not_contains_root_level_locator() {
+        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
+        assertThat(whoisResources.getLink(), nullValue());
     }
 
     @Test

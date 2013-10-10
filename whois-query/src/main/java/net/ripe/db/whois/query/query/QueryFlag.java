@@ -81,6 +81,9 @@ public enum QueryFlag {
 
     VALID_SYNTAX(new Builder("valid-syntax")
             .describedAs("Returns only syntactically correct objects")),
+
+    NO_VALID_SYNTAX(new Builder("no-valid-syntax")
+            .describedAs("Returns only syntactically incorrect objects")),
     /* -------------------------------------------------------------------------------------------------------------- */
 
     NO_TAG_INFO(new Builder("no-tag-info")

@@ -57,6 +57,8 @@ public class AuthenticatorPrincipalTest {
     public void setup() {
         when(authenticationStrategy1.getName()).thenReturn("authenticationStrategy1");
         when(authenticationStrategy2.getName()).thenReturn("authenticationStrategy2");
+        when(authenticationStrategy1.compareTo(authenticationStrategy2)).thenReturn(-1);
+        when(authenticationStrategy2.compareTo(authenticationStrategy1)).thenReturn(1);
 
         when(maintainers.getPowerMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT"));
         when(maintainers.getEnduserMaintainers()).thenReturn(ciSet("RIPE-NCC-END-MNT"));
@@ -100,7 +102,7 @@ public class AuthenticatorPrincipalTest {
     }
 
     @Test
-    @Ignore // [AK] For now we allow updating by power maintainers outside the RIPE range, so this test fails
+    @Ignore // TODO [AK] For now we allow updating by power maintainers outside the RIPE range, so this test fails
     public void authenticate_by_powerMaintainer_outside_ripe() {
         when(origin.getFrom()).thenReturn("212.0.0.0");
         when(ipRanges.isTrusted(any(Interval.class))).thenReturn(false);
@@ -324,7 +326,7 @@ public class AuthenticatorPrincipalTest {
         verifySubject(updateContext, new Subject(Principal.OVERRIDE_MAINTAINER));
         verify(authenticationStrategy1).getTypesWithPendingAuthenticationSupport();
         verify(authenticationStrategy2).getTypesWithPendingAuthenticationSupport();
-        verifyNoMoreInteractions(authenticationStrategy1, authenticationStrategy2, userDao, update, updateContext);
+        verifyNoMoreInteractions(userDao, update, updateContext);
     }
 
     @Test

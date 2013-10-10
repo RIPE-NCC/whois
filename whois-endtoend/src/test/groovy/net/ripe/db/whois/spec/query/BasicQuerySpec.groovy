@@ -498,7 +498,7 @@ class BasicQuerySpec extends BaseSpec {
         queryObject("--no-grouping --all-less 99.13.0.0/32", "route", "99.13.0.0/16")
         queryObject("--no-grouping --all-less 99.13.0.0/32", "route", "99.0.0.0/8")
         queryCountObjects("--no-grouping --all-less 99.13.0.0/32") == 5
-        !(query() =~ "% Information related to '99.0.0.0/8AS1000'")
+        !(query("--no-grouping --all-less 99.13.0.0/32") =~ "% Information related to '99.0.0.0/8AS1000'")
     }
 
     // -B, --no-filtering
@@ -524,7 +524,7 @@ class BasicQuerySpec extends BaseSpec {
         queryObject("--no-filtering AB-TEST", "changed", "dbtest@ripe.net 20121016")
     }
 
-    // --valid-syntax
+    // --valid-syntax, --no-valid-syntax
 
     def "--valid-syntax invalid object"() {
       given:
@@ -542,6 +542,24 @@ class BasicQuerySpec extends BaseSpec {
 
       expect:
         queryObject("--valid-syntax AB-TEST", "role", "Abuse Me")
+    }
+
+    def "--no-valid-syntax invalid object"() {
+      given:
+        databaseHelper.addObject(getTransient("INET6NUM"))
+
+      expect:
+        queryObject("--no-valid-syntax 2001:2002:2003::/64", "inet6num", "2001:2002:2003::/64")
+        queryObjectNotFound("--no-valid-syntax 2001:2002:2003::/64", "organisation", "ORG-LIR1-TEST")
+        queryObjectNotFound("--no-valid-syntax 2001:2002:2003::/64", "person", "Test Person")
+    }
+
+    def "--no-valid-syntax valid object"() {
+      given:
+        databaseHelper.addObject(getTransient("ROLE"))
+
+      expect:
+        queryObjectNotFound("--no-valid-syntax AB-TEST", "role", "Abuse Me")
     }
 
     // -r, --no-referenced
@@ -711,7 +729,7 @@ class BasicQuerySpec extends BaseSpec {
 
     def "--template mntner"() {
       expect:
-        query("--template mntner") =~
+        query("--template mntner").contains("" +
                 "mntner:         [mandatory]  [single]     [primary/lookup key]\n" +
                 "descr:          [mandatory]  [multiple]   [ ]\n" +
                 "org:            [optional]   [multiple]   [inverse key]\n" +
@@ -726,14 +744,14 @@ class BasicQuerySpec extends BaseSpec {
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
                 "referral-by:    [mandatory]  [single]     [ ]\n" +
                 "changed:        [mandatory]  [multiple]   [ ]\n" +
-                "source:         [mandatory]  [single]     [ ]"
+                "source:         [mandatory]  [single]     [ ]")
     }
 
     // --verbose
 
     def "--verbose person"() {
       expect:
-        query("--verbose person") =~
+        query("--verbose person").contains(
                 "The person class:\n" +
                 "\n" +
                 "      A person object contains information about technical or\n" +
@@ -744,7 +762,7 @@ class BasicQuerySpec extends BaseSpec {
                 "person:         [mandatory]  [single]     [lookup key]\n" +
                 "address:        [mandatory]  [multiple]   [ ]\n" +
                 "phone:          [mandatory]  [multiple]   [ ]\n" +
-                "fax-no:         [optional]   [multiple]   [ ]"
+                "fax-no:         [optional]   [multiple]   [ ]")
     }
 
     // -V, --client

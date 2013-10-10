@@ -1591,7 +1591,7 @@ class VersionHistorySpec extends BaseSpec {
         ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
 
-        queryLineMatches("-T route6 --show-version 2 2001::/20", "^%ERROR:109: invalid combination of flags passed")
+        queryLineMatches("-T route6 --show-version 2 2001::/20", "^%ERROR:101: no entries found")
     }
 
     def "query --show-version 2 and -V client-tag, 2 versions"() {

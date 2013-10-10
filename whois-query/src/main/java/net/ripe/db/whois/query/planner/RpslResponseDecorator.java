@@ -44,7 +44,8 @@ public class RpslResponseDecorator {
     private final AbuseCInfoFunction abuseCInfoFunction;
     private final BriefAbuseCFunction briefAbuseCFunction;
     private final DummifyFunction dummifyFunction;
-    private final ValidSyntaxFunction validSyntaxFunction;
+    private final SyntaxFilterFunction validSyntaxFilterFunction;
+    private final SyntaxFilterFunction invalidSyntaxFilterFunction;
     private final FilterTagsDecorator filterTagsDecorator;
     private final FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
@@ -62,7 +63,8 @@ public class RpslResponseDecorator {
         this.filterPersonalDecorator = filterPersonalDecorator;
         this.sourceContext = sourceContext;
         this.dummifyFunction = dummifyFunction;
-        this.validSyntaxFunction = new ValidSyntaxFunction();
+        this.validSyntaxFilterFunction = new SyntaxFilterFunction(true);
+        this.invalidSyntaxFilterFunction = new SyntaxFilterFunction(false);
         this.filterTagsDecorator = filterTagsDecorator;
         this.filterPlaceholdersDecorator = filterPlaceholdersDecorator;
         this.abuseCInfoFunction = new AbuseCInfoFunction(abuseCFinder);
@@ -79,7 +81,7 @@ public class RpslResponseDecorator {
         result = filterPersonalDecorator.decorate(query, result);
 
         result = applyAbuseC(query, result);
-        result = applyValidSyntax(query, result);
+        result = applySyntaxFilter(query, result);
         result = filterEmail(query, result);
         result = filterAuth(result);
 
@@ -96,9 +98,12 @@ public class RpslResponseDecorator {
         return result;
     }
 
-    private Iterable<? extends ResponseObject> applyValidSyntax(final Query query, final Iterable<? extends ResponseObject> result) {
+    private Iterable<? extends ResponseObject> applySyntaxFilter(final Query query, final Iterable<? extends ResponseObject> result) {
         if (query.isValidSyntax()) {
-            return Iterables.concat(Iterables.transform(result, validSyntaxFunction));
+            return Iterables.concat(Iterables.transform(result, validSyntaxFilterFunction));
+        }
+        if (query.isNoValidSyntax()) {
+            return Iterables.concat(Iterables.transform(result, invalidSyntaxFilterFunction));
         }
 
         return result;

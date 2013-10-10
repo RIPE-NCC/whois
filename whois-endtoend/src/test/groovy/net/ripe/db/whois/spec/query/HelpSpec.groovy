@@ -3,7 +3,7 @@ package net.ripe.db.whois.spec.query
 import net.ripe.db.whois.query.domain.QueryMessages
 import net.ripe.db.whois.spec.BaseSpec
 
-class ComparisonQueriesHelpSpec extends BaseSpec {
+class HelpSpec extends BaseSpec {
 
     def header = """\
 % This is the RIPE Database query service.
@@ -25,10 +25,11 @@ class ComparisonQueriesHelpSpec extends BaseSpec {
 
     def "help"() {
       when:
-        def help = query "help"
+        def help = query "heLP"
 
       then:
         help.contains(expectedResponse)
+        grepQueryLog(/PW-QRY-INFO <0\+0\+0>  \d+ms \[127\.0\.0\.1\] --  heLP$/)
     }
 
     def "HELP"() {
