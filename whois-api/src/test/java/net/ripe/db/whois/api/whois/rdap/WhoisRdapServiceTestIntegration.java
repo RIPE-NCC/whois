@@ -1106,6 +1106,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void search_entity_organisation_by_name_mixed_case() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Entity response = createResource(AUDIENCE, "entities?fn=ORGanisAtioN")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+    }
+
+    @Test
     public void search_entity_organisation_by_name_with_wildcard() throws Exception {
         freeTextIndex.rebuild();
 
@@ -1154,6 +1165,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         freeTextIndex.rebuild();
 
         final Entity response = createResource(AUDIENCE, "entities?handle=ORG*")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+    }
+
+    @Test
+    public void search_entity_organisation_by_handle_with_wildcard_prefix_middle_and_suffix() throws Exception {
+        freeTextIndex.rebuild();
+
+        final Entity response = createResource(AUDIENCE, "entities?handle=*ORG*TEST*")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
