@@ -77,7 +77,7 @@ public class AbuseCService {
                 Keyword.NONE,
                 loggerContext);
 
-        return Response.ok(String.format("http://rest.db.ripe.net/%s/organisation/%s.html", source.getName(), orgkey)).build();
+        return Response.ok(String.format("http://apps.db.ripe.net/search/lookup.html?source=%s&key=%s&type=ORGANISATION", source.getName(), orgkey)).build();
     }
 
     @Nullable

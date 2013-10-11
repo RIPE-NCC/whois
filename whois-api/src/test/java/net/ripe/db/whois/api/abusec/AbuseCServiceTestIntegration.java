@@ -58,7 +58,7 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
                 .request(MediaType.TEXT_PLAIN)
                 .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
-        assertThat(response, containsString("http://rest.db.ripe.net/TEST/organisation/ORG-TOL1-TEST.html"));
+        assertThat(response, containsString("http://apps.db.ripe.net/search/lookup.html?source=TEST&key=ORG-TOL1-TEST&type=ORGANISATION"));
         final RpslObject organisation = databaseHelper.lookupObject(ORGANISATION, "ORG-TOL1-TEST");
         assertThat(organisation.getValueForAttribute(AttributeType.ABUSE_C), is(CIString.ciString("AR1-TEST")));
         final RpslObject role = databaseHelper.lookupObject(ROLE, "AR1-TEST");
