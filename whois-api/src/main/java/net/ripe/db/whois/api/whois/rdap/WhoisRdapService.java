@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -356,11 +357,12 @@ public class WhoisRdapService {
             final List<RpslObject> objects = freeTextIndex.search(new IndexTemplate.SearchCallback<List<RpslObject>>() {
                 @Override
                 public List<RpslObject> search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
+                    final Stopwatch stopWatch = new Stopwatch().start();
                     final List<RpslObject> results = Lists.newArrayList();
                     final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
                     try {
                         final QueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_44, fields, new RdapAnalyzer());
-                        queryParser.setAllowLeadingWildcard(true);                                                          // TODO: test performance
+                        queryParser.setAllowLeadingWildcard(true);
                         queryParser.setDefaultOperator(QueryParser.Operator.AND);
                         final org.apache.lucene.search.Query query = queryParser.parse(term);
                         final TopDocs topDocs = indexSearcher.search(query, maxResults);
@@ -369,7 +371,7 @@ public class WhoisRdapService {
                             results.add(convertLuceneDocumentToRpslObject(document));
                         }
 
-                        LOGGER.info("Found {} objects", results.size());
+                        LOGGER.info("Found {} objects in {}", results.size(), stopWatch.stop());
                         return results;
 
                     } catch (ParseException e) {
