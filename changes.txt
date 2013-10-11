@@ -1,6 +1,6 @@
 ## next
 [query] added option --valid-syntax
-[update] added pending route creation
+[update] Allow import-via/export-via rpsl attributes - Job Snijders <job@atrato.com>
 [oneshot] added autnum cleanup
 [api] renamed abuse-finder to abuse-contact (also changed references on DbWebWar abusefinder branch)
 [api] added abuse contact creation helper rest call
@@ -12,7 +12,7 @@
 [all] added table autoritative_data to interals database
 [all] dailyscheduledtasks now runs distributed in the cluster
 [all] sanitize source attribute into uppercase letters
-[all] -T flag is now allowed with version queries
+[all] specifying type filter is now allowed with version queries
 [DEPLOY] remove leftover wsearch.* from properties file
 [DEPLOY] run whois-common/sql/apikeys.sql on master before starting first 1.70
 [DEPLOY] run internals-1.70.sql on master before starting first 1.70

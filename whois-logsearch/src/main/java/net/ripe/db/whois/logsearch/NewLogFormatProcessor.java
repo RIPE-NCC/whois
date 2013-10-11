@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -150,28 +151,32 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                 }));
 
                 final String todaysFolder = LogFileIndex.DATE_FORMATTER.print(LocalDate.now());
-                Files.walkFileTree(Paths.get(logDirectory), new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
-                        if (dir.getFileName().toString().equals(todaysFolder)) {
-                            new DailyLogFolder(dir).processLoggedFiles(new LoggedUpdateProcessor<DailyLogEntry>() {
-                                @Override
-                                public boolean accept(DailyLogEntry dailyLogEntry) {
-                                    return INDEXED_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches() &&
-                                            !todaysIndexedFiles.contains(dailyLogEntry.getUpdateId());
-                                }
+                try {
+                    Files.walkFileTree(Paths.get(logDirectory), new SimpleFileVisitor<Path>() {
+                        @Override
+                        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
+                            if (dir.getFileName().toString().equals(todaysFolder)) {
+                                new DailyLogFolder(dir).processLoggedFiles(new LoggedUpdateProcessor<DailyLogEntry>() {
+                                    @Override
+                                    public boolean accept(DailyLogEntry dailyLogEntry) {
+                                        return INDEXED_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches() &&
+                                                !todaysIndexedFiles.contains(dailyLogEntry.getUpdateId());
+                                    }
 
-                                @Override
-                                public void process(DailyLogEntry dailyLogEntry, String contents) {
-                                    LogFileIndex.addToIndex(dailyLogEntry, contents, indexWriter);
-                                }
-                            });
+                                    @Override
+                                    public void process(DailyLogEntry dailyLogEntry, String contents) {
+                                        LogFileIndex.addToIndex(dailyLogEntry, contents, indexWriter);
+                                    }
+                                });
 
-                            return FileVisitResult.SKIP_SUBTREE;
+                                return FileVisitResult.SKIP_SUBTREE;
+                            }
+                            return FileVisitResult.CONTINUE;
                         }
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
+                    });
+                } catch (FileSystemException e) {
+                    LOGGER.info("FileSystemException: {}", e.getMessage());
+                }
             }
         });
     }
