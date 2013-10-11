@@ -60,6 +60,7 @@ public class SingleUpdateHandler {
         this.pendingUpdateHandler = pendingUpdateHandler;
     }
 
+    // TODO: [AH] this code is too script-like, with updateContext acting as a global variable stash, with sub-scripts like authenticator altering it.
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void handle(final Origin origin, final Keyword keyword, final Update update, final UpdateContext updateContext) {
         updateLockDao.setUpdateLock();

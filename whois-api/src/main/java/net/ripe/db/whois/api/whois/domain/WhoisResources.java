@@ -30,7 +30,6 @@ public class WhoisResources {
 
     protected Parameters parameters;
 
-    // TODO: not filled in many cases; e.g. search
     @XmlAttribute
     protected String service;
     @XmlElement(name = "objects")

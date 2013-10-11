@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.whois;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.whois.domain.*;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,19 +29,6 @@ public class WhoisObjectMapper {
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
 
     private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)^[^#]*[#](.*)$");
-
-    private static final Set<AttributeType> CSV_ATTRIBUTES = Sets.immutableEnumSet(
-            AttributeType.MNT_BY,
-            AttributeType.MNT_LOWER,
-            AttributeType.MNT_DOMAINS,
-            AttributeType.REFERRAL_BY,
-            AttributeType.MNT_REF,
-            AttributeType.MEMBERS,
-            AttributeType.MP_MEMBERS,
-            AttributeType.MBRS_BY_REF,
-            AttributeType.MEMBER_OF);
-
-    private static final Splitter CSV_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
     private final ReferencedTypeResolver referencedTypeResolver;
     private final String baseUrl;
