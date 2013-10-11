@@ -15,4 +15,14 @@ public class RestServiceHelper {
         return builder.toString();
     }
 
+    public static String getRequestURI(final HttpServletRequest request) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(request.getRequestURI());
+        final String queryString = request.getQueryString();
+        if (queryString != null) {
+            builder.append('?');
+            builder.append(queryString);
+        }
+        return builder.toString();
+    }
 }

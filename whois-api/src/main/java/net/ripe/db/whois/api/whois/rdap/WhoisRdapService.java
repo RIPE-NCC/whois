@@ -10,6 +10,7 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.freetext.FreeTextIndex;
 import net.ripe.db.whois.api.search.IndexTemplate;
 import net.ripe.db.whois.api.whois.ApiResponseHandler;
+import net.ripe.db.whois.api.whois.RestServiceHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -86,7 +87,6 @@ public class WhoisRdapService {
     private static final int SEARCH_MAX_RESULTS = 100;
     private static final Set<String> SEARCH_INDEX_FIELDS_NOT_MAPPED_TO_RPSL_OBJECT = Sets.newHashSet("primary-key", "object-type", "lookup-key");
 
-
     private final QueryHandler queryHandler;
     private final RpslObjectDao objectDao;
     private final AbuseCFinder abuseCFinder;
@@ -122,6 +122,8 @@ public class WhoisRdapService {
     public Response lookup(@Context final HttpServletRequest request,
                            @PathParam("objectType") final String objectType,
                            @PathParam("key") final String key) {
+
+        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
 
         final Set<ObjectType> whoisObjectTypes = Sets.newHashSet();
 
@@ -169,6 +171,8 @@ public class WhoisRdapService {
             @QueryParam("fn") final String name,
             @QueryParam("handle") final String handle) {
 
+        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
+
         if (name != null && handle == null) {
             return handleSearch(new String[]{"person", "role", "org-name"}, name, request);
         }
@@ -188,6 +192,8 @@ public class WhoisRdapService {
             @Context final HttpServletRequest request,
             @QueryParam("name") final String name) {
 
+        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
+
         if (StringUtils.isEmpty(name)) {
             return Response.status(BAD_REQUEST).build();
         }
@@ -201,6 +207,8 @@ public class WhoisRdapService {
     public Response searchDomains(
             @Context final HttpServletRequest request,
             @QueryParam("name") final String name) {
+
+        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
 
         return handleSearch(new String[]{"domain"}, name, request);
     }
@@ -421,18 +429,14 @@ public class WhoisRdapService {
     }
 
     private class RdapAnalyzer extends Analyzer {
-
         @Override
         protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
             final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer(Version.LUCENE_44, reader);
-
             TokenStream tok = new WordDelimiterFilter(
                     tokenizer,
                     WordDelimiterFilter.PRESERVE_ORIGINAL,
                     CharArraySet.EMPTY_SET);
-
             tok = new LowerCaseFilter(Version.LUCENE_44, tok);
-
             return new TokenStreamComponents(tokenizer, tok);
         }
     }
