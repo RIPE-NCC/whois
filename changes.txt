@@ -7,6 +7,7 @@
 [api] moved apikeys from properties to acl database
 [api] Updated to Lucene 4.4
 [api] normalize ip addresses. TODO: change database values
+[api] removed xml-related 'xlink:' prefix from locators in JSON output
 [all] removed useless thread_id, prev_serial, serial fields and dropped unused tables from SQL schema
 [all] merged pending and scheduler databases into internals
 [all] added table autoritative_data to interals database

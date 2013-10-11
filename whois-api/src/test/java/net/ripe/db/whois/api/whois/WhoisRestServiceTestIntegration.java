@@ -254,7 +254,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .get(String.class);
         assertThat(whoisResources, containsString("{\"object\":[{\"type\":\"person"));
         assertThat(whoisResources, containsString("\"tags\":{\"tag\":[]}}]}"));
-        assertThat(whoisResources, containsString("\"terms-and-conditions\":{\"xlink:type\":\"locator\",\"xlink:href\":\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"}}"));
+        assertThat(whoisResources, containsString("\"terms-and-conditions\":{\"type\":\"locator\",\"href\":\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"}}"));
     }
 
     @Test
@@ -1044,8 +1044,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"object\""));
-        assertThat(response, containsString("\"xlink:type\""));
-        assertThat(response, containsString("\"xlink:href\""));
+        assertThat(response, containsString("\"type\""));
+        assertThat(response, containsString("\"href\""));
     }
 
     @Test
@@ -1055,8 +1055,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .get(String.class);
         assertThat(response, containsString("\"objects\""));
         assertThat(response, containsString("\"object\""));
-        assertThat(response, containsString("\"xlink:type\""));
-        assertThat(response, containsString("\"xlink:href\""));
+        assertThat(response, containsString("\"type\""));
+        assertThat(response, containsString("\"href\""));
     }
 
     @Test
