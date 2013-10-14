@@ -1,4 +1,6 @@
 ## next
+
+## 1.70
 [query] added option --valid-syntax and --no-valid-syntax
 [update] Allow import-via/export-via rpsl attributes - Job Snijders <job@atrato.com>
 [oneshot] added autnum cleanup
