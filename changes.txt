@@ -1,27 +1,29 @@
 ## next
-[query] added option --valid-syntax
+[query] added option --valid-syntax and --no-valid-syntax
 [update] Allow import-via/export-via rpsl attributes - Job Snijders <job@atrato.com>
 [oneshot] added autnum cleanup
 [api] renamed abuse-finder to abuse-contact (also changed references on DbWebWar abusefinder branch)
 [api] added abuse contact creation helper rest call
 [api] moved apikeys from properties to acl database
 [api] Updated to Lucene 4.4
-[api] normalize ip addresses. TODO: change database values
 [api] removed xml-related 'xlink:' prefix from locators in JSON output
+[api] normalize ip addresses.
 [all] removed useless thread_id, prev_serial, serial fields and dropped unused tables from SQL schema
 [all] merged pending and scheduler databases into internals
-[all] added table autoritative_data to interals database
+[all] added table authoritative_data to interals database
 [all] dailyscheduledtasks now runs distributed in the cluster
 [all] sanitize source attribute into uppercase letters
 [all] specifying type filter is now allowed with version queries
 [DEPLOY] remove leftover wsearch.* from properties file
 [DEPLOY] run whois-common/sql/apikeys.sql on master before starting first 1.70
 [DEPLOY] run internals-1.70.sql on master before starting first 1.70
-[DEPLOY] delete var/idx before starting 1.70
+[DEPLOY] delete var/idx before starting 1.70 (to rebuild Lucene index @ v4.4, will take 20 mins to complete).
 [DEPLOY] execute JMX call DailyScheduler.runDailyScheduledTask net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask, on the first server only
 [DEPLOY] run JMX call AuthoritativeResources.refreshCache on all servers started before AuthoritativeResourceImport finished
 [DEPLOY] run whois-1.70.sql after all nodes run 1.70 (warning: blocks updates & takes a long time!) (65 mins on pre-production)
 [DEPLOY] run whois-1.70.sql on all GRS databases, too
+[DEPLOY] normalise ACL prefixes (TODO write script).
+[DEPLOY] deploy DbWebWar abusefinder branch.
 
 ## 1.69 (deployed on 2013-09-23)
 [update] enable dry-run
