@@ -39,7 +39,7 @@ public class ExtensionOverridesAcceptHeaderFilter implements Filter {
     public void destroy() {
     }
 
-    private static class OverrideAcceptHeaderWrapper extends HttpServletRequestWrapper {
+    private static final class OverrideAcceptHeaderWrapper extends HttpServletRequestWrapper {
 
         private final String requestURI;
         private final StringBuffer requestURL;

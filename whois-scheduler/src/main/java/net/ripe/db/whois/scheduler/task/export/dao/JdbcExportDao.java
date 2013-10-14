@@ -40,7 +40,7 @@ class JdbcExportDao implements ExportDao {
                 new ExportRowCallbackHandler(exportCallbackHandler));
     }
 
-    private static class ExportRowCallbackHandler implements RowCallbackHandler {
+    private static final class ExportRowCallbackHandler implements RowCallbackHandler {
         private final ExportCallbackHandler exportCallbackHandler;
 
         private ExportRowCallbackHandler(final ExportCallbackHandler exportCallbackHandler) {

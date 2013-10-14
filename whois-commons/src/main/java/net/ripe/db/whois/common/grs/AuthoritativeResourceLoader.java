@@ -48,7 +48,7 @@ public class AuthoritativeResourceLoader {
             handleLine(expectedSource, line);
         }
 
-        return new AuthoritativeResource(logger, autNums, inetnums, inet6nums);
+        return new AuthoritativeResource(autNums, inetnums, inet6nums);
     }
 
     private void handleLine(final String expectedSource, final String line) {

@@ -1,7 +1,6 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
 import net.ripe.db.whois.common.jmx.JmxBase;
-import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ public class BootstrapJmx extends JmxBase {
     private final Bootstrap bootstrap;
 
     @Autowired
-    public BootstrapJmx(final Bootstrap bootstrap, SourceContext sourceContext) {
+    public BootstrapJmx(final Bootstrap bootstrap) {
         super(LOGGER);
         this.bootstrap = bootstrap;
     }

@@ -12,11 +12,7 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
-import org.apache.lucene.index.FieldInfo;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.Term;
+import org.apache.lucene.index.*;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
@@ -109,7 +105,6 @@ public class LogFileIndex {
 
     public static void addToIndex(final LoggedUpdate loggedUpdate, final String contents, final IndexWriter indexWriter) {
         try {
-            // LOGGER.debug("Indexing {}", loggedUpdate);
             indexWriter.deleteDocuments(new Term("updateId", loggedUpdate.getUpdateId()));
             final Document document = new Document();
             document.add(new Field("updateId", loggedUpdate.getUpdateId(), UPDATE_ID_FIELD_TYPE));

@@ -166,7 +166,7 @@ class DnsGatewayImpl implements DnsGateway {
         return null;
     }
 
-    private static class DnsResult {
+    private static final class DnsResult {
         private int id;
         private int nrErrors;
 

@@ -12,7 +12,7 @@ import java.util.Set;
 
 // TODO: [AH] remove default users once phased out legacy overrides
 @Immutable
-public class OverrideCredential implements Credential {
+public final class OverrideCredential implements Credential {
     private static final Splitter OVERRIDE_SPLITTER = Splitter.on(',').limit(3);
     private static final String DEFAULT_USER_1 = "dbase1";
     private static final String DEFAULT_USER_2 = "dbase2";

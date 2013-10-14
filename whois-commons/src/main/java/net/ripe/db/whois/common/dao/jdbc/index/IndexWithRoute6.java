@@ -60,7 +60,7 @@ class IndexWithRoute6 extends IndexStrategyWithSingleLookupTable {
         }
     }
 
-    private static class Route6Key {
+    private static final class Route6Key {
         private static final Pattern ROUTE_PATTERN = Pattern.compile("(?i)(.*)(AS(?:\\d+))");
 
         private final Ipv6Resource resource;

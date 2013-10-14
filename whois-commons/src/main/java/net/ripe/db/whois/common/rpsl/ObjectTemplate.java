@@ -17,7 +17,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.*;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.*;
 import static net.ripe.db.whois.common.rpsl.AttributeType.*;
 
-public class ObjectTemplate implements Comparable<ObjectTemplate> {
+public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     private static final Map<ObjectType, ObjectTemplate> TEMPLATE_MAP;
 
     static {

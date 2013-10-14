@@ -11,7 +11,7 @@ public class SerialEntry {
 
     private RpslObject rpslObject;
 
-    public SerialEntry(Operation operation, boolean atLast, int objectId, int lastTimestamp, int historyTimestamp) {
+    public SerialEntry(Operation operation, boolean atLast, int lastTimestamp, int historyTimestamp) {
         this.operation = operation;
         this.atLast = atLast;
         this.lastTimestamp = lastTimestamp;
@@ -20,7 +20,7 @@ public class SerialEntry {
     }
 
     public SerialEntry(Operation operation, boolean atLast, int objectId, int lastTimestamp, int historyTimestamp, byte[] blob) {
-        this(operation, atLast, objectId, lastTimestamp, historyTimestamp);
+        this(operation, atLast, lastTimestamp, historyTimestamp);
         rpslObject = RpslObject.parse(objectId, blob);
     }
 

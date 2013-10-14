@@ -23,8 +23,8 @@ public enum Inet6numStatus implements InetStatus {
 
     private final CIString literalStatus;
     private final Set<OrgType> allowedOrgTypes;
-    private static List<Inet6numStatus> RS_MNTNER_STATUSES = Lists.newArrayList(ASSIGNED_PI, ASSIGNED_ANYCAST, ALLOCATED_BY_RIR);
-    private static List<Inet6numStatus> ALLOC_MNTNER_STATUSES = Lists.newArrayList(ALLOCATED_BY_RIR);
+    private static final List<Inet6numStatus> RS_MNTNER_STATUSES = Lists.newArrayList(ASSIGNED_PI, ASSIGNED_ANYCAST, ALLOCATED_BY_RIR);
+    private static final List<Inet6numStatus> ALLOC_MNTNER_STATUSES = Lists.newArrayList(ALLOCATED_BY_RIR);
 
     private static final Set<Inet6numStatus> NEEDS_ORG_REFERENCE;
     private static final Map<InetStatus, List<InetStatus>> PARENT_STATUS;

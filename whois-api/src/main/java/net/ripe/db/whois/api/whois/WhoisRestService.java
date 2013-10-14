@@ -404,7 +404,7 @@ public class WhoisRestService {
             public String apply(final String input) {
                 String result = input.toLowerCase();
                 if (result.contains("=")) {
-                    return result.substring(0, result.indexOf("="));
+                    return result.substring(0, result.indexOf('='));
                 }
                 return result;
             }

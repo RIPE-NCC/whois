@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.domain.Ipv6Resource;
 import net.ripe.db.whois.common.etree.IntervalMap;
 import net.ripe.db.whois.common.etree.NestedIntervalMap;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.RecoverableDataAccessException;
@@ -37,7 +36,7 @@ public class ResourceDataDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public AuthoritativeResource load(final Logger logger, final String source) {
+    public AuthoritativeResource load(final String source) {
         final Set<CIString> autNums = Sets.newHashSet();
         final IntervalMap<Ipv4Resource, Ipv4Resource> inetnums = new NestedIntervalMap<>();
         final IntervalMap<Ipv6Resource, Ipv6Resource> inet6nums = new NestedIntervalMap<>();
@@ -57,7 +56,7 @@ public class ResourceDataDao {
                 }
             }
         }, source);
-        return new AuthoritativeResource(logger, autNums, inetnums, inet6nums);
+        return new AuthoritativeResource(autNums, inetnums, inet6nums);
     }
 
     public void store(final String source, final AuthoritativeResource authoritativeResource) {

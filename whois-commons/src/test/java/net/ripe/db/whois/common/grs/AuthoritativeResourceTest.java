@@ -369,7 +369,7 @@ public class AuthoritativeResourceTest {
 
     @Test
     public void isMaintainedInRirSpace_unknown_data() {
-        final AuthoritativeResource resourceData = AuthoritativeResource.unknown(logger);
+        final AuthoritativeResource resourceData = AuthoritativeResource.unknown();
         assertThat(resourceData.isMaintainedInRirSpace(RpslObject.parse("aut-num: AS6")), is(false));
         assertThat(resourceData.isMaintainedInRirSpace(RpslObject.parse("inetnum: 1.0.0.0 - 1.255.255.255")), is(false));
         assertThat(resourceData.isMaintainedInRirSpace(RpslObject.parse("inet6num: 2001::")), is(false));
@@ -378,7 +378,7 @@ public class AuthoritativeResourceTest {
 
     @Test
     public void isMaintainedByRir_unknown_data() {
-        final AuthoritativeResource resourceData = AuthoritativeResource.unknown(logger);
+        final AuthoritativeResource resourceData = AuthoritativeResource.unknown();
         assertThat(resourceData.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS6")), is(false));
         assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("1.0.0.0 - 1.255.255.255")), is(false));
         assertThat(resourceData.isMaintainedByRir(ObjectType.INET6NUM, ciString("2001::")), is(false));
@@ -387,7 +387,7 @@ public class AuthoritativeResourceTest {
 
     @Test
     public void getResources_unknown() {
-        assertThat(AuthoritativeResource.unknown(logger).getResourceTypes(),
+        assertThat(AuthoritativeResource.unknown().getResourceTypes(),
                 containsInAnyOrder(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM));
     }
 

@@ -114,7 +114,7 @@ class RpslObjectsToTextExporter implements RpslObjectsExporter {
         }
     }
 
-    private class TextFileExporter implements ExportCallbackHandler {
+    private final class TextFileExporter implements ExportCallbackHandler {
         private static final int LOG_EVERY = 500000;
         private final Iterable<ExportFileWriter> exportFileWriters;
 

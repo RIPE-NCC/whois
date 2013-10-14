@@ -40,15 +40,15 @@ public class AuthoritativeResource {
         }
     }
 
-    public static AuthoritativeResource unknown(final Logger logger) {
-        return new AuthoritativeResource(logger, Collections.<CIString>emptySet(), new NestedIntervalMap<Ipv4Resource, Ipv4Resource>(), new NestedIntervalMap<Ipv6Resource, Ipv6Resource>());
+    public static AuthoritativeResource unknown() {
+        return new AuthoritativeResource(Collections.<CIString>emptySet(), new NestedIntervalMap<Ipv4Resource, Ipv4Resource>(), new NestedIntervalMap<Ipv6Resource, Ipv6Resource>());
     }
 
     public static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner) {
         return new AuthoritativeResourceLoader(logger, name, scanner).load();
     }
 
-    public AuthoritativeResource(final Logger logger, final Set<CIString> autNums, final IntervalMap<Ipv4Resource, Ipv4Resource> inetRanges, final IntervalMap<Ipv6Resource, Ipv6Resource> inet6Ranges) {
+    public AuthoritativeResource(final Set<CIString> autNums, final IntervalMap<Ipv4Resource, Ipv4Resource> inetRanges, final IntervalMap<Ipv6Resource, Ipv6Resource> inet6Ranges) {
         this.autNums = autNums;
         this.inetRanges = inetRanges;
         this.inet6Ranges = inet6Ranges;
@@ -206,6 +206,14 @@ public class AuthoritativeResource {
         AuthoritativeResource that = (AuthoritativeResource) o;
 
         return autNums.equals(that.autNums) && inet6Ranges.equals(that.inet6Ranges) && inetRanges.equals(that.inetRanges);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (autNums == null ? 0 : autNums.hashCode());
+        result = 31 * result + (inetRanges == null ? 0 : inetRanges.hashCode());
+        result = 31 * result + (inet6Ranges == null ? 0 : inet6Ranges.hashCode());
+        return result;
     }
 
     public List<String> getResources() {

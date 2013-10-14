@@ -636,7 +636,7 @@ public final class Query {
         return originalStringQuery;
     }
 
-    public boolean MatchesObjectTypeAndAttribute(final ObjectType objectType, final AttributeType attributeType) {
+    public boolean matchesObjectTypeAndAttribute(final ObjectType objectType, final AttributeType attributeType) {
         return ObjectTemplate.getTemplate(objectType).getLookupAttributes().contains(attributeType) && AttributeMatcher.fetchableBy(attributeType, this);
     }
 }

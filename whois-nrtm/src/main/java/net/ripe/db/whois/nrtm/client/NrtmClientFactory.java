@@ -220,7 +220,7 @@ class NrtmClientFactory {
             return RpslObject.parse(builder.toString());
         }
 
-        private class OperationSerial {
+        private final class OperationSerial {
             private final Operation operation;
             private final int serial;
 

@@ -184,7 +184,7 @@ public class Authenticator {
             }
         }
 
-        filterAuthentication(updateContext, update, principals, passedAuthentications, failedAuthentications, pendingAuthentications);
+        filterAuthentication(updateContext, update, passedAuthentications, failedAuthentications, pendingAuthentications);
 
         final Subject subject = new Subject(principals, passedAuthentications, failedAuthentications, pendingAuthentications);
         if (!authenticationMessages.isEmpty()) {
@@ -236,7 +236,7 @@ public class Authenticator {
                 && pendingAuths.size() < supportedPendingAuths.size();
     }
 
-    private void filterAuthentication(UpdateContext updateContext, PreparedUpdate update, Set<Principal> principals, Set<String> passedAuthentications, Set<String> failedAuthentications, Map<String, Collection<RpslObject>> pendingAuthentications) {
+    private void filterAuthentication(UpdateContext updateContext, PreparedUpdate update, Set<String> passedAuthentications, Set<String> failedAuthentications, Map<String, Collection<RpslObject>> pendingAuthentications) {
         // we only have pending filter ATM
         if (isPending(update, updateContext, pendingAuthentications.keySet())) {
             final PendingUpdate pendingUpdate = findAndStorePendingUpdate(updateContext, update);

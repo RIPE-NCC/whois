@@ -51,7 +51,7 @@ class IndexWithRoute extends IndexStrategyWithSingleLookupTable {
                 routeKey.origin);
     }
 
-    private static class RouteKey {
+    private static final class RouteKey {
         private static final Pattern ROUTE_PATTERN = Pattern.compile("(?i)(.*)(AS(?:\\d+))");
 
         private final Ipv4Resource ipRange;
