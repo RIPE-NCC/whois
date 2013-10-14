@@ -1690,40 +1690,30 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "route reclaim"() {
       given:
-        def mnt0 = databaseHelper.addObject("" +
+        databaseHelper.addObject("" +
                 "mntner: RIPE-NCC-END-MNT\n" +
                 "mnt-by: RIPE-NCC-END-MNT\n" +
                 "source: TEST")
-        def mnt1 = databaseHelper.addObject("" +
-                "mntner: IN-MNT\n" +
-                "mnt-by: IN-MNT\n" +
-                "source: TEST")
-        def mnt2 = databaseHelper.addObject("" +
+        databaseHelper.addObject("" +
                 "mntner: INC-MNT\n" +
                 "mnt-by: INC-MNT\n" +
                 "auth: MD5-PW \$1\$8o2h6J5S\$FU4b5YVbdGN8/xZoUIZis/\n" + //test
                 "source: TEST")
-        def mnt3 = databaseHelper.addObject("" +
+        databaseHelper.addObject("" +
                 "mntner: T-MNT\n" +
                 "mnt-by: T-MNT\n" +
                 "source: TEST")
-        def inet1 = databaseHelper.addObject("" +
-                "inetnum: 182.0.0.0 - 182.255.0.0\n" +
-                "netname: netname\n" +
-                "mnt-by:  IN-MNT\n" +
-                "source: TEST")
-        def inet2 = databaseHelper.addObject("" +
+        databaseHelper.addObject("" +
                 "inetnum: 182.120.0.0 - 182.255.0.0\n" +
                 "netname: netname c\n" +
                 "mnt-by:  INC-MNT\n" +
                 "mnt-by:  RIPE-NCC-END-MNT\n" +
                 "source: TEST")
-        def route = databaseHelper.addObject("" +
+        databaseHelper.addObject("" +
                 "route: 182.125.0.0/32\n" +
                 "origin: AS132\n" +
                 "mnt-by: T-MNT\n" +
                 "source: TEST")
-        println route
 
       when:
         def response = syncUpdate(new SyncUpdate(data: "" +
@@ -1735,6 +1725,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 "password: test"))
 
       then:
-        response =~ "Delete SUCCEEDED: [route] 182.125.0.0/32AS132"
+        response =~ "Delete SUCCEEDED: \\[route\\] 182.125.0.0/32AS132"
     }
 }
