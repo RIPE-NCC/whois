@@ -2,6 +2,7 @@
 
 ## 1.70
 [query] added option --valid-syntax and --no-valid-syntax
+[query] added comment if no abuse contact registered.
 [update] Allow import-via/export-via rpsl attributes - Job Snijders <job@atrato.com>
 [oneshot] added autnum cleanup
 [api] renamed abuse-finder to abuse-contact (also changed references on DbWebWar abusefinder branch)
@@ -24,7 +25,7 @@
 [DEPLOY] run JMX call AuthoritativeResources.refreshCache on all servers started before AuthoritativeResourceImport finished
 [DEPLOY] run whois-1.70.sql after all nodes run 1.70 (warning: blocks updates & takes a long time!) (65 mins on pre-production)
 [DEPLOY] run whois-1.70.sql on all GRS databases, too
-[DEPLOY] normalise ACL prefixes (TODO write script).
+[DEPLOY] run acl-1.70.sql script (to normalise all ACL prefixes).
 [DEPLOY] deploy DbWebWar abusefinder branch.
 
 ## 1.69 (deployed on 2013-09-23)
