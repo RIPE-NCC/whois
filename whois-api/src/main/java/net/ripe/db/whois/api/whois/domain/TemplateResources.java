@@ -6,11 +6,10 @@ import java.util.List;
 @XmlRootElement(name = "template-resources")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TemplateResources {
-
-    @XmlAttribute
-    protected String service;
     @XmlElement
     protected Link link;
+    @XmlElement
+    protected Service service;
     @XmlElement
     protected Templates templates;
 
@@ -23,11 +22,11 @@ public class TemplateResources {
         return this;
     }
 
-    public String getService() {
+    public Service getService() {
         return service;
     }
 
-    public TemplateResources setService(String value) {
+    public TemplateResources setService(Service value) {
         this.service = value;
         return this;
     }

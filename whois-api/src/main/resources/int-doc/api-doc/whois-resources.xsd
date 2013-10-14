@@ -7,12 +7,19 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="0" ref="link"/>
+                <xs:element minOccurs="0" ref="service"/>
                 <xs:element minOccurs="0" ref="parameters"/>
                 <xs:element minOccurs="0" ref="objects"/>
                 <xs:element minOccurs="0" ref="sources"/>
                 <xs:element minOccurs="0" ref="grs-sources"/>
+                <xs:element minOccurs="0" ref="termsAndConditions"/>
             </xs:sequence>
             <xs:attribute name="service" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="service">
+        <xs:complexType>
+            <xs:attribute name="name" type="xs:string" use="required"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="type-filters">
@@ -193,6 +200,12 @@
         <xs:complexType>
             <xs:attribute name="id" type="xs:string"/>
             <xs:attribute name="data" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="termsAndConditions">
+        <xs:complexType>
+            <xs:attribute ref="xlink:type" use="required"/>
+            <xs:attribute ref="xlink:href" use="required"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

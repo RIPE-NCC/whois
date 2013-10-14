@@ -8,10 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.whois.domain.Link;
-import net.ripe.db.whois.api.whois.domain.Parameters;
-import net.ripe.db.whois.api.whois.domain.WhoisObject;
-import net.ripe.db.whois.api.whois.domain.WhoisResources;
-import net.ripe.db.whois.api.whois.domain.WhoisVersions;
+import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -19,12 +16,7 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
-import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.domain.TagResponseObject;
-import net.ripe.db.whois.query.domain.VersionResponseObject;
-import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
+import net.ripe.db.whois.query.domain.*;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.query.QueryFlag;
@@ -38,21 +30,13 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.ArrayDeque;
-import java.util.Collections;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.query.query.QueryFlag.*;
@@ -61,7 +45,7 @@ import static net.ripe.db.whois.query.query.QueryFlag.*;
 @Path("/")
 public class WhoisRestService {
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
-
+    public static final String SERVICE_SEARCH = "search";
     private static final Joiner JOINER = Joiner.on(",");
     private static final Splitter AMPERSAND = Splitter.on("&");
     private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(Iterables.concat(
@@ -114,7 +98,7 @@ public class WhoisRestService {
         this.queryHandler = queryHandler;
         this.whoisObjectMapper = whoisObjectMapper;
         this.updatePerformer = updatePerformer;
-    }
+   }
 
     @DELETE
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -165,7 +149,8 @@ public class WhoisRestService {
                 Keyword.NONE,
                 loggerContext);
 
-        return Response.ok(createWhoisResources(request, response, false)).build();
+        WhoisResources whoisResources = createWhoisResources(request, response, false);
+        return Response.ok(whoisResources).build();
     }
 
     @POST
@@ -190,7 +175,8 @@ public class WhoisRestService {
                 Keyword.NEW,
                 loggerContext);
 
-        return Response.ok(createWhoisResources(request, response, false)).build();
+        WhoisResources whoisResources = createWhoisResources(request, response, false);
+        return Response.ok(whoisResources).build();
     }
 
     private void checkForMainSource(String source) {
@@ -224,7 +210,7 @@ public class WhoisRestService {
                 unfiltered ? QueryFlag.NO_FILTERING.getLongFlag() : "",
                 key));
 
-        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null);
+        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
     }
 
     @GET
@@ -303,7 +289,10 @@ public class WhoisRestService {
         return Response.ok(whoisResources).build();
     }
 
-    private Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request, final InetAddress remoteAddress, @Nullable final Parameters parameters) {
+    private Response handleQueryAndStreamResponse(final Query query, final HttpServletRequest request,
+                                                  final InetAddress remoteAddress, @Nullable final Parameters parameters,
+                                                  @Nullable final Service service) {
+
         final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
 
         return Response.ok(new StreamingOutput() {
@@ -357,6 +346,10 @@ public class WhoisRestService {
 
             private void startStreaming(final OutputStream output) {
                 streamingMarshal.open(output, "whois-resources");
+
+                if (service!=null){
+                    streamingMarshal.write("service", service);
+                }
 
                 if (parameters != null) {
                     streamingMarshal.write("parameters", parameters);
@@ -479,7 +472,9 @@ public class WhoisRestService {
         parameters.setTypeFilters(types);
         parameters.setFlags(separateFlags);
 
-        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters);
+        Service service = new Service(SERVICE_SEARCH);
+
+        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service);
     }
 
     private void checkForInvalidSources(final Set<String> sources) {

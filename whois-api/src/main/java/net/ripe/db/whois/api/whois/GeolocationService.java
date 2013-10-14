@@ -131,7 +131,7 @@ public class GeolocationService {
         }
 
         final WhoisResources whoisResources = new WhoisResources();
-        whoisResources.setService(SERVICE_NAME);
+        whoisResources.setService(new Service(SERVICE_NAME));
         whoisResources.setGeolocationAttributes(new GeolocationAttributes(location, languages));
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
         whoisResources.includeTermsAndConditions();
