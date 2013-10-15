@@ -10,8 +10,6 @@ public class ObjectTypeIds {
     private static final Map<ObjectType, Integer> BY_OBJECT_TYPE = Maps.newEnumMap(ObjectType.class);
     private static final Map<Integer, ObjectType> BY_TYPE_ID;
 
-    public static final int DUMMY_OBJECT_TYPE = 100;
-
     static {
         BY_OBJECT_TYPE.put(ObjectType.AS_BLOCK, 0);
         BY_OBJECT_TYPE.put(ObjectType.AS_SET, 1);

@@ -223,7 +223,7 @@ public class AutNumCleanup {
                 "SELECT object_id, object " +
                         "FROM last " +
                         "WHERE sequence_id != 0 " +
-                        "AND object_type NOT IN (100," +
+                        "AND object_type NOT IN (" +
                         // quick win filter to reduce data size by >80%
                         JOINER.join(
                                 ObjectTypeIds.getId(ObjectType.PERSON),

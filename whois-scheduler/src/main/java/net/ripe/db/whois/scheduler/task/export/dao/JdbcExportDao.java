@@ -35,8 +35,7 @@ class JdbcExportDao implements ExportDao {
         JdbcStreamingHelper.executeStreaming(jdbcTemplate,
                 "SELECT object_id, object " +
                         "FROM last " +
-                        "WHERE sequence_id != 0 " +
-                        "AND object_type != 100",
+                        "WHERE sequence_id != 0 ",
                 new ExportRowCallbackHandler(exportCallbackHandler));
     }
 
