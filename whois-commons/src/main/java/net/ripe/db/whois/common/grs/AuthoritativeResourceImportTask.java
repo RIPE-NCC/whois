@@ -73,7 +73,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
         final Logger logger = LoggerFactory.getLogger(String.format("%s_%s", getClass().getName(), sourceName));
         final String resourceDataUrl = valueResolver.resolveStringValue(String.format("${grs.import.%s.resourceDataUrl:}", sourceName));
         if (StringUtils.isBlank(resourceDataUrl)) {
-            return AuthoritativeResource.unknown(logger);
+            return AuthoritativeResource.unknown();
         }
 
         final Path resourceDataFile = Paths.get(downloadDir, sourceName + "-RES");

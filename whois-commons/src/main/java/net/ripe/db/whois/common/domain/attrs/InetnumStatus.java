@@ -23,7 +23,7 @@ public enum InetnumStatus implements InetStatus {
     EARLY_REGISTRATION("EARLY-REGISTRATION", LIR, OTHER),
     NOT_SET("NOT-SET", LIR, OTHER);
 
-    private static List<InetnumStatus> RS_MNTNER_STATUSES = Lists.newArrayList(ASSIGNED_ANYCAST, EARLY_REGISTRATION, ALLOCATED_UNSPECIFIED);
+    private static final List<InetnumStatus> RS_MNTNER_STATUSES = Lists.newArrayList(ASSIGNED_ANYCAST, EARLY_REGISTRATION, ALLOCATED_UNSPECIFIED);
 
     private static final Set<InetnumStatus> NEEDS_ORG_REFERENCE;
     private static final Map<InetStatus, List<InetStatus>> PARENT_STATUS;

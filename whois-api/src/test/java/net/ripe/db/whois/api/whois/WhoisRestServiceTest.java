@@ -37,12 +37,13 @@ public class WhoisRestServiceTest {
     @Mock HttpServletRequest request;
 
     @Mock SourceContext sourceContext;
-    @Mock Source source;
+    private Source source;
 
     @InjectMocks WhoisRestService subject;
 
     @Before
     public void setup() {
+        source = Source.slave("TEST");
         when(sourceContext.getCurrentSource()).thenReturn(source);
         when(sourceContext.getAllSourceNames()).thenReturn(CIString.ciSet("TEST", "TEST-GRS"));
     }

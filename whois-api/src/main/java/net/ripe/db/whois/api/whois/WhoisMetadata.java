@@ -79,7 +79,7 @@ public class WhoisMetadata {
     @Path("/sources")
     public Response sources() {
         WhoisResources result = new WhoisResources()
-            .setService("getSupportedDataSources")
+            .setService(new Service("getSupportedDataSources"))
             .setLink(new Link("locator", "http://rest.db.ripe.net/metadata/sources"))
             .setSources(SOURCES)
             .setGrsSources(GRSSOURCES);
@@ -100,7 +100,7 @@ public class WhoisMetadata {
         }
 
         TemplateResources result = new TemplateResources()
-                .setService("getObjectTemplate")
+                .setService(new Service("getObjectTemplate"))
                 .setLink(new Link("locator", "http://rest.db.ripe.net/metadata/templates/"+objectType))
                 .setTemplates(Collections.singletonList(template));
 

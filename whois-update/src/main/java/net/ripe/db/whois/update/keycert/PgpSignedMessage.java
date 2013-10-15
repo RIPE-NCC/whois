@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 import static net.ripe.db.whois.update.keycert.PgpSignedMessageUtil.*;
 
 @Immutable
-public class PgpSignedMessage {
+public final class PgpSignedMessage {
 
     public static final Pattern SIGNED_MESSAGE_PATTERN = Pattern.compile("(?ms)"
             + "-----BEGIN PGP SIGNED MESSAGE-----"

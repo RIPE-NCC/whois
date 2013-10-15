@@ -69,7 +69,7 @@ public class AuthoritativeResourceData {
             for (final String sourceName : sourceNames) {
                 try {
                     LOGGER.debug("Refresh: {}", sourceName);
-                    authoritativeResourceCache.put(sourceName, resourceDataDao.load(LOGGER, sourceName));
+                    authoritativeResourceCache.put(sourceName, resourceDataDao.load(sourceName));
                 } catch (RuntimeException e) {
                     LOGGER.error("Refreshing: {}", sourceName, e);
                 }

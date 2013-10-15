@@ -2,19 +2,14 @@ package net.ripe.db.whois.api.whois.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.util.List;
 
 @SuppressWarnings("UnusedDeclaration")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-        "service",
         "link",
+        "service",
         "parameters",
         "objects",
         "sources",
@@ -30,9 +25,8 @@ public class WhoisResources {
 
     protected Parameters parameters;
 
-    // TODO: not filled in many cases; e.g. search
-    @XmlAttribute
-    protected String service;
+    @XmlElement
+    protected Service service;
     @XmlElement(name = "objects")
     protected WhoisObjects objects;
     @XmlElement(name = "sources")
@@ -66,11 +60,11 @@ public class WhoisResources {
         return this;
     }
 
-    public String getService() {
+    public Service getService() {
         return service;
     }
 
-    public WhoisResources setService(String value) {
+    public WhoisResources setService(Service value) {
         this.service = value;
         return this;
     }

@@ -5,7 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RangeOperation {
+public final class RangeOperation {
     private static final Pattern RANGE_OPERATION_PATTERN = Pattern.compile("^\\^(?:[+-]|(\\d+)(?:\\-(\\d+))?)$");
 
     private final Integer n;

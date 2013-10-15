@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 @Immutable
-public class CIString implements Comparable<CIString>, CharSequence {
+public final class CIString implements Comparable<CIString>, CharSequence {
     private final String value;
     private final String lcValue;
 

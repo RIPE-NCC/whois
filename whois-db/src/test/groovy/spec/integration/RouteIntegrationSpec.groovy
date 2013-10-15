@@ -1688,4 +1688,43 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         noMoreMessages()
     }
 
+    def "route reclaim"() {
+      given:
+        databaseHelper.addObject("" +
+                "mntner: RIPE-NCC-END-MNT\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "source: TEST")
+        databaseHelper.addObject("" +
+                "mntner: INC-MNT\n" +
+                "mnt-by: INC-MNT\n" +
+                "auth: MD5-PW \$1\$8o2h6J5S\$FU4b5YVbdGN8/xZoUIZis/\n" + //test
+                "source: TEST")
+        databaseHelper.addObject("" +
+                "mntner: T-MNT\n" +
+                "mnt-by: T-MNT\n" +
+                "source: TEST")
+        databaseHelper.addObject("" +
+                "inetnum: 182.120.0.0 - 182.255.0.0\n" +
+                "netname: netname c\n" +
+                "mnt-by:  INC-MNT\n" +
+                "mnt-by:  RIPE-NCC-END-MNT\n" +
+                "source: TEST")
+        databaseHelper.addObject("" +
+                "route: 182.125.0.0/32\n" +
+                "origin: AS132\n" +
+                "mnt-by: T-MNT\n" +
+                "source: TEST")
+
+      when:
+        def response = syncUpdate(new SyncUpdate(data: "" +
+                "route: 182.125.0.0/32\n" +
+                "origin: AS132\n" +
+                "mnt-by: T-MNT\n" +
+                "source: TEST\n" +
+                "delete: reason\n" +
+                "password: test"))
+
+      then:
+        response =~ "Delete SUCCEEDED: \\[route\\] 182.125.0.0/32AS132"
+    }
 }

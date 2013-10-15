@@ -22,8 +22,7 @@ public class WhoisMetadataTestIntegration extends AbstractRestClientTest {
     @Test
     public void getTemplateXml() throws Exception {
         final String s = doGetRequest("whois/metadata/templates/peering-set.xml", HttpURLConnection.HTTP_OK);
-
-        assertThat("has service", s, containsString("service=\"getObjectTemplate\""));
+        assertThat("has service", s, containsString("<service name=\"getObjectTemplate\"/>"));
         assertThat("has key", s, containsString("<attribute name=\"peering-set\" requirement=\"MANDATORY\" cardinality=\"SINGLE\" keys=\"PRIMARY_KEY LOOKUP_KEY\"/>"));
         assertThat("has org", s, containsString("<attribute name=\"org\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>"));
         assertThat("has source", s, containsString("<source id=\"ripe\"/>"));
@@ -33,8 +32,7 @@ public class WhoisMetadataTestIntegration extends AbstractRestClientTest {
     @Test
     public void getTemplateJson() throws Exception {
         final String s = doGetRequest("whois/metadata/templates/peering-set.json", HttpURLConnection.HTTP_OK);
-
-        assertThat(s, containsString("\"service\" : \"getObjectTemplate\""));
+        assertThat(s, containsString("\"name\" : \"getObjectTemplate\""));
         assertThat(s, containsString("/metadata/templates/peering-set"));
         assertThat(s, containsString("\"type\" : \"peering-set\""));
         assertThat(s, containsString("\"name\" : \"peering-set\""));
@@ -64,8 +62,7 @@ public class WhoisMetadataTestIntegration extends AbstractRestClientTest {
     @Test
     public void getSourcesXml() throws Exception {
         final String response = doGetRequest("whois/metadata/sources.xml", HttpURLConnection.HTTP_OK);
-
-        assertThat("has service", response, containsString("service=\"getSupportedDataSources\""));
+        assertThat("has service", response, containsString("<service name=\"getSupportedDataSources\"/>"));
         assertThat("has source", response, containsString("<source name=\"RIPE\" id=\"ripe\"/>"));
         assertThat("has grs-source", response, containsString("<source name=\"TEST-GRS\" id=\"test-grs\" grs-id=\"test-grs\"/>"));
         assertThat("has sources", response, containsString("<sources>"));
@@ -75,7 +72,7 @@ public class WhoisMetadataTestIntegration extends AbstractRestClientTest {
     @Test
     public void getSourcesJson() throws Exception {
         final String response = doGetRequest("whois/metadata/sources.json", HttpURLConnection.HTTP_OK);
-
+        assertThat(response, containsString("\"name\" : \"getSupportedDataSources\""));
         assertThat(response, containsString("\"name\" : \"RIPE\""));
         assertThat(response, containsString("\"name\" : \"TEST\""));
         assertThat(response, containsString("\"name\" : \"TEST-GRS\""));

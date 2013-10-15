@@ -201,7 +201,7 @@ class RpslObjectSearcher {
 
         final Set<RpslObjectInfo> result = Sets.newTreeSet();
         for (final AttributeType lookupAttribute : objectTemplate.getLookupAttributes()) {
-            if (!query.MatchesObjectTypeAndAttribute(type, lookupAttribute)) {
+            if (!query.matchesObjectTypeAndAttribute(type, lookupAttribute)) {
                 continue;
             }
 

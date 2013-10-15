@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Ipv6Resource;
 
-class AclServiceHelper {
+final class AclServiceHelper {
     private AclServiceHelper() {
     }
 

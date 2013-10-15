@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.domain.Ipv6Resource;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AddressPrefixRange {
+public final class AddressPrefixRange {
     private static final Pattern ADDRESS_PREFIX_RANGE_PATTERN = Pattern.compile("^(.*)/(\\d+)(.*)$");
 
     private final String value;

@@ -92,8 +92,8 @@ public class AbuseContactTestIntegration extends AbstractRestClientTest {
                 "{\n" +
                 "  \"service\" : \"abuse-contact\",\n" +
                 "  \"link\" : {\n" +
-                "    \"xlink:type\" : \"locator\",\n" +
-                "    \"xlink:href\" : \"http://rest.db.ripe.net/abuse-contact/2a00:1f78::fffe/48\"\n" +
+                "    \"type\" : \"locator\",\n" +
+                "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/2a00:1f78::fffe/48\"\n" +
                 "  },\n" +
                 "  \"parameters\" : {\n" +
                 "    \"primary-key\" : {\n" +
@@ -104,8 +104,8 @@ public class AbuseContactTestIntegration extends AbstractRestClientTest {
                 "    \"email\" : \"abuse@test.net\"\n" +
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
-                "    \"xlink:type\" : \"locator\",\n" +
-                "    \"xlink:href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "    \"type\" : \"locator\",\n" +
+                "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
                 "  }\n" +
                 "}"));
     }
@@ -239,8 +239,8 @@ public class AbuseContactTestIntegration extends AbstractRestClientTest {
                 "{\n" +
                 "  \"service\" : \"abuse-contact\",\n" +
                 "  \"link\" : {\n" +
-                "    \"xlink:type\" : \"locator\",\n" +
-                "    \"xlink:href\" : \"http://rest.db.ripe.net/abuse-contact/AS333\"\n" +
+                "    \"type\" : \"locator\",\n" +
+                "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/AS333\"\n" +
                 "  },"));
     }
 

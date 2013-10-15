@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
-class SearchRequest {
+final class SearchRequest {
     private static final String PARAM_ROWS = "rows";
     private static final String PARAM_START = "start";
     private static final String PARAM_QUERY = "q";

@@ -418,7 +418,7 @@ public class JdbcRpslObjectOperations {
                 "WHERE serials.serial_id = ?", new RowMapper<SerialEntry>() {
             @Override
             public SerialEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new SerialEntry(Operation.getByCode(rs.getInt(1)), rs.getBoolean(2), rs.getInt(3), rs.getInt(4), rs.getInt(5));
+                return new SerialEntry(Operation.getByCode(rs.getInt(1)), rs.getBoolean(2), rs.getInt(4), rs.getInt(5));
             }
         }, serialId);
     }

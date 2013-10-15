@@ -15,7 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 
-public class X509CertificateWrapper implements KeyWrapper {
+public final class X509CertificateWrapper implements KeyWrapper {
     private static final String X509_HEADER = "-----BEGIN CERTIFICATE-----";
     private static final String X509_FOOTER = "-----END CERTIFICATE-----";
 

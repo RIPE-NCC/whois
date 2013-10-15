@@ -60,9 +60,8 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         final String response = createResource("whois/geolocation?ipkey=10.0.0.0")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
-
-        assertThat(response, containsString("service=\"geolocation-finder\""));
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\""));
+        assertThat(response, containsString("<service name=\"geolocation-finder\"/>"));
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
@@ -89,8 +88,8 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
 
-        assertThat(response, containsString("service=\"geolocation-finder\""));
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\""));
+        assertThat(response, containsString("<service name=\"geolocation-finder\"/>"));
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<language value=\"EN\">"));
@@ -119,7 +118,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
                     .get(String.class);
 
         assertThat(response, not(containsString("\"whois-resources\"")));
-        assertThat(response, containsString("\"service\" : \"geolocation-finder\""));
+        assertThat(response, containsString("\"name\" : \"geolocation-finder\""));
         assertThat(response, containsString("\"geolocation-attributes\""));
         assertThat(response, containsString("\"location\""));
         assertThat(response, containsString("\"language\""));
@@ -194,8 +193,8 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
 
-        assertThat(response, containsString("service=\"geolocation-finder\""));
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\""));
+        assertThat(response, containsString("<service name=\"geolocation-finder\"/>"));
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<language value=\"EN\">"));
@@ -255,9 +254,8 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         final String response = createResource("whois/geolocation?ipkey=2001::/20")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
-
-        assertThat(response, containsString("service=\"geolocation-finder\""));
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\""));
+        assertThat(response, containsString("<service name=\"geolocation-finder\"/>"));
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<language value=\"EN\">"));

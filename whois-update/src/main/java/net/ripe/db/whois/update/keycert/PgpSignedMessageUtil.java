@@ -10,7 +10,7 @@ import java.security.SignatureException;
 /**
  * Signed message util, mostly copied from BouncyCastle PGP tests.
  */
-class PgpSignedMessageUtil {
+final class PgpSignedMessageUtil {
     private PgpSignedMessageUtil() {
     }
 

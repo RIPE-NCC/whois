@@ -11,8 +11,6 @@ import net.ripe.db.whois.common.domain.Ipv6Resource;
 import net.ripe.db.whois.common.domain.attrs.Changed;
 import net.ripe.db.whois.common.domain.attrs.DsRdata;
 import net.ripe.db.whois.common.domain.attrs.NServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +22,6 @@ import java.util.Set;
 // TODO: [AH] during syntax check/sanitization we parse all attributes into their domain object, we should keep a reference to that instead of reparsing all the time
 @Component
 public class AttributeSanitizer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AttributeSanitizer.class);
     private static final Splitter LINE_SPLITTER = Splitter.on('\n').trimResults().omitEmptyStrings();
 
     private final DateTimeProvider dateTimeProvider;
@@ -176,9 +173,9 @@ public class AttributeSanitizer {
     private class InetrtrSanitizer extends Sanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
-            final String inet_rtr = attribute.getCleanValue().toString();
-            if (inet_rtr.endsWith(".")) {
-                return inet_rtr.substring(0, inet_rtr.length() - 1);
+            final String inetRtr = attribute.getCleanValue().toString();
+            if (inetRtr.endsWith(".")) {
+                return inetRtr.substring(0, inetRtr.length() - 1);
             }
 
             return null;

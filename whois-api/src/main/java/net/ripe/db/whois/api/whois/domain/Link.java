@@ -1,7 +1,5 @@
 package net.ripe.db.whois.api.whois.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -12,11 +10,9 @@ public class Link {
     public static final String XLINK_URI = "http://www.w3.org/1999/xlink";
 
     @XmlAttribute(namespace = XLINK_URI)
-    @JsonProperty("xlink:type")
     private String type;
 
     @XmlAttribute(namespace = XLINK_URI)
-    @JsonProperty("xlink:href")
     private String href;
 
     public Link(final String type, final String href) {

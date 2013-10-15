@@ -16,8 +16,8 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.SingleUpdateHandler;
 import net.ripe.db.whois.update.handler.UpdateFailedException;
@@ -118,9 +118,9 @@ public class UnrefCleanup implements DailyScheduledTask {
                 Joiner.on(',').join(REFERENCE_ATTRIBUTETYPES));
     }
 
-    Map<ObjectKey, DeleteCandidate> deleteCandidates;
-    Map<ObjectKey, UnreferencedObject> unreferencedObjects;
-    final ReentrantLock unrefCleanupLock = new ReentrantLock();
+    private Map<ObjectKey, DeleteCandidate> deleteCandidates;
+    private Map<ObjectKey, UnreferencedObject> unreferencedObjects;
+    private final ReentrantLock unrefCleanupLock = new ReentrantLock();
 
     @Override
     public void run() {
@@ -140,7 +140,7 @@ public class UnrefCleanup implements DailyScheduledTask {
             deleteCandidates = unrefCleanupDao.getDeleteCandidates(CLEANUP_OBJECTS);
             unreferencedObjects = Maps.newHashMap();
 
-            filterReferencedObjects(deleteCandidates, unreferencedObjects);
+            filterReferencedObjects(deleteCandidates);
 
             LOGGER.info("Tagging {} unreferenced objects", unreferencedObjects.size());
             tagsDao.rebuild(CIString.ciString("unref"), Lists.newArrayList(Iterables.transform(unreferencedObjects.values(), new Function<UnreferencedObject, Tag>() {
@@ -172,7 +172,7 @@ public class UnrefCleanup implements DailyScheduledTask {
         }
     }
 
-    private void filterReferencedObjects(final Map<ObjectKey, DeleteCandidate> deleteCandidates, final Map<ObjectKey, UnreferencedObject> nrDaysUnrefByObjectKey) {
+    private void filterReferencedObjects(final Map<ObjectKey, DeleteCandidate> deleteCandidates) {
         final UnrefCleanupDao.DeleteCandidatesFilter deleteCandidatesFilter = new UnrefCleanupDao.DeleteCandidatesFilter() {
             private int nrErrors = 0;
 

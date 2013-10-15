@@ -30,13 +30,13 @@ public class ResourceDataDaoTest extends AbstractDaoTest {
         assertThat(resourceData.getResources(), hasSize(15));
 
         subject.store("test", resourceData);
-        final AuthoritativeResource loadedData = subject.load(logger, "test");
+        final AuthoritativeResource loadedData = subject.load("test");
         assertEquals(resourceData, loadedData);
     }
 
     @Test
     public void load_nonexistent_source() {
-        final AuthoritativeResource loadedData = subject.load(logger, "zoh");
+        final AuthoritativeResource loadedData = subject.load("zoh");
         assertThat(loadedData.getResources(), hasSize(0));
     }
 }

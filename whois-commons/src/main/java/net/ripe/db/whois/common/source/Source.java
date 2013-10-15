@@ -7,7 +7,7 @@ import javax.annotation.concurrent.Immutable;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
-public class Source {
+public final class Source {
     public enum Type {MASTER, SLAVE}
 
     private final Type type;

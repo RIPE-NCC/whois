@@ -273,7 +273,7 @@ public class MessageParser {
         }
     }
 
-    private static class MessagePart {
+    private static final class MessagePart {
         private final String text;
         private final Part part;
         private final List<Credential> credentials = Lists.newArrayList();
