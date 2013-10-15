@@ -1,32 +1,28 @@
 --
--- Description:       <add a description of what the patch does>
+-- Description:       < TODO: add a description of what the patch does >
 --
--- Issue:             <add GitHub issue #>
+-- Issue:             < TODO: add GitHub issue # >
 --
--- Release Version:   <version>
---
-
---
--- begin a new transaction
+-- Release Version:   < TODO: version >
 --
 
-SET autocommit = 0;
+USE WHOIS_UPDATE_RIPE;
+
+DROP PROCEDURE IF EXISTS WHOIS_PATCH_PROCEDURE;
+DELIMITER //
+CREATE PROCEDURE WHOIS_PATCH_PROCEDURE()
+BEGIN
 START TRANSACTION;
 
---
--- begin patch
---
+-- < TODO: insert data patch here>
 
+-- < TODO: update version table>
 
---
--- update version table
---
-INSERT INTO version VALUES ('component-x.y');
-
-
---
--- commit the transaction
---
+UPDATE version SET version = 'whois-x.y.z';
 
 COMMIT;
-SET autocommit = 1;
+END//
+
+CALL WHOIS_PATCH_PROCEDURE();
+DROP PROCEDURE IF EXISTS WHOIS_PATCH_PROCEDURE;
+
