@@ -5,7 +5,9 @@ import net.ripe.db.whois.common.domain.IpResourceTree;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -47,8 +49,10 @@ public class AclLimitService {
     @GET
     @Path("/{prefix}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getLimit(@PathParam("prefix") final String prefix) {
-        final IpInterval<?> ipInterval = IpInterval.parse(prefix);
+    public Response getLimit(@PathParam("prefix") final String prefix, @Context final HttpServletRequest request) {
+
+        String decodedPrefix = AclServiceHelper.getDecodedPrefix(prefix, request.getCharacterEncoding());
+        final IpInterval<?> ipInterval = IpInterval.parse(decodedPrefix);
         final Limit limit = getLimitsTree().getValue(ipInterval);
         return Response.ok(limit).build();
     }
@@ -99,8 +103,10 @@ public class AclLimitService {
     @DELETE
     @Path("/{prefix}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response deleteLimit(@PathParam("prefix") final String prefix) {
-        final IpInterval<?> ipInterval = IpInterval.parse(prefix);
+    public Response deleteLimit(@PathParam("prefix") final String prefix, @Context final HttpServletRequest request) {
+
+        String decodedPrefix = AclServiceHelper.getDecodedPrefix(prefix, request.getCharacterEncoding());
+        final IpInterval<?> ipInterval = IpInterval.parse(decodedPrefix);
 
         for (final Limit limit : aclServiceDao.getLimits()) {
             final IpInterval<?> existingIpInterval = IpInterval.parse(limit.getPrefix());

@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.acl;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.IpInterval;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -9,7 +10,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.hamcrest.Matchers.instanceOf;
@@ -21,6 +24,12 @@ import static org.mockito.Mockito.*;
 public class AclProxyServiceTest {
     @Mock AclServiceDao aclServiceDao;
     @InjectMocks AclProxyService subject;
+    @Mock HttpServletRequest request;
+
+    @Before
+    public void setUp() throws Exception {
+        when(request.getCharacterEncoding()).thenReturn(StandardCharsets.UTF_8.name());
+    }
 
     @Test
     public void getProxies() {
@@ -36,7 +45,7 @@ public class AclProxyServiceTest {
         final Proxy proxy = new Proxy("10.0.0.0/32", "test");
         when(aclServiceDao.getProxy(IpInterval.parse("10.0.0.0/32"))).thenReturn(proxy);
 
-        final Response response = subject.getProxy("10.0.0.0/32");
+        final Response response = subject.getProxy("10.0.0.0/32", request);
         assertThat((Proxy) response.getEntity(), is(proxy));
     }
 
@@ -44,7 +53,7 @@ public class AclProxyServiceTest {
     public void getProxy_not_found() {
         when(aclServiceDao.getProxy(IpInterval.parse("10.0.0.0/32"))).thenThrow(EmptyResultDataAccessException.class);
 
-        final Response response = subject.getProxy("10.0.0.0/32");
+        final Response response = subject.getProxy("10.0.0.0/32", request);
         assertThat(response.getStatus(), is(404));
     }
 
@@ -78,7 +87,7 @@ public class AclProxyServiceTest {
     public void deleteProxy_unknown() {
         when(aclServiceDao.getProxy(IpInterval.parse("10.0.0.0/32"))).thenThrow(EmptyResultDataAccessException.class);
 
-        final Response response = subject.deleteProxy("10.0.0.0/32");
+        final Response response = subject.deleteProxy("10.0.0.0/32", request);
         assertThat(response.getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
 
         verify(aclServiceDao, never()).deleteProxy(any(IpInterval.class));
@@ -88,7 +97,17 @@ public class AclProxyServiceTest {
     public void deleteProxy() {
         when(aclServiceDao.getProxy(IpInterval.parse("10.0.0.0/32"))).thenReturn(new Proxy("10.0.0.0/32", ""));
 
-        final Response response = subject.deleteProxy("10.0.0.0/32");
+        final Response response = subject.deleteProxy("10.0.0.0/32", request);
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
+        verify(aclServiceDao).deleteProxy(IpInterval.parse("10.0.0.0/32"));
+    }
+
+    @Test
+    public void deleteProxyWithEncodedPrefix() {
+        when(aclServiceDao.getProxy(IpInterval.parse("10.0.0.0/32"))).thenReturn(new Proxy("10.0.0.0/32", ""));
+
+        final Response response = subject.deleteProxy("10.0.0.0%2F32", request);
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
         verify(aclServiceDao).deleteProxy(IpInterval.parse("10.0.0.0/32"));
