@@ -3,18 +3,13 @@ package net.ripe.db.whois.api.acl;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.etree.IntersectingIntervalException;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.hamcrest.Matchers.instanceOf;
@@ -25,14 +20,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AclLimitServiceTest {
     @Mock AclServiceDao aclServiceDao;
-    @Mock HttpServletRequest request;
     @InjectMocks AclLimitService subject;
-
-
-    @Before
-    public void setUp() throws Exception {
-        when(request.getCharacterEncoding()).thenReturn(StandardCharsets.UTF_8.name());
-    }
 
     @Test
     public void getLimits() {
@@ -48,7 +36,7 @@ public class AclLimitServiceTest {
         List<Limit> limits = Lists.newArrayList(new Limit("0/0", "", 1000, false));
         when(aclServiceDao.getLimits()).thenReturn(limits);
 
-        final Response response = subject.getLimit("0/0", request);
+        final Response response = subject.getLimit("0/0");
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
         assertThat(response.getEntity(), instanceOf(Limit.class));
         assertThat(((Limit) response.getEntity()).getPrefix(), is("0.0.0.0/0"));
@@ -59,7 +47,7 @@ public class AclLimitServiceTest {
         List<Limit> limits = Lists.newArrayList(new Limit("0/0", "", 1000, false));
         when(aclServiceDao.getLimits()).thenReturn(limits);
 
-        final Response response = subject.getLimit("10.0.0.0/32", request);
+        final Response response = subject.getLimit("10.0.0.0/32");
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
         assertThat(response.getEntity(), instanceOf(Limit.class));
         assertThat(((Limit) response.getEntity()).getPrefix(), is("0.0.0.0/0"));
@@ -70,7 +58,7 @@ public class AclLimitServiceTest {
         List<Limit> limits = Lists.newArrayList(new Limit("0/0", "", 1000, false));
         when(aclServiceDao.getLimits()).thenReturn(limits);
 
-        subject.getLimit("0", request);
+        subject.getLimit("0");
     }
 
     @Test
@@ -124,7 +112,7 @@ public class AclLimitServiceTest {
         );
         when(aclServiceDao.getLimits()).thenReturn(limits);
 
-        final Response response = subject.deleteLimit("0/0", request);
+        final Response response = subject.deleteLimit("0/0");
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
         verify(aclServiceDao).deleteLimit(any(IpInterval.class));
@@ -135,7 +123,7 @@ public class AclLimitServiceTest {
         List<Limit> limits = Lists.newArrayList(new Limit("::0/0", "", 1000, false));
         when(aclServiceDao.getLimits()).thenReturn(limits);
 
-        final Response response = subject.deleteLimit("::0/0", request);
+        final Response response = subject.deleteLimit("::0/0");
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
         verify(aclServiceDao).deleteLimit(any(IpInterval.class));
@@ -146,7 +134,7 @@ public class AclLimitServiceTest {
         List<Limit> limits = Lists.newArrayList(new Limit("0/0", "", 1000, false));
         when(aclServiceDao.getLimits()).thenReturn(limits);
 
-        final Response response = subject.deleteLimit("10.0.0.0/32", request);
+        final Response response = subject.deleteLimit("10.0.0.0/32");
         assertThat(response.getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
 
         verify(aclServiceDao, never()).deleteLimit(any(IpInterval.class));
@@ -160,7 +148,7 @@ public class AclLimitServiceTest {
         );
         when(aclServiceDao.getLimits()).thenReturn(limits);
 
-        final Response response = subject.deleteLimit("10.0.0.0/32", request);
+        final Response response = subject.deleteLimit("10.0.0.0/32");
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
         verify(aclServiceDao).deleteLimit(IpInterval.parse("10.0.0.0/32"));
@@ -173,25 +161,9 @@ public class AclLimitServiceTest {
         );
         when(aclServiceDao.getLimits()).thenReturn(limits);
 
-        final Response response = subject.deleteLimit("10.0.0.0%2F32", request);
+        final Response response = subject.deleteLimit("10.0.0.0%2F32");
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
         verify(aclServiceDao).deleteLimit(IpInterval.parse("10.0.0.0/32"));
     }
-
-    @Test
-    public void deleteLimitWhenCharacterEncodingIsNull() {
-        List<Limit> limits = Lists.newArrayList(
-                new Limit("10.0.0.0/32", "", 100, false)
-        );
-        when(aclServiceDao.getLimits()).thenReturn(limits);
-        when(request.getCharacterEncoding()).thenReturn(null);
-
-        final Response response = subject.deleteLimit("10.0.0.0%2F32", request);
-        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
-
-        verify(aclServiceDao).deleteLimit(IpInterval.parse("10.0.0.0/32"));
-    }
-
-
 }

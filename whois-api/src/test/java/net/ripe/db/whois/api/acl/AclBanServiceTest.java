@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.acl;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.IpInterval;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -11,9 +10,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.hamcrest.Matchers.instanceOf;
@@ -25,12 +22,6 @@ import static org.mockito.Mockito.*;
 public class AclBanServiceTest {
     @Mock AclServiceDao aclServiceDao;
     @InjectMocks AclBanService subject;
-    @Mock HttpServletRequest request;
-
-    @Before
-    public void setUp() throws Exception {
-        when(request.getCharacterEncoding()).thenReturn(StandardCharsets.UTF_8.name());
-    }
 
     @Test
     public void getBans() {
@@ -46,7 +37,7 @@ public class AclBanServiceTest {
         final Ban ban = new Ban("10.0.0.0/32", "test");
         when(aclServiceDao.getBan(IpInterval.parse("10.0.0.0/32"))).thenReturn(ban);
 
-        final Response response = subject.getBan("10.0.0.0/32", request);
+        final Response response = subject.getBan("10.0.0.0/32");
         assertThat((Ban) response.getEntity(), is(ban));
     }
 
@@ -54,7 +45,7 @@ public class AclBanServiceTest {
     public void getBan_not_found() {
         when(aclServiceDao.getBan(IpInterval.parse("10.0.0.0/32"))).thenThrow(EmptyResultDataAccessException.class);
 
-        final Response response = subject.getBan("10.0.0.0/32", request);
+        final Response response = subject.getBan("10.0.0.0/32");
         assertThat(response.getStatus(), is(404));
     }
 
@@ -90,7 +81,7 @@ public class AclBanServiceTest {
     public void deleteBan_unknown() {
         when(aclServiceDao.getBan(IpInterval.parse("10.0.0.0/32"))).thenThrow(EmptyResultDataAccessException.class);
 
-        final Response response = subject.deleteBan("10.0.0.0/32", request);
+        final Response response = subject.deleteBan("10.0.0.0/32");
         assertThat(response.getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
 
         verify(aclServiceDao, never()).deleteBan(any(IpInterval.class));
@@ -101,7 +92,7 @@ public class AclBanServiceTest {
     public void deleteBan() {
         when(aclServiceDao.getBan(IpInterval.parse("10.0.0.0/32"))).thenReturn(new Ban("10.0.0.0/32", ""));
 
-        final Response response = subject.deleteBan("10.0.0.0/32", request);
+        final Response response = subject.deleteBan("10.0.0.0/32");
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
         verify(aclServiceDao).deleteBan(IpInterval.parse("10.0.0.0/32"));
@@ -113,7 +104,7 @@ public class AclBanServiceTest {
         List<BanEvent> banEvents = Lists.newArrayList(new BanEvent());
         when(aclServiceDao.getBanEvents(IpInterval.parse("10.0.0.0/32"))).thenReturn(banEvents);
 
-        final List<BanEvent> list = subject.getBanEvents("10.0.0.0/32", request);
+        final List<BanEvent> list = subject.getBanEvents("10.0.0.0/32");
         assertThat(list, is(banEvents));
     }
 
@@ -122,7 +113,7 @@ public class AclBanServiceTest {
         List<BanEvent> banEvents = Lists.newArrayList(new BanEvent());
         when(aclServiceDao.getBanEvents(IpInterval.parse("10.0.0.0/32"))).thenReturn(banEvents);
 
-        final List<BanEvent> list = subject.getBanEvents("10.0.0.0%2F32", request);
+        final List<BanEvent> list = subject.getBanEvents("10.0.0.0%2F32");
         assertThat(list, is(banEvents));
     }
 }

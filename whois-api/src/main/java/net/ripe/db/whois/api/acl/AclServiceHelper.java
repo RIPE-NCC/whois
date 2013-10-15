@@ -1,24 +1,17 @@
 package net.ripe.db.whois.api.acl;
 
+import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Ipv6Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 final class AclServiceHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AclServiceHelper.class);
-
-    public static final Charset DEFAULT_CHARACTER_ENCODING = StandardCharsets.UTF_8;
 
     private AclServiceHelper() {
+        // do not instantiate helper
     }
 
     public static IpInterval<?> getNormalizedPrefix(final String prefix) {
@@ -35,16 +28,11 @@ final class AclServiceHelper {
         return ipInterval;
     }
 
-    public static String getDecodedPrefix(String prefix, String characterEncoding) {
+    public static String decode(final String value) {
         try {
-            Charset charset = DEFAULT_CHARACTER_ENCODING;
-            if (characterEncoding != null){
-                charset = Charset.forName(characterEncoding);
-            }
-            return URLDecoder.decode(prefix, charset.name());
-        } catch (UnsupportedEncodingException | RuntimeException e) {
-            LOGGER.info("Unsupported Encoding: {}. Unable to decode prefix: {}.", characterEncoding, prefix);
+            return URLDecoder.decode(value, Charsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("Unknown character encoding");
         }
-        return prefix;
     }
 }
