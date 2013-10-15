@@ -100,6 +100,28 @@ public class AclBanServiceTest {
     }
 
     @Test
+    public void deleteBanWithEncodedIPv4Prefix() {
+        when(aclServiceDao.getBan(IpInterval.parse("10.0.0.0/32"))).thenReturn(new Ban("10.0.0.0/32", ""));
+
+        final Response response = subject.deleteBan("10.0.0.0%2F32");
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
+        verify(aclServiceDao).deleteBan(IpInterval.parse("10.0.0.0/32"));
+        verify(aclServiceDao).createBanEvent(IpInterval.parse("10.0.0.0/32"), BlockEvent.Type.UNBLOCK);
+    }
+
+    @Test
+    public void deleteBanWithEncodedIPv6Prefix() {
+        when(aclServiceDao.getBan(IpInterval.parse("2001:db8:1f15:d79::/64"))).thenReturn(new Ban("2001:db8:1f15:d79::/64", ""));
+
+        final Response response = subject.deleteBan("2001%3Adb8%3A1f15%3Ad79%3A%3A%2F64");
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
+        verify(aclServiceDao).deleteBan(IpInterval.parse("2001:db8:1f15:d79::/64"));
+        verify(aclServiceDao).createBanEvent(IpInterval.parse("2001:db8:1f15:d79::/64"), BlockEvent.Type.UNBLOCK);
+    }
+
+    @Test
     public void getBanEvents() {
         List<BanEvent> banEvents = Lists.newArrayList(new BanEvent());
         when(aclServiceDao.getBanEvents(IpInterval.parse("10.0.0.0/32"))).thenReturn(banEvents);

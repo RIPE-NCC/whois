@@ -152,4 +152,16 @@ public class AclMirrorServiceTest {
 
         verify(aclServiceDao, never()).deleteMirror(IpInterval.parse("::0/0"));
     }
+
+    @Test
+    public void deleteMirrorWithEncodedURL() {
+        when(aclServiceDao.getMirror(IpInterval.parse("10.0.0.0/32"))).thenReturn(new Mirror("10.0.0.0/32", "comment"));
+
+        Response response = subject.deleteMirror("10.0.0.0%2F32");
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+        assertThat(((Mirror) response.getEntity()).getPrefix(), is("10.0.0.0/32"));
+
+        verify(aclServiceDao).deleteMirror(IpInterval.parse("10.0.0.0/32"));
+    }
 }
