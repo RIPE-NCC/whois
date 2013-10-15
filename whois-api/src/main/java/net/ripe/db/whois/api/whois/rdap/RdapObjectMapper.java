@@ -18,10 +18,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.joda.time.LocalDateTime;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.*;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
@@ -52,6 +49,20 @@ class RdapObjectMapper {
     }
 
     public Object map(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, final List<RpslObject> abuseContacts) {
+        return mapCommons(getRdapObject(requestUrl, rpslObject, lastChangedTimestamp, abuseContacts), requestUrl);
+    }
+
+    public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final Iterable<LocalDateTime> localDateTimes) {
+        final SearchResult searchResult = new SearchResult();
+        final Iterator<LocalDateTime> iterator = localDateTimes.iterator();
+        for (final RpslObject object : objects) {
+            searchResult.addSearchResult((Entity) getRdapObject(requestUrl, object, iterator.next(), Collections.EMPTY_LIST));
+        }
+
+        return mapCommons(searchResult, requestUrl);
+    }
+
+    private RdapObject getRdapObject(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, final List<RpslObject> abuseContacts) {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
 
@@ -75,21 +86,30 @@ class RdapObjectMapper {
                 throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
         }
 
-        rdapResponse.getRemarks().add(createRemark(rpslObject));
+        if (hasRemark(rpslObject)) {
+            rdapResponse.getRemarks().add(createRemark(rpslObject));
+        }
+
         rdapResponse.getEvents().add(createEvent(lastChangedTimestamp));
 
-        rdapResponse.getRdapConformance().addAll(RDAP_CONFORMANCE_LEVEL);
         rdapResponse.getNotices().addAll(noticeFactory.generateNotices(requestUrl, rpslObject));
+
+        for (final RpslObject abuseContact : abuseContacts) {
+            rdapResponse.getSearchResults().add(createEntity(abuseContact, Role.ABUSE));
+        }
+
+        return rdapResponse;
+    }
+
+    private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
+        rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
+
+        rdapResponse.getRdapConformance().addAll(RDAP_CONFORMANCE_LEVEL);
 
         rdapResponse.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(requestUrl));
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
 
-        for (final RpslObject abuseContact : abuseContacts) {
-            rdapResponse.getEntities().add(createEntity(abuseContact, Role.ABUSE));
-        }
-
         rdapResponse.setPort43(port43);
-
         return rdapResponse;
     }
 
@@ -122,6 +142,10 @@ class RdapObjectMapper {
         return new Remark(descriptions);
     }
 
+    private static boolean hasRemark(final RpslObject rpslObject) {
+        return !rpslObject.getValuesForAttribute(AttributeType.DESCR).isEmpty();
+    }
+
     private static Event createEvent(final LocalDateTime lastChanged) {
         final Event lastChangedEvent = new Event();
         lastChangedEvent.setEventAction(Action.LAST_CHANGED);
@@ -147,7 +171,6 @@ class RdapObjectMapper {
         for (final Map.Entry<CIString, Set<AttributeType>> entry : contacts.entrySet()) {
             final Entity entity = new Entity();
             entity.setHandle(entry.getKey().toString());
-            // TODO: set role
             for (final AttributeType attributeType : entry.getValue()) {
                 entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
             }
@@ -169,7 +192,7 @@ class RdapObjectMapper {
             entity.getRoles().add(role);
         }
         entity.setVCardArray(createVCard(rpslObject));
-        entity.getEntities().addAll(createContactEntities(rpslObject));
+        entity.getSearchResults().addAll(createContactEntities(rpslObject));
 
         if (rpslObject.containsAttribute(AttributeType.LANGUAGE)) {
             entity.setLang(rpslObject.findAttributes(AttributeType.LANGUAGE).get(0).getCleanValue().toString());
@@ -183,7 +206,7 @@ class RdapObjectMapper {
         autnum.setHandle(rpslObject.getKey().toString());
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
         autnum.setType("DIRECT ALLOCATION");
-        autnum.getEntities().addAll(createContactEntities(rpslObject));
+        autnum.getSearchResults().addAll(createContactEntities(rpslObject));
         return autnum;
     }
 
@@ -255,7 +278,7 @@ class RdapObjectMapper {
             domain.setSecureDNS(secureDNS);
         }
 
-        domain.getEntities().addAll(createContactEntities(rpslObject));
+        domain.getSearchResults().addAll(createContactEntities(rpslObject));
         return domain;
     }
 

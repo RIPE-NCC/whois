@@ -3,12 +3,7 @@ package net.ripe.db.whois.api.whois.rdap.domain;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Lists;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.List;
 
@@ -39,7 +34,7 @@ public class RdapObject implements Serializable {
     protected List<Remark> remarks;
     protected List<Link> links;
     protected List<Event> events;
-    protected String lang;                                  // TODO: [ES] support multiple attributes
+    protected String lang;                                  // TODO: [ES] one lang in RDAP but multiple lang attributes possible in rpslobject
     @XmlElement(required = true)
     protected List<String> rdapConformance;
     protected List<Notice> notices;
@@ -52,7 +47,7 @@ public class RdapObject implements Serializable {
         return this.status;
     }
 
-    public List<Entity> getEntities() {
+    public List<Entity> getSearchResults() {
         if (entities == null) {
             entities = Lists.newArrayList();
         }

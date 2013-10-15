@@ -46,19 +46,16 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.util.Version;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -393,8 +390,20 @@ public class WhoisRdapService {
             }
 
             if (objects.size() > 1) {
-                // TODO: add multiple objects to response
-                return Response.status(BAD_REQUEST).build();
+                final Iterable<LocalDateTime> lastUpdateds = Iterables.transform(objects, new Function<RpslObject, LocalDateTime>() {
+                    @Nullable
+                    @Override
+                    public LocalDateTime apply(@Nullable RpslObject input) {
+                        return objectDao.getLastUpdated(input.getObjectId());
+                    }
+                });
+
+                return Response.ok(rdapObjectMapper.mapSearch(
+                        getRequestUrl(request),
+                        objects,
+                        lastUpdateds))
+                          .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
+                          .build();
             }
 
             return Response.ok(

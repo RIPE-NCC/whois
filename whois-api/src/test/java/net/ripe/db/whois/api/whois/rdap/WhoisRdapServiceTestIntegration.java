@@ -37,7 +37,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @BeforeClass
     public static void setProperties() throws Exception {
-        System.setProperty("rdap.sources", "TEST-GRS");                        // TODO: [ES] dependency on grs source configuration
+        System.setProperty("rdap.sources", "TEST-GRS");
         System.setProperty("rdap.redirect.test", "https://rdap.test.net");
         System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
         // We only enable freetext indexing here, so it doesn't slow down the rest of the test suite
@@ -290,9 +290,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         final Ip ip = createResource(AUDIENCE, "ip/2001:2002:2003::/48")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
-        System.out.println(createResource(AUDIENCE, "ip/2001:2002:2003::/48")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class));
 
         assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
         assertThat(ip.getIpVersion(), is("v6"));
@@ -374,7 +371,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(entity.getHandle(), equalTo("PP1-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
         assertThat(entity.getPort43(), is("whois.ripe.net"));
-        assertThat(entity.getEntities(), hasSize(1));
+        assertThat(entity.getSearchResults(), hasSize(1));
         assertThat(entity.getVCardArray().size(), is(2));
         assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
         assertThat(entity.getVCardArray().get(1).toString(), equalTo("" +
@@ -387,8 +384,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(entity.getRdapConformance(), hasSize(1));
         assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
 
-        assertThat(entity.getRemarks(), hasSize(1));                                                // TODO: [ES] no remarks - has one element rather than empty
-        assertThat(entity.getRemarks().get(0).getDescription(), is(nullValue()));
+        assertThat(entity.getRemarks(), hasSize(0));
 
         final List<Event> events = entity.getEvents();
         assertThat(events, hasSize(1));
@@ -459,11 +455,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "[adr, {label=Singel 258}, text, null], " +
                 "[email, {}, text, dbtest@ripe.net]]"));
 
-        assertThat(entity.getEntities(), hasSize(2));
-        assertThat(entity.getEntities().get(0).getHandle(), is("OWNER-MNT"));
-        assertThat(entity.getEntities().get(0).getRoles(), contains(Role.REGISTRANT));
-        assertThat(entity.getEntities().get(1).getHandle(), is("PP1-TEST"));
-        assertThat(entity.getEntities().get(1).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
+        assertThat(entity.getSearchResults(), hasSize(2));
+        assertThat(entity.getSearchResults().get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(entity.getSearchResults().get(0).getRoles(), contains(Role.REGISTRANT));
+        assertThat(entity.getSearchResults().get(1).getHandle(), is("PP1-TEST"));
+        assertThat(entity.getSearchResults().get(1).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
         assertThat(entity.getRdapConformance(), hasSize(1));
         assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
 
@@ -472,8 +468,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
 
-        assertThat(entity.getRemarks(), hasSize(1));
-        assertThat(entity.getRemarks().get(0).getDescription(), is(nullValue()));
+        assertThat(entity.getRemarks(), hasSize(0));
 
         final List<Notice> notices = entity.getNotices();
         assertThat(notices, hasSize(3));
@@ -521,7 +516,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
 
-        final List<Entity> entities = domain.getEntities();
+        final List<Entity> entities = domain.getSearchResults();
         assertThat(entities, hasSize(2));
         assertThat(entities.get(0).getHandle(), is("OWNER-MNT"));
         assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
@@ -634,7 +629,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
 
-        final List<Entity> entities = autnum.getEntities();
+        final List<Entity> entities = autnum.getSearchResults();
         assertThat(entities, hasSize(2));
         assertThat(entities.get(0).getHandle(), is("OWNER-MNT"));
         assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
@@ -734,13 +729,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
-        assertThat(autnum.getEntities().get(0).getHandle(), is("OWNER-MNT"));
-        assertThat(autnum.getEntities().get(1).getHandle(), is("TP1-TEST"));
-        assertThat(autnum.getEntities().get(2).getHandle(), is("AB-TEST"));
-        assertThat(autnum.getEntities().get(2).getRoles(), contains(Role.ABUSE));
-        assertThat(autnum.getEntities().get(2).getVCardArray(), hasSize(2));
-        assertThat(autnum.getEntities().get(2).getVCardArray().get(0).toString(), is("vcard"));
-        assertThat(autnum.getEntities().get(2).getVCardArray().get(1).toString(), is("" +
+        assertThat(autnum.getSearchResults().get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(autnum.getSearchResults().get(1).getHandle(), is("TP1-TEST"));
+        assertThat(autnum.getSearchResults().get(2).getHandle(), is("AB-TEST"));
+        assertThat(autnum.getSearchResults().get(2).getRoles(), contains(Role.ABUSE));
+        assertThat(autnum.getSearchResults().get(2).getVCardArray(), hasSize(2));
+        assertThat(autnum.getSearchResults().get(2).getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(autnum.getSearchResults().get(2).getVCardArray().get(1).toString(), is("" +
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
@@ -826,11 +821,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
-        assertThat(ip.getEntities().get(0).getHandle(), is("AB-TEST"));
-        assertThat(ip.getEntities().get(0).getRoles(), contains(Role.ABUSE));
-        assertThat(ip.getEntities().get(0).getVCardArray(), hasSize(2));
-        assertThat(ip.getEntities().get(0).getVCardArray().get(0).toString(), is("vcard"));
-        assertThat(ip.getEntities().get(0).getVCardArray().get(1).toString(), is("" +
+        assertThat(ip.getSearchResults().get(0).getHandle(), is("AB-TEST"));
+        assertThat(ip.getSearchResults().get(0).getRoles(), contains(Role.ABUSE));
+        assertThat(ip.getSearchResults().get(0).getVCardArray(), hasSize(2));
+        assertThat(ip.getSearchResults().get(0).getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(ip.getSearchResults().get(0).getVCardArray().get(1).toString(), is("" +
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
@@ -908,8 +903,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(event.getEventAction(), equalTo(Action.LAST_CHANGED));
         assertThat(event.getEventActor(), is(nullValue()));
 
-        assertThat(entity.getEntities(), hasSize(3));
-        final List<Entity> entities = entity.getEntities();
+        assertThat(entity.getSearchResults(), hasSize(3));
+        final List<Entity> entities = entity.getSearchResults();
         Collections.sort(entities);
         assertThat(entities.get(0).getHandle(), is("OWNER-MNT"));
         assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
@@ -1228,6 +1223,29 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         } catch (BadRequestException e) {
             // expected
         }
+    }
+
+    @Test
+    public void search_entity_multiple_object_response() {
+        freeTextIndex.rebuild();
+
+        final SearchResult result = createResource(AUDIENCE, "entities?handle=*TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Entity> entities = result.getSearchResults();
+        assertThat(entities, hasSize(5));
+        assertThat(entities.get(0).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(1).getHandle(), is("TP2-TEST"));
+        assertThat(entities.get(2).getHandle(), is("PP1-TEST"));
+        assertThat(entities.get(3).getHandle(), is("FR1-TEST"));
+        assertThat(entities.get(4).getHandle(), is("ORG-TEST1-TEST"));
+        assertThat(entities.get(4).getNotices(), hasSize(2));
+        assertThat(entities.get(4).getNotices().get(0).getTitle(), is("Filtered"));
+        assertThat(entities.get(4).getNotices().get(1).getTitle(), is("Source"));
+
+        assertThat(result.getNotices(), hasSize(1));
+        assertThat(result.getNotices().get(0).getTitle(), is("Terms and Conditions"));
     }
 
     // helper methods
