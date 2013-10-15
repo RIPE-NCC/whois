@@ -9,13 +9,16 @@ import net.ripe.db.whois.common.support.database.diff.DatabaseDiff;
 import net.ripe.db.whois.common.support.database.diff.Row;
 import net.ripe.db.whois.common.support.database.diff.Table;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import static net.ripe.db.whois.common.support.database.diff.Rows.with;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
@@ -1837,6 +1840,114 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
         assertThat(diff.getRemoved().getTable("org"), hasSize(1));
         assertThat(diff.getRemoved().getTable("mnt_by"), hasSize(1));
         assertThat(diff.getRemoved().getTable("mnt_lower"), hasSize(1));
+    }
+
+    @Test
+    public void person_afrinic_nichdl() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person:         Firstname Lastname\n" +
+                "address:        AfriNIC\n" +
+                "phone:          +31 6 123 4567\n" +
+                "nic-hdl:        HIA1-AFRINIC\n" +
+                "mnt-by:         TST-MNT\n" +
+                "source:         TEST"));
+
+        final DatabaseDiff diff = rebuild();
+
+        assertNotNull(diff.getToDatabase().getTable("person_role").get(with("nic_hdl", "HIA1-AFRINIC")));
+    }
+
+    @Ignore("object key with invalid syntax is not added to index")
+    @Test
+    public void role_arin_nichdl() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "role:           IP Address Management\n" +
+                "address:        Somewhere\n" +
+                "phone:          +31 6 123456\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "nic-hdl:        IA4-ORG-ARIN\n" +
+                "source:         TEST"));
+
+        final DatabaseDiff diff = rebuild();
+
+        assertNotNull(diff.getToDatabase().getTable("person_role").get(with("nic_hdl", "IA4-ORG-ARIN")));
+    }
+
+    @Ignore("object key with invalid syntax is not added to index")
+    @Test
+    public void keycert_with_long_name() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "key-cert:       PGPKEY-D98DA6D6874D1114\n" +
+                "method:         PGP\n" +
+                "owner:          Domain Administrator <user@host.org>\n" +
+                "fingerpr:       785F E278 7339 7811 EEA5  6867 D98D A6D6 874D 1114\n" +
+                "certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                "certif:         Version: GnuPG v1.4.9 (Darwin)\n" +
+                "certif:\n" +
+                "certif:         mQGiBD/VrEsRBACuGpkWGKOD7pDKaNMsaivZreyL/nwvlCIiw/y78Nn423j7vhCN\n" +
+                "certif:         MHI8zrbssXBRZ3DFgz5r9sMtXRyCw7ts2xbRNG2nxy884P4VD0g1Nqc5zGY5J+3x\n" +
+                "certif:         WMxcak7yLowCLSRDJqUluhE+wxxcK+gBb2fJhhaHjycaZ29l4oBpDdWokwCg3XmZ\n" +
+                "certif:         NlPDk8m2KAQC7R2R/iZhGzMD/0Q/Q8o9loaT3HcfbbAirRiamuSehEW3UX6KjyGH\n" +
+                "certif:         XMP7uvfu5GvxMW20I12gKCFw/M5sX5hj4WfYi7T2bpe64EuWtPAiwjl/eiFuZYkj\n" +
+                "certif:         a9rxnCpOQu1mHCSmM5pq+TI6w5HoKjus/Zy4noEnXR/bweTmaTRRvpJWfQClZ6QG\n" +
+                "certif:         IP4JA/4pdsKBb0zrQrsS3rkvU8qpaFXqY4hMEJdmtWv+Hx+S8qInAFLo42K6scTv\n" +
+                "certif:         zEzwNDu1pkDDTKbsnpEvlDDOJofQ/Bk8KGC5q5laQL2wErMhn4pfmp8hxKdFcUuu\n" +
+                "certif:         GapBdhIvvph4i64NjRSuHGIAzhH7QEigoQRgCXEGMiA3mCKwWLRbRG9tYWluIEFk\n" +
+                "certif:         bWluaXN0cmF0b3IgKERvbWFpbiBBZG1pbmlzdHJhdG9yIGF0IHN5cy1vcC5jb207\n" +
+                "certif:         IG5vIHBhc3N3b3JkKSA8ZG9tYWluQHJ5bWR3ZWIuY29tPohZBBMRAgAZBQI/1axL\n" +
+                "certif:         BAsHAwIDFQIDAxYCAQIeAQIXgAAKCRDZjabWh00RFBxrAKCceb9SQZotdaxNNcS4\n" +
+                "certif:         uBHLgZc6lwCfbBUufPIivGbMUZcvaFtBfMsy8Q+5AQ0EP9WsSxAEAIOUAqdVGAgk\n" +
+                "certif:         eO4+f9AV6hlK/A0HEQ+mSLCzlbWkxFuTM7K55gZ4E7Dd3fEhn9JJu+ttasNQHALo\n" +
+                "certif:         mz3a8/V8M24fFeY7P1q9zcBhDrntEUlVqC4VshrRdO5lcgUy3fdtffY7hM5AXd0E\n" +
+                "certif:         soGgiZlWMQRw6s3/I6L/MaPisVeAeOg3AAMFA/4yRfAm6vjMBL5Pye1vjgymdlCA\n" +
+                "certif:         FtL93YB52hyVuA32UCHIDvLXoRE1/M5H1yj2JvjQ7qTreKcfAiHKdDbMdR79GAlc\n" +
+                "certif:         MdFs9aPSW6umwwqIe2Wbk9tEATbCHEbQ67LufsovsCMhjJlcGy7qRnyV8OJ+QLro\n" +
+                "certif:         NbmpmV2VEjudfEOXsIhGBBgRAgAGBQI/1axLAAoJENmNptaHTREUd84AmwSpNtol\n" +
+                "certif:         bs+SqImIOgh7HDHrgfSiAJ9ekIGhePtNgUQ4ysPigxIwTTJ/AA==\n" +
+                "certif:         =FS49\n" +
+                "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
+                "mnt-by:         TST-MNT\n" +
+                "source:         TEST"));
+
+        final DatabaseDiff diff = rebuild();
+
+        assertNotNull(diff.getToDatabase().getTable("key_cert").get(with("key_cert", "PGPKEY-D98DA6D6874D1114")));
+    }
+
+    @Test
+    public void domain_uppercase_in_addr_arpa() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "domain:         169.236.109.IN-ADDR.ARPA\n" +
+                "descr:\n" +
+                "nserver:        ns0.ripe.net\n" +
+                "nserver:        ns1.ripe.net\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "zone-c:         TP1-TEST\n" +
+                "mnt-by:         TST-MNT\n" +
+                "source:         TEST"));
+
+        final DatabaseDiff diff = rebuild();
+
+        assertNotNull(diff.getToDatabase().getTable("domain").get(with("domain", "169.236.109.IN-ADDR.ARPA")));
+    }
+
+    @Ignore("object key with invalid syntax is not added to index")
+    @Test
+    public void maintainer_one_letter_name() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:         F\n" +
+                "descr:          First Last\n" +
+                "admin-c:        TP1-TEST\n" +
+                "auth:           MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
+                "mnt-by:         TST-MNT\n" +
+                "referral-by:    TST-MNT\n" +
+                "source:         TEST"));
+
+        final DatabaseDiff diff = rebuild();
+
+        assertNotNull(diff.getToDatabase().getTable("mntner").get(with("mntner", "F")));
     }
 
     private DatabaseDiff rebuild(final RpslObject object) {
