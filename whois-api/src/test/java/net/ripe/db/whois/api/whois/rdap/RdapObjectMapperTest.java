@@ -54,7 +54,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getParentHandle(), is(nullValue()));
         assertThat(result.getPort43(), is("whois.ripe.net"));
 
-        final List<Entity> entities = result.getSearchResults();
+        final List<Entity> entities = result.getEntitySearchResults();
         assertThat(entities, hasSize(1));
         assertThat(entities.get(0).getHandle(), is("AB-TEST"));
         assertThat(entities.get(0).getRoles(), hasSize(1));
@@ -69,7 +69,7 @@ public class RdapObjectMapperTest {
                 "[kind, {}, text, group]\n" +
                 "[tel, {type=voice}, text, +31 12345678]"));
 
-        final List<Entity> abuseEntities = entities.get(0).getSearchResults();
+        final List<Entity> abuseEntities = entities.get(0).getEntitySearchResults();
         assertThat(abuseEntities, hasSize(3));
         assertThat(abuseEntities.get(0).getHandle(), is("TEST-MNT"));
         assertThat(abuseEntities.get(0).getRoles().get(0), is(Role.REGISTRANT));
@@ -121,7 +121,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getStatus(), is(emptyIterable()));
         assertThat(result.getCountry(), is(nullValue()));
 
-        final List<Entity> entities = result.getSearchResults();
+        final List<Entity> entities = result.getEntitySearchResults();
         assertThat(entities, hasSize(2));
         assertThat(entities.get(0).getHandle(), is("AP1-TEST"));
         assertThat(entities.get(0).getRoles(), containsInAnyOrder(Role.TECHNICAL, Role.ADMINISTRATIVE));
@@ -174,7 +174,7 @@ public class RdapObjectMapperTest {
         assertThat(secureDNS.getDsData().get(0).getDigest(), is("93B5837D4E5C063A3728FAA72BA64068F89B39DF"));
         assertThat(secureDNS.getDsData().get(0).getDigestType(), is(1));
 
-        final List<Entity> entities = result.getSearchResults();
+        final List<Entity> entities = result.getEntitySearchResults();
         assertThat(entities, hasSize(2));
         assertThat(entities.get(0).getHandle(), is("RIPE-NCC-MNT"));
         assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
@@ -253,7 +253,7 @@ public class RdapObjectMapperTest {
         assertThat(secureDNS.getDsData().get(2).getDigest(), is("8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e"));
         assertThat(secureDNS.getDsData().get(2).getDigestType(), is(2));
 
-        final List<Entity> entities = result.getSearchResults();
+        final List<Entity> entities = result.getEntitySearchResults();
         assertThat(entities, hasSize(2));
         assertThat(entities.get(0).getHandle(), is("OWNER-MNT"));
         assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
@@ -299,7 +299,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getRoles(), is(emptyIterable()));
         assertThat(result.getPublicIds(), is(nullValue()));
 
-        final List<Entity> entities = result.getSearchResults();
+        final List<Entity> entities = result.getEntitySearchResults();
         assertThat(entities, hasSize(1));
         assertThat(entities.get(0).getHandle(), is("TST-MNT"));
         assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
@@ -354,7 +354,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getRoles(), is(emptyIterable()));
 
         assertThat(result.getPublicIds(), is(nullValue()));
-        assertThat(result.getSearchResults(), hasSize(2));
+        assertThat(result.getEntitySearchResults(), hasSize(2));
 
         assertThat(result.getRemarks(), hasSize(1));
         assertThat(result.getRemarks().get(0).getDescription().get(0), is("Acme Carpet Organisation"));
@@ -383,8 +383,8 @@ public class RdapObjectMapperTest {
         final Object result = mapSearch(objects, Lists.newArrayList(new LocalDateTime(8929334857l), new LocalDateTime(823488725938l)));
         final SearchResult response = (SearchResult)result;
 
-        assertThat(response.getSearchResults(), hasSize(2));
-        final Entity first = response.getSearchResults().get(0);
+        assertThat(response.getEntitySearchResults(), hasSize(2));
+        final Entity first = response.getEntitySearchResults().get(0);
         assertThat(first.getHandle(), is("ORG-TOL-TEST"));
 
         assertThat(first.getEvents(), hasSize(1));
@@ -393,7 +393,7 @@ public class RdapObjectMapperTest {
         assertThat(first.getRemarks(), hasSize(1));
         assertThat(first.getRemarks().get(0).getDescription().get(0), is("comment 1"));
 
-        final Entity last = response.getSearchResults().get(1);
+        final Entity last = response.getEntitySearchResults().get(1);
         assertThat(last.getHandle(), is("ORG-TST-TEST"));
 
         assertThat(last.getEvents(), hasSize(1));

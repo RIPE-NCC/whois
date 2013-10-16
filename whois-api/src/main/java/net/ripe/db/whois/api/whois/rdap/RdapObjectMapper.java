@@ -21,6 +21,7 @@ import org.joda.time.LocalDateTime;
 import java.util.*;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.*;
+import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
 class RdapObjectMapper {
@@ -55,8 +56,13 @@ class RdapObjectMapper {
     public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final Iterable<LocalDateTime> localDateTimes) {
         final SearchResult searchResult = new SearchResult();
         final Iterator<LocalDateTime> iterator = localDateTimes.iterator();
+
         for (final RpslObject object : objects) {
-            searchResult.addSearchResult((Entity) getRdapObject(requestUrl, object, iterator.next(), Collections.EMPTY_LIST));
+            if (object.getType() == DOMAIN) {
+                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, iterator.next(), Collections.EMPTY_LIST));
+            } else {
+                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, iterator.next(), Collections.EMPTY_LIST));
+            }
         }
 
         return mapCommons(searchResult, requestUrl);
@@ -95,7 +101,7 @@ class RdapObjectMapper {
         rdapResponse.getNotices().addAll(noticeFactory.generateNotices(requestUrl, rpslObject));
 
         for (final RpslObject abuseContact : abuseContacts) {
-            rdapResponse.getSearchResults().add(createEntity(abuseContact, Role.ABUSE));
+            rdapResponse.getEntitySearchResults().add(createEntity(abuseContact, Role.ABUSE));
         }
 
         return rdapResponse;
@@ -127,7 +133,7 @@ class RdapObjectMapper {
             ip.setLang(rpslObject.findAttributes(AttributeType.LANGUAGE).get(0).getCleanValue().toString());
         }
 
-//        ip.getLinks().add(new Link().setRel("up")... //TODO parent (first less specific) - do parentHandle at the same time
+//        ip.setParentHandle(); TODO [AS] APNIC uses parent inet(6)num key, ARIN seems to use name (our netname) + handle of first less specific that is maintained by ARIN
 
         return ip;
     }
@@ -192,7 +198,7 @@ class RdapObjectMapper {
             entity.getRoles().add(role);
         }
         entity.setVCardArray(createVCard(rpslObject));
-        entity.getSearchResults().addAll(createContactEntities(rpslObject));
+        entity.getEntitySearchResults().addAll(createContactEntities(rpslObject));
 
         if (rpslObject.containsAttribute(AttributeType.LANGUAGE)) {
             entity.setLang(rpslObject.findAttributes(AttributeType.LANGUAGE).get(0).getCleanValue().toString());
@@ -206,7 +212,7 @@ class RdapObjectMapper {
         autnum.setHandle(rpslObject.getKey().toString());
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
         autnum.setType("DIRECT ALLOCATION");
-        autnum.getSearchResults().addAll(createContactEntities(rpslObject));
+        autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
         return autnum;
     }
 
@@ -278,7 +284,7 @@ class RdapObjectMapper {
             domain.setSecureDNS(secureDNS);
         }
 
-        domain.getSearchResults().addAll(createContactEntities(rpslObject));
+        domain.getEntitySearchResults().addAll(createContactEntities(rpslObject));
         return domain;
     }
 

@@ -389,31 +389,21 @@ public class WhoisRdapService {
                 return Response.status(NOT_FOUND).build();
             }
 
-            if (objects.size() > 1) {
-                final Iterable<LocalDateTime> lastUpdateds = Iterables.transform(objects, new Function<RpslObject, LocalDateTime>() {
-                    @Nullable
-                    @Override
-                    public LocalDateTime apply(@Nullable RpslObject input) {
-                        return objectDao.getLastUpdated(input.getObjectId());
-                    }
-                });
+            final Iterable<LocalDateTime> lastUpdateds = Iterables.transform(objects, new Function<RpslObject, LocalDateTime>() {
+                @Nullable
+                @Override
+                public LocalDateTime apply(@Nullable RpslObject input) {
+                    return objectDao.getLastUpdated(input.getObjectId());
+                }
+            });
 
-                return Response.ok(rdapObjectMapper.mapSearch(
-                        getRequestUrl(request),
-                        objects,
-                        lastUpdateds))
-                          .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
-                          .build();
-            }
-
-            return Response.ok(
-                    rdapObjectMapper.map(
-                            getRequestUrl(request),
-                            objects.get(0),
-                            objectDao.getLastUpdated(objects.get(0).getObjectId()),
-                            getAbuseContacts(objects.get(0))))
+            return Response.ok(rdapObjectMapper.mapSearch(
+                    getRequestUrl(request),
+                    objects,
+                    lastUpdateds))
                     .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
                     .build();
+
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

@@ -9,27 +9,38 @@ import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "entity", propOrder = {
-        "searchResults"
+        "entityResults",
+        "domainResults"
 })
 @XmlRootElement
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
 public class SearchResult extends RdapObject implements Serializable {
 
     @XmlElement(name = "entitySearchResults")
-    protected List<Entity> searchResults;
+    protected List<Entity> entityResults;
 
-    public List<Entity> getSearchResults() {
-        if (searchResults == null) {
-            searchResults = Lists.newArrayList();
+    @XmlElement(name = "domainSearchResults")
+    protected List<Domain> domainResults;
+
+    public List<Entity> getEntitySearchResults() {
+        return entityResults;
+    }
+
+    public List<Domain> getDomainSearchResults() {
+        return domainResults;
+    }
+
+    public void addEntitySearchResult(final Entity entity) {
+        if (entityResults == null) {
+            entityResults = Lists.newArrayList();
         }
-        return searchResults;
+        entityResults.add(entity);
     }
 
-    public void setSearchResults(final List<Entity> searchResults) {
-        this.searchResults = searchResults;
-    }
-
-    public void addSearchResult(final Entity entity) {
-        getSearchResults().add(entity);
+    public void addDomainSearchResult(final Domain domain) {
+        if (domainResults == null) {
+            domainResults = Lists.newArrayList();
+        }
+        domainResults.add(domain);
     }
 }

@@ -47,7 +47,7 @@ public class RdapObject implements Serializable {
         return this.status;
     }
 
-    public List<Entity> getSearchResults() {
+    public List<Entity> getEntitySearchResults() {
         if (entities == null) {
             entities = Lists.newArrayList();
         }

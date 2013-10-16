@@ -245,7 +245,7 @@ public class RdapResponseJsonTest {
         entity.getEvents().add(registrationEvent);
         entity.getEvents().add(lastChangedEvent);
 
-        domain.getSearchResults().add(entity);
+        domain.getEntitySearchResults().add(entity);
 
         final Link entityLink = new Link();
         entityLink.setHref("http://example.net/entity/xxxx");
@@ -405,7 +405,7 @@ public class RdapResponseJsonTest {
         entity.getRemarks().add(remark);
         entity.getEvents().add(registrationEvent);
         entity.getEvents().add(lastChangedEvent);
-        ip.getSearchResults().add(entity);
+        ip.getEntitySearchResults().add(entity);
 
         final Link entityLink = new Link()
                 .setHref("http://example.net/entity/xxxx")
