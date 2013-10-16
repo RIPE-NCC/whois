@@ -44,6 +44,12 @@ public class LegacyLogFormatProcessor implements LogFormatProcessor {
                     }
                     return FileVisitResult.CONTINUE;
                 }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException e) {
+                    LOGGER.info("Visit file: {} failed: {}", file.toAbsolutePath(), e.getMessage());
+                    return FileVisitResult.CONTINUE;
+                }
             });
         } catch (IOException e) {
             throw new IllegalStateException(e);
