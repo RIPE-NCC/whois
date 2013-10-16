@@ -129,7 +129,14 @@ public class LogFileIndex {
         update(new IndexTemplate.WriteCallback() {
             @Override
             public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                indexWriter.deleteDocuments(createDateQuery(date, null));
+                try {
+                    LOGGER.info("Removing all documents by date {}", DATE_FORMATTER.print(date));
+                    indexWriter.deleteDocuments(createDateQuery(date, null));
+                    LOGGER.info("Remove complete.");
+                } catch (IOException e) {
+                    LOGGER.error(e.getMessage(), e);
+                    throw e;
+                }
             }
         });
     }
