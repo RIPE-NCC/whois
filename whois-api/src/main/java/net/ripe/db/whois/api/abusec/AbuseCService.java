@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.abusec;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.whois.InternalJob;
 import net.ripe.db.whois.api.whois.InternalUpdatePerformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -22,6 +23,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Map;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.*;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
@@ -52,32 +54,55 @@ public class AbuseCService {
     public Response createAbuseRole(
             @PathParam("orgkey") final String orgkey,
             @FormParam("email") final String email) {
-        final RpslObject organisation = objectDao.getByKey(ORGANISATION, orgkey);
-        final CIString abuseContact = getAbuseContact(organisation);
+        final List<RpslObject> organisation = objectDao.getByKeys(ORGANISATION, Lists.newArrayList(CIString.ciString(orgkey)));
+        if (organisation.isEmpty()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        final CIString abuseContact = getAbuseContact(organisation.get(0));
         if (abuseContact != null) {
             return Response.status(Response.Status.CONFLICT).entity(abuseContact.toString()).build();
         }
 
-        final RpslObject role = buildRole(organisation, email);
-        final List<String> overridePasswords = Lists.newArrayList();
+        final RpslObject role = buildRole(organisation.get(0), email);
+        final Map<String, String> credentials = Maps.newHashMap();
+        credentials.put("abuseC-Creator","");
 
         final Origin origin = new InternalJob("AbuseCCreation");
         final RpslObject createdRole = updatePerformer.performUpdate(
                 origin,
-                updatePerformer.createUpdate(role, overridePasswords, null),
+                updatePerformer.createOverrideUpdate(role, credentials, null),
                 role.toString(),
                 Keyword.NEW,
                 loggerContext);
 
-        final RpslObject org = addAbuseCToOrganisation(organisation, createdRole.getKey().toString());
+        final RpslObject org = addAbuseCToOrganisation(organisation.get(0), createdRole.getKey().toString());
         updatePerformer.performUpdate(
                 origin,
-                updatePerformer.createUpdate(org, overridePasswords, null),
+                updatePerformer.createOverrideUpdate(org, credentials, null),
                 org.toString(),
                 Keyword.NONE,
                 loggerContext);
 
         return Response.ok(String.format("http://apps.db.ripe.net/search/lookup.html?source=%s&key=%s&type=ORGANISATION", source.getName(), orgkey)).build();
+    }
+
+    @GET
+    @Path("/{orgkey}")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response lookupAbuseContact(@PathParam("orgkey") final String orgkey) {
+        final List<RpslObject> organisation = objectDao.getByKeys(ORGANISATION, Lists.newArrayList(CIString.ciString(orgkey)));
+        if (organisation.isEmpty()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        final CIString abuseContact = getAbuseContact(organisation.get(0));
+        if (abuseContact == null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        return Response.ok(abuseContact.toString()).build();
     }
 
     @Nullable
