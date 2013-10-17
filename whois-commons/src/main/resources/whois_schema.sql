@@ -361,22 +361,6 @@ CREATE TABLE `interface` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `ip6int`
---
-
-DROP TABLE IF EXISTS `ip6int`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ip6int` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `msb` varchar(20) NOT NULL DEFAULT '',
-  `lsb` varchar(20) NOT NULL DEFAULT '',
-  `prefix_length` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `irt`
 --
 

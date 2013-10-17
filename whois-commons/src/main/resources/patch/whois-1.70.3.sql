@@ -1,0 +1,25 @@
+--
+-- Description:       Remove obsolete ip6int table
+--
+-- Issue:             N/A
+--
+-- Release Version:   1.70.3
+--
+
+USE WHOIS_UPDATE_RIPE;
+
+DROP PROCEDURE IF EXISTS WHOIS_PATCH_PROCEDURE;
+DELIMITER //
+CREATE PROCEDURE WHOIS_PATCH_PROCEDURE()
+BEGIN
+START TRANSACTION;
+
+DROP TABLE ip6int;
+
+UPDATE version SET version = 'whois-1.70.3';
+
+COMMIT;
+END//
+
+CALL WHOIS_PATCH_PROCEDURE();
+DROP PROCEDURE IF EXISTS WHOIS_PATCH_PROCEDURE;
