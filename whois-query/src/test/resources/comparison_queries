@@ -156,8 +156,6 @@
 -i fr FORM-HAIKU
 -rGKi sub-dom 128.135.88.in-addr.arpa
 -rGKi referral-by aardvark-mnt
-# never implemented
--i mnt-routes6 fred-mnt
 
 # inverse queries on NIC Hdl
 -i admin-c dw-ripe
@@ -172,6 +170,7 @@
 -s RIPE
 -rBG -s ripe,afrinic-grs 0/0
 -rBG -sripe,afrinic-grs,ripe-grs,arin-grs,apnic-grs,radb-grs,jpirr-grs,lacnic-grs 0/0
+
 -sripe,fred 0/0
 -sRIPE -r -T inetnum 193.0.0.0 - 193.0.7.255
 -s RIPE-GRS -r -T inetnum 193.0.0.0 - 193.0.7.255
