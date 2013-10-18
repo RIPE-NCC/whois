@@ -1,22 +1,24 @@
 package net.ripe.db.whois.logsearch;
 
 import com.google.common.base.Charsets;
+import net.ripe.db.whois.common.support.FileHelper;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
-import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.zip.GZIPOutputStream;
 
 public class LogFileHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LogFileHelper.class);
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormat.forPattern("HHmmss");
@@ -109,21 +111,7 @@ public class LogFileHelper {
     }
 
     public static void deleteLogs(final File file) {
-        recursiveDeleteLogs(file, file);
-    }
-
-    private static void recursiveDeleteLogs(final File root, final File file) {
-        if (!file.isDirectory()) {
-            file.delete();
-        } else {
-            for (File next : file.listFiles()) {
-                recursiveDeleteLogs(root, next);
-            }
-            if (!file.equals(root)) {
-                // don't delete root directory
-                file.delete();
-            }
-        }
+        FileHelper.delete(file);
     }
 
     public static String getDate() {
