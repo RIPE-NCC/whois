@@ -6,7 +6,6 @@
 ## 1.70
 [query] added option --valid-syntax and --no-valid-syntax
 [query] added comment if no abuse contact registered.
-[update] Allow import-via/export-via rpsl attributes - Job Snijders <job@atrato.com>
 [oneshot] added autnum cleanup
 [api] renamed abuse-finder to abuse-contact (also changed references on DbWebWar abusefinder branch)
 [api] added abuse contact creation helper rest call

@@ -240,16 +240,6 @@ interface AttributeSyntax extends Documented {
             "to <peering-N> [action <action-N>]\n" +
             "announce <filter>\n");
 
-    AttributeSyntax EXPORT_VIA_SYNTAX = new AttributeSyntaxParser(new ExportViaParser(), "" +
-            "[protocol <protocol-1>] [into <protocol-1>]\n" +
-            "afi <afi-list>\n" +
-            "<peering-0> to <peering-1> [action <action-1>]\n" +
-            "    .\n" +
-            "    .\n" +
-            "    .\n" +
-            "<peering-N> to <peering-N> [action <action-N>]\n" +
-            "announce <filter>\n");
-
     AttributeSyntax MP_FILTER_SYNTAX = new AttributeSyntaxParser(new MpFilterParser(), "" +
             "Logical expression which when applied to a set of multiprotocol\n" +
             "routes returns a subset of these routes. Please refer to RPSLng\n" +
@@ -263,17 +253,6 @@ interface AttributeSyntax extends Documented {
             "    .\n" +
             "    .\n" +
             "from <peering-N> [action <action-N>]\n" +
-            "accept (<filter>|<filter> except <importexpression>|\n" +
-            "        <filter> refine <importexpression>)\n");
-
-    AttributeSyntax IMPORT_VIA_SYNTAX = new AttributeSyntaxParser(new ImportViaParser(), "" +
-            "[protocol <protocol-1>] [into <protocol-1>]\n" +
-            "afi <afi-list>\n" +
-            "<peering-0> from <peering-1> [action <action-1>]\n" +
-            "    .\n" +
-            "    .\n" +
-            "    .\n" +
-            "<peering-N> from <peering-N> [action <action-N>]\n" +
             "accept (<filter>|<filter> except <importexpression>|\n" +
             "        <filter> refine <importexpression>)\n");
 
