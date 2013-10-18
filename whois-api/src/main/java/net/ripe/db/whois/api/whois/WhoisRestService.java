@@ -436,10 +436,12 @@ public class WhoisRestService {
             @QueryParam("type-filter") Set<String> types,
             @QueryParam("flags") Set<String> flags) {
 
+        Set<String> validSources;
         if (sources == null || sources.isEmpty()) {
-            sources = Collections.singleton(sourceContext.getCurrentSource().getName().toString());
+            validSources = Collections.singleton(sourceContext.getCurrentSource().getName().toString());
         } else {
-            checkForInvalidSources(sources);
+            validSources = sources;
+            checkForInvalidSources(validSources);
         }
 
         final Set<String> separateFlags = splitInputFlags(flags);
@@ -447,15 +449,15 @@ public class WhoisRestService {
 
         final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s %s %s %s",
                 QueryFlag.SOURCES.getLongFlag(),
-                JOINER.join(sources),
+                JOINER.join(validSources),
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
-                (types == null || types.isEmpty()) ? "" : QueryFlag.SELECT_TYPES.getLongFlag(),
+                isNullOrEmpty(types) ? "" : QueryFlag.SELECT_TYPES.getLongFlag(),
                 JOINER.join(types),
-                (inverseAttributes == null || inverseAttributes.isEmpty()) ? "" : QueryFlag.INVERSE.getLongFlag(),
+                isNullOrEmpty(inverseAttributes) ? "" : QueryFlag.INVERSE.getLongFlag(),
                 JOINER.join(inverseAttributes),
-                (includeTags == null || includeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(),
+                isNullOrEmpty(includeTags) ? "" : QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(),
                 JOINER.join(includeTags),
-                (excludeTags == null || excludeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(),
+                isNullOrEmpty(excludeTags) ? "" : QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(),
                 JOINER.join(excludeTags),
                 Joiner.on(" ").join(Iterables.transform(separateFlags, new Function<String, String>() {
                     @Override
@@ -466,7 +468,7 @@ public class WhoisRestService {
                 (queryString == null ? "" : queryString)));
 
         final Parameters parameters = new Parameters();
-        parameters.setSources(sources);
+        parameters.setSources(validSources);
         parameters.setQueryStrings(queryString);
         parameters.setInverseLookup(inverseAttributes);
         parameters.setTypeFilters(types);
@@ -475,6 +477,10 @@ public class WhoisRestService {
         Service service = new Service(SERVICE_SEARCH);
 
         return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service);
+    }
+
+    private boolean isNullOrEmpty(Collection collection) {
+        return (collection == null || collection.isEmpty());
     }
 
     private void checkForInvalidSources(final Set<String> sources) {

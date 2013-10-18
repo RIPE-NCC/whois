@@ -7,6 +7,9 @@ import org.apache.commons.lang.Validate;
 import java.util.Map;
 
 public class ObjectTypeIds {
+
+    private ObjectTypeIds() {}
+
     private static final Map<ObjectType, Integer> BY_OBJECT_TYPE = Maps.newEnumMap(ObjectType.class);
     private static final Map<Integer, ObjectType> BY_TYPE_ID;
 

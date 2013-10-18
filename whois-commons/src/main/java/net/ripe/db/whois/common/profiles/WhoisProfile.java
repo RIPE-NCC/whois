@@ -1,6 +1,9 @@
 package net.ripe.db.whois.common.profiles;
 
 public class WhoisProfile {
+
+    private WhoisProfile() {}
+
     public static final String ENDTOEND = "ENDTOEND";
     public static final String TEST = "TEST";
     public static final String DEPLOYED = "DEPLOYED";

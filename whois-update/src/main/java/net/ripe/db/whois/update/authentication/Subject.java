@@ -19,7 +19,7 @@ public class Subject {
     private final Set<String> failedAuthentications;
     private final Map<String, Collection<RpslObject>> pendingAuthentications;
 
-    static Subject EMPTY = new Subject();
+    static final Subject EMPTY = new Subject();
 
     Subject(final Principal... principals) {
         this(principals.length == 0 ? Collections.<Principal>emptySet() : Sets.newHashSet(principals),

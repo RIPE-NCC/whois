@@ -74,7 +74,7 @@ public class SourceContext {
 
         final Set<CIString> additionalSources = Sets.newLinkedHashSet();
         final Set<CIString> grsSources = Sets.newLinkedHashSet();
-        final Map<CIString, CIString> aliases = Maps.newLinkedHashMap();
+        final Map<CIString, CIString> newAliases = Maps.newLinkedHashMap();
 
         sourceConfigurations.put(mainMasterSource, new SourceConfiguration(mainMasterSource, whoisMasterDataSource));
         sourceConfigurations.put(mainSlaveSource, new SourceConfiguration(mainSlaveSource, whoisSlaveDataSource));
@@ -111,7 +111,7 @@ public class SourceContext {
 
             if (grsSourceName.contains(mainSourceName)) {
                 LOGGER.info("Delegating source {} to {}", grsSourceName, mainSourceName);
-                aliases.put(grsSourceName, mainSlaveSource.getName());
+                newAliases.put(grsSourceName, mainSlaveSource.getName());
                 sourceConfigurations.put(grsMasterSource, new SourceConfiguration(grsMasterSource, whoisMasterDataSource));
                 sourceConfigurations.put(grsSlaveSource, new SourceConfiguration(grsSlaveSource, whoisSlaveDataSource));
             } else {
@@ -130,7 +130,7 @@ public class SourceContext {
         this.grsSourceNames = Collections.unmodifiableSet(grsSources);
         this.grsSourceNamesForDummification = ciSet(COMMA_SPLITTER.split(grsSourceNamesForDummification));
         this.grsSourceNamesToTagRoutes = ciSet(COMMA_SPLITTER.split(grsSourceNamesToTagRoutes));
-        this.aliases = Collections.unmodifiableMap(aliases);
+        this.aliases = Collections.unmodifiableMap(newAliases);
         this.allSourceNames = Collections.unmodifiableSet(Sets.newLinkedHashSet(Iterables.transform(sourceConfigurations.keySet(), new Function<Source, CIString>() {
             @Nullable
             @Override

@@ -334,6 +334,9 @@ public class SyncUpdatesService {
     }
 
     private class Command {
+
+        private Command(){}
+
         static final String DATA = "DATA";
         static final String HELP = "HELP";
         static final String NEW = "NEW";

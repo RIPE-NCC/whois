@@ -9,6 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ParserHelper {
+
+    private ParserHelper() {}
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ParserHelper.class);
     static final long MAX_32BIT_NUMBER = (1L << 32) - 1;
     static final long MAX_16BIT_NUMBER = (1L << 16) - 1;
