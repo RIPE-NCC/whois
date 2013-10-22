@@ -97,7 +97,6 @@ public class AbuseCService {
 
     @GET
     @Path("/{orgkey}")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_PLAIN)
     public Response lookupAbuseContact(@PathParam("orgkey") final String orgKey) {
         try {
