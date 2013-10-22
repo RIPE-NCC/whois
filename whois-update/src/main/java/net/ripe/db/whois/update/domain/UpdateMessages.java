@@ -474,6 +474,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "A %s object must contain either %s or %s attribute", objectType.getName(), simple, complex);
     }
 
+    public static Message diffNotSupported() {
+        return new Message(Type.WARNING, "The DIFF keyword is not supported.");
+    }
+
     public static Message abuseMailboxRequired(final CharSequence key) {
         return new Message(Type.ERROR,
                 "The \"abuse-c\" ROLE object '%s' has no \"abuse-mailbox:\"\n"

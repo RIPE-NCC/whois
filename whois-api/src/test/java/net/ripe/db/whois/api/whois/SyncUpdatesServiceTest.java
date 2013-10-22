@@ -98,7 +98,7 @@ public class SyncUpdatesServiceTest {
         final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_BAD_REQUEST));
-        assertThat(response.getEntity().toString(), is("Invalid request"));
+        assertThat(response.getEntity().toString(), is("the DIFF method is not actually supported by the Syncupdates interface"));
     }
 
     @Test
@@ -146,8 +146,8 @@ public class SyncUpdatesServiceTest {
 
         final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
 
-        assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
-        assertThat(response.getEntity().toString(), is("OK"));
+        assertThat(response.getStatus(), is(HttpURLConnection.HTTP_BAD_REQUEST));
+        assertThat(response.getEntity().toString(), is("the DIFF method is not actually supported by the Syncupdates interface"));
     }
 
     @Test

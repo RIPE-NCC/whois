@@ -60,10 +60,6 @@ public class UpdateRequestHandler {
             return new UpdateResponse(UpdateStatus.SUCCESS, responseFactory.createHelpResponse(updateContext, updateRequest.getOrigin()));
         }
 
-        if (Keyword.DIFF.equals(keyword)) {
-            updateContext.dryRun();
-        }
-
         final List<Update> updates = updateRequest.getUpdates();
         if (updateContext.isDryRun() && updates.size() > 1) {
             for (final Update update : updates) {

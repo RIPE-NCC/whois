@@ -1,6 +1,7 @@
 package spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
+import spec.domain.Message
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
@@ -534,7 +535,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.contents.contains("***Error:   No valid update found")
     }
 
-    def "diff keyword in subject line"() {
+    def "diff keyword in subject line adds a warning"() {
       when:
         def message = send "From: noreply@ripe.net\n" +
                 "To: test-dbm@ripe.net\n" +
@@ -548,6 +549,31 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         def ack = ackFor message
 
         ack.contents =~ /Number of objects found:\s*0/
+        ack.contents.contains("***Warning: The DIFF keyword is not supported")
+    }
+
+    def "diff keyword in subject line of update mail adds a warning but continues"() {
+        when:
+        def message = send new Message(subject: "DIFF", body: """\
+            organisation: AUTO-1
+            org-name:     Ripe NCC organisation
+            org-type:     OTHER
+            address:      Singel 258
+            e-mail:       bitbucket@ripe.net
+            changed:      admin@test.com 20120505
+            mnt-by:       OWNER-MNT
+            mnt-ref:      OWNER-MNT
+            source:       TEST
+
+            password:     owner
+            """.stripIndent())
+
+        def ack = ackFor message
+
+        then:
+        def response = ack.contents
+        response.contains("Create SUCCEEDED: [organisation] ORG-RNO1-TEST")
+        response.contains("Warning: The DIFF keyword is not supported")
     }
 
     def "invalid keyword in subject line"() {
