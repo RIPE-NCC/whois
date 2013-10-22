@@ -126,7 +126,7 @@ public class JdbcRpslObjectOperations {
     public static void copyToHistoryAndUpdateSerials(final JdbcTemplate jdbcTemplate, final RpslObjectUpdateInfo rpslObjectInfo) {
         int rows = jdbcTemplate.update("" +
                 "INSERT INTO history " +
-                "SELECT object_id, sequence_id, timestamp, object_type, object, pkey FROM last " +
+                "SELECT 0, object_id, sequence_id, timestamp, object_type, object, pkey, 0, 0 FROM last " +
                 "WHERE object_id = ? and sequence_id = ?",
                 rpslObjectInfo.getObjectId(), rpslObjectInfo.getSequenceId());
         if (rows != 1) {
