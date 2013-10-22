@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -42,18 +43,21 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void create_role() throws IOException {
-        databaseHelper.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT");
-        databaseHelper.addObject(RpslObject.parse("" +
-                "organisation: ORG-TOL1-TEST\n" +
-                "org-name: Test Organisation Left\n" +
-                "org-type: OTHER\n" +
-                "address: street\n" +
-                "e-mail: some@email.net\n" +
-                "mnt-ref: TEST-MNT\n" +
-                "mnt-by: TEST-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source: test"));
+    public void post_abusec_role_created_for_organisation_without_abusec() throws IOException {
+        databaseHelper.addObject(
+                "mntner:    TEST-MNT\n" +
+                "mnt-by:    TEST-MNT\n" +
+                "source:    TEST");
+        databaseHelper.addObject(
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       TEST-MNT\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
 
         final String response = createResource(AUDIENCE, "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
                 .request(MediaType.TEXT_PLAIN)
@@ -70,20 +74,27 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void abuseC_already_exists() throws IOException {
-        databaseHelper.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT");
-        databaseHelper.addObject("role: Abuse Contact\nnic-hdl:tst-nic\nabuse-mailbox:abuse@test.net");
-        databaseHelper.addObject(RpslObject.parse("" +
-                "organisation: ORG-TOL1-TEST\n" +
-                "org-name: Test Organisation Left\n" +
-                "org-type: OTHER\n" +
-                "address: street\n" +
-                "abuse-c: tst-nic\n" +
-                "e-mail: some@email.net\n" +
-                "mnt-ref: TEST-MNT\n" +
-                "mnt-by: TEST-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source: test"));
+    public void post_organisation_abusec_role_already_exists() throws IOException {
+        databaseHelper.addObject(
+                "mntner:        TEST-MNT\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "role:          Abuse Contact\n" +
+                "nic-hdl:       tst-nic\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "abuse-c:       tst-nic\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       TEST-MNT\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
 
         try {
             createResource(AUDIENCE, "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
@@ -91,12 +102,13 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
                     .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
             fail();
         } catch (ClientErrorException e) {
+            assertThat(e.getResponse().getStatus(), is(Response.Status.CONFLICT.getStatusCode()));
             assertThat(e.getResponse().readEntity(String.class), containsString("abuse@test.net"));
         }
     }
 
     @Test
-    public void wrong_apikey() throws IOException {
+    public void post_wrong_apikey() throws IOException {
         try {
             createResource(AUDIENCE, "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-totallywrongkey")
                     .request(MediaType.TEXT_PLAIN)
@@ -108,19 +120,25 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
-    public void org_has_ripe_mntner() {
-        databaseHelper.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT");
-        databaseHelper.addObject("mntner: RIPE-NCC-HM-MNT\nmnt-by:RIPE-NCC-HM-MNT");
-        databaseHelper.addObject(RpslObject.parse("" +
-                "organisation: ORG-TOL1-TEST\n" +
-                "org-name: Test Organisation Left\n" +
-                "org-type: OTHER\n" +
-                "address: street\n" +
-                "e-mail: some@email.net\n" +
-                "mnt-ref: TEST-MNT\n" +
-                "mnt-by: RIPE-NCC-HM-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source: test"));
+    public void post_organisation_without_abusec_role_has_ripe_mntner() {
+        databaseHelper.addObject(
+                "mntner:    TEST-MNT\n" +
+                "mnt-by:    TEST-MNT\n" +
+                "source:    TEST");
+        databaseHelper.addObject(
+                "mntner:    RIPE-NCC-HM-MNT\n" +
+                "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                "source:    TEST");
+        databaseHelper.addObject(
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       TEST-MNT\n" +
+                "mnt-by:        RIPE-NCC-HM-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
 
         final String result = createResource(AUDIENCE, "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
                 .request(MediaType.TEXT_PLAIN)
@@ -131,19 +149,26 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void get_abusecontact_exists() {
-        databaseHelper.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT");
-        databaseHelper.addObject("role: Abuse Contact\nnic-hdl:tst-nic\nabuse-mailbox:abuse@test.net");
-        databaseHelper.addObject(RpslObject.parse("" +
-                "organisation: ORG-TOL1-TEST\n" +
-                "org-name: Test Organisation Left\n" +
-                "org-type: OTHER\n" +
-                "address: street\n" +
-                "abuse-c: tst-nic\n" +
-                "e-mail: some@email.net\n" +
-                "mnt-ref: TEST-MNT\n" +
-                "mnt-by: TEST-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source: test"));
+        databaseHelper.addObject(
+                "mntner:        TEST-MNT\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "role:          Abuse Contact\n" +
+                "nic-hdl:       tst-nic\n" +
+                "abuse-mailbox: abuse@test.net");
+        databaseHelper.addObject(
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "abuse-c:       tst-nic\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       TEST-MNT\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
+
         final String result = createResource(AUDIENCE, "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
                 .request(MediaType.TEXT_PLAIN)
                 .get(String.class);
@@ -154,36 +179,40 @@ public class AbuseCServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void get_abusecontact_not_found() {
-        databaseHelper.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT");
-        databaseHelper.addObject(RpslObject.parse("" +
-                "organisation: ORG-TOL1-TEST\n" +
-                "org-name: Test Organisation Left\n" +
-                "org-type: OTHER\n" +
-                "address: street\n" +
-                "e-mail: some@email.net\n" +
-                "mnt-ref: TEST-MNT\n" +
-                "mnt-by: TEST-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source: test"));
+        databaseHelper.addObject(
+                "mntner:    TEST-MNT\n" +
+                "mnt-by:    TEST-MNT\n" +
+                "source:    TEST");
+        databaseHelper.addObject(
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       TEST-MNT\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
+
         try {
             createResource(AUDIENCE, "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
                     .request(MediaType.TEXT_PLAIN)
                     .get(String.class);
-
-        } catch (ClientErrorException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+            fail();
+        } catch (NotFoundException e) {
+            // expected
         }
     }
 
     @Test
-    public void organisation_not_found() {
+    public void get_organisation_not_found() {
         try {
             createResource(AUDIENCE, "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
                 .request(MediaType.TEXT_PLAIN)
                 .get(String.class);
-
-        } catch (ClientErrorException e) {
-            assertThat(e.getResponse().getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
+            fail();
+        } catch (NotFoundException e) {
+            // expected
         }
     }
 

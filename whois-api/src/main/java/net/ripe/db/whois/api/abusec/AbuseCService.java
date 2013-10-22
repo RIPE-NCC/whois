@@ -16,17 +16,20 @@ import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
-
-import static net.ripe.db.whois.common.rpsl.AttributeType.*;
-import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 
 @Component
 @Path("/abusec")
@@ -54,17 +57,22 @@ public class AbuseCService {
     public Response createAbuseRole(
             @PathParam("orgkey") final String orgkey,
             @FormParam("email") final String email) {
-        final List<RpslObject> organisation = objectDao.getByKeys(ORGANISATION, Lists.newArrayList(CIString.ciString(orgkey)));
-        if (organisation.isEmpty()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+
+        RpslObject organisation;
+        try {
+            organisation = objectDao.getByKey(ObjectType.ORGANISATION, orgkey);
+        } catch (EmptyResultDataAccessException e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        final CIString abuseContact = getAbuseContact(organisation.get(0));
-        if (abuseContact != null) {
+        try {
+            final CIString abuseContact = lookupAbuseMailbox(organisation);
             return Response.status(Response.Status.CONFLICT).entity(abuseContact.toString()).build();
+        } catch (IllegalArgumentException e) {
+            // abuse mailbox not found, continue
         }
 
-        final RpslObject role = buildRole(organisation.get(0), email);
+        final RpslObject role = createAbuseCRole(organisation, email);
         final Map<String, String> credentials = Maps.newHashMap();
         credentials.put("abuseC-Creator","");
 
@@ -76,11 +84,11 @@ public class AbuseCService {
                 Keyword.NEW,
                 loggerContext);
 
-        final RpslObject org = addAbuseCToOrganisation(organisation.get(0), createdRole.getKey().toString());
+        final RpslObject updatedOrganisation = createOrganisationWithAbuseCAttribute(organisation, createdRole.getKey().toString());
         updatePerformer.performUpdate(
                 origin,
-                updatePerformer.createOverrideUpdate(org, credentials, null),
-                org.toString(),
+                updatePerformer.createOverrideUpdate(updatedOrganisation, credentials, null),
+                updatedOrganisation.toString(),
                 Keyword.NONE,
                 loggerContext);
 
@@ -91,48 +99,48 @@ public class AbuseCService {
     @Path("/{orgkey}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response lookupAbuseContact(@PathParam("orgkey") final String orgkey) {
-        final List<RpslObject> organisation = objectDao.getByKeys(ORGANISATION, Lists.newArrayList(CIString.ciString(orgkey)));
-        if (organisation.isEmpty()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+    public Response lookupAbuseContact(@PathParam("orgkey") final String orgKey) {
+        try {
+            final RpslObject organisation = objectDao.getByKey(ObjectType.ORGANISATION, orgKey);
+            try {
+                final CIString abuseMailbox = lookupAbuseMailbox(organisation);
+                return Response.ok(abuseMailbox.toString()).build();
+            } catch (IllegalArgumentException e) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        } catch (EmptyResultDataAccessException e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-
-        final CIString abuseContact = getAbuseContact(organisation.get(0));
-        if (abuseContact == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-
-        return Response.ok(abuseContact.toString()).build();
     }
 
-    @Nullable
-    private CIString getAbuseContact(final RpslObject organisation) {
-        final List<RpslAttribute> abuseContactAttribute = organisation.findAttributes(ABUSE_C);
-        return abuseContactAttribute.isEmpty() ?
-                null :
-                objectDao.getByKey(ObjectType.ROLE, abuseContactAttribute.get(0).getCleanValue().toString()).getValueForAttribute(AttributeType.ABUSE_MAILBOX);
+    private CIString lookupAbuseMailbox(final RpslObject organisation) {
+        final CIString abusec = organisation.getValueForAttribute(AttributeType.ABUSE_C);
+        final RpslObject role = objectDao.getByKey(ObjectType.ROLE, abusec);
+        return role.getValueForAttribute(AttributeType.ABUSE_MAILBOX);
     }
 
-    private RpslObject buildRole(final RpslObject organisation, final String email) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("role: Abuse-c Role\nnic-hdl: AUTO-1\nabuse-mailbox:").append(email);
-        for (final CIString mnt : organisation.getValuesForAttribute(MNT_REF)) {
-            builder.append("\nmnt-by:").append(mnt);
+    private RpslObject createAbuseCRole(final RpslObject organisation, final String abuseMailbox) {
+        final List<RpslAttribute> attributes = Lists.newArrayList();
+        attributes.add(new RpslAttribute(AttributeType.ROLE, "Abuse-c Role"));
+        attributes.add(new RpslAttribute(AttributeType.NIC_HDL, "AUTO-1"));
+        attributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseMailbox));
+        for (RpslAttribute mntRef : organisation.findAttributes(AttributeType.MNT_REF)) {
+            attributes.add(new RpslAttribute(AttributeType.MNT_BY, mntRef.getValue()));
         }
-        for (final CIString address : organisation.getValuesForAttribute(ADDRESS)) {
-            builder.append("\naddress:").append(address);
+        for (RpslAttribute address : organisation.findAttributes(AttributeType.ADDRESS)) {
+            attributes.add(address);
         }
-        builder.append("\ne-mail:").append(organisation.getValueForAttribute(E_MAIL));
-        builder.append("\nchanged:").append(organisation.getValueForAttribute(E_MAIL));
-        builder.append("\nsource: ").append(source.getName());
-
-        return RpslObject.parse(builder.toString());
+        final RpslAttribute email = organisation.findAttribute(AttributeType.E_MAIL);
+        attributes.add(organisation.findAttribute(AttributeType.E_MAIL));
+        attributes.add(new RpslAttribute(AttributeType.CHANGED, email.getValue()));
+        final RpslAttribute source = organisation.findAttribute(AttributeType.SOURCE);
+        attributes.add(source);
+        return new RpslObject(attributes);
     }
 
-    private RpslObject addAbuseCToOrganisation(final RpslObject organisation, final String nic) {
+    private RpslObject createOrganisationWithAbuseCAttribute(final RpslObject organisation, final String abusec) {
         final List<RpslAttribute> attributes = Lists.newArrayList(organisation.getAttributes());
-        attributes.add(new RpslAttribute(ABUSE_C, nic));
-
+        attributes.add(new RpslAttribute(AttributeType.ABUSE_C, abusec));
         return new RpslObject(organisation, attributes);
     }
 }
