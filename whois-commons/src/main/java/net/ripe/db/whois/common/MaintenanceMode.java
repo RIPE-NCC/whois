@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 // TODO: [AH] add tests (as/if possible)
 @Component
 public class MaintenanceMode {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseMaintenanceJmx.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MaintenanceMode.class);
 
     public enum AccessType {FULL, READONLY, NONE};
 

@@ -153,4 +153,17 @@ public class AclLimitServiceTest {
 
         verify(aclServiceDao).deleteLimit(IpInterval.parse("10.0.0.0/32"));
     }
+
+    @Test
+    public void deleteLimitWithEncodedURL() {
+        List<Limit> limits = Lists.newArrayList(
+                new Limit("10.0.0.0/32", "", 100, false)
+        );
+        when(aclServiceDao.getLimits()).thenReturn(limits);
+
+        final Response response = subject.deleteLimit("10.0.0.0%2F32");
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
+        verify(aclServiceDao).deleteLimit(IpInterval.parse("10.0.0.0/32"));
+    }
 }

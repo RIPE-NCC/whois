@@ -65,6 +65,26 @@ public class AclBanServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Test
+    public void createBanWithIPv6AfterNormalisingPrefix() throws Exception {
+
+        final Ban ban = createResource(AUDIENCE, BANS_PATH)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new Ban("2001:db8:1f15:d79:1511:ed4a:b5bc:4420/64", "test"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
+
+        assertThat(ban.getPrefix(), is("2001:db8:1f15:d79::/64"));
+        assertThat(ban.getComment(), is("test"));
+
+        final List<Ban> bans = getBans();
+        assertThat(bans, hasSize(2));
+
+        final List<BanEvent> banEvents = getBanEvents("2001:db8:1f15:d79::/64");
+        assertThat(banEvents, hasSize(1));
+        final BanEvent banEvent = banEvents.get(0);
+        assertThat(banEvent.getPrefix(), is("2001:db8:1f15:d79::/64"));
+        assertThat(banEvent.getType(), is(BlockEvent.Type.BLOCK_PERMANENTLY));
+    }
+
+    @Test
     public void createBanWithoutPrefixLength() throws Exception {
         final Ban ban = createResource(AUDIENCE, BANS_PATH)
                 .request(MediaType.APPLICATION_JSON_TYPE)

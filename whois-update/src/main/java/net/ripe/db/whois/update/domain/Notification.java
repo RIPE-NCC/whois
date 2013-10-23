@@ -75,14 +75,14 @@ public final class Notification {
             this.result = RESULT_MAP.get(update.getAction());
             this.update = update;
 
-            String reason = StringUtils.join(update.getUpdate().getDeleteReasons(), ", ");
-            if (StringUtils.isNotEmpty(reason)) {
-                reason = prettyPrint(String.format("***%s: ", Messages.Type.INFO), reason, 12, 80);
+            String updateReason = StringUtils.join(update.getUpdate().getDeleteReasons(), ", ");
+            if (StringUtils.isNotEmpty(updateReason)) {
+                updateReason = prettyPrint(String.format("***%s: ", Messages.Type.INFO), updateReason, 12, 80);
             }
 
             versionId = updateContext.getVersionId(update);
 
-            this.reason = reason;
+            this.reason = updateReason;
         }
 
         public RpslObject getReferenceObject() {

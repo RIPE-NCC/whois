@@ -151,4 +151,9 @@ public class LogFileUpdateJmx extends JmxBase {
         return builder.toString();
     }
 
+    @ManagedOperation(description = "Daily Update")
+    public void dailyUpdate() {
+        newLogFormatProcessor.dailyUpdate();
+    }
+
 }

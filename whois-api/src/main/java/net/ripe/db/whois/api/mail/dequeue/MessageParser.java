@@ -94,6 +94,9 @@ public class MessageParser {
                 updateContext.addGlobalMessage(UpdateMessages.invalidKeywordsFound(subject));
                 updateContext.addGlobalMessage(UpdateMessages.allKeywordsIgnored());
             } else {
+                if (keyword.equals(Keyword.DIFF)) {
+                    updateContext.addGlobalMessage(UpdateMessages.diffNotSupported());
+                }
                 messageBuilder.keyword(keyword);
             }
         }

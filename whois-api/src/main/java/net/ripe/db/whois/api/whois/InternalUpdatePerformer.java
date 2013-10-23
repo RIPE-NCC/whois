@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.whois;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,6 +64,20 @@ public class InternalUpdatePerformer {
     public Update createUpdate(final RpslObject rpslObject, final List<String> passwords, final String deleteReason) {
         return new Update(
                 createParagraph(rpslObject, passwords),
+                deleteReason != null ? Operation.DELETE : Operation.UNSPECIFIED,
+                deleteReason != null ? Lists.newArrayList(deleteReason) : null,
+                rpslObject);
+    }
+
+    public Update createOverrideUpdate(final RpslObject rpslObject, Map<String, String> overrideCredentials, final String deleteReason) {
+        final Joiner joiner = Joiner.on(',');
+        final Set<OverrideCredential> credentials = Sets.newHashSet();
+        for (final String user : overrideCredentials.keySet()) {
+            credentials.add(OverrideCredential.parse(joiner.join(user, overrideCredentials.get(user))));
+        }
+
+        return new Update(
+                new Paragraph(rpslObject.toString(), new Credentials(credentials)),
                 deleteReason != null ? Operation.DELETE : Operation.UNSPECIFIED,
                 deleteReason != null ? Lists.newArrayList(deleteReason) : null,
                 rpslObject);

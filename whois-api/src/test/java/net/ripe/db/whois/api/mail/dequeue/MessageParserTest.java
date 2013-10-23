@@ -69,7 +69,7 @@ public class MessageParserTest {
         final MailMessage message = subject.parse(mimeMessage, updateContext);
 
         assertThat(keyword.toString(), message.getKeyword(), is(keyword));
-        verify(updateContext, never()).addGlobalMessage(any(Message.class));
+        verify(updateContext, times(1)).addGlobalMessage(UpdateMessages.diffNotSupported());
     }
 
     @Test

@@ -73,21 +73,23 @@ public class RpslResponseDecorator {
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
-        result = filterPlaceholdersDecorator.decorate(query, result);
-        result = dummify(result);
+        Iterable<? extends ResponseObject> decoratedResult = filterPlaceholdersDecorator.decorate(query, result);
 
-        result = groupRelatedObjects(query, result);
-        result = filterTagsDecorator.decorate(query, result);
-        result = filterPersonalDecorator.decorate(query, result);
+        decoratedResult = filterPlaceholdersDecorator.decorate(query, decoratedResult);
+        decoratedResult = dummify(decoratedResult);
 
-        result = applyAbuseC(query, result);
-        result = applySyntaxFilter(query, result);
-        result = filterEmail(query, result);
-        result = filterAuth(result);
+        decoratedResult = groupRelatedObjects(query, decoratedResult);
+        decoratedResult = filterTagsDecorator.decorate(query, decoratedResult);
+        decoratedResult = filterPersonalDecorator.decorate(query, decoratedResult);
 
-        result = applyOutputFilters(query, result);
+        decoratedResult = applyAbuseC(query, decoratedResult);
+        decoratedResult = applySyntaxFilter(query, decoratedResult);
+        decoratedResult = filterEmail(query, decoratedResult);
+        decoratedResult = filterAuth(decoratedResult);
 
-        return result;
+        decoratedResult = applyOutputFilters(query, decoratedResult);
+
+        return decoratedResult;
     }
 
     private Iterable<? extends ResponseObject> applyAbuseC(final Query query, final Iterable<? extends ResponseObject> result) {

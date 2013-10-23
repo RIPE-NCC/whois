@@ -54,10 +54,8 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(AS_NAME, MANDATORY, SINGLE),
                         new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
                         new AttributeTemplate(MEMBER_OF, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(IMPORT_VIA, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(IMPORT, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(MP_IMPORT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(EXPORT_VIA, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(EXPORT, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(MP_EXPORT, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(DEFAULT, OPTIONAL, MULTIPLE),
@@ -513,7 +511,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
     public ObjectMessages validate(final RpslObject rpslObject) {
         final ObjectMessages objectMessages = new ObjectMessages();
-        final ObjectType objectType = rpslObject.getType();
+        final ObjectType rpslObjectType = rpslObject.getType();
 
         final Map<AttributeType, Integer> attributeCount = Maps.newEnumMap(AttributeType.class);
         for (final AttributeTemplate attributeTemplate : attributeTemplates) {
@@ -529,26 +527,33 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                 if (attributeTemplate == null) {
                     objectMessages.addMessage(attribute, ValidationMessages.invalidAttributeForObject(attributeType));
                 } else if (!attributeTemplate.getRequirement().equals(GENERATED)) {
-                    attribute.validateSyntax(objectType, objectMessages);
+                    attribute.validateSyntax(rpslObjectType, objectMessages);
                     attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
                 }
             }
         }
 
         for (final AttributeTemplate attributeTemplate : attributeTemplates) {
-            final AttributeType attributeType = attributeTemplate.getAttributeType();
-            final int count = attributeCount.get(attributeType);
-
-            if (MANDATORY.equals(attributeTemplate.getRequirement()) && count == 0) {
-                objectMessages.addMessage(ValidationMessages.missingMandatoryAttribute(attributeType));
-            }
-
-            if (SINGLE.equals(attributeTemplate.getCardinality()) && count > 1) {
-                objectMessages.addMessage(ValidationMessages.tooManyAttributesOfType(attributeType));
-            }
+            addValidationMessagesForAttributeTemplate(objectMessages, attributeTemplate, attributeCount);
         }
 
         return objectMessages;
+    }
+
+    public void addValidationMessagesForAttributeTemplate(
+                        ObjectMessages objectMessages, AttributeTemplate attributeTemplate,
+                        Map<AttributeType, Integer> attributeCount){
+
+        final AttributeType attributeType = attributeTemplate.getAttributeType();
+        final int attributeTypeCount = attributeCount.get(attributeType);
+
+        if (MANDATORY.equals(attributeTemplate.getRequirement()) && attributeTypeCount == 0) {
+            objectMessages.addMessage(ValidationMessages.missingMandatoryAttribute(attributeType));
+        }
+
+        if (SINGLE.equals(attributeTemplate.getCardinality()) && attributeTypeCount > 1) {
+            objectMessages.addMessage(ValidationMessages.tooManyAttributesOfType(attributeType));
+        }
     }
 
     @Override

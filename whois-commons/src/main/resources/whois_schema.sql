@@ -92,7 +92,6 @@ DROP TABLE IF EXISTS `as_set`;
 CREATE TABLE `as_set` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `as_set` varchar(80) NOT NULL DEFAULT '',
-  `dummy` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`object_id`),
   KEY `as_set` (`as_set`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -362,22 +361,6 @@ CREATE TABLE `interface` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `ip6int`
---
-
-DROP TABLE IF EXISTS `ip6int`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ip6int` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `msb` varchar(20) NOT NULL DEFAULT '',
-  `lsb` varchar(20) NOT NULL DEFAULT '',
-  `prefix_length` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `irt`
 --
 
@@ -387,7 +370,6 @@ DROP TABLE IF EXISTS `irt`;
 CREATE TABLE `irt` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `irt` varchar(80) NOT NULL DEFAULT '0',
-  `dummy` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`object_id`),
   KEY `irt` (`irt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -602,7 +584,6 @@ DROP TABLE IF EXISTS `mntner`;
 CREATE TABLE `mntner` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mntner` varchar(80) NOT NULL DEFAULT '',
-  `dummy` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`object_id`),
   KEY `mntner` (`mntner`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -716,7 +697,6 @@ DROP TABLE IF EXISTS `organisation`;
 CREATE TABLE `organisation` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `organisation` varchar(80) NOT NULL DEFAULT '',
-  `dummy` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`organisation`,`object_id`),
   KEY `object_id` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -766,7 +746,6 @@ CREATE TABLE `person_role` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `nic_hdl` varchar(30) NOT NULL DEFAULT '',
   `object_type` tinyint(4) unsigned NOT NULL DEFAULT '0',
-  `dummy` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`object_id`),
   KEY `nic_hdl` (`nic_hdl`),
   KEY `object_type` (`object_type`)
@@ -815,7 +794,6 @@ DROP TABLE IF EXISTS `poetic_form`;
 CREATE TABLE `poetic_form` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `poetic_form` varchar(80) NOT NULL DEFAULT '',
-  `dummy` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`poetic_form`),
   KEY `poetic_form` (`poetic_form`),
   KEY `object_id` (`object_id`)
@@ -866,7 +844,6 @@ CREATE TABLE `route` (
   `prefix` int(10) unsigned NOT NULL DEFAULT '0',
   `prefix_length` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `origin` varchar(13) NOT NULL DEFAULT '',
-  `dummy` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`object_id`),
   KEY `origin` (`origin`,`prefix`,`prefix_length`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -885,7 +862,6 @@ CREATE TABLE `route6` (
   `r6_lsb` varchar(20) NOT NULL DEFAULT '',
   `prefix_length` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `origin` varchar(13) NOT NULL DEFAULT '',
-  `dummy` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`object_id`),
   KEY `origin` (`origin`,`r6_msb`,`r6_lsb`,`prefix_length`),
   KEY `r6_msb` (`r6_msb`),
@@ -903,7 +879,6 @@ DROP TABLE IF EXISTS `route_set`;
 CREATE TABLE `route_set` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `route_set` varchar(80) NOT NULL DEFAULT '',
-  `dummy` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`object_id`),
   KEY `route_set` (`route_set`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -919,7 +894,6 @@ DROP TABLE IF EXISTS `rtr_set`;
 CREATE TABLE `rtr_set` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `rtr_set` varchar(80) NOT NULL DEFAULT '',
-  `dummy` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`object_id`),
   KEY `rtr_set` (`rtr_set`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

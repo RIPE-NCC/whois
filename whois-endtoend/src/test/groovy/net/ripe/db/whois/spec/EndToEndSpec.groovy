@@ -25,10 +25,10 @@ import net.ripe.db.whois.update.mail.MailSenderStub
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.springframework.context.support.ClassPathXmlApplicationContext
-import spec.domain.AckResponse
-import spec.domain.Message
-import spec.domain.NotificationResponse
-import spec.domain.SyncUpdate
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
+import net.ripe.db.whois.spec.domain.NotificationResponse
+import net.ripe.db.whois.spec.domain.SyncUpdate
 import spock.lang.Specification
 
 import javax.mail.Address

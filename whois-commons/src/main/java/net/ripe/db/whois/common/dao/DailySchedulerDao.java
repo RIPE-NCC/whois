@@ -50,6 +50,11 @@ public class DailySchedulerDao {
     }
 
     public boolean acquireDailyTask(final LocalDate date, final Class taskClass, final String hostName) {
+        final List<Long> finishDate = jdbcTemplate.queryForList("SELECT done FROM scheduler WHERE date = ? AND task = ?", Long.class, date.minusDays(1).toString(), taskClass.getSimpleName());
+        if (finishDate.size() > 0 && finishDate.get(0) == null) {
+            LOGGER.error("While trying to acquire ({}, {}, {}): previous day's run is not marked as finished!", date.toString(), taskClass.getSimpleName(), hostName);
+        }
+
         try {
             jdbcTemplate.update("INSERT INTO scheduler (date, task, host) VALUES (?, ?, ?)", date.toString(), taskClass.getSimpleName(), hostName);
         } catch (NonTransientDataAccessException ignored) {

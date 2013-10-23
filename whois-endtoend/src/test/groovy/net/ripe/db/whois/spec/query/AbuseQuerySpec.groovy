@@ -1,7 +1,7 @@
 package net.ripe.db.whois.spec.query
 
 import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.Message
+import net.ripe.db.whois.spec.domain.Message
 
 class AbuseQuerySpec extends BaseSpec {
     @Override

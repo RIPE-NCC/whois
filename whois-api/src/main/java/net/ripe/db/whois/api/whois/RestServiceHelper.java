@@ -4,6 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 
 public class RestServiceHelper {
 
+    private RestServiceHelper() {}
+
     public static String getRequestURL(final HttpServletRequest request) {
         final StringBuilder builder = new StringBuilder();
         builder.append(request.getRequestURL());

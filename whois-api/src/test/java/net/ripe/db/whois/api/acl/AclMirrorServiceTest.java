@@ -74,6 +74,18 @@ public class AclMirrorServiceTest {
     }
 
     @Test
+    public void getMirror_encoded_prefix() {
+        Mirror mirror = new Mirror("10.0.0.0/32", "comment");
+
+        when(aclServiceDao.getMirror(IpInterval.parse(CIString.ciString("10.0.0.0/32")))).thenReturn(mirror);
+
+        final Response response = subject.getMirror("10.0.0.0%2F32");
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+        assertThat(response.getEntity(), instanceOf(Mirror.class));
+        assertThat(((Mirror) response.getEntity()), is(mirror));
+    }
+
+    @Test
     public void saveMirror_create() {
         List<Mirror> mirrors = Lists.newArrayList(new Mirror("10.0.0.1/32", "comment"));
         when(aclServiceDao.getMirrors()).thenReturn(mirrors);
@@ -139,5 +151,17 @@ public class AclMirrorServiceTest {
         subject.deleteMirror("::0/0");
 
         verify(aclServiceDao, never()).deleteMirror(IpInterval.parse("::0/0"));
+    }
+
+    @Test
+    public void deleteMirrorWithEncodedURL() {
+        when(aclServiceDao.getMirror(IpInterval.parse("10.0.0.0/32"))).thenReturn(new Mirror("10.0.0.0/32", "comment"));
+
+        Response response = subject.deleteMirror("10.0.0.0%2F32");
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+        assertThat(((Mirror) response.getEntity()).getPrefix(), is("10.0.0.0/32"));
+
+        verify(aclServiceDao).deleteMirror(IpInterval.parse("10.0.0.0/32"));
     }
 }

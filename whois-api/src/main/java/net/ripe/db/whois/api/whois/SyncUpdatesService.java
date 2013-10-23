@@ -118,6 +118,10 @@ public class SyncUpdatesService {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Invalid source specified: " + request.getSource()).build();
             }
 
+            if (request.isParam(Command.DIFF)) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("the DIFF method is not actually supported by the Syncupdates interface").build();
+            }
+
             boolean notificationsEnabled = true;
             if (request.isParam(Command.REDIRECT)) {
                 if (!ipRanges.isTrusted(IpInterval.parse(request.getRemoteAddress()))) {
@@ -334,6 +338,9 @@ public class SyncUpdatesService {
     }
 
     private class Command {
+
+        private Command(){}
+
         static final String DATA = "DATA";
         static final String HELP = "HELP";
         static final String NEW = "NEW";

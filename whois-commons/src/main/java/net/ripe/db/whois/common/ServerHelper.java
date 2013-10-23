@@ -11,6 +11,9 @@ import java.net.ServerSocket;
 import java.util.concurrent.Executors;
 
 public class ServerHelper {
+
+    private ServerHelper() {}
+
     public static int getActualPort(final int requestedPort) {
         if (requestedPort == -1) {
             return getAvailablePort();

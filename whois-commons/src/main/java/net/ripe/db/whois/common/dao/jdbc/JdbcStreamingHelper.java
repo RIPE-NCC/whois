@@ -11,6 +11,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class JdbcStreamingHelper {
+
+   private JdbcStreamingHelper() {}
+
     public static <T> T executeStreaming(final JdbcTemplate jdbcTemplate, final String sql, final PreparedStatementCallback<T> callback) {
         return jdbcTemplate.execute(new ConnectionCallback<T>() {
             @Override

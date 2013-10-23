@@ -201,9 +201,13 @@ public final class Ipv4Resource extends IpInterval<Ipv4Resource> implements Comp
 
     @Override
     public boolean intersects(Ipv4Resource that) {
-        return (this.begin() >= that.begin() && this.begin() <= that.end())
-                || (this.end() >= that.begin() && this.end() <= that.end())
-                || (that.begin() >= this.begin() && that.begin() <= this.end());
+        return (isIPWithinRange(this.begin(), that)
+                || isIPWithinRange(this.end(), that)
+                || isIPWithinRange(that.begin(), this));
+    }
+
+    private boolean isIPWithinRange(long ip, Ipv4Resource range){
+        return ip >=range.begin() && ip <=range.end();
     }
 
     @Override

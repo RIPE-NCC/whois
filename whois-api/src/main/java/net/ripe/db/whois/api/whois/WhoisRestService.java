@@ -23,6 +23,7 @@ import net.ripe.db.whois.query.query.QueryFlag;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -99,7 +100,7 @@ public class WhoisRestService {
         this.queryHandler = queryHandler;
         this.whoisObjectMapper = whoisObjectMapper;
         this.updatePerformer = updatePerformer;
-   }
+    }
 
     @DELETE
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -292,58 +293,61 @@ public class WhoisRestService {
         final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
 
         return Response.ok(new StreamingOutput() {
-            private boolean found;
+            private boolean rpslObjectFound;
 
             @Override
             public void write(final OutputStream output) throws IOException {
 
-                // TODO [AK] Crude way to handle tags, but working
-                final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
-                final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
-
                 try {
-                    final int contextId = System.identityHashCode(Thread.currentThread());
-                    queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
+                    // TODO [AK] Crude way to handle tags, but working
+                    final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
+                    final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
 
-                        @Override
-                        public void handle(final ResponseObject responseObject) {
-                            if (responseObject instanceof TagResponseObject) {
-                                tagResponseObjects.add((TagResponseObject) responseObject);
-                            } else if (responseObject instanceof RpslObject) {
-                                if (!found) {
-                                    startStreaming(output);
+                    try {
+                        final int contextId = System.identityHashCode(Thread.currentThread());
+                        queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
+
+                            @Override
+                            public void handle(final ResponseObject responseObject) {
+                                if (responseObject instanceof TagResponseObject) {
+                                    tagResponseObjects.add((TagResponseObject) responseObject);
+                                } else if (responseObject instanceof RpslObject) {
+                                    if (!rpslObjectFound) {
+                                        startStreaming(output);
+                                    }
+                                    rpslObjectFound = true;
+                                    streamObject(rpslObjectQueue.poll(), tagResponseObjects);
+                                    rpslObjectQueue.add((RpslObject) responseObject);
                                 }
-                                found = true;
-                                streamObject(rpslObjectQueue.poll(), tagResponseObjects);
-                                rpslObjectQueue.add((RpslObject) responseObject);
+
+                                // TODO [AK] Handle related messages
                             }
+                        });
 
-                            // TODO [AK] Handle related messages
+                        streamObject(rpslObjectQueue.poll(), tagResponseObjects);
+
+                        if (!rpslObjectFound) {
+                            throw new WebApplicationException(Response.Status.NOT_FOUND);
                         }
-                    });
-
-                    streamObject(rpslObjectQueue.poll(), tagResponseObjects);
-
-                    if (!found) {
-                        throw new WebApplicationException(Response.Status.NOT_FOUND);
+                    } catch (QueryException e) {
+                        if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
+                            throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
+                        } else {
+                            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+                        }
                     }
-                } catch (QueryException e) {
-                    if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                        throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
-                    } else {
-                        throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
-                    }
+
+                    streamingMarshal.end();
+                    streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+                    streamingMarshal.close();
+                } catch (StreamingException ignored) {  // only happens on IOException
                 }
-
-                streamingMarshal.end();
-                streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
-                streamingMarshal.close();
             }
 
             private void startStreaming(final OutputStream output) {
                 streamingMarshal.open(output, "whois-resources");
 
-                if (service!=null){
+                if (service != null) {
                     streamingMarshal.write("service", service);
                 }
 
@@ -432,10 +436,12 @@ public class WhoisRestService {
             @QueryParam("type-filter") Set<String> types,
             @QueryParam("flags") Set<String> flags) {
 
-        if (sources == null || sources.isEmpty()) {
-            sources = Collections.singleton(sourceContext.getCurrentSource().getName().toString());
+        Set<String> validSources;
+        if (CollectionUtils.isEmpty(sources)) {
+            validSources = Collections.singleton(sourceContext.getCurrentSource().getName().toString());
         } else {
-            checkForInvalidSources(sources);
+            validSources = sources;
+            checkForInvalidSources(validSources);
         }
 
         final Set<String> separateFlags = splitInputFlags(flags);
@@ -443,15 +449,15 @@ public class WhoisRestService {
 
         final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s %s %s %s",
                 QueryFlag.SOURCES.getLongFlag(),
-                JOINER.join(sources),
+                JOINER.join(validSources),
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
-                (types == null || types.isEmpty()) ? "" : QueryFlag.SELECT_TYPES.getLongFlag(),
+                CollectionUtils.isEmpty(types) ? "" : QueryFlag.SELECT_TYPES.getLongFlag(),
                 JOINER.join(types),
-                (inverseAttributes == null || inverseAttributes.isEmpty()) ? "" : QueryFlag.INVERSE.getLongFlag(),
+                CollectionUtils.isEmpty(inverseAttributes) ? "" : QueryFlag.INVERSE.getLongFlag(),
                 JOINER.join(inverseAttributes),
-                (includeTags == null || includeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(),
+                CollectionUtils.isEmpty(includeTags) ? "" : QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(),
                 JOINER.join(includeTags),
-                (excludeTags == null || excludeTags.isEmpty()) ? "" : QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(),
+                CollectionUtils.isEmpty(excludeTags) ? "" : QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(),
                 JOINER.join(excludeTags),
                 Joiner.on(" ").join(Iterables.transform(separateFlags, new Function<String, String>() {
                     @Override
@@ -462,7 +468,7 @@ public class WhoisRestService {
                 (queryString == null ? "" : queryString)));
 
         final Parameters parameters = new Parameters();
-        parameters.setSources(sources);
+        parameters.setSources(validSources);
         parameters.setQueryStrings(queryString);
         parameters.setInverseLookup(inverseAttributes);
         parameters.setTypeFilters(types);

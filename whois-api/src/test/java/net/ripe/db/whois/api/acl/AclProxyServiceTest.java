@@ -93,4 +93,14 @@ public class AclProxyServiceTest {
 
         verify(aclServiceDao).deleteProxy(IpInterval.parse("10.0.0.0/32"));
     }
+
+    @Test
+    public void deleteProxyWithEncodedPrefix() {
+        when(aclServiceDao.getProxy(IpInterval.parse("10.0.0.0/32"))).thenReturn(new Proxy("10.0.0.0/32", ""));
+
+        final Response response = subject.deleteProxy("10.0.0.0%2F32");
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
+        verify(aclServiceDao).deleteProxy(IpInterval.parse("10.0.0.0/32"));
+    }
 }

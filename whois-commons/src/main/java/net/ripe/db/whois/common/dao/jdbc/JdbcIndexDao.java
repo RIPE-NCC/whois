@@ -113,8 +113,7 @@ public class JdbcIndexDao implements IndexDao {
                 final Map<String, Object> map = jdbcTemplate.queryForMap(
                         "SELECT object_id, object, pkey FROM last " +
                         "WHERE object_id = ? " +
-                        "AND sequence_id != 0 " +
-                        "AND object_type != 100",
+                        "AND sequence_id != 0 ",
                         objectId);
                 RpslObject rpslObject = RpslObject.parse(((Long)map.get("object_id")).intValue(), (byte[])map.get("object"));
                 final String pkey = (String)map.get("pkey");
@@ -155,7 +154,7 @@ public class JdbcIndexDao implements IndexDao {
             for (final CIString value : attribute.getReferenceValues()) {
                 if (uniqueValues.add(value)) {
                     if (!attribute.getType().isValidValue(rpslObject.getType(), value)) {
-                        LOGGER.debug("Invalid value {} type {} (object id {})", value, rpslObject.getType(), rpslObject.getObjectId());
+                        LOGGER.info("Invalid value {} type {} (object id {})", value, rpslObject.getType(), rpslObject.getObjectId());
                         continue;
                     }
 

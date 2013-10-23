@@ -30,13 +30,13 @@ public abstract class IpInterval<K extends Interval<K>> implements Interval<K> {
     }
 
     public static IpInterval<?> parseReverseDomain(String reverse) {
-        reverse = removeTrailingDot(reverse).toLowerCase();
+        String result = removeTrailingDot(reverse).toLowerCase();
 
-        if (reverse.endsWith(Ipv4Resource.IPV4_REVERSE_DOMAIN)) {
-            return Ipv4Resource.parseReverseDomain(reverse);
+        if (result.endsWith(Ipv4Resource.IPV4_REVERSE_DOMAIN)) {
+            return Ipv4Resource.parseReverseDomain(result);
         }
 
-        return Ipv6Resource.parseReverseDomain(reverse);
+        return Ipv6Resource.parseReverseDomain(result);
     }
 
     public static IpInterval<?> asIpInterval(InetAddress address) {

@@ -2,8 +2,8 @@ package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.spec.BaseSpec
 import net.ripe.db.whois.update.domain.Ack
-import spec.domain.AckResponse
-import spec.domain.Message
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
 
 class OrgSpec extends BaseSpec {
 

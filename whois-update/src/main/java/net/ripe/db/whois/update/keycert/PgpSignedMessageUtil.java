@@ -32,24 +32,24 @@ final class PgpSignedMessageUtil {
     }
 
     static int readInputLine(final ByteArrayOutputStream out, int lookAhead, final InputStream in) throws IOException {
+        int newLookAhead = lookAhead;
         out.reset();
 
         int ch = lookAhead;
-
         do {
             out.write(ch);
             if (ch == '\r' || ch == '\n') {
-                lookAhead = readPassedEOL(out, ch, in);
+                newLookAhead = readPassedEOL(out, ch, in);
                 break;
             }
         }
         while ((ch = in.read()) >= 0);
 
         if (ch < 0) {
-            lookAhead = -1;
+            newLookAhead = -1;
         }
 
-        return lookAhead;
+        return newLookAhead;
     }
 
     static int readPassedEOL(final ByteArrayOutputStream out, final int lastCh, final InputStream in) throws IOException {

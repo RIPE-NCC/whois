@@ -5,6 +5,9 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 class ObjectDocumentation {
+
+    private ObjectDocumentation() {}
+
     private static final Map<ObjectType, String> DOCUMENTATION = Maps.newEnumMap(ObjectType.class);
 
     static {

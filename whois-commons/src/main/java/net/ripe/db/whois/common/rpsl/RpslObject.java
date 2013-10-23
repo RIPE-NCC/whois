@@ -82,7 +82,7 @@ public class RpslObject implements Identifiable, ResponseObject {
         return attributes;
     }
 
-    public CIString getKey() {
+    public final CIString getKey() {
         if (key == null) {
             final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(type);
             final Iterator<AttributeType> keyAttributeIterator = objectTemplate.getKeyAttributes().iterator();
@@ -166,12 +166,12 @@ public class RpslObject implements Identifiable, ResponseObject {
     }
 
     public RpslAttribute findAttribute(final AttributeType attributeType) {
-        final List<RpslAttribute> attributes = findAttributes(attributeType);
-        switch (attributes.size()) {
+        final List<RpslAttribute> foundAttributes = findAttributes(attributeType);
+        switch (foundAttributes.size()) {
             case 0:
                 throw new IllegalArgumentException("No attribute of type: " + attributeType);
             case 1:
-                return attributes.get(0);
+                return foundAttributes.get(0);
             default:
                 throw new IllegalArgumentException("Multiple attributes of type: " + attributeType);
         }

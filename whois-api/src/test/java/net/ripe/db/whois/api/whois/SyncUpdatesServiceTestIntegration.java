@@ -20,6 +20,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 
 @Category(IntegrationTest.class)
@@ -106,7 +107,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
                     .request()
                     .get(String.class);
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), containsString("Invalid request"));
+            assertThat(e.getResponse().readEntity(String.class), containsString("the DIFF method is not actually supported by the Syncupdates interface"));
         }
     }
 

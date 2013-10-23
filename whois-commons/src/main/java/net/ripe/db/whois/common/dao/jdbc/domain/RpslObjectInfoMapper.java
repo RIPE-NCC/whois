@@ -17,12 +17,6 @@ public final class RpslObjectInfoMapper implements RowMapper<RpslObjectInfo> {
         final int type = rs.getInt(2);
         final String pkey = rs.getString(3);
 
-        // TODO [EB] Remove this when we get rid of dummy objects
-        if (type == ObjectTypeIds.DUMMY_OBJECT_TYPE) {
-            LOGGER.debug("Skipping dummy object with id: {} and pkey: {}", objectId, pkey);
-            return null;
-        }
-
         try {
             return new RpslObjectInfo(objectId, ObjectTypeIds.getType(type), pkey);
         } catch (IllegalArgumentException e) {

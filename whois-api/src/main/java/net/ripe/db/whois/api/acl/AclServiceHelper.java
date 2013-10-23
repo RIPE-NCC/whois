@@ -1,11 +1,17 @@
 package net.ripe.db.whois.api.acl;
 
+import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Ipv6Resource;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 final class AclServiceHelper {
+
     private AclServiceHelper() {
+        // do not instantiate helper
     }
 
     public static IpInterval<?> getNormalizedPrefix(final String prefix) {
@@ -20,5 +26,13 @@ final class AclServiceHelper {
         }
 
         return ipInterval;
+    }
+
+    public static String decode(final String value) {
+        try {
+            return URLDecoder.decode(value, Charsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("Unknown character encoding");
+        }
     }
 }

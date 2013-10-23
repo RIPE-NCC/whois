@@ -1,7 +1,7 @@
 package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.Message
+import net.ripe.db.whois.spec.domain.Message
 
 class DeleteMaintainerSpec extends BaseSpec {
 

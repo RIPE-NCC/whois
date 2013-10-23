@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystemException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -132,6 +131,12 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                     }
                     return FileVisitResult.CONTINUE;
                 }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException e) {
+                    LOGGER.info("Visit file: {} failed: {}", file.toAbsolutePath(), e.getMessage());
+                    return FileVisitResult.CONTINUE;
+                }
             });
         } catch (IOException e) {
             throw new IllegalStateException(e);
@@ -151,6 +156,7 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                 }));
 
                 final String todaysFolder = LogFileIndex.DATE_FORMATTER.print(LocalDate.now());
+
                 try {
                     Files.walkFileTree(Paths.get(logDirectory), new SimpleFileVisitor<Path>() {
                         @Override
@@ -173,9 +179,15 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                             }
                             return FileVisitResult.CONTINUE;
                         }
+
+                        @Override
+                        public FileVisitResult visitFileFailed(Path file, IOException e) {
+                            LOGGER.info("Visit file: {} failed: {}", file.toAbsolutePath(), e.getMessage());
+                            return FileVisitResult.CONTINUE;
+                        }
                     });
-                } catch (FileSystemException e) {
-                    LOGGER.info("FileSystemException: {}", e.getMessage());
+                } catch (IOException e) {
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
         });
@@ -211,9 +223,15 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                         }
                         return FileVisitResult.CONTINUE;
                     }
+
+                    @Override
+                    public FileVisitResult visitFileFailed(Path file, IOException e) {
+                        LOGGER.info("Visit file: {} failed: {}", file.toAbsolutePath(), e.getMessage());
+                        return FileVisitResult.CONTINUE;
+                    }
                 });
             } catch (IllegalArgumentException | IOException e) {
-                LOGGER.warn(e.getMessage());
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }

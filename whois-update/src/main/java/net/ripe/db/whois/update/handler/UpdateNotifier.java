@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.util.Collections;
 import java.util.Map;
 
@@ -55,7 +57,12 @@ public class UpdateNotifier {
 
         for (final Notification notification : notifications.values()) {
             final ResponseMessage responseMessage = responseFactory.createNotification(updateContext, updateRequest.getOrigin(), notification);
-            mailGateway.sendEmail(notification.getEmail(), responseMessage);
+            try {
+                new InternetAddress(notification.getEmail(), true);
+                mailGateway.sendEmail(notification.getEmail(), responseMessage);
+            } catch (final AddressException e) {
+                LOGGER.info("Failed to send notification to '{}' because it's an invalid email address", notification.getEmail());
+            }
         }
     }
 
