@@ -2,7 +2,7 @@ package net.ripe.db.whois.spec.query
 
 import net.ripe.db.whois.spec.BaseSpec
 import net.ripe.db.whois.spec.BasicFixtures
-import spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.AckResponse
 
 class VersionHistorySpec extends BaseSpec {
 

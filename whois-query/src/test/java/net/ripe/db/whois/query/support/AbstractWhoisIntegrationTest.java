@@ -28,6 +28,7 @@ public abstract class AbstractWhoisIntegrationTest extends AbstractDatabaseHelpe
     @Autowired protected IpResourceConfiguration ipResourceConfiguration;
     @Autowired protected IpTreeUpdater ipTreeUpdater;
 
+    // TODO: [AH] not do this for each test, but reinit context only where needed
     @Before
     public final void setUpAbstractIntegrationTest() throws Exception {
         databaseHelper.clearAclLimits();

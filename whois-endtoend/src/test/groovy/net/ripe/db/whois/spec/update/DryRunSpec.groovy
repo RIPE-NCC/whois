@@ -1,8 +1,8 @@
 package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.SyncUpdate
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.SyncUpdate
 
 class DryRunSpec extends BaseSpec {
 

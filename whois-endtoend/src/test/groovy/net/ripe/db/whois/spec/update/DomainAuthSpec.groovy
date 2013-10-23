@@ -1,7 +1,7 @@
 package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.AckResponse
 
 class DomainAuthSpec extends BaseSpec {
 
