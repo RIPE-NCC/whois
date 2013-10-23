@@ -8,7 +8,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
-    <artifactId>whois-logsearch</artifactId>
+    <artifactId>whois-internal</artifactId>
     <version>1.71-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -52,6 +52,11 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-api</artifactId>
             <type>test-jar</type>
         </dependency>
     </dependencies>

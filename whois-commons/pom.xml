@@ -39,6 +39,10 @@
             <artifactId>aspectjweaver</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
         </dependency>
@@ -85,10 +89,6 @@
         <dependency>
             <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
         </dependency>
         <!-- jflex lexical analyser -->
         <dependency>

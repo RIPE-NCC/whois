@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(locations = {"classpath:applicationContext-logsearch-base.xml", "classpath:applicationContext-logsearch-test.xml"})
+@ContextConfiguration(locations = {"classpath:applicationContext-logsearch-base.xml", "classpath:applicationContext-internal-test.xml"})
 public class LogSearchJmxTestIntegration extends AbstractJUnit4SpringContextTests {
 
     @Autowired

@@ -12,7 +12,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
@@ -27,14 +26,10 @@ public class LogFileSearch {
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("(?im)^(override|password):\\s*(.+)\\s*$");
     private static final Splitter PATH_ELEMENT_SPLITTER = Splitter.on(File.separatorChar).omitEmptyStrings();
 
-    private final File logDir;
     private final LogFileIndex logFileIndex;
 
     @Autowired
-    public LogFileSearch(
-            @Value("${dir.update.audit.log}") final String logDir,
-            final LogFileIndex logFileIndex) {
-        this.logDir = new File(logDir);
+    public LogFileSearch(final LogFileIndex logFileIndex) {
         this.logFileIndex = logFileIndex;
     }
 

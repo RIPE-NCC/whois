@@ -35,7 +35,7 @@ public class LogFileSearchTest {
         loggedUpdateWithPasswordId = new DailyLogEntry(logDir + "/20130306/123623.428054357.0.1362569782886.JavaMail.andre/001.msg-in.txt.gz", "20130306");
         loggedUpdateWithOverride = new DailyLogEntry(logDir + "/20130306/123624.428054357.0.1362569782886.JavaMail.andre/001.msg-in.txt.gz", "20130306");
 
-        subject = new LogFileSearch(new ClassPathResource("/log/update").getFile().getAbsolutePath(), logFileIndex);
+        subject = new LogFileSearch(logFileIndex);
     }
 
     @Test
