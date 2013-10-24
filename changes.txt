@@ -1,9 +1,11 @@
 ## next
-[api] added GETter for the abuse contact creation service
-[update] mail updates not processed if they have an invalid email address, notifications failing loggingly for the same reason
-[logsearch] switched to lucene 4.4 from 4.1. TODO: re-generate index
 
 ## 1.70
+[update] DIFF keyword no longer supported
+[api] added service element in responses
+[api] added GETter for the abuse contact creation service
+[update] mail updates not processed if they have an invalid email address, notifications failing loggingly for the same reason
+[logsearch] switched to lucene 4.4 from 4.1.
 [query] added option --valid-syntax and --no-valid-syntax
 [query] added comment if no abuse contact registered.
 [oneshot] added autnum cleanup
