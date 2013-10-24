@@ -213,7 +213,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
         assertThat(notices.get(2).getDescription(), contains("This is the RIPE Database query service. The objects are in RDAP format."));
         assertThat(notices.get(2).getLinks(), hasSize(1));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/ip/192.0.2.0/24"));
+        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/192.0.2.0/24"));
         assertThat(notices.get(2).getLinks().get(0).getRel(), is("terms-of-service"));
         assertThat(notices.get(2).getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
         assertThat(notices.get(2).getLinks().get(0).getType(), is("application/pdf"));
@@ -319,7 +319,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/ip/2001:2002:2003::/48"));
+        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/2001:2002:2003::/48"));
     }
 
     @Test
@@ -397,7 +397,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/entity/PP1-TEST"));
+        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/PP1-TEST"));
     }
 
     @Test
@@ -476,7 +476,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/entity/FR1-TEST"));
+        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/FR1-TEST"));
     }
 
     // domain
@@ -527,7 +527,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/domain/31.12.202.in-addr.arpa"));
+        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa"));
 
         final List<Link> links = domain.getLinks();
         assertThat(links, hasSize(2));
@@ -929,8 +929,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(links.get(0).getValue(), equalTo("http://www.ripe.net/data-tools/support/documentation/terms"));
         assertThat(links.get(0).getHref(), equalTo("http://www.ripe.net/data-tools/support/documentation/terms"));
         assertThat(links.get(1).getRel(), equalTo("self"));
-        assertThat(links.get(1).getValue(), equalTo("https://rdap.db.ripe.net/rdap/entity/ORG-ONE-TEST"));
-        assertThat(links.get(1).getHref(), equalTo("https://rdap.db.ripe.net/rdap/entity/ORG-ONE-TEST"));
+        assertThat(links.get(1).getValue(), equalTo("https://rdap.db.ripe.net/entity/ORG-ONE-TEST"));
+        assertThat(links.get(1).getHref(), equalTo("https://rdap.db.ripe.net/entity/ORG-ONE-TEST"));
 
         assertThat(entity.getRemarks(), hasSize(1));
         assertThat(entity.getRemarks().get(0).getDescription(), contains("Test organisation"));
@@ -941,7 +941,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/rdap/entity/ORG-ONE-TEST"));
+        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/ORG-ONE-TEST"));
     }
 
     // search

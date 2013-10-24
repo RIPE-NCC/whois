@@ -319,7 +319,7 @@ public class WhoisRdapService {
 
     private String getRequestUrl(final HttpServletRequest request) {
         if (StringUtils.isNotEmpty(baseUrl)) {
-            return String.format("%s%s", baseUrl, getRequestPath(request));
+            return String.format("%s%s", baseUrl, getRequestPath(request).replaceFirst("/rdap", ""));
         }
         final StringBuffer buffer = request.getRequestURL();
         if (request.getQueryString() != null) {
