@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api.whois;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.api.DefaultExceptionMapper;
-import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -12,7 +12,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
@@ -43,11 +42,6 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.abuseContactService = abuseContactService;
         this.defaultExceptionMapper = defaultExceptionMapper;
         this.maintenanceModeFilter = maintenanceModeFilter;
-    }
-
-    @Override
-    public Audience getAudience() {
-        return Audience.PUBLIC;
     }
 
     @Override

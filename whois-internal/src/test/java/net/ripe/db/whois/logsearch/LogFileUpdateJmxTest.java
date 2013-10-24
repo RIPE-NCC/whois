@@ -1,6 +1,9 @@
 package net.ripe.db.whois.logsearch;
 
-import net.ripe.db.whois.logsearch.jmx.LogFileUpdateJmx;
+import net.ripe.db.whois.internal.logsearch.LegacyLogFormatProcessor;
+import net.ripe.db.whois.internal.logsearch.LogFileIndex;
+import net.ripe.db.whois.internal.logsearch.NewLogFormatProcessor;
+import net.ripe.db.whois.internal.logsearch.jmx.LogFileUpdateJmx;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

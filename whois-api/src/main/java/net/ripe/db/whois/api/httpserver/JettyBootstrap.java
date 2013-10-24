@@ -1,8 +1,6 @@
 package net.ripe.db.whois.api.httpserver;
 
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.ApplicationService;
-import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -28,91 +26,75 @@ public class JettyBootstrap implements ApplicationService {
     private final RemoteAddressFilter remoteAddressFilter;
     private final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter;
     private final List<ServletDeployer> servletDeployers;
-    private final JettyConfig jettyConfig;
+    private Server server;
 
-    private final List<Server> servers = Lists.newArrayList();
-    private int internalPort;
-    private int publicPort;
+    private int port;
 
-    @Value("${port.api.internal:-1}")
-    public void setInternalPort(final int internalPort) {
-        this.internalPort = internalPort;
+    @Value("${port.api:-1}")
+    public void setPort(final int port) {
+        this.port = port;
     }
 
-    @Value("${port.api.public:-1}")
-    public void setPublicPort(final int publicPort) {
-        this.publicPort = publicPort;
+    public int getPort() {
+        return port;
     }
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
-                          final List<ServletDeployer> servletDeployers,
-                          final JettyConfig jettyConfig) {
+                          final List<ServletDeployer> servletDeployers) {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
-        this.jettyConfig = jettyConfig;
     }
 
     @Override
     public void start() {
-        servers.add(createAndStartServer(Audience.INTERNAL, internalPort, "/int-doc/"));
-        servers.add(createAndStartServer(Audience.PUBLIC, publicPort, "/ext-doc/"));
+        server = createAndStartServer(port);
     }
 
-    Server createAndStartServer(final Audience audience, final int port, final String resourceBase) {
+    // handler to serve static resources directly from jetty
+    ResourceHandler getStaticResourceHandler(String resourceBase) {
+        ResourceHandler resourceHandler = new ResourceHandler();
+        resourceHandler.setBaseResource(Resource.newClassPathResource(resourceBase));
+        return resourceHandler;
+    }
+
+    Server createAndStartServer(final int port) {
         final WebAppContext context = new WebAppContext();
         context.setContextPath("/");
         context.setResourceBase("src/main/webapp");
         context.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
 
-        ResourceHandler resourceHandler = new ResourceHandler();
-        resourceHandler.setBaseResource(Resource.newClassPathResource(resourceBase));
-        LOGGER.info("Serving {} from {}", audience, resourceHandler.getResourceBase());
-
         final HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[]{resourceHandler, context});
+        handlers.setHandlers(new Handler[]{context});
 
         for (final ServletDeployer servletDeployer : servletDeployers) {
-            if (servletDeployer.getAudience().equals(audience)) {
-                servletDeployer.deploy(context);
-            }
+            servletDeployer.deploy(context);
         }
 
         try {
-            return createAndStartServer(port, handlers, audience);
+            return createAndStartServer(port, handlers);
         } catch (Exception e) {
             throw new RuntimeException("Unable to start server", e);
         }
     }
 
-    @RetryFor(attempts=5, value=Exception.class)
-    private Server createAndStartServer(int port, HandlerList handlers, Audience audience) throws Exception {
-        int tryPort = (port <= 0) ? ServerHelper.getAvailablePort() : port;
-        LOGGER.debug("Trying port {}", tryPort);
-
-        final Server server = new Server(tryPort);
+    @RetryFor(attempts = 5, value = Exception.class)
+    private Server createAndStartServer(int port, HandlerList handlers) throws Exception {
+        final Server server = new Server(port);
         server.setHandler(handlers);
         server.setStopAtShutdown(true);
 
         server.start();
-        jettyConfig.setPort(audience, tryPort);
-        LOGGER.info("Jetty started on port {} ({})", tryPort, audience);
+        this.port = server.getConnectors()[0].getLocalPort();
+        LOGGER.info("Jetty started on port {}", this.port);
         return server;
     }
 
     @Override
     public void stop(final boolean force) {
-        for (final Server server : servers) {
-            stopServer(server);
-        }
-
-        servers.clear();
-    }
-
-    private static void stopServer(final Server server) {
         new Thread() {
             @Override
             public void run() {

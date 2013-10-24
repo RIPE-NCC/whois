@@ -2,7 +2,6 @@ package net.ripe.db.whois.api;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import net.ripe.db.whois.api.httpserver.Audience;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.junit.Before;
 
@@ -28,24 +27,24 @@ public abstract class AbstractRestClientTest extends AbstractIntegrationTest {
                 .build();
     }
 
-    protected WebTarget createStaticResource(final Audience audience, final String path) {
-       return client.target(String.format("http://localhost:%d/%s", getPort(audience), path));
+    protected WebTarget createStaticResource(final String path) {
+       return client.target(String.format("http://localhost:%d/%s", getPort(), path));
     }
 
     protected void setApiKey(final String apiKey) {
         this.apiKey = apiKey;
     }
 
-    protected WebTarget createResource(final Audience audience, final String path) {
-        return client.target(String.format("http://localhost:%d/%s?apiKey=%s", getPort(audience), path, apiKey));
+    protected WebTarget createResource(final String path) {
+        return client.target(String.format("http://localhost:%d/%s?apiKey=%s", getPort(), path, apiKey));
     }
 
-    protected WebTarget createResourceGet(final Audience audience, final String pathAndParams) {
-        return client.target(String.format("http://localhost:%d/%s&apiKey=%s", getPort(audience), pathAndParams, apiKey));
+    protected WebTarget createResourceGet(final String pathAndParams) {
+        return client.target(String.format("http://localhost:%d/%s&apiKey=%s", getPort(), pathAndParams, apiKey));
     }
 
-    protected WebTarget createResource(final Audience audience, final String path, final String param) {
-        return client.target(String.format("http://localhost:%d/%s/%s?apiKey=%s", getPort(audience), path, encode(param), apiKey));
+    protected WebTarget createResource(final String path, final String param) {
+        return client.target(String.format("http://localhost:%d/%s/%s?apiKey=%s", getPort(), path, encode(param), apiKey));
     }
 
     protected String encode(final String param) {

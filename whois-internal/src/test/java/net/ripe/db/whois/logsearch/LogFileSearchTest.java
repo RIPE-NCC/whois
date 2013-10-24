@@ -1,8 +1,10 @@
 package net.ripe.db.whois.logsearch;
 
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.logsearch.logformat.DailyLogEntry;
-import net.ripe.db.whois.logsearch.logformat.LoggedUpdate;
+import net.ripe.db.whois.internal.logsearch.LogFileIndex;
+import net.ripe.db.whois.internal.logsearch.LogFileSearch;
+import net.ripe.db.whois.internal.logsearch.logformat.DailyLogEntry;
+import net.ripe.db.whois.internal.logsearch.logformat.LoggedUpdate;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.junit.Before;
 import org.junit.Test;

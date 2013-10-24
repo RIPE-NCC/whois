@@ -64,7 +64,7 @@
         <profile>
             <id>release</id>
             <properties>
-                <whois.main>net.ripe.db.whois.logsearch.bootstrap.LogSearchServer</whois.main>
+                <whois.main>net.ripe.db.whois.internal.InternalServer</whois.main>
             </properties>
             <build>
                 <plugins>

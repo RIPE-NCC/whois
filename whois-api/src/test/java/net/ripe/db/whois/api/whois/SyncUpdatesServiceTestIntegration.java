@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.whois;
 
 import net.ripe.db.whois.api.AbstractRestClientTest;
-import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -20,13 +19,10 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 
 @Category(IntegrationTest.class)
 public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
-
-    private static final Audience AUDIENCE = Audience.PUBLIC;
 
     private static final String MNTNER_TEST_MNTNER =
             "mntner:        mntner\n" +
@@ -51,7 +47,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void empty_request() throws Exception {
         try {
-            createResource(AUDIENCE, "whois/syncupdates/test")
+            createResource("whois/syncupdates/test")
                     .request()
                     .get(String.class);
             fail();
@@ -62,7 +58,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void get_help_parameter_only() throws Exception {
-        String response = createResource(AUDIENCE, "whois/syncupdates/test?HELP=yes")
+        String response = createResource("whois/syncupdates/test?HELP=yes")
                     .request()
                     .get(String.class);
 
@@ -75,7 +71,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void post_multipart_form_help_parameter_only() {
         final FormDataMultiPart multipart = new FormDataMultiPart().field("HELP", "help");
-        String response = createResource(AUDIENCE, "whois/syncupdates/test")
+        String response = createResource("whois/syncupdates/test")
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
@@ -84,7 +80,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void post_url_encoded_form_help_parameter_only() {
-        String response = createResource(AUDIENCE, "whois/syncupdates/test")
+        String response = createResource("whois/syncupdates/test")
                 .request()
                 .post(Entity.entity("HELP=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
@@ -93,7 +89,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void help_and_invalid_parameter() throws Exception {
-        String response = createResource(AUDIENCE, "whois/syncupdates/test?HELP=yes&INVALID=true")
+        String response = createResource("whois/syncupdates/test?HELP=yes&INVALID=true")
                     .request()
                     .get(String.class);
 
@@ -103,7 +99,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void diff_parameter_only() throws Exception {
         try {
-            createResource(AUDIENCE, "whois/syncupdates/test?DIFF=yes")
+            createResource("whois/syncupdates/test?DIFF=yes")
                     .request()
                     .get(String.class);
         } catch (BadRequestException e) {
@@ -117,7 +113,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
         try {
-            createResource(AUDIENCE, "whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+            createResource("whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
             fail();
@@ -133,7 +129,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         ipRanges.setTrusted("0/0", "::0/0");
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = createResource(AUDIENCE, "whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
+        String response = createResource("whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -147,7 +143,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = createResource(AUDIENCE, "whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
+        String response = createResource("whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -161,7 +157,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     public void only_data_parameter_create_object() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = createResource(AUDIENCE, "whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+        String response = createResource("whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -171,7 +167,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void create_object_invalid_source_in_url() throws Exception {
         try {
-            createResource(AUDIENCE, "whois/syncupdates/invalid?DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+            createResource("whois/syncupdates/invalid?DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
             fail();
@@ -187,7 +183,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
         System.out.println("mntner = " + mntnerInvalidSource);
 
-        String response = createResource(AUDIENCE, "whois/syncupdates/test?" + "DATA=" + encode(mntnerInvalidSource + "\npassword: emptypassword"))
+        String response = createResource("whois/syncupdates/test?" + "DATA=" + encode(mntnerInvalidSource + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -199,7 +195,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = createResource(AUDIENCE, "whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword"))
+        String response = createResource("whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -209,7 +205,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void only_new_parameter() throws Exception {
         try {
-            createResource(AUDIENCE, "whois/syncupdates/test?NEW=yes")
+            createResource("whois/syncupdates/test?NEW=yes")
                     .request()
                     .get(String.class);
         } catch (BadRequestException e) {
@@ -221,7 +217,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     public void new_and_data_parameters_get_request() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = createResource(AUDIENCE, "whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes")
+        String response = createResource("whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes")
                 .request()
                 .get(String.class);
 
@@ -233,7 +229,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = createResource(AUDIENCE, "whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword") + "&NEW=yes")
+        String response = createResource("whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword") + "&NEW=yes")
                 .request()
                 .get(String.class);
 
@@ -246,7 +242,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     public void new_and_data_parameters_urlencoded_post_request() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = createResource(AUDIENCE, "whois/syncupdates/test")
+        String response = createResource("whois/syncupdates/test")
                 .request()
                 .post(Entity.entity("DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
@@ -258,7 +254,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
         final FormDataMultiPart multipart = new FormDataMultiPart().field("DATA", MNTNER_TEST_MNTNER + "\npassword: emptypassword").field("NEW", "yes");
-        String response = createResource(AUDIENCE, "whois/syncupdates/test")
+        String response = createResource("whois/syncupdates/test")
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
@@ -270,7 +266,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = createResource(AUDIENCE, "whois/syncupdates/test")
+        String response = createResource("whois/syncupdates/test")
                 .request()
                 .post(Entity.entity("DATA=" + encode(
                         "person:     Test Person\n" +
@@ -298,7 +294,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     }
 
     @Override
-    protected WebTarget createResource(final Audience audience, final String path) {
-        return client.target(String.format("http://localhost:%d/%s", getPort(audience), path));
+    protected WebTarget createResource(final String path) {
+        return client.target(String.format("http://localhost:%d/%s", getPort(), path));
     }
 }

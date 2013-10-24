@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api;
 
-import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.httpserver.JettyConfig;
+import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperTest;
 import org.junit.After;
@@ -13,7 +12,7 @@ import java.util.List;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
 public abstract class AbstractIntegrationTest extends AbstractDatabaseHelperTest {
-    @Autowired protected JettyConfig jettyConfig;
+    @Autowired JettyBootstrap jettyBootstrap;
     @Autowired protected List<ApplicationService> applicationServices;
 
     @Before
@@ -30,7 +29,7 @@ public abstract class AbstractIntegrationTest extends AbstractDatabaseHelperTest
         }
     }
 
-    public int getPort(final Audience audience) {
-        return jettyConfig.getPort(audience);
+    public int getPort() {
+        return jettyBootstrap.getPort();
     }
 }

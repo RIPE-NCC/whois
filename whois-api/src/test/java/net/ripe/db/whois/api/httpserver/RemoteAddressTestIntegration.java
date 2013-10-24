@@ -13,14 +13,12 @@ import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 public class RemoteAddressTestIntegration extends AbstractRestClientTest {
-    private static final Audience AUDIENCE = Audience.PUBLIC;
-
     @Autowired IpRanges ipRanges;
 
     @Test
     public void help_localhost() throws Exception {
         final String index = client.target(
-                String.format("http://localhost:%s/whois/syncupdates/TEST?HELP=yes", getPort(AUDIENCE)))
+                String.format("http://localhost:%s/whois/syncupdates/TEST?HELP=yes", getPort()))
                 .request()
                 .get(String.class);
 
@@ -30,7 +28,7 @@ public class RemoteAddressTestIntegration extends AbstractRestClientTest {
     @Test
     public void help_forward_header() throws Exception {
         final String index = client.target(
-                String.format("http://localhost:%s/whois/syncupdates/TEST?HELP=yes", getPort(AUDIENCE)))
+                String.format("http://localhost:%s/whois/syncupdates/TEST?HELP=yes", getPort()))
                 .request()
                 .header(HttpHeaders.X_FORWARDED_FOR, "10.0.0.0")
                 .get(String.class);
@@ -43,7 +41,7 @@ public class RemoteAddressTestIntegration extends AbstractRestClientTest {
         ipRanges.setTrusted("193/8");
 
         final String index = client.target(
-                String.format("http://localhost:%s/whois/syncupdates/TEST?HELP=yes", getPort(AUDIENCE)))
+                String.format("http://localhost:%s/whois/syncupdates/TEST?HELP=yes", getPort()))
                 .request()
                 .header(HttpHeaders.X_FORWARDED_FOR, "193.0.20.1")
                 .header(HttpHeaders.X_FORWARDED_FOR, "74.125.136.99")

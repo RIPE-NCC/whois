@@ -2,8 +2,7 @@ package net.ripe.db.whois;
 
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
-import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.httpserver.JettyConfig;
+import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
@@ -72,7 +71,7 @@ public class WhoisFixture {
     protected DnsGateway dnsGateway;
     protected IpRanges ipRanges;
     protected TestDateTimeProvider testDateTimeProvider;
-    protected JettyConfig jettyConfig;
+    protected JettyBootstrap jettyBootstrap;
     protected Map<String, Stub> stubs;
     protected DatabaseHelper databaseHelper;
     protected IpTreeUpdater ipTreeUpdater;
@@ -116,7 +115,7 @@ public class WhoisFixture {
         whoisDataSource = applicationContext.getBean(SourceAwareDataSource.class);
         ipRanges = applicationContext.getBean(IpRanges.class);
         testDateTimeProvider = applicationContext.getBean(TestDateTimeProvider.class);
-        jettyConfig = applicationContext.getBean(JettyConfig.class);
+        jettyBootstrap = applicationContext.getBean(JettyBootstrap.class);
         stubs = applicationContext.getBeansOfType(Stub.class);
         databaseHelper = applicationContext.getBean(DatabaseHelper.class);
         ipTreeUpdater = applicationContext.getBean(IpTreeUpdater.class);
@@ -180,14 +179,14 @@ public class WhoisFixture {
     }
 
     public String syncupdate(final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect, final boolean doPost, final int responseCode) throws IOException {
-        return syncupdate(jettyConfig, data, isHelp, isDiff, isNew, isRedirect, doPost, responseCode);
+        return syncupdate(jettyBootstrap, data, isHelp, isDiff, isNew, isRedirect, doPost, responseCode);
     }
 
-    public static String syncupdate(final JettyConfig jettyConfig, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect, final boolean doPost, final int responseCode) throws IOException {
+    public static String syncupdate(final JettyBootstrap jettyBootstrap, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect, final boolean doPost, final int responseCode) throws IOException {
         if (doPost) {
-            return doPostRequest(getSyncupdatesUrl(jettyConfig, null), getQuery(data, isHelp, isDiff, isNew, isRedirect), responseCode);
+            return doPostRequest(getSyncupdatesUrl(jettyBootstrap, null), getQuery(data, isHelp, isDiff, isNew, isRedirect), responseCode);
         } else {
-            return doGetRequest(getSyncupdatesUrl(jettyConfig, getQuery(data, isHelp, isDiff, isNew, isRedirect)), responseCode);
+            return doGetRequest(getSyncupdatesUrl(jettyBootstrap, getQuery(data, isHelp, isDiff, isNew, isRedirect)), responseCode);
         }
     }
 
@@ -221,10 +220,10 @@ public class WhoisFixture {
                 pkey);
     }
 
-    private static String getSyncupdatesUrl(final JettyConfig jettyConfig, final String query) {
+    private static String getSyncupdatesUrl(final JettyBootstrap jettyBootstrap, final String query) {
         final StringBuilder builder = new StringBuilder();
         builder.append("http://localhost:");
-        builder.append(jettyConfig.getPort(Audience.PUBLIC));
+        builder.append(jettyBootstrap.getPort());
         builder.append("/whois/syncupdates/");
         builder.append(SYNCUPDATES_INSTANCE);
         if (query != null && query.length() > 0) {
@@ -234,10 +233,11 @@ public class WhoisFixture {
         return builder.toString();
     }
 
+    // TODO: [AH] this is now part of whois-internal; should remove this functionality from end2end
     private String getAclUrl(final String path, final String apiKey) {
         final StringBuilder builder = new StringBuilder();
         builder.append("http://localhost:");
-        builder.append(jettyConfig.getPort(Audience.INTERNAL));
+        builder.append(jettyBootstrap.getPort());
         builder.append("/api/acl/");
         builder.append(path);
         builder.append("?apiKey=");

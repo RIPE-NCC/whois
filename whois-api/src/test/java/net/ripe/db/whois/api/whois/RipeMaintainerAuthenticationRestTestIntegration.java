@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.whois;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractRestClientTest;
-import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -28,8 +27,6 @@ import static org.junit.Assert.fail;
 public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractRestClientTest {
 
     @Autowired IpRanges ipRanges;
-
-    private static final Audience AUDIENCE = Audience.PUBLIC;
 
     @Before
     public void setup() throws Exception {
@@ -89,7 +86,7 @@ public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractRes
                 "</whois-resources>\n";
 
         try {
-            createResource(AUDIENCE, "whois/test/person?password=emptypassword")
+            createResource("whois/test/person?password=emptypassword")
                     .request()
                     .post(Entity.entity(person, MediaType.APPLICATION_XML), String.class);
             fail();
@@ -122,7 +119,7 @@ public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractRes
                         "</whois-resources>\n";
 
         try {
-            createResource(AUDIENCE, "whois/test/person?password=emptypassword")
+            createResource("whois/test/person?password=emptypassword")
                 .request()
                 .post(Entity.entity(person, MediaType.APPLICATION_XML), String.class);
             fail();
@@ -132,7 +129,7 @@ public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractRes
     }
 
     @Override
-    protected WebTarget createResource(final Audience audience, final String path) {
-        return client.target(String.format("http://localhost:%d/%s", getPort(audience), path));
+    protected WebTarget createResource(final String path) {
+        return client.target(String.format("http://localhost:%d/%s", getPort(), path));
     }
 }

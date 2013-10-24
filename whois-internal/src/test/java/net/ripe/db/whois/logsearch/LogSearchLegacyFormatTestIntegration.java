@@ -1,14 +1,11 @@
 package net.ripe.db.whois.logsearch;
 
 import com.google.common.io.Files;
+import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.logsearch.bootstrap.LogSearchJettyBootstrap;
-import net.ripe.db.whois.logsearch.bootstrap.LogSearchJettyConfig;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import net.ripe.db.whois.internal.logsearch.LegacyLogFormatProcessor;
+import net.ripe.db.whois.internal.logsearch.LogFileIndex;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,12 +25,10 @@ import static org.hamcrest.Matchers.containsString;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(locations = {"classpath:applicationContext-logsearch-base.xml", "classpath:applicationContext-internal-test.xml"})
+@ContextConfiguration(locations = {"classpath:applicationContext-internal-base.xml", "classpath:applicationContext-internal-test.xml"})
 public class LogSearchLegacyFormatTestIntegration extends AbstractJUnit4SpringContextTests {
     @Autowired
-    private LogSearchJettyBootstrap logSearchJettyBootstrap;
-    @Autowired
-    private LogSearchJettyConfig logSearchJettyConfig;
+    private JettyBootstrap jettyBootstrap;
     @Autowired
     private LegacyLogFormatProcessor legacyLogFormatProcessor;
     @Autowired
@@ -65,7 +60,7 @@ public class LogSearchLegacyFormatTestIntegration extends AbstractJUnit4SpringCo
     @Before
     public void setup() {
         LogFileHelper.createLogDirectory(logDirectory);
-        logSearchJettyBootstrap.start();
+        jettyBootstrap.start();
         client = ClientBuilder.newBuilder().build();
         LogsearchTestHelper.insertApiKey(API_KEY, dataSource);
     }
@@ -74,7 +69,7 @@ public class LogSearchLegacyFormatTestIntegration extends AbstractJUnit4SpringCo
     public void cleanup() {
         LogFileHelper.deleteLogs(logDirectory);
         logFileIndex.removeAll();
-        logSearchJettyBootstrap.stop(true);
+        jettyBootstrap.stop(true);
     }
 
     @Test
@@ -152,21 +147,21 @@ public class LogSearchLegacyFormatTestIntegration extends AbstractJUnit4SpringCo
 
     private String getUpdates(final String searchTerm) throws IOException {
         return client
-                .target(String.format("http://localhost:%s/api/logs?search=%s&fromdate=&todate=&apiKey=%s", logSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), API_KEY))
+                .target(String.format("http://localhost:%s/api/logs?search=%s&fromdate=&todate=&apiKey=%s", jettyBootstrap.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), API_KEY))
                 .request()
                 .get(String.class);
     }
 
     private String getUpdates(final String searchTerm, final String date) throws IOException {
         return client
-                .target(String.format("http://localhost:%s/api/logs?search=%s&fromdate=%s&apiKey=%s", logSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, API_KEY))
+                .target(String.format("http://localhost:%s/api/logs?search=%s&fromdate=%s&apiKey=%s", jettyBootstrap.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), date, API_KEY))
                 .request()
                 .get(String.class);
     }
 
     private String getUpdates(final String searchTerm, final String fromDate, final String toDate) throws IOException {
         return client
-                .target(String.format("http://localhost:%s/api/logs?search=%s&fromdate=%s&todate=%s&apiKey=%s", logSearchJettyConfig.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), fromDate, toDate, API_KEY))
+                .target(String.format("http://localhost:%s/api/logs?search=%s&fromdate=%s&todate=%s&apiKey=%s", jettyBootstrap.getPort(), URLEncoder.encode(searchTerm, "ISO-8859-1"), fromDate, toDate, API_KEY))
                 .request()
                 .get(String.class);
     }

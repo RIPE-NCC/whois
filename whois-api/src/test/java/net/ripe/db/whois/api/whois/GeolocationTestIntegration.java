@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.whois;
 
 import net.ripe.db.whois.api.AbstractRestClientTest;
-import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import org.junit.Before;
@@ -287,6 +286,6 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
     }
 
     protected WebTarget createResource(final String path) {
-        return client.target(String.format("http://localhost:%d/%s", getPort(Audience.PUBLIC), path));
+        return client.target(String.format("http://localhost:%d/%s", getPort(), path));
     }
 }

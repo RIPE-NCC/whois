@@ -1,9 +1,11 @@
 package net.ripe.db.whois.logsearch;
 
 import com.google.common.io.Files;
+import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.logsearch.bootstrap.LogSearchJettyBootstrap;
-import net.ripe.db.whois.logsearch.jmx.LogFileUpdateJmx;
+import net.ripe.db.whois.internal.logsearch.LogFileIndex;
+import net.ripe.db.whois.internal.logsearch.NewLogFormatProcessor;
+import net.ripe.db.whois.internal.logsearch.jmx.LogFileUpdateJmx;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +21,11 @@ import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(locations = {"classpath:applicationContext-logsearch-base.xml", "classpath:applicationContext-internal-test.xml"})
+@ContextConfiguration(locations = {"classpath:applicationContext-internal-base.xml", "classpath:applicationContext-internal-test.xml"})
 public class LogSearchJmxTestIntegration extends AbstractJUnit4SpringContextTests {
 
     @Autowired
-    private LogSearchJettyBootstrap logSearchJettyBootstrap;
+    private JettyBootstrap jettyBootstrap;
     @Autowired
     private NewLogFormatProcessor newLogFormatProcessor;
     @Autowired
@@ -49,14 +51,14 @@ public class LogSearchJmxTestIntegration extends AbstractJUnit4SpringContextTest
     @Before
     public void setup() {
         LogFileHelper.createLogDirectory(logDirectory);
-        logSearchJettyBootstrap.start();
+        jettyBootstrap.start();
     }
 
     @After
     public void cleanup() {
         LogFileHelper.deleteLogs(logDirectory);
         logFileIndex.removeAll();
-        logSearchJettyBootstrap.stop(true);
+        jettyBootstrap.stop(true);
     }
 
     @Test

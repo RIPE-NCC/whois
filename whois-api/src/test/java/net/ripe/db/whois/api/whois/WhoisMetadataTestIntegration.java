@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.whois;
 
 import net.ripe.db.whois.api.AbstractRestClientTest;
-import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -16,8 +15,6 @@ import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 public class WhoisMetadataTestIntegration extends AbstractRestClientTest {
-
-    private static final Audience AUDIENCE = Audience.PUBLIC;
 
     @Test
     public void getTemplateXml() throws Exception {
@@ -80,13 +77,13 @@ public class WhoisMetadataTestIntegration extends AbstractRestClientTest {
     }
 
     @Override
-    protected WebTarget createResource(final Audience audience, final String path) {
-        return client.target(String.format("http://localhost:%d/%s", getPort(audience), path));
+    protected WebTarget createResource(final String path) {
+        return client.target(String.format("http://localhost:%d/%s", getPort(), path));
     }
 
     private String doGetRequest(final String url, final int httpStatus) {
         try {
-            final String response = createResource(AUDIENCE, url).request().get(String.class);
+            final String response = createResource(url).request().get(String.class);
             assertThat(httpStatus, is(HttpURLConnection.HTTP_OK));
             return response;
         } catch (ClientErrorException e) {
