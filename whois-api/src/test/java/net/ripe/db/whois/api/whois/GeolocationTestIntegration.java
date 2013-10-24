@@ -254,7 +254,7 @@ public class GeolocationTestIntegration extends AbstractRestClientTest {
         final String response = createResource("whois/geolocation?ipkey=2001::/20")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
-        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\""));
+        assertThat(response, containsString(String.format("<link xlink:type=\"locator\" xlink:href=\"http://localhost:%s/geolocation?ipkey=2001::/20\"", getPort(Audience.PUBLIC))));
         assertThat(response, containsString("<service name=\"geolocation-finder\"/>"));
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));

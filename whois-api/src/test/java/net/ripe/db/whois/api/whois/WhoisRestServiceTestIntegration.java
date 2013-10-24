@@ -387,6 +387,8 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter), MediaType.APPLICATION_XML))
                 .readEntity(WhoisResources.class);
 
+        assertThat(response.getLink().getHref(), is(String.format("http://localhost:%s/test/person?password=test", getPort(AUDIENCE))));
+
         final WhoisObject object = response.getWhoisObjects().get(0);
 
         assertThat(object.getAttributes(), contains(

@@ -17,8 +17,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -35,8 +33,6 @@ import java.util.Set;
 @Component
 @Path("/geolocation")
 public class GeolocationService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeolocationService.class);
 
     private static final String SERVICE_NAME = "geolocation-finder";
 
@@ -133,7 +129,7 @@ public class GeolocationService {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setService(new Service(SERVICE_NAME));
         whoisResources.setGeolocationAttributes(new GeolocationAttributes(location, languages));
-        whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
+        whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
         whoisResources.includeTermsAndConditions();
         return whoisResources;
     }
@@ -203,7 +199,7 @@ public class GeolocationService {
             case INET6NUM:
             {
                 final CIString status = rpslObject.getValueForAttribute(AttributeType.STATUS);
-                return STOP_AT_STATUS_IPV6.contains(InetnumStatus.getStatusFor(status));
+                return STOP_AT_STATUS_IPV6.contains(Inet6numStatus.getStatusFor(status));
             }
             default:
                 throw new IllegalArgumentException("not an inetnum or inet6num");
