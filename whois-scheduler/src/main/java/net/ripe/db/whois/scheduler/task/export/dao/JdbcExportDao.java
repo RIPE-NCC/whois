@@ -53,7 +53,7 @@ class JdbcExportDao implements ExportDao {
             try {
                 object = RpslObject.parse(objectId, rs.getBytes(2));
             } catch (RuntimeException e) {
-                LOGGER.warn("Unable to parse RPSL object with object_id: {}", objectId);
+                LOGGER.warn("Unable to parse RPSL object with object_id: {}, {}", objectId, e.toString());
             }
 
             if (object != null) {
