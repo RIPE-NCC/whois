@@ -570,3 +570,8 @@ e164.arpa
 --resource 193.0.0.0 - 193.0.7.255
 --resource 2001:638::/32
 
+# direct route lookup
+193.0.0.0/21AS3333
+
+# --valid-syntax and --no-valid-syntax
+--valid-syntax aardvark-mnt
