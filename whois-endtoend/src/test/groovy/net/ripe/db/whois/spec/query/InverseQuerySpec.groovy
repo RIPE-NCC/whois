@@ -1,6 +1,6 @@
 package net.ripe.db.whois.spec.query
 
-import net.ripe.db.whois.spec.BaseSpec
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.BasicFixtures
 
 /**
@@ -11,7 +11,7 @@ import net.ripe.db.whois.spec.BasicFixtures
  * To change this template use File | Settings | File Templates.
  */
 
-class InverseQuerySpec extends BaseSpec {
+class InverseQuerySpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getBasicFixtures() {
@@ -844,7 +844,7 @@ class InverseQuerySpec extends BaseSpec {
 
       expect:
         // "IRT"
-        queryObject("-rBG -T irt IRT-TEST", "irt", "IRT-TEST")
+        queryObject("-rBG -T irt IRT-TEST", "irt", "irt-test")
 
       when:
         def longObjCount = queryCountObjects("-rGB -i irt-nfy irtnfy-inverse@ripe.net")

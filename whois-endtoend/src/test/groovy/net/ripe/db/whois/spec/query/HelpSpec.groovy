@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.query
 
 import net.ripe.db.whois.query.domain.QueryMessages
-import net.ripe.db.whois.spec.BaseSpec
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
-class HelpSpec extends BaseSpec {
+class HelpSpec extends BaseQueryUpdateSpec {
 
     def header = """\
 % This is the RIPE Database query service.

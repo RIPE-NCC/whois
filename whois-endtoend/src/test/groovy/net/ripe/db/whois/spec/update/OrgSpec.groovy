@@ -1,11 +1,10 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import net.ripe.db.whois.update.domain.Ack
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-class OrgSpec extends BaseSpec {
+class OrgSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {

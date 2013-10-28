@@ -2,13 +2,13 @@ package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.common.TestDateTimeProvider
 import net.ripe.db.whois.scheduler.task.update.PendingUpdatesCleanup
-import net.ripe.db.whois.spec.BaseSpec
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import org.joda.time.LocalDateTime
 
-class PendingRouteSpec extends BaseSpec {
+class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getFixtures() {

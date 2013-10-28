@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.query
 
-import net.ripe.db.whois.spec.BaseSpec
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.BasicFixtures
 import net.ripe.db.whois.spec.domain.AckResponse
 
-class VersionHistorySpec extends BaseSpec {
+class VersionHistorySpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getBasicFixtures() {
