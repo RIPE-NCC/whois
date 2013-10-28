@@ -61,9 +61,9 @@ public class InternalUpdatePerformer {
         }
     }
 
-    public Update createUpdate(final RpslObject rpslObject, final List<String> passwords, final String deleteReason) {
+    public Update createUpdate(final RpslObject rpslObject, final List<String> passwords, final String deleteReason, String override) {
         return new Update(
-                createParagraph(rpslObject, passwords),
+                createParagraph(rpslObject, passwords, override),
                 deleteReason != null ? Operation.DELETE : Operation.UNSPECIFIED,
                 deleteReason != null ? Lists.newArrayList(deleteReason) : null,
                 rpslObject);
@@ -83,13 +83,16 @@ public class InternalUpdatePerformer {
                 rpslObject);
     }
 
-    private Paragraph createParagraph(final RpslObject rpslObject, final List<String> passwords) {
-        final Set<PasswordCredential> passwordCredentials = Sets.newHashSet();
+    private Paragraph createParagraph(final RpslObject rpslObject, final List<String> passwords, String override) {
+        final Set<Credential> credentials = Sets.newHashSet();
         for (String password : passwords) {
-            passwordCredentials.add(new PasswordCredential(password));
+            credentials.add(new PasswordCredential(password));
+        }
+        if (override != null) {
+            credentials.add(OverrideCredential.parse(override));
         }
 
-        return new Paragraph(rpslObject.toString(), new Credentials(passwordCredentials));
+        return new Paragraph(rpslObject.toString(), new Credentials(credentials));
     }
 
     private Response getResponse(final UpdateResponse updateResponse) {

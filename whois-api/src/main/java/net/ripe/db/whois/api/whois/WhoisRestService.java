@@ -109,8 +109,9 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
-            @QueryParam(value = "reason") @DefaultValue("--") final String reason,
-            @QueryParam(value = "password") final List<String> passwords) {
+            @QueryParam("reason") @DefaultValue("--") final String reason,
+            @QueryParam("password") final List<String> passwords,
+            @QueryParam("override") final String override) {
 
         checkForMainSource(source);
 
@@ -118,8 +119,8 @@ public class WhoisRestService {
 
         updatePerformer.performUpdate(
                 createOrigin(request),
-                updatePerformer.createUpdate(originalObject, passwords, reason),
-                createContent(originalObject, passwords, reason),
+                updatePerformer.createUpdate(originalObject, passwords, reason, override),
+                createContent(originalObject, passwords, reason, override),
                 Keyword.NONE,
                 loggerContext);
 
@@ -136,7 +137,8 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
-            @QueryParam(value = "password") final List<String> passwords) {
+            @QueryParam("password") final List<String> passwords,
+            @QueryParam("override") final String override) {
 
         checkForMainSource(source);
 
@@ -145,8 +147,8 @@ public class WhoisRestService {
 
         final RpslObject response = updatePerformer.performUpdate(
                 createOrigin(request),
-                updatePerformer.createUpdate(submittedObject, passwords, null),
-                createContent(submittedObject, passwords, null),
+                updatePerformer.createUpdate(submittedObject, passwords, null, override),
+                createContent(submittedObject, passwords, null, override),
                 Keyword.NONE,
                 loggerContext);
 
@@ -163,7 +165,8 @@ public class WhoisRestService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
-            @QueryParam(value = "password") final List<String> passwords) {
+            @QueryParam("password") final List<String> passwords,
+            @QueryParam("override") final String override) {
 
         checkForMainSource(source);
 
@@ -171,8 +174,8 @@ public class WhoisRestService {
 
         final RpslObject response = updatePerformer.performUpdate(
                 createOrigin(request),
-                updatePerformer.createUpdate(submittedObject, passwords, null),
-                createContent(submittedObject, passwords, null),
+                updatePerformer.createUpdate(submittedObject, passwords, null, override),
+                createContent(submittedObject, passwords, null, override),
                 Keyword.NEW,
                 loggerContext);
 
@@ -522,7 +525,7 @@ public class WhoisRestService {
         }
     }
 
-    private String createContent(final RpslObject rpslObject, final List<String> passwords, final String deleteReason) {
+    private String createContent(final RpslObject rpslObject, final List<String> passwords, final String deleteReason, String override) {
         final StringBuilder builder = new StringBuilder();
         builder.append(rpslObject.toString());
 
@@ -540,6 +543,12 @@ public class WhoisRestService {
             builder.append("password: ");
             builder.append(password);
             builder.append('\n');
+        }
+
+        if (override != null) {
+            builder.append("override: ");
+            builder.append(override);
+            builder.append("\n\n");
         }
 
         return builder.toString();

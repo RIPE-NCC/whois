@@ -6,6 +6,7 @@ import net.ripe.db.whois.api.RestClient;
 import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.io.Downloader;
 import net.ripe.db.whois.common.rpsl.*;
 import org.junit.Before;
@@ -1856,4 +1857,35 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                                 "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
                                 "] } } ] } }", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
     }
+
+
+    @Test
+    public void override_update_succeeds() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
+
+        final RpslObject updatedObject = new RpslObjectFilter(PAULETH_PALTHEN).addAttributes(
+                Lists.newArrayList(new RpslAttribute(AttributeType.REMARKS, "updated")));
+
+        WhoisResources response = RestClient.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = response.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), contains(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("remarks", "remark"),
+                new Attribute("remarks", "updated"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("source", "TEST")));
+
+        assertThat(response.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
 }

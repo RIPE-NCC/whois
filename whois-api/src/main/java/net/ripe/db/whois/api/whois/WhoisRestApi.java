@@ -23,7 +23,7 @@ public class WhoisRestApi implements Origin {
 
     @Override
     public boolean allowAdminOperations() {
-        return false;
+        return true;
     }
 
     @Override
