@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.freetext;
 
-import net.ripe.db.whois.api.AbstractRestClientTest;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.RestClient;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.solr.client.solrj.impl.XMLResponseParser;
@@ -25,7 +26,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
-public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
+public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
     @Autowired FreeTextIndex freeTextIndex;
 
     @BeforeClass
@@ -619,8 +620,7 @@ public class FreeTextSearchTestIntegration extends AbstractRestClientTest {
     }
 
     private String query(final String queryString) {
-        return client
-                .target(String.format("http://localhost:%s/search?%s", getPort(), queryString))
+        return RestClient.target(getPort(), "search?" + queryString)
                 .request()
                 .get(String.class);
     }

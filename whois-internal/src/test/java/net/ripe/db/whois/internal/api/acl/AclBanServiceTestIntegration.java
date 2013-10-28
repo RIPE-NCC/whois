@@ -1,10 +1,10 @@
 package net.ripe.db.whois.internal.api.acl;
 
-import net.ripe.db.whois.api.AbstractRestClientTest;
+import net.ripe.db.whois.api.RestClient;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.domain.BlockEvent;
-import org.hamcrest.Matchers;
+import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -15,11 +15,12 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
-public class AclBanServiceTestIntegration extends AbstractRestClientTest {
+public class AclBanServiceTestIntegration extends AbstractInternalTest {
     private static final String BANS_PATH = "api/acl/bans";
 
     @Autowired TestDateTimeProvider dateTimeProvider;
@@ -27,8 +28,7 @@ public class AclBanServiceTestIntegration extends AbstractRestClientTest {
     @Before
     public void setUp() throws Exception {
         databaseHelper.insertAclIpDenied("10.0.0.0/32");
-        databaseHelper.insertApiKey("DB-WHOIS-testapikey", "/api/acl", "acl api key");
-        setApiKey("DB-WHOIS-testapikey");
+        databaseHelper.insertApiKey(apiKey, "/api/acl", "acl api key");
     }
 
     @Test
@@ -45,7 +45,7 @@ public class AclBanServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void createBan() throws Exception {
-        final Ban ban = createResource(BANS_PATH)
+        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
@@ -65,7 +65,7 @@ public class AclBanServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void createBanWithIPv6AfterNormalisingPrefix() throws Exception {
 
-        final Ban ban = createResource(BANS_PATH)
+        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("2001:db8:1f15:d79:1511:ed4a:b5bc:4420/64", "test"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
@@ -84,7 +84,7 @@ public class AclBanServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void createBanWithoutPrefixLength() throws Exception {
-        final Ban ban = createResource(BANS_PATH)
+        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1", "test"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
@@ -94,11 +94,11 @@ public class AclBanServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void updateBan() throws Exception {
-        createResource(BANS_PATH)
+        RestClient.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE));
 
-        final Ban ban = createResource(BANS_PATH)
+        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "updated"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
@@ -117,11 +117,11 @@ public class AclBanServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void updateBanWithoutPrefixLength() throws Exception {
-        createResource(BANS_PATH)
+        RestClient.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE));
 
-        final Ban ban = createResource(BANS_PATH)
+        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1", "updated"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
@@ -131,13 +131,13 @@ public class AclBanServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void deleteBan() throws Exception {
-        final Ban ban = createResource(BANS_PATH)
+        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
         plusOneDay();
 
-        final Ban deletedBan = createResource(BANS_PATH, ban.getPrefix())
+        final Ban deletedBan = RestClient.target(getPort(), BANS_PATH, ban.getPrefix(), null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .delete(Ban.class);
 
@@ -155,13 +155,13 @@ public class AclBanServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void deleteBanWithoutPrefixLength() throws Exception {
-        createResource(BANS_PATH)
+        RestClient.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE));
 
         plusOneDay();
 
-        final Ban deletedBan = createResource(BANS_PATH, "10.0.0.1")
+        final Ban deletedBan = RestClient.target(getPort(), BANS_PATH, "10.0.0.1", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .delete(Ban.class);
 
@@ -174,13 +174,13 @@ public class AclBanServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void getBan() throws Exception {
-        final Ban ban = createResource(BANS_PATH)
+        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
         plusOneDay();
 
-        final Ban createdBan = createResource(BANS_PATH, ban.getPrefix())
+        final Ban createdBan = RestClient.target(getPort(), BANS_PATH, ban.getPrefix(), null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ban.class);
 
@@ -190,14 +190,14 @@ public class AclBanServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void getBanWithoutPrefixLength() throws Exception {
-        createResource(BANS_PATH)
+        RestClient.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE));
 
 
         plusOneDay();
 
-        final Ban createdBan = createResource(BANS_PATH, "10.0.0.1")
+        final Ban createdBan = RestClient.target(getPort(), BANS_PATH, "10.0.0.1", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ban.class);
 
@@ -207,16 +207,17 @@ public class AclBanServiceTestIntegration extends AbstractRestClientTest {
 
     @SuppressWarnings("unchecked")
     private List<Ban> getBans() {
-        return createResource(BANS_PATH)
+        return RestClient.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(new GenericType<List<Ban>>() {});
     }
 
     @SuppressWarnings("unchecked")
     private List<BanEvent> getBanEvents(final String prefix) {
-        return createResource(String.format("%s/%s/events", BANS_PATH, encode(prefix)))
+        return RestClient.target(getPort(), String.format("%s/%s/events", BANS_PATH, RestClient.encode(prefix)), null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(new GenericType<List<BanEvent>>() {});
+                .get(new GenericType<List<BanEvent>>() {
+                });
     }
 
     private void plusOneDay() {

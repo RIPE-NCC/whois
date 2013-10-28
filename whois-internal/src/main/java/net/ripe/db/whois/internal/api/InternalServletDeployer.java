@@ -1,9 +1,12 @@
-package net.ripe.db.whois.internal.api.acl;
+package net.ripe.db.whois.internal.api;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import net.ripe.db.whois.internal.api.abusec.AbuseCService;
+import net.ripe.db.whois.internal.api.acl.*;
+import net.ripe.db.whois.internal.api.logsearch.LogSearchService;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -16,22 +19,26 @@ import javax.servlet.DispatcherType;
 import java.util.EnumSet;
 
 @Component
-public class ApiServletDeployer implements ServletDeployer {
+public class InternalServletDeployer implements ServletDeployer {
     private final ApiKeyFilter apiKeyFilter;
     private final AclBanService aclBanService;
     private final AclLimitService aclLimitService;
     private final AclMirrorService aclMirrorService;
     private final AclProxyService aclProxyService;
     private final AbuseCService abuseCService;
+    private final LogSearchService logSearchService;
+    private final DefaultExceptionMapper defaultExceptionMapper;
 
     @Autowired
-    public ApiServletDeployer(final ApiKeyFilter apiKeyFilter, final AclBanService aclBanService, final AclLimitService aclLimitService, final AclMirrorService aclMirrorService, final AclProxyService aclProxyService, final AbuseCService abuseCService) {
+    public InternalServletDeployer(final ApiKeyFilter apiKeyFilter, final AclBanService aclBanService, final AclLimitService aclLimitService, final AclMirrorService aclMirrorService, final AclProxyService aclProxyService, final AbuseCService abuseCService, LogSearchService logSearchService, DefaultExceptionMapper defaultExceptionMapper) {
         this.aclBanService = aclBanService;
         this.aclLimitService = aclLimitService;
         this.aclMirrorService = aclMirrorService;
         this.aclProxyService = aclProxyService;
         this.abuseCService = abuseCService;
         this.apiKeyFilter = apiKeyFilter;
+        this.logSearchService = logSearchService;
+        this.defaultExceptionMapper = defaultExceptionMapper;
     }
 
     @Override
@@ -44,12 +51,14 @@ public class ApiServletDeployer implements ServletDeployer {
         resourceConfig.register(aclMirrorService);
         resourceConfig.register(aclProxyService);
         resourceConfig.register(abuseCService);
+        resourceConfig.register(logSearchService);
+        resourceConfig.register(defaultExceptionMapper);
 
         final JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
         provider.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
         provider.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         resourceConfig.register(provider);
 
-        context.addServlet(new ServletHolder("REST API", new ServletContainer(resourceConfig)), "/api/*");
+        context.addServlet(new ServletHolder("INTERNAL API", new ServletContainer(resourceConfig)), "/api/*");
     }
 }

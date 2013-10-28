@@ -1,20 +1,20 @@
 package net.ripe.db.whois.api.whois;
 
-import net.ripe.db.whois.api.AbstractRestClientTest;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.RestClient;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.client.WebTarget;
 import java.net.HttpURLConnection;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
-public class WhoisMetadataTestIntegration extends AbstractRestClientTest {
+public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void getTemplateXml() throws Exception {
@@ -76,14 +76,9 @@ public class WhoisMetadataTestIntegration extends AbstractRestClientTest {
         assertThat(response, not(containsString("whois-resources")));
     }
 
-    @Override
-    protected WebTarget createResource(final String path) {
-        return client.target(String.format("http://localhost:%d/%s", getPort(), path));
-    }
-
     private String doGetRequest(final String url, final int httpStatus) {
         try {
-            final String response = createResource(url).request().get(String.class);
+            final String response = RestClient.target(getPort(), url).request().get(String.class);
             assertThat(httpStatus, is(HttpURLConnection.HTTP_OK));
             return response;
         } catch (ClientErrorException e) {

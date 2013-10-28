@@ -1,7 +1,7 @@
 package net.ripe.db.whois.internal.api.acl;
 
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.common.domain.IpInterval;
+import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class AclServiceDaoTest extends AbstractIntegrationTest {
+public class AclServiceDaoTest extends AbstractInternalTest {
     @Autowired AclServiceDao subject;
 
     @Test

@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api;
+package net.ripe.db.whois.api.httpserver;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import net.ripe.db.whois.common.source.IllegalSourceException;

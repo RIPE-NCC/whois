@@ -15,13 +15,15 @@
 
     <context:annotation-config/>
     <context:property-placeholder
-            location="classpath:logsearch.properties,
+            location="classpath:internal.properties,
             file:${whois.config}"
             system-properties-mode="OVERRIDE"/>
 
-    <task:annotation-driven scheduler="logsearchScheduler"/>
-    <task:scheduler id="logsearchScheduler" pool-size="10"/>
+    <task:annotation-driven scheduler="internalScheduler"/>
+    <task:scheduler id="internalScheduler" pool-size="10"/>
 
     <bean class="net.ripe.db.whois.common.ClockDateTimeProvider" />
+
+    <import resource="applicationContext-internal-base.xml"/>
 
 </beans>

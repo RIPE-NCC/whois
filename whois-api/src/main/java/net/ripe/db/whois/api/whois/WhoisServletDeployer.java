@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.whois;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import net.ripe.db.whois.api.DefaultExceptionMapper;
+import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;

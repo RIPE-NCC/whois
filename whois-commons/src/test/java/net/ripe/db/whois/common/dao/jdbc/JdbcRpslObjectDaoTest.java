@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Collections;
@@ -22,6 +23,7 @@ import static org.junit.Assert.assertThat;
 
 public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
     @Autowired RpslObjectDao subject;
+    @Value("${whois.source}") protected String source;
 
     @Before
     public void setup() {

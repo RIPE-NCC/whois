@@ -1,23 +1,17 @@
 package net.ripe.db.whois.logsearch;
 
 import com.google.common.collect.Iterables;
-import com.google.common.io.Files;
-import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.logsearch.LegacyLogFormatProcessor;
-import net.ripe.db.whois.internal.logsearch.LogFileIndex;
 import net.ripe.db.whois.internal.logsearch.NewLogFormatProcessor;
 import net.ripe.db.whois.internal.logsearch.logformat.LegacyLogEntry;
 import net.ripe.db.whois.internal.logsearch.logformat.LoggedUpdate;
 import org.joda.time.LocalDate;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -27,40 +21,11 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertTrue;
 
 @Category(IntegrationTest.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(locations = {"classpath:applicationContext-internal-base.xml", "classpath:applicationContext-internal-test.xml"})
-public class LogSearchFSResourcesTestIntegration extends AbstractJUnit4SpringContextTests {
-    @Autowired
-    private JettyBootstrap jettyBootstrap;
+public class LogSearchFSResourcesTestIntegration extends AbstractLogSearchTest {
     @Autowired
     private NewLogFormatProcessor newLogFormatProcessor;
     @Autowired
     private LegacyLogFormatProcessor legacyLogFormatProcessor;
-    @Autowired
-    private LogFileIndex logFileIndex;
-
-    private static File indexDirectory = Files.createTempDir();
-
-    @BeforeClass
-    public static void setupClass() throws IOException {
-        System.setProperty("dir.logsearch.index", indexDirectory.getAbsolutePath());
-    }
-
-    @AfterClass
-    public static void cleanupClass() {
-        System.clearProperty("dir.logsearch.index");
-    }
-
-    @Before
-    public void setup() {
-        jettyBootstrap.start();
-    }
-
-    @After
-    public void cleanup() {
-        logFileIndex.removeAll();
-        jettyBootstrap.stop(true);
-    }
 
     @Test
     public void attemptAddingDuplicatesToLegacyIndex() throws IOException {

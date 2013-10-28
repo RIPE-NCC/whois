@@ -1,7 +1,8 @@
 package net.ripe.db.whois.internal.api.acl;
 
-import net.ripe.db.whois.api.AbstractRestClientTest;
+import net.ripe.db.whois.api.RestClient;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -18,7 +19,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
-public class AclMirrorServiceTestIntegration extends AbstractRestClientTest {
+public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
     private static final String MIRRORS_PATH = "api/acl/mirrors";
 
     @Before
@@ -26,8 +27,7 @@ public class AclMirrorServiceTestIntegration extends AbstractRestClientTest {
         databaseHelper.insertAclMirror("0/0");
         databaseHelper.insertAclMirror("10.0.0.2/32");
         databaseHelper.insertAclMirror("::0/0");
-        databaseHelper.insertApiKey("DB-WHOIS-testapikey", "/api/acl", "acl api key");
-        setApiKey("DB-WHOIS-testapikey");
+        databaseHelper.insertApiKey(apiKey, "/api/acl", "acl api key");
     }
 
     @Test
@@ -43,7 +43,7 @@ public class AclMirrorServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void getMirror_non_existing() {
         try {
-            createResource(MIRRORS_PATH, "10.0.0.0/32")
+            RestClient.target(getPort(), MIRRORS_PATH, "10.0.0.0/32", null, apiKey)
                     .request(MediaType.APPLICATION_JSON)
                     .get(Mirror.class);
         } catch (NotFoundException ignored) {
@@ -55,7 +55,7 @@ public class AclMirrorServiceTestIntegration extends AbstractRestClientTest {
     public void getMirror_existing() {
         databaseHelper.insertAclMirror("10.0.0.0/32");
 
-        Mirror mirror = createResource(MIRRORS_PATH, "10.0.0.0/32")
+        Mirror mirror = RestClient.target(getPort(), MIRRORS_PATH, "10.0.0.0/32", null, apiKey)
                 .request(MediaType.APPLICATION_JSON)
                 .get(Mirror.class);
 
@@ -65,7 +65,7 @@ public class AclMirrorServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void getMirror_invalid() {
         try {
-            createResource(MIRRORS_PATH, "10")
+            RestClient.target(getPort(), MIRRORS_PATH, "10", null, apiKey)
                     .request(MediaType.APPLICATION_JSON)
                     .get(Mirror.class);
         } catch (BadRequestException e) {
@@ -75,7 +75,7 @@ public class AclMirrorServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void createMirror() {
-        Mirror mirror = createResource(MIRRORS_PATH)
+        Mirror mirror = RestClient.target(getPort(), MIRRORS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(new Mirror("10.0.0.0/32", "comment"), MediaType.APPLICATION_JSON), Mirror.class);
 
@@ -89,7 +89,7 @@ public class AclMirrorServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void createMirror_invalid() {
         try {
-            createResource(MIRRORS_PATH)
+            RestClient.target(getPort(), MIRRORS_PATH, null, apiKey)
                     .request(MediaType.APPLICATION_JSON)
                     .post(Entity.entity(new Mirror("10", "comment"), MediaType.APPLICATION_JSON));
 
@@ -101,7 +101,7 @@ public class AclMirrorServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void updateMirror() {
-        Mirror mirror = createResource(MIRRORS_PATH)
+        Mirror mirror = RestClient.target(getPort(), MIRRORS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Mirror("10.0.0.2/32", "changed comment"), MediaType.APPLICATION_JSON), Mirror.class);
 
@@ -112,7 +112,7 @@ public class AclMirrorServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void deleteMirror() throws Exception {
-        final Mirror mirror = createResource(MIRRORS_PATH, "10.0.0.2/32")
+        final Mirror mirror = RestClient.target(getPort(), MIRRORS_PATH, "10.0.0.2/32", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .delete(Mirror.class);
 
@@ -123,7 +123,7 @@ public class AclMirrorServiceTestIntegration extends AbstractRestClientTest {
 
     @SuppressWarnings("unchecked")
     private List<Mirror> getMirrors() {
-        return createResource(MIRRORS_PATH)
+        return RestClient.target(getPort(), MIRRORS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(new GenericType<List<Mirror>>() {});
     }

@@ -32,7 +32,11 @@ public class JettyBootstrap implements ApplicationService {
 
     @Value("${port.api:-1}")
     public void setPort(final int port) {
-        this.port = port;
+        if (port <= 0) {
+            this.port = 0;
+        } else {
+            this.port = port;
+        }
     }
 
     public int getPort() {

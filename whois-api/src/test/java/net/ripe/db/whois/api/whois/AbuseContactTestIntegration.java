@@ -2,7 +2,8 @@ package net.ripe.db.whois.api.whois;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import net.ripe.db.whois.api.AbstractRestClientTest;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.RestClient;
 import net.ripe.db.whois.api.whois.domain.AbuseResources;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.Before;
@@ -10,7 +11,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
-public class AbuseContactTestIntegration extends AbstractRestClientTest {
+public class AbuseContactTestIntegration extends AbstractIntegrationTest {
 
     @Before
     public void setup() {
@@ -82,7 +82,7 @@ public class AbuseContactTestIntegration extends AbstractRestClientTest {
                 "source: TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = createResource("whois/abuse-contact/2a00:1f78::fffe/48")
+        final String result = RestClient.target(getPort(), "whois/abuse-contact/2a00:1f78::fffe/48")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
         assertThat(result, is("" +
@@ -129,7 +129,7 @@ public class AbuseContactTestIntegration extends AbstractRestClientTest {
                 "source: TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = createResource("whois/abuse-contact/2a00:1f78::fffe/48")
+        final String result = RestClient.target(getPort(), "whois/abuse-contact/2a00:1f78::fffe/48")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
         final String readable = Joiner.on(">\n").join(Splitter.on(">").split(result)).trim();
@@ -165,7 +165,7 @@ public class AbuseContactTestIntegration extends AbstractRestClientTest {
                 "changed: org@ripe.net 20120505\n" +
                 "source: test");
 
-        final AbuseResources result = createResource("whois/abuse-contact/AS333")
+        final AbuseResources result = RestClient.target(getPort(), "whois/abuse-contact/AS333")
                 .request(MediaType.APPLICATION_XML)
                 .get(AbuseResources.class);
 
@@ -190,7 +190,7 @@ public class AbuseContactTestIntegration extends AbstractRestClientTest {
                 "changed: org@ripe.net 20120505\n" +
                 "source: test");
 
-        final AbuseResources abuseResources = createResource("whois/abuse-contact/AS333")
+        final AbuseResources abuseResources = RestClient.target(getPort(), "whois/abuse-contact/AS333")
                 .request(MediaType.APPLICATION_XML)
                 .get(AbuseResources.class);
         assertThat(abuseResources.getParameters().getPrimaryKey().getValue(), is("AS333"));
@@ -200,7 +200,7 @@ public class AbuseContactTestIntegration extends AbstractRestClientTest {
     @Test
     public void abuse_object_not_found() {
         try {
-            createResource("whois/abuse-contact/AS333")
+            RestClient.target(getPort(), "whois/abuse-contact/AS333")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
             fail();
@@ -228,7 +228,7 @@ public class AbuseContactTestIntegration extends AbstractRestClientTest {
                 "changed: org@ripe.net 20120505\n" +
                 "source: test");
 
-        final String result = createResource("whois/abuse-contact/AS333.json")
+        final String result = RestClient.target(getPort(), "whois/abuse-contact/AS333.json")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
 
@@ -239,12 +239,5 @@ public class AbuseContactTestIntegration extends AbstractRestClientTest {
                 "    \"type\" : \"locator\",\n" +
                 "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/AS333\"\n" +
                 "  },"));
-    }
-
-    // helper methods
-
-    @Override
-    protected WebTarget createResource(final String path) {
-        return client.target(String.format("http://localhost:%d/%s", getPort(), path));
     }
 }

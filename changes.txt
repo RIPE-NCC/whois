@@ -2,6 +2,7 @@
 [api] added GETter for the abuse contact creation service
 [update] mail updates not processed if they have an invalid email address, notifications failing loggingly for the same reason
 [logsearch] switched to lucene 4.4 from 4.1. TODO: re-generate index
+[api] dropped external/internal notion of servers; config port.api replaces port.api.*
 
 ## 1.70
 [query] added option --valid-syntax and --no-valid-syntax

@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +25,7 @@ import static org.junit.Assert.assertThat;
 @Category(IntegrationTest.class)
 public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationTest {
     @Autowired RpslObjectsExporter rpslObjectsExporter;
+    @Autowired SourceContext sourceContext;
 
     File exportDir;
 

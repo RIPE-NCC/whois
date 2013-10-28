@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.whois;
 
-import net.ripe.db.whois.api.AbstractRestClientTest;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.RestClient;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -15,14 +16,13 @@ import javax.mail.internet.MimeMessage;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 @Category(IntegrationTest.class)
-public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
+public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final String MNTNER_TEST_MNTNER =
             "mntner:        mntner\n" +
@@ -47,7 +47,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void empty_request() throws Exception {
         try {
-            createResource("whois/syncupdates/test")
+            RestClient.target(getPort(), "whois/syncupdates/test")
                     .request()
                     .get(String.class);
             fail();
@@ -58,7 +58,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void get_help_parameter_only() throws Exception {
-        String response = createResource("whois/syncupdates/test?HELP=yes")
+        String response = RestClient.target(getPort(), "whois/syncupdates/test?HELP=yes")
                     .request()
                     .get(String.class);
 
@@ -71,7 +71,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void post_multipart_form_help_parameter_only() {
         final FormDataMultiPart multipart = new FormDataMultiPart().field("HELP", "help");
-        String response = createResource("whois/syncupdates/test")
+        String response = RestClient.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
@@ -80,7 +80,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void post_url_encoded_form_help_parameter_only() {
-        String response = createResource("whois/syncupdates/test")
+        String response = RestClient.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post(Entity.entity("HELP=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
@@ -89,7 +89,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void help_and_invalid_parameter() throws Exception {
-        String response = createResource("whois/syncupdates/test?HELP=yes&INVALID=true")
+        String response = RestClient.target(getPort(), "whois/syncupdates/test?HELP=yes&INVALID=true")
                     .request()
                     .get(String.class);
 
@@ -99,7 +99,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void diff_parameter_only() throws Exception {
         try {
-            createResource("whois/syncupdates/test?DIFF=yes")
+            RestClient.target(getPort(), "whois/syncupdates/test?DIFF=yes")
                     .request()
                     .get(String.class);
         } catch (BadRequestException e) {
@@ -113,7 +113,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
         try {
-            createResource("whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+            RestClient.target(getPort(), "whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
             fail();
@@ -129,7 +129,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         ipRanges.setTrusted("0/0", "::0/0");
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = createResource("whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
+        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -143,7 +143,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = createResource("whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
+        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -157,7 +157,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     public void only_data_parameter_create_object() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = createResource("whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -167,7 +167,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void create_object_invalid_source_in_url() throws Exception {
         try {
-            createResource("whois/syncupdates/invalid?DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+            RestClient.target(getPort(), "whois/syncupdates/invalid?DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
             fail();
@@ -183,7 +183,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
         System.out.println("mntner = " + mntnerInvalidSource);
 
-        String response = createResource("whois/syncupdates/test?" + "DATA=" + encode(mntnerInvalidSource + "\npassword: emptypassword"))
+        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClient.encode(mntnerInvalidSource + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -195,7 +195,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = createResource("whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword"))
+        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -205,7 +205,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void only_new_parameter() throws Exception {
         try {
-            createResource("whois/syncupdates/test?NEW=yes")
+            RestClient.target(getPort(), "whois/syncupdates/test?NEW=yes")
                     .request()
                     .get(String.class);
         } catch (BadRequestException e) {
@@ -217,7 +217,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     public void new_and_data_parameters_get_request() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = createResource("whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes")
+        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes")
                 .request()
                 .get(String.class);
 
@@ -229,7 +229,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = createResource("whois/syncupdates/test?" + "DATA=" + encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword") + "&NEW=yes")
+        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword") + "&NEW=yes")
                 .request()
                 .get(String.class);
 
@@ -242,9 +242,9 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
     public void new_and_data_parameters_urlencoded_post_request() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = createResource("whois/syncupdates/test")
+        String response = RestClient.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity("DATA=" + encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+                .post(Entity.entity("DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
     }
@@ -254,7 +254,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
         final FormDataMultiPart multipart = new FormDataMultiPart().field("DATA", MNTNER_TEST_MNTNER + "\npassword: emptypassword").field("NEW", "yes");
-        String response = createResource("whois/syncupdates/test")
+        String response = RestClient.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
@@ -266,9 +266,9 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = createResource("whois/syncupdates/test")
+        String response = RestClient.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity("DATA=" + encode(
+                .post(Entity.entity("DATA=" + RestClient.encode(
                         "person:     Test Person\n" +
                         "address:    Flughafenstraße 109/a\n" +
                         "phone:      +49 282 411141\n" +
@@ -291,10 +291,5 @@ public class SyncUpdatesServiceTestIntegration extends AbstractRestClientTest {
 
     private boolean anyMoreMessages() {
         return mailSender.anyMoreMessages();
-    }
-
-    @Override
-    protected WebTarget createResource(final String path) {
-        return client.target(String.format("http://localhost:%d/%s", getPort(), path));
     }
 }

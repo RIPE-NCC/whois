@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.update.dao.AbstractDaoTest;
+import net.ripe.db.whois.update.dao.AbstractUpdateDaoTest;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class DnsGatewayImplTest extends AbstractDaoTest {
+public class DnsGatewayImplTest extends AbstractUpdateDaoTest {
     private DnsGatewayImpl subject;
     private JdbcTemplate dnscheckTemplate;
     private DnsCheckRequest dnsCheckRequest;

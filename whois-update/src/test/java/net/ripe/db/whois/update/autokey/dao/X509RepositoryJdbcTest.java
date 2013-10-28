@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.autokey.dao;
 
 
-import net.ripe.db.whois.update.dao.AbstractDaoTest;
+import net.ripe.db.whois.update.dao.AbstractUpdateDaoTest;
 import net.ripe.db.whois.update.domain.X509KeycertId;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 @Transactional
-public class X509RepositoryJdbcTest extends AbstractDaoTest {
+public class X509RepositoryJdbcTest extends AbstractUpdateDaoTest {
     @Autowired X509Repository subject;
 
     @Test
