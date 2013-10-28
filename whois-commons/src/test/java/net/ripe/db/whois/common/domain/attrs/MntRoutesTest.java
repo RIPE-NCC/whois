@@ -56,4 +56,14 @@ public class MntRoutesTest {
         assertThat(subject.getAddressPrefixRanges().get(0).getIpInterval().toString(), is("194.9.240.0/24"));
         assertThat(subject.getAddressPrefixRanges().get(1).getIpInterval().toString(), is("194.9.241.0/24"));
     }
+
+    @Test(expected = AttributeParseException.class)
+    public void maintainer_with_any_inside_brackets() {
+        MntRoutes.parse("TEST-MNT { ANY }");
+    }
+
+    @Test(expected = AttributeParseException.class)
+    public void maintainer_with_any_inside_brackets_no_padding_space() {
+        MntRoutes.parse("TEST-MNT {ANY}");
+    }
 }

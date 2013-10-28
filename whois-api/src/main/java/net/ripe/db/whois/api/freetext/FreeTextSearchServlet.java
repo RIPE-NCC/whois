@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.freetext;
 
-import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -26,11 +25,6 @@ public class FreeTextSearchServlet extends HttpServlet implements ServletDeploye
     @Autowired
     public FreeTextSearchServlet(final FreeTextSearch freeTextSearch) {
         this.freeTextSearch = freeTextSearch;
-    }
-
-    @Override
-    public Audience getAudience() {
-        return Audience.PUBLIC;
     }
 
     @Override

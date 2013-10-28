@@ -1,8 +1,8 @@
 package net.ripe.db.whois.query.integration;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
@@ -35,7 +35,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     private static final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
 
     @Autowired IpTreeUpdater ipTreeUpdater;
-    @Autowired DateTimeProvider dateTimeProvider;
+    @Autowired TestDateTimeProvider dateTimeProvider;
 
     // TODO: [AH] most tests don't taint the DB; have a 'tainted' flag in DBHelper, reinit only if needed
     @Before
@@ -925,5 +925,22 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
         assertThat(result, containsString("% 'DEL-MNT' has valid syntax"));
         assertThat(result, not(containsString("MD5-PW # Filtered")));
+    }
+
+    @Test
+    public void route6_correct_rebuild() {
+        databaseHelper.addObject("mntner: TEST-MNT\nupd-to: TEST-MNT");
+        databaseHelper.addObject("" +
+                "route6:          2aaa:6fff::/48\n" +
+                "descr:           test\n" +
+                "origin:          AS222\n" +
+                "mnt-by:          TEST-MNT\n" +
+                "changed:         test@test.net 20120428\n" +
+                "source:          TEST");
+
+        ipTreeUpdater.rebuild();
+        final String query = DummyWhoisClient.query(QueryServer.port, "2aaa:6fff::/48");
+
+        assertThat(query, containsString("route6:         2aaa:6fff::/48"));
     }
 }

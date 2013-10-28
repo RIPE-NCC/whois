@@ -5,12 +5,10 @@ import net.ripe.db.whois.nrtm.AccessControlList;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm-test.xml"})
 public abstract class AbstractNrtmIntegrationBase extends AbstractDatabaseHelperTest {
-    @Autowired protected ApplicationContext applicationContext;
     @Autowired protected NrtmServer nrtmServer;
     @Autowired protected AccessControlList accessControlList;
 

@@ -73,8 +73,12 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     @Autowired(required = false)
     @Qualifier("aclDataSource")
-    public void setAclTemplate(final DataSource aclDataSource) {
+    public void setAclDataSource(final DataSource aclDataSource) {
         this.aclTemplate = new JdbcTemplate(aclDataSource);
+    }
+
+    public JdbcTemplate getAclTemplate() {
+        return aclTemplate;
     }
 
     @Autowired(required = false)
@@ -232,8 +236,13 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             }
         }
 
-        truncateTables(aclTemplate, mailupdatesTemplate, internalsTemplate);
+        setupAclDatabase();
+        truncateTables(mailupdatesTemplate, internalsTemplate);
         loadScripts(internalsTemplate, "internals_data.sql");
+    }
+
+    public void setupAclDatabase() {
+        truncateTables(aclTemplate);
     }
 
     public DataSource getMailupdatesDataSource() {

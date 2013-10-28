@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api.whois;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.AbstractRestClientTest;
-import net.ripe.db.whois.api.httpserver.Audience;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.RestClient;
 import net.ripe.db.whois.api.whois.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -18,7 +18,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -34,9 +33,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
-public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
+public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
-    private static final Audience AUDIENCE = Audience.PUBLIC;
     private static final String VERSION_DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}";
 
     private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
@@ -97,7 +95,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void downloader_test() throws Exception {
         Path path = Files.createTempFile("downloader_test", "");
         Downloader downloader = new Downloader();
-        downloader.downloadTo(LoggerFactory.getLogger("downloader_test"), new URL(String.format("http://localhost:%d/whois/test/mntner/owner-mnt", getPort(AUDIENCE))), path);
+        downloader.downloadTo(LoggerFactory.getLogger("downloader_test"), new URL(String.format("http://localhost:%d/whois/test/mntner/owner-mnt", getPort())), path);
         final String result = new String(Files.readAllBytes(path));
         assertThat(result, containsString("OWNER-MNT"));
         assertThat(result, endsWith("</whois-resources>"));
@@ -118,7 +116,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         ipTreeUpdater.rebuild();
 
         try {
-            createResource(AUDIENCE, "whois/test/inet6num/2001:2002:2003::").request().get(WhoisResources.class);
+            RestClient.target(getPort(), "whois/test/inet6num/2001:2002:2003::").request().get(WhoisResources.class);
             fail();
         } catch (NotFoundException ignored) {
             // expected
@@ -139,7 +137,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                         "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/inet6num/2001:2002:2003::/48").request().get(WhoisResources.class);
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/test/inet6num/2001:2002:2003::/48").request().get(WhoisResources.class);
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
         assertThat(whoisObject.getPrimaryKey().get(0).getValue(), is("2001:2002:2003::/48"));
@@ -147,7 +145,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_person() {
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
@@ -162,13 +160,13 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_not_contains_empty_xmlns() {
-        final String whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST").request().get(String.class);
+        final String whoisResources = RestClient.target(getPort(), "whois/test/person/TP1-TEST").request().get(String.class);
         assertThat(whoisResources, not(containsString("xmlns=\"\"")));
     }
 
     @Test
     public void lookup_not_contains_root_level_locator() {
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
         assertThat(whoisResources.getLink(), nullValue());
     }
 
@@ -188,7 +186,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         databaseHelper.addObject(inet6num);
         ipTreeUpdater.rebuild();
 
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/inet6num/2001::/48").request().get(WhoisResources.class);
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/test/inet6num/2001::/48").request().get(WhoisResources.class);
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
         assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("inet6num", "2001::/48"),
@@ -215,7 +213,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         databaseHelper.addObject(route);
         ipTreeUpdater.rebuild();
 
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/route/193.254.30.0/24AS12726").request().get(WhoisResources.class);
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/test/route/193.254.30.0/24AS12726").request().get(WhoisResources.class);
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
         assertThat(whoisObject.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route/193.254.30.0/24AS12726"));
         assertThat(whoisObject.getAttributes(), containsInAnyOrder(
@@ -229,7 +227,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void rest_get_person_json() throws Exception {
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 
@@ -248,7 +246,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void json_lookup_correct_object() {
-        final String whoisResources = createResource(AUDIENCE, "whois/test/person/TP1-TEST")
+        final String whoisResources = RestClient.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
         assertThat(whoisResources, containsString("{\"object\":[{\"type\":\"person"));
@@ -258,7 +256,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_role_accept_json() {
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/role/TR1-TEST")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/test/role/TR1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -277,7 +275,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_person_accept_json() {
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/TEST/person/TP1-TEST")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/TEST/person/TP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 
@@ -289,7 +287,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_object_json_extension() {
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/TEST/person/TP1-TEST.json")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/TEST/person/TP1-TEST.json")
                 .request()
                 .get(WhoisResources.class);
 
@@ -302,7 +300,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_object_not_found() {
         try {
-            createResource(AUDIENCE, "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+            RestClient.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
             fail();
         } catch (NotFoundException ignored) {
             // expected
@@ -312,7 +310,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_object_wrong_source() {
         try {
-            createResource(AUDIENCE, "whois/test-grs/person/TP1-TEST").request().get(String.class);
+            RestClient.target(getPort(), "whois/test-grs/person/TP1-TEST").request().get(String.class);
             fail();
         } catch (NotFoundException ignored) {
             // expected
@@ -322,7 +320,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void grs_lookup_object_wrong_source() {
         try {
-            createResource(AUDIENCE, "whois/pez/person/PP1-TEST").request().get(String.class);
+            RestClient.target(getPort(), "whois/pez/person/PP1-TEST").request().get(String.class);
             fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), is("Invalid source 'pez'"));
@@ -340,7 +338,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST-GRS\n");
 
-        final String result = createResource(AUDIENCE, "whois/test-grs/aut-num/AS102").request().get(String.class);
+        final String result = RestClient.target(getPort(), "whois/test-grs/aut-num/AS102").request().get(String.class);
 
         assertThat(result, containsString("" +
                 "<source id=\"test-grs\" /><primary-key><attribute name=\"aut-num\" value=\"AS102\" /></primary-key><attributes><attribute name=\"aut-num\" value=\"AS102\" /><attribute name=\"as-name\" value=\"End-User-2\" />"));
@@ -364,7 +362,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
 
-        final WhoisResources whoisResources = createResource(AUDIENCE,
+        final WhoisResources whoisResources = RestClient.target(getPort(),
                 "whois/TEST/aut-num/AS102")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
@@ -382,10 +380,12 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void create_succeeds() throws Exception {
         final boolean filter = false;
-        final WhoisResources response = createResource(AUDIENCE, "whois/test/person?password=test")
+        final WhoisResources response = RestClient.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter), MediaType.APPLICATION_XML))
                 .readEntity(WhoisResources.class);
+
+        assertThat(response.getLink().getHref(), is(String.format("http://localhost:%s/test/person?password=test", getPort())));
 
         final WhoisObject object = response.getWhoisObjects().get(0);
 
@@ -416,7 +416,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "remarks: remark\n" +
                 "source:  NONE\n");
         try {
-            createResource(AUDIENCE, "whois/test/person?password=test")
+            RestClient.target(getPort(), "whois/test/person?password=test")
                     .request()
                     .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(rpslObject), false), MediaType.APPLICATION_XML), String.class);
             fail("expected request to fail");
@@ -428,7 +428,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void create_invalid_reference() {
         try {
-            createResource(AUDIENCE, "whois/test/person?password=test")
+            RestClient.target(getPort(), "whois/test/person?password=test")
                     .request()
                     .post(Entity.entity("<whois-resources>\n" +
                             "    <objects>\n" +
@@ -457,7 +457,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void create_multiple_passwords() {
         final boolean filter = false;
-        createResource(AUDIENCE, "whois/test/person?password=invalid&password=test")
+        RestClient.target(getPort(), "whois/test/person?password=invalid&password=test")
                 .request()
                 .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter), MediaType.APPLICATION_XML), String.class);
     }
@@ -466,7 +466,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void create_invalid_password() {
         try {
             final boolean filter = false;
-            createResource(AUDIENCE, "whois/test/person?password=invalid")
+            RestClient.target(getPort(), "whois/test/person?password=invalid")
                     .request()
                     .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter), MediaType.APPLICATION_XML), String.class);
             fail();
@@ -480,7 +480,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void create_no_password() {
         try {
             final boolean filter = false;
-            createResource(AUDIENCE, "whois/test/person")
+            RestClient.target(getPort(), "whois/test/person")
                     .request(MediaType.APPLICATION_XML)
                     .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), filter), MediaType.APPLICATION_XML), String.class);
             fail();
@@ -493,7 +493,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void create_already_exists() {
         try {
-            createResource(AUDIENCE, "whois/test/person?password=test")
+            RestClient.target(getPort(), "whois/test/person?password=test")
                     .request()
                     .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(OWNER_MNT), false), MediaType.APPLICATION_XML), String.class);
             fail();
@@ -507,7 +507,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void create_delete_method_not_allowed() {
         try {
-            createResource(AUDIENCE, "whois/test/person")
+            RestClient.target(getPort(), "whois/test/person")
                     .request()
                     .delete(String.class);
             fail();
@@ -519,7 +519,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void create_get_resource_not_found() {
         try {
-            createResource(AUDIENCE, "whois/test")
+            RestClient.target(getPort(), "whois/test")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -530,7 +530,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void create_json_request() {
-        final String response = createResource(AUDIENCE, "whois/test/person?password=test")
+        final String response = RestClient.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN), false), MediaType.APPLICATION_JSON), String.class);
 
@@ -553,7 +553,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void delete_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
-        createResource(AUDIENCE, "whois/test/person/PP1-TEST?password=test").request().delete(String.class);
+        RestClient.target(getPort(), "whois/test/person/PP1-TEST?password=test").request().delete(String.class);
         try {
             databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST");
             fail();
@@ -565,7 +565,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void delete_nonexistant() {
         try {
-            createResource(AUDIENCE, "whois/test/person/NON-EXISTANT").request().delete(String.class);
+            RestClient.target(getPort(), "whois/test/person/NON-EXISTANT").request().delete(String.class);
             fail();
         } catch (NotFoundException ignored) {
             // expected
@@ -575,7 +575,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void delete_referenced_from_other_objects() {
         try {
-            createResource(AUDIENCE, "whois/test/person/TP1-TEST?password=test").request().delete(String.class);
+            RestClient.target(getPort(), "whois/test/person/TP1-TEST?password=test").request().delete(String.class);
             fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class),
@@ -587,7 +587,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void delete_invalid_password() {
         try {
             databaseHelper.addObject(PAULETH_PALTHEN);
-            createResource(AUDIENCE, "whois/test/person/PP1-TEST?password=invalid").request().delete(String.class);
+            RestClient.target(getPort(), "whois/test/person/PP1-TEST?password=invalid").request().delete(String.class);
             fail();
         } catch (NotAuthorizedException e) {
             assertThat(e.getResponse().readEntity(String.class),
@@ -599,7 +599,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void delete_no_password() {
         try {
             databaseHelper.addObject(PAULETH_PALTHEN);
-            createResource(AUDIENCE, "whois/test/person/PP1-TEST").request().delete(String.class);
+            RestClient.target(getPort(), "whois/test/person/PP1-TEST").request().delete(String.class);
             fail();
         } catch (NotAuthorizedException e) {
             assertThat(e.getResponse().readEntity(String.class),
@@ -616,7 +616,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         final RpslObject updatedObject = new RpslObjectFilter(PAULETH_PALTHEN).addAttributes(
                 Lists.newArrayList(new RpslAttribute(AttributeType.REMARKS, "updated")));
 
-        WhoisResources response = createResource(AUDIENCE, "whois/test/person/PP1-TEST?password=test")
+        WhoisResources response = RestClient.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -650,7 +650,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                         "changed:     dbtest@ripe.net 20120101\n" +
                         "source:      TEST"));
 
-        final String response = createResource(AUDIENCE, "whois/test/mntner/OWNER2-MNT?password=%20spaces%20")
+        final String response = RestClient.target(getPort(), "whois/test/mntner/OWNER2-MNT?password=%20spaces%20")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity("<whois-resources>\n" +
                         "    <objects>\n" +
@@ -679,7 +679,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void update_path_vs_object_mismatch_objecttype() throws Exception {
         try {
             databaseHelper.addObject(PAULETH_PALTHEN);
-            createResource(AUDIENCE, "whois/test/mntner/PP1-TEST?password=test")
+            RestClient.target(getPort(), "whois/test/mntner/PP1-TEST?password=test")
                     .request(MediaType.APPLICATION_XML)
                     .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
@@ -691,7 +691,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void update_path_vs_object_mismatch_key() throws Exception {
         try {
-            createResource(AUDIENCE, "whois/test/mntner/OWNER-MNT?password=test")
+            RestClient.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test")
                     .request(MediaType.APPLICATION_XML)
                     .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
@@ -704,7 +704,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void update_without_query_params() {
         try {
             databaseHelper.addObject(PAULETH_PALTHEN);
-            createResource(AUDIENCE, "whois/test/person/PP1-TEST")
+            RestClient.target(getPort(), "whois/test/person/PP1-TEST")
                     .request(MediaType.APPLICATION_XML)
                     .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
@@ -716,7 +716,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void update_post_not_allowed() {
         try {
-            createResource(AUDIENCE, "whois/test/person/PP1-TEST?password=test")
+            RestClient.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                     .request(MediaType.APPLICATION_XML)
                     .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
             fail();
@@ -739,7 +739,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n");
 
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/aut-num/AS102/versions")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/test/aut-num/AS102/versions")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -775,7 +775,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n");
 
-        final List<WhoisVersion> versions = createResource(AUDIENCE, "whois/test/aut-num/AS102/versions")
+        final List<WhoisVersion> versions = RestClient.target(getPort(), "whois/test/aut-num/AS102/versions")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class).getVersions().getVersions();
 
@@ -820,7 +820,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n");
 
-        final List<WhoisVersion> versions = createResource(AUDIENCE, "whois/test/aut-num/AS102/versions")
+        final List<WhoisVersion> versions = RestClient.target(getPort(), "whois/test/aut-num/AS102/versions")
                 .request(MediaType.APPLICATION_JSON)
                 .get(WhoisResources.class).getVersions().getVersions();
 
@@ -855,7 +855,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         databaseHelper.addObject(autnum);
         databaseHelper.removeObject(autnum);
 
-        final List<WhoisVersion> versions = createResource(AUDIENCE, "whois/test/aut-num/AS102/versions")
+        final List<WhoisVersion> versions = RestClient.target(getPort(), "whois/test/aut-num/AS102/versions")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class).getVersions().getVersions();
 
@@ -869,7 +869,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void versions_no_versions_found() throws IOException {
         try {
-            createResource(AUDIENCE, "whois/test/aut-num/AS102/versions")
+            RestClient.target(getPort(), "whois/test/aut-num/AS102/versions")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
             fail();
@@ -891,7 +891,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST\n");
 
         try {
-            createResource(AUDIENCE, "whois/test/aut-num/AS102/versions/2")
+            RestClient.target(getPort(), "whois/test/aut-num/AS102/versions/2")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -913,7 +913,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST\n");
 
         try {
-            createResource(AUDIENCE, "whois/test/inetnum/AS102/versions/1")
+            RestClient.target(getPort(), "whois/test/inetnum/AS102/versions/1")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -934,7 +934,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
 
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/aut-num/AS102/versions/1")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/test/aut-num/AS102/versions/1")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -961,7 +961,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
 
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/test/aut-num/AS102/versions/1")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/test/aut-num/AS102/versions/1")
                 .request(MediaType.APPLICATION_JSON)
                 .get(WhoisResources.class);
 
@@ -992,7 +992,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         databaseHelper.removeObject(autnum);
 
         try {
-            createResource(AUDIENCE, "whois/test/aut-num/AS102/versions/1")
+            RestClient.target(getPort(), "whois/test/aut-num/AS102/versions/1")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -1006,7 +1006,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     @Ignore
     public void schema_int() throws Exception {
-        final String response = createResource(Audience.INTERNAL, "api-doc/whois-resources.xsd")
+        final String response = RestClient.target(getPort(), "api-doc/whois-resources.xsd")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
 
@@ -1016,7 +1016,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     @Ignore
     public void schema_ext() throws Exception {
-        final String response = createResource(Audience.PUBLIC, "api-doc/whois-resources.xsd")
+        final String response = RestClient.target(getPort(), "api-doc/whois-resources.xsd")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
 
@@ -1027,7 +1027,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_accept_application_xml() {
-        final String response = createResource(AUDIENCE, "whois/test/person/TP1-TEST")
+        final String response = RestClient.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
 
@@ -1037,7 +1037,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_accept_application_json() {
-        final String response = createResource(AUDIENCE, "whois/test/person/TP1-TEST")
+        final String response = RestClient.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
 
@@ -1049,7 +1049,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_json_extension() throws Exception {
-        final String response = createResource(AUDIENCE, "whois/test/person/TP1-TEST.json")
+        final String response = RestClient.target(getPort(), "whois/test/person/TP1-TEST.json")
                 .request()
                 .get(String.class);
         assertThat(response, containsString("\"objects\""));
@@ -1062,16 +1062,16 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     public void lookup_unfiltered_queryparameter() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
-        final String response = createResource(AUDIENCE, "whois/test/person/PP1-TEST?unfiltered=").request().get(String.class);
+        final String response = RestClient.target(getPort(), "whois/test/person/PP1-TEST?unfiltered=").request().get(String.class);
         assertThat(response, containsString("attribute name=\"e-mail\" value=\"noreply@ripe.net\""));
 
-        final String noEqualSign = createResource(AUDIENCE, "whois/test/person/PP1-TEST?unfiltered").request().get(String.class);
+        final String noEqualSign = RestClient.target(getPort(), "whois/test/person/PP1-TEST?unfiltered").request().get(String.class);
         assertThat(noEqualSign, containsString("attribute name=\"e-mail\" value=\"noreply@ripe.net\""));
 
-        final String withOtherParameters = createResource(AUDIENCE, "whois/test/person/PP1-TEST?unfiltered=true&pretty=false").request().get(String.class);
+        final String withOtherParameters = RestClient.target(getPort(), "whois/test/person/PP1-TEST?unfiltered=true&pretty=false").request().get(String.class);
         assertThat(withOtherParameters, containsString("attribute name=\"e-mail\" value=\"noreply@ripe.net\""));
 
-        final String filtered = createResource(AUDIENCE, "whois/test/person/PP1-TEST?pretty=false").request().get(String.class);
+        final String filtered = RestClient.target(getPort(), "whois/test/person/PP1-TEST?pretty=false").request().get(String.class);
         assertThat(filtered, not(containsString("attribute name=\"e-mail\" value=\"noreply@ripe.net\"")));
     }
 
@@ -1100,7 +1100,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                         "   }\n" +
                         "}";
 
-        final String response = createResource(AUDIENCE, "whois/test/mntner/OWNER-MNT?password=test")
+        final String response = RestClient.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test")
                 .request(MediaType.APPLICATION_JSON)
                 .put(Entity.entity(update, MediaType.APPLICATION_JSON), String.class);
 
@@ -1121,7 +1121,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "changed:     dbtest@ripe.net 20120101\n" +
                 "source:      TEST");
 
-        final String response = createResource(AUDIENCE, "whois/test/mntner/TEST-MNT")
+        final String response = RestClient.target(getPort(), "whois/test/mntner/TEST-MNT")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
 
@@ -1144,7 +1144,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
 
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=AS102&source=TEST")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/search?query-string=AS102&source=TEST")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1184,7 +1184,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void search_accept_json() {
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=TP1-TEST&source=TEST")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -1195,7 +1195,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void search_json_extension() {
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/search.json?query-string=TP1-TEST&source=TEST")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/search.json?query-string=TP1-TEST&source=TEST")
                 .request()
                 .get(WhoisResources.class);
 
@@ -1215,7 +1215,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:    OWNER-MNT\n" +
                 "source:    TEST\n");
 
-        final WhoisResources resources = createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB")
+        final WhoisResources resources = RestClient.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1239,7 +1239,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "source:    TEST\n");
 
         try {
-            createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST&flags=show-tag-inforG")
+            RestClient.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=show-tag-inforG")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -1251,7 +1251,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void search_invalid_flag() {
         try {
-            createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST&flags=q")
+            RestClient.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=q")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -1276,7 +1276,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
 
-        final WhoisResources whoisResources = createResource(AUDIENCE,
+        final WhoisResources whoisResources = RestClient.target(getPort(),
                 "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
@@ -1304,7 +1304,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
 
-        final WhoisResources whoisResources = createResource(AUDIENCE,
+        final WhoisResources whoisResources = RestClient.target(getPort(),
                 "whois/search?source=TEST&query-string=AS102&include-tag=foobar&include-tag=unref")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
@@ -1338,7 +1338,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST\n"));
 
         try {
-            createResource(AUDIENCE,
+            RestClient.target(getPort(),
                     "whois/search?source=TEST&query-string=AS102&include-tag=foobar")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
@@ -1365,7 +1365,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
 
         try {
-            createResource(AUDIENCE,
+            RestClient.target(getPort(),
                     "whois/search?source=TEST&query-string=AS102&exclude-tag=foobar&include-tag=unref&include-tag=other")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
@@ -1390,7 +1390,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
 
-        final WhoisResources whoisResources = createResource(AUDIENCE,
+        final WhoisResources whoisResources = RestClient.target(getPort(),
                 "whois/search?source=TEST&query-string=AS102&exclude-tag=other&include-tag=unref&include-tag=foobar")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
@@ -1413,7 +1413,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void search_no_sources_given() {
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=TP1-TEST")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/search?query-string=TP1-TEST")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1423,7 +1423,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void search_no_querystring_given() {
         try {
-            createResource(AUDIENCE, "whois/search?source=TEST")
+            RestClient.target(getPort(), "whois/search?source=TEST")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -1435,7 +1435,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void search_invalid_source() {
         try {
-            createResource(AUDIENCE, "whois/search?query-string=AS102&source=INVALID")
+            RestClient.target(getPort(), "whois/search?query-string=AS102&source=INVALID")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -1449,7 +1449,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void grs_search_invalid_source() {
         try {
-            createResource(AUDIENCE, "whois/search?query-string=AS102&source=INVALID")
+            RestClient.target(getPort(), "whois/search?query-string=AS102&source=INVALID")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -1463,7 +1463,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void search_multiple_sources() {
         try {
-            createResource(AUDIENCE, "whois/search?query-string=TP1-TEST&source=TEST&source=RIPE")
+            RestClient.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&source=RIPE")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -1483,7 +1483,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
 
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=AS102&source=TEST&type-filter=aut-num,as-block")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/search?query-string=AS102&source=TEST&type-filter=aut-num,as-block")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1516,7 +1516,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
 
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=TP1-TEST&source=TEST&inverse-attribute=admin-c,tech-c")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&inverse-attribute=admin-c,tech-c")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1569,7 +1569,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void search_flags() {
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1601,13 +1601,13 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                         "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=2001:2002:2003:2004::5&flags=Lr")
+        WhoisResources whoisResources = RestClient.target(getPort(), "whois/search?query-string=2001:2002:2003:2004::5&flags=Lr")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
-        whoisResources = createResource(AUDIENCE, "whois/search?query-string=2001:2002::/32&flags=M&flags=r")
+        whoisResources = RestClient.target(getPort(), "whois/search?query-string=2001:2002::/32&flags=M&flags=r")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1617,7 +1617,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void search_invalid_flags() {
         try {
-            createResource(AUDIENCE, "whois/search?query-string=TP1-TEST&source=TEST&flags=kq")
+            RestClient.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=kq")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -1637,7 +1637,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST-GRS\n");
 
-        final WhoisResources whoisResources = createResource(AUDIENCE, "whois/search?query-string=AS102&source=TEST-GRS")
+        final WhoisResources whoisResources = RestClient.target(getPort(), "whois/search?query-string=AS102&source=TEST-GRS")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -1673,7 +1673,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
 
-        final WhoisResources whoisResources = createResource(AUDIENCE, "" +
+        final WhoisResources whoisResources = RestClient.target(getPort(), "" +
                 "whois/search?inverse-attribute=person" +
                 "&type-filter=aut-num" +
                 "&source=test" +
@@ -1703,7 +1703,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void search_not_found() {
         try {
-            createResource(AUDIENCE, "whois/search?query-string=NONEXISTANT&source=TEST")
+            RestClient.target(getPort(), "whois/search?query-string=NONEXISTANT&source=TEST")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -1723,7 +1723,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
 
-        final String whoisResources = createResource(AUDIENCE, "whois/search?query-string=AS102&source=TEST")
+        final String whoisResources = RestClient.target(getPort(), "whois/search?query-string=AS102&source=TEST")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
 
@@ -1744,7 +1744,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
 
-        final String whoisResources = createResource(AUDIENCE, "whois/test/aut-num/AS102/versions/1")
+        final String whoisResources = RestClient.target(getPort(), "whois/test/aut-num/AS102/versions/1")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
 
@@ -1763,7 +1763,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:    OWNER-MNT\n" +
                 "source:    TEST\n");
 
-        final String resources = createResource(AUDIENCE, "whois/search?query-string=LP1-TEST&source=TEST")
+        final String resources = RestClient.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
         int start = resources.indexOf("<object type=\"person\">");
@@ -1785,7 +1785,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                         "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final String whoisResources = createResource(AUDIENCE, "whois/search?query-string=2001:2002:2003:2004::5")
+        final String whoisResources = RestClient.target(getPort(), "whois/search?query-string=2001:2002:2003:2004::5")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
 
@@ -1794,7 +1794,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void xsi_attributes_not_in_root_level_link() {
-        final String whoisResources = createResource(AUDIENCE, "whois/search?query-string=TP1-TEST&source=TEST")
+        final String whoisResources = RestClient.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST")
                 .request(MediaType.APPLICATION_XML_TYPE).get(String.class);
         assertThat(whoisResources, not(containsString("xsi:type")));
         assertThat(whoisResources, not(containsString("xmlns:xsi")));
@@ -1805,7 +1805,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void search_dont_set_content_type_on_error() {
         try {
-            createResource(AUDIENCE, "whois/search?query-string=TP1-TEST&source=INVALID")
+            RestClient.target(getPort(), "whois/search?query-string=TP1-TEST&source=INVALID")
                     .request()
                     .get(String.class);
             fail();
@@ -1819,7 +1819,7 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void non_ascii_characters_are_preserved() {
-        assertThat(createResource(AUDIENCE, "whois/test/person?password=test")
+        assertThat(RestClient.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity("{ \"objects\": { \"object\": [ {\n" +
                         "\"source\": { \"id\": \"RIPE\" },\n" +
@@ -1835,15 +1835,15 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                         "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
                         "] } } ] } }", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
 
-        assertThat(createResource(AUDIENCE, "whois/test/person/PP1-TEST")
+        assertThat(RestClient.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class), containsString("Flughafenstraße 109/a"));
 
-        assertThat(createResource(AUDIENCE, "whois/search?query-string=PP1-TEST&source=TEST")
+        assertThat(RestClient.target(getPort(), "whois/search?query-string=PP1-TEST&source=TEST")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class), containsString("Flughafenstraße 109/a"));
 
-        assertThat(createResource(AUDIENCE, "whois/test/person/PP1-TEST?password=test")
+        assertThat(RestClient.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                 .request(MediaType.APPLICATION_JSON)
                 .put(Entity.entity(
                         "{ \"objects\": { \"object\": [ {\n" +
@@ -1859,12 +1859,5 @@ public class WhoisRestServiceTestIntegration extends AbstractRestClientTest {
                                 "{ \"name\": \"remarks\", \"value\": \"updated\" },\n" +
                                 "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
                                 "] } } ] } }", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
-    }
-
-    // helper methods
-
-    @Override
-    protected WebTarget createResource(final Audience audience, final String path) {
-        return client.target(String.format("http://localhost:%d/%s", getPort(audience), path));
     }
 }

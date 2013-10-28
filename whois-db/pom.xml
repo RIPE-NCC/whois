@@ -27,6 +27,16 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-api</artifactId>
+            <!-- The reason we add this exclusion is that the common-beanutils (or commons-beanutils-core) jar
+            contain some classes which are identical and come from the commons-collections jars. The whois-api
+            module depends on commons-validator, which depends on commons-beanutils. Because we do not want
+            duplicate class problems during mvn builds we exclude the jar in the whois-api dependency. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-beanutils</groupId>
+                    <artifactId>commons-beanutils</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>

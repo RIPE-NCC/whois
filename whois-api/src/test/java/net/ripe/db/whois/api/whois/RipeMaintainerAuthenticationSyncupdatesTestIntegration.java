@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api.whois;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.AbstractRestClientTest;
-import net.ripe.db.whois.api.httpserver.Audience;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.RestClient;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -13,7 +13,6 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.Matchers.containsString;
@@ -22,9 +21,7 @@ import static org.junit.Assert.assertThat;
 
 @Ignore("TODO: ignored until WhoisProfile.isDeployed() check is removed from Authenticator")
 @Category(IntegrationTest.class)
-public class RipeMaintainerAuthenticationSyncupdatesTestIntegration extends AbstractRestClientTest {
-
-    private static final Audience AUDIENCE = Audience.PUBLIC;
+public class RipeMaintainerAuthenticationSyncupdatesTestIntegration extends AbstractIntegrationTest {
 
     @Autowired IpRanges ipRanges;
 
@@ -78,9 +75,9 @@ public class RipeMaintainerAuthenticationSyncupdatesTestIntegration extends Abst
     public void sync_update_from_outside_ripe_network() throws Exception {
         ipRanges.setTrusted("53.67.0.1");
 
-        String response = createResource(AUDIENCE, "whois/syncupdates/test")
+        String response = RestClient.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity("DATA=" + encode(RPSL_PERSON_WITH_RIPE_MAINTAINER) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+                .post(Entity.entity("DATA=" + RestClient.encode(RPSL_PERSON_WITH_RIPE_MAINTAINER) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
         assertThat(response, containsString("" +
                 "***Error:   Authentication by RIPE NCC maintainers only allowed from within the\n" +
@@ -91,17 +88,12 @@ public class RipeMaintainerAuthenticationSyncupdatesTestIntegration extends Abst
     public void sync_update_from_within_ripe_network() throws Exception {
         ipRanges.setTrusted("127.0.0.1", "::1");
 
-        String response = createResource(AUDIENCE, "whois/syncupdates/test")
+        String response = RestClient.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity("DATA=" + encode(RPSL_PERSON_WITH_RIPE_MAINTAINER) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+                .post(Entity.entity("DATA=" + RestClient.encode(RPSL_PERSON_WITH_RIPE_MAINTAINER) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
         assertThat(response, not(containsString("" +
                 "***Error:   Authentication by RIPE NCC maintainers only allowed from within the\n" +
                 "            RIPE NCC network")));
-    }
-
-    @Override
-    protected WebTarget createResource(final Audience audience, final String path) {
-        return client.target(String.format("http://localhost:%d/%s", getPort(audience), path));
     }
 }

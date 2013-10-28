@@ -317,7 +317,7 @@ public class IpTreeCacheManager {
                     public IpTreeUpdate mapRow(final ResultSet rs, final int rowNum) throws SQLException {
 
                         return new IpTreeUpdate(ROUTE6,
-                                new Ipv6Entry(Ipv6Resource.parseFromStrings(rs.getString(1), rs.getString(2), rs.getInt(3)), rs.getInt(4)).toString() + rs.getString(5),
+                                new Ipv6Entry(Ipv6Resource.parseFromStrings(rs.getString(1), rs.getString(2), rs.getInt(3)), rs.getInt(4)).getKey() + rs.getString(5),
                                 rs.getInt(4),
                                 UPDATE);
                     }

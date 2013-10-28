@@ -5,7 +5,7 @@ import com.google.common.collect.Sets
 import net.ripe.db.whois.WhoisFixture
 import net.ripe.db.whois.WhoisServer
 import net.ripe.db.whois.api.MailUpdatesTestSupport
-import net.ripe.db.whois.api.httpserver.JettyConfig
+import net.ripe.db.whois.api.httpserver.JettyBootstrap
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue
 import net.ripe.db.whois.common.DateTimeProvider
 import net.ripe.db.whois.common.Messages
@@ -40,7 +40,7 @@ class EndToEndSpec extends Specification {
     protected static DatabaseHelper databaseHelper
 
     protected static WhoisServer whoisServer
-    protected static JettyConfig jettyConfig
+    protected static JettyBootstrap jettyBootstrap
     protected static MailUpdatesTestSupport mailUpdatesTestSupport
     protected static MailSenderStub mailSenderStub
     protected static DnsGatewayStub dnsGatewayStub
@@ -71,7 +71,7 @@ class EndToEndSpec extends Specification {
         applicationContext = new ClassPathXmlApplicationContext("applicationContext-whois-test.xml")
         databaseHelper = applicationContext.getBean(DatabaseHelper.class)
         whoisServer = applicationContext.getBean(WhoisServer.class)
-        jettyConfig = applicationContext.getBean(JettyConfig.class)
+        jettyBootstrap = applicationContext.getBean(JettyBootstrap.class)
         mailUpdatesTestSupport = applicationContext.getBean(MailUpdatesTestSupport.class)
         mailSenderStub = applicationContext.getBean(MailSenderStub.class)
         dnsGatewayStub = applicationContext.getBean(DnsGatewayStub.class)
@@ -352,7 +352,7 @@ ${syncUpdate.getData()}
 <<<<<
 """
 
-        def response = WhoisFixture.syncupdate(jettyConfig, syncUpdate.getData(), syncUpdate.isHelp(), syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect(), syncUpdate.getPost(), syncUpdate.getResponseCode())
+        def response = WhoisFixture.syncupdate(jettyBootstrap, syncUpdate.getData(), syncUpdate.isHelp(), syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect(), syncUpdate.getPost(), syncUpdate.getResponseCode())
 
         print """\
 >>>>> RECEIVE SYNCUPDATE RESPONSE

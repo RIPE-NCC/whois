@@ -1,9 +1,8 @@
 package net.ripe.db.whois.api;
 
-import net.ripe.db.whois.api.httpserver.Audience;
-import net.ripe.db.whois.api.httpserver.JettyConfig;
+import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.common.ApplicationService;
-import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperTest;
+import net.ripe.db.whois.common.support.AbstractDaoTest;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +11,8 @@ import org.springframework.test.context.ContextConfiguration;
 import java.util.List;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
-public abstract class AbstractIntegrationTest extends AbstractDatabaseHelperTest {
-    @Autowired protected JettyConfig jettyConfig;
+public abstract class AbstractIntegrationTest extends AbstractDaoTest {
+    @Autowired JettyBootstrap jettyBootstrap;
     @Autowired protected List<ApplicationService> applicationServices;
 
     @Before
@@ -30,7 +29,7 @@ public abstract class AbstractIntegrationTest extends AbstractDatabaseHelperTest
         }
     }
 
-    public int getPort(final Audience audience) {
-        return jettyConfig.getPort(audience);
+    public int getPort() {
+        return jettyBootstrap.getPort();
     }
 }

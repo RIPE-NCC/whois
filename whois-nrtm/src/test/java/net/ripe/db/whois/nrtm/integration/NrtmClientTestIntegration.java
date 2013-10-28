@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +30,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
             "source: TEST");
 
     @Autowired protected NrtmImporter nrtmImporter;
+    @Autowired protected SourceContext sourceContext;
 
     @BeforeClass
     public static void beforeClass() {
