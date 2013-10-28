@@ -1,4 +1,5 @@
 package net.ripe.db.whois.spec
+
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
@@ -20,15 +21,15 @@ import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.common.support.DummyWhoisClient
 import net.ripe.db.whois.query.QueryServer
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
+import net.ripe.db.whois.spec.domain.NotificationResponse
+import net.ripe.db.whois.spec.domain.SyncUpdate
 import net.ripe.db.whois.update.dns.DnsGatewayStub
 import net.ripe.db.whois.update.mail.MailSenderStub
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.springframework.context.support.ClassPathXmlApplicationContext
-import net.ripe.db.whois.spec.domain.AckResponse
-import net.ripe.db.whois.spec.domain.Message
-import net.ripe.db.whois.spec.domain.NotificationResponse
-import net.ripe.db.whois.spec.domain.SyncUpdate
 import spock.lang.Specification
 
 import javax.mail.Address

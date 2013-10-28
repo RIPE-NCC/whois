@@ -7,7 +7,7 @@ package net.ripe.db.whois.internal.logsearch.logformat;
  */
 public abstract class LoggedUpdate implements Comparable<LoggedUpdate> {
 
-    public static enum Type {DAILY, TARRED, LEGACY};
+    public static enum Type {DAILY, TARRED, LEGACY}
 
     public abstract String getUpdateId();
     public abstract String getDate();

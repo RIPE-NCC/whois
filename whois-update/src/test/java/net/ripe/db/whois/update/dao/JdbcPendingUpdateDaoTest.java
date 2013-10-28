@@ -114,8 +114,4 @@ public class JdbcPendingUpdateDaoTest extends AbstractUpdateDaoTest {
         assertThat(pendingUpdates.get(0).getId(), is(pendingUpdate.getId()));
         assertThat(pendingUpdates.get(0).getObject(), is(pendingUpdate.getObject()));
     }
-
-    private int getPendingUpdateCount() {
-        return databaseHelper.getInternalsTemplate().queryForInt("SELECT count(*) FROM pending_updates");
-    }
 }

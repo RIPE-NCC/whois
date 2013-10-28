@@ -2,10 +2,10 @@ package net.ripe.db.whois.internal.api.acl;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.IpInterval;
-import org.mockito.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -13,7 +13,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
