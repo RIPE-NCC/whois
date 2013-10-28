@@ -552,7 +552,7 @@ public class WhoisRestService {
     private WhoisResources createWhoisResources(final HttpServletRequest request, final RpslObject rpslObject, boolean filter) {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(rpslObject, filter)));
-        whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
+        whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
         whoisResources.includeTermsAndConditions();
         return whoisResources;
     }

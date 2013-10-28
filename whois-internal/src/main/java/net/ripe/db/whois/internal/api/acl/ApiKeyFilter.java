@@ -42,7 +42,7 @@ public class ApiKeyFilter implements Filter {
         } else {
             final Iterable<String> apiKeys = getApiKeys(offeredKey, (HttpServletRequest) request);
             if (Iterables.isEmpty(apiKeys)) {
-                LOGGER.warn("Invalid API key received from {}: {} (should be {})", request.getRemoteAddr(), offeredKey, apiKeys);
+                LOGGER.warn("Invalid API key received from {}: {}", request.getRemoteAddr(), offeredKey);
                 sendError(response, HttpServletResponse.SC_FORBIDDEN, "Invalid apiKey");
             } else {
                 chain.doFilter(request, response);

@@ -75,6 +75,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         this.aclTemplate = new JdbcTemplate(aclDataSource);
     }
 
+    public JdbcTemplate getAclTemplate() {
+        return aclTemplate;
+    }
+
     @Autowired(required = false)
     @Qualifier("mailupdatesDataSource")
     public void setMailupdatesDataSource(DataSource mailupdatesDataSource) {

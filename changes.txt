@@ -1,10 +1,11 @@
 ## next
-[api] added GETter for the abuse contact creation service
-[update] mail updates not processed if they have an invalid email address, notifications failing loggingly for the same reason
-[logsearch] switched to lucene 4.4 from 4.1. TODO: re-generate index
-[api] dropped external/internal notion of servers; config port.api replaces port.api.*
 
 ## 1.70
+[update] DIFF keyword no longer supported
+[api] added service element in responses
+[api] added GETter for the abuse contact creation service
+[update] mail updates not processed if they have an invalid email address, notifications failing loggingly for the same reason
+[logsearch] switched to lucene 4.4 from 4.1.
 [query] added option --valid-syntax and --no-valid-syntax
 [query] added comment if no abuse contact registered.
 [oneshot] added autnum cleanup
@@ -13,7 +14,8 @@
 [api] moved apikeys from properties to acl database
 [api] Updated to Lucene 4.4
 [api] removed xml-related 'xlink:' prefix from locators in JSON output
-[api] normalize ip addresses.
+[api] normalize ip addresses
+[api] dropped external/internal notion of servers; config port.api replaces port.api.*
 [all] removed useless thread_id, prev_serial, serial fields and dropped unused tables from SQL schema
 [all] merged pending and scheduler databases into internals
 [all] added table authoritative_data to interals database
@@ -25,7 +27,7 @@
 [DEPLOY] run internals-1.70.sql on master before starting first 1.70
 [DEPLOY] delete var/idx before starting 1.70 (to rebuild Lucene index @ v4.4, will take 20 mins to complete).
 [DEPLOY] execute JMX call DailyScheduler.runDailyScheduledTask net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask, on the first server only
-[DEPLOY] run JMX call AuthoritativeResources.refreshCache on all servers started before AuthoritativeResourceImport finished
+[DEPLOY] run JMX call AuthoritativeResources.refreshCache on all servers started prior to AuthoritativeResourceImport
 [DEPLOY] run whois-1.70.sql after all nodes run 1.70 (warning: blocks updates & takes a long time!) (65 mins on pre-production)
 [DEPLOY] run whois-1.70.sql on all GRS databases, too
 [DEPLOY] run acl-1.70.sql script (to normalise all ACL prefixes).

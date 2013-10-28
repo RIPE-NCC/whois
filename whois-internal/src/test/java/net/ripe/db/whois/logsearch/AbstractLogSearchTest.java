@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.File;
 import java.io.IOException;
 
-public abstract 1class AbstractLogSearchTest extends AbstractInternalTest {
+public abstract class AbstractLogSearchTest extends AbstractInternalTest {
     @Autowired
     protected LogFileIndex logFileIndex;
 

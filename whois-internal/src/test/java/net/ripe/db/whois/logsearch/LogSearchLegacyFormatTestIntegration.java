@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 
 @Category(IntegrationTest.class)
 public class LogSearchLegacyFormatTestIntegration extends AbstractLogSearchTest {
@@ -60,6 +61,31 @@ public class LogSearchLegacyFormatTestIntegration extends AbstractLogSearchTest 
 
         assertThat(response, containsString("Found 2 update log(s)"));
         assertThat(response, containsString("the quick brown fox"));
+    }
+
+    @Test
+    public void legacy_log_query_does_not_return_section_separator() throws Exception {
+        String update="\n" +
+                ">>> time: Fri Jun  3 00:00:01 2011 SYNC UPDATE (78.110.160.234) <<<\n" +
+                "inetnum:        10.00.00.00 - 10.00.00.255\n" +
+                "\n" +
+                ">>> time: Fri Jun  3 00:00:02 2011 SYNC UPDATE (78.110.160.234) <<<\n" +
+                "\n" +
+                "inetnum: 78.00.00.00 - 78.110.169.223\n" +
+                "\n" +
+                ">>> time: Fri Jun  3 00:00:03 2011 SYNC UPDATE (78.110.160.234) <<<\n" +
+                "\n" +
+                "inetnum: 100.00.00.00 - 100.00.00.255\n" +
+                "\n";
+
+        LogFileHelper.createBzippedLogFile(logDirectory, "20110603", update);
+        addToIndex(logDirectory);
+
+        final String response = getUpdates("78.110.169.223");
+
+        assertThat(response, containsString(">>> time: Fri Jun  3 00:00:02 2011 SYNC UPDATE (78.110.160.234) <<<"));
+        assertThat(response, not(containsString(">>> time: Fri Jun  3 00:00:01 2011 SYNC UPDATE (78.110.160.234) <<<")));
+        assertThat(response, not(containsString(">>> time: Fri Jun  3 00:00:03 2011 SYNC UPDATE (78.110.160.234) <<<")));
     }
 
     @Test

@@ -131,17 +131,17 @@ public class LogFileSearch {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new BZip2CompressorInputStream(new FileInputStream(file))))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (count == 0) {
-                    result.append(line).append('\n');
-                }
-
                 if (LegacyLogFile.LOGSECTION_PATTERN.matcher(line).matches()) {
                     count--;
                     if (count < 0) {
-                        return result.toString();
+                       return result.toString();
                     }
                 }
+                if (count==0){
+                    result.append(line).append('\n');
+                }
             }
+
         } catch (IOException e) {
             throw new IllegalArgumentException("Error processing bzip2 archive: " + file.getAbsolutePath(), e);
         }
