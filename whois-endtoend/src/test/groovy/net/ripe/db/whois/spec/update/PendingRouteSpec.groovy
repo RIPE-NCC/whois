@@ -1,6 +1,6 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.TestDateTimeProvider
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.scheduler.task.update.PendingUpdatesCleanup
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -799,7 +799,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        ((TestDateTimeProvider) whoisFixture.getTestDateTimeProvider()).setTime(new LocalDateTime().minusWeeks(2))
+        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
         syncUpdate("""\
                 route:          192.168.0.0/16
                 descr:          Route
@@ -814,9 +814,16 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
         whoisFixture.getTestDateTimeProvider().reset()
 
+        DatabaseHelper.dumpSchema(databaseHelper.getInternalsTemplate().getDataSource())
         ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
-        def pending = send new Message(
+      then:
+        def notif2 = notificationFor "updto_owner@ripe.net"
+        notif2.subject.contains("Notification of RIPE Database pending update timeout on [route] 192.168.0.0/16AS100")
+        notif2.contents.toString().contains("NO FINAL CREATE REQUESTED FOR:")
+
+      when:
+      def pending = send new Message(
                 subject: "",
                 body: """\
                 route:          192.168.0.0/16
@@ -848,9 +855,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         def updtoPinet= notificationFor "updto_pinet@ripe.net"
         updtoPinet.subject =~ "RIPE Database updates, auth request notification"
 
-        def updtoOwner = notificationFor "updto_owner@ripe.net"
-        updtoOwner.subject =~ "Notification of RIPE Database pending update timeout on \\[route\\] 192.168.0.0/16AS100"
-
         noMoreMessages()
 
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
@@ -868,7 +872,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        ((TestDateTimeProvider) dateTimeProvider).setTime(new LocalDateTime().minusWeeks(2))
+        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
         syncUpdate("""\
                 route:          192.168.0.0/16
                 descr:          Route
@@ -883,8 +887,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
         whoisFixture.getTestDateTimeProvider().reset()
 
+        DatabaseHelper.dumpSchema(databaseHelper.getInternalsTemplate().getDataSource())
         ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
-
 
       then:
         def notif2 = notificationFor "updto_owner@ripe.net"
