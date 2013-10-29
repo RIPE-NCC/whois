@@ -34,7 +34,7 @@ public class WhoisObjectMapper {
     private final String baseUrl;
 
     @Autowired
-    public WhoisObjectMapper(final ReferencedTypeResolver referencedTypeResolver, @Value("${api.rest.lookup.baseurl}") final String baseUrl) {
+    public WhoisObjectMapper(final ReferencedTypeResolver referencedTypeResolver, @Value("${api.rest.baseurl}") final String baseUrl) {
         this.referencedTypeResolver = referencedTypeResolver;
         this.baseUrl = baseUrl;
     }

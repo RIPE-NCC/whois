@@ -16,6 +16,7 @@
 [api] removed xml-related 'xlink:' prefix from locators in JSON output
 [api] normalize ip addresses
 [api] dropped external/internal notion of servers; config port.api replaces port.api.*
+[api] changed api.rest.lookup.baseurl to api.rest.baseurl
 [all] removed useless thread_id, prev_serial, serial fields and dropped unused tables from SQL schema
 [all] merged pending and scheduler databases into internals
 [all] added table authoritative_data to interals database
