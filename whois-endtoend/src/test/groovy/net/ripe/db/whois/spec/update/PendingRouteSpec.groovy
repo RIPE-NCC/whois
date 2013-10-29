@@ -1094,4 +1094,113 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
         noMoreMessages()
     }
+
+    def "create route, mnt-by & ASN pw supplied, then p inet pw supplied for different mb, then ASN pw supplied for different mb, then pinet supplied for first"() {
+        given:
+        databaseHelper.addObject(getTransient("PARENT-INET"));
+        databaseHelper.addObject(getTransient("AS100"));
+
+        expect:
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        when:
+        syncUpdate("""\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   as
+                """.stripIndent())
+
+        def pending = send new Message(
+                subject: "",
+                body: """\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                password:   pinet
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor pending
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 2)
+        ack.successes.any { it.operation == "Create PENDING" && it.key == "[route] 192.168.0.0/16AS100" }
+
+        def notif = notificationFor "updto_as@ripe.net"
+        notif.subject =~ "RIPE Database updates, auth request notification"
+
+        noMoreMessages()
+
+        when:
+        def pending2 = send new Message(
+                subject: "",
+                body: """\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   as
+                """.stripIndent()
+        )
+
+        then:
+        def ack2 = ackFor pending2
+
+        ack2.summary.nrFound == 1
+        ack2.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack2.summary.assertErrors(0, 0, 0, 0)
+        ack2.countErrorWarnInfo(0, 0, 1)
+        ack2.successes.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+
+        def notif2 = notificationFor "mntnfy_lir@ripe.net"
+        notif2.subject =~ "Notification of RIPE Database changes"
+
+        noMoreMessages()
+
+        when:
+        def pending3 = send new Message(
+                subject: "",
+                body: """\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   pinet
+                """.stripIndent()
+        )
+
+        then:
+        def ack3 = ackFor pending3
+
+        ack3.summary.nrFound == 1
+        ack3.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack3.summary.assertErrors(0, 0, 0, 0)
+        ack3.countErrorWarnInfo(0, 0, 1)
+        ack3.successes.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+
+        def notif3 = notificationFor "mntnfy_owner@ripe.net"
+        notif3.subject =~ "Notification of RIPE Database changes"
+
+        noMoreMessages()
+    }
 }
