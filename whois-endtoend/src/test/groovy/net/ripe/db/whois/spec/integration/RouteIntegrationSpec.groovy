@@ -1176,8 +1176,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create FAILED: \[route\] 212.166.64.0\/19AS456\n/
         response =~ /Authorisation for \[aut-num\] AS456 failed\n\s+using "mnt-routes:"\n\s+not authenticated by: ROUTES-MNT\n/
 
-        System.err.println(response)
-
         notificationFor("dbtest@ripe.net").authFailed("CREATE", "route", "212.166.64.0/19")
         noMoreMessages()
 

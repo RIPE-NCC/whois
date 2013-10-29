@@ -32,7 +32,6 @@ public class RestTest {
         final String format = String.format("http://localhost:%d/%s?%sapiKey=%s", port, path,
                 StringUtils.isBlank(queryParam) ? "" : queryParam + "&",
                 encode(apiKey));
-        System.err.println(format);
         return client.target(format);
     }
 
