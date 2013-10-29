@@ -6,8 +6,10 @@ import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import net.ripe.db.whois.internal.api.RestClient;
@@ -42,6 +44,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Autowired private AbuseCService abuseCService;
     @Autowired private RestClient restClient;
+
     private ClassPathXmlApplicationContext applicationContext;
     private Collection<ApplicationService> applicationServices;
 
@@ -66,6 +69,9 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
         databaseHelperRest.setup();
         databaseHelperRest.insertApiKey(apiKey, "/api/abusec", "abuse-c automagic creation");
+
+        databaseHelperRest.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.values()));
+        abuseCService.setOverride("agoston,zoh");
     }
 
     @After

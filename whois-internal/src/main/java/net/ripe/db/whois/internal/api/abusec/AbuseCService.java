@@ -7,6 +7,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.api.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,7 @@ import java.util.List;
 @Component
 @Path("/abusec")
 public class AbuseCService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbuseCService.class);
 
     public static final String ABUSEC_SERVICE = "abuseCService";
 
@@ -45,10 +48,10 @@ public class AbuseCService {
 
         RpslObject organisation;
         try {
-            organisation = restClient.read(ObjectType.ORGANISATION, orgkey);
+            organisation = restClient.lookup(ObjectType.ORGANISATION, orgkey);
         } catch (Exception e) {
             // TODO: check for specific exception
-            e.printStackTrace();
+            LOGGER.error("exception", e);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
@@ -59,15 +62,18 @@ public class AbuseCService {
             // abuse mailbox not found, continue
         }
 
-        final RpslObject role = createAbuseCRole(organisation, email);
+        try {
+            final RpslObject role = createAbuseCRole(organisation, email);
+            final RpslObject createdRole = restClient.create(role, String.format("%s,%s", override, ABUSEC_SERVICE));
+            final RpslObject updatedOrganisation = createOrganisationWithAbuseCAttribute(organisation, createdRole.getKey().toString());
 
-        final RpslObject createdRole = restClient.create(role, String.format("%s,%s", override, ABUSEC_SERVICE));
+            restClient.update(updatedOrganisation, String.format("%s,%s", override, ABUSEC_SERVICE));
 
-        final RpslObject updatedOrganisation = createOrganisationWithAbuseCAttribute(organisation, createdRole.getKey().toString());
-
-        restClient.update(updatedOrganisation, String.format("%s,%s", override, ABUSEC_SERVICE));
-
-        return Response.ok(String.format("http://apps.db.ripe.net/search/lookup.html?source=ripe&key=%s&type=ORGANISATION", orgkey)).build();
+            return Response.ok(String.format("http://apps.db.ripe.net/search/lookup.html?source=ripe&key=%s&type=ORGANISATION", orgkey)).build();
+        } catch (Exception e) {
+            LOGGER.error("exception", e);
+        }
+        return null;
     }
 
     @GET
@@ -75,7 +81,7 @@ public class AbuseCService {
     @Produces(MediaType.TEXT_PLAIN)
     public Response lookupAbuseContact(@PathParam("orgkey") final String orgKey) {
         try {
-            final RpslObject organisation = restClient.read(ObjectType.ORGANISATION, orgKey);
+            final RpslObject organisation = restClient.lookup(ObjectType.ORGANISATION, orgKey);
             try {
                 final CIString abuseMailbox = lookupAbuseMailbox(organisation);
                 return Response.ok(abuseMailbox.toString()).build();
@@ -83,15 +89,15 @@ public class AbuseCService {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
         } catch (Exception e) {
-            e.printStackTrace();
             // TODO: check for specific exception
+            LOGGER.error("exception", e);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
 
     private CIString lookupAbuseMailbox(final RpslObject organisation) {
         final String abuseRoleName = organisation.getValueForAttribute(AttributeType.ABUSE_C).toString();
-        final RpslObject abuseRole = restClient.read(ObjectType.ROLE, abuseRoleName);
+        final RpslObject abuseRole = restClient.lookup(ObjectType.ROLE, abuseRoleName);
         return abuseRole.getValueForAttribute(AttributeType.ABUSE_MAILBOX);
     }
 
