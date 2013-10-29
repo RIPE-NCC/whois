@@ -7,18 +7,24 @@ import net.ripe.db.whois.api.whois.WhoisObjectMapper;
 import net.ripe.db.whois.api.whois.domain.WhoisResources;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 @Component
-public class RestClient {
+public final class RestClient {
     private static final Client client;
+    private final String restApiUrl;
+    private final String sourceName;
+    private final WhoisObjectMapper whoisObjectMapper;
 
     static {
         final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
@@ -30,32 +36,52 @@ public class RestClient {
                 .build();
     }
 
-    private String restApiUrl;
-    private final WhoisObjectMapper whoisObjectMapper;
-
-    public RestClient() {
+    @Autowired
+    public RestClient(
+            @Value("${api.rest.baseurl}") final String restApiUrl,
+            @Value("${whois.source}") final String sourceName) {
         this.whoisObjectMapper = new WhoisObjectMapper(null, restApiUrl);
-    }
-
-    @Value("${api.rest.baseurl}")
-    public void setRestApiUrl(String restApiUrl) {
         this.restApiUrl = restApiUrl;
+        this.sourceName = sourceName;
     }
 
-    public final RpslObject lookup(ObjectType objectType, String pkey) {
-        final WhoisResources whoisResources = client.target(String.format("%s/ripe/%s/%s", restApiUrl, objectType.getName(), pkey)).request().get(WhoisResources.class);
-        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
-    }
-
-    public final RpslObject create(RpslObject rpslObject, String override) {
-        final WhoisResources whoisResources = client.target(String.format("%s/ripe/%s?override=%s", restApiUrl, rpslObject.getType().getName(), override)).request()
+    public RpslObject create(final RpslObject rpslObject, final String override) {
+        final WhoisResources whoisResources = target(rpslObject.getType().getName(), override)
+                .request()
                 .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
         return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
-    public final RpslObject update(RpslObject rpslObject, String override) {
-        final WhoisResources whoisResources = client.target(String.format("%s/ripe/%s/%s?override=%s", restApiUrl, rpslObject.getType().getName(), rpslObject.getKey(), override)).request()
+    public RpslObject read(final ObjectType objectType, final String pkey) {
+        final WhoisResources whoisResources = target(objectType.getName(), pkey)
+                .request()
+                .get(WhoisResources.class);
+        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+    }
+
+    public RpslObject update(final RpslObject rpslObject, final String override) {
+        final WhoisResources whoisResources = target(rpslObject.getType().getName(), rpslObject.getKey().toString(), override)
+                .request()
                 .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
         return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+    }
+
+    public void delete(final RpslObject rpslObject, final String override) {
+        target(rpslObject.getType().getName(), rpslObject.getKey().toString(), override)
+                    .request()
+                    .delete(String.class);
+    }
+
+    private WebTarget target(final String objectType, final String objectKey) {
+        return target(objectType, objectKey, null);
+    }
+
+    private WebTarget target(final String objectType, final String objectKey, final String override) {
+       return client.target(String.format("%s/%s/%s/%s%s",
+               restApiUrl,
+               sourceName,
+               objectType,
+               objectKey,
+               StringUtils.isNotEmpty(override) ? String.format("?%s", override) : ""));
     }
 }

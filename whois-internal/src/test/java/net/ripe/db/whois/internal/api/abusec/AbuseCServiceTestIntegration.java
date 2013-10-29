@@ -40,7 +40,7 @@ import static org.junit.Assert.fail;
 public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Autowired AbuseCService abuseCService;
-    @Autowired RestClient restClient;
+    private RestClient restClient;
     private ClassPathXmlApplicationContext applicationContext;
     private Collection<ApplicationService> applicationServices;
 
@@ -55,7 +55,9 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
             if (applicationService instanceof JettyBootstrap) {
                 final int port = ((JettyBootstrap) applicationService).getPort();
-                restClient.setRestApiUrl(String.format("http:///localhost:%d/whois", port));
+                final String url = String.format("http://localhost:%d/whois", port);
+                final String sourceName = "TEST";
+                restClient = new RestClient(url, sourceName);
             }
         }
     }

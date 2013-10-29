@@ -20,7 +20,8 @@ import java.util.List;
 @Path("/abusec")
 public class AbuseCService {
 
-    public static final String ABUSE_CSERVICE = "abuseCService";
+    public static final String ABUSEC_SERVICE = "abuseCService";
+
     private final RestClient restClient;
     private String override;
 
@@ -42,9 +43,9 @@ public class AbuseCService {
             @PathParam("orgkey") final String orgkey,
             @FormParam("email") final String email) {
 
-        RpslObject organisation = null;
+        RpslObject organisation;
         try {
-            organisation = restClient.lookup(ObjectType.ORGANISATION, orgkey);
+            organisation = restClient.read(ObjectType.ORGANISATION, orgkey);
         } catch (Exception e) {
             // TODO: check for specific exception
             e.printStackTrace();
@@ -60,11 +61,11 @@ public class AbuseCService {
 
         final RpslObject role = createAbuseCRole(organisation, email);
 
-        final RpslObject createdRole = restClient.create(role, String.format("%s,%s", override, ABUSE_CSERVICE));
+        final RpslObject createdRole = restClient.create(role, String.format("%s,%s", override, ABUSEC_SERVICE));
 
         final RpslObject updatedOrganisation = createOrganisationWithAbuseCAttribute(organisation, createdRole.getKey().toString());
 
-        restClient.update(updatedOrganisation, String.format("%s,%s", override, ABUSE_CSERVICE));
+        restClient.update(updatedOrganisation, String.format("%s,%s", override, ABUSEC_SERVICE));
 
         return Response.ok(String.format("http://apps.db.ripe.net/search/lookup.html?source=ripe&key=%s&type=ORGANISATION", orgkey)).build();
     }
@@ -74,7 +75,7 @@ public class AbuseCService {
     @Produces(MediaType.TEXT_PLAIN)
     public Response lookupAbuseContact(@PathParam("orgkey") final String orgKey) {
         try {
-            final RpslObject organisation = restClient.lookup(ObjectType.ORGANISATION, orgKey);
+            final RpslObject organisation = restClient.read(ObjectType.ORGANISATION, orgKey);
             try {
                 final CIString abuseMailbox = lookupAbuseMailbox(organisation);
                 return Response.ok(abuseMailbox.toString()).build();
@@ -90,13 +91,13 @@ public class AbuseCService {
 
     private CIString lookupAbuseMailbox(final RpslObject organisation) {
         final String abuseRoleName = organisation.getValueForAttribute(AttributeType.ABUSE_C).toString();
-        final RpslObject abuseRole = restClient.lookup(ObjectType.ROLE, abuseRoleName);
+        final RpslObject abuseRole = restClient.read(ObjectType.ROLE, abuseRoleName);
         return abuseRole.getValueForAttribute(AttributeType.ABUSE_MAILBOX);
     }
 
     private RpslObject createAbuseCRole(final RpslObject organisation, final String abuseMailbox) {
         final List<RpslAttribute> attributes = Lists.newArrayList();
-        attributes.add(new RpslAttribute(AttributeType.ROLE, "Abuse-c Role"));
+        attributes.add(new RpslAttribute(AttributeType.ROLE, "Abuse-C Role"));
         attributes.add(new RpslAttribute(AttributeType.NIC_HDL, "AUTO-1"));
         attributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseMailbox));
         for (RpslAttribute mntRef : organisation.findAttributes(AttributeType.MNT_REF)) {
