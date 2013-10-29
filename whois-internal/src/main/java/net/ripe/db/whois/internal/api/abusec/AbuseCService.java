@@ -27,10 +27,12 @@ public class AbuseCService {
 
     private final RestClient restClient;
     private String override;
+    private String sourceName;
 
     @Autowired
-    public AbuseCService(RestClient restClient) {
+    public AbuseCService(RestClient restClient, @Value("${whois.source}") String sourceName) {
         this.restClient = restClient;
+        this.sourceName = sourceName;
     }
 
     @Value("${api.rest.override}")
@@ -69,7 +71,7 @@ public class AbuseCService {
 
             restClient.update(updatedOrganisation, String.format("%s,%s", override, ABUSEC_SERVICE));
 
-            return Response.ok(String.format("http://apps.db.ripe.net/search/lookup.html?source=ripe&key=%s&type=ORGANISATION", orgkey)).build();
+            return Response.ok(String.format("http://apps.db.ripe.net/search/lookup.html?source=%s&key=%s&type=ORGANISATION", sourceName, orgkey)).build();
         } catch (Exception e) {
             LOGGER.error("exception", e);
         }

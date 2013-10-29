@@ -116,26 +116,26 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void post_organisation_abusec_role_already_exists() throws IOException {
-        databaseHelperRest.addObject(
+        databaseHelperRest.addObject("" +
                 "mntner:        TEST-MNT\n" +
-                        "mnt-by:        TEST-MNT\n" +
-                        "source:        TEST");
-        databaseHelperRest.addObject(
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+        databaseHelperRest.addObject("" +
                 "role:          Abuse Contact\n" +
-                        "nic-hdl:       tst-nic\n" +
-                        "abuse-mailbox: abuse@test.net\n" +
-                        "source:        TEST");
-        databaseHelperRest.addObject(
+                "nic-hdl:       tst-nic\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "source:        TEST");
+        databaseHelperRest.addObject("" +
                 "organisation:  ORG-TOL1-TEST\n" +
-                        "org-name:      Test Organisation Left\n" +
-                        "org-type:      OTHER\n" +
-                        "address:       street\n" +
-                        "abuse-c:       tst-nic\n" +
-                        "e-mail:        some@email.net\n" +
-                        "mnt-ref:       TEST-MNT\n" +
-                        "mnt-by:        TEST-MNT\n" +
-                        "changed:       denis@ripe.net 20121016\n" +
-                        "source:        TEST");
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "abuse-c:       tst-nic\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       TEST-MNT\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
 
         try {
             RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
@@ -162,24 +162,24 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void post_organisation_without_abusec_role_has_ripe_mntner() {
-        databaseHelperRest.addObject(
+        databaseHelperRest.addObject("" +
                 "mntner:    TEST-MNT\n" +
-                        "mnt-by:    TEST-MNT\n" +
-                        "source:    TEST");
-        databaseHelperRest.addObject(
+                "mnt-by:    TEST-MNT\n" +
+                "source:    TEST");
+        databaseHelperRest.addObject("" +
                 "mntner:    RIPE-NCC-HM-MNT\n" +
-                        "mnt-by:    RIPE-NCC-HM-MNT\n" +
-                        "source:    TEST");
-        databaseHelperRest.addObject(
+                "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                "source:    TEST");
+        databaseHelperRest.addObject("" +
                 "organisation:  ORG-TOL1-TEST\n" +
-                        "org-name:      Test Organisation Left\n" +
-                        "org-type:      OTHER\n" +
-                        "address:       street\n" +
-                        "e-mail:        some@email.net\n" +
-                        "mnt-ref:       TEST-MNT\n" +
-                        "mnt-by:        RIPE-NCC-HM-MNT\n" +
-                        "changed:       denis@ripe.net 20121016\n" +
-                        "source:        TEST");
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       TEST-MNT\n" +
+                "mnt-by:        RIPE-NCC-HM-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
 
         final String result = RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
                 .request(MediaType.TEXT_PLAIN)
@@ -190,25 +190,26 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void get_abusecontact_exists() {
-        databaseHelperRest.addObject(
+        databaseHelperRest.addObject("" +
                 "mntner:        TEST-MNT\n" +
-                        "mnt-by:        TEST-MNT\n" +
-                        "source:        TEST");
-        databaseHelperRest.addObject(
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+        databaseHelperRest.addObject("" +
                 "role:          Abuse Contact\n" +
-                        "nic-hdl:       tst-nic\n" +
-                        "abuse-mailbox: abuse@test.net");
-        databaseHelperRest.addObject(
+                "nic-hdl:       tst-nic\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "source:        TEST");
+        databaseHelperRest.addObject("" +
                 "organisation:  ORG-TOL1-TEST\n" +
-                        "org-name:      Test Organisation Left\n" +
-                        "org-type:      OTHER\n" +
-                        "address:       street\n" +
-                        "abuse-c:       tst-nic\n" +
-                        "e-mail:        some@email.net\n" +
-                        "mnt-ref:       TEST-MNT\n" +
-                        "mnt-by:        TEST-MNT\n" +
-                        "changed:       denis@ripe.net 20121016\n" +
-                        "source:        TEST");
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "abuse-c:       tst-nic\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       TEST-MNT\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
 
         final String result = RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
                 .request(MediaType.TEXT_PLAIN)
