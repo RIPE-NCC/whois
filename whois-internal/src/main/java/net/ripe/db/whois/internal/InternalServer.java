@@ -27,7 +27,7 @@ public class InternalServer {
         final Stopwatch stopwatch = new Stopwatch().start();
         WhoisProfile.setDeployed();
 
-        final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("applicationContext-internal-base.xml", "applicationContext-internal.xml");
+        final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("applicationContext-internal.xml");
 
         final InternalServer logSearchServer = applicationContext.getBean(InternalServer.class);
         Runtime.getRuntime().addShutdownHook(new Thread() {
