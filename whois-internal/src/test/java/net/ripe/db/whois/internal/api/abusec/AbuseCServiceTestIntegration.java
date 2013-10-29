@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.AbstractInternalTest;
@@ -45,6 +46,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Before
     public void startRestServer() {
+        WhoisProfile.setEndtoend();
         applicationContext = new ClassPathXmlApplicationContext("applicationContext-api-test.xml");
         applicationServices = applicationContext.getBeansOfType(ApplicationService.class).values();
 
