@@ -4,6 +4,7 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -44,10 +45,13 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
     private ClassPathXmlApplicationContext applicationContext;
     private Collection<ApplicationService> applicationServices;
 
+    protected DatabaseHelper databaseHelperRest;
+
     @Before
     public void startRestServer() {
         WhoisProfile.setEndtoend();
         applicationContext = new ClassPathXmlApplicationContext("applicationContext-api-test.xml");
+        databaseHelperRest = applicationContext.getBean(DatabaseHelper.class);
         applicationServices = applicationContext.getBeansOfType(ApplicationService.class).values();
 
         for (final ApplicationService applicationService : applicationServices) {
@@ -78,29 +82,29 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void post_abusec_role_created_for_organisation_without_abusec() throws IOException {
-        databaseHelper.addObject(
+        databaseHelperRest.addObject(
                 "mntner:    TEST-MNT\n" +
-                "mnt-by:    TEST-MNT\n" +
-                "source:    TEST");
-        databaseHelper.addObject(
+                        "mnt-by:    TEST-MNT\n" +
+                        "source:    TEST");
+        databaseHelperRest.addObject(
                 "organisation:  ORG-TOL1-TEST\n" +
-                "org-name:      Test Organisation Left\n" +
-                "org-type:      OTHER\n" +
-                "address:       street\n" +
-                "e-mail:        some@email.net\n" +
-                "mnt-ref:       TEST-MNT\n" +
-                "mnt-by:        TEST-MNT\n" +
-                "changed:       denis@ripe.net 20121016\n" +
-                "source:        TEST");
+                        "org-name:      Test Organisation Left\n" +
+                        "org-type:      OTHER\n" +
+                        "address:       street\n" +
+                        "e-mail:        some@email.net\n" +
+                        "mnt-ref:       TEST-MNT\n" +
+                        "mnt-by:        TEST-MNT\n" +
+                        "changed:       denis@ripe.net 20121016\n" +
+                        "source:        TEST");
 
         final String response = RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
                 .request(MediaType.TEXT_PLAIN)
                 .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
         assertThat(response, containsString("http://apps.db.ripe.net/search/lookup.html?source=TEST&key=ORG-TOL1-TEST&type=ORGANISATION"));
-        final RpslObject organisation = databaseHelper.lookupObject(ORGANISATION, "ORG-TOL1-TEST");
+        final RpslObject organisation = databaseHelperRest.lookupObject(ORGANISATION, "ORG-TOL1-TEST");
         assertThat(organisation.getValueForAttribute(AttributeType.ABUSE_C), is(CIString.ciString("AR1-TEST")));
-        final RpslObject role = databaseHelper.lookupObject(ROLE, "AR1-TEST");
+        final RpslObject role = databaseHelperRest.lookupObject(ROLE, "AR1-TEST");
         assertThat(role.getValueForAttribute(ABUSE_MAILBOX), is(CIString.ciString("email@email.net")));
         assertThat(role.findAttribute(ADDRESS), is(organisation.findAttribute(ADDRESS)));
         assertThat(role.findAttribute(E_MAIL), is(organisation.findAttribute(E_MAIL)));
@@ -109,26 +113,26 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void post_organisation_abusec_role_already_exists() throws IOException {
-        databaseHelper.addObject(
+        databaseHelperRest.addObject(
                 "mntner:        TEST-MNT\n" +
-                "mnt-by:        TEST-MNT\n" +
-                "source:        TEST");
-        databaseHelper.addObject(
+                        "mnt-by:        TEST-MNT\n" +
+                        "source:        TEST");
+        databaseHelperRest.addObject(
                 "role:          Abuse Contact\n" +
-                "nic-hdl:       tst-nic\n" +
-                "abuse-mailbox: abuse@test.net\n" +
-                "source:        TEST");
-        databaseHelper.addObject(
+                        "nic-hdl:       tst-nic\n" +
+                        "abuse-mailbox: abuse@test.net\n" +
+                        "source:        TEST");
+        databaseHelperRest.addObject(
                 "organisation:  ORG-TOL1-TEST\n" +
-                "org-name:      Test Organisation Left\n" +
-                "org-type:      OTHER\n" +
-                "address:       street\n" +
-                "abuse-c:       tst-nic\n" +
-                "e-mail:        some@email.net\n" +
-                "mnt-ref:       TEST-MNT\n" +
-                "mnt-by:        TEST-MNT\n" +
-                "changed:       denis@ripe.net 20121016\n" +
-                "source:        TEST");
+                        "org-name:      Test Organisation Left\n" +
+                        "org-type:      OTHER\n" +
+                        "address:       street\n" +
+                        "abuse-c:       tst-nic\n" +
+                        "e-mail:        some@email.net\n" +
+                        "mnt-ref:       TEST-MNT\n" +
+                        "mnt-by:        TEST-MNT\n" +
+                        "changed:       denis@ripe.net 20121016\n" +
+                        "source:        TEST");
 
         try {
             RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
@@ -155,24 +159,24 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void post_organisation_without_abusec_role_has_ripe_mntner() {
-        databaseHelper.addObject(
+        databaseHelperRest.addObject(
                 "mntner:    TEST-MNT\n" +
-                "mnt-by:    TEST-MNT\n" +
-                "source:    TEST");
-        databaseHelper.addObject(
+                        "mnt-by:    TEST-MNT\n" +
+                        "source:    TEST");
+        databaseHelperRest.addObject(
                 "mntner:    RIPE-NCC-HM-MNT\n" +
-                "mnt-by:    RIPE-NCC-HM-MNT\n" +
-                "source:    TEST");
-        databaseHelper.addObject(
+                        "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                        "source:    TEST");
+        databaseHelperRest.addObject(
                 "organisation:  ORG-TOL1-TEST\n" +
-                "org-name:      Test Organisation Left\n" +
-                "org-type:      OTHER\n" +
-                "address:       street\n" +
-                "e-mail:        some@email.net\n" +
-                "mnt-ref:       TEST-MNT\n" +
-                "mnt-by:        RIPE-NCC-HM-MNT\n" +
-                "changed:       denis@ripe.net 20121016\n" +
-                "source:        TEST");
+                        "org-name:      Test Organisation Left\n" +
+                        "org-type:      OTHER\n" +
+                        "address:       street\n" +
+                        "e-mail:        some@email.net\n" +
+                        "mnt-ref:       TEST-MNT\n" +
+                        "mnt-by:        RIPE-NCC-HM-MNT\n" +
+                        "changed:       denis@ripe.net 20121016\n" +
+                        "source:        TEST");
 
         final String result = RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
                 .request(MediaType.TEXT_PLAIN)
@@ -183,25 +187,25 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void get_abusecontact_exists() {
-        databaseHelper.addObject(
+        databaseHelperRest.addObject(
                 "mntner:        TEST-MNT\n" +
-                "mnt-by:        TEST-MNT\n" +
-                "source:        TEST");
-        databaseHelper.addObject(
+                        "mnt-by:        TEST-MNT\n" +
+                        "source:        TEST");
+        databaseHelperRest.addObject(
                 "role:          Abuse Contact\n" +
-                "nic-hdl:       tst-nic\n" +
-                "abuse-mailbox: abuse@test.net");
-        databaseHelper.addObject(
+                        "nic-hdl:       tst-nic\n" +
+                        "abuse-mailbox: abuse@test.net");
+        databaseHelperRest.addObject(
                 "organisation:  ORG-TOL1-TEST\n" +
-                "org-name:      Test Organisation Left\n" +
-                "org-type:      OTHER\n" +
-                "address:       street\n" +
-                "abuse-c:       tst-nic\n" +
-                "e-mail:        some@email.net\n" +
-                "mnt-ref:       TEST-MNT\n" +
-                "mnt-by:        TEST-MNT\n" +
-                "changed:       denis@ripe.net 20121016\n" +
-                "source:        TEST");
+                        "org-name:      Test Organisation Left\n" +
+                        "org-type:      OTHER\n" +
+                        "address:       street\n" +
+                        "abuse-c:       tst-nic\n" +
+                        "e-mail:        some@email.net\n" +
+                        "mnt-ref:       TEST-MNT\n" +
+                        "mnt-by:        TEST-MNT\n" +
+                        "changed:       denis@ripe.net 20121016\n" +
+                        "source:        TEST");
 
         final String result = RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
                 .request(MediaType.TEXT_PLAIN)
@@ -213,20 +217,20 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void get_abusecontact_not_found() {
-        databaseHelper.addObject(
+        databaseHelperRest.addObject(
                 "mntner:    TEST-MNT\n" +
-                "mnt-by:    TEST-MNT\n" +
-                "source:    TEST");
-        databaseHelper.addObject(
+                        "mnt-by:    TEST-MNT\n" +
+                        "source:    TEST");
+        databaseHelperRest.addObject(
                 "organisation:  ORG-TOL1-TEST\n" +
-                "org-name:      Test Organisation Left\n" +
-                "org-type:      OTHER\n" +
-                "address:       street\n" +
-                "e-mail:        some@email.net\n" +
-                "mnt-ref:       TEST-MNT\n" +
-                "mnt-by:        TEST-MNT\n" +
-                "changed:       denis@ripe.net 20121016\n" +
-                "source:        TEST");
+                        "org-name:      Test Organisation Left\n" +
+                        "org-type:      OTHER\n" +
+                        "address:       street\n" +
+                        "e-mail:        some@email.net\n" +
+                        "mnt-ref:       TEST-MNT\n" +
+                        "mnt-by:        TEST-MNT\n" +
+                        "changed:       denis@ripe.net 20121016\n" +
+                        "source:        TEST");
 
         try {
             RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
