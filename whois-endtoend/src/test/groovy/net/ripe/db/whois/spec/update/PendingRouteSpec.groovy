@@ -786,10 +786,12 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         databaseHelper.addObject(getTransient("AS100"));
 
       expect:
+        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
+        queryObject("-rGBT inetnum 192.168.0.0", "inetnum", "192.168.0.0 - 192.169.255.255")
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        ((TestDateTimeProvider) dateTimeProvider).setTime(new LocalDateTime().minusWeeks(2))
+        ((TestDateTimeProvider) whoisFixture.getTestDateTimeProvider()).setTime(new LocalDateTime().minusWeeks(2))
         syncUpdate("""\
                 route:          192.168.0.0/16
                 descr:          Route
@@ -802,9 +804,9 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 password:   pinet
                 """.stripIndent())
 
-        ((TestDateTimeProvider) dateTimeProvider).reset()
+        whoisFixture.getTestDateTimeProvider().reset()
 
-        ((PendingUpdatesCleanup)applicationContext.getBean("pendingUpdatesCleanup")).run()
+        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
         def pending = send new Message(
                 subject: "",
@@ -853,6 +855,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         databaseHelper.addObject(getTransient("AS100"));
 
       expect:
+        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
+        queryObject("-rGBT inetnum 192.168.0.0", "inetnum", "192.168.0.0 - 192.169.255.255")
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
@@ -869,9 +873,9 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 password:   as
                 """.stripIndent())
 
-        ((TestDateTimeProvider) dateTimeProvider).reset()
+        whoisFixture.getTestDateTimeProvider().reset()
 
-        ((PendingUpdatesCleanup)applicationContext.getBean("pendingUpdatesCleanup")).run()
+        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
 
       then:
@@ -917,6 +921,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         databaseHelper.addObject(getTransient("AS100"));
 
       expect:
+        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
+        queryObject("-rGBT inetnum 192.168.0.0", "inetnum", "192.168.0.0 - 192.169.255.255")
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
@@ -968,6 +974,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         databaseHelper.addObject(getTransient("AS100"));
 
       expect:
+        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
+        queryObject("-rGBT inetnum 192.168.0.0", "inetnum", "192.168.0.0 - 192.169.255.255")
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
@@ -1010,6 +1018,9 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         notif.subject =~ "Notification of RIPE Database changes"
 
         noMoreMessages()
+
+        queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "mnt-by", "OWNER-MNT  #endoflinecomment")
     }
 
     def "create route, mnt-by & ASN pw supplied, then p inet pw supplied for same-but-different, then ASN pw supplied for same-but-different"() {
@@ -1018,6 +1029,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         databaseHelper.addObject(getTransient("AS100"));
 
       expect:
+        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
+        queryObject("-rGBT inetnum 192.168.0.0", "inetnum", "192.168.0.0 - 192.169.255.255")
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
@@ -1101,6 +1114,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         databaseHelper.addObject(getTransient("AS100"));
 
         expect:
+        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
+        queryObject("-rGBT inetnum 192.168.0.0", "inetnum", "192.168.0.0 - 192.169.255.255")
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
         when:

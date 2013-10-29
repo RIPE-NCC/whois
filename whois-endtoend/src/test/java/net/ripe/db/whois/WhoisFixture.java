@@ -393,4 +393,8 @@ public class WhoisFixture {
     public TestDateTimeProvider getTestDateTimeProvider() {
         return testDateTimeProvider;
     }
+
+    public ClassPathXmlApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
 }
