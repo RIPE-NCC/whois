@@ -40,8 +40,8 @@ import static org.junit.Assert.fail;
 @ContextConfiguration(locations = {"classpath:applicationContext-internal-test.xml"}, inheritLocations = false)
 public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
-    @Autowired AbuseCService abuseCService;
-    private RestClient restClient;
+    @Autowired private AbuseCService abuseCService;
+    @Autowired private RestClient restClient;
     private ClassPathXmlApplicationContext applicationContext;
     private Collection<ApplicationService> applicationServices;
 
@@ -60,8 +60,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
             if (applicationService instanceof JettyBootstrap) {
                 final int port = ((JettyBootstrap) applicationService).getPort();
                 final String url = String.format("http://localhost:%d/whois", port);
-                final String sourceName = "TEST";
-                restClient = new RestClient(url, sourceName);
+                restClient.setRestApiUrl(url);
             }
         }
     }

@@ -9,7 +9,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +21,9 @@ import javax.ws.rs.core.MediaType;
 @Component
 public final class RestClient {
     private static final Client client;
-    private final String restApiUrl;
-    private final String sourceName;
-    private final WhoisObjectMapper whoisObjectMapper;
+    private String restApiUrl;
+    private String sourceName;
+    private WhoisObjectMapper whoisObjectMapper;
 
     static {
         final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
@@ -36,12 +35,14 @@ public final class RestClient {
                 .build();
     }
 
-    @Autowired
-    public RestClient(
-            @Value("${api.rest.baseurl}") final String restApiUrl,
-            @Value("${whois.source}") final String sourceName) {
-        this.whoisObjectMapper = new WhoisObjectMapper(null, restApiUrl);
+    @Value("${api.rest.baseurl}")
+    public void setRestApiUrl(final String restApiUrl) {
         this.restApiUrl = restApiUrl;
+        this.whoisObjectMapper = new WhoisObjectMapper(null, restApiUrl);
+    }
+
+    @Value("${whois.source}")
+    public void setSource(final String sourceName) {
         this.sourceName = sourceName;
     }
 
