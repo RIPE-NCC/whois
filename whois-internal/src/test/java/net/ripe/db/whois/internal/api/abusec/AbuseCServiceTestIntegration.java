@@ -66,6 +66,11 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
     }
 
     @After
+    public void resetRestServer() {
+        databaseHelperRest.setup();
+    }
+
+    @After
     public void stopRestServer() {
         for (final ApplicationService applicationService : applicationServices) {
             applicationService.stop(true);
@@ -81,22 +86,22 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void post_abusec_role_created_for_organisation_without_abusec() throws IOException {
-        databaseHelperRest.addObject(
+        databaseHelperRest.addObject("" +
                 "mntner:    TEST-MNT\n" +
-                        "mnt-by:    TEST-MNT\n" +
-                        "source:    TEST");
-        databaseHelperRest.addObject(
+                "mnt-by:    TEST-MNT\n" +
+                "source:    TEST");
+        databaseHelperRest.addObject("" +
                 "organisation:  ORG-TOL1-TEST\n" +
-                        "org-name:      Test Organisation Left\n" +
-                        "org-type:      OTHER\n" +
-                        "address:       street\n" +
-                        "e-mail:        some@email.net\n" +
-                        "mnt-ref:       TEST-MNT\n" +
-                        "mnt-by:        TEST-MNT\n" +
-                        "changed:       denis@ripe.net 20121016\n" +
-                        "source:        TEST");
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       TEST-MNT\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
 
-        final String response = RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
+        final String response = RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
                 .request(MediaType.TEXT_PLAIN)
                 .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
@@ -134,7 +139,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
                         "source:        TEST");
 
         try {
-            RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
+            RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
                     .request(MediaType.TEXT_PLAIN)
                     .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
             fail();
@@ -147,7 +152,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
     @Test
     public void post_wrong_apikey() throws IOException {
         try {
-            RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-totallywrongkey")
+            RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, "DB-WHOIS-totallywrongkey")
                     .request(MediaType.TEXT_PLAIN)
                     .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
             fail();
@@ -177,7 +182,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
                         "changed:       denis@ripe.net 20121016\n" +
                         "source:        TEST");
 
-        final String result = RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
+        final String result = RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
                 .request(MediaType.TEXT_PLAIN)
                 .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
@@ -206,7 +211,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
                         "changed:       denis@ripe.net 20121016\n" +
                         "source:        TEST");
 
-        final String result = RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
+        final String result = RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
                 .request(MediaType.TEXT_PLAIN)
                 .get(String.class);
 
@@ -232,7 +237,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
                         "source:        TEST");
 
         try {
-            RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
+            RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
                     .request(MediaType.TEXT_PLAIN)
                     .get(String.class);
             fail();
@@ -244,9 +249,9 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
     @Test
     public void get_organisation_not_found() {
         try {
-            RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST?apiKey=DB-WHOIS-abusectestapikey")
-                .request(MediaType.TEXT_PLAIN)
-                .get(String.class);
+            RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
+                    .request(MediaType.TEXT_PLAIN)
+                    .get(String.class);
             fail();
         } catch (NotFoundException e) {
             // expected
