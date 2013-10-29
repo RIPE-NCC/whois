@@ -1,6 +1,6 @@
 package net.ripe.db.whois.internal.api.acl;
 
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Before;
@@ -43,7 +43,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void getLimit_parent() throws Exception {
-        final Limit limit = RestClient.target(getPort(), LIMITS_PATH, "10/8", null, apiKey)
+        final Limit limit = RestTest.target(getPort(), LIMITS_PATH, "10/8", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Limit.class);
 
@@ -52,7 +52,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void getLimit_exact() throws Exception {
-        final Limit limit = RestClient.target(getPort(), LIMITS_PATH, "::0/0", null, apiKey)
+        final Limit limit = RestTest.target(getPort(), LIMITS_PATH, "::0/0", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Limit.class);
 
@@ -62,7 +62,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
     @Test
     public void getLimit_invalid_prefix() throws Exception {
         try {
-            RestClient.target(getPort(), LIMITS_PATH, "10", null, apiKey)
+            RestTest.target(getPort(), LIMITS_PATH, "10", null, apiKey)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Limit.class);
         } catch (BadRequestException e) {
@@ -72,7 +72,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void createLimit() throws Exception {
-        final Limit limit = RestClient.target(getPort(), LIMITS_PATH, null, apiKey)
+        final Limit limit = RestTest.target(getPort(), LIMITS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Limit("10.0.0.0/32", "test", 10000, true), MediaType.APPLICATION_JSON_TYPE), Limit.class);
 
@@ -87,7 +87,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void updateLimit() throws Exception {
-        final Limit limit = RestClient.target(getPort(), LIMITS_PATH, null, apiKey)
+        final Limit limit = RestTest.target(getPort(), LIMITS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Limit("0/0", "test", 10000, true), MediaType.APPLICATION_JSON_TYPE), Limit.class);
 
@@ -103,7 +103,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
     @Test
     public void deleteLimit_root() throws Exception {
         try {
-            RestClient.target(getPort(), LIMITS_PATH, "0/0", null, apiKey)
+            RestTest.target(getPort(), LIMITS_PATH, "0/0", null, apiKey)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .delete(Limit.class);
         } catch (ForbiddenException e) {
@@ -114,7 +114,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
     @Test
     public void deleteLimit_unknown() throws Exception {
         try {
-            RestClient.target(getPort(), LIMITS_PATH, "10.0.0.0/32", null, apiKey)
+            RestTest.target(getPort(), LIMITS_PATH, "10.0.0.0/32", null, apiKey)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .delete(Limit.class);
         } catch (NotFoundException ignored) {
@@ -124,13 +124,13 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void deleteLimit() throws Exception {
-        RestClient.target(getPort(), LIMITS_PATH, null, apiKey)
+        RestTest.target(getPort(), LIMITS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Limit("10.0.0.0/32", "test", 10000, true), MediaType.APPLICATION_JSON_TYPE));
 
         assertThat(getLimits(), hasSize(3));
 
-        final Limit limit = RestClient.target(getPort(), LIMITS_PATH, "10.0.0.0/32", null, apiKey)
+        final Limit limit = RestTest.target(getPort(), LIMITS_PATH, "10.0.0.0/32", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .delete(Limit.class);
 
@@ -142,7 +142,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
 
     @SuppressWarnings("unchecked")
     private List<Limit> getLimits() {
-        return RestClient.target(getPort(), LIMITS_PATH, null, apiKey)
+        return RestTest.target(getPort(), LIMITS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(new GenericType<List<Limit>>() {});
     }

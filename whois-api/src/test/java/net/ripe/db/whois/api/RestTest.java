@@ -11,7 +11,7 @@ import javax.ws.rs.client.WebTarget;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-public class RestClient {
+public class RestTest {
     private static final Client client;
 
     static {

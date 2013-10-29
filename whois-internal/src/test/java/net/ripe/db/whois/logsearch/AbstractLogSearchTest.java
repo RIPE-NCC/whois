@@ -1,7 +1,7 @@
 package net.ripe.db.whois.logsearch;
 
 import com.google.common.io.Files;
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import net.ripe.db.whois.internal.logsearch.LogFileIndex;
 import org.junit.After;
@@ -46,19 +46,19 @@ public abstract class AbstractLogSearchTest extends AbstractInternalTest {
 
     // API calls
     protected String getUpdates(final String searchTerm) throws IOException {
-        return RestClient.target(getPort(), "api/logs", String.format("search=%s", RestClient.encode(searchTerm)), apiKey)
+        return RestTest.target(getPort(), "api/logs", String.format("search=%s", RestTest.encode(searchTerm)), apiKey)
                 .request()
                 .get(String.class);
     }
 
     protected String getUpdates(final String searchTerm, final String date) throws IOException {
-        return RestClient.target(getPort(), "api/logs", String.format("search=%s&fromdate=%s", RestClient.encode(searchTerm), date), apiKey)
+        return RestTest.target(getPort(), "api/logs", String.format("search=%s&fromdate=%s", RestTest.encode(searchTerm), date), apiKey)
                 .request()
                 .get(String.class);
     }
 
     protected String getUpdates(final String searchTerm, final String fromDate, final String toDate) throws IOException {
-        return RestClient.target(getPort(), "api/logs", String.format("search=%s&fromdate=%s&todate=%s", RestClient.encode(searchTerm), fromDate, toDate), apiKey)
+        return RestTest.target(getPort(), "api/logs", String.format("search=%s&fromdate=%s&todate=%s", RestTest.encode(searchTerm), fromDate, toDate), apiKey)
                 .request()
                 .get(String.class);
     }

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.internal.api.acl;
 
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Before;
@@ -40,7 +40,7 @@ public class AclProxyServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void getProxy() throws Exception {
-        final Proxy proxy = RestClient.target(getPort(), PROXIES_PATH, "10.0.0.0/32", null, apiKey)
+        final Proxy proxy = RestTest.target(getPort(), PROXIES_PATH, "10.0.0.0/32", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Proxy.class);
 
@@ -49,7 +49,7 @@ public class AclProxyServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void createProxy() throws Exception {
-        final Proxy proxy = RestClient.target(getPort(), PROXIES_PATH, null, apiKey)
+        final Proxy proxy = RestTest.target(getPort(), PROXIES_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Proxy("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE), Proxy.class);
 
@@ -62,7 +62,7 @@ public class AclProxyServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void updateProxy() throws Exception {
-        final Proxy proxy = RestClient.target(getPort(), PROXIES_PATH, null, apiKey)
+        final Proxy proxy = RestTest.target(getPort(), PROXIES_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Proxy("10.0.0.0/32", "test"), MediaType.APPLICATION_JSON_TYPE), Proxy.class);
 
@@ -75,7 +75,7 @@ public class AclProxyServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void deleteProxy() throws Exception {
-        final Proxy proxy = RestClient.target(getPort(), PROXIES_PATH, "10.0.0.0/32", null, apiKey)
+        final Proxy proxy = RestTest.target(getPort(), PROXIES_PATH, "10.0.0.0/32", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .delete(Proxy.class);
 
@@ -87,7 +87,7 @@ public class AclProxyServiceTestIntegration extends AbstractInternalTest {
 
     @SuppressWarnings("unchecked")
     private List<Proxy> getProxies() {
-        return RestClient.target(getPort(), PROXIES_PATH, null, apiKey)
+        return RestTest.target(getPort(), PROXIES_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(new GenericType<List<Proxy>>() {});
     }

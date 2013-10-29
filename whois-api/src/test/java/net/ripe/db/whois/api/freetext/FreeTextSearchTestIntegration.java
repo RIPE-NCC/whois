@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.freetext;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.solr.client.solrj.impl.XMLResponseParser;
@@ -620,7 +620,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     private String query(final String queryString) {
-        return RestClient.target(getPort(), "search?" + queryString)
+        return RestTest.target(getPort(), "search?" + queryString)
                 .request()
                 .get(String.class);
     }

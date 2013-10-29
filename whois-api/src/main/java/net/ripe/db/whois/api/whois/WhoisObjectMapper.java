@@ -90,7 +90,8 @@ public class WhoisObjectMapper {
             final String comment = getComment(attribute);
             for (CIString value : attribute.getCleanValues()) {
                 if (value.length() > 0) {
-                    final String referencedType = (attribute.getType() != null) ? referencedTypeResolver.getReferencedType(attribute.getType(), value) : null;
+                    // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
+                    final String referencedType = (attribute.getType() != null && referencedTypeResolver != null) ? referencedTypeResolver.getReferencedType(attribute.getType(), value) : null;
                     final Link link = (referencedType != null) ? createLink(source, referencedType, value.toString()) : null;
                     attributes.add(createAttribute(attribute.getKey(), value.toString(), comment, referencedType, link));
                 }

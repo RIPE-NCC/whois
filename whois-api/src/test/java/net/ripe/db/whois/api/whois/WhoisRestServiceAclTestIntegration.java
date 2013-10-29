@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.whois;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
@@ -55,7 +55,7 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void lookup_person_ok() throws Exception {
-        final String response = RestClient.target(getPort(), "whois/test/person/TP1-TEST").request().get(String.class);
+        final String response = RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(String.class);
 
         assertThat(response, containsString("<object type=\"person\">"));
     }
@@ -67,7 +67,7 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
             ipResourceConfiguration.reload();
 
             try {
-                RestClient.target(getPort(), "whois/test/person/TP1-TEST").request().get(String.class);
+                RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(String.class);
                 fail();
             } catch (ClientErrorException e) {
                 assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
@@ -87,7 +87,7 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
             accessControlListManager.accountPersonalObjects(localhost, accessControlListManager.getPersonalObjects(localhost) + 1);
 
             try {
-                RestClient.target(getPort(), "whois/test/person/TP1-TEST").request().get(String.class);
+                RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(String.class);
                 fail();
             } catch (ClientErrorException e) {
                 assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
@@ -101,7 +101,7 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void lookup_autnum_ok() {
-        final String response = RestClient.target(getPort(), "whois/test/aut-num/AS102").request().get(String.class);
+        final String response = RestTest.target(getPort(), "whois/test/aut-num/AS102").request().get(String.class);
 
         assertThat(response, containsString("<object type=\"aut-num\">"));
     }
@@ -113,7 +113,7 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
             ipResourceConfiguration.reload();
 
             try {
-                RestClient.target(getPort(), "whois/test/aut-num/AS102").request().get(String.class);
+                RestTest.target(getPort(), "whois/test/aut-num/AS102").request().get(String.class);
                 fail();
             } catch (ClientErrorException e) {
                 assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
@@ -131,7 +131,7 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
         accessControlListManager.accountPersonalObjects(localhost, accessControlListManager.getPersonalObjects(localhost) + 1);
 
         try {
-            RestClient.target(getPort(), "whois/test/aut-num/AS102").request().get(String.class);
+            RestTest.target(getPort(), "whois/test/aut-num/AS102").request().get(String.class);
             fail();
         } catch (ClientErrorException e) {
             assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests

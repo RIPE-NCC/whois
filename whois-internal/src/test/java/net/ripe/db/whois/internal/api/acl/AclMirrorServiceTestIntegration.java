@@ -1,6 +1,6 @@
 package net.ripe.db.whois.internal.api.acl;
 
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Before;
@@ -43,7 +43,7 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
     @Test
     public void getMirror_non_existing() {
         try {
-            RestClient.target(getPort(), MIRRORS_PATH, "10.0.0.0/32", null, apiKey)
+            RestTest.target(getPort(), MIRRORS_PATH, "10.0.0.0/32", null, apiKey)
                     .request(MediaType.APPLICATION_JSON)
                     .get(Mirror.class);
         } catch (NotFoundException ignored) {
@@ -55,7 +55,7 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
     public void getMirror_existing() {
         databaseHelper.insertAclMirror("10.0.0.0/32");
 
-        Mirror mirror = RestClient.target(getPort(), MIRRORS_PATH, "10.0.0.0/32", null, apiKey)
+        Mirror mirror = RestTest.target(getPort(), MIRRORS_PATH, "10.0.0.0/32", null, apiKey)
                 .request(MediaType.APPLICATION_JSON)
                 .get(Mirror.class);
 
@@ -65,7 +65,7 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
     @Test
     public void getMirror_invalid() {
         try {
-            RestClient.target(getPort(), MIRRORS_PATH, "10", null, apiKey)
+            RestTest.target(getPort(), MIRRORS_PATH, "10", null, apiKey)
                     .request(MediaType.APPLICATION_JSON)
                     .get(Mirror.class);
         } catch (BadRequestException e) {
@@ -75,7 +75,7 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void createMirror() {
-        Mirror mirror = RestClient.target(getPort(), MIRRORS_PATH, null, apiKey)
+        Mirror mirror = RestTest.target(getPort(), MIRRORS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(new Mirror("10.0.0.0/32", "comment"), MediaType.APPLICATION_JSON), Mirror.class);
 
@@ -89,7 +89,7 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
     @Test
     public void createMirror_invalid() {
         try {
-            RestClient.target(getPort(), MIRRORS_PATH, null, apiKey)
+            RestTest.target(getPort(), MIRRORS_PATH, null, apiKey)
                     .request(MediaType.APPLICATION_JSON)
                     .post(Entity.entity(new Mirror("10", "comment"), MediaType.APPLICATION_JSON));
 
@@ -101,7 +101,7 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void updateMirror() {
-        Mirror mirror = RestClient.target(getPort(), MIRRORS_PATH, null, apiKey)
+        Mirror mirror = RestTest.target(getPort(), MIRRORS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Mirror("10.0.0.2/32", "changed comment"), MediaType.APPLICATION_JSON), Mirror.class);
 
@@ -112,7 +112,7 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void deleteMirror() throws Exception {
-        final Mirror mirror = RestClient.target(getPort(), MIRRORS_PATH, "10.0.0.2/32", null, apiKey)
+        final Mirror mirror = RestTest.target(getPort(), MIRRORS_PATH, "10.0.0.2/32", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .delete(Mirror.class);
 
@@ -123,7 +123,7 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
 
     @SuppressWarnings("unchecked")
     private List<Mirror> getMirrors() {
-        return RestClient.target(getPort(), MIRRORS_PATH, null, apiKey)
+        return RestTest.target(getPort(), MIRRORS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(new GenericType<List<Mirror>>() {});
     }

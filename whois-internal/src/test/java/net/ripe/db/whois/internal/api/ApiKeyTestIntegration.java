@@ -1,6 +1,6 @@
 package net.ripe.db.whois.internal.api;
 
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Test;
@@ -18,7 +18,7 @@ public class ApiKeyTestIntegration extends AbstractInternalTest {
     @Test
     public void no_api_key() {
         try {
-            RestClient.target(getPort(), "api").request().get(String.class);
+            RestTest.target(getPort(), "api").request().get(String.class);
             fail();
         } catch (ForbiddenException e) {
             assertThat(e.getResponse().readEntity(String.class), is("No apiKey parameter specified"));
@@ -28,7 +28,7 @@ public class ApiKeyTestIntegration extends AbstractInternalTest {
     @Test
     public void invalid_api_key() {
         try {
-            RestClient.target(getPort(), "api", null, "INVALID").request().get(String.class);
+            RestTest.target(getPort(), "api", null, "INVALID").request().get(String.class);
             fail();
         } catch (ForbiddenException e) {
             assertThat(e.getResponse().readEntity(String.class), is("Invalid apiKey"));
