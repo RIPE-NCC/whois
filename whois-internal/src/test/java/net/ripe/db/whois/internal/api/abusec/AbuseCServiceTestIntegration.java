@@ -63,11 +63,9 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
                 restClient.setRestApiUrl(url);
             }
         }
-    }
 
-    @After
-    public void resetRestServer() {
         databaseHelperRest.setup();
+        databaseHelperRest.insertApiKey(apiKey, "/api/abusec", "abuse-c automagic creation");
     }
 
     @After
@@ -77,11 +75,6 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
         }
 
         applicationContext.close();
-    }
-
-    @Before
-    public void setup() {
-        databaseHelper.insertApiKey(apiKey, "/api/abusec", "abuse-c automagic creation");
     }
 
     @Test
