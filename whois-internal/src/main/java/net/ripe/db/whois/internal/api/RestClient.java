@@ -83,6 +83,6 @@ public final class RestClient {
                sourceName,
                objectType,
                objectKey,
-               StringUtils.isNotEmpty(override) ? String.format("?%s", override) : ""));
+               StringUtils.isNotEmpty(override) ? String.format("?override=%s", override) : ""));
     }
 }
