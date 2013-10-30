@@ -799,7 +799,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
         syncUpdate("""\
                 route:          192.168.0.0/16
                 descr:          Route
@@ -812,10 +812,10 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 password:   pinet
                 """.stripIndent())
 
-        whoisFixture.getTestDateTimeProvider().reset()
+        getTestDateTimeProvider().reset()
 
         DatabaseHelper.dumpSchema(databaseHelper.getInternalsTemplate().getDataSource())
-        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
+        ((PendingUpdatesCleanup)getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
       then:
         def notif2 = notificationFor "updto_owner@ripe.net"
@@ -872,7 +872,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
         syncUpdate("""\
                 route:          192.168.0.0/16
                 descr:          Route
@@ -885,10 +885,10 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 password:   as
                 """.stripIndent())
 
-        whoisFixture.getTestDateTimeProvider().reset()
+        getTestDateTimeProvider().reset()
 
         DatabaseHelper.dumpSchema(databaseHelper.getInternalsTemplate().getDataSource())
-        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
+        ((PendingUpdatesCleanup)getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
       then:
         def notif2 = notificationFor "updto_owner@ripe.net"

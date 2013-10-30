@@ -1,12 +1,14 @@
 package net.ripe.db.whois.spec
 
 import net.ripe.db.whois.WhoisFixture
+import net.ripe.db.whois.common.TestDateTimeProvider
 import net.ripe.db.whois.common.profiles.WhoisProfile
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.NotificationResponse
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import net.ripe.db.whois.update.dns.DnsGatewayStub
 import spock.lang.Specification
 
 import javax.mail.Address
@@ -22,8 +24,6 @@ class BaseEndToEndSpec extends Specification {
 
     def setup() {
         whoisFixture.reset()
-        whoisFixture.getIpRanges().setTrusted("127.0.0.1", "::1")
-        whoisFixture.getIpTreeUpdater().rebuild()
     }
 
     def cleanupSpec() {
@@ -58,16 +58,12 @@ ${result}
     def queryObject(String qryStr, String type, String pkey) {
         def qry = query(qryStr)
         assert qry =~ "${type}:\\s*${pkey}"
-        // queryObject from query/update tests asserts are case insensitive
-        // assert qry =~ "(?i)${type}:\\s*${pkey}"
         return qry
     }
 
     def queryObjectNotFound(String qryStr, String type, String pkey) {
         def qry = query(qryStr)
         !(qry =~ "${type}:\\s*${pkey}")
-        // queryObjectNotFound from query/update tests asserts are case insensitive
-        // !(qry =~ "(?i)${type}:\\s*${pkey}")
     }
 
     def queryNothing(String qryStr) {
@@ -179,7 +175,7 @@ ${ack.contents}
     }
 
     void printAllRecipients() {
-        def recipients = mailSenderStub.getAllRecipients()
+        def recipients = getMailSender().getAllRecipients()
         println ">>>>> (TO)"
         if (recipients.isEmpty()) {
             print "no mails left"
@@ -265,6 +261,33 @@ ${response}
         return whoisFixture.getIpRanges()
     }
 
+    def getRpslObjectDao() {
+        return whoisFixture.getRpslObjectDao()
+    }
+
+    def getTagsDao() {
+        return whoisFixture.getTagsDao()
+    }
+
+    def getPendingUpdateDao() {
+        return whoisFixture.getPendingUpdateDao()
+    }
+
+    def getApplicationContext() {
+        return whoisFixture.getApplicationContext()
+    }
+
+    def getMailSender(){
+        return whoisFixture.getMailSender()
+    }
+
+    public DnsGatewayStub getDnsGatewayStub() {
+        return whoisFixture.getDnsGatewayStub();
+    }
+
+    public TestDateTimeProvider getTestDateTimeProvider() {
+        return whoisFixture.getTestDateTimeProvider();
+    }
 }
 
 

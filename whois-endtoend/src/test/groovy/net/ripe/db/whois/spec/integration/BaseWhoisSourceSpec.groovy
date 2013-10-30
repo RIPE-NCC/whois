@@ -21,11 +21,6 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
 
     abstract Map<String, String> getFixtures()
 
-
-    String saveAcl(String path, String apiKey, String data, final int responseCode) {
-        whoisFixture.aclPost(path, apiKey, data, responseCode)
-    }
-
     def setupObjects(Collection<RpslObject> objects) {
         whoisFixture.createRpslObjects(objects)
     }
@@ -55,24 +50,8 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
         whoisFixture.objectExists(objectType, pkey)
     }
 
-    def getDatabaseHelper() {
-        return whoisFixture.getDatabaseHelper()
-    }
-
     def getTags(int objectId) {
         return whoisFixture.getTagsDao().getTags(objectId)
-    }
-
-    def getRpslObjectDao() {
-        return whoisFixture.getRpslObjectDao()
-    }
-
-    def getTagsDao() {
-        return whoisFixture.getTagsDao()
-    }
-
-    def getPendingUpdateDao() {
-        return whoisFixture.getPendingUpdateDao()
     }
 
     def unrefCleanup() {
@@ -93,11 +72,6 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
         string
     }
 
-    //NOT USED
-    def updateObject(String string) {
-        getDatabaseHelper().updateObject(RpslObject.parse(string))
-    }
-
     def removeObject(String string) {
         getDatabaseHelper().removeObject(RpslObject.parse(string))
     }
@@ -105,4 +79,5 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
     def pendingUpdates(ObjectType objectType, String pkey) {
         getPendingUpdateDao().findByTypeAndKey(objectType, pkey)
     }
+
 }
