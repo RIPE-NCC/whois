@@ -8,7 +8,6 @@
                         http://www.springframework.org/schema/oxm/spring-oxm.xsd">
 
     <import resource="applicationContext-commons.xml"/>
-    <import resource="applicationContext-query.xml"/>
     <import resource="applicationContext-update.xml"/>
 
     <oxm:jaxb2-marshaller id="marshaller">
