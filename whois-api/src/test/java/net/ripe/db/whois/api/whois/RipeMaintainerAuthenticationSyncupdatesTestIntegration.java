@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.whois;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -75,9 +75,9 @@ public class RipeMaintainerAuthenticationSyncupdatesTestIntegration extends Abst
     public void sync_update_from_outside_ripe_network() throws Exception {
         ipRanges.setTrusted("53.67.0.1");
 
-        String response = RestClient.target(getPort(), "whois/syncupdates/test")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity("DATA=" + RestClient.encode(RPSL_PERSON_WITH_RIPE_MAINTAINER) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+                .post(Entity.entity("DATA=" + RestTest.encode(RPSL_PERSON_WITH_RIPE_MAINTAINER) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
         assertThat(response, containsString("" +
                 "***Error:   Authentication by RIPE NCC maintainers only allowed from within the\n" +
@@ -88,9 +88,9 @@ public class RipeMaintainerAuthenticationSyncupdatesTestIntegration extends Abst
     public void sync_update_from_within_ripe_network() throws Exception {
         ipRanges.setTrusted("127.0.0.1", "::1");
 
-        String response = RestClient.target(getPort(), "whois/syncupdates/test")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity("DATA=" + RestClient.encode(RPSL_PERSON_WITH_RIPE_MAINTAINER) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+                .post(Entity.entity("DATA=" + RestTest.encode(RPSL_PERSON_WITH_RIPE_MAINTAINER) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
         assertThat(response, not(containsString("" +
                 "***Error:   Authentication by RIPE NCC maintainers only allowed from within the\n" +

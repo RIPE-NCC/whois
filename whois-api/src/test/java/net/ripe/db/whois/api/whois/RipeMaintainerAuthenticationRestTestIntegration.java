@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.whois;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -86,7 +86,7 @@ public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractInt
                 "</whois-resources>\n";
 
         try {
-            RestClient.target(getPort(), "whois/test/person?password=emptypassword")
+            RestTest.target(getPort(), "whois/test/person?password=emptypassword")
                     .request()
                     .post(Entity.entity(person, MediaType.APPLICATION_XML), String.class);
             fail();
@@ -119,7 +119,7 @@ public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractInt
                         "</whois-resources>\n";
 
         try {
-            RestClient.target(getPort(), "whois/test/person?password=emptypassword")
+            RestTest.target(getPort(), "whois/test/person?password=emptypassword")
                 .request()
                 .post(Entity.entity(person, MediaType.APPLICATION_XML), String.class);
             fail();

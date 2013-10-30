@@ -1,8 +1,8 @@
 package net.ripe.db.whois.spec.query
 
-import net.ripe.db.whois.spec.BaseSpec
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
-class BasicQuerySpec extends BaseSpec {
+class BasicQuerySpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {

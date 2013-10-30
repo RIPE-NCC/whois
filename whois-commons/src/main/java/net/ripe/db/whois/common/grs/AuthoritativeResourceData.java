@@ -33,7 +33,7 @@ public class AuthoritativeResourceData {
     private final ResourceDataDao resourceDataDao;
     private final DailySchedulerDao dailySchedulerDao;
     private final DateTimeProvider dateTimeProvider;
-    private long lastRefresh = Long.MIN_VALUE;
+    private long lastRefresh = Integer.MIN_VALUE;
 
     private final Set<String> sourceNames;
     private final Map<String, AuthoritativeResource> authoritativeResourceCache = Maps.newHashMap();

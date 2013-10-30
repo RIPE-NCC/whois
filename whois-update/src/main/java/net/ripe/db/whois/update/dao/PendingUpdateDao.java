@@ -61,8 +61,7 @@ public class PendingUpdateDao {
     }
 
     public void remove(final PendingUpdate pendingUpdate) {
-        jdbcTemplate.update("DELETE FROM pending_updates WHERE id = ?",
-                pendingUpdate.getId());
+        jdbcTemplate.update("DELETE FROM pending_updates WHERE pkey = ?", pendingUpdate.getObject().getKey().toString());
     }
 
     public List<PendingUpdate> findBeforeDate(final LocalDateTime date) {

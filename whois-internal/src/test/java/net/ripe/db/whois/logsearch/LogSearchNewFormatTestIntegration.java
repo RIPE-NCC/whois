@@ -1,6 +1,6 @@
 package net.ripe.db.whois.logsearch;
 
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.logsearch.LogFileIndex;
 import net.ripe.db.whois.internal.logsearch.NewLogFormatProcessor;
@@ -222,7 +222,7 @@ public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
     @Test
     public void search_incorrect_api_key() throws IOException {
         try {
-            RestClient.target(getPort(), "api/logs?search=mntner", null, "WRONG")
+            RestTest.target(getPort(), "api/logs?search=mntner", null, "WRONG")
                     .request()
                     .get(String.class);
             fail();

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.whois;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -78,7 +78,7 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
 
     private String doGetRequest(final String url, final int httpStatus) {
         try {
-            final String response = RestClient.target(getPort(), url).request().get(String.class);
+            final String response = RestTest.target(getPort(), url).request().get(String.class);
             assertThat(httpStatus, is(HttpURLConnection.HTTP_OK));
             return response;
         } catch (ClientErrorException e) {

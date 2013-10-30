@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
 
-class PeeringSetSpec extends BaseSpec {
+class PeeringSetSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {

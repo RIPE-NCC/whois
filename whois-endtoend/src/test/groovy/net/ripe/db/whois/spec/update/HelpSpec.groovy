@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
 
-class HelpSpec extends BaseSpec {
+class HelpSpec extends BaseQueryUpdateSpec {
 
     def "send a help message and check the response"() {
       when:

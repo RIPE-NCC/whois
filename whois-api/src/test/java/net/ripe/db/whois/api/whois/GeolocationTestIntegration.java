@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.whois;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import org.junit.Before;
@@ -56,7 +56,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
                "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final String response = RestClient.target(getPort(), "whois/geolocation?ipkey=10.0.0.0")
+        final String response = RestTest.target(getPort(), "whois/geolocation?ipkey=10.0.0.0")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\""));
@@ -83,7 +83,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
                "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final String response = RestClient.target(getPort(), "whois/geolocation?ipkey=10.0.0.0")
+        final String response = RestTest.target(getPort(), "whois/geolocation?ipkey=10.0.0.0")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
 
@@ -112,7 +112,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
                "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final String response = RestClient.target(getPort(), "whois/geolocation?ipkey=10.0.0.0")
+        final String response = RestTest.target(getPort(), "whois/geolocation?ipkey=10.0.0.0")
                     .request(MediaType.APPLICATION_JSON)
                     .get(String.class);
 
@@ -139,7 +139,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
         ipTreeUpdater.rebuild();
 
         try {
-            RestClient.target(getPort(), "whois/geolocation?ipkey=10.0.0.0")
+            RestTest.target(getPort(), "whois/geolocation?ipkey=10.0.0.0")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
             fail();
@@ -151,7 +151,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
     @Test
     public void inetnum_not_found() throws Exception {
         try {
-            RestClient.target(getPort(), "whois/geolocation?ipkey=127.0.0.1")
+            RestTest.target(getPort(), "whois/geolocation?ipkey=127.0.0.1")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
             fail();
@@ -188,7 +188,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
                "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final String response = RestClient.target(getPort(), "whois/geolocation?ipkey=10.0.0.0")
+        final String response = RestTest.target(getPort(), "whois/geolocation?ipkey=10.0.0.0")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
 
@@ -226,7 +226,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
                         "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final String response = RestClient.target(getPort(), "whois/geolocation?ipkey=10.1.0.0%20-%2010.1.255.255")
+        final String response = RestTest.target(getPort(), "whois/geolocation?ipkey=10.1.0.0%20-%2010.1.255.255")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
 
@@ -250,7 +250,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
                "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final String response = RestClient.target(getPort(), "whois/geolocation?ipkey=2001::/20")
+        final String response = RestTest.target(getPort(), "whois/geolocation?ipkey=2001::/20")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
         assertThat(response, containsString(String.format("<link xlink:type=\"locator\" xlink:href=\"http://localhost:%s/geolocation?ipkey=2001::/20\"", getPort())));
@@ -264,7 +264,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
     @Test
     public void invalid_inetnum_argument() throws Exception {
         try {
-            RestClient.target(getPort(), "whois/geolocation?ipkey=invalid")
+            RestTest.target(getPort(), "whois/geolocation?ipkey=invalid")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
             fail();
@@ -276,7 +276,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
     @Test
     public void geolocation_without_query_params() throws Exception {
         try {
-            RestClient.target(getPort(), "whois/geolocation")
+            RestTest.target(getPort(), "whois/geolocation")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
             fail();

@@ -60,11 +60,11 @@ class PendingUpdateHandler {
                 updateContext.prepareForReattempt(preparedUpdate);
                 updateContext.addMessage(preparedUpdate, UpdateMessages.updateConcludesPendingUpdate(preparedUpdate.getUpdatedObject()));
 
-                final PreparedUpdate freshPreparedUpdate = new PreparedUpdate(preparedUpdate.getUpdate(), null, preparedUpdate.getUpdatedObject(), Action.CREATE);
+                final PreparedUpdate freshPreparedUpdate = new PreparedUpdate(preparedUpdate.getUpdate(), null, pendingUpdate.getObject(), Action.CREATE);
                 updateContext.setPreparedUpdate(freshPreparedUpdate);
                 updateContext.setAction(freshPreparedUpdate, Action.CREATE);
 
-                updateObjectHandler.execute(preparedUpdate, updateContext);
+                updateObjectHandler.execute(freshPreparedUpdate, updateContext);
             } else {
                 loggerContext.log(new Message(Messages.Type.INFO, MessageFormat.format("Pending update found but still doesn't complete authentication; updating DB: {}", updatedPendingUpdate.getPassedAuthentications())));
 

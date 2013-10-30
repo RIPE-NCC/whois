@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.whois;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -47,7 +47,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void empty_request() throws Exception {
         try {
-            RestClient.target(getPort(), "whois/syncupdates/test")
+            RestTest.target(getPort(), "whois/syncupdates/test")
                     .request()
                     .get(String.class);
             fail();
@@ -58,7 +58,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void get_help_parameter_only() throws Exception {
-        String response = RestClient.target(getPort(), "whois/syncupdates/test?HELP=yes")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes")
                     .request()
                     .get(String.class);
 
@@ -71,7 +71,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void post_multipart_form_help_parameter_only() {
         final FormDataMultiPart multipart = new FormDataMultiPart().field("HELP", "help");
-        String response = RestClient.target(getPort(), "whois/syncupdates/test")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
@@ -80,7 +80,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void post_url_encoded_form_help_parameter_only() {
-        String response = RestClient.target(getPort(), "whois/syncupdates/test")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post(Entity.entity("HELP=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
@@ -89,7 +89,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void help_and_invalid_parameter() throws Exception {
-        String response = RestClient.target(getPort(), "whois/syncupdates/test?HELP=yes&INVALID=true")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes&INVALID=true")
                     .request()
                     .get(String.class);
 
@@ -99,7 +99,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void diff_parameter_only() throws Exception {
         try {
-            RestClient.target(getPort(), "whois/syncupdates/test?DIFF=yes")
+            RestTest.target(getPort(), "whois/syncupdates/test?DIFF=yes")
                     .request()
                     .get(String.class);
         } catch (BadRequestException e) {
@@ -113,7 +113,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
         try {
-            RestClient.target(getPort(), "whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+            RestTest.target(getPort(), "whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + RestTest.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
             fail();
@@ -129,7 +129,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         ipRanges.setTrusted("0/0", "::0/0");
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + RestTest.encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -143,7 +143,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestTest.encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -157,7 +157,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     public void only_data_parameter_create_object() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestTest.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -167,7 +167,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void create_object_invalid_source_in_url() throws Exception {
         try {
-            RestClient.target(getPort(), "whois/syncupdates/invalid?DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+            RestTest.target(getPort(), "whois/syncupdates/invalid?DATA=" + RestTest.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
             fail();
@@ -183,7 +183,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         System.out.println("mntner = " + mntnerInvalidSource);
 
-        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClient.encode(mntnerInvalidSource + "\npassword: emptypassword"))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestTest.encode(mntnerInvalidSource + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -195,7 +195,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword"))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestTest.encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
 
@@ -205,7 +205,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void only_new_parameter() throws Exception {
         try {
-            RestClient.target(getPort(), "whois/syncupdates/test?NEW=yes")
+            RestTest.target(getPort(), "whois/syncupdates/test?NEW=yes")
                     .request()
                     .get(String.class);
         } catch (BadRequestException e) {
@@ -217,7 +217,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     public void new_and_data_parameters_get_request() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestTest.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes")
                 .request()
                 .get(String.class);
 
@@ -229,7 +229,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = RestClient.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword") + "&NEW=yes")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestTest.encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword") + "&NEW=yes")
                 .request()
                 .get(String.class);
 
@@ -242,9 +242,9 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     public void new_and_data_parameters_urlencoded_post_request() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = RestClient.target(getPort(), "whois/syncupdates/test")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity("DATA=" + RestClient.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+                .post(Entity.entity("DATA=" + RestTest.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
     }
@@ -254,7 +254,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
         final FormDataMultiPart multipart = new FormDataMultiPart().field("DATA", MNTNER_TEST_MNTNER + "\npassword: emptypassword").field("NEW", "yes");
-        String response = RestClient.target(getPort(), "whois/syncupdates/test")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
@@ -266,18 +266,18 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = RestClient.target(getPort(), "whois/syncupdates/test")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity("DATA=" + RestClient.encode(
+                .post(Entity.entity("DATA=" + RestTest.encode(
                         "person:     Test Person\n" +
-                        "address:    Flughafenstraße 109/a\n" +
-                        "phone:      +49 282 411141\n" +
-                        "fax-no:     +49 282 411140\n" +
-                        "nic-hdl:    TP1-TEST\n" +
-                        "changed:    dbtest@ripe.net 20120101\n" +
-                        "mnt-by:     mntner\n" +
-                        "source:     INVALID\n" +
-                        "password: emptypassword", "ISO-8859-1"), MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
+                                "address:    Flughafenstraße 109/a\n" +
+                                "phone:      +49 282 411141\n" +
+                                "fax-no:     +49 282 411140\n" +
+                                "nic-hdl:    TP1-TEST\n" +
+                                "changed:    dbtest@ripe.net 20120101\n" +
+                                "mnt-by:     mntner\n" +
+                                "source:     INVALID\n" +
+                                "password: emptypassword", "ISO-8859-1"), MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
         assertThat(response, containsString("Flughafenstraße 109/a"));

@@ -11,7 +11,7 @@ import javax.ws.rs.client.WebTarget;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-public class RestClient {
+public class RestTest {
     private static final Client client;
 
     static {
@@ -32,7 +32,6 @@ public class RestClient {
         final String format = String.format("http://localhost:%d/%s?%sapiKey=%s", port, path,
                 StringUtils.isBlank(queryParam) ? "" : queryParam + "&",
                 encode(apiKey));
-        System.err.println(format);
         return client.target(format);
     }
 

@@ -53,7 +53,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-// TODO [AK] Integrate in BaseSpec
+// TODO [AK] Integrate in BaseQueryUpdateSpec
 public class WhoisFixture {
     private static final Pattern CHARSET_PATTERN = Pattern.compile(".*;charset=(.*)");
 
@@ -78,6 +78,8 @@ public class WhoisFixture {
     protected SourceContext sourceContext;
     protected UnrefCleanup unrefCleanup;
     protected IndexDao indexDao;
+    protected WhoisServer whoisServer;
+
 
     private static final String SYNCUPDATES_INSTANCE = "TEST";
 
@@ -86,7 +88,7 @@ public class WhoisFixture {
     static {
         Slf4JLogConfiguration.init();
 
-        System.setProperty("application.version", "0.1-TEST");
+        System.setProperty("application.version", "0.1-ENDTOEND");
         System.setProperty("mail.dequeue.threads", "2");
         System.setProperty("mail.dequeue.interval", "10");
         System.setProperty("whois.maintainers.power", "RIPE-NCC-HM-MNT");
@@ -102,29 +104,34 @@ public class WhoisFixture {
 
     public void start() throws Exception {
         applicationContext = new ClassPathXmlApplicationContext("applicationContext-whois-test.xml");
-
+        messageDequeue = applicationContext.getBean(MessageDequeue.class);
+        ipRanges = applicationContext.getBean(IpRanges.class);
+        databaseHelper = applicationContext.getBean(DatabaseHelper.class);
+        stubs = applicationContext.getBeansOfType(Stub.class);
+        ipTreeUpdater = applicationContext.getBean(IpTreeUpdater.class);
+        whoisServer = applicationContext.getBean(WhoisServer.class);
         mailSender = applicationContext.getBean(MailSenderStub.class);
         mailUpdatesTestSupport = applicationContext.getBean(MailUpdatesTestSupport.class);
+
         rpslObjectDao = applicationContext.getBean(RpslObjectDao.class);
         rpslObjectUpdateDao = applicationContext.getBean(RpslObjectUpdateDao.class);
         tagsDao = applicationContext.getBean(TagsDao.class);
         pendingUpdateDao = applicationContext.getBean(PendingUpdateDao.class);
         mailGateway = applicationContext.getBean(MailGateway.class);
-        dnsGateway = applicationContext.getBean(DnsGateway.class);
-        messageDequeue = applicationContext.getBean(MessageDequeue.class);
         whoisDataSource = applicationContext.getBean(SourceAwareDataSource.class);
-        ipRanges = applicationContext.getBean(IpRanges.class);
         testDateTimeProvider = applicationContext.getBean(TestDateTimeProvider.class);
         jettyBootstrap = applicationContext.getBean(JettyBootstrap.class);
         stubs = applicationContext.getBeansOfType(Stub.class);
         databaseHelper = applicationContext.getBean(DatabaseHelper.class);
         ipTreeUpdater = applicationContext.getBean(IpTreeUpdater.class);
         sourceContext = applicationContext.getBean(SourceContext.class);
+        dnsGateway = applicationContext.getBean(DnsGateway.class);
         unrefCleanup = applicationContext.getBean(UnrefCleanup.class);
         indexDao = applicationContext.getBean(IndexDao.class);
 
         databaseHelper.setup();
-        applicationContext.getBean(WhoisServer.class).start();
+
+        whoisServer.start();
 
         initData();
     }
@@ -146,7 +153,7 @@ public class WhoisFixture {
     }
 
     public void stop() {
-        applicationContext.getBean(WhoisServer.class).stop();
+        whoisServer.stop();
     }
 
     public void dumpSchema() throws Exception {
@@ -373,5 +380,21 @@ public class WhoisFixture {
 
     public void rebuildIndexes() {
         indexDao.rebuild();
+    }
+
+    public IpRanges getIpRanges() {
+        return ipRanges;
+    }
+
+    public IpTreeUpdater getIpTreeUpdater() {
+        return ipTreeUpdater;
+    }
+
+    public TestDateTimeProvider getTestDateTimeProvider() {
+        return testDateTimeProvider;
+    }
+
+    public ClassPathXmlApplicationContext getApplicationContext() {
+        return applicationContext;
     }
 }

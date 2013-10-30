@@ -1,6 +1,6 @@
 package net.ripe.db.whois.internal.api.acl;
 
-import net.ripe.db.whois.api.RestClient;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.domain.BlockEvent;
@@ -45,7 +45,7 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void createBan() throws Exception {
-        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
+        final Ban ban = RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
@@ -65,7 +65,7 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
     @Test
     public void createBanWithIPv6AfterNormalisingPrefix() throws Exception {
 
-        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
+        final Ban ban = RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("2001:db8:1f15:d79:1511:ed4a:b5bc:4420/64", "test"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
@@ -84,7 +84,7 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void createBanWithoutPrefixLength() throws Exception {
-        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
+        final Ban ban = RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1", "test"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
@@ -94,11 +94,11 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void updateBan() throws Exception {
-        RestClient.target(getPort(), BANS_PATH, null, apiKey)
+        RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE));
 
-        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
+        final Ban ban = RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "updated"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
@@ -117,11 +117,11 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void updateBanWithoutPrefixLength() throws Exception {
-        RestClient.target(getPort(), BANS_PATH, null, apiKey)
+        RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE));
 
-        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
+        final Ban ban = RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1", "updated"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
@@ -131,13 +131,13 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void deleteBan() throws Exception {
-        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
+        final Ban ban = RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
         plusOneDay();
 
-        final Ban deletedBan = RestClient.target(getPort(), BANS_PATH, ban.getPrefix(), null, apiKey)
+        final Ban deletedBan = RestTest.target(getPort(), BANS_PATH, ban.getPrefix(), null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .delete(Ban.class);
 
@@ -155,13 +155,13 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void deleteBanWithoutPrefixLength() throws Exception {
-        RestClient.target(getPort(), BANS_PATH, null, apiKey)
+        RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE));
 
         plusOneDay();
 
-        final Ban deletedBan = RestClient.target(getPort(), BANS_PATH, "10.0.0.1", null, apiKey)
+        final Ban deletedBan = RestTest.target(getPort(), BANS_PATH, "10.0.0.1", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .delete(Ban.class);
 
@@ -174,13 +174,13 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void getBan() throws Exception {
-        final Ban ban = RestClient.target(getPort(), BANS_PATH, null, apiKey)
+        final Ban ban = RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE), Ban.class);
 
         plusOneDay();
 
-        final Ban createdBan = RestClient.target(getPort(), BANS_PATH, ban.getPrefix(), null, apiKey)
+        final Ban createdBan = RestTest.target(getPort(), BANS_PATH, ban.getPrefix(), null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ban.class);
 
@@ -190,14 +190,14 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void getBanWithoutPrefixLength() throws Exception {
-        RestClient.target(getPort(), BANS_PATH, null, apiKey)
+        RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.0.0.1/32", "test"), MediaType.APPLICATION_JSON_TYPE));
 
 
         plusOneDay();
 
-        final Ban createdBan = RestClient.target(getPort(), BANS_PATH, "10.0.0.1", null, apiKey)
+        final Ban createdBan = RestTest.target(getPort(), BANS_PATH, "10.0.0.1", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ban.class);
 
@@ -207,14 +207,14 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
 
     @SuppressWarnings("unchecked")
     private List<Ban> getBans() {
-        return RestClient.target(getPort(), BANS_PATH, null, apiKey)
+        return RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(new GenericType<List<Ban>>() {});
     }
 
     @SuppressWarnings("unchecked")
     private List<BanEvent> getBanEvents(final String prefix) {
-        return RestClient.target(getPort(), String.format("%s/%s/events", BANS_PATH, RestClient.encode(prefix)), null, apiKey)
+        return RestTest.target(getPort(), String.format("%s/%s/events", BANS_PATH, RestTest.encode(prefix)), null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(new GenericType<List<BanEvent>>() {
                 });
