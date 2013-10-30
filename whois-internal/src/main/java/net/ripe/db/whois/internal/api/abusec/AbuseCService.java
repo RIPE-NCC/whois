@@ -124,7 +124,12 @@ public class AbuseCService {
 
     private RpslObject createOrganisationWithAbuseCAttribute(final RpslObject organisation, final String abusec) {
         final List<RpslAttribute> attributes = Lists.newArrayList(organisation.getAttributes());
-        attributes.add(new RpslAttribute(AttributeType.ABUSE_C, abusec));
+        for (int i = 0; i < attributes.size(); i++) {
+            if (attributes.get(i).getType().equals(AttributeType.E_MAIL) || attributes.get(i).getType().equals(AttributeType.SOURCE)) {
+                attributes.add(i + 1, new RpslAttribute(AttributeType.ABUSE_C, abusec));
+                break;
+            }
+        }
         return new RpslObject(organisation, attributes);
     }
 }
