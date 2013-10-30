@@ -55,7 +55,7 @@ class AckResponse extends Response {
             if (!matcher.matches()) {
                 return null
             }
-            println "ERRORS section string[\n" + matcher.group(3) + "\n]"
+//            println "ERRORS section string[\n" + matcher.group(3) + "\n]"
 
             List<String> errors = (matcher.group(3) =~ /(?m)^\*\*\*Error:\s*((.*)(\n[ ]+.*)*)$/).collect(removeNewLines)
             List<String> warnings = (matcher.group(3) =~ /(?m)^\*\*\*Warning:\s*((.*)(\n[ ]+.*)*)$/).collect(removeNewLines)
@@ -92,7 +92,7 @@ class AckResponse extends Response {
                 return null
             }
 
-            println "SUCCESS section string[\n" + matcher.group(3) + "\n]"
+//            println "SUCCESS section string[\n" + matcher.group(3) + "\n]"
 
             List<String> warnings = (matcher.group(3) =~ /(?m)^\*\*\*Warning:\s*((.*)(\n[ ]+.*)*)$/).collect(removeNewLines)
             List<String> infos = (matcher.group(3) =~ /(?m)^\*\*\*Info:\s*((.*)(\n[ ]+.*)*)$/).collect(removeNewLines)
@@ -110,7 +110,7 @@ class AckResponse extends Response {
                 return null
             }
 
-            println "PENDING section string[\n" + matcher.group(3) + "\n]"
+//            println "PENDING section string[\n" + matcher.group(3) + "\n]"
 
             List<String> warnings = (matcher.group(3) =~ /(?m)^\*\*\*Warning:\s*((.*)(\n[ ]+.*)*)$/).collect(removeNewLines)
             List<String> infos = (matcher.group(3) =~ /(?m)^\*\*\*Info:\s*((.*)(\n[ ]+.*)*)$/).collect(removeNewLines)

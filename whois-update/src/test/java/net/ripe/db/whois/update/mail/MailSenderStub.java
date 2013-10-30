@@ -40,7 +40,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         try {
             final MimeMessage mimeMessage = new MimeMessage((Session) null);
             mimeMessagePreparator.prepare(mimeMessage);
-            LOGGER.info("Send message: {}\n\n{}\n\n", EnumerationUtils.toList(mimeMessage.getAllHeaderLines()), mimeMessage.getContent());
+//            LOGGER.info("Send message: {}\n\n{}\n\n", EnumerationUtils.toList(mimeMessage.getAllHeaderLines()), mimeMessage.getContent());
             messages.add(mimeMessage);
         } catch (Exception e) {
             throw new RuntimeException("Send message", e);

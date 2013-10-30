@@ -788,7 +788,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     }
 
-    def "create route, mnt-by & parent inet pw supplied, ASN pw supplied 2 weeks later"() {
+    def "create route, mnt-by & parent inet pw supplied, mnt-by & ASN pw supplied 2 weeks later"() {
       given:
         databaseHelper.addObject(getTransient("PARENT-INET"));
         databaseHelper.addObject(getTransient("AS100"));
@@ -799,8 +799,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
-        syncUpdate("""\
+        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        def message = syncUpdate(new SyncUpdate(data: """\
                 route:          192.168.0.0/16
                 descr:          Route
                 origin:         AS100
@@ -810,12 +810,35 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
                 password:   owner
                 password:   pinet
-                """.stripIndent())
+                """.stripIndent(), redirect: false)
+        )
 
-        getTestDateTimeProvider().reset()
 
-        DatabaseHelper.dumpSchema(databaseHelper.getInternalsTemplate().getDataSource())
-        ((PendingUpdatesCleanup)getApplicationContext().getBean("pendingUpdatesCleanup")).run()
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 2)
+        ack.successes.any { it.operation == "Create PENDING" && it.key == "[route] 192.168.0.0/16AS100" }
+        ack.warningPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+                ["This update has only passed one of the two required hierarchical authorisations"]
+        ack.infoPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+                ["Authorisation for [aut-num] AS100 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-END-MNT, AS-MNT",
+                        "The route object 192.168.0.0/16AS100 will be saved for one week pending the second authorisation"]
+
+        def notif = notificationFor "updto_as@ripe.net"
+        notif.subject =~ "RIPE Database updates, auth request notification"
+        notif.pendingAuth("CREATE", "route", "192.168.0.0/16")
+
+        noMoreMessages()
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+      when:
+        whoisFixture.getTestDateTimeProvider().reset()
+//        DatabaseHelper.dumpSchema(databaseHelper.getInternalsTemplate().getDataSource())
+        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
       then:
         def notif2 = notificationFor "updto_owner@ripe.net"
@@ -823,7 +846,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         notif2.contents.toString().contains("NO FINAL CREATE REQUESTED FOR:")
 
       when:
-      def pending = send new Message(
+        def pending = send new Message(
                 subject: "",
                 body: """\
                 route:          192.168.0.0/16
@@ -839,16 +862,16 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor pending
+        def ack3 = ackFor pending
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.successes.any { it.operation == "Create PENDING" && it.key == "[route] 192.168.0.0/16AS100" }
-        ack.warningPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+        ack3.summary.nrFound == 1
+        ack3.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack3.summary.assertErrors(0, 0, 0, 0)
+        ack3.countErrorWarnInfo(0, 1, 2)
+        ack3.successes.any { it.operation == "Create PENDING" && it.key == "[route] 192.168.0.0/16AS100" }
+        ack3.warningPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
                 ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+        ack3.infoPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
                 ["Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT",
                         "The route object 192.168.0.0/16AS100 will be saved for one week pending the second authorisation"]
 
@@ -861,7 +884,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     }
 
-    def "create route, mnt-by & ASN pw supplied, p inet pw supplied 2 weeks later"() {
+    def "create route, mnt-by & ASN pw supplied, pinet pw supplied 2 weeks later"() {
       given:
         databaseHelper.addObject(getTransient("PARENT-INET"));
         databaseHelper.addObject(getTransient("AS100"));
@@ -872,8 +895,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
-        syncUpdate("""\
+        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        def message = syncUpdate(new SyncUpdate(data: """\
                 route:          192.168.0.0/16
                 descr:          Route
                 origin:         AS100
@@ -883,12 +906,33 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
                 password:   owner
                 password:   as
-                """.stripIndent())
+                """.stripIndent(), redirect: false)
+        )
 
-        getTestDateTimeProvider().reset()
+        then:
+        def ack = new AckResponse("", message)
 
-        DatabaseHelper.dumpSchema(databaseHelper.getInternalsTemplate().getDataSource())
-        ((PendingUpdatesCleanup)getApplicationContext().getBean("pendingUpdatesCleanup")).run()
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 2)
+        ack.successes.any { it.operation == "Create PENDING" && it.key == "[route] 192.168.0.0/16AS100" }
+        ack.warningPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+                ["This update has only passed one of the two required hierarchical authorisations"]
+        ack.infoPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+                ["Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT",
+                        "The route object 192.168.0.0/16AS100 will be saved for one week pending the second authorisation"]
+
+        def notif = notificationFor "updto_pinet@ripe.net"
+        notif.subject =~ "RIPE Database updates, auth request notification"
+        notif.pendingAuth("CREATE", "route", "192.168.0.0/16")
+
+        noMoreMessages()
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        when:
+        whoisFixture.getTestDateTimeProvider().reset()
+        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
       then:
         def notif2 = notificationFor "updto_owner@ripe.net"
@@ -911,16 +955,19 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor pending
+        def ack3 = ackFor pending
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+        ack3.summary.nrFound == 1
+        ack3.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack3.summary.assertErrors(1, 1, 0, 0)
+        ack3.countErrorWarnInfo(2, 0, 0)
+        ack3.errors.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
+        ack3.errorMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+                ["Authorisation for [route] 192.168.0.0/16AS100 failed using \"mnt-by:\" not authenticated by: OWNER-MNT",
+                        "Authorisation for [aut-num] AS100 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-END-MNT, AS-MNT"]
 
-        def notif = notificationFor "updto_owner@ripe.net"
-        notif.subject =~ "RIPE Database updates, auth error notification"
+        def notif3 = notificationFor "updto_owner@ripe.net"
+        notif3.subject =~ "RIPE Database updates, auth error notification"
 
         noMoreMessages()
 
