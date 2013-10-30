@@ -10,13 +10,14 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
@@ -90,6 +91,35 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
 
         assertThat(ban.getPrefix(), is("10.0.0.1/32"));
         assertThat(ban.getComment(), is("test"));
+    }
+
+    @Test
+    public void createBanWithInvalidPrefixLength() throws Exception {
+        try {
+            final String response = RestTest.target(getPort(), BANS_PATH, null, apiKey)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new Ban("10.1.2.0/24", "comment", new Date()), MediaType.APPLICATION_JSON_TYPE), String.class);
+
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), is("IPv4 must be a single address"));
+        }
+
+    }
+
+    @Test
+    public void createBanWithInvalidDateDoesNotReturnStackTrace() throws Exception {
+        String banEntity = "{\n" +
+                "  \"prefix\" : \"10.1.2.1/32\",\n" +
+                "  \"comment\" : \"Just Testing\",\n" +
+                "  \"since\" : \"invalid\"\n" +
+                "}";
+        try {
+            final String response = RestTest.target(getPort(), BANS_PATH, null, apiKey)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Entity.entity(banEntity, MediaType.APPLICATION_JSON), String.class);
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("Can not construct instance of java.util.Date from String value 'invalid': not a valid representation"));
+        }
     }
 
     @Test

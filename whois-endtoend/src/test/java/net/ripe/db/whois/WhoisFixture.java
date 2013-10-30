@@ -229,18 +229,6 @@ public class WhoisFixture {
         return builder.toString();
     }
 
-    // TODO: [AH] this is now part of whois-internal; should remove this functionality from end2end
-    private String getAclUrl(final String path, final String apiKey) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("http://localhost:");
-        builder.append(jettyBootstrap.getPort());
-        builder.append("/api/acl/");
-        builder.append(path);
-        builder.append("?apiKey=");
-        builder.append(apiKey);
-        return builder.toString();
-    }
-
     private static String getQuery(final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
         final StringBuilder builder = new StringBuilder();
         int params = 0;
