@@ -75,7 +75,7 @@ ALTER TABLE rtr_set DROP COLUMN dummy;
 DELETE FROM last WHERE object_type = 100;
 
 
-UPDATE version SET version = 'whois-1.70.2';
+INSERT INTO version VALUES ('whois-1.70-2');
 
 COMMIT;
 END//
