@@ -1,8 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
-import net.ripe.db.whois.api.DefaultExceptionMapper;
-import net.ripe.db.whois.api.httpserver.Audience;
+import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -21,11 +20,6 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
     public WhoisRdapServletDeployer(final WhoisRdapService whoisRDAPService, final DefaultExceptionMapper defaultExceptionMapper) {
         this.whoisRDAPService = whoisRDAPService;
         this.defaultExceptionMapper = defaultExceptionMapper;
-    }
-
-    @Override
-    public Audience getAudience() {
-        return Audience.PUBLIC;
     }
 
     @Override
