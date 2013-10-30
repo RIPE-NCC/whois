@@ -1,9 +1,9 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.AbstractRestClientTest;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.freetext.FreeTextIndex;
-import net.ripe.db.whois.api.httpserver.Audience;
 import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.joda.time.LocalDateTime;
@@ -29,8 +29,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
-public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
-    private static final Audience AUDIENCE = Audience.PUBLIC;
+public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     FreeTextIndex freeTextIndex;
@@ -174,7 +173,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
-        final Ip ip = createResource(AUDIENCE, "ip/192.0.2.0/24")
+        final Ip ip = createResource( "ip/192.0.2.0/24")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -233,7 +232,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
-        final Ip ip = createResource(AUDIENCE, "ip/192.0.0.255")
+        final Ip ip = createResource( "ip/192.0.0.255")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -249,7 +248,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_inetnum_not_found() {
         try {
-            createResource(AUDIENCE, "ip/193.0.0.0")
+            createResource( "ip/193.0.0.0")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
             fail();
@@ -261,7 +260,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_inetnum_invalid_syntax() {
         try {
-            createResource(AUDIENCE, "ip/invalid")
+            createResource( "ip/invalid")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
             fail();
@@ -287,7 +286,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final Ip ip = createResource(AUDIENCE, "ip/2001:2002:2003::/48")
+        final Ip ip = createResource( "ip/2001:2002:2003::/48")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -336,7 +335,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        final Ip ip = createResource(AUDIENCE, "ip/2001:2002:2003:2004::")
+        final Ip ip = createResource( "ip/2001:2002:2003:2004::")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -351,7 +350,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_inet6num_not_found() {
         try {
-            createResource(AUDIENCE, "ip/2001:2002:2003::/48")
+            createResource( "ip/2001:2002:2003::/48")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
             fail();
@@ -364,7 +363,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_person_entity() throws Exception {
-        final Entity entity = createResource(AUDIENCE, "entity/PP1-TEST")
+        final Entity entity = createResource( "entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
@@ -403,7 +402,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_entity_not_found() throws Exception {
         try {
-            createResource(AUDIENCE, "entity/ORG-BAD1-TEST")
+            createResource( "entity/ORG-BAD1-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
@@ -415,7 +414,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_entity_invalid_syntax() throws Exception {
         try {
-            createResource(AUDIENCE, "entity/12345")
+            createResource( "entity/12345")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
@@ -426,7 +425,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_entity_no_accept_header() {
-        final Entity entity = createResource(AUDIENCE, "entity/PP1-TEST")
+        final Entity entity = createResource( "entity/PP1-TEST")
                 .request()
                 .get(Entity.class);
 
@@ -439,7 +438,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_role_entity() throws Exception {
-        final Entity entity = createResource(AUDIENCE, "entity/FR1-TEST")
+        final Entity entity = createResource( "entity/FR1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
@@ -483,7 +482,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_domain_object() throws Exception {
-        final Domain domain = createResource(AUDIENCE, "domain/31.12.202.in-addr.arpa")
+        final Domain domain = createResource( "domain/31.12.202.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
@@ -539,7 +538,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void domain_not_found() throws Exception {
         try {
-            createResource(AUDIENCE, "domain/10.in-addr.arpa")
+            createResource( "domain/10.in-addr.arpa")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
             fail();
@@ -551,7 +550,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_forward_domain() {
         try {
-            createResource(AUDIENCE, "domain/ripe.net")
+            createResource( "domain/ripe.net")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
             fail();
@@ -565,7 +564,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_autnum_not_found() throws Exception {
         try {
-            createResource(AUDIENCE, "autnum/1")
+            createResource( "autnum/1")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
             fail();
@@ -577,7 +576,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_autnum_redirect_to_test() {
         try {
-            createResource(AUDIENCE, "autnum/102")
+            createResource( "autnum/102")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
             fail();
@@ -589,7 +588,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_autnum_invalid_syntax() throws Exception {
         try {
-            createResource(AUDIENCE, "autnum/XYZ")
+            createResource( "autnum/XYZ")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
             fail();
@@ -600,21 +599,21 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_autnum_head_method() {
-        final Response response = createResource(AUDIENCE, "autnum/123").request().head();
+        final Response response = createResource( "autnum/123").request().head();
 
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
     }
 
     @Test
     public void lookup_autnum_not_found_head_method() {
-        final Response response = createResource(AUDIENCE, "autnum/1").request().head();
+        final Response response = createResource( "autnum/1").request().head();
 
         assertThat(response.getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
     }
 
     @Test
     public void lookup_single_autnum() throws Exception {
-        final Autnum autnum = createResource(AUDIENCE, "autnum/123")
+        final Autnum autnum = createResource( "autnum/123")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
@@ -655,7 +654,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_autnum_with_rdap_json_content_type() {
-        final Response response = createResource(AUDIENCE, "autnum/123")
+        final Response response = createResource( "autnum/123")
                 .request("application/rdap+json")
                 .get();
 
@@ -667,7 +666,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_autnum_with_application_json_content_type() {
-        final Response response = createResource(AUDIENCE, "autnum/123")
+        final Response response = createResource( "autnum/123")
                 .request("application/json")
                 .get();
 
@@ -680,7 +679,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_autnum_within_block() throws Exception {
         try {
-            createResource(AUDIENCE, "autnum/1500")
+            createResource( "autnum/1500")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
             fail();
@@ -725,7 +724,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST\n");
 
-        final Autnum autnum = createResource(AUDIENCE, "autnum/123")
+        final Autnum autnum = createResource( "autnum/123")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
@@ -759,7 +758,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                         "password: test");
         assertThat(response, containsString("Modify SUCCEEDED: [aut-num] AS123"));
 
-        final Autnum autnum = createResource(AUDIENCE, "autnum/123")
+        final Autnum autnum = createResource( "autnum/123")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
@@ -817,7 +816,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
-        final Ip ip = createResource(AUDIENCE, "ip/192.0.0.128")
+        final Ip ip = createResource( "ip/192.0.0.128")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -837,7 +836,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     @Test
     public void lookup_org_entity_handle() throws Exception {
-        final Entity response = createResource(AUDIENCE, "entity/ORG-TEST1-TEST")
+        final Entity response = createResource( "entity/ORG-TEST1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
@@ -847,7 +846,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_org_not_found() throws Exception {
         try {
-            createResource(AUDIENCE, "entity/ORG-NONE-TEST")
+            createResource( "entity/ORG-NONE-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
@@ -859,7 +858,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void lookup_org_invalid_syntax() throws Exception {
         try {
-            createResource(AUDIENCE, "entity/ORG-INVALID")
+            createResource( "entity/ORG-INVALID")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
@@ -886,7 +885,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
                 "changed:       test@test.net.au 20000228\n" +
                 "source:        TEST\n");
 
-        final Entity entity = createResource(AUDIENCE, "entity/ORG-ONE-TEST")
+        final Entity entity = createResource( "entity/ORG-ONE-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
@@ -952,7 +951,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_domain_not_found() throws Exception {
         try {
             freeTextIndex.rebuild();
-            createResource(AUDIENCE, "domains?name=ripe.net")
+            createResource( "domains?name=ripe.net")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
@@ -965,11 +964,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_domain_exact_match() throws Exception {
         freeTextIndex.rebuild();
 
-        final String responese = createResource(AUDIENCE, "domains?name=31.12.202.in-addr.arpa")
+        final String responese = createResource( "domains?name=31.12.202.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
         System.out.println(responese);
-        final SearchResult response = createResource(AUDIENCE, "domains?name=31.12.202.in-addr.arpa")
+        final SearchResult response = createResource( "domains?name=31.12.202.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -980,7 +979,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_domain_with_wildcard() throws Exception {
         freeTextIndex.rebuild();
 
-        final SearchResult response = createResource(AUDIENCE, "domains?name=*.in-addr.arpa")
+        final SearchResult response = createResource( "domains?name=*.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -993,7 +992,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_nameserver_not_found() throws Exception {
         try {
             freeTextIndex.rebuild();
-            createResource(AUDIENCE, "nameservers?name=ns1.ripe.net")
+            createResource("nameservers?name=ns1.ripe.net")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
@@ -1006,7 +1005,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_nameserver_empty_name() throws Exception {
         try {
             freeTextIndex.rebuild();
-            createResource(AUDIENCE, "nameservers?name=")
+            createResource("nameservers?name=")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
@@ -1023,7 +1022,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_person_by_name() throws Exception {
         freeTextIndex.rebuild();
 
-        final SearchResult response = createResource(AUDIENCE, "entities?fn=Test%20Person")
+        final SearchResult response = createResource("entities?fn=Test%20Person")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1034,7 +1033,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_person_by_name_not_found() throws Exception {
         try {
             freeTextIndex.rebuild();
-            createResource(AUDIENCE, "entities?fn=Santa%20Claus")
+            createResource("entities?fn=Santa%20Claus")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
@@ -1047,7 +1046,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_person_by_handle() throws Exception {
         freeTextIndex.rebuild();
 
-        final SearchResult response = createResource(AUDIENCE, "entities?handle=TP2-TEST")
+        final SearchResult response = createResource("entities?handle=TP2-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1058,7 +1057,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_person_by_handle_not_found() throws Exception {
         try {
             freeTextIndex.rebuild();
-            createResource(AUDIENCE, "entities?handle=XYZ-TEST")
+            createResource("entities?handle=XYZ-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
@@ -1073,7 +1072,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_role_by_name() throws Exception {
         freeTextIndex.rebuild();
 
-        final SearchResult response = createResource(AUDIENCE, "entities?handle=FR*-TEST")
+        final SearchResult response = createResource("entities?handle=FR*-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1084,7 +1083,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_role_by_handle() throws Exception {
         freeTextIndex.rebuild();
 
-        final SearchResult response = createResource(AUDIENCE, "entities?fn=F*st%20Role")
+        final SearchResult response = createResource("entities?fn=F*st%20Role")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1097,7 +1096,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_organisation_by_name() throws Exception {
         freeTextIndex.rebuild();
 
-        final SearchResult response = createResource(AUDIENCE, "entities?fn=organisation")
+        final SearchResult response = createResource("entities?fn=organisation")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1108,7 +1107,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_organisation_by_name_mixed_case() throws Exception {
         freeTextIndex.rebuild();
 
-        final SearchResult response = createResource(AUDIENCE, "entities?fn=ORGanisAtioN")
+        final SearchResult response = createResource("entities?fn=ORGanisAtioN")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1119,7 +1118,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_organisation_by_name_with_wildcard() throws Exception {
         freeTextIndex.rebuild();
 
-        final SearchResult response = createResource(AUDIENCE, "entities?fn=organis*tion")
+        final SearchResult response = createResource("entities?fn=organis*tion")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1130,7 +1129,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_organisation_by_handle() throws Exception {
         freeTextIndex.rebuild();
 
-        final SearchResult response = createResource(AUDIENCE, "entities?handle=ORG-TEST1-TEST")
+        final SearchResult response = createResource( "entities?handle=ORG-TEST1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1141,7 +1140,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_organisation_by_handle_with_wildcard_prefix() throws Exception {
         freeTextIndex.rebuild();
 
-        final SearchResult response = createResource(AUDIENCE, "entities?handle=*TEST1-TEST")
+        final SearchResult response = createResource( "entities?handle=*TEST1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1152,7 +1151,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_organisation_by_handle_with_wildcard_middle() throws Exception {
         freeTextIndex.rebuild();
 
-        final SearchResult response = createResource(AUDIENCE, "entities?handle=ORG*TEST")
+        final SearchResult response = createResource( "entities?handle=ORG*TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1163,7 +1162,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_organisation_by_handle_with_wildcard_suffix() throws Exception {
         freeTextIndex.rebuild();
 
-        final SearchResult response = createResource(AUDIENCE, "entities?handle=ORG*")
+        final SearchResult response = createResource( "entities?handle=ORG*")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1174,7 +1173,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_organisation_by_handle_with_wildcard_prefix_middle_and_suffix() throws Exception {
         freeTextIndex.rebuild();
 
-        final SearchResult response = createResource(AUDIENCE, "entities?handle=*ORG*TEST*")
+        final SearchResult response = createResource( "entities?handle=*ORG*TEST*")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1184,7 +1183,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void search_entity_without_query_params() throws Exception {
         try {
-            createResource(AUDIENCE, "entities")
+            createResource( "entities")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
@@ -1196,7 +1195,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void search_entity_both_fn_and_handle_query_params() throws Exception {
         try {
-            createResource(AUDIENCE, "entities?fn=XXXX&handle=YYYY")
+            createResource( "entities?fn=XXXX&handle=YYYY")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
@@ -1208,7 +1207,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void search_entity_empty_name() throws Exception {
         try {
-            createResource(AUDIENCE, "entities?fn=")
+            createResource( "entities?fn=")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
@@ -1220,7 +1219,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     @Test
     public void search_entity_empty_handle() throws Exception {
         try {
-            createResource(AUDIENCE, "entities?handle=")
+            createResource("entities?handle=")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
@@ -1233,7 +1232,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
     public void search_entity_multiple_object_response() {
         freeTextIndex.rebuild();
 
-        final SearchResult result = createResource(AUDIENCE, "entities?handle=*TEST")
+        final SearchResult result = createResource( "entities?handle=*TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1254,15 +1253,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRestClientTest {
 
     // helper methods
 
-    @Override
-    protected WebTarget createResource(final Audience audience, final String path) {
-        return client.target(String.format("http://localhost:%s/rdap/%s", getPort(audience), path));
+    protected WebTarget createResource(final String path) {
+        return RestTest.target(getPort(), String.format("rdap/%s", path));
     }
 
     private String syncupdate(String data) {
-        WebTarget resource = client.target(String.format("http://localhost:%s/whois/syncupdates/test", getPort(AUDIENCE)));
+        WebTarget resource = RestTest.target(getPort(), String.format("whois/syncupdates/test"));
         return resource.request()
-                .post(javax.ws.rs.client.Entity.entity("DATA=" + encode(data),
+                .post(javax.ws.rs.client.Entity.entity("DATA=" + RestTest.encode(data),
                         MediaType.APPLICATION_FORM_URLENCODED),
                         String.class);
 
