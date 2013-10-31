@@ -19,7 +19,7 @@ ALTER TABLE inet6num DROP COLUMN thread_id;
 ALTER TABLE inet_rtr DROP COLUMN thread_id;
 ALTER TABLE inetnum DROP COLUMN thread_id;
 ALTER TABLE interface DROP COLUMN thread_id;
-ALTER TABLE ip6int DROP COLUMN thread_id;
+DROP TABLE ip6int;
 ALTER TABLE irt DROP COLUMN thread_id;
 ALTER TABLE irt_nfy DROP COLUMN thread_id;
 ALTER TABLE key_cert DROP COLUMN thread_id;
