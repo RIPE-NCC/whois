@@ -1428,7 +1428,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-m --list-versions 2001::/20", "^%ERROR:109: invalid combination of flags passed")
     }
 
-    def "query --list-versions and -k, 2 versions"() {
+    def "query --list-versions, with persistent connection, 2 versions"() {
       given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
 
@@ -1466,9 +1466,12 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
 
-        queryLineMatches("-k --show-version 1 2001::/20\n\n--show-version 2 2001::/20\n\n-k", "^% Version 1 of object \"2001::/20\"")
-        queryLineMatches("-k --show-version 1 2001::/20\n\n--show-version 2 2001::/20\n\n-k", "^% Version 2 \\(current version\\) of object \"2001::/20\"")
-//        queryLineMatches("-k -rBG 2001::/20\n\n--show-version 1 2001::/20\n\n--show-version 2 2001::/20\n\n-k", "^% Version 1 of object \"2001::/20\"")
+        def responses = queryPersistent(["--show-version 1 2001::/20",
+                                     "--show-version 2 2001::/20"])
+
+        responseMatches(responses.get(0),"^% Version 1 of object \"2001::/20\"")
+        !responseMatches(responses.get(0),"^% Version 2 \\(current version\\) of object \"2001::/20\"")
+        responseMatches(responses.get(1),"^% Version 2 \\(current version\\) of object \"2001::/20\"")
     }
 
     def "query --show-version 2 and -F, 2 versions"() {
@@ -1786,5 +1789,4 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         queryLineMatches("--diff-versions 3:2 192.168.0.0 - 192.169.255.255", "\\+remarks:\\s*version 2")
         queryLineMatches("--diff-versions 3:2 192.168.0.0 - 192.169.255.255", "-remarks:\\s*version 3")
     }
-
 }

@@ -22,6 +22,8 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
+import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.task.unref.UnrefCleanup;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
@@ -43,14 +45,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class WhoisFixture {
     private static final Pattern CHARSET_PATTERN = Pattern.compile(".*;charset=(.*)");
@@ -337,6 +339,29 @@ public class WhoisFixture {
 
     public String query(final String query) {
         return DummyWhoisClient.query(QueryServer.port, query);
+    }
+
+    public List<String> queryPersistent(final List<String> queries) throws Exception {
+        final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
+
+        List<String> responses = new ArrayList<>();
+
+        client.connectAndWait();
+        client.sendLine("-k");
+
+        for (String q : queries) {
+            q.replaceAll("-k","");
+            client.waitForResponseEndsWith(END_OF_HEADER);
+            client.clearBuffer();
+            client.sendLine(q);
+            client.waitForResponseEndsWith(END_OF_HEADER);
+            responses.add(client.getResponse());
+        }
+
+        client.sendLine("-k");
+        client.waitForClose();
+        return responses;
     }
 
     public void reloadTrees() {
