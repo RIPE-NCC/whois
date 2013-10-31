@@ -32,7 +32,8 @@ import static org.junit.Assert.*;
 
 public class CompareQueryResults {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompareQueryResults.class);
-    private static final Pattern WHOIS_SERVER_PATTERN = Pattern.compile("(?m)^% whois-server-(.*)$");
+    private static final Pattern VERSION_PATTERN = Pattern.compile("(?m)^% whois-server-(.*)$");
+    private static final Pattern SERIAL_PATTERN = Pattern.compile("(?m)^\\w+:\\d+:X:\\d+-(\\d+)$");
 
     private final QueryExecutorConfiguration config1;
     private final QueryExecutorConfiguration config2;
@@ -64,6 +65,10 @@ public class CompareQueryResults {
 
         logVersion(config1);
         logVersion(config2);
+
+        Long serial1 = logSerial(config1);
+        Long serial2 = logSerial(config2);
+        assertEquals("Serials must be the same", serial1, serial2);
 
         int nrQueries = 0;
         int failedQueries = 0;
@@ -169,12 +174,25 @@ public class CompareQueryResults {
     }
 
     private void logVersion(final QueryExecutorConfiguration configuration) throws IOException {
-        final DummyWhoisClient client = new DummyWhoisClient(configuration.getHost(), configuration.getPort());
+        final DummyWhoisClient client = new DummyWhoisClient(configuration.getHost(), configuration.getQueryPort());
         final String response = client.sendQuery("-q version");
-        final Matcher matcher = WHOIS_SERVER_PATTERN.matcher(response);
+        final Matcher matcher = VERSION_PATTERN.matcher(response);
         if (!matcher.find()) {
-            throw new RuntimeException("version string not found in whois query response of "+configuration.getIdentifier());
+            throw new RuntimeException("version string not found in whois query response of " + configuration.getIdentifier());
         }
         LOGGER.warn(" ***** Server {} is running version {} ***** ", configuration.getIdentifier(), matcher.group(1));
+    }
+
+    private long logSerial(final QueryExecutorConfiguration configuration) throws IOException {
+        final DummyWhoisClient client = new DummyWhoisClient(configuration.getHost(), configuration.getNrtmPort());
+        final String response = client.sendQuery("-q sources");
+        final Matcher matcher = SERIAL_PATTERN.matcher(response);
+        if (!matcher.find()) {
+            throw new RuntimeException("serial string not found in whois nrtm response of " + configuration.getIdentifier());
+        }
+
+        final Long serial = Long.parseLong(matcher.group(1));
+        LOGGER.warn(" ***** Server {} is running on DB with serial {} ***** ", configuration.getIdentifier(), serial);
+        return serial;
     }
 }

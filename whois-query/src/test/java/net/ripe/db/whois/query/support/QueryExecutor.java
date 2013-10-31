@@ -41,7 +41,7 @@ public class QueryExecutor {
     }
 
     public List<ResponseObject> getWhoisResponse(final String query) throws IOException {
-        final DummyWhoisClient client = new DummyWhoisClient(configuration.getHost(), configuration.getPort());
+        final DummyWhoisClient client = new DummyWhoisClient(configuration.getHost(), configuration.getQueryPort());
         final String response;
 
         final Stopwatch stopWatch = new Stopwatch().start();
