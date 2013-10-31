@@ -8,9 +8,7 @@
 -- begin a new transaction
 --
 
-SET autocommit = 0;
-START TRANSACTION;
-
+BEGIN;
 --
 -- begin patch
 --
