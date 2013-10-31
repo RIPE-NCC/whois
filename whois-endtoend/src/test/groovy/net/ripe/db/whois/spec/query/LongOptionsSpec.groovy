@@ -462,8 +462,29 @@ class LongOptionsSpec extends BaseQueryUpdateSpec {
 
       and:
         objectMatches(queryPersistent(["-krBG -T inetnum 192.168.200.0 - 192.168.200.255",
-                                   "-rkBG -T inetnum 192.168.0.0 - 192.169.255.255"]).get(1),
-                                    "inetnum","192.168.0.0 - 192.169.255.255")
+                                       "-rkBG -T inetnum 192.168.0.0 - 192.169.255.255"])
+                              .get(1), "inetnum","192.168.0.0 - 192.169.255.255")
+
+
+        objectMatches(queryPersistent(["-krBG -T inetnum 192.168.200.0 - 192.168.200.255",
+                                       "-rBG -T inetnum 192.168.0.0 - 192.169.255.255",
+                                       "-k"])
+                              .get(1), "inetnum","192.168.0.0 - 192.169.255.255")
+
+        objectMatches(queryPersistent(["-k",
+                                       "-rBG -T inetnum 192.168.200.0 - 192.168.200.255",
+                                       "-rBG -T inetnum 192.168.0.0 - 192.169.255.255",
+                                       "-k"])
+                              .get(2), "inetnum","192.168.0.0 - 192.169.255.255")
+
+        objectMatches(queryPersistent(["-rBG -T inetnum --persistent-connection 192.168.200.0 - 192.168.200.255",
+                                       "-rBG -T inetnum 192.168.0.0 - 192.169.255.255",
+                                       "--persistent-connection"])
+                              .get(1), "inetnum","192.168.0.0 - 192.169.255.255")
+
+//        "-rBG -T inetnum -k 192.168.200.0 - 192.168.200.255\n\n-rBG -T inetnum 192.168.0.0 - 192.169.255.255\n\n-k", "inetnum", "192.168.0.0 - 192.169.255.255")
+//        "-rBG -T inetnum --persistent-connection 192.168.200.0 - 192.168.200.255\n\n-rBG -T inetnum 192.168.0.0 - 192.169.255.255\n\n--persistent-connection", "inetnum", "192.168.0.0 - 192.169.255.255")
+
     }
 
     def "query specific ASSIGNED PA range, parent ALLOCATED PA, with --no-grouping --no-filtering --no-referenced"() {

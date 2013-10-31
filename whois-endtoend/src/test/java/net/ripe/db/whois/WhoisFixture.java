@@ -45,10 +45,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -351,14 +348,16 @@ public class WhoisFixture {
 
         client.connectAndWait();
 
-        for (String q : queries) {
-            client.sendLine(q);
-            client.waitForResponseEndsWith(END_OF_HEADER);
+        for (Iterator<String> it = queries.iterator(); it.hasNext(); ) {
+            client.sendLine(it.next());
+            if (it.hasNext()) {
+                client.waitForResponseEndsWith(END_OF_HEADER);
+            } else {
+                client.waitForClose();
+            }
             responses.add(client.getResponse());
             client.clearBuffer();
         }
-
-        client.waitForClose();
         return responses;
     }
 
@@ -386,17 +385,19 @@ public class WhoisFixture {
         return ipTreeUpdater;
     }
 
-    public TestDateTimeProvider getTestDateTimeProvider(){
+    public TestDateTimeProvider getTestDateTimeProvider() {
         return testDateTimeProvider;
     }
 
     public ClassPathXmlApplicationContext getApplicationContext() {
         return applicationContext;
     }
+
     public DnsGatewayStub getDnsGatewayStub() {
         return dnsGatewayStub;
     }
-    public MailSenderStub getMailSender(){
+
+    public MailSenderStub getMailSender() {
         return mailSender;
     }
 }
