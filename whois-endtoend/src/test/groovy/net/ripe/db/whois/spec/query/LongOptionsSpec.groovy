@@ -461,8 +461,8 @@ class LongOptionsSpec extends BaseQueryUpdateSpec {
         queryObject("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       and:
-        objectMatches(queryPersistent(["-rBG -T inetnum 192.168.200.0 - 192.168.200.255",
-                                   "-rBG -T inetnum 192.168.0.0 - 192.169.255.255"]).get(1),
+        objectMatches(queryPersistent(["-krBG -T inetnum 192.168.200.0 - 192.168.200.255",
+                                   "-rkBG -T inetnum 192.168.0.0 - 192.169.255.255"]).get(1),
                                     "inetnum","192.168.0.0 - 192.169.255.255")
     }
 

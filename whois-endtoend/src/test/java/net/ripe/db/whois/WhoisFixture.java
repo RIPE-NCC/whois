@@ -45,14 +45,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class WhoisFixture {
     private static final Pattern CHARSET_PATTERN = Pattern.compile(".*;charset=(.*)");
@@ -348,18 +350,14 @@ public class WhoisFixture {
         List<String> responses = new ArrayList<>();
 
         client.connectAndWait();
-        client.sendLine("-k");
 
         for (String q : queries) {
-            q.replaceAll("-k","");
-            client.waitForResponseEndsWith(END_OF_HEADER);
-            client.clearBuffer();
             client.sendLine(q);
             client.waitForResponseEndsWith(END_OF_HEADER);
             responses.add(client.getResponse());
+            client.clearBuffer();
         }
 
-        client.sendLine("-k");
         client.waitForClose();
         return responses;
     }
