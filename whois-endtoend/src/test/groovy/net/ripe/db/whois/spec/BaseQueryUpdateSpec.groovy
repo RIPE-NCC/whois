@@ -50,6 +50,15 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
         getDatabaseHelper().addObjects(rpslObjects)
     }
 
+    String getFixture(String key) {
+        def s = fixtures[key]
+        if (s == null) {
+            throw new IllegalArgumentException('No fixture for ${key}')
+        }
+
+        return s.stripIndent()
+    }
+
     Map<String, String> getTransients() {
         Maps.newHashMap()
     }
@@ -64,7 +73,7 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
     }
 
     def dbfixture(String string) {
-        databaseHelper.addObject(string)
+        getDatabaseHelper().addObject(string)
         string
     }
 
@@ -89,6 +98,6 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
             messageList.add(new net.ripe.db.whois.common.Message(Messages.Type.ERROR, message))
         }
 
-        dnsGatewayStub.addResponse(ciString(domain), messageList.toArray(new net.ripe.db.whois.common.Message[messageList.size()]))
+        getDnsGatewayStub().addResponse(ciString(domain), messageList.toArray(new net.ripe.db.whois.common.Message[messageList.size()]))
     }
 }

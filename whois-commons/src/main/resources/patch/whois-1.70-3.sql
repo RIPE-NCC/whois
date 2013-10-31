@@ -16,7 +16,7 @@ START TRANSACTION;
 
 DROP TABLE ip6int;
 
-UPDATE version SET version = 'whois-1.70.3';
+INSERT INTO version VALUES ('whois-1.70-3');
 
 COMMIT;
 END//

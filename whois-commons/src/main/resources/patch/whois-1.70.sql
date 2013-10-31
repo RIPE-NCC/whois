@@ -64,4 +64,4 @@ ALTER TABLE upd_to DROP COLUMN thread_id;
 ALTER TABLE x509 DROP COLUMN thread_id;
 ALTER TABLE zone_c DROP COLUMN thread_id;
 
-UPDATE version SET version = 'whois-1.70';
+INSERT INTO version VALUES ('whois-1.70');

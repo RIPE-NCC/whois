@@ -25,7 +25,6 @@ import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.task.unref.UnrefCleanup;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
-import net.ripe.db.whois.update.dns.DnsGateway;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
 import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailSenderStub;
@@ -53,7 +52,6 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-// TODO [AK] Integrate in BaseQueryUpdateSpec
 public class WhoisFixture {
     private static final Pattern CHARSET_PATTERN = Pattern.compile(".*;charset=(.*)");
 
@@ -68,7 +66,8 @@ public class WhoisFixture {
     protected MailGateway mailGateway;
     protected MessageDequeue messageDequeue;
     protected DataSource whoisDataSource;
-    protected DnsGateway dnsGateway;
+    protected DnsGatewayStub dnsGatewayStub;
+
     protected IpRanges ipRanges;
     protected TestDateTimeProvider testDateTimeProvider;
     protected JettyBootstrap jettyBootstrap;
@@ -104,14 +103,17 @@ public class WhoisFixture {
 
     public void start() throws Exception {
         applicationContext = new ClassPathXmlApplicationContext("applicationContext-whois-test.xml");
-        messageDequeue = applicationContext.getBean(MessageDequeue.class);
-        ipRanges = applicationContext.getBean(IpRanges.class);
         databaseHelper = applicationContext.getBean(DatabaseHelper.class);
-        stubs = applicationContext.getBeansOfType(Stub.class);
-        ipTreeUpdater = applicationContext.getBean(IpTreeUpdater.class);
         whoisServer = applicationContext.getBean(WhoisServer.class);
-        mailSender = applicationContext.getBean(MailSenderStub.class);
+        jettyBootstrap = applicationContext.getBean(JettyBootstrap.class);
         mailUpdatesTestSupport = applicationContext.getBean(MailUpdatesTestSupport.class);
+        mailSender = applicationContext.getBean(MailSenderStub.class);
+        dnsGatewayStub = applicationContext.getBean(DnsGatewayStub.class);
+        ipTreeUpdater = applicationContext.getBean(IpTreeUpdater.class);
+        ipRanges = applicationContext.getBean(IpRanges.class);
+        stubs = applicationContext.getBeansOfType(Stub.class);
+        messageDequeue = applicationContext.getBean(MessageDequeue.class);
+        testDateTimeProvider = applicationContext.getBean(TestDateTimeProvider.class);
 
         rpslObjectDao = applicationContext.getBean(RpslObjectDao.class);
         rpslObjectUpdateDao = applicationContext.getBean(RpslObjectUpdateDao.class);
@@ -119,13 +121,7 @@ public class WhoisFixture {
         pendingUpdateDao = applicationContext.getBean(PendingUpdateDao.class);
         mailGateway = applicationContext.getBean(MailGateway.class);
         whoisDataSource = applicationContext.getBean(SourceAwareDataSource.class);
-        testDateTimeProvider = applicationContext.getBean(TestDateTimeProvider.class);
-        jettyBootstrap = applicationContext.getBean(JettyBootstrap.class);
-        stubs = applicationContext.getBeansOfType(Stub.class);
-        databaseHelper = applicationContext.getBean(DatabaseHelper.class);
-        ipTreeUpdater = applicationContext.getBean(IpTreeUpdater.class);
         sourceContext = applicationContext.getBean(SourceContext.class);
-        dnsGateway = applicationContext.getBean(DnsGateway.class);
         unrefCleanup = applicationContext.getBean(UnrefCleanup.class);
         indexDao = applicationContext.getBean(IndexDao.class);
 
@@ -197,15 +193,8 @@ public class WhoisFixture {
         }
     }
 
-    public String aclPost(final String path, final String apiKey, final String data, final int responseCode) throws IOException {
-        Map<String, String> properties = Maps.newLinkedHashMap();
-        properties.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-        properties.put(HttpHeaders.CONTENT_LENGTH, Integer.toString(data.length()));
-        return doPostRequest(getAclUrl(path, apiKey), data, properties, responseCode);
-    }
-
     public boolean dnsCheckedFor(final String key) {
-        return ((DnsGatewayStub) dnsGateway).getCheckedUpdates().remove(ciString(key));
+        return dnsGatewayStub.getCheckedUpdates().remove(ciString(key));
     }
 
     public void setRipeRanges(final String... ripeRanges) {
@@ -237,18 +226,6 @@ public class WhoisFixture {
             builder.append("?");
             builder.append(query);
         }
-        return builder.toString();
-    }
-
-    // TODO: [AH] this is now part of whois-internal; should remove this functionality from end2end
-    private String getAclUrl(final String path, final String apiKey) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("http://localhost:");
-        builder.append(jettyBootstrap.getPort());
-        builder.append("/api/acl/");
-        builder.append(path);
-        builder.append("?apiKey=");
-        builder.append(apiKey);
         return builder.toString();
     }
 
@@ -374,10 +351,6 @@ public class WhoisFixture {
         unrefCleanup.run();
     }
 
-    public void setIpRanges(String... ranges) {
-        ipRanges.setTrusted(ranges);
-    }
-
     public void rebuildIndexes() {
         indexDao.rebuild();
     }
@@ -390,11 +363,17 @@ public class WhoisFixture {
         return ipTreeUpdater;
     }
 
-    public TestDateTimeProvider getTestDateTimeProvider() {
+    public TestDateTimeProvider getTestDateTimeProvider(){
         return testDateTimeProvider;
     }
 
     public ClassPathXmlApplicationContext getApplicationContext() {
         return applicationContext;
+    }
+    public DnsGatewayStub getDnsGatewayStub() {
+        return dnsGatewayStub;
+    }
+    public MailSenderStub getMailSender(){
+        return mailSender;
     }
 }

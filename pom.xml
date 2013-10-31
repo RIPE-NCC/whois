@@ -745,7 +745,7 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups />
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/whois/spec/query/*Spec*.java,**/whois/spec/update/*Spec*.java
+                <test.files.integration>**/whois/spec/query/*Spec*.java,**/whois/spec/update/*Spec*.java,**/whois/spec/integration/*Spec*.java
                 </test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>
             </properties>

@@ -56,7 +56,7 @@ VALUES
 ( 1191071, 'IA4-ORG-ARIN', 11),
 (11947620, 'LLL-AFRINIC', 11);
 
-UPDATE version SET version = 'whois-1.70.1';
+INSERT INTO version VALUES ('whois-1.70-1');
 
 COMMIT;
 END//
