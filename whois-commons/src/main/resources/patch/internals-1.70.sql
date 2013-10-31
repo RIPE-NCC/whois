@@ -40,3 +40,6 @@ INSERT INTO scheduler VALUES (now(), 'GrsImporter', 'initial', 1);
 INSERT INTO scheduler VALUES (now(), 'PendingUpdatesCleanup', 'initial', 1);
 INSERT INTO scheduler VALUES (now(), 'ResetPersonalObjectAccounting', 'initial', 1);
 INSERT INTO scheduler VALUES (now(), 'UnrefCleanup', 'initial', 1);
+
+INSERT INTO version VALUES ('internals-1.70');
+

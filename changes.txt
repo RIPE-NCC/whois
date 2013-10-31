@@ -16,7 +16,6 @@
 [api] removed xml-related 'xlink:' prefix from locators in JSON output
 [api] normalize ip addresses
 [api] dropped external/internal notion of servers; config port.api replaces port.api.*
-[api] changed api.rest.lookup.baseurl to api.rest.baseurl
 [all] removed useless thread_id, prev_serial, serial fields and dropped unused tables from SQL schema
 [all] merged pending and scheduler databases into internals
 [all] added table authoritative_data to interals database
@@ -24,12 +23,12 @@
 [all] sanitize source attribute into uppercase letters
 [all] specifying type filter is now allowed with version queries
 [DEPLOY] remove leftover wsearch.* from properties file
-[DEPLOY] run whois-common/sql/apikeys.sql on master before starting first 1.70
-[DEPLOY] run internals-1.70.sql on master before starting first 1.70
+[DEPLOY] change api.rest.lookup.baseurl to api.rest.baseurl
+[DEPLOY] run internals-1.70.sql on master
 [DEPLOY] adjust properties to reflect new internals database
-[DEPLOY] run whois-1.70.sql after all nodes run 1.70 (warning: blocks updates & takes a long time!) (65 mins on pre-production)
-[DEPLOY] run acl-1.70.sql script (to normalise all ACL prefixes).
-[DEPLOY] delete var/idx before starting 1.70 (to rebuild Lucene index @ v4.4, will take 20 mins to complete).
+[DEPLOY] run whois-1.70.sql and whois-1.70-2.sql on master (warning: blocks updates & takes a long time!) (65 mins on pre-production)
+[DEPLOY] run acl-1.70.sql on master (to normalise all ACL prefixes).
+[DEPLOY] delete var/idx before starting 1.70 (to rebuild Lucene index @ v4.4, will take 20 mins to complete)
 [DEPLOY] execute JMX call DailyScheduler.runDailyScheduledTask net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask, on the first server only
 [DEPLOY] run JMX call AuthoritativeResources.refreshCache on all servers (after import finished)
 [DEPLOY] deploy DbWebWar abusefinder branch

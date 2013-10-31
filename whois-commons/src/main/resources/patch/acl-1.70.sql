@@ -13,8 +13,6 @@ BEGIN;
 -- begin patch
 --
 
-use ACL_RIPE;
-
 update acl_denied set prefix = replace(prefix, ':0:0:0:0:0:0/64', '::/64');
 update acl_denied set prefix = replace(prefix, ':0:0:0:0:0/64', '::/64');
 update acl_denied set prefix = replace(prefix, ':0:0:0:0/64', '::/64');
@@ -37,11 +35,10 @@ update acl_proxy set prefix = replace(prefix, ':0:0:0:0:0:0/48', '::/48');
 update acl_proxy set prefix = replace(prefix, ':0:0:0:0:0/48', '::/48');
 update acl_proxy set prefix = replace(prefix, ':0:0:0:0/48', '::/48');
 
-INSERT INTO version VALUES ('acl-1.70');
+UPDATE version SET version = 'acl-1.70';
 
 --
 -- commit the transaction
 --
 
 COMMIT;
-SET autocommit = 1;

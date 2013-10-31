@@ -6,8 +6,6 @@
 -- Release Version:   1.70.2
 --
 
-USE WHOIS_UPDATE_RIPE;
-
 -- as_set
 
 DELETE FROM as_set WHERE dummy = 1;
@@ -56,3 +54,5 @@ ALTER TABLE rtr_set DROP COLUMN dummy;
 -- last
 
 DELETE FROM last WHERE object_type = 100;
+
+UPDATE version SET version = 'whois-1.70';
