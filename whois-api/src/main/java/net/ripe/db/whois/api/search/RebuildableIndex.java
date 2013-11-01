@@ -107,6 +107,10 @@ public abstract class RebuildableIndex {
     }
 
     public <T> T search(IndexTemplate.SearchCallback<T> searchCallback) throws IOException {
+        if (index == null) {
+            throw new IllegalStateException("Index not found.");
+        }
+
         return index.search(searchCallback);
     }
 
