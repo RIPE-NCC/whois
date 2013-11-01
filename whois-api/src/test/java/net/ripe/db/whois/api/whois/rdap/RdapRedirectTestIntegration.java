@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.whois.rdap;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.whois.rdap.domain.Ip;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
@@ -13,6 +12,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.RedirectionException;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -28,59 +28,63 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @BeforeClass
     public static void setProperties() throws IOException {
-        System.setProperty("rdap.sources", "RANDOM-GRS");
-        System.setProperty("rdap.redirect.random", "https://rdap.random.net");
+        System.setProperty("rdap.sources", "ONE-GRS,TWO-GRS,THREE-GRS");
+        System.setProperty("rdap.redirect.one", "https://rdap.one.net");
+        System.setProperty("rdap.redirect.two", "");
+        // no property set for three-grs
         System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
-        DatabaseHelper.addGrsDatabases("RANDOM-GRS");
+        DatabaseHelper.addGrsDatabases("ONE-GRS", "TWO-GRS", "THREE-GRS");
     }
 
     @AfterClass
     public static void clearProperties() throws IOException {
         System.clearProperty("rdap.sources");
-        System.clearProperty("rdap.redirect.random");
+        System.clearProperty("rdap.redirect.one");
+        System.clearProperty("rdap.redirect.two");
         System.clearProperty("rdap.public.baseUrl");
     }
 
     @Test
-    public void lookup_autnum_redirect_to_test() throws Exception {
-        addResourceData("random", "AS173");
+    public void redirect_to_url() throws Exception {
+        addResourceData("one", "AS100");
         refreshResourceData();
 
         try {
-            RestTest.target(getPort(), String.format("rdap/%s", "autnum/173"))
+            RestTest.target(getPort(), String.format("rdap/%s", "autnum/100"))
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Ip.class);
+                    .get(String.class);
             fail();
         } catch (final RedirectionException e) {
-            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.random.net/rdap/autnum/173"));
+            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.one.net/rdap/autnum/100"));
         }
     }
 
-//    @Test
-//    //TODO behaves correctly up til whoisrdapservice.redirect.getUri - what happens with the response is anyone's guess
-//    public void foundForRedirect() throws SQLException {
-//        try {
-//            RestTest.target(getPort(), String.format("rdap/%s", "autnum/173")).request(MediaType.APPLICATION_JSON_TYPE).get(String.class);
-//        } catch (final RedirectionException e) {
-//            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("http://rdap.apnic.net/autnum/173"));
-//        }
-//    }
-//
-//    @Test(expected = NotFoundException.class)
-//    public void notFoundForRedirect() throws SQLException {
-//        RestTest.target(getPort(), String.format("rdap/%s", "autnum/200")).request(MediaType.APPLICATION_JSON_TYPE).get(String.class);
-//    }
-//
-//    @Test
-//    //TODO should we return 404 or redirect if url is not present?
-//    public void foundButNoRedirectUrl() {
-//        try {
-//            RestTest.target(getPort(), String.format("rdap/%s", "autnum/800")).request(MediaType.APPLICATION_JSON_TYPE).get(String.class);
-//        } catch (final RedirectionException e) {
-//            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is(""));
-//        }
-//    }
+    @Test(expected = NotFoundException.class)
+    public void resource_not_found() {
+        RestTest.target(getPort(), String.format("rdap/%s", "autnum/101"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
+    }
 
+    @Test(expected = NotFoundException.class)
+    public void empty_redirect_property() {
+        addResourceData("two", "AS200");
+        refreshResourceData();
+
+        RestTest.target(getPort(), String.format("rdap/%s", "autnum/200"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void no_redirect_property() {
+        addResourceData("three", "AS300");
+        refreshResourceData();
+
+        RestTest.target(getPort(), String.format("rdap/%s", "autnum/300"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
+    }
 
     private void addResourceData(final String source, final String resource) {
         databaseHelper.getInternalsTemplate().update("INSERT INTO authoritative_resource VALUES (?, ?)", source, resource);
@@ -89,7 +93,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     private void refreshResourceData() {
         databaseHelper.getInternalsTemplate().update(
                 "DELETE FROM scheduler WHERE task = ?",
-                AuthoritativeResourceImportTask.class.getName());
+                AuthoritativeResourceImportTask.class.getSimpleName());
 
         databaseHelper.getInternalsTemplate().update(
                 "INSERT INTO scheduler (host, done, date, task) VALUES ('localhost', ?, ?, ?)",
