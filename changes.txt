@@ -33,6 +33,7 @@
 [DEPLOY] run JMX call AuthoritativeResources.refreshCache on all servers (after import finished)
 [DEPLOY] deploy DbWebWar abusefinder branch
 [DEPLOY] run whois-1.70.sql on all GRS databases, too
+[DEPLOY] add /abuse-contact to mod_proxy config
 
 ## 1.69 (deployed on 2013-09-23)
 [update] enable dry-run
