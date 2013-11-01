@@ -21,10 +21,12 @@ import net.ripe.db.whois.query.support.Fixture;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,6 +41,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
 
+// TODO: [AH] this should have been an integration test
+
 @RunWith(MockitoJUnitRunner.class)
 public class RpslResponseDecoratorTest {
 
@@ -50,12 +54,13 @@ public class RpslResponseDecoratorTest {
     @Mock DummifyFunction dummifyFunction;
     @Mock FilterTagsDecorator filterTagsDecorator;
     @Mock FilterPlaceholdersDecorator filterPlaceholdersDecorator;
+    @InjectMocks @Autowired AbuseCInfoDecorator abuseCInfoDecorator;
 
     RpslResponseDecorator subject;
 
     @Before
     public void setup() {
-        subject = new RpslResponseDecorator(rpslObjectDaoMock, filterPersonalDecorator, sourceContext, abuseCFinder, dummifyFunction, filterTagsDecorator, filterPlaceholdersDecorator, decorator);
+        subject = new RpslResponseDecorator(rpslObjectDaoMock, filterPersonalDecorator, sourceContext, abuseCFinder, dummifyFunction, filterTagsDecorator, filterPlaceholdersDecorator, abuseCInfoDecorator, decorator);
         when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);
@@ -93,6 +98,7 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void shouldAddGroupingHeader() {
+        when(sourceContext.isMain()).thenReturn(false);
         final String response = execute("-r -B -T mntner FOO-MNT", RpslObject.parse(1, "mntner: FOO-MNT\n"));
         assertThat(response, is("" +
                 QueryMessages.relatedTo("FOO-MNT") + "\n" +
@@ -101,6 +107,7 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void shouldSuppressGroupingHeader_shorthand() {
+        when(sourceContext.isMain()).thenReturn(false);
         final String response = execute("-r -F -G -B -T mntner FOO-MNT", RpslObject.parse(1, "mntner: FOO-MNT\n"));
         assertEquals("*mt: FOO-MNT\n\n", response);
     }
@@ -122,6 +129,7 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void keys() {
+        when(sourceContext.isMain()).thenReturn(false);
         final String response = execute("-K 193.0.0.0/21", RpslObject.parse(1, "" +
                 "route:          193.0.0.0/21\n" +
                 "descr:          RIPE-NCC\n" +
@@ -139,12 +147,14 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void shouldSuppressGroupingHeader() {
+        when(sourceContext.isMain()).thenReturn(false);
         final String response = execute("-r -G -B -T mntner FOO-MNT", RpslObject.parse(1, "mntner: FOO-MNT\n"));
         assertThat(response, is("mntner:         FOO-MNT\n\n"));
     }
 
     @Test
     public void shouldAddFilterNoticeOnce() {
+        when(sourceContext.isMain()).thenReturn(false);
         final String response = execute("-r -G -T organisation FOO-ORG",
                 RpslObject.parse(1, "organisation: FOO-ORG\nsource: RIPE\n"),
                 RpslObject.parse(1, "organisation: BAR-ORG\nsource: RIPE\n"));
@@ -163,6 +173,7 @@ public class RpslResponseDecoratorTest {
     @Test
     public void shouldNotFilterWhenNoAclUsed() {
         when(sourceContext.isAcl()).thenReturn(false);
+        when(sourceContext.isMain()).thenReturn(false);
 
         final String response = execute("-r -G -T organisation FOO-MNT",
                 RpslObject.parse(1, "organisation: FOO-ORG\nsource: RIPE\n"),
@@ -181,6 +192,7 @@ public class RpslResponseDecoratorTest {
     public void shouldNotFilterForGrsSources() {
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("APNIC-GRS"));
         when(sourceContext.isAcl()).thenReturn(false);
+        when(sourceContext.isMain()).thenReturn(false);
 
         final String response = execute("-r -G -T organisation FOO-MNT",
                 RpslObject.parse(1, "organisation: FOO-ORG\nsource: APNIC-GRS\n"),
@@ -328,15 +340,16 @@ public class RpslResponseDecoratorTest {
                 "admin-c:        NICHDL\n" +
                 "status:         OTHER\n" +
                 "\n" +
+                "% No abuse contact registered for test2\n\n" +
                 "mntner:         test2\n" +
                 "\n" +
+                "% No abuse contact registered for test1\n\n" +
                 "mntner:         test1\n" +
                 "\n"));
     }
 
     @Test
     public void grouping_and_recursive_with_recursive_objects_sorts() {
-
         final RpslObject object1 = RpslObject.parse(1, "inetnum: 10.0.0.1\ntech-c:NICHDL\nadmin-c:NICHDL\norg: ORG1-TEST\nstatus:OTHER");
         final RpslObject object2 = RpslObject.parse(1, "inetnum: 10.0.0.2\ntech-c:NICHDL\nadmin-c:NICHDL\norg: ORG1-TEST\nstatus:OTHER");
 
@@ -373,8 +386,10 @@ public class RpslResponseDecoratorTest {
                 "org:            ORG1-TEST\n" +
                 "status:         OTHER\n" +
                 "\n" +
+                "% No abuse contact registered for test2\n\n" +
                 "mntner:         test2\n" +
                 "\n" +
+                "% No abuse contact registered for test1\n\n" +
                 "mntner:         test1\n" +
                 "\n" +
                 QueryMessages.relatedTo("10.0.0.2") + "\n" +
@@ -385,8 +400,10 @@ public class RpslResponseDecoratorTest {
                 "org:            ORG1-TEST\n" +
                 "status:         OTHER\n" +
                 "\n" +
+                "% No abuse contact registered for test2\n\n" +
                 "mntner:         test2\n" +
                 "\n" +
+                "% No abuse contact registered for test1\n\n" +
                 "mntner:         test1\n" +
                 "\n")
         );
@@ -415,6 +432,7 @@ public class RpslResponseDecoratorTest {
         when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("GRS1", "GRS2"));
         when(sourceContext.isDummificationRequired()).thenReturn(true);
         when(dummifyFunction.apply(any(ResponseObject.class))).thenReturn(DummifierLegacy.PLACEHOLDER_PERSON_OBJECT);
+        when(sourceContext.isMain()).thenReturn(false);
 
         final String response = execute("-s TEST-GRS -T person test", RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST"));
         assertThat(response, is("" +

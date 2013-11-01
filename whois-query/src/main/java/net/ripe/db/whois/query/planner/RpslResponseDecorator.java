@@ -41,13 +41,13 @@ public class RpslResponseDecorator {
     private final RpslObjectDao rpslObjectDao;
     private final FilterPersonalDecorator filterPersonalDecorator;
     private final SourceContext sourceContext;
-    private final AbuseCInfoFunction abuseCInfoFunction;
     private final BriefAbuseCFunction briefAbuseCFunction;
     private final DummifyFunction dummifyFunction;
     private final SyntaxFilterFunction validSyntaxFilterFunction;
     private final SyntaxFilterFunction invalidSyntaxFilterFunction;
     private final FilterTagsDecorator filterTagsDecorator;
     private final FilterPlaceholdersDecorator filterPlaceholdersDecorator;
+    private final AbuseCInfoDecorator abuseCInfoDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
 
     @Autowired
@@ -58,16 +58,17 @@ public class RpslResponseDecorator {
                                  final DummifyFunction dummifyFunction,
                                  final FilterTagsDecorator filterTagsDecorator,
                                  final FilterPlaceholdersDecorator filterPlaceholdersDecorator,
+                                 final AbuseCInfoDecorator abuseCInfoDecorator,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
         this.sourceContext = sourceContext;
         this.dummifyFunction = dummifyFunction;
+        this.abuseCInfoDecorator = abuseCInfoDecorator;
         this.validSyntaxFilterFunction = new SyntaxFilterFunction(true);
         this.invalidSyntaxFilterFunction = new SyntaxFilterFunction(false);
         this.filterTagsDecorator = filterTagsDecorator;
         this.filterPlaceholdersDecorator = filterPlaceholdersDecorator;
-        this.abuseCInfoFunction = new AbuseCInfoFunction(abuseCFinder);
         this.briefAbuseCFunction = new BriefAbuseCFunction(abuseCFinder);
         this.decorators = Sets.newHashSet(decorators);
     }
@@ -81,8 +82,8 @@ public class RpslResponseDecorator {
         decoratedResult = groupRelatedObjects(query, decoratedResult);
         decoratedResult = filterTagsDecorator.decorate(query, decoratedResult);
         decoratedResult = filterPersonalDecorator.decorate(query, decoratedResult);
+        decoratedResult = abuseCInfoDecorator.decorate(query, decoratedResult);
 
-        decoratedResult = applyAbuseC(query, decoratedResult);
         decoratedResult = applySyntaxFilter(query, decoratedResult);
         decoratedResult = filterEmail(query, decoratedResult);
         decoratedResult = filterAuth(decoratedResult);
@@ -90,14 +91,6 @@ public class RpslResponseDecorator {
         decoratedResult = applyOutputFilters(query, decoratedResult);
 
         return decoratedResult;
-    }
-
-    private Iterable<? extends ResponseObject> applyAbuseC(final Query query, final Iterable<? extends ResponseObject> result) {
-        if (!query.isBriefAbuseContact() && sourceContext.isMain()) {
-            return Iterables.concat(Iterables.transform(result, abuseCInfoFunction));
-        }
-
-        return result;
     }
 
     private Iterable<? extends ResponseObject> applySyntaxFilter(final Query query, final Iterable<? extends ResponseObject> result) {

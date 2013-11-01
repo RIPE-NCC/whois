@@ -14,8 +14,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.HashMap;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -58,29 +58,15 @@ public class BriefAbuseCFunctionTest {
                 "abuse-mailbox:  abuse@me.now\n"));
     }
 
-    @Test
-    public void apply_person() {
-        RpslObject rpslObject = RpslObject.parse("" +
-                "person: FOO\n" +
-                "mnt-by:   BAR\n" +
-                "nic-hdl: FOO-QUX\n" +
-                "source: QUX\n" +
-                "abuse-mailbox: abuse@me.now");
-
-        final ResponseObject response = subject.apply(rpslObject);
-        assertThat(response.toString(), is("" +
-                "abuse-mailbox:  abuse@me.now\n"));
-    }
-
-    @Test
-    public void apply_person_nothing_remains() {
+    @Test(expected = IllegalStateException.class)
+    public void apply_person_should_fail() {
         RpslObject rpslObject = RpslObject.parse("" +
                 "person: FOO\n" +
                 "nic-hdl: FOO-QUX\n" +
                 "source: QUX");
 
         final ResponseObject response = subject.apply(rpslObject);
-        assertNull(response);
+        fail();
     }
 
     @Test

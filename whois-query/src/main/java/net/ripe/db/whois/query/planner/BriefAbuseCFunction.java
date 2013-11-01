@@ -34,19 +34,20 @@ class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
 
         final RpslObject rpslObject = (RpslObject) input;
 
-        if (ABUSE_CONTACT_OBJECT_TYPES.contains(rpslObject.getType())) {
-            final Map<CIString, CIString> abuseContacts = abuseCFinder.getAbuseContacts(rpslObject);
-            if (!abuseContacts.isEmpty()) {
-                final List<RpslAttribute> abuseCAttributes = new ArrayList<>(2);
-                abuseCAttributes.add(rpslObject.getTypeAttribute());
-                for (final CIString abuseContact : abuseContacts.keySet()) {
-                    abuseCAttributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseContacts.get(abuseContact).toString()));
-                }
-                return new RpslAttributes(abuseCAttributes);
-            }
+        if (!ABUSE_CONTACT_OBJECT_TYPES.contains(rpslObject.getType())) {
+            throw new IllegalStateException("Got object " + rpslObject);
         }
 
-        // TODO: [AH] make this into a distinct responseobject, so that rest api can also display it
+        final Map<CIString, CIString> abuseContacts = abuseCFinder.getAbuseContacts(rpslObject);
+        if (!abuseContacts.isEmpty()) {
+            final List<RpslAttribute> abuseCAttributes = new ArrayList<>(2);
+            abuseCAttributes.add(rpslObject.getTypeAttribute());
+            for (final CIString abuseContact : abuseContacts.values()) {
+                abuseCAttributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseContact.toString()));
+            }
+            return new RpslAttributes(abuseCAttributes);
+        }
+
         final List<RpslAttribute> newAttributes = new ArrayList<>(2);
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             if (BRIEF_ATTRIBUTES.contains(attribute.getType())) {

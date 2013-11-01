@@ -4,14 +4,17 @@ import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.query.Query;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -22,15 +25,16 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class AbuseCInfoFunctionTest {
+public class AbuseCInfoDecoratorTest {
     @Mock private AbuseCFinder abuseCFinder;
-    @InjectMocks AbuseCInfoFunction subject;
+    @Mock private SourceContext sourceContext;
+    @InjectMocks AbuseCInfoDecorator subject;
 
     @Test
     public void notApplicable() {
         final RpslObject object = RpslObject.parse("person: Someone\nnic-hdl: NIC-TEST");
 
-        final Iterator<? extends ResponseObject> iterator = subject.apply(object).iterator();
+        final Iterator<? extends ResponseObject> iterator = subject.decorate(Query.parse("--abuse-contact AS3333"), Collections.singletonList(object)).iterator();
         final ResponseObject result = iterator.next();
 
         assertThat(result, is((ResponseObject) object));
@@ -44,9 +48,9 @@ public class AbuseCInfoFunctionTest {
         map.put(CIString.ciString("ffc::0/64"), CIString.ciString("abuse@ripe.net"));
 
         when(abuseCFinder.getAbuseContacts(object)).thenReturn(map);
+        when(sourceContext.isMain()).thenReturn(true);
 
-        AbuseCInfoFunction subject = new AbuseCInfoFunction(abuseCFinder);
-        final Iterator<? extends ResponseObject> iterator = subject.apply(object).iterator();
+        final Iterator<? extends ResponseObject> iterator = subject.decorate(Query.parse("AS3333"), Collections.singletonList(object)).iterator();
 
         final MessageObject result = (MessageObject) iterator.next();
         assertThat(result.toString(), is("% Abuse contact for 'ffc::0/64' is 'abuse@ripe.net'\n"));
@@ -60,9 +64,9 @@ public class AbuseCInfoFunctionTest {
     public void autnum_without_abuse_contact() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS333\nas-name: TEST-NAME\norg: ORG-TOL1-TEST");
         when(abuseCFinder.getAbuseContacts(autnum)).thenReturn(new HashMap<CIString, CIString>());
+        when(sourceContext.isMain()).thenReturn(true);
 
-        final AbuseCInfoFunction subject = new AbuseCInfoFunction(abuseCFinder);
-        final Iterator<? extends ResponseObject> iterator = subject.apply(autnum).iterator();
+        final Iterator<? extends ResponseObject> iterator = subject.decorate(Query.parse("AS3333"), Collections.singletonList(autnum)).iterator();
 
         final MessageObject result = (MessageObject) iterator.next();
 
