@@ -581,7 +581,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Ip.class);
             fail();
         } catch (final RedirectionException e) {
-            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.test.net/rdap/autnum/102"));
+            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.test.net/autnum/102"));
         }
     }
 

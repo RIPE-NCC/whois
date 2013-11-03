@@ -79,7 +79,8 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
                 if (authoritativeResource.isMaintainedByRir(objectType.get(), CIString.ciString(query.getSearchValue()))) {
                     final String basePath = entry.getValue();
                     LOGGER.debug("Redirecting {} to {}", requestPath, sourceName);
-                    return URI.create(String.format("%s%s", basePath, requestPath));
+                    // TODO: don't include local path prefix (lookup from base context and replace)
+                    return URI.create(String.format("%s%s", basePath, requestPath.replaceFirst("/rdap", "")));
                 }
             }
         }

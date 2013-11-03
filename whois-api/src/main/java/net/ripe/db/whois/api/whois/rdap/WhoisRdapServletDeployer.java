@@ -33,7 +33,5 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
         resourceConfig.register(defaultExceptionMapper);
         resourceConfig.register(rdapJsonProvider);
         context.addServlet(new ServletHolder("Whois RDAP REST API", new ServletContainer(resourceConfig)), "/rdap/*");
-
-
     }
 }

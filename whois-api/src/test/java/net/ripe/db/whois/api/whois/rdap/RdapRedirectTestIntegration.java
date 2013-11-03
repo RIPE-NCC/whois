@@ -55,7 +55,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
                     .get(String.class);
             fail();
         } catch (final RedirectionException e) {
-            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.one.net/rdap/autnum/100"));
+            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.one.net/autnum/100"));
         }
     }
 

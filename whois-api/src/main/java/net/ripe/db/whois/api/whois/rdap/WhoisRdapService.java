@@ -319,6 +319,7 @@ public class WhoisRdapService {
 
     private String getRequestUrl(final HttpServletRequest request) {
         if (StringUtils.isNotEmpty(baseUrl)) {
+            // TODO: don't include local base URL (lookup from request context and replace)
             return String.format("%s%s", baseUrl, getRequestPath(request).replaceFirst("/rdap", ""));
         }
         final StringBuffer buffer = request.getRequestURL();
@@ -405,7 +406,11 @@ public class WhoisRdapService {
                     .build();
 
         } catch (IOException e) {
+            LOGGER.error("Caught IOException", e);
             throw new IllegalStateException(e);
+        } catch (Exception e) {
+            LOGGER.error("Caught Exception", e);
+            throw e;
         }
     }
 
