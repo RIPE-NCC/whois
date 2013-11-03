@@ -554,8 +554,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
             fail();
-        } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("RIPE NCC does not support forward domain queries."));
+        } catch (NotFoundException e) {
+            // expected
         }
     }
 

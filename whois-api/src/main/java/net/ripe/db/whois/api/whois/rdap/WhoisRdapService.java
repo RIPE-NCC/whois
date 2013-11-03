@@ -214,7 +214,7 @@ public class WhoisRdapService {
         try {
             Domain.parse(key);
         } catch (AttributeParseException e) {
-            throw new IllegalArgumentException("RIPE NCC does not support forward domain queries.");
+            throw new NotFoundException("RIPE NCC does not support forward domain queries.");
         }
     }
 
