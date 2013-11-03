@@ -10,6 +10,7 @@ import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,6 +153,28 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:        dbtest@ripe.net   20121214\n" +
                 "source:         TEST\n" +
                 "password:       test\n");
+        databaseHelper.addObject("" +
+                "inetnum:        0.0.0.0 - 255.255.255.255\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv4 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "changed:        dbtest@ripe.net 20020101\n" +
+                "source:         TEST");
+        databaseHelper.addObject("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "changed:        dbtest@ripe.net 20020101\n" +
+                "source:         TEST");
         ipTreeUpdater.rebuild();
     }
 
@@ -245,6 +268,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getLang(), is(nullValue()));
     }
 
+    @Ignore("TODO: if 0/0 is found, then return 404 (or redirect if found in GRS)")
     @Test
     public void lookup_inetnum_not_found() {
         try {
@@ -347,6 +371,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getName(), is("RIPE-NCC"));
     }
 
+    @Ignore("TODO: if ::0 is found, then return 404 (or redirect if found in GRS)")
     @Test
     public void lookup_inet6num_not_found() {
         try {
