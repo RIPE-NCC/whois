@@ -4,6 +4,7 @@ package net.ripe.db.whois.query.planner;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.MessageObject;
@@ -14,10 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Deque;
+import java.util.EnumSet;
 import java.util.Map;
 
 @Component
 class AbuseCInfoDecorator implements ResponseDecorator {
+    private static final EnumSet<ObjectType> ABUSE_LOOKUP_OBJECT_TYPES = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
+
     private final AbuseCFinder abuseCFinder;
     private final SourceContext sourceContext;
 
@@ -42,6 +46,11 @@ class AbuseCInfoDecorator implements ResponseDecorator {
                 }
 
                 final RpslObject object = (RpslObject) input;
+
+                if (!ABUSE_LOOKUP_OBJECT_TYPES.contains(object.getType())) {
+                    result.add(input);
+                    return;
+                }
 
                 final Map<CIString, CIString> abuseContacts = abuseCFinder.getAbuseContacts(object);
 

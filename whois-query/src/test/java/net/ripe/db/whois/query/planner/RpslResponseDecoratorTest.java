@@ -340,10 +340,8 @@ public class RpslResponseDecoratorTest {
                 "admin-c:        NICHDL\n" +
                 "status:         OTHER\n" +
                 "\n" +
-                "% No abuse contact registered for test2\n\n" +
                 "mntner:         test2\n" +
                 "\n" +
-                "% No abuse contact registered for test1\n\n" +
                 "mntner:         test1\n" +
                 "\n"));
     }
@@ -386,10 +384,8 @@ public class RpslResponseDecoratorTest {
                 "org:            ORG1-TEST\n" +
                 "status:         OTHER\n" +
                 "\n" +
-                "% No abuse contact registered for test2\n\n" +
                 "mntner:         test2\n" +
                 "\n" +
-                "% No abuse contact registered for test1\n\n" +
                 "mntner:         test1\n" +
                 "\n" +
                 QueryMessages.relatedTo("10.0.0.2") + "\n" +
@@ -400,10 +396,8 @@ public class RpslResponseDecoratorTest {
                 "org:            ORG1-TEST\n" +
                 "status:         OTHER\n" +
                 "\n" +
-                "% No abuse contact registered for test2\n\n" +
                 "mntner:         test2\n" +
                 "\n" +
-                "% No abuse contact registered for test1\n\n" +
                 "mntner:         test1\n" +
                 "\n")
         );

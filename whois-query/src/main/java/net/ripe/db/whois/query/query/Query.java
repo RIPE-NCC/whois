@@ -34,10 +34,10 @@ public final class Query {
 
     public static final int MAX_QUERY_ELEMENTS = 60;
 
-    private static final Set<ObjectType> ABUSE_CONTACT_OBJECT_TYPES = Sets.newHashSet(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
-    private static final Set<ObjectType> GRS_LIMIT_TYPES = Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
-    private static final Set<ObjectType> DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS = Sets.newHashSet(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
-    private static final Set<ObjectType> DEFAULT_TYPES_ALL = Sets.newHashSet(ObjectType.values());
+    public static final EnumSet<ObjectType> ABUSE_CONTACT_OBJECT_TYPES = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
+    private static final EnumSet<ObjectType> GRS_LIMIT_TYPES = EnumSet.of(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
+    private static final EnumSet<ObjectType> DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
+    private static final EnumSet<ObjectType> DEFAULT_TYPES_ALL = EnumSet.allOf(ObjectType.class);
 
     private static final List<QueryValidator> QUERY_VALIDATORS = Lists.newArrayList(
             new MatchOperationValidator(),
