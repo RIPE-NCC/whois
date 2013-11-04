@@ -55,7 +55,7 @@ public class InternalUpdatePerformer {
                 throw new WebApplicationException(getResponse(response));
             }
 
-            return update.getOperation() == Operation.DELETE ? null : rpslObjectDao.getById(updateContext.getUpdateInfo(update).getObjectId());
+            return updateContext.getPreparedUpdate(update).getUpdatedObject();
         } finally {
             loggerContext.remove();
         }
