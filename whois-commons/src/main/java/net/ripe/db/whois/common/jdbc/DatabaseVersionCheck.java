@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.jdbc;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -30,8 +31,8 @@ import java.util.regex.Pattern;
 @DeployedProfile
 public class DatabaseVersionCheck {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseVersionCheck.class);
-    static final Pattern RESOURCE_MATCHER = Pattern.compile("(?i)^([a-z]+)-([0-9.]+)$");
-    static final Splitter VERSION_SPLITTER = Splitter.on('.').omitEmptyStrings();
+    static final Pattern RESOURCE_MATCHER = Pattern.compile("(?i)^([a-z]+)-([0-9.-]+)$");
+    static final Splitter VERSION_SPLITTER = Splitter.on(CharMatcher.anyOf(".-")).omitEmptyStrings();
 
     private final ApplicationContext applicationContext;
     @Value("${application.version}")

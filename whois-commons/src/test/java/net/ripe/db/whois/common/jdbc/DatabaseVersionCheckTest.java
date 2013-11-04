@@ -24,6 +24,12 @@ public class DatabaseVersionCheckTest {
         assertThat(DatabaseVersionCheck.compareVersions("2.0.0", "2.0.0.1"), lessThan(0));
         assertThat(DatabaseVersionCheck.compareVersions("2.0.0.0", "2.0.0.1"), lessThan(0));
         assertThat(DatabaseVersionCheck.compareVersions("2.0.0.0.0.0.0.0", "2.0.0.1"), lessThan(0));
+
+        assertThat(DatabaseVersionCheck.compareVersions("1.0-1", "1.0-2"), lessThan(0));
+        assertThat(DatabaseVersionCheck.compareVersions("1.1-99", "2.0"), lessThan(0));
+        assertThat(DatabaseVersionCheck.compareVersions("1.01-0.11", "2.0"), lessThan(0));
+        assertThat(DatabaseVersionCheck.compareVersions("1.01-0.11", "1.1-1"), lessThan(0));
+        assertThat(DatabaseVersionCheck.compareVersions("1.01-0.11", "1.1-00.12"), lessThan(0));
     }
 
     @Test
@@ -31,6 +37,7 @@ public class DatabaseVersionCheckTest {
         Assert.assertTrue(DatabaseVersionCheck.RESOURCE_MATCHER.matcher("whois-1.52.12").matches());
         Assert.assertTrue(DatabaseVersionCheck.RESOURCE_MATCHER.matcher("acl-2").matches());
         Assert.assertFalse(DatabaseVersionCheck.RESOURCE_MATCHER.matcher("lee7-2.5.4").matches());
+        Assert.assertFalse(DatabaseVersionCheck.RESOURCE_MATCHER.matcher("lee7-2.5.4-1.2").matches());
     }
 
     @Test
