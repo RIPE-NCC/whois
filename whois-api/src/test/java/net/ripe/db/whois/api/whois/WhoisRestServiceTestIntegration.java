@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.whois.domain.*;
+import net.ripe.db.whois.api.whois.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.User;
@@ -81,7 +82,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "source:    TEST\n");
 
     @Autowired
-    private WhoisObjectMapper whoisObjectMapper;
+    private WhoisObjectServerMapper whoisObjectMapper;
 
     @Before
     public void setup() {

@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.whois.domain.Link;
 import net.ripe.db.whois.api.whois.domain.*;
+import net.ripe.db.whois.api.whois.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -87,11 +88,11 @@ public class WhoisRestService {
     private final RpslObjectDao rpslObjectDao;
     private final SourceContext sourceContext;
     private final QueryHandler queryHandler;
-    private final WhoisObjectMapper whoisObjectMapper;
+    private final WhoisObjectServerMapper whoisObjectMapper;
     private final InternalUpdatePerformer updatePerformer;
 
     @Autowired
-    public WhoisRestService(final DateTimeProvider dateTimeProvider, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler, final WhoisObjectMapper whoisObjectMapper, final InternalUpdatePerformer updatePerformer) {
+    public WhoisRestService(final DateTimeProvider dateTimeProvider, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler, final WhoisObjectServerMapper whoisObjectMapper, final InternalUpdatePerformer updatePerformer) {
         this.dateTimeProvider = dateTimeProvider;
         this.loggerContext = loggerContext;
         this.rpslObjectDao = rpslObjectDao;

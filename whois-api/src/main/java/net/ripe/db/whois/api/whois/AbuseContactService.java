@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.whois;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.whois.domain.AbuseResources;
+import net.ripe.db.whois.api.whois.mapper.AbuseContactMapper;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.planner.RpslAttributes;
@@ -25,12 +26,12 @@ import java.util.List;
 @Path("/abuse-contact")
 public class AbuseContactService {
 
-    private final WhoisObjectMapper whoisObjectMapper;
+    private final AbuseContactMapper abuseContactMapper;
     private final QueryHandler queryHandler;
 
     @Autowired
-    public AbuseContactService(final WhoisObjectMapper whoisObjectMapper, final QueryHandler queryHandler) {
-        this.whoisObjectMapper = whoisObjectMapper;
+    public AbuseContactService(final AbuseContactMapper abuseContactMapper, final QueryHandler queryHandler) {
+        this.abuseContactMapper = abuseContactMapper;
         this.queryHandler = queryHandler;
     }
 
@@ -53,7 +54,7 @@ public class AbuseContactService {
             public void handle(final ResponseObject responseObject) {
                 if (responseObject instanceof RpslAttributes) {
                     final RpslAttributes abuseContactInfo = (RpslAttributes)responseObject;
-                    abuseResources.add(whoisObjectMapper.mapAbuseContact(key, abuseContactInfo.getAttributes()));
+                    abuseResources.add(abuseContactMapper.mapAbuseContact(key, abuseContactInfo.getAttributes()));
                 }
             }
         });
