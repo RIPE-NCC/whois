@@ -1,4 +1,4 @@
-package net.ripe.db.whois.internal.api;
+package net.ripe.db.whois.api.whois;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
@@ -23,7 +23,7 @@ public final class RestClient {
     private static final Client client;
     private String restApiUrl;
     private String sourceName;
-    private WhoisObjectClientMapper whoisObjectMapper;
+    private WhoisObjectClientMapper whoisObjectClientMapper;
 
     static {
         final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
@@ -38,7 +38,7 @@ public final class RestClient {
     @Value("${api.rest.baseurl}")
     public void setRestApiUrl(final String restApiUrl) {
         this.restApiUrl = restApiUrl;
-        this.whoisObjectMapper = new WhoisObjectClientMapper(restApiUrl);
+        this.whoisObjectClientMapper = new WhoisObjectClientMapper(restApiUrl);
     }
 
     @Value("${whois.source}")
@@ -46,15 +46,72 @@ public final class RestClient {
         this.sourceName = sourceName;
     }
 
-    public RpslObject create(final RpslObject rpslObject, final String override) {
+    public RpslObject create(final RpslObject rpslObject, final String password) {
+        final WhoisResources whoisResources = client.target(String.format("%s/%s/%s%s",
+                restApiUrl,
+                sourceName,
+                rpslObject.getType().getName(),
+                StringUtils.isNotEmpty(password) ? String.format("?password=%s", password) : ""))
+                .request()
+                .post(Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+        return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+    }
+
+    public RpslObject createOverride(final RpslObject rpslObject, final String override) {
         final WhoisResources whoisResources = client.target(String.format("%s/%s/%s%s",
                 restApiUrl,
                 sourceName,
                 rpslObject.getType().getName(),
                 StringUtils.isNotEmpty(override) ? String.format("?override=%s", override) : ""))
                 .request()
-                .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
-        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+                .post(Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+        return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+    }
+
+    public RpslObject update(final RpslObject rpslObject, final String password) {
+        final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s",
+                restApiUrl,
+                sourceName,
+                rpslObject.getType().getName(),
+                rpslObject.getKey().toString(),
+                StringUtils.isNotEmpty(password) ? String.format("?password=%s", password) : ""))
+                .request()
+                .put(Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+        return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+    }
+
+    public RpslObject updateOverride(final RpslObject rpslObject, final String override) {
+        final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s",
+                restApiUrl,
+                sourceName,
+                rpslObject.getType().getName(),
+                rpslObject.getKey().toString(),
+                StringUtils.isNotEmpty(override) ? String.format("?override=%s", override) : ""))
+                .request()
+                .put(Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+        return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+    }
+
+    public void delete(final RpslObject rpslObject, final String password) {
+        client.target(String.format("%s/%s/%s/%s%s",
+                restApiUrl,
+                sourceName,
+                rpslObject.getType().getName(),
+                rpslObject.getKey().toString(),
+                StringUtils.isNotEmpty(password) ? String.format("?password=%s", password) : ""))
+                .request()
+                .delete(String.class);
+    }
+
+    public void deleteOverride(final RpslObject rpslObject, final String override) {
+        client.target(String.format("%s/%s/%s/%s%s",
+                restApiUrl,
+                sourceName,
+                rpslObject.getType().getName(),
+                rpslObject.getKey().toString(),
+                StringUtils.isNotEmpty(override) ? String.format("?override=%s", override) : ""))
+                .request()
+                .delete(String.class);
     }
 
     public RpslObject lookup(final ObjectType objectType, final String pkey) {
@@ -64,30 +121,7 @@ public final class RestClient {
                 objectType.getName(),
                 pkey)).request()
                 .get(WhoisResources.class);
-        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
-    }
-
-    public RpslObject update(final RpslObject rpslObject, final String override) {
-        final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s",
-                restApiUrl,
-                sourceName,
-                rpslObject.getType().getName(),
-                rpslObject.getKey().toString(),
-                StringUtils.isNotEmpty(override) ? String.format("?override=%s", override) : ""))
-                .request()
-                .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
-        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
-    }
-
-    public void delete(final RpslObject rpslObject, final String override) {
-        client.target(String.format("%s/%s/%s/%s%s",
-                restApiUrl,
-                sourceName,
-                rpslObject.getType().getName(),
-                rpslObject.getKey().toString(),
-                StringUtils.isNotEmpty(override) ? String.format("?override=%s", override) : ""))
-                .request()
-                .delete(String.class);
+        return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
     public WhoisObject lookupWhoisObject(final ObjectType objectType, final String pkey) {

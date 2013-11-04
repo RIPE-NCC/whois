@@ -12,7 +12,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.AbstractInternalTest;
-import net.ripe.db.whois.internal.api.RestClient;
+import net.ripe.db.whois.api.whois.RestClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,19 +45,18 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
     @Autowired private AbuseCService abuseCService;
     @Autowired private RestClient restClient;
 
-    private ClassPathXmlApplicationContext applicationContext;
-    private Collection<ApplicationService> applicationServices;
-
+    private ClassPathXmlApplicationContext applicationContextRest;
+    private Collection<ApplicationService> applicationServicesRest;
     protected DatabaseHelper databaseHelperRest;
 
     @Before
     public void startRestServer() {
         WhoisProfile.setEndtoend();
-        applicationContext = new ClassPathXmlApplicationContext("applicationContext-api-test.xml");
-        databaseHelperRest = applicationContext.getBean(DatabaseHelper.class);
-        applicationServices = applicationContext.getBeansOfType(ApplicationService.class).values();
+        applicationContextRest = new ClassPathXmlApplicationContext("applicationContext-api-test.xml");
+        databaseHelperRest = applicationContextRest.getBean(DatabaseHelper.class);
+        applicationServicesRest = applicationContextRest.getBeansOfType(ApplicationService.class).values();
 
-        for (final ApplicationService applicationService : applicationServices) {
+        for (final ApplicationService applicationService : applicationServicesRest) {
             applicationService.start();
 
             if (applicationService instanceof JettyBootstrap) {
@@ -76,11 +75,11 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @After
     public void stopRestServer() {
-        for (final ApplicationService applicationService : applicationServices) {
+        for (final ApplicationService applicationService : applicationServicesRest) {
             applicationService.stop(true);
         }
 
-        applicationContext.close();
+        applicationContextRest.close();
     }
 
     @Test

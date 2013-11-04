@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.internal.api.RestClient;
+import net.ripe.db.whois.api.whois.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,10 +66,10 @@ public class AbuseCService {
 
         try {
             final RpslObject role = createAbuseCRole(organisation, email);
-            final RpslObject createdRole = restClient.create(role, String.format("%s,%s", override, ABUSEC_SERVICE));
+            final RpslObject createdRole = restClient.createOverride(role, String.format("%s,%s", override, ABUSEC_SERVICE));
             final RpslObject updatedOrganisation = createOrganisationWithAbuseCAttribute(organisation, createdRole.getKey().toString());
 
-            restClient.update(updatedOrganisation, String.format("%s,%s", override, ABUSEC_SERVICE));
+            restClient.updateOverride(updatedOrganisation, String.format("%s,%s", override, ABUSEC_SERVICE));
 
             return Response.ok(String.format("http://apps.db.ripe.net/search/lookup.html?source=%s&key=%s&type=ORGANISATION", sourceName, orgkey)).build();
         } catch (Exception e) {
