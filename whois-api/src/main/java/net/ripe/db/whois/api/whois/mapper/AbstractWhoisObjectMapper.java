@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.whois.mapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.whois.domain.*;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
@@ -93,7 +94,20 @@ public abstract class AbstractWhoisObjectMapper {
                 createLink(rpslObject));
     }
 
-    abstract List<Attribute> buildAttributes(RpslObject rpslObject, String source);
+    private List<Attribute> buildAttributes(RpslObject rpslObject, String source) {
+        final List<Attribute> attributes = Lists.newArrayList();
+        for (RpslAttribute attribute : rpslObject.getAttributes()) {
+            final String comment = getComment(attribute);
+            for (CIString value : attribute.getCleanValues()) {
+                if (value.length() > 0) {
+                    attributes.add(buildAttribute(attribute, value, comment, source));
+                }
+            }
+        }
+        return attributes;
+    }
+
+    abstract Attribute buildAttribute(RpslAttribute attribute, final CIString value, final String comment, final String source);
 
     @Nullable
     protected String getComment(final RpslAttribute attribute) {

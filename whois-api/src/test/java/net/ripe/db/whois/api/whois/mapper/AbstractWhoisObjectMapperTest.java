@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.TagResponseObject;
@@ -34,7 +35,7 @@ public class AbstractWhoisObjectMapperTest {
     public void setup() {
         mapper = new AbstractWhoisObjectMapper(null) {
             @Override
-            List<Attribute> buildAttributes(RpslObject rpslObject, String source) {
+            Attribute buildAttribute(RpslAttribute attribute, CIString value, String comment, String source) {
                 return null;
             }
         };
