@@ -1254,7 +1254,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:       END-USER-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:1denis,override1
+                override: denis,override1
 
                 """.stripIndent()
         )
@@ -1297,7 +1297,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
 
-                override:1denis,override1
+                override: denis,override1
 
                 """.stripIndent()
         )
