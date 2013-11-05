@@ -228,7 +228,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
                 source: TEST
-                override: dbase1,override1,{notify=false}
+                override: denis,override1,{notify=false}
                 """
         def response = syncUpdate new SyncUpdate(data: create)
 
@@ -252,7 +252,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
                 source: TEST
-                override: dbase1,override1,{notify=true}
+                override: denis,override1,{notify=true}
                 """
         def response = syncUpdate new SyncUpdate(data: create)
 
