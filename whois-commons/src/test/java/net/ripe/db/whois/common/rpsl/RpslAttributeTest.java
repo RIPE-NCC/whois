@@ -127,33 +127,6 @@ public class RpslAttributeTest {
     }
 
     @Test
-    public void validateSyntax_syntax_valid_and_auto_dbm() {
-        final ObjectMessages objectMessages = new ObjectMessages();
-        final RpslAttribute rpslAttribute = new RpslAttribute("remarks", "auto-dbm@ripe.net");
-        rpslAttribute.validateSyntax(ObjectType.DOMAIN, objectMessages);
-
-        assertThat(objectMessages.getMessages(rpslAttribute).getAllMessages(), contains(ValidationMessages.emailAddressNotAllowed("auto-dbm@ripe.net")));
-    }
-
-    @Test
-    public void validateSyntax_syntax_valid_and_test_dbm() {
-        final ObjectMessages objectMessages = new ObjectMessages();
-        final RpslAttribute rpslAttribute = new RpslAttribute("remarks", "TEST-dbm@ripe.net");
-        rpslAttribute.validateSyntax(ObjectType.DOMAIN, objectMessages);
-
-        assertThat(objectMessages.getMessages(rpslAttribute).getAllMessages(), contains(ValidationMessages.emailAddressNotAllowed("TEST-dbm@ripe.net")));
-    }
-
-    @Test
-    public void validateSyntax_syntax_valid_and_invalid_email_contains() {
-        final ObjectMessages objectMessages = new ObjectMessages();
-        final RpslAttribute rpslAttribute = new RpslAttribute("remarks", "Some remark about auto-dbm@RIPE.net should be detected");
-        rpslAttribute.validateSyntax(ObjectType.DOMAIN, objectMessages);
-
-        assertThat(objectMessages.getMessages(rpslAttribute).getAllMessages(), contains(ValidationMessages.emailAddressNotAllowed("auto-dbm@RIPE.net")));
-    }
-
-    @Test
     public void format_single_line_no_spaces() {
         final RpslAttribute subject = new RpslAttribute("person", "Brian Riddle");
         assertThat(subject.toString(), is("person:         Brian Riddle\n"));

@@ -27,10 +27,6 @@ public final class ValidationMessages {
         return new Message(Messages.Type.ERROR, "\"%s\" is not valid for this object type", attributeType.getName());
     }
 
-    public static Message emailAddressNotAllowed(final CharSequence email) {
-        return new Message(Messages.Type.ERROR, "Email address \"%s\" is not allowed", email);
-    }
-
     public static Message syntaxError(final CharSequence value) {
         return new Message(Messages.Type.ERROR, "Syntax error in %s", value);
     }

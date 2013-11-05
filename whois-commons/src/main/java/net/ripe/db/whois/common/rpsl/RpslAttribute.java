@@ -14,14 +14,11 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
 public final class RpslAttribute {
-    private static final Pattern INVALID_EMAIL_PATTERN = Pattern.compile("(?i)((?:auto|test)\\-dbm@ripe\\.net)");
     private static final int LEADING_CHARS = 16;
     private static final int LEADING_CHARS_SHORTHAND = 5;
 
@@ -188,14 +185,7 @@ public final class RpslAttribute {
 
     public void validateSyntax(final ObjectType objectType, final ObjectMessages objectMessages) {
         for (final CIString cleanValue : getCleanValues()) {
-            final boolean syntaxCheckResult = type.getSyntax().matches(objectType, cleanValue.toString());
-            if (syntaxCheckResult) {
-                // TODO: [AH] move this into a business rule
-                final Matcher matcher = INVALID_EMAIL_PATTERN.matcher(value);
-                if (matcher.find()) {
-                    objectMessages.addMessage(this, ValidationMessages.emailAddressNotAllowed(matcher.group(1)));
-                }
-            } else {
+            if (!type.getSyntax().matches(objectType, cleanValue.toString())) {
                 objectMessages.addMessage(this, ValidationMessages.syntaxError(cleanValue.toString()));
             }
         }
