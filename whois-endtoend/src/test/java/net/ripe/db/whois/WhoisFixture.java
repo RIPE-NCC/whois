@@ -134,8 +134,7 @@ public class WhoisFixture {
     }
 
     private void initData() {
-        databaseHelper.insertUser(User.createWithPlainTextPassword("dbase1", "override1", ObjectType.values()));
-        databaseHelper.insertUser(User.createWithPlainTextPassword("dbase2", "override2", ObjectType.values()));
+        databaseHelper.insertUser(User.createWithPlainTextPassword("denis", "override1", ObjectType.values()));
     }
 
     public void reset() {

@@ -122,7 +122,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 mnt-by:         CHILD-MB-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 password:   mb-child
                 password:   mb-parent
@@ -159,7 +159,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 mnt-by:         CHILD-MB-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:    override1
+                override:    denis,override1
 
                 """.stripIndent()
         )
@@ -180,7 +180,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "create child route, origin mb"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000") + "password: mb-origin\npassword: hm")
         queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
@@ -219,7 +219,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "create child route, origin mb no password"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000") + "password: mb-origin\npassword: hm")
         queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
@@ -262,7 +262,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "create child route, origin mb ml, mb password supplied"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000-LOW") + "password: mb-origin\npassword: hm")
         queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
@@ -301,7 +301,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "create child route, origin mb ml, ml password supplied"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000-LOW") + "password: mb-origin\npassword: hm")
         queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
@@ -345,7 +345,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "create child route, origin mb mr, mb password supplied"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000-ROUTES") + "password: mb-origin\npassword: hm")
         queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
@@ -389,7 +389,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "create child route, origin mb mr, mr password supplied"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000-ROUTES") + "password: mb-origin\npassword: hm")
         queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
@@ -428,7 +428,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "create child route, origin mb ml mr, mb password supplied"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000-LOW-ROUTES") + "password: mb-origin\npassword: hm")
         queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
@@ -472,7 +472,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "create child route, origin mb ml mr, ml password supplied"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000-LOW-ROUTES") + "password: mb-origin\npassword: hm")
         queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
@@ -516,7 +516,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "create child route, origin mb ml mr, mr password supplied"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000-LOW-ROUTES") + "password: mb-origin\npassword: hm")
         queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
@@ -555,7 +555,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "modify child route, origin mb ml mr, child mb password supplied"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000") + "password: mb-origin\npassword: hm")
         queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
@@ -594,7 +594,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "modify child route, no origin, child mb password supplied"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000") + "password: mb-origin\npassword: hm")
         queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
@@ -634,7 +634,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "delete child route, no origin, child mb password supplied"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
@@ -670,7 +670,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "delete child route, origin mb ml mr, child mb password supplied"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000") + "password: mb-origin\npassword: hm")
         queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
@@ -707,7 +707,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
     def "delete child route, origin mb ml mr, origin mr password supplied"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000-LOW-ROUTES") + "password: mb-origin\npassword: hm")
         query_object_matches("-r -T aut-num AS10000", "aut-num", "AS10000", "mnt-routes:")

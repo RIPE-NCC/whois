@@ -196,7 +196,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec{
                 referral-by:  TST-MNT
                 changed:      dbtest@ripe.net 20130110
                 source:       TEST
-                override:     override1
+                override:     denis,override1
 
 
                 -----BEGIN PGP SIGNATURE-----
@@ -324,7 +324,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec{
                 referral-by:  TST-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:     override1
+                override:     denis,override1
 
                 -----BEGIN PGP SIGNATURE-----
                 Version: GnuPG v1.2.2 (GNU/Linux)
@@ -371,7 +371,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec{
                 referral-by:  TST-MNT2
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:     override1
+                override:     denis,override1
 
 
                 -----BEGIN PGP SIGNATURE-----
@@ -422,7 +422,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec{
                 notify:              dbtest@ripe.net
                 changed:             dbtest@ripe.net
                 source:              TEST
-                override:            override1
+                override:            denis,override1
                 """.stripIndent()
         )
 
@@ -465,7 +465,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec{
                 changed:      dbtest@ripe.net 20030101
                 changed:      dbtest@ripe.net 20030201
                 source:       TEST
-                override:     override1
+                override:     denis,override1
                 """.stripIndent()
         )
 

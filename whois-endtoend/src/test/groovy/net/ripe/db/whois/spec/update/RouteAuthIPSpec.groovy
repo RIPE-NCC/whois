@@ -293,7 +293,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 mnt-by:         CHILD-MB-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:  override1
+                override:  denis,override1
 
                 password:   mb-child
                 """.stripIndent()

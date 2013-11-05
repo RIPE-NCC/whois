@@ -37,7 +37,7 @@ class GeneralQuerySpec extends BaseQueryUpdateSpec {
 
     def "query pkey only with -K, object returned, no %ERROR:101"() {
         given:
-        syncUpdate(getTransient("ALLOC-UNS") + "override: override1")
+        syncUpdate(getTransient("ALLOC-UNS") + "override: denis,override1")
 
         expect:
         // "ALLOC-UNS"

@@ -347,14 +347,14 @@ public class ParagraphParserTest {
         final List<Paragraph> paragraphs = subject.createParagraphs(
                 new ContentWithCredentials("" +
                         "mntner: DEV-MNT\n" +
-                        "override: override1\n" +
+                        "override: denis,override1\n" +
                         "override: override2\n" +
                         "\n" +
                         "mntner: DEV-MNT"), updateContext);
 
         assertThat(paragraphs, hasSize(2));
         assertThat(paragraphs.get(0).getContent(), is("mntner: DEV-MNT"));
-        assertThat(paragraphs.get(0).getCredentials().all(), contains((Credential) OverrideCredential.parse("override1"), OverrideCredential.parse("override2")));
+        assertThat(paragraphs.get(0).getCredentials().all(), contains((Credential) OverrideCredential.parse("denis,override1"), OverrideCredential.parse("override2")));
         assertThat(paragraphs.get(1).getCredentials().all(), hasSize(0));
     }
 
@@ -363,7 +363,7 @@ public class ParagraphParserTest {
         final List<Paragraph> paragraphs = subject.createParagraphs(
                 new ContentWithCredentials("" +
                         "mntner: DEV-MNT1\n" +
-                        "override: override1\n" +
+                        "override: denis,override1\n" +
                         "override: override2\n" +
                         "\n" +
                         "mntner: DEV-MNT2\n" +
@@ -371,7 +371,7 @@ public class ParagraphParserTest {
 
         assertThat(paragraphs, hasSize(2));
         assertThat(paragraphs.get(0).getContent(), is("mntner: DEV-MNT1"));
-        assertThat(paragraphs.get(0).getCredentials().all(), contains((Credential) OverrideCredential.parse("override1"), OverrideCredential.parse("override2")));
+        assertThat(paragraphs.get(0).getCredentials().all(), contains((Credential) OverrideCredential.parse("denis,override1"), OverrideCredential.parse("override2")));
         assertThat(paragraphs.get(1).getCredentials().all(), contains((Credential) OverrideCredential.parse("override3")));
     }
 

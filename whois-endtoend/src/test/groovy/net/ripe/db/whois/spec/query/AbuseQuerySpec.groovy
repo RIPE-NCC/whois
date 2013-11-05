@@ -870,8 +870,8 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
 
     def "query -b ALLOCATED PA, with abuse-c"() {
       given:
-        syncUpdate(getTransient("SUB-ALLOC-PA-A") + "override: override1")
-        syncUpdate(getTransient("ROUTE") + "override: override1")
+        syncUpdate(getTransient("SUB-ALLOC-PA-A") + "override: denis,override1")
+        syncUpdate(getTransient("ROUTE") + "override: denis,override1")
 
       expect:
         // "SUB-ALLOC-PA-A"

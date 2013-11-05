@@ -85,7 +85,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override with mail update"() {
       when:
-        def data = fixtures["ORG1"].stripIndent() + "override:override1"
+        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def message = send new Message(body: data)
@@ -99,7 +99,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
       when:
         setRipeRanges();
 
-        def data = fixtures["ORG1"].stripIndent() + "override:override1"
+        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def update = new SyncUpdate(data: data)
@@ -111,7 +111,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "override:override1"
+        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def update = new SyncUpdate(data: data)
@@ -143,7 +143,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override not on update"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "\n\noverride:override1"
+        def data = fixtures["ORG1"].stripIndent() + "\n\noverride:denis,override1"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def update = new SyncUpdate(data: data)
@@ -195,7 +195,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override specified multiple times"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "override:override1\noverride:override2"
+        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1\noverride:denis2,override2"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def update = new SyncUpdate(data: data)

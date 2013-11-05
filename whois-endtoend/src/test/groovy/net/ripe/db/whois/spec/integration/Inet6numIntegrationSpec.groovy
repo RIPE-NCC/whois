@@ -962,7 +962,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        changed: ripe@test.net 20120505
                                        source: TEST
                                        password: wrong_password
-                                       override: override1
+                                       override: denis,override1
                                     """.stripIndent()))
       then:
         insert.contains("Create SUCCEEDED: [inet6num] 2001::/64")

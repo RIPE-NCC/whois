@@ -299,7 +299,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 mnt-routes:   owner-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )
@@ -1032,7 +1032,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
     def "modify RIR allocation, joint mnt-by RS & LIR, using LIR password"() {
         given:
-        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "override: override1")
+        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "override: denis,override1")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         when:
@@ -1091,7 +1091,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED-BY-RIR
                 changed:      dbtest@ripe.net
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1281,7 +1281,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
     def "delete allocation, lir pw"() {
         given:
-        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "password: hm\npassword: owner3\noverride: override1")
+        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "password: hm\npassword: owner3\noverride: denis,override1")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         when:
@@ -1324,7 +1324,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
     def "delete allocation, RS pw"() {
         given:
-        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "password: hm\npassword: owner3\noverride: override1")
+        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "password: hm\npassword: owner3\noverride: denis,override1")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         when:
@@ -1365,7 +1365,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
     def "delete allocation, override"() {
         given:
-        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "override: override1\n")
+        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "override: denis,override1\n")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         when:
@@ -1384,7 +1384,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete:       alloc
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1653,7 +1653,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED-BY-RIR
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inet6num:     2001:600::/30
                 netname:      EU-ZZ-2001-0600
@@ -1778,7 +1778,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inet6num:     2001:600::/30
                 netname:      EU-ZZ-2001-0600
@@ -1792,7 +1792,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )

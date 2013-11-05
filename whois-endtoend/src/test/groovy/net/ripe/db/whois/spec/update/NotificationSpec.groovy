@@ -1181,7 +1181,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, add remarks:"() {
         given:
-        syncUpdate(getTransient("ASSPI") + "override: override1")
+        syncUpdate(getTransient("ASSPI") + "override: denis,override1")
 
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1240,7 +1240,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, add remarks: with syntax error, no notifs sent"() {
         given:
-        syncUpdate(getTransient("ASSPI") + "override: override1")
+        syncUpdate(getTransient("ASSPI") + "override: denis,override1")
 
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1345,7 +1345,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
     def "delete inetnum"() {
         given:
-        syncUpdate(getTransient("ASSPI") + "override: override1")
+        syncUpdate(getTransient("ASSPI") + "override: denis,override1")
 
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1463,7 +1463,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum notif message structure"() {
         given:
-        syncUpdate(getTransient("ASSPI") + "override: override1")
+        syncUpdate(getTransient("ASSPI") + "override: denis,override1")
 
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1524,7 +1524,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
     def "delete inetnum notif message structure"() {
         given:
-        syncUpdate(getTransient("ASSPI") + "override: override1")
+        syncUpdate(getTransient("ASSPI") + "override: denis,override1")
 
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1583,7 +1583,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum with auth error notif message structure"() {
         given:
-        syncUpdate(getTransient("ASSPI") + "override: override1")
+        syncUpdate(getTransient("ASSPI") + "override: denis,override1")
 
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")

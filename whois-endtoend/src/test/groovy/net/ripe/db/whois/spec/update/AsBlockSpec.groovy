@@ -151,7 +151,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
-                override:       override1
+                override:       denis,override1
 
                 """.stripIndent()
         )

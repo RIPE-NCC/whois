@@ -801,7 +801,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 changed:         test@ripe.net 20120505
                 source:          TEST
-                override:        override1
+                override:        denis,override1
                 """.stripIndent())
 
       then:
