@@ -535,6 +535,10 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <compilerArgs>
                         <arg>-Xlint</arg>
+                        <arg>-Xlint:-unchecked</arg>
+                        <arg>-Xlint:-rawtypes</arg>
+                        <arg>-Xlint:-serial</arg>
+                        <arg>-Xlint:-fallthrough</arg>
                     </compilerArgs>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
