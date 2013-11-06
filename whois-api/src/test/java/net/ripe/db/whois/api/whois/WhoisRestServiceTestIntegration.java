@@ -640,6 +640,54 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void update_noop() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = response.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("remarks", "remark"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("source", "TEST")));
+
+        assertThat(response.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void update_noop_with_overrides() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
+
+        WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = response.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("remarks", "remark"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("source", "TEST")));
+
+        assertThat(response.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
     public void update_spaces_in_password_succeeds() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner:      OWNER2-MNT\n" +
