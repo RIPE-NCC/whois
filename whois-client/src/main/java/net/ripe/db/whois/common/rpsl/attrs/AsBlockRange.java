@@ -1,8 +1,5 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
-import net.ripe.db.whois.common.exception.AsBlockParseException;
-import net.ripe.db.whois.common.exception.InvalidAsBlockRangeException;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,13 +23,13 @@ public final class AsBlockRange {
             long end = Long.valueOf(match.group(2));
 
             if (end < begin) {
-                throw new InvalidAsBlockRangeException(end + " < " + begin);
+                throw new AttributeParseException(end + " < " + begin, range);
             }
 
             return new AsBlockRange(begin, end);
         }
 
-        throw new AsBlockParseException("invalid asblock");
+        throw new AttributeParseException("invalid asblock", range);
     }
 
     @Override
