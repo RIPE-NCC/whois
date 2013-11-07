@@ -12,7 +12,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.AbstractInternalTest;
-import net.ripe.db.whois.api.whois.RestClient;
+import net.ripe.db.whois.api.rest.RestClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
