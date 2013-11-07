@@ -4,7 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.attrs.MntRoutes;
+import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import org.apache.commons.lang.Validate;
 
 import javax.annotation.CheckForNull;

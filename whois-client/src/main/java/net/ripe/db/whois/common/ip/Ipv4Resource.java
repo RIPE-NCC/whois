@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.domain.ip;
+package net.ripe.db.whois.common.ip;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;

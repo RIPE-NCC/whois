@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.handler.validator.asblock;
 
 import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
+import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;

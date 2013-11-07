@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.planner;
 
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.ip.Ipv6Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.Test;

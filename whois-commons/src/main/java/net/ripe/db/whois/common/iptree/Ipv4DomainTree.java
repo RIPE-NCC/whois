@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.iptree;
 
-import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.etree.IntervalMap;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.springframework.beans.factory.annotation.Autowired;

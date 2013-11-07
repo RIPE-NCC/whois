@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.pipeline;
 
 import net.ripe.db.whois.common.MaintenanceMode;
-import net.ripe.db.whois.common.domain.ip.IpInterval;
+import net.ripe.db.whois.common.ip.IpInterval;
 import org.jboss.netty.channel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

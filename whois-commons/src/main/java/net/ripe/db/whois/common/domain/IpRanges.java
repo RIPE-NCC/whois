@@ -1,8 +1,8 @@
 package net.ripe.db.whois.common.domain;
 
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.domain.ip.Interval;
-import net.ripe.db.whois.common.domain.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Interval;
+import net.ripe.db.whois.common.ip.IpInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

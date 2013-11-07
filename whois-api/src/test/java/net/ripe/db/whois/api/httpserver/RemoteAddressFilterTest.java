@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.domain.ip.IpInterval;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.domain.IpRanges;
 import org.eclipse.jetty.http.HttpHeaders;
 import org.junit.Test;

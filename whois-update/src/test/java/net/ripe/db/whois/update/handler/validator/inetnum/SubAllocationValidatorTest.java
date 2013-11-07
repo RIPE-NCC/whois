@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
-import net.ripe.db.whois.common.domain.attrs.InetnumStatus;
+import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;

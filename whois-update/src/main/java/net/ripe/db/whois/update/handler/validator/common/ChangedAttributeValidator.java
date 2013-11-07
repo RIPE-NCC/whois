@@ -1,8 +1,8 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.domain.attrs.AttributeParseException;
-import net.ripe.db.whois.common.domain.attrs.Changed;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
+import net.ripe.db.whois.common.rpsl.attrs.Changed;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;

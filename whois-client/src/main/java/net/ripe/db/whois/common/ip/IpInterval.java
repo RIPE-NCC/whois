@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.domain.ip;
+package net.ripe.db.whois.common.ip;
 
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;

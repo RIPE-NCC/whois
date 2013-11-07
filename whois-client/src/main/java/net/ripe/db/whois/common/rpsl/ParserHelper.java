@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.rpsl;
 
-import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
-import net.ripe.db.whois.common.domain.ip.Ipv6Resource;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

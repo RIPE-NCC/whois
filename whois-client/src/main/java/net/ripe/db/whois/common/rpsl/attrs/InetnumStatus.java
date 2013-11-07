@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.domain.attrs;
+package net.ripe.db.whois.common.rpsl.attrs;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import java.util.*;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static net.ripe.db.whois.common.domain.attrs.OrgType.*;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.*;
 
 public enum InetnumStatus implements InetStatus {
     ALLOCATED_PA("ALLOCATED PA", IANA, RIR, LIR),

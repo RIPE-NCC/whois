@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.domain.attrs;
+package net.ripe.db.whois.common.rpsl.attrs;
 
 import com.google.common.base.Splitter;
 import net.ripe.db.whois.common.domain.CIString;

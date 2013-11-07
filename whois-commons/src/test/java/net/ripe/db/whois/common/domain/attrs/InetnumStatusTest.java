@@ -1,9 +1,11 @@
 package net.ripe.db.whois.common.domain.attrs;
 
 
+import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import org.junit.Test;
 
-import static net.ripe.db.whois.common.domain.attrs.InetnumStatus.*;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 

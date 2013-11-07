@@ -2,8 +2,8 @@ package net.ripe.db.whois.common.grs;
 
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
-import net.ripe.db.whois.common.domain.ip.Ipv6Resource;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.etree.IntervalMap;
 import net.ripe.db.whois.common.etree.NestedIntervalMap;
 import org.slf4j.Logger;

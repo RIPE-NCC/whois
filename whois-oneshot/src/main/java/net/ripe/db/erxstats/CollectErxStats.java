@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;

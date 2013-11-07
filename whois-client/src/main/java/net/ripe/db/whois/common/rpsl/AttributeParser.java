@@ -1,8 +1,16 @@
 package net.ripe.db.whois.common.rpsl;
 
-import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
-import net.ripe.db.whois.common.domain.ip.Ipv6Resource;
-import net.ripe.db.whois.common.domain.attrs.*;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
+import net.ripe.db.whois.common.rpsl.attrs.AddressPrefixRange;
+import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
+import net.ripe.db.whois.common.rpsl.attrs.AutNum;
+import net.ripe.db.whois.common.rpsl.attrs.Changed;
+import net.ripe.db.whois.common.rpsl.attrs.Domain;
+import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
+import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
+import net.ripe.db.whois.common.rpsl.attrs.NServer;
+import net.ripe.db.whois.common.rpsl.attrs.SetObject;
 
 public interface AttributeParser<T> {
     T parse(String s);

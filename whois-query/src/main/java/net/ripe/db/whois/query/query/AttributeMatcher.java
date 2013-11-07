@@ -2,7 +2,7 @@ package net.ripe.db.whois.query.query;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.domain.ip.IpInterval;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 
 import java.util.Collection;

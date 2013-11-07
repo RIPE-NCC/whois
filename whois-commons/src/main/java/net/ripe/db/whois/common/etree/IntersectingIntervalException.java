@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.etree;
 
-import net.ripe.db.whois.common.domain.ip.Interval;
+import net.ripe.db.whois.common.ip.Interval;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
-import net.ripe.db.whois.common.domain.attrs.MntRoutes;
+import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;

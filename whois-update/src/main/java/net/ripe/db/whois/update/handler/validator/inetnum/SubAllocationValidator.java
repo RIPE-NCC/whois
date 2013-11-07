@@ -2,8 +2,8 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
-import net.ripe.db.whois.common.domain.attrs.InetnumStatus;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;

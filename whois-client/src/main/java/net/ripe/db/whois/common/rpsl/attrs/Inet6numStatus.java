@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.domain.attrs;
+package net.ripe.db.whois.common.rpsl.attrs;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static net.ripe.db.whois.common.domain.attrs.OrgType.*;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.*;
 
 public enum Inet6numStatus implements InetStatus {
     ALLOCATED_BY_RIR("ALLOCATED-BY-RIR", IANA, RIR, LIR),

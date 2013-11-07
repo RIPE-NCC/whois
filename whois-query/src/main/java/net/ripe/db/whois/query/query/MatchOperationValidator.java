@@ -1,9 +1,9 @@
 package net.ripe.db.whois.query.query;
 
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.domain.ip.IpInterval;
-import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
-import net.ripe.db.whois.common.domain.ip.Ipv6Resource;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.query.domain.QueryMessages;
 

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
-import net.ripe.db.whois.common.domain.ip.IpInterval;
+import net.ripe.db.whois.common.ip.IpInterval;
 
 /**
  * Contains a single ip resource configuration entry.

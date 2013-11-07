@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
-import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
+import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.common.exception.AsBlockParseException;
 import net.ripe.db.whois.common.exception.InvalidAsBlockRangeException;
 import org.junit.Test;

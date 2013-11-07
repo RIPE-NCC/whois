@@ -1,6 +1,6 @@
 package net.ripe.db.whois.query.dao.jdbc;
 
-import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.query.dao.InetnumDao;
 import org.junit.Before;

@@ -2,10 +2,11 @@ package net.ripe.db.whois.common.domain.attrs;
 
 
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import org.junit.Test;
 
-import static net.ripe.db.whois.common.domain.attrs.Inet6numStatus.*;
-import static net.ripe.db.whois.common.domain.attrs.OrgType.*;
+import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.*;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.*;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;

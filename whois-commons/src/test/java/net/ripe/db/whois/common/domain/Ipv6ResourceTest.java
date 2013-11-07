@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
-import net.ripe.db.whois.common.domain.ip.Ipv6Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.junit.Test;
 
 import java.math.BigInteger;
