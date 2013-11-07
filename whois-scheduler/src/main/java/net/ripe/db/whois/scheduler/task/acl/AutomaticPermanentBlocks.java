@@ -3,7 +3,7 @@ package net.ripe.db.whois.scheduler.task.acl;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.BlockEvents;
-import net.ripe.db.whois.common.domain.IpInterval;
+import net.ripe.db.whois.common.domain.ip.IpInterval;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;

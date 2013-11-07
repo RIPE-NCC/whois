@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.whois;
 
 import com.google.common.collect.ImmutableSet;
 import net.ripe.db.whois.common.MaintenanceMode;
-import net.ripe.db.whois.common.domain.IpInterval;
+import net.ripe.db.whois.common.domain.ip.IpInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

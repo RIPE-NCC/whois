@@ -2,9 +2,9 @@ package net.ripe.db.whois.update.authentication.strategy;
 
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.domain.ip.IpInterval;
+import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
+import net.ripe.db.whois.common.domain.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.*;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;

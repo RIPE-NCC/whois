@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.domain;
 
 import net.ripe.db.whois.common.collect.CollectionHelper;
+import net.ripe.db.whois.common.domain.ip.IpInterval;
 import net.ripe.db.whois.common.etree.IntervalMap;
 import net.ripe.db.whois.common.etree.NestedIntervalMap;
 

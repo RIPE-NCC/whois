@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.whois;
 
 import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.domain.Interval;
+import net.ripe.db.whois.common.domain.ip.Interval;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.internal.api.acl;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.domain.IpInterval;
+import net.ripe.db.whois.common.domain.ip.IpInterval;
 import org.mockito.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;

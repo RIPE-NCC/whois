@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
+import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 

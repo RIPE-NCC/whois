@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.etree;
 
-import net.ripe.db.whois.common.domain.Interval;
+import net.ripe.db.whois.common.domain.ip.Interval;
 import org.apache.commons.lang.Validate;
 
 final class InternalNode<K extends Interval<K>, V> {

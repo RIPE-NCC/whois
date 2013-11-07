@@ -1,8 +1,8 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Splitter;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
+import net.ripe.db.whois.common.domain.ip.Ipv6Resource;
 import net.ripe.db.whois.common.domain.attrs.*;
 import net.ripe.db.whois.common.generated.*;
 

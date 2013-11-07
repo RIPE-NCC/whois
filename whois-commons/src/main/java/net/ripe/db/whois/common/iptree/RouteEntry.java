@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.iptree;
 
-import net.ripe.db.whois.common.domain.Interval;
+import net.ripe.db.whois.common.domain.ip.Interval;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

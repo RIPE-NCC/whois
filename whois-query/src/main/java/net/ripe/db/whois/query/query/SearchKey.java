@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.query;
 
-import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
+import net.ripe.db.whois.common.domain.ip.IpInterval;
+import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import net.ripe.db.whois.common.exception.AsBlockParseException;
 import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;

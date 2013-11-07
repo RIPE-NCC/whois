@@ -5,6 +5,8 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.*;
+import net.ripe.db.whois.common.domain.ip.Interval;
+import net.ripe.db.whois.common.domain.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;

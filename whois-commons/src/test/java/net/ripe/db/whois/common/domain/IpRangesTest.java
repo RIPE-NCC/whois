@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
+import net.ripe.db.whois.common.domain.ip.IpInterval;
 import org.junit.Before;
 import org.junit.Test;
 

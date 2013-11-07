@@ -1,6 +1,6 @@
 package net.ripe.db.whois.query.query;
 
-import net.ripe.db.whois.common.domain.IpInterval;
+import net.ripe.db.whois.common.domain.ip.IpInterval;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import org.junit.Test;
 

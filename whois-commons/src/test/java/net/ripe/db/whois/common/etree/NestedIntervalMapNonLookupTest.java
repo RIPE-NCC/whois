@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.etree;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
+import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
 import org.apache.commons.lang.Validate;
 import org.junit.Test;
 

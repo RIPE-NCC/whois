@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.domain;
+package net.ripe.db.whois.common.domain.ip;
 
 /**
  * An interval with a lower-bound and upper-bound. Both bounds are considered to

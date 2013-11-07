@@ -1,9 +1,9 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.domain.Interval;
-import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
+import net.ripe.db.whois.common.domain.ip.Interval;
+import net.ripe.db.whois.common.domain.ip.IpInterval;
+import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.IpTree;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;

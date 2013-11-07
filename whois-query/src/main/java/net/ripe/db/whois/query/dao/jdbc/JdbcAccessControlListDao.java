@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.BlockEvents;
-import net.ripe.db.whois.common.domain.IpInterval;
+import net.ripe.db.whois.common.domain.ip.IpInterval;
 import net.ripe.db.whois.common.domain.IpResourceEntry;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
 import org.joda.time.LocalDate;

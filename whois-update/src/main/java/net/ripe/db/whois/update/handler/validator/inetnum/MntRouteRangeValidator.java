@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.IpInterval;
+import net.ripe.db.whois.common.domain.ip.IpInterval;
 import net.ripe.db.whois.common.domain.attrs.AddressPrefixRange;
 import net.ripe.db.whois.common.domain.attrs.MntRoutes;
 import net.ripe.db.whois.common.rpsl.AttributeType;

@@ -1,9 +1,9 @@
 package net.ripe.db.whois.common.domain.attrs;
 
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.domain.ip.IpInterval;
+import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
+import net.ripe.db.whois.common.domain.ip.Ipv6Resource;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;

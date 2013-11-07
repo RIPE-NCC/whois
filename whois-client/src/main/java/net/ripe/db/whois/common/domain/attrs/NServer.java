@@ -2,8 +2,8 @@ package net.ripe.db.whois.common.domain.attrs;
 
 import com.google.common.base.Splitter;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
+import net.ripe.db.whois.common.domain.ip.IpInterval;
+import net.ripe.db.whois.common.domain.ip.Ipv4Resource;
 
 import javax.annotation.CheckForNull;
 import java.util.Iterator;
