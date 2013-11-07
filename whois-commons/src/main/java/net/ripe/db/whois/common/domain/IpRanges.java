@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.etree.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

@@ -8,7 +8,7 @@ import net.ripe.db.whois.api.whois.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.User;
-import net.ripe.db.whois.common.io.Downloader;
+import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.*;
 import org.junit.Before;
 import org.junit.Ignore;

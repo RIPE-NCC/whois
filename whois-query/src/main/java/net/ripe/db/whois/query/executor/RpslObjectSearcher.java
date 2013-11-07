@@ -11,7 +11,10 @@ import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
 import net.ripe.db.whois.common.iptree.*;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.dao.Inet6numDao;
 import net.ripe.db.whois.query.dao.InetnumDao;
 import net.ripe.db.whois.query.domain.MessageObject;
@@ -211,11 +214,22 @@ class RpslObjectSearcher {
                 } catch (EmptyResultDataAccessException ignored) {
                 }
             } else {
-                result.addAll(RpslObjectFilter.filterByType(type, rpslObjectDao.findByAttribute(lookupAttribute, searchValue)));
+                result.addAll(filterByType(type, rpslObjectDao.findByAttribute(lookupAttribute, searchValue)));
             }
         }
 
         return proxy(result);
+    }
+
+    private static List<RpslObjectInfo> filterByType(final ObjectType type, final List<RpslObjectInfo> objectInfos) {
+        final List<RpslObjectInfo> result = Lists.newArrayList();
+        for (final RpslObjectInfo objectInfo : objectInfos) {
+            if (objectInfo.getObjectType().equals(type)) {
+                result.add(objectInfo);
+            }
+        }
+
+        return result;
     }
 
     private Iterable<ResponseObject> indexLookupReverse(final Query query) {

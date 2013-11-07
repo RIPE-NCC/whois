@@ -4,12 +4,14 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 // TODO: [AK] This should be renamed and moved to update
@@ -143,17 +145,6 @@ public class RpslObjectFilter {
             }
         }
         return new RpslObject(rpslObject, result);
-    }
-
-    public static List<RpslObjectInfo> filterByType(final ObjectType type, final List<RpslObjectInfo> objectInfos) {
-        final List<RpslObjectInfo> result = Lists.newArrayList();
-        for (final RpslObjectInfo objectInfo : objectInfos) {
-            if (objectInfo.getObjectType().equals(type)) {
-                result.add(objectInfo);
-            }
-        }
-
-        return result;
     }
 
     // leave only the type and key attributes of an object; used in first pass of 2-pass loading

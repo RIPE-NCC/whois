@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.domain;
 
-import net.ripe.db.whois.common.etree.Interval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 
 import java.net.Inet4Address;

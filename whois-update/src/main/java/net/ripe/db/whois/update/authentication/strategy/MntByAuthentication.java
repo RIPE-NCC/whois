@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.*;
 import net.ripe.db.whois.common.domain.attrs.Domain;
-import net.ripe.db.whois.common.etree.Interval;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;

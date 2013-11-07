@@ -1,5 +1,7 @@
 package net.ripe.db.whois.common.etree;
 
+import net.ripe.db.whois.common.domain.Interval;
+
 import java.util.*;
 import java.util.Map.Entry;
 

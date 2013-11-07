@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.io;
+package net.ripe.db.whois.common.domain.io;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Stopwatch;
