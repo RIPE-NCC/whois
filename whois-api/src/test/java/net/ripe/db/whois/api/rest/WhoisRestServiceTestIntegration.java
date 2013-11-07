@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rest.WhoisRestService;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Flag;
 import net.ripe.db.whois.api.rest.domain.Flags;

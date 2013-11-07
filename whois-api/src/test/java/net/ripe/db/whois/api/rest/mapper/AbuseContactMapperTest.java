@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
-import net.ripe.db.whois.api.rest.mapper.AbuseContactMapper;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import org.junit.Test;
 

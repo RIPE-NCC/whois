@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +37,7 @@ public class WhoisObjectClientMapperTest {
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST\n");
 
-        final WhoisObject whoisObject = mapper.map(rpslObject, true);
+        final WhoisObject whoisObject = mapper.map(rpslObject);
 
         assertThat(whoisObject.getType(), is("mntner"));
         assertThat(whoisObject.getSource().getId(), is("test"));
@@ -53,12 +52,12 @@ public class WhoisObjectClientMapperTest {
                 new Attribute("descr", "MNTNER for test", null, null, null),
                 new Attribute("admin-c", "TP1-TEST", null, null, null),
                 new Attribute("upd-to", "dbtest@ripe.net", null, null, null),
-                new Attribute("auth", "MD5-PW", "Filtered", null, null),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
                 new Attribute("auth", "PGPKEY-28F6CD6C", null, null, null),
                 new Attribute("mnt-by", "TST-MNT", null, null, null),
                 new Attribute("referral-by", "TST-MNT", null, null, null),
                 new Attribute("changed", "dbtest@ripe.net", null, null, null),
-                new Attribute("source", "TEST", "Filtered", null, null)
+                new Attribute("source", "TEST", null, null, null)
         ));
     }
 

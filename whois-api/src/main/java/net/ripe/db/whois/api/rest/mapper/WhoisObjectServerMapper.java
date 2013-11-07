@@ -1,22 +1,19 @@
 package net.ripe.db.whois.api.rest.mapper;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
-import net.ripe.db.whois.api.rest.domain.AbuseContact;
-import net.ripe.db.whois.api.rest.domain.AbusePKey;
-import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
-import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.Operation;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
@@ -28,6 +25,7 @@ import java.util.List;
 
 @Component
 public class WhoisObjectServerMapper extends AbstractWhoisObjectMapper {
+    private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
 
     private final ReferencedTypeResolver referencedTypeResolver;
 
@@ -35,6 +33,22 @@ public class WhoisObjectServerMapper extends AbstractWhoisObjectMapper {
     public WhoisObjectServerMapper(final ReferencedTypeResolver referencedTypeResolver, @Value("${api.rest.baseurl}") final String baseUrl) {
         super(baseUrl);
         this.referencedTypeResolver = referencedTypeResolver;
+    }
+
+    public WhoisResources map(final Iterable<RpslObject> rpslObjects, boolean filter) {
+        if (filter) {
+            return map(Iterables.transform(rpslObjects, FILTER_AUTH_FUNCTION));
+        } else {
+            return map(rpslObjects);
+        }
+    }
+
+    public WhoisObject map(final RpslObject rpslObject, boolean filter) {
+        if (filter) {
+            return map(FILTER_AUTH_FUNCTION.apply(rpslObject));
+        } else {
+            return map(rpslObject);
+        }
     }
 
     @Override

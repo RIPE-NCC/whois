@@ -12,7 +12,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -21,8 +20,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class AbstractWhoisObjectMapper {
-
-    private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
 
     // TODO: [AH] this should be in RpslAttribute
     private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)^[^#]*[#](.*)$");
@@ -42,29 +39,17 @@ public abstract class AbstractWhoisObjectMapper {
         return new RpslObject(rpslAttributes);
     }
 
-    public WhoisResources map(final List<RpslObject> rpslObjects) {
-        return map(rpslObjects, true);
-    }
-
-    public WhoisResources map(final List<RpslObject> rpslObjects, final boolean filter) {
+    public WhoisResources map(final Iterable<RpslObject> rpslObjects) {
         final WhoisResources whoisResources = new WhoisResources();
         final List<WhoisObject> whoisObjects = Lists.newArrayList();
         for (RpslObject rpslObject : rpslObjects) {
-            whoisObjects.add(map(rpslObject, filter));
+            whoisObjects.add(map(rpslObject));
         }
         whoisResources.setWhoisObjects(whoisObjects);
         return whoisResources;
     }
 
     public WhoisObject map(final RpslObject rpslObject) {
-        return map(rpslObject, true);
-    }
-
-    public WhoisObject map(final RpslObject rpslObject, final boolean filter) {
-        if (filter) {
-            return map(filter(rpslObject), false);
-        }
-
         final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
         final String type = rpslObject.getType().getName();
         final RpslAttribute primaryKeyRpslAttribute = getPrimaryKey(rpslObject);
@@ -120,10 +105,6 @@ public abstract class AbstractWhoisObjectMapper {
 
     protected Source createSource(final String id) {
         return new Source(id);
-    }
-
-    protected RpslObject filter(final RpslObject rpslObject) {
-        return FILTER_AUTH_FUNCTION.apply(rpslObject);
     }
 
     protected RpslAttribute getPrimaryKey(final RpslObject rpslObject) {
