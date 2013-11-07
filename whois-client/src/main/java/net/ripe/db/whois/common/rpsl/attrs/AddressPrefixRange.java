@@ -25,7 +25,7 @@ public final class AddressPrefixRange {
         return ipInterval;
     }
 
-    RangeOperation getRangeOperation() {
+    public RangeOperation getRangeOperation() {
         return rangeOperation;
     }
 

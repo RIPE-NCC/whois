@@ -207,7 +207,7 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
         return new BigInteger(1, toByteArray(msb, lsb));
     }
 
-    static int compare(long aMsb, long aLsb, long bMsb, long bLsb) {
+    public static int compare(long aMsb, long aLsb, long bMsb, long bLsb) {
         if (aMsb == bMsb) {
             if (aLsb == bLsb) {
                 return 0;
