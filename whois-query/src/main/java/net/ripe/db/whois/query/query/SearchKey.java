@@ -2,10 +2,10 @@ package net.ripe.db.whois.query.query;
 
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
-import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
-import net.ripe.db.whois.common.exception.AsBlockParseException;
 import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
 import net.ripe.db.whois.common.iptree.Ipv6RouteEntry;
+import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 
 import java.util.regex.Pattern;
 
@@ -75,7 +75,7 @@ class SearchKey {
                 // support for 'AS222' specification of as-block (meaning 'AS222-AS222')
                 final String sanitizedAsBlock = value.indexOf('-') == -1 ? value + "-" + value : value;
                 asBlockRange = AsBlockRange.parse(sanitizedAsBlock);
-            } catch (AsBlockParseException e) {
+            } catch (AttributeParseException e) {
                 asBlockRange = null;
             }
         }

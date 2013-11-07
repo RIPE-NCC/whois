@@ -7,18 +7,12 @@ import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Source;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
-import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
-import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
-import net.ripe.db.whois.query.domain.TagResponseObject;
-import net.ripe.db.whois.query.domain.VersionResponseObject;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -30,6 +24,7 @@ public abstract class AbstractWhoisObjectMapper {
 
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
 
+    // TODO: [AH] this should be in RpslAttribute
     private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)^[^#]*[#](.*)$");
 
     protected final String baseUrl;
@@ -65,17 +60,6 @@ public abstract class AbstractWhoisObjectMapper {
         return map(rpslObject, true);
     }
 
-    public WhoisObject map(final RpslObject rpslObject, final List<TagResponseObject> tags) {
-        final WhoisObject object = map(rpslObject);
-
-        final List<WhoisTag> whoisTags = Lists.newArrayListWithExpectedSize(tags.size());
-        for (final TagResponseObject tag : tags) {
-            whoisTags.add(new WhoisTag(tag.getType().toString(), tag.getValue()));
-        }
-        object.setTags(whoisTags);
-        return object;
-    }
-
     public WhoisObject map(final RpslObject rpslObject, final boolean filter) {
         if (filter) {
             return map(filter(rpslObject), false);
@@ -88,7 +72,6 @@ public abstract class AbstractWhoisObjectMapper {
         final String primaryKeyValue = primaryKeyRpslAttribute.getCleanValue().toString();
         final Attribute primaryKeyAttribute = createAttribute(primaryKeyName, primaryKeyValue, null, null, null);
         final List<Attribute> primaryKeyAttributes = Lists.newArrayList(primaryKeyAttribute);
-
 
         final List<Attribute> attributes = buildAttributes(rpslObject, source);
 
@@ -176,16 +159,4 @@ public abstract class AbstractWhoisObjectMapper {
         return whoisObject;
     }
 
-    public List<WhoisVersion> mapVersions(final List<DeletedVersionResponseObject> deleted, final List<VersionResponseObject> versions) {
-        final List<WhoisVersion> whoisVersions = Lists.newArrayList();
-        for (final DeletedVersionResponseObject deletedVersion : deleted) {
-            whoisVersions.add(new WhoisVersion(deletedVersion.getDeletedDate().toString()));
-        }
-
-        for (final VersionResponseObject version : versions) {
-            whoisVersions.add(new WhoisVersion(version.getOperation() == Operation.UPDATE ? "ADD/UPD" : "DEL", version.getDateTime().toString(), version.getVersion()));
-        }
-
-        return whoisVersions;
-    }
 }

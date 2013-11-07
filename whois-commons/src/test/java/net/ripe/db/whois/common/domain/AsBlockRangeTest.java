@@ -1,8 +1,7 @@
 package net.ripe.db.whois.common.domain;
 
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
-import net.ripe.db.whois.common.exception.AsBlockParseException;
-import net.ripe.db.whois.common.exception.InvalidAsBlockRangeException;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -41,42 +40,42 @@ public class AsBlockRangeTest {
         assertTrue(AsBlockRange.parse("AS1 - AS4294967295").equals(AsBlockRange.parse("AS1 - AS4294967295")));
     }
 
-    @Test(expected = InvalidAsBlockRangeException.class)
+    @Test(expected = AttributeParseException.class)
     public void invalidRange() {
         AsBlockRange.parse("AS2 - AS1");
     }
 
-    @Test(expected = AsBlockParseException.class)
+    @Test(expected = AttributeParseException.class)
     public void nonNumericAsBlockSingleArgument() {
         AsBlockRange.parse("ASx");
     }
 
-    @Test(expected = AsBlockParseException.class)
+    @Test(expected = AttributeParseException.class)
     public void singleAsBlockWithSeparator() {
         AsBlockRange.parse("AS1-");
     }
 
-    @Test(expected = AsBlockParseException.class)
+    @Test(expected = AttributeParseException.class)
     public void nonNumericAsBlockRangeFirstArgument() {
         AsBlockRange.parse("ASx-AS1");
     }
 
-    @Test(expected = AsBlockParseException.class)
+    @Test(expected = AttributeParseException.class)
     public void nonNumericAsBlockRangeSecondArgument() {
         AsBlockRange.parse("AS1-ASx");
     }
 
-    @Test(expected = AsBlockParseException.class)
+    @Test(expected = AttributeParseException.class)
     public void asBlockRangeThirdArgument() {
         AsBlockRange.parse("AS1-AS2-AS3");
     }
 
-    @Test(expected = AsBlockParseException.class)
+    @Test(expected = AttributeParseException.class)
     public void asBlockArgumentWithoutPrefix() {
         AsBlockRange.parse("1-2");
     }
 
-    @Test(expected = AsBlockParseException.class)
+    @Test(expected = AttributeParseException.class)
     public void emptyAsBlockRangeString() {
         AsBlockRange.parse("");
     }

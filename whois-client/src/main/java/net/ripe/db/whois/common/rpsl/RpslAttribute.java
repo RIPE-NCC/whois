@@ -1,6 +1,8 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
@@ -8,6 +10,7 @@ import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import org.apache.commons.lang.Validate;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -78,15 +81,16 @@ public final class RpslAttribute {
 
             final Set<CIString> values;
             if (type == null) {
-                values = Sets.newHashSet(ciString(cleanedValue));
+                cleanValues = Collections.singleton(ciString(cleanedValue));
             } else {
-                values = Sets.newLinkedHashSet();
-                for (final String s : type.splitValue(cleanedValue)) {
-                    values.add(ciString(s));
-                }
+                cleanValues = ImmutableSet.copyOf(Iterables.transform(type.splitValue(cleanedValue), new Function<String, CIString>() {
+                    @Nullable
+                    @Override
+                    public CIString apply(@Nullable String input) {
+                        return ciString(input);
+                    }
+                }));
             }
-
-            cleanValues = Collections.unmodifiableSet(values);
         }
 
         return cleanValues;
