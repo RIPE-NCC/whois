@@ -8,7 +8,7 @@ import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.query.QueryFlag;
+import net.ripe.db.whois.query.QueryFlag;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

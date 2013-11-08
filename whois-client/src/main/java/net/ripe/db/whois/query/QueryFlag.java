@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.query;
+package net.ripe.db.whois.query;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;

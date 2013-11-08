@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.query.QueryFlag;
+import net.ripe.db.whois.query.QueryFlag;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;

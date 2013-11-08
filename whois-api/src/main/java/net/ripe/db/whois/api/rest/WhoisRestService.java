@@ -24,7 +24,7 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.*;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.query.QueryFlag;
+import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -45,7 +45,7 @@ import java.text.StringCharacterIterator;
 import java.util.*;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static net.ripe.db.whois.query.query.QueryFlag.*;
+import static net.ripe.db.whois.query.QueryFlag.*;
 
 @Component
 @Path("/")

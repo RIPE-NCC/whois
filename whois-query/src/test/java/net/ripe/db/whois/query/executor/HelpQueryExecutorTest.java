@@ -2,7 +2,7 @@ package net.ripe.db.whois.query.executor;
 
 import com.google.common.base.Splitter;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.query.QueryFlag;
+import net.ripe.db.whois.query.QueryFlag;
 import org.junit.Before;
 import org.junit.Test;
 
