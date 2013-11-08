@@ -1,7 +1,9 @@
 package net.ripe.db.whois.common.rpsl;
 
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +16,7 @@ import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
 // TODO: [AH] make this rely on downloader (or make it more visible if those files are missing and no tests are actually run)
+@Category(IntegrationTest.class)
 public class AttributeParserTestIntegration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AttributeParserTestIntegration.class);
