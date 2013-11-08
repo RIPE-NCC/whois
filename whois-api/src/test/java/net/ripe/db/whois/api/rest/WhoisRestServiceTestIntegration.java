@@ -1949,5 +1949,4 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
-
 }

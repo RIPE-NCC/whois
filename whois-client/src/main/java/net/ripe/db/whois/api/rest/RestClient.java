@@ -13,6 +13,7 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Qualifier;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -46,12 +47,12 @@ public final class RestClient {
         this.sourceName = sourceName;
     }
 
-    public RpslObject create(final RpslObject rpslObject, final String password) {
+    public RpslObject create(final RpslObject rpslObject, final String... passwords) {
         final WhoisResources whoisResources = client.target(String.format("%s/%s/%s%s",
                 restApiUrl,
                 sourceName,
                 rpslObject.getType().getName(),
-                StringUtils.isNotEmpty(password) ? String.format("?password=%s", password) : ""))
+                formatPasswords(passwords)))
                 .request()
                 .post(Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
@@ -68,13 +69,13 @@ public final class RestClient {
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
-    public RpslObject update(final RpslObject rpslObject, final String password) {
+    public RpslObject update(final RpslObject rpslObject, final String... passwords) {
         final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s",
                 restApiUrl,
                 sourceName,
                 rpslObject.getType().getName(),
                 rpslObject.getKey().toString(),
-                StringUtils.isNotEmpty(password) ? String.format("?password=%s", password) : ""))
+                formatPasswords(passwords)))
                 .request()
                 .put(Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
@@ -92,13 +93,13 @@ public final class RestClient {
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
-    public void delete(final RpslObject rpslObject, final String password) {
+    public void delete(final RpslObject rpslObject, final String... passwords) {
         client.target(String.format("%s/%s/%s/%s%s",
                 restApiUrl,
                 sourceName,
                 rpslObject.getType().getName(),
                 rpslObject.getKey().toString(),
-                StringUtils.isNotEmpty(password) ? String.format("?password=%s", password) : ""))
+                formatPasswords(passwords)))
                 .request()
                 .delete(String.class);
     }
@@ -124,14 +125,10 @@ public final class RestClient {
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
-    public WhoisObject lookupWhoisObject(final ObjectType objectType, final String pkey) {
-        final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s?unfiltered",
-                restApiUrl,
-                sourceName,
-                objectType.getName(),
-                pkey)).request()
-                .get(WhoisResources.class);
-
-        return whoisResources.getWhoisObjects().get(0);
+    String formatPasswords(String... passwords) {
+        if (passwords.length > 0) {
+            return String.format("?password=%s", StringUtils.join(passwords, "&password="));
+        }
+        return "";
     }
 }
