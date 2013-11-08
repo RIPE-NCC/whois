@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.domain;
+package net.ripe.db.whois.common.ip;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import org.hamcrest.Matcher;

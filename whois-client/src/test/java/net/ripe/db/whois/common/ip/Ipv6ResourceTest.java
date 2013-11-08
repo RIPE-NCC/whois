@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.domain;
+package net.ripe.db.whois.common.ip;
 
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.junit.Test;

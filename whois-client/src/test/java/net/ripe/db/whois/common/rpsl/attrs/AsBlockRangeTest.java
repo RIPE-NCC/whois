@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.domain;
+package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
