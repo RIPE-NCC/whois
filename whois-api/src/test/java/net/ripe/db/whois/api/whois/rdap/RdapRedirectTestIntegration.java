@@ -9,7 +9,6 @@ import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +105,6 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     // inetnum
 
-    @Ignore("TODO: exact match to inetnum in GRS source should redirect")
     @Test
     public void inetnum_exact_match_redirect() {
         addResourceData("one", "193.0.0.0 - 193.0.7.255");
@@ -122,7 +120,6 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("TODO: match child of inetnum in GRS source should redirect")
     @Test
     public void inetnum_child_redirect() {
         addResourceData("one", "193.0.0.0 - 193.0.7.255");
@@ -138,9 +135,23 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    @Test
+    public void inetnum_outside_range() {
+        addResourceData("one", "193.0.0.0 - 193.0.7.255");
+        refreshResourceData();
+
+        try {
+            RestTest.target(getPort(), String.format("rdap/%s", "ip/192.0.0.1"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
+            fail();
+        } catch (final NotFoundException e) {
+            // expected
+        }
+    }
+
     // inet6num
 
-    @Ignore("TODO: exact match to inet6num in GRS source should redirect")
     @Test
     public void inet6num_exact_match_redirect() {
         addResourceData("one", "2001:67c:370::/48");
@@ -156,7 +167,6 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("TODO: match to child of inet6num in GRS source should redirect")
     @Test
     public void inet6num_child_redirect() {
         addResourceData("one", "2001:67c:370::/48");
@@ -169,6 +179,21 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (final RedirectionException e) {
             assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.one.net/ip/2001:67c:370::1234"));
+        }
+    }
+
+    @Test
+    public void inet6num_outside_range() {
+        addResourceData("one", "2001:67c:370::/48");
+        refreshResourceData();
+
+        try {
+            RestTest.target(getPort(), String.format("rdap/%s", "ip/2002::/32"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
+            fail();
+        } catch (final NotFoundException e) {
+            // expected
         }
     }
 

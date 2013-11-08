@@ -76,7 +76,7 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
             for (Map.Entry<CIString, String> entry : sourceToPathMap.entrySet()) {
                 final CIString sourceName = entry.getKey();
                 final AuthoritativeResource authoritativeResource = resourceData.getAuthoritativeResource(sourceName);
-                if (authoritativeResource.isMaintainedByRir(objectType.get(), CIString.ciString(query.getSearchValue()))) {
+                if (authoritativeResource.isMaintainedInRirSpace(objectType.get(), CIString.ciString(query.getSearchValue()))) {
                     final String basePath = entry.getValue();
                     LOGGER.debug("Redirecting {} to {}", requestPath, sourceName);
                     // TODO: don't include local path prefix (lookup from base context and replace)
