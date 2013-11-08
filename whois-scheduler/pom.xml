@@ -45,6 +45,11 @@
             <artifactId>whois-update</artifactId>
             <type>test-jar</type>
         </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-client</artifactId>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

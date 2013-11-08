@@ -90,6 +90,14 @@
             <groupId>de.jflex</groupId>
             <artifactId>jflex</artifactId>
         </dependency>
+
+        <!-- testing -->
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-client</artifactId>
+            <type>test-jar</type>
+        </dependency>
+
     </dependencies>
     <build>
         <resources>

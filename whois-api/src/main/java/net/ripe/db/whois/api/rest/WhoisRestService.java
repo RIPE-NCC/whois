@@ -427,7 +427,7 @@ public class WhoisRestService {
      * The search interface resembles a standard Whois client query with the extra features of multi-registry client, multiple response styles that can be selected via content negotiation and with an extensible URL parameters schema.
      *
      * @param sources           Mandatory. It's possible to specify multiple sources.
-     * @param queryString       Mandatory.
+     * @param searchKey       Mandatory.
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
      * @param includeTags       Only show RPSL objects with given tags. Can be multiple.
      * @param excludeTags       Only show RPSL objects that <i>do not</i> have given tags. Can be multiple.
@@ -441,7 +441,7 @@ public class WhoisRestService {
     public Response search(
             @Context HttpServletRequest request,
             @QueryParam("source") Set<String> sources,
-            @QueryParam("query-string") String queryString,
+            @QueryParam("query-string") String searchKey,   // ouch, but it's too costly to change the API just for this
             @QueryParam("inverse-attribute") Set<String> inverseAttributes,
             @QueryParam("include-tag") Set<String> includeTags,
             @QueryParam("exclude-tag") Set<String> excludeTags,
@@ -477,11 +477,11 @@ public class WhoisRestService {
                         return input.length() > 1 ? "--" + input : "-" + input;
                     }
                 })),
-                (queryString == null ? "" : queryString)));
+                (searchKey == null ? "" : searchKey)));
 
         final Parameters parameters = new Parameters();
         parameters.setSources(validSources);
-        parameters.setQueryStrings(queryString);
+        parameters.setQueryStrings(searchKey);
         parameters.setInverseLookup(inverseAttributes);
         parameters.setTypeFilters(types);
         parameters.setFlags(separateFlags);
