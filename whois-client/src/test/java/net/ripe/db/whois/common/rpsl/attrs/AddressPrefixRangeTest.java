@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.domain.attrs;
+package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
