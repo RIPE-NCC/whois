@@ -12,6 +12,7 @@ import net.ripe.db.whois.api.search.IndexTemplate;
 import net.ripe.db.whois.api.whois.ApiResponseHandler;
 import net.ripe.db.whois.api.whois.RestServiceHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.attrs.AttributeParseException;
@@ -292,6 +293,12 @@ public class WhoisRdapService {
             }
 
             final RpslObject resultObject = result.get(0);
+
+            if (resultObject.getKey().equals(CIString.ciString("0.0.0.0 - 255.255.255.255")) ||
+                    resultObject.getKey().equals(CIString.ciString("::/0"))) {
+                // TODO: handle root object
+                return redirect(getRequestPath(request), query);
+            }
 
             return Response.ok(
                     rdapObjectMapper.map(
