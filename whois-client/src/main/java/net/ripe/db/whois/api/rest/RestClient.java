@@ -7,8 +7,10 @@ import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.QueryFlag;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +20,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import java.util.Set;
 
 @Component
 public final class RestClient {
@@ -52,9 +55,11 @@ public final class RestClient {
                 restApiUrl,
                 sourceName,
                 rpslObject.getType().getName(),
-                formatPasswords(passwords)))
-                .request()
-                .post(Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+                formatPasswords(passwords)
+        )).request().post(
+                Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
+                WhoisResources.class
+        );
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
@@ -63,9 +68,11 @@ public final class RestClient {
                 restApiUrl,
                 sourceName,
                 rpslObject.getType().getName(),
-                StringUtils.isNotEmpty(override) ? String.format("?override=%s", override) : ""))
-                .request()
-                .post(Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+                StringUtils.isNotEmpty(override) ? String.format("?override=%s", override) : ""
+        )).request().post(
+                Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
+                WhoisResources.class
+        );
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
@@ -75,9 +82,11 @@ public final class RestClient {
                 sourceName,
                 rpslObject.getType().getName(),
                 rpslObject.getKey().toString(),
-                formatPasswords(passwords)))
-                .request()
-                .put(Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+                formatPasswords(passwords)
+        )).request().put(
+                Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
+                WhoisResources.class
+        );
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
@@ -87,9 +96,11 @@ public final class RestClient {
                 sourceName,
                 rpslObject.getType().getName(),
                 rpslObject.getKey().toString(),
-                StringUtils.isNotEmpty(override) ? String.format("?override=%s", override) : ""))
-                .request()
-                .put(Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+                StringUtils.isNotEmpty(override) ? String.format("?override=%s", override) : ""
+        )).request().put(
+                Entity.entity(whoisObjectClientMapper.map(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
+                WhoisResources.class
+        );
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
@@ -99,9 +110,8 @@ public final class RestClient {
                 sourceName,
                 rpslObject.getType().getName(),
                 rpslObject.getKey().toString(),
-                formatPasswords(passwords)))
-                .request()
-                .delete(String.class);
+                formatPasswords(passwords)
+        )).request().delete(String.class);
     }
 
     public void deleteOverride(final RpslObject rpslObject, final String override) {
@@ -110,9 +120,8 @@ public final class RestClient {
                 sourceName,
                 rpslObject.getType().getName(),
                 rpslObject.getKey().toString(),
-                StringUtils.isNotEmpty(override) ? String.format("?override=%s", override) : ""))
-                .request()
-                .delete(String.class);
+                StringUtils.isNotEmpty(override) ? String.format("?override=%s", override) : ""
+        )).request().delete(String.class);
     }
 
     public RpslObject lookup(final ObjectType objectType, final String pkey) {
@@ -120,14 +129,36 @@ public final class RestClient {
                 restApiUrl,
                 sourceName,
                 objectType.getName(),
-                pkey)).request()
-                .get(WhoisResources.class);
+                pkey
+        )).request().get(WhoisResources.class);
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
     public AbuseContact abuseContact(final String resource, final String source) {
-        AbuseResources abuseResources = client.target(String.format("%s/abuse-contact/%s/%s", restApiUrl, source, resource)).request().get(AbuseResources.class);
+        AbuseResources abuseResources = client.target(String.format("%s/abuse-contact/%s/%s",
+                restApiUrl,
+                source,
+                resource
+        )).request().get(AbuseResources.class);
         return abuseResources.getAbuseContact();
+    }
+
+    public Iterable<RpslObject> search(String searchKey,
+                                       Set<String> sources,
+                                       Set<AttributeType> inverseAttributes,
+                                       Set<String> includeTags,
+                                       Set<String> excludeTags,
+                                       Set<ObjectType> types,
+                                       Set<QueryFlag> flags) {
+
+        final WhoisResources whoisResources = client.target(String.format("%s/search?query-string=%s%s%s%s",
+                restApiUrl,
+                searchKey
+
+        )).request().get(WhoisResources.class);
+
+
+        return null;
     }
 
     String formatPasswords(String... passwords) {
