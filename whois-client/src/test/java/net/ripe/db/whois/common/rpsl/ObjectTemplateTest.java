@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -51,6 +52,13 @@ public class ObjectTemplateTest {
     }
 
     @Test
+    public void getMultipleAttributes(){
+        final ObjectTemplate template = ObjectTemplate.getTemplate(ObjectType.AS_BLOCK);
+        Set<AttributeType> multipleAttributes = template.getMultipleAttributes();
+        assertThat(multipleAttributes.size(), is(6));
+    }
+
+  @Test
     public void validate_mandatory_missing() {
         final RpslObject rpslObject = RpslObject.parse(MAINTAINER_OBJECT_STRING.substring(0, MAINTAINER_OBJECT_STRING.lastIndexOf('\n') + 1));
         final ObjectMessages objectMessages = subject.validate(rpslObject);

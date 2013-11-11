@@ -402,6 +402,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     private final Set<AttributeType> lookupAttributes;
     private final Set<AttributeType> inverseLookupAttributes;
     private final Set<AttributeType> mandatoryAttributes;
+    private final Set<AttributeType> multipleAttributes;
 
     private ObjectTemplate(final ObjectType objectType, final int orderPosition, final AttributeTemplate... attributeTemplates) {
         this.objectType = objectType;
@@ -425,6 +426,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         lookupAttributes = getAttributes(attributeTemplates, LOOKUP_KEY);
         inverseLookupAttributes = getAttributes(attributeTemplates, INVERSE_KEY);
         mandatoryAttributes = getAttributes(attributeTemplates, MANDATORY);
+        multipleAttributes = getAttributes(attributeTemplates, MULTIPLE);
     }
 
     private Set<AttributeType> getAttributes(final AttributeTemplate[] attributeTemplates, final Key key) {
@@ -442,6 +444,17 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         final Set<AttributeType> attributeTypes = Sets.newLinkedHashSet();
         for (final AttributeTemplate attributeTemplate : attributeTemplates) {
             if (attributeTemplate.getRequirement() == requirement) {
+                attributeTypes.add(attributeTemplate.getAttributeType());
+            }
+        }
+
+        return Collections.unmodifiableSet(attributeTypes);
+    }
+
+    private Set<AttributeType> getAttributes(final AttributeTemplate[] attributeTemplates, final AttributeTemplate.Cardinality cardinality) {
+        final Set<AttributeType> attributeTypes = Sets.newLinkedHashSet();
+        for (final AttributeTemplate attributeTemplate : attributeTemplates) {
+            if (attributeTemplate.getCardinality() == cardinality) {
                 attributeTypes.add(attributeTemplate.getAttributeType());
             }
         }
@@ -488,6 +501,10 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
     public Set<AttributeType> getInverseLookupAttributes() {
         return inverseLookupAttributes;
+    }
+
+    public Set<AttributeType> getMultipleAttributes() {
+        return multipleAttributes;
     }
 
     public boolean isSet() {
