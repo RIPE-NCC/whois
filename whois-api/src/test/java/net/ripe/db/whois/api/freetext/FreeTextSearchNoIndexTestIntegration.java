@@ -2,13 +2,16 @@ package net.ripe.db.whois.api.freetext;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.InternalServerErrorException;
 
 import static org.junit.Assert.fail;
 
+@Category(IntegrationTest.class)
 public class FreeTextSearchNoIndexTestIntegration extends AbstractIntegrationTest {
 
     @BeforeClass
