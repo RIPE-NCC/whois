@@ -988,10 +988,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     public void search_domain_exact_match() throws Exception {
         freeTextIndex.rebuild();
 
-        final String responese = createResource("domains?name=31.12.202.in-addr.arpa")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
-        System.out.println(responese);
         final SearchResult response = createResource("domains?name=31.12.202.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
@@ -1051,6 +1047,70 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .get(SearchResult.class);
 
         assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP1-TEST"));
+    }
+
+    @Test
+    public void search_entity_person_by_name_lowercase() throws Exception {
+        freeTextIndex.rebuild();
+
+        final SearchResult response = createResource("entities?fn=test%20person")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP1-TEST"));
+    }
+
+    @Test
+    public void search_entity_person_umlaut() throws Exception {
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
+        freeTextIndex.rebuild();
+
+        final SearchResult response = createResource("entities?fn=Tëst%20Person3")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP3-TEST"));
+    }
+
+    @Test
+    public void search_entity_person_umlaut_latin1_encoded() throws Exception {
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
+        freeTextIndex.rebuild();
+
+        try {
+            createResource("entities?fn=T%EBst%20Person3")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+        } catch (NotFoundException e) {
+            // expected - Jetty uses UTF-8 when decoding characters, not latin1
+        }
+    }
+
+    @Test
+    public void search_entity_person_umlaut_utf8_encoded() throws Exception {
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
+        freeTextIndex.rebuild();
+
+        final SearchResult response = createResource("entities?fn=T%C3%ABst%20Person3")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP3-TEST"));
+    }
+
+    @Test
+    public void search_entity_person_umlaut_substitution() throws Exception {
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
+        freeTextIndex.rebuild();
+
+        try {
+            createResource("entities?fn=Test%20Person3")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+            fail();
+        } catch (NotFoundException e) {
+            // expected (no character substitution)
+        }
     }
 
     @Test
