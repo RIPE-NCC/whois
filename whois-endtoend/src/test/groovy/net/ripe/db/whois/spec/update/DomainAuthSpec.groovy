@@ -74,6 +74,21 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
+            "ASSIGN-PA-LOW-DOM": """\
+                inetnum:      193.0.0.0 - 193.0.0.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       OWNER-MNT
+                mnt-lower:    LIR-MNT
+                mnt-domains:  LIR2-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
             "ALLOC-PA-LOW-R": """\
                 inetnum:      193.0.0.0 - 193.255.255.255
                 netname:      TEST-NET-NAME
@@ -1707,6 +1722,87 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[domain] 0.0.193.in-addr.arpa" }
+
+        queryObjectNotFound("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
+    }
+
+    def "delete reverse domain, using exact match mnt-by"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ASSIGN-PA-LOW-DOM") + "override: denis,override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+
+        expect:
+        queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
+        queryObject("-r -T inetnum 193.0.0.0 - 193.0.0.255", "inetnum", "193.0.0.0 - 193.0.0.255")
+        queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
+        queryObject("-r -L -T inetnum 193.0.0.0 - 193.0.0.255", "inetnum", "193.0.0.0 - 193.0.0.255")
+
+        when:
+        def message = syncUpdate("""\
+                domain:         0.0.193.in-addr.arpa
+                descr:          reverse domain
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net
+                nserver:        ns3.nic.fr
+                mnt-by:         DOMAIN-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                delete:  testing delete
+
+                password:   owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[domain] 0.0.193.in-addr.arpa" }
+
+        queryObjectNotFound("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
+    }
+
+    def "delete reverse domain, using parent mnt-by"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
+        queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
+
+        expect:
+
+        when:
+        def message = syncUpdate("""\
+                domain:         0.0.193.in-addr.arpa
+                descr:          reverse domain
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net
+                nserver:        ns3.nic.fr
+                mnt-by:         DOMAIN-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                delete:  testing delete
+
+                password:   hm
+                """.stripIndent()
+        )
+
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
