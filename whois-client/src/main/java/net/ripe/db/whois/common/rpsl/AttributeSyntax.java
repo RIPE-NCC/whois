@@ -39,7 +39,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 // TODO: [AH] queries should NOT match AUTO- versions of keys
 // TODO: [AH] fix capture groups (add '?:' where capture is not needed)
-interface AttributeSyntax extends Documented {
+public interface AttributeSyntax extends Documented {
     AttributeSyntax ANY_SYNTAX = new AnySyntax();
 
     AttributeSyntax ADDRESS_PREFIX_RANGE_SYNTAX = new AttributeSyntaxParser(new AttributeParser.AddressPrefixRangeParser());

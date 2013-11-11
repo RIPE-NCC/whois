@@ -615,7 +615,7 @@ public enum AttributeType implements Documented {
         return valueType.equals(LIST_VALUE);
     }
 
-    AttributeSyntax getSyntax() {
+    public AttributeSyntax getSyntax() {
         return syntax;
     }
 
