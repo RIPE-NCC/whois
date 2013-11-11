@@ -89,8 +89,6 @@ public class FreeTextIndex extends RebuildableIndex {
         INDEXED_NOT_TOKENIZED.freeze();
     }
 
-    public static final int MAX_UPDATE_BACKLOG = 25000;
-
     private final JdbcTemplate jdbcTemplate;
     private final String source;
 
@@ -111,7 +109,6 @@ public class FreeTextIndex extends RebuildableIndex {
         if (StringUtils.isBlank(indexDir)) return;
         super.init(new IndexWriterConfig(Version.LUCENE_44, INDEX_ANALYZER)
                 .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
-
                 new IndexTemplate.WriteCallback() {
                     @Override
                     public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
@@ -120,27 +117,20 @@ public class FreeTextIndex extends RebuildableIndex {
                         } else {
                             final Map<String, String> commitData = indexWriter.getCommitData();
                             final String committedSource = commitData.get("source");
+
                             if (!source.equals(committedSource)) {
                                 LOGGER.warn("Index {} has invalid source: {}, rebuild", indexDir, committedSource);
                                 rebuild(indexWriter, taxonomyWriter);
+                                return;
                             }
 
                             if (!commitData.containsKey("serial")) {
                                 LOGGER.warn("Index {} is missing serial, rebuild", indexDir);
                                 rebuild(indexWriter, taxonomyWriter);
+                                return;
                             }
 
-                            final int indexSerial = Integer.parseInt(commitData.get("serial"));
-                            final int serial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
-                            if (serial < indexSerial) {
-                                LOGGER.warn("Index serial ({}) higher than database serial ({}), rebuild", indexSerial, serial);
-                                rebuild(indexWriter, taxonomyWriter);
-                            }
-
-                            if (serial - MAX_UPDATE_BACKLOG > indexSerial) {
-                                LOGGER.warn("Index serial ({}) too far behind database serial ({}), rebuild", indexSerial, serial);
-                                rebuild(indexWriter, taxonomyWriter);
-                            }
+                            update(indexWriter, taxonomyWriter);
                         }
                     }
                 });
@@ -194,7 +184,6 @@ public class FreeTextIndex extends RebuildableIndex {
                         return null;
                     }
                 });
-
 
         updateMetadata(indexWriter, source, maxSerial);
     }
