@@ -24,6 +24,7 @@
 [all] specifying type filter is now allowed with version queries
 [DEPLOY] remove leftover wsearch.* from properties file
 [DEPLOY] change api.rest.lookup.baseurl to api.rest.baseurl
+[DEPLOY] specify port.api instead of port.api.* in properties
 [DEPLOY] run internals-1.70.sql on master
 [DEPLOY] adjust properties to reflect new internals database
 [DEPLOY] run whois-1.70.sql and whois-1.70-2.sql on master (warning: blocks updates & takes a long time!) (65 mins on pre-production)

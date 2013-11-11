@@ -21,8 +21,6 @@ CREATE TABLE `version` (
   `version` varchar(80) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-INSERT INTO version VALUES ('internals-1.70');
-
 CREATE TABLE `scheduler` (
   `date` date NOT NULL,
   `task` varchar(256) NOT NULL,
@@ -42,4 +40,3 @@ INSERT INTO scheduler VALUES (now(), 'ResetPersonalObjectAccounting', 'initial',
 INSERT INTO scheduler VALUES (now(), 'UnrefCleanup', 'initial', 1);
 
 INSERT INTO version VALUES ('internals-1.70');
-
