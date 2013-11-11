@@ -3,9 +3,10 @@ package net.ripe.db.whois.api.rest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
+import net.ripe.db.whois.api.rest.domain.AbuseContact;
+import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.StringUtils;
@@ -13,7 +14,6 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Qualifier;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -123,6 +123,11 @@ public final class RestClient {
                 pkey)).request()
                 .get(WhoisResources.class);
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+    }
+
+    public AbuseContact abuseContact(final String resource, final String source) {
+        AbuseResources abuseResources = client.target(String.format("%s/abuse-contact/%s/%s", restApiUrl, source, resource)).request().get(AbuseResources.class);
+        return abuseResources.getAbuseContact();
     }
 
     String formatPasswords(String... passwords) {
