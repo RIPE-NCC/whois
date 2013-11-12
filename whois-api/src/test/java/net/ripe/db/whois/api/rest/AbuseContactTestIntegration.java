@@ -1,7 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
@@ -25,76 +23,115 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     @Before
     public void setup() {
         databaseHelper.addObject(
-                "person: Test Person\n" +
-                "nic-hdl: TP1-TEST");
+                "person:        Test Person\n" +
+                "nic-hdl:       TP1-TEST");
         databaseHelper.addObject(
-                "role: Test Role\n" +
-                "nic-hdl: TR1-TEST");
+                "role:          Test Role\n" +
+                "nic-hdl:       TR1-TEST");
         databaseHelper.addObject(
-                "mntner:      OWNER-MNT\n" +
-                "descr:       Owner Maintainer\n" +
-                "admin-c:     TP1-TEST\n" +
-                "upd-to:      noreply@ripe.net\n" +
-                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-                "mnt-by:      OWNER-MNT\n" +
-                "referral-by: OWNER-MNT\n" +
-                "changed:     dbtest@ripe.net 20120101\n" +
-                "source:      TEST");
+                "mntner:        OWNER-MNT\n" +
+                "descr:         Owner Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "referral-by:   OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST");
         databaseHelper.updateObject(
-                "person:  Test Person\n" +
-                "address: Singel 258\n" +
-                "phone:   +31 6 12345678\n" +
-                "nic-hdl: TP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: dbtest@ripe.net 20120101\n" +
-                "source:  TEST\n");
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST\n");
         databaseHelper.updateObject(
-                "role:      Test Role\n" +
-                "address:   Singel 258\n" +
-                "phone:     +31 6 12345678\n" +
-                "nic-hdl:   TR1-TEST\n" +
-                "admin-c:   TR1-TEST\n" +
+                "role:          Test Role\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TR1-TEST\n" +
+                "admin-c:       TR1-TEST\n" +
                 "abuse-mailbox: abuse@test.net\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "changed:   dbtest@ripe.net 20120101\n" +
-                "source:    TEST\n");
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST\n");
+    }
+
+    // inetnum
+
+    @Test
+    public void inetnum_exact_match_abuse_contact_found() {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-OT1-TEST\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       TR1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "inetnum:       193.0.0.0 - 193.0.0.255\n" +
+                "netname:       RIPE-NCC\n" +
+                "descr:         some description\n" +
+                "org:           ORG-OT1-TEST\n" +
+                "country:       DK\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "status:        SUB-ALLOCATED PA\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       org@ripe.net 20120505\n" +
+                "source:        TEST");
+        ipTreeUpdater.rebuild();
+
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/193.0.0.0 - 193.0.0.255")
+                .request()
+                .get(String.class);
+
+        assertThat(result, is("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-contact\">" +
+                "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/193.0.0.0 - 193.0.0.255\"/>" +
+                "<parameters><primary-key value=\"193.0.0.0 - 193.0.0.255\"/></parameters>" +
+                "<abuse-contacts email=\"abuse@test.net\"/>" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
+                "</abuse-resources>"));
     }
 
     @Test
-    public void abusec_inetnum_found_json() throws IOException {
+    public void inetnum_child_address_abuse_contact_found() {
         databaseHelper.addObject("" +
-                "organisation: ORG-OT1-TEST\n" +
-                "org-type: OTHER\n" +
-                "abuse-c: TR1-TEST\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "source: TEST");
+                "organisation:  ORG-OT1-TEST\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       TR1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
         databaseHelper.addObject("" +
-                "inet6num: 2a00:1f78::fffe/48\n" +
-                "netname: RIPE-NCC\n" +
-                "descr: some description\n" +
-                "org: ORG-OT1-TEST\n" +
-                "country: DK\n" +
-                "admin-c: TP1-TEST\n" +
-                "tech-c: TP1-TEST\n" +
-                "status: SUB-ALLOCATED PA\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "changed: org@ripe.net 20120505\n" +
-                "source: TEST");
+                "inetnum:       193.0.0.0 - 193.0.0.255\n" +
+                "netname:       RIPE-NCC\n" +
+                "descr:         some description\n" +
+                "org:           ORG-OT1-TEST\n" +
+                "country:       DK\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "status:        SUB-ALLOCATED PA\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       org@ripe.net 20120505\n" +
+                "source:        TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/2a00:1f78::fffe/48")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/193.0.0.1")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
+
         assertThat(result, is("" +
                 "{\n" +
                 "  \"service\" : \"abuse-contact\",\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/2a00:1f78::fffe/48\"\n" +
+                "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/193.0.0.1\"\n" +
                 "  },\n" +
                 "  \"parameters\" : {\n" +
                 "    \"primary-key\" : {\n" +
-                "      \"value\" : \"2a00:1f78::fffe/48\"\n" +
+                "      \"value\" : \"193.0.0.0 - 193.0.0.255\"\n" +
                 "    }\n" +
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
@@ -108,62 +145,184 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void abusec_inetnum_found_xml() {
+    public void inetnum_abuse_contact_not_found() {
         databaseHelper.addObject("" +
-                "organisation: ORG-OT1-TEST\n" +
-                "org-type: OTHER\n" +
-                "abuse-c: TR1-TEST\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "source: TEST");
+                "organisation:  ORG-OT1-TEST\n" +
+                "org-type:      OTHER\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
         databaseHelper.addObject("" +
-                "inet6num: 2a00:1f78::fffe/48\n" +
-                "netname: RIPE-NCC\n" +
-                "descr: some description\n" +
-                "org: ORG-OT1-TEST\n" +
-                "country: DK\n" +
-                "admin-c: TP1-TEST\n" +
-                "tech-c: TP1-TEST\n" +
-                "status: SUB-ALLOCATED PA\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "changed: org@ripe.net 20120505\n" +
-                "source: TEST");
+                "inetnum:       193.0.0.0 - 193.0.0.255\n" +
+                "netname:       RIPE-NCC\n" +
+                "descr:         some description\n" +
+                "org:           ORG-OT1-TEST\n" +
+                "country:       DK\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "status:        SUB-ALLOCATED PA\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       org@ripe.net 20120505\n" +
+                "source:        TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/2a00:1f78::fffe/48")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/193.0.0.1")
+                .request(MediaType.APPLICATION_JSON)
+                .get(String.class);
+
+        assertThat(result, is("" +
+                "{\n" +
+                "  \"service\" : \"abuse-contact\",\n" +
+                "  \"link\" : {\n" +
+                "    \"type\" : \"locator\",\n" +
+                "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/193.0.0.1\"\n" +
+                "  },\n" +
+                "  \"parameters\" : {\n" +
+                "    \"primary-key\" : {\n" +
+                "      \"value\" : \"193.0.0.0 - 193.0.0.255\"\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"abuse-contacts\" : {\n" +
+                "    \"email\" : \"\"\n" +
+                "  },\n" +
+                "  \"terms-and-conditions\" : {\n" +
+                "    \"type\" : \"locator\",\n" +
+                "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "  }\n" +
+                "}"));
+    }
+
+    @Test
+    public void inetnum_not_found() {
+        try {
+            RestTest.target(getPort(), "whois/abuse-contact/test/193.0.1.2")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(String.class);
+            fail();
+        } catch (NotFoundException e) {
+            // expected
+        }
+    }
+
+    // inet6num
+
+    @Test
+    public void inet6num_abuse_contact_found_accept_json() throws IOException {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-OT1-TEST\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       TR1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "inet6num:      2a00:1f78::/32\n" +
+                "netname:       RIPE-NCC\n" +
+                "descr:         some description\n" +
+                "org:           ORG-OT1-TEST\n" +
+                "country:       DK\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "status:        SUB-ALLOCATED PA\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       org@ripe.net 20120505\n" +
+                "source:        TEST");
+        ipTreeUpdater.rebuild();
+
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/2a00:1f78::/32")
+                .request(MediaType.APPLICATION_JSON)
+                .get(String.class);
+
+        assertThat(result, is("" +
+                "{\n" +
+                "  \"service\" : \"abuse-contact\",\n" +
+                "  \"link\" : {\n" +
+                "    \"type\" : \"locator\",\n" +
+                "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/2a00:1f78::/32\"\n" +
+                "  },\n" +
+                "  \"parameters\" : {\n" +
+                "    \"primary-key\" : {\n" +
+                "      \"value\" : \"2a00:1f78::/32\"\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"abuse-contacts\" : {\n" +
+                "    \"email\" : \"abuse@test.net\"\n" +
+                "  },\n" +
+                "  \"terms-and-conditions\" : {\n" +
+                "    \"type\" : \"locator\",\n" +
+                "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "  }\n" +
+                "}"));
+    }
+
+    @Test
+    public void inet6num_abuse_contact_found_accept_xml() {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-OT1-TEST\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       TR1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "inet6num:      2a00:1f78::/32\n" +
+                "netname:       RIPE-NCC\n" +
+                "descr:         some description\n" +
+                "org:           ORG-OT1-TEST\n" +
+                "country:       DK\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "status:        SUB-ALLOCATED PA\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       org@ripe.net 20120505\n" +
+                "source:        TEST");
+        ipTreeUpdater.rebuild();
+
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/2a00:1f78::/32")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
-        final String readable = Joiner.on(">\n").join(Splitter.on(">").split(result)).trim();
 
-        assertThat(readable, is("" +
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
-                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-contact\">\n" +
-                "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/2a00:1f78::fffe/48\"/>\n" +
-                "<parameters>\n" +
-                "<primary-key value=\"2a00:1f78::fffe/48\"/>\n" +
-                "</parameters>\n" +
-                "<abuse-contacts email=\"abuse@test.net\"/>\n" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+        assertThat(result, is("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-contact\">" +
+                "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/2a00:1f78::/32\"/>" +
+                "<parameters>" +
+                "<primary-key value=\"2a00:1f78::/32\"/>" +
+                "</parameters>" +
+                "<abuse-contacts email=\"abuse@test.net\"/>" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
                 "</abuse-resources>"));
     }
 
     @Test
-    public void abusec_autnum_found() {
+    public void inet6num_not_found() {
+        try {
+            RestTest.target(getPort(), "whois/abuse-contact/test/2a00:1234::/32")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(String.class);
+            fail();
+        } catch (NotFoundException e) {
+            // expected
+        }
+    }
+
+    // autnum
+
+    @Test
+    public void autnum_abuse_contact_found() {
         databaseHelper.addObject("" +
-                "organisation: ORG-OT1-TEST\n" +
-                "org-type: OTHER\n" +
-                "abuse-c: TR1-TEST\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "source: test");
+                "organisation:  ORG-OT1-TEST\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       TR1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
         databaseHelper.addObject("" +
-                "aut-num: AS333\n" +
-                "as-name: Test-User-1\n" +
-                "descr: some description\n" +
-                "org: ORG-OT1-TEST\n" +
-                "admin-c: TP1-TEST\n" +
-                "tech-c: TP1-TEST\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "changed: org@ripe.net 20120505\n" +
-                "source: test");
+                "aut-num:       AS333\n" +
+                "as-name:       Test-User-1\n" +
+                "descr:         some description\n" +
+                "org:           ORG-OT1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       org@ripe.net 20120505\n" +
+                "source:        TEST");
 
         final AbuseResources result = RestTest.target(getPort(), "whois/abuse-contact/test/AS333")
                 .request(MediaType.APPLICATION_XML)
@@ -173,32 +332,33 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void abuse_contact_not_found() {
+    public void autnum_abuse_contact_not_found() {
         databaseHelper.addObject("" +
-                "organisation: ORG-OT1-TEST\n" +
-                "org-type: OTHER\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "source: test");
+                "organisation:  ORG-OT1-TEST\n" +
+                "org-type:      OTHER\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
         databaseHelper.addObject("" +
-                "aut-num: AS333\n" +
-                "as-name: Test-User-1\n" +
-                "descr: some description\n" +
-                "org: ORG-OT1-TEST\n" +
-                "admin-c: TP1-TEST\n" +
-                "tech-c: TP1-TEST\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "changed: org@ripe.net 20120505\n" +
-                "source: test");
+                "aut-num:       AS333\n" +
+                "as-name:       Test-User-1\n" +
+                "descr:         some description\n" +
+                "org:           ORG-OT1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       org@ripe.net 20120505\n" +
+                "source:        test");
 
         final AbuseResources abuseResources = RestTest.target(getPort(), "whois/abuse-contact/test/AS333")
                 .request(MediaType.APPLICATION_XML)
                 .get(AbuseResources.class);
+
         assertThat(abuseResources.getParameters().getPrimaryKey().getValue(), is("AS333"));
         assertThat(abuseResources.getAbuseContact().getEmail(), is(""));
     }
 
     @Test
-    public void abuse_object_not_found() {
+    public void autnum_not_found() {
         try {
             RestTest.target(getPort(), "whois/abuse-contact/test/AS333")
                     .request(MediaType.APPLICATION_XML)
@@ -210,23 +370,23 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void abuse_explicit_json() {
+    public void autnum_abuse_contact_found_json_extension() {
         databaseHelper.addObject("" +
-                "organisation: ORG-OT1-TEST\n" +
-                "org-type: OTHER\n" +
-                "abuse-c: TR1-TEST\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "source: test");
+                "organisation:  ORG-OT1-TEST\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       TR1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        test");
         databaseHelper.addObject("" +
-                "aut-num: AS333\n" +
-                "as-name: Test-User-1\n" +
-                "descr: some description\n" +
-                "org: ORG-OT1-TEST\n" +
-                "admin-c: TP1-TEST\n" +
-                "tech-c: TP1-TEST\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "changed: org@ripe.net 20120505\n" +
-                "source: test");
+                "aut-num:       AS333\n" +
+                "as-name:       Test-User-1\n" +
+                "descr:         some description\n" +
+                "org:           ORG-OT1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       org@ripe.net 20120505\n" +
+                "source:        test");
 
         final String result = RestTest.target(getPort(), "whois/abuse-contact/test/AS333.json")
                 .request(MediaType.APPLICATION_JSON_TYPE)
