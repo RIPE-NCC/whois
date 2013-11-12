@@ -232,7 +232,6 @@ help     : ${syncUpdate.isHelp()}
 diff     : ${syncUpdate.isDiff()}
 forceNew : ${syncUpdate.isForceNew()}
 redirect : ${syncUpdate.isRedirect()}
-post     : ${syncUpdate.isPost()}
 
 ---
 
@@ -241,7 +240,7 @@ ${syncUpdate.getData()}
 <<<<<
 """
 
-        def response = whoisFixture.syncupdate(syncUpdate.getData(), syncUpdate.isHelp(), syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect(), syncUpdate.getPost(), syncUpdate.getResponseCode())
+        def response = whoisFixture.syncupdate(syncUpdate.getData(), syncUpdate.isHelp(), syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect())
 
         print """\
 >>>>> RECEIVE SYNCUPDATE RESPONSE

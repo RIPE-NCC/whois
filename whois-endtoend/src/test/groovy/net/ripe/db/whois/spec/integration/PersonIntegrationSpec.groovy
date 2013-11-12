@@ -292,32 +292,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         query =~ /address:\s+München, Germany/
     }
 
-    def "create person returns non-ASCII characters with syncupdate GET request"() {
-      given:
-        def person = new SyncUpdate(data: """\
-                person:     Test Person2
-                address:    Flughafenstraße 109/a
-                address:    München, Germany
-                phone:      +44 282 411141
-                fax-no:     +44 282 411140
-                nic-hdl:    AUTO-1
-                changed:    dbtest@ripe.net 20120101
-                changed:    dbtest@ripe.net 20120101
-                source:     TEST
-                password: update
-                """.stripIndent(),
-                post: false)
-
-      when:
-        def response = syncUpdate person
-
-      then:
-        response =~ /address:\s+Flughafenstraße 109\/a/
-        response =~ /address:\s+München, Germany/
-        response =~ /Mandatory attribute \"mnt-by\" is missing/
-    }
-
-    def "create person returns non-ASCII characters with syncupdate POST request"() {
+    def "create person returns non-ASCII characters with syncupdate"() {
       given:
         def person = new SyncUpdate(data: """\
                 person:     New Test Person
@@ -329,8 +304,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 changed:    dbtest@ripe.net 20120101
                 source:     TEST
                 password: update
-                """.stripIndent(),
-                post: true)
+                """.stripIndent())
 
       when:
         def response = syncUpdate person
