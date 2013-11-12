@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
@@ -19,10 +20,16 @@ import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.query.QueryFlag;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -31,7 +38,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import javax.ws.rs.*;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotAllowedException;
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -39,12 +51,24 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -96,6 +120,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     private WhoisObjectServerMapper whoisObjectMapper;
+    @Autowired
+    private MaintenanceMode maintenanceMode;
 
     @Before
     public void setup() {
@@ -104,6 +130,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.updateObject(TEST_ROLE);
+        maintenanceMode.set("FULL,FULL");
     }
 
     @Test
@@ -633,7 +660,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
-                .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Lists.newArrayList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(1));
         final WhoisObject object = response.getWhoisObjects().get(0);
@@ -657,7 +684,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(PAULETH_PALTHEN);
         WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
-                .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(1));
         final WhoisObject object = response.getWhoisObjects().get(0);
@@ -682,7 +709,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
                 .request(MediaType.APPLICATION_XML)
-                .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(1));
         final WhoisObject object = response.getWhoisObjects().get(0);
@@ -744,7 +771,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             databaseHelper.addObject(PAULETH_PALTHEN);
             RestTest.target(getPort(), "whois/test/mntner/PP1-TEST?password=test")
                     .request(MediaType.APPLICATION_XML)
-                    .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException ignored) {
             // expected
@@ -756,7 +783,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         try {
             RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test")
                     .request(MediaType.APPLICATION_XML)
-                    .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException ignored) {
             // expected
@@ -769,7 +796,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             databaseHelper.addObject(PAULETH_PALTHEN);
             RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                     .request(MediaType.APPLICATION_XML)
-                    .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException ignored) {
             // expected
@@ -781,7 +808,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         try {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                     .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
             fail();
         } catch (NotAllowedException ignored) {
             // expected
@@ -1931,7 +1958,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
                 .request(MediaType.APPLICATION_XML)
-                .put(Entity.entity(whoisObjectMapper.map(Lists.newArrayList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Lists.newArrayList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(1));
         final WhoisObject object = response.getWhoisObjects().get(0);
@@ -1948,5 +1975,36 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(response.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    // TODO: [AH] also test origin, i.e. maintenanceMode.set("NONE,READONLY")
+
+    @Test(expected = ServiceUnavailableException.class)
+    public void maintenance_mode_readonly_update() {
+        maintenanceMode.set("READONLY,READONLY");
+        String response = RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
+    }
+
+    @Test
+    public void maintenance_mode_readonly_query() {
+        maintenanceMode.set("READONLY,READONLY");
+        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+    }
+
+    @Test(expected = ServiceUnavailableException.class)
+    public void maintenance_mode_none_update() {
+        maintenanceMode.set("NONE,NONE");
+        String response = RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
+    }
+
+    @Test(expected = ServiceUnavailableException.class)
+    public void maintenance_mode_none_query() {
+        maintenanceMode.set("NONE,NONE");
+        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
     }
 }

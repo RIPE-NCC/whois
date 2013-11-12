@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -19,9 +20,8 @@ import java.util.regex.Pattern;
 public class MaintenanceModeFilter implements Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MaintenanceModeFilter.class);
 
-    private static final Pattern WHICH_WHOIS_API = Pattern.compile("(?i)^/whois/(\\w+)(?:/|$)");
-    private static final Set<String> READ_API = ImmutableSet.of("geolocation", "grs-lookup", "grs-search", "lookup", "search", "tags", "version");
-    private static final Set<String> UPDATE_API = ImmutableSet.of("create", "delete", "modify", "syncupdates", "update");
+    private static final Pattern UPDATE_URI = Pattern.compile("(?i)^/whois/syncupdates(?:/|$)");
+    private static final Set<String> UPDATE_METHODS = ImmutableSet.of("POST", "PUT", "DELETE");
 
     private final MaintenanceMode maintenanceMode;
 
@@ -43,17 +43,18 @@ public class MaintenanceModeFilter implements Filter {
         } else if (request instanceof HttpServletRequest) {
             final HttpServletRequest httpRequest = (HttpServletRequest) request;
             final String uri = httpRequest.getRequestURI();
-            final Matcher matcher = WHICH_WHOIS_API.matcher(uri);
-            if (matcher.matches()) {
-                final String service = matcher.group(1).toLowerCase();
-                final IpInterval remoteIp = IpInterval.parse(httpRequest.getRemoteAddr());
+            final String method = httpRequest.getMethod();
+            final IpInterval remoteIp = IpInterval.parse(httpRequest.getRemoteAddr());
 
-                if (UPDATE_API.contains(service) && maintenanceMode.allowUpdate(remoteIp) ||
-                        READ_API.contains(service) && maintenanceMode.allowRead(remoteIp)) {
-                    chain.doFilter(request, response);
-                }
+            final boolean isUpdate = UPDATE_METHODS.contains(method) || UPDATE_URI.matcher(uri).matches();
+            final boolean allowed = isUpdate ? maintenanceMode.allowUpdate(remoteIp) : maintenanceMode.allowRead(remoteIp);
+
+            if (allowed) {
+                chain.doFilter(request, response);
+            } else {
+                final HttpServletResponse httpResponse = (HttpServletResponse)response;
+                httpResponse.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             }
-
         } else {
             LOGGER.warn("Unexpected request: {}", request);
             chain.doFilter(request, response);
