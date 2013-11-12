@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.io.Downloader;
+import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

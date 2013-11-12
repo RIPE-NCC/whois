@@ -12,6 +12,7 @@
             system-properties-mode="OVERRIDE"/>
 
     <bean class="net.ripe.db.whois.common.TestDateTimeProvider" />
+    <bean class="net.ripe.db.whois.api.rest.RestClient" />
 
     <import resource="applicationContext-internal-base.xml"/>
 

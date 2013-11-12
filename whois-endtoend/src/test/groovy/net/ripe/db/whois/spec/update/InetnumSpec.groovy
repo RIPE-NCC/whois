@@ -429,7 +429,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-routes:   owner-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )
@@ -1173,7 +1173,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-by:       END-USER-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )
@@ -1391,7 +1391,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 password: hm
                 password: lir
@@ -4589,7 +4589,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
@@ -4601,7 +4601,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-by:       END-USER-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      RIPE-NET1
@@ -4614,7 +4614,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )
@@ -4801,7 +4801,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
     def "delete allocation, override"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override:  override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override:  denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
 
       when:
@@ -4819,7 +4819,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  test override
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -5109,7 +5109,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
     def "modify EARLY-REGISTRATION, mnt-by RS and user, change mnt-lower"() {
       given:
-        syncUpdate(getTransient("EARLY-USER") + "override: override1")
+        syncUpdate(getTransient("EARLY-USER") + "override: denis,override1")
 
       expect:
         query_object_not_matches("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
@@ -5151,7 +5151,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
     def "modify EARLY-REGISTRATION, mnt-by user only, change mnt-lower"() {
       given:
-        syncUpdate(getTransient("EARLY-USER-ONLY") + "override: override1")
+        syncUpdate(getTransient("EARLY-USER-ONLY") + "override: denis,override1")
 
       expect:
         query_object_not_matches("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")

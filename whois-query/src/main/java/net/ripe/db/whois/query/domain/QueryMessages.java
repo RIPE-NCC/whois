@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Hosts;
 import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
-import net.ripe.db.whois.query.query.QueryFlag;
+import net.ripe.db.whois.query.QueryFlag;
 
 import java.net.InetAddress;
 import java.util.ArrayList;

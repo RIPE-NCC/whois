@@ -820,7 +820,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ALLOCATED UNSPECIFIED, parent status EARLY-REGISTRATION"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -866,7 +866,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ALLOCATED UNSPECIFIED, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET") + "override: override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -1596,7 +1596,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ALLOCATED PA, parent status EARLY-REGISTRATION"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -1642,7 +1642,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ALLOCATED PA, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET") + "override: override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -2372,7 +2372,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ALLOCATED PI, parent status EARLY-REGISTRATION"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -2418,7 +2418,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ALLOCATED PI, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET") + "override: override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3219,7 +3219,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child SUB-ALLOCATED PA, parent status EARLY-REGISTRATION"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3263,7 +3263,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child SUB-ALLOCATED PA, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET") + "override: override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3986,7 +3986,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child LIR-PARTITIONED PA, parent status EARLY-REGISTRATION"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -4030,7 +4030,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child LIR-PARTITIONED PA, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET") + "override: override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -4799,7 +4799,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child LIR-PARTITIONED PI, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET") + "override: override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -5573,7 +5573,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ASSIGNED ANYCAST, parent status EARLY-REGISTRATION"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -5619,7 +5619,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ASSIGNED ANYCAST, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET") + "override: override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -6491,7 +6491,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ASSIGNED PI, parent status EARLY-REGISTRATION, mnt-by RS"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -6537,7 +6537,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ASSIGNED PI, parent status EARLY-REGISTRATION, NOT mnt-by RS"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -6580,7 +6580,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ASSIGNED PI, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET") + "override: override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -7356,7 +7356,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ASSIGNED PA, parent status EARLY-REGISTRATION"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -7400,7 +7400,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ASSIGNED PA, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET") + "override: override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -7724,7 +7724,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:       override1
+                override:       denis,override1
 
                 """.stripIndent()
         )
@@ -7761,7 +7761,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:       override1
+                override:       denis,override1
 
                 """.stripIndent()
         )
@@ -7799,7 +7799,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:       override1
+                override:       denis,override1
 
                 """.stripIndent()
         )
@@ -7837,7 +7837,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:       override1
+                override:       denis,override1
 
                 """.stripIndent()
         )
@@ -7875,7 +7875,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:       override1
+                override:       denis,override1
 
                 """.stripIndent()
         )
@@ -7913,7 +7913,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:       override1
+                override:       denis,override1
 
                 """.stripIndent()
         )
@@ -7997,7 +7997,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
-                override:       override1
+                override:       denis,override1
                 tech-c:       TP1-TEST
                 status:       NOT-SET
                 mnt-by:       RIPE-NCC-HM-MNT

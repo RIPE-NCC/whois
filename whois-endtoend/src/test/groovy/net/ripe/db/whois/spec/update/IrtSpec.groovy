@@ -429,7 +429,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 mnt-by:       END-USER-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:     override1
+                override:     denis,override1
 
                 """.stripIndent()
         )

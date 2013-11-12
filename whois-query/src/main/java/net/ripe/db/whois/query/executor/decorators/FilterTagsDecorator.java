@@ -10,7 +10,7 @@ import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.query.QueryFlag;
+import net.ripe.db.whois.query.QueryFlag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

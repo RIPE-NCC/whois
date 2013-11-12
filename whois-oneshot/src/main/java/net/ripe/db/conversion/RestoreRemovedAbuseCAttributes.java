@@ -3,10 +3,13 @@ package net.ripe.db.conversion;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.jdbc.JdbcVersionDao;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 

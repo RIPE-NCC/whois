@@ -67,7 +67,7 @@ public class ReplayQueryLogsTestIntegration {
 
             when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenReturn(false);
 
-            queryExecutor = new QueryExecutor(new QueryExecutorConfiguration("WHO-IS", whoisHost, whoisPort), accessControlListManager, LOGGER);
+            queryExecutor = new QueryExecutor(new QueryExecutorConfiguration("WHO-IS", whoisHost, whoisPort, -1), accessControlListManager, LOGGER);
         }
 
         public void replay() throws IOException, InterruptedException {

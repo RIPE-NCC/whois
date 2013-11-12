@@ -6,8 +6,6 @@ class SyncUpdate {
     boolean diff
     boolean forceNew
     boolean redirect
-    boolean post = true
-    int responseCode = 200
 
     def setData(String data) {
         this.data = data.stripIndent()

@@ -3,15 +3,14 @@ package net.ripe.db.whois.common.aspects;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.DeclarePrecedence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
+
+// @Order is not supported with compile-time weaving, so we resorted to AspectJ annotation
 
 @Aspect
-@Component
-@Order(Ordered.LOWEST_PRECEDENCE)
+@DeclarePrecedence("RetryForAspect, *")
 public class RetryForAspect {
     @Around("@within(retryFor) && execution(public * *(..)) && !@annotation(RetryFor)")
     public Object retryForPublicMethodInAnnotatedType(final ProceedingJoinPoint pjp, final RetryFor retryFor) throws Throwable {

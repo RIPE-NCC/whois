@@ -6,11 +6,11 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.domain.Ipv6Resource;
-import net.ripe.db.whois.common.domain.attrs.Changed;
-import net.ripe.db.whois.common.domain.attrs.DsRdata;
-import net.ripe.db.whois.common.domain.attrs.NServer;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
+import net.ripe.db.whois.common.rpsl.attrs.Changed;
+import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
+import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

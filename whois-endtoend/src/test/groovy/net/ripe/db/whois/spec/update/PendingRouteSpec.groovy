@@ -116,8 +116,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, mnt-by, parent inet and ASN pw supplied"() {
         given:
-        syncUpdate(getTransient("PARENT-INET") + "override: override1")
-        syncUpdate(getTransient("AS100") + "override: override1")
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
 
         expect:
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -158,8 +158,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, no hierarchical pw supplied"() {
         given:
-        syncUpdate(getTransient("PARENT-INET") + "override: override1")
-        syncUpdate(getTransient("AS100") + "override: override1")
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
 
         expect:
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -199,8 +199,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, both hierarchical pw supplied, no mnt-by pw"() {
         given:
-        syncUpdate(getTransient("PARENT-INET") + "override: override1")
-        syncUpdate(getTransient("AS100") + "override: override1")
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
 
         expect:
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -239,8 +239,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, ASN pw supplied, no mnt-by pw"() {
         given:
-        syncUpdate(getTransient("PARENT-INET") + "override: override1")
-        syncUpdate(getTransient("AS100") + "override: override1")
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
 
         expect:
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -280,8 +280,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, inet pw supplied, no mnt-by pw"() {
         given:
-        syncUpdate(getTransient("PARENT-INET") + "override: override1")
-        syncUpdate(getTransient("AS100") + "override: override1")
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
 
         expect:
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -321,8 +321,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, mnt-by & parent inet pw supplied"() {
         given:
-        syncUpdate(getTransient("PARENT-INET") + "override: override1")
-        syncUpdate(getTransient("AS100") + "override: override1")
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
 
         expect:
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -370,8 +370,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, mnt-by & ASN pw supplied"() {
         given:
-        syncUpdate(getTransient("PARENT-INET") + "override: override1")
-        syncUpdate(getTransient("AS100") + "override: override1")
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
 
         expect:
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -419,8 +419,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, mnt-by & ASN pw supplied, then inet pw supplied"() {
         given:
-        syncUpdate(getTransient("PARENT-INET") + "override: override1")
-        syncUpdate(getTransient("AS100") + "override: override1")
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
 
         expect:
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -502,8 +502,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, mnt-by & ASN pw supplied, then same ASN pw supplied"() {
         given:
-        syncUpdate(getTransient("PARENT-INET") + "override: override1")
-        syncUpdate(getTransient("AS100") + "override: override1")
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
 
         expect:
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -583,8 +583,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, mnt-by & ASN pw supplied, then same ASN pw supplied, then inet pw supplied"() {
         given:
-        syncUpdate(getTransient("PARENT-INET") + "override: override1")
-        syncUpdate(getTransient("AS100") + "override: override1")
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
 
         expect:
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -706,8 +706,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, mnt-by & parent inet pw supplied, then ASN pw supplied"() {
         given:
-        syncUpdate(getTransient("PARENT-INET") + "override: override1")
-        syncUpdate(getTransient("AS100") + "override: override1")
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
 
         expect:
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -1390,9 +1390,9 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, mnt-by & parent inet pw supplied, route already exists"() {
         given:
-        syncUpdate(getTransient("PARENT-INET") + "override: override1")
-        syncUpdate(getTransient("AS100") + "override: override1")
-        syncUpdate(getTransient("ROUTE") + "override: override1")
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
+        syncUpdate(getTransient("ROUTE") + "override: denis,override1")
 
         expect:
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")

@@ -602,7 +602,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
 
     def "modify person with end of line comment on source"() {
       given:
-      syncUpdate(getTransient("PN-OPT") + "override: override1")
+      syncUpdate(getTransient("PN-OPT") + "override: denis,override1")
 
       expect:
         queryObject("-rBG -T person FOP1-TEST", "person", "First Optional Person")

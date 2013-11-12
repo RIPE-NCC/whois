@@ -1,6 +1,6 @@
 package net.ripe.db.whois.internal.api.acl;
 
-import net.ripe.db.whois.common.domain.IpInterval;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -6,23 +6,30 @@
 -- Release Version:   < TODO: version >
 --
 
-USE WHOIS_UPDATE_RIPE;
-
 DROP PROCEDURE IF EXISTS WHOIS_PATCH_PROCEDURE;
 DELIMITER //
 CREATE PROCEDURE WHOIS_PATCH_PROCEDURE()
-BEGIN
+MAIN: BEGIN
+
+DECLARE patch_version varchar(255) DEFAULT 'whois-x.y.z';
+
+DECLARE version_check int DEFAULT 0;
+SET version_check := (SELECT COUNT(*) FROM version WHERE version = patch_version);
+IF (version_check > 0) THEN
+    -- patch has already been applied
+    LEAVE MAIN;
+END IF;
+
 START TRANSACTION;
 
 -- < TODO: insert data patch here>
 
 -- < TODO: update version table>
 
-UPDATE version SET version = 'whois-x.y.z';
+INSERT INTO version VALUES (patch_version);
 
 COMMIT;
 END//
 
 CALL WHOIS_PATCH_PROCEDURE();
 DROP PROCEDURE IF EXISTS WHOIS_PATCH_PROCEDURE;
-

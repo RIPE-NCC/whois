@@ -4,14 +4,14 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.*;
-import net.ripe.db.whois.api.whois.InternalJob;
+import net.ripe.db.whois.api.rest.InternalJob;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
-import net.ripe.db.whois.common.domain.attrs.AttributeParseException;
-import net.ripe.db.whois.common.domain.attrs.OrgType;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -49,7 +49,6 @@ Algorithm:
  */
 
 // TODO: [AH] hard to follow code, should be refactored
-// TODO: [AH] does not handle circles of unreferenced objects (e.g. person referenced from key-cert, key-cert referenced from mntner, mntner referenced from person), need a different approach to support this
 @Component
 public class UnrefCleanup implements DailyScheduledTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnrefCleanup.class);

@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
-import net.ripe.db.whois.common.domain.attrs.MntRoutes;
+import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.authentication.Principal;

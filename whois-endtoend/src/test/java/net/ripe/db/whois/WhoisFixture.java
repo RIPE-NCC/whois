@@ -1,9 +1,9 @@
 package net.ripe.db.whois;
 
-import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
+import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.TestDateTimeProvider;
@@ -22,6 +22,8 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
+import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.task.unref.UnrefCleanup;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
@@ -31,30 +33,20 @@ import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.joda.time.LocalDateTime;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.util.FileCopyUtils;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class WhoisFixture {
-    private static final Pattern CHARSET_PATTERN = Pattern.compile(".*;charset=(.*)");
-
     private ClassPathXmlApplicationContext applicationContext;
 
     protected MailSenderStub mailSender;
@@ -78,11 +70,6 @@ public class WhoisFixture {
     protected UnrefCleanup unrefCleanup;
     protected IndexDao indexDao;
     protected WhoisServer whoisServer;
-
-
-    private static final String SYNCUPDATES_INSTANCE = "TEST";
-
-    private static final String CHARSET = "ISO-8859-1";
 
     static {
         Slf4JLogConfiguration.init();
@@ -133,8 +120,7 @@ public class WhoisFixture {
     }
 
     private void initData() {
-        databaseHelper.insertUser(User.createWithPlainTextPassword("dbase1", "override1", ObjectType.values()));
-        databaseHelper.insertUser(User.createWithPlainTextPassword("dbase2", "override2", ObjectType.values()));
+        databaseHelper.insertUser(User.createWithPlainTextPassword("denis", "override1", ObjectType.values()));
     }
 
     public void reset() {
@@ -181,16 +167,22 @@ public class WhoisFixture {
         rpslObjectUpdateDao.deleteObject(byKey.getObjectId(), byKey.getKey());
     }
 
-    public String syncupdate(final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect, final boolean doPost, final int responseCode) throws IOException {
-        return syncupdate(jettyBootstrap, data, isHelp, isDiff, isNew, isRedirect, doPost, responseCode);
+    public String syncupdate(final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) throws IOException {
+        return syncupdate(jettyBootstrap, data, isHelp, isDiff, isNew, isRedirect);
     }
 
-    public static String syncupdate(final JettyBootstrap jettyBootstrap, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect, final boolean doPost, final int responseCode) throws IOException {
-        if (doPost) {
-            return doPostRequest(getSyncupdatesUrl(jettyBootstrap, null), getQuery(data, isHelp, isDiff, isNew, isRedirect), responseCode);
-        } else {
-            return doGetRequest(getSyncupdatesUrl(jettyBootstrap, getQuery(data, isHelp, isDiff, isNew, isRedirect)), responseCode);
-        }
+    public static String syncupdate(final JettyBootstrap jettyBootstrap, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) throws IOException {
+        return new SyncUpdateBuilder()
+                .setHost("localhost")
+                .setPort(jettyBootstrap.getPort())
+                .setSource("TEST")
+                .setData(data)
+                .setHelp(isHelp)
+                .setDiff(isDiff)
+                .setNew(isNew)
+                .setRedirect(isRedirect)
+                .build()
+                .post();
     }
 
     public boolean dnsCheckedFor(final String key) {
@@ -216,109 +208,6 @@ public class WhoisFixture {
                 pkey);
     }
 
-    private static String getSyncupdatesUrl(final JettyBootstrap jettyBootstrap, final String query) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("http://localhost:");
-        builder.append(jettyBootstrap.getPort());
-        builder.append("/whois/syncupdates/");
-        builder.append(SYNCUPDATES_INSTANCE);
-        if (query != null && query.length() > 0) {
-            builder.append("?");
-            builder.append(query);
-        }
-        return builder.toString();
-    }
-
-    private static String getQuery(final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
-        final StringBuilder builder = new StringBuilder();
-        int params = 0;
-
-        if ((data != null) && (data.length() > 0)) {
-            builder.append("DATA=");
-            builder.append(encode(data));
-            params++;
-        }
-        if (isHelp) {
-            builder.append(params > 0 ? "&" : "");
-            builder.append("HELP=yes");
-            params++;
-        }
-        if (isDiff) {
-            builder.append(params > 0 ? "&" : "");
-            builder.append("DIFF=yes");
-            params++;
-        }
-        if (isNew) {
-            builder.append(params > 0 ? "&" : "");
-            builder.append("NEW=yes");
-            params++;
-        }
-        if (isRedirect) {
-            builder.append(params > 0 ? "&" : "");
-            builder.append("REDIRECT=yes");
-        }
-
-        return builder.toString();
-    }
-
-    private static String doGetRequest(final String url, final int responseCode) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) (new URL(url)).openConnection();
-        assertThat(connection.getResponseCode(), is(responseCode));
-
-        return readResponse(connection);
-    }
-
-    private static String doPostRequest(final String url, final String data, final int responseCode) throws IOException {
-        Map<String, String> properties = Maps.newLinkedHashMap();
-        properties.put(HttpHeaders.CONTENT_LENGTH, Integer.toString(data.length()));
-        properties.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED + "; charset=" + CHARSET);
-        return doPostRequest(url, data, properties, responseCode);
-    }
-
-    private static String doPostRequest(final String url, final String data, final Map<String, String> properties, final int responseCode) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) (new URL(url)).openConnection();
-
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            connection.setRequestProperty(entry.getKey(), entry.getValue());
-        }
-
-        connection.setDoInput(true);
-        connection.setDoOutput(true);
-
-        Writer writer = new OutputStreamWriter(connection.getOutputStream());
-        writer.write(data);
-        writer.close();
-
-        assertThat(connection.getResponseCode(), is(responseCode));
-
-        return readResponse(connection);
-    }
-
-    private static String readResponse(final HttpURLConnection connection) throws IOException {
-        final InputStream inputStream;
-
-        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            inputStream = connection.getInputStream();
-        } else {
-            inputStream = connection.getErrorStream();
-        }
-
-        final String contentType = connection.getContentType();
-        final Matcher matcher = CHARSET_PATTERN.matcher(contentType);
-        final String charsetName = matcher.matches() ? matcher.group(1) : Charset.defaultCharset().name();
-
-        final byte[] bytes = FileCopyUtils.copyToByteArray(inputStream);
-        return new String(bytes, charsetName);
-    }
-
-    private static String encode(final String data) {
-        try {
-            return URLEncoder.encode(data, CHARSET);
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     public DatabaseHelper getDatabaseHelper() {
         return databaseHelper;
     }
@@ -337,6 +226,27 @@ public class WhoisFixture {
 
     public String query(final String query) {
         return DummyWhoisClient.query(QueryServer.port, query);
+    }
+
+    public List<String> queryPersistent(final List<String> queries) throws Exception {
+        final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
+
+        List<String> responses = new ArrayList<>();
+
+        client.connectAndWait();
+
+        for (Iterator<String> it = queries.iterator(); it.hasNext(); ) {
+            client.sendLine(it.next());
+            if (it.hasNext()) {
+                client.waitForResponseEndsWith(END_OF_HEADER);
+            } else {
+                client.waitForClose();
+            }
+            responses.add(client.getResponse());
+            client.clearBuffer();
+        }
+        return responses;
     }
 
     public void reloadTrees() {
@@ -363,17 +273,19 @@ public class WhoisFixture {
         return ipTreeUpdater;
     }
 
-    public TestDateTimeProvider getTestDateTimeProvider(){
+    public TestDateTimeProvider getTestDateTimeProvider() {
         return testDateTimeProvider;
     }
 
     public ClassPathXmlApplicationContext getApplicationContext() {
         return applicationContext;
     }
+
     public DnsGatewayStub getDnsGatewayStub() {
         return dnsGatewayStub;
     }
-    public MailSenderStub getMailSender(){
+
+    public MailSenderStub getMailSender() {
         return mailSender;
     }
 }

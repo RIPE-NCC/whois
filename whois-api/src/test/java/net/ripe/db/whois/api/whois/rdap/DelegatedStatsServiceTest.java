@@ -47,9 +47,9 @@ public class DelegatedStatsServiceTest {
 
     @Test
     public void getUri_value_found() {
-        when(authoritativeResourceOne.isMaintainedByRir(ObjectType.AUT_NUM, CIString.ciString("AS3546"))).thenReturn(true);
+        when(authoritativeResourceOne.isMaintainedInRirSpace(ObjectType.AUT_NUM, CIString.ciString("AS3546"))).thenReturn(true);
 
-        assertThat(subject.getUriForRedirect("/rdap/autnum/3546", Query.parse("-T aut-num AS3546")).toString(), is("one.net/rdap/autnum/3546"));
+        assertThat(subject.getUriForRedirect("/rdap/autnum/3546", Query.parse("-T aut-num AS3546")).toString(), is("one.net/autnum/3546"));
     }
 
     @Test

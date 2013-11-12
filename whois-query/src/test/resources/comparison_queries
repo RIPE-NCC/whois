@@ -575,3 +575,12 @@ e164.arpa
 
 # --valid-syntax and --no-valid-syntax
 --valid-syntax aardvark-mnt
+--no-valid-syntax aardvark-mnt
+--no-valid-syntax TRO5-RIPE
+
+# abuse-contact
+--abuse-contact AS3333
+AS3333
+AS1157
+
+

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.internal.api.acl;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.domain.IpInterval;
+import net.ripe.db.whois.common.ip.IpInterval;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -16,7 +16,9 @@ import java.util.List;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AclProxyServiceTest {

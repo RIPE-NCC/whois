@@ -74,6 +74,21 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
+            "ASSIGN-PA-LOW-DOM": """\
+                inetnum:      193.0.0.0 - 193.0.0.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       OWNER-MNT
+                mnt-lower:    LIR-MNT
+                mnt-domains:  LIR2-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
             "ALLOC-PA-LOW-R": """\
                 inetnum:      193.0.0.0 - 193.255.255.255
                 netname:      TEST-NET-NAME
@@ -830,7 +845,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -869,7 +884,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -908,7 +923,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -947,7 +962,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -986,7 +1001,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -1025,7 +1040,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -1064,7 +1079,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -1103,7 +1118,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -1142,7 +1157,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -1513,7 +1528,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
 
       expect:
@@ -1553,7 +1568,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
 
       expect:
@@ -1572,7 +1587,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  testing delete
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -1595,7 +1610,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
 
       expect:
@@ -1639,7 +1654,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
 
       expect:
@@ -1683,7 +1698,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
 
       expect:
@@ -1718,11 +1733,92 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
     }
 
+    def "delete reverse domain, using exact match mnt-by"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ASSIGN-PA-LOW-DOM") + "override: denis,override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+
+        expect:
+        queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
+        queryObject("-r -T inetnum 193.0.0.0 - 193.0.0.255", "inetnum", "193.0.0.0 - 193.0.0.255")
+        queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
+        queryObject("-r -L -T inetnum 193.0.0.0 - 193.0.0.255", "inetnum", "193.0.0.0 - 193.0.0.255")
+
+        when:
+        def message = syncUpdate("""\
+                domain:         0.0.193.in-addr.arpa
+                descr:          reverse domain
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net
+                nserver:        ns3.nic.fr
+                mnt-by:         DOMAIN-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                delete:  testing delete
+
+                password:   owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[domain] 0.0.193.in-addr.arpa" }
+
+        queryObjectNotFound("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
+    }
+
+    def "delete reverse domain, using parent mnt-by"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
+        queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
+
+        expect:
+
+        when:
+        def message = syncUpdate("""\
+                domain:         0.0.193.in-addr.arpa
+                descr:          reverse domain
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net
+                nserver:        ns3.nic.fr
+                mnt-by:         DOMAIN-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                delete:  testing delete
+
+                password:   hm
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[domain] 0.0.193.in-addr.arpa" }
+
+        queryObjectNotFound("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
+    }
+
     def "modify reverse domain, add remarks using mnt-by"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
 
       expect:
@@ -1761,7 +1857,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
 
       expect:
@@ -1802,7 +1898,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
 
       expect:
@@ -1845,7 +1941,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
 
       expect:
@@ -2007,7 +2103,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
 
       expect:
@@ -2145,7 +2241,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )
@@ -2168,7 +2264,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC6-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001::/16", "inet6num", "2001::/16")
-        syncUpdate(getTransient("ASSIGN6-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN6-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa", "domain", "0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa")
 
       expect:
@@ -2207,7 +2303,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC6-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001::/16", "inet6num", "2001::/16")
-        syncUpdate(getTransient("ASSIGN6-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN6-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa", "domain", "0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa")
 
       expect:
@@ -2302,7 +2398,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -2472,7 +2568,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -2517,7 +2613,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -2558,7 +2654,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -2599,7 +2695,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -2714,7 +2810,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:    override1
+                override:    denis,override1
 
                 password:   lir
                 """.stripIndent()
@@ -2866,7 +2962,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-GII-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:    override1
+                override:    denis,override1
 
                 """.stripIndent()
         )
@@ -2944,7 +3040,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 remarks:        just added
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )

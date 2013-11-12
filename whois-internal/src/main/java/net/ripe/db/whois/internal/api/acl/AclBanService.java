@@ -1,7 +1,7 @@
 package net.ripe.db.whois.internal.api.acl;
 
 import net.ripe.db.whois.common.domain.BlockEvent;
-import net.ripe.db.whois.common.domain.IpInterval;
+import net.ripe.db.whois.common.ip.IpInterval;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;

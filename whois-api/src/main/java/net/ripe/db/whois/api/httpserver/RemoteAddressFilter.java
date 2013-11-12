@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.httpserver;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
-import net.ripe.db.whois.common.domain.IpInterval;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.domain.IpRanges;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

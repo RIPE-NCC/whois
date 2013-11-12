@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.io.Downloader;
+import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;

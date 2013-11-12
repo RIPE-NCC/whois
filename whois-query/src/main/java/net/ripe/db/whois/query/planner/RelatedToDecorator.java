@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.query.QueryFlag;
+import net.ripe.db.whois.query.QueryFlag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

@@ -56,6 +56,7 @@
     </distributionManagement>
 
     <modules>
+        <module>whois-client</module>
         <module>whois-commons</module>
         <module>whois-query</module>
         <module>whois-nrtm</module>
@@ -73,6 +74,18 @@
             <!-- whois modules' artifacts -->
             <dependency>
                 <groupId>net.ripe.db</groupId>
+                <artifactId>whois-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-client</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
                 <artifactId>whois-commons</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -156,7 +169,6 @@
                 <scope>test</scope>
             </dependency>
 
-            <!-- jflex lexical analyser -->
             <dependency>
                 <groupId>de.jflex</groupId>
                 <artifactId>jflex</artifactId>
@@ -164,12 +176,10 @@
                 <scope>compile</scope>
             </dependency>
             <dependency>
-                <groupId>de.jflex</groupId>
-                <artifactId>maven-jflex-plugin</artifactId>
-                <version>1.4.3-r1</version>
-                <scope>compile</scope>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
@@ -547,6 +557,10 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <compilerArgs>
                         <arg>-Xlint</arg>
+                        <arg>-Xlint:-unchecked</arg>
+                        <arg>-Xlint:-rawtypes</arg>
+                        <arg>-Xlint:-serial</arg>
+                        <arg>-Xlint:-fallthrough</arg>
                     </compilerArgs>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>

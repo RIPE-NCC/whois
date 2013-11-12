@@ -55,10 +55,19 @@ ${result}
         result
     }
 
+    public List<String> queryPersistent(final List<String> queries){
+        whoisFixture.reloadTrees()
+        return whoisFixture.queryPersistent(queries)
+    }
+
     def queryObject(String qryStr, String type, String pkey) {
         def qry = query(qryStr)
-        assert qry =~ "${type}:\\s*${pkey}"
-        return qry
+        return objectMatches(qry, type, pkey)
+    }
+
+    def objectMatches(String input, String type, String pkey){
+        assert input =~ "${type}:\\s*${pkey}"
+        return input
     }
 
     def queryObjectNotFound(String qryStr, String type, String pkey) {
@@ -84,6 +93,10 @@ ${result}
     def queryLineMatches(String qryStr, String matchStr) {
         def qry = query(qryStr)
         qry =~ /(?i)(?m)${matchStr}/
+    }
+
+    def responseMatches(String input, String matchStr){
+        input =~ /(?i)(?m)${matchStr}/
     }
 
     def query_object_matches(String qry_str, String type, String pkey, String pattern) {
@@ -219,7 +232,6 @@ help     : ${syncUpdate.isHelp()}
 diff     : ${syncUpdate.isDiff()}
 forceNew : ${syncUpdate.isForceNew()}
 redirect : ${syncUpdate.isRedirect()}
-post     : ${syncUpdate.isPost()}
 
 ---
 
@@ -228,7 +240,7 @@ ${syncUpdate.getData()}
 <<<<<
 """
 
-        def response = whoisFixture.syncupdate(syncUpdate.getData(), syncUpdate.isHelp(), syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect(), syncUpdate.getPost(), syncUpdate.getResponseCode())
+        def response = whoisFixture.syncupdate(syncUpdate.getData(), syncUpdate.isHelp(), syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect())
 
         print """\
 >>>>> RECEIVE SYNCUPDATE RESPONSE

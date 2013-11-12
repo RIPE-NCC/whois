@@ -18,9 +18,12 @@ import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class MailGatewaySmtp implements MailGateway {
+    private static final Pattern INVALID_EMAIL_PATTERN = Pattern.compile("(?i)((?:auto|test)\\-dbm@ripe\\.net)");
     private static final Logger LOGGER = LoggerFactory.getLogger(MailGatewaySmtp.class);
 
     private final LoggerContext loggerContext;
@@ -49,21 +52,26 @@ public class MailGatewaySmtp implements MailGateway {
 
     @Override
     public void sendEmail(final String to, final String subject, final String text) {
-        if (!outgoingMailEnabled) {
-            LOGGER.warn("" +
-                    "Outgoing mail disabled\n" +
-                    "\n" +
-                    "to      : {}\n" +
-                    "subject : {}\n" +
-                    "\n" +
-                    "{}\n" +
-                    "\n" +
-                    "\n", to, subject, text);
+            if (!outgoingMailEnabled) {
+                LOGGER.warn("" +
+                        "Outgoing mail disabled\n" +
+                        "\n" +
+                        "to      : {}\n" +
+                        "subject : {}\n" +
+                        "\n" +
+                        "{}\n" +
+                        "\n" +
+                        "\n", to, subject, text);
 
-            return;
-        }
+                return;
+            }
 
         try {
+            final Matcher matcher = INVALID_EMAIL_PATTERN.matcher(to);
+            if (matcher.find()) {
+                throw new MailSendException("Refusing outgoing email: " + text);
+            }
+
             sendEmailAttempt(to, subject, text);
         } catch (MailException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail to {} with subject {}", to, subject), e);

@@ -7,12 +7,71 @@ import net.ripe.db.whois.spec.BaseEndToEndSpec
 
 class GrsQuerySpec extends BaseEndToEndSpec {
 
+    static def grsFixtures = [
+            "TST-MNT": """\
+                mntner:      TST-MNT
+                descr:       MNTNER for test
+                admin-c:     TP1-TEST
+                upd-to:      dbtest@ripe.net
+                auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
+                mnt-by:      OWNER-MNT
+                referral-by: TST-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
+            "TST-MNT2": """\
+                mntner:      TST-MNT2
+                descr:       MNTNER for test
+                admin-c:     TP2-TEST
+                upd-to:      dbtest@ripe.net
+                auth:        MD5-PW \$1\$bnGNJ2PC\$4r38DENnw07.9ktKP//Kf1  #test2
+                mnt-by:      TST-MNT2
+                referral-by: TST-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
+            "TEST-PN": """\
+                person:  Test Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: TP1-TEST
+                mnt-by:  OWNER-MNT
+                changed: dbtest@ripe.net 20120101
+                source:  TEST
+                """,
+            "TEST-PN2": """\
+                person:  Test Person2
+                address: Hebrew Road
+                address: Burnley
+                address: UK
+                phone:   +44 282 411141
+                nic-hdl: TP2-TEST
+                mnt-by:  TST-MNT
+                changed: dbtest@ripe.net 20120101
+                source:  TEST
+                """,
+            "OWNER-MNT": """\
+                mntner:      OWNER-MNT
+                descr:       used to maintain other MNTNERs
+                admin-c:     TP1-TEST
+                upd-to:      updto_owner@ripe.net
+                mnt-nfy:     mntnfy_owner@ripe.net
+                notify:      notify_owner@ripe.net
+                auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
+                mnt-by:      OWNER-MNT
+                referral-by: OWNER-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
+    ]
+
     def setupSpec() {
         DatabaseHelper.setupDatabase()
         DatabaseHelper.addGrsDatabases("1-GRS", "2-GRS", "3-GRS")
         whoisFixture.start();
     }
-
 
     def setup () {
         def rpslObjects = Sets.newHashSet();
@@ -92,6 +151,25 @@ class GrsQuerySpec extends BaseEndToEndSpec {
         response !=~ "mntner"
     }
 
+    def "query --resource 2001:2002::/64 matches inet6num and route"() {
+      when:
+        databaseHelper.addObjectToSource("1-GRS", "inet6num: 2001:2002::/64\nnetname: test")
+        databaseHelper.addObjectToSource("1-GRS", "route6: 2001:2002::/64\norigin: AS10")
+
+        def response = query("--resource 2001:2002::/64")
+      then:
+        response =~ "" +
+                "% Information related to '2001:2002::/64'\n" +
+                "\n" +
+                "inet6num:       2001:2002::/64\n" +
+                "netname:        test\n" +
+                "\n" +
+                "% Information related to '2001:2002::/64AS10'\n" +
+                "\n" +
+                "route6:         2001:2002::/64\n" +
+                "origin:         AS10"
+    }
+
     def "query -r -T inetnum --resource 10.0.0.0 limits type to inetnum"() {
         when:
         databaseHelper.addObjectToSource("1-GRS", "inetnum: 10.0.0.0\nnetname: test")
@@ -104,6 +182,18 @@ class GrsQuerySpec extends BaseEndToEndSpec {
         response !=~ "route"
         response !=~ "mntner"
     }
+
+    def "query -s 1-GRS -r -T inetnum 10.0.0.0 limits type to inetnum"() {
+      when:
+        databaseHelper.addObjectToSource("1-GRS", "inetnum: 10.0.0.0\nnetname: test")
+        databaseHelper.addObjectToSource("1-GRS", "route: 10.0.0.0\norigin: AS10")
+
+        def response = query("-s 1-GRS -r -T inetnum 10.0.0.0")
+      then:
+        response =~ "inetnum"
+        response !=~ "route"
+    }
+
 
     def "query -r -T mntner --resource DEV-MNT is not valid"() {
         when:
@@ -221,65 +311,4 @@ class GrsQuerySpec extends BaseEndToEndSpec {
       expect:
         queryObject("--resource AS123", "aut-num", "AS123")
     }
-
-    static def grsFixtures = [
-            "TST-MNT": """\
-                mntner:      TST-MNT
-                descr:       MNTNER for test
-                admin-c:     TP1-TEST
-                upd-to:      dbtest@ripe.net
-                auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
-                mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
-                source:      TEST
-                """,
-            "TST-MNT2": """\
-                mntner:      TST-MNT2
-                descr:       MNTNER for test
-                admin-c:     TP2-TEST
-                upd-to:      dbtest@ripe.net
-                auth:        MD5-PW \$1\$bnGNJ2PC\$4r38DENnw07.9ktKP//Kf1  #test2
-                mnt-by:      TST-MNT2
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
-                source:      TEST
-                """,
-            "TEST-PN": """\
-                person:  Test Person
-                address: St James Street
-                address: Burnley
-                address: UK
-                phone:   +44 282 420469
-                nic-hdl: TP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
-                source:  TEST
-                """,
-            "TEST-PN2": """\
-                person:  Test Person2
-                address: Hebrew Road
-                address: Burnley
-                address: UK
-                phone:   +44 282 411141
-                nic-hdl: TP2-TEST
-                mnt-by:  TST-MNT
-                changed: dbtest@ripe.net 20120101
-                source:  TEST
-                """,
-            "OWNER-MNT": """\
-                mntner:      OWNER-MNT
-                descr:       used to maintain other MNTNERs
-                admin-c:     TP1-TEST
-                upd-to:      updto_owner@ripe.net
-                mnt-nfy:     mntnfy_owner@ripe.net
-                notify:      notify_owner@ripe.net
-                auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
-                mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
-                changed:     dbtest@ripe.net
-                source:      TEST
-                """,
-    ]
-
 }

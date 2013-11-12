@@ -13,11 +13,12 @@ import joptsimple.OptionSpecBuilder;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.QueryMessages;
@@ -34,9 +35,10 @@ public final class Query {
 
     public static final int MAX_QUERY_ELEMENTS = 60;
 
-    private static final Set<ObjectType> GRS_LIMIT_TYPES = Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
-    private static final Set<ObjectType> DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS = Sets.newHashSet(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
-    private static final Set<ObjectType> DEFAULT_TYPES_ALL = Sets.newHashSet(ObjectType.values());
+    public static final EnumSet<ObjectType> ABUSE_CONTACT_OBJECT_TYPES = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
+    private static final EnumSet<ObjectType> GRS_LIMIT_TYPES = EnumSet.of(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
+    private static final EnumSet<ObjectType> DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
+    private static final EnumSet<ObjectType> DEFAULT_TYPES_ALL = EnumSet.allOf(ObjectType.class);
 
     private static final List<QueryValidator> QUERY_VALIDATORS = Lists.newArrayList(
             new MatchOperationValidator(),
@@ -485,6 +487,10 @@ public final class Query {
 
         if (hasOption(QueryFlag.RESOURCE)) {
             response.retainAll(GRS_LIMIT_TYPES);
+        }
+
+        if (hasOption(QueryFlag.ABUSE_CONTACT)) {
+            response.retainAll(ABUSE_CONTACT_OBJECT_TYPES);
         }
 
         if (!isInverse()) {

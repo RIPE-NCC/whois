@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.dao.jdbc.domain;
 
-import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.Ipv6Entry;
 import org.springframework.jdbc.core.RowMapper;
 

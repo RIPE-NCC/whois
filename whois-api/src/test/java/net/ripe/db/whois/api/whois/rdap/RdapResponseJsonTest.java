@@ -10,12 +10,21 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.api.whois.rdap.domain.Action;
+import net.ripe.db.whois.api.whois.rdap.domain.Domain;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Event;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
+import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.whois.rdap.domain.Notice;
+import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import net.ripe.db.whois.api.whois.rdap.domain.Role;
 import net.ripe.db.whois.api.whois.rdap.domain.vcard.VCard;
-import org.codehaus.plexus.util.StringOutputStream;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -515,7 +524,7 @@ public class RdapResponseJsonTest {
     // helper methods
 
     private String marshal(final Object o) throws IOException {
-        final StringOutputStream outputStream = new StringOutputStream();
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         final JsonFactory jsonFactory = createJsonFactory();
         final JsonGenerator generator = jsonFactory.createGenerator(outputStream).useDefaultPrettyPrinter();

@@ -1597,7 +1597,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net
                 source:  TEST
-                override:     override1
+                override:     denis,override1
                 """.stripIndent()
         )
 

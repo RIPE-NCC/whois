@@ -560,7 +560,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
 
     def "delete end user assignment using legacy allocation mnt-by, no RS mntner"() {
       given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: override1")
+        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("PART-PA") + "password: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -602,7 +602,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
 
     def "delete legacy allocation without override"() {
       given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: override1")
+        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("PART-PA") + "password: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -644,7 +644,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
 
     def "delete legacy allocation using override"() {
       given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: override1")
+        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("PART-PA") + "password: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -664,7 +664,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )

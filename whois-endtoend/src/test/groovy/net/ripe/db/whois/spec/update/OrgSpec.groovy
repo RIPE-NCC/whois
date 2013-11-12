@@ -1862,7 +1862,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          ripe-ncc-hm-mnt
                 changed:         denis@ripe.net 20121016
                 source:          TEST
-                override:        override1
+                override:        denis,override1
                 """.stripIndent()
         )
 

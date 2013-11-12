@@ -1,6 +1,6 @@
 package net.ripe.db.whois.query.dao.jdbc;
 
-import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.Ipv6Entry;
 import net.ripe.db.whois.query.dao.Inet6numDao;
 import org.junit.Before;

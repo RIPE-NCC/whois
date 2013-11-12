@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.iptree;
 
 import net.ripe.db.whois.common.domain.Identifiable;
-import net.ripe.db.whois.common.etree.Interval;
+import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.etree.NestedIntervalMap;
 
 public class IpEntry<K extends Interval<K>> extends NestedIntervalMap.Key<K> implements Identifiable {

@@ -362,7 +362,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             org: ORG-TOL1-TEST
             changed: ripe@test.net 20120505
             source: TEST
-            override:override1
+            override:denis,override1
         """.stripIndent()))
 
         then:
@@ -438,7 +438,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             org: ORG-TOL2-TEST
             changed: ripe@test.net 20120505
             source: TEST
-            override:override1""".stripIndent()))
+            override:denis,override1""".stripIndent()))
 
         then:
         response.contains("Create SUCCEEDED: [inetnum] 192.0.0.0 - 192.0.0.255")
@@ -543,7 +543,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org: ORG-TOL5-TEST
                     changed: ripe@test.net 20120505
                     source: TEST
-                    override:override1
+                    override:denis,override1
                     """.stripIndent()))
         then:
         insertResponse.contains("Create SUCCEEDED: [inetnum] 10.0.0.0 - 10.0.0.255")
@@ -618,7 +618,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: RIPE-NCC-HM-MNT
                     changed: ripe@test.net 20120505
                     source: TEST
-                    override:override1
+                    override:denis,override1
                 """.stripIndent()))
 
         then:
@@ -737,7 +737,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     changed: ripe@test.net 20120505
                     org: ORG-TOL4-TEST
                     source: TEST
-                    override:override1
+                    override:denis,override1
                 """.stripIndent()))
 
         then:
@@ -922,7 +922,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-lower: TEST-MNT
             changed: ripe@test.net 20120505
             source: TEST
-            override: override1
+            override: denis,override1
             """.stripIndent()))
 
         then:
@@ -1000,7 +1000,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     mnt-irt:irt-IRT1
                     org:ORG-TOL2-TEST
-                    override:override1
+                    override:denis,override1
                 """.stripIndent()))
 
         then:
@@ -1106,7 +1106,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:       TEST2-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:     override1
+                override:     denis,override1
                 """.stripIndent()))
         then:
         response.contains("Create SUCCEEDED: [inetnum] 192.168.200.0 - 192.168.200.255")
@@ -1172,7 +1172,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 source:       TEST
                 password:     emptypassword
                 password:     update
-                override:     override1
+                override:     denis,override1
                 """.stripIndent()))
         then:
         response.contains("Create SUCCEEDED: [inetnum] 192.168.200.0 - 192.168.200.255")

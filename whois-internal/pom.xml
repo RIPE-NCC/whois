@@ -79,6 +79,11 @@
             <artifactId>whois-api</artifactId>
             <type>test-jar</type>
         </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-client</artifactId>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>
