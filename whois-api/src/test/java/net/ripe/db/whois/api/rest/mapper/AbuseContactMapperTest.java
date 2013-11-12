@@ -14,7 +14,7 @@ public class AbuseContactMapperTest {
 
     @Test
     public void map_abuse_contact() throws XMLStreamException {
-        final AbuseResources result = new AbuseContactMapper().mapAbuseContact(
+        final AbuseResources result = AbuseContactMapper.mapAbuseContact(
                 "AS333",
                 Lists.newArrayList(
                         new RpslAttribute("aut-num", "AS333"),

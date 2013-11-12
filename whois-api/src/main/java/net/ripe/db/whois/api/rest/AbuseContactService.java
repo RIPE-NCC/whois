@@ -27,13 +27,11 @@ import java.util.List;
 @Path("/abuse-contact")
 public class AbuseContactService {
 
-    private final AbuseContactMapper abuseContactMapper;
     private final QueryHandler queryHandler;
     private final SourceContext sourceContext;
 
     @Autowired
-    public AbuseContactService(final AbuseContactMapper abuseContactMapper, final QueryHandler queryHandler, final SourceContext sourceContext) {
-        this.abuseContactMapper = abuseContactMapper;
+    public AbuseContactService(final QueryHandler queryHandler, final SourceContext sourceContext) {
         this.queryHandler = queryHandler;
         this.sourceContext = sourceContext;
     }
@@ -65,8 +63,8 @@ public class AbuseContactService {
             @Override
             public void handle(final ResponseObject responseObject) {
                 if (responseObject instanceof RpslAttributes) {
-                    final RpslAttributes abuseContactInfo = (RpslAttributes)responseObject;
-                    abuseResources.add(abuseContactMapper.mapAbuseContact(key, abuseContactInfo.getAttributes()));
+                    final RpslAttributes responseAttributes = (RpslAttributes)responseObject;
+                    abuseResources.add(AbuseContactMapper.mapAbuseContact(key, responseAttributes.getAttributes()));
                 }
             }
         });
@@ -75,6 +73,13 @@ public class AbuseContactService {
             throw new NotFoundException();
         }
 
-        return abuseResources.get(0);
+        final AbuseResources result = abuseResources.get(0);
+
+        final String parametersKey = result.getParameters().getPrimaryKey().getValue();
+        if (parametersKey.equals("::/0") || parametersKey.equals("0.0.0.0 - 255.255.255.255")) {
+            throw new NotFoundException();
+        }
+
+        return result;
     }
 }

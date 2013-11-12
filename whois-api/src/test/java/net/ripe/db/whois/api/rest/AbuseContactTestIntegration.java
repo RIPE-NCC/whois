@@ -56,6 +56,33 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        OWNER-MNT\n" +
                 "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n");
+        databaseHelper.addObject(
+                "inet6num:     ::/0\n" +
+                "netname:      IANA-BLK\n" +
+                "descr:        The whole IPv6 address space\n" +
+                "country:      EU\n" +
+                "admin-c:      TP1-TEST\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ALLOCATED-BY-RIR\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "changed:      ripe@test.net 20120505\n" +
+                "remarks:      This network in not allocated.\n" +
+                "source:       TEST");
+        databaseHelper.addObject(
+                "inetnum:      0.0.0.0 - 255.255.255.255\n" +
+                "netname:      IANA-BLK\n" +
+                "descr:        The whole IPv4 address space\n" +
+                "country:      NL\n" +
+                "admin-c:      TP1-TEST\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ALLOCATED UNSPECIFIED\n" +
+                "remarks:      The country is really worldwide.\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "mnt-lower:    OWNER-MNT\n" +
+                "mnt-routes:   OWNER-MNT\n" +
+                "changed:      dbtest@ripe.net 20020101\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
     }
 
     // inetnum

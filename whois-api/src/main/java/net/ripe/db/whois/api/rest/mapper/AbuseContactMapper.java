@@ -8,12 +8,10 @@ import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AbuseContactMapper {
 
-    public AbuseResources mapAbuseContact(final String key, final Iterable<RpslAttribute> attributes) {
+    public static AbuseResources mapAbuseContact(final String key, final Iterable<RpslAttribute> attributes) {
         String foundKey = "";
         String abuseEmail = "";
         for (final RpslAttribute attribute : attributes) {
