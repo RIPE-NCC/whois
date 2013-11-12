@@ -37,9 +37,9 @@ public class WhoisObjectServerMapper extends AbstractWhoisObjectMapper {
 
     public WhoisResources map(final Iterable<RpslObject> rpslObjects, boolean filter) {
         if (filter) {
-            return map(Iterables.transform(rpslObjects, FILTER_AUTH_FUNCTION));
+            return mapRpslObjects(Iterables.transform(rpslObjects, FILTER_AUTH_FUNCTION));
         } else {
-            return map(rpslObjects);
+            return mapRpslObjects(rpslObjects);
         }
     }
 

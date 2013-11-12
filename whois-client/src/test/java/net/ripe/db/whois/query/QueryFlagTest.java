@@ -14,6 +14,7 @@ public class QueryFlagTest {
         for (QueryFlag queryFlag : QueryFlag.values()) {
             for (final String flag : queryFlag.getFlags()) {
                 assertThat(queryFlag.toString(), flag, not(startsWith("-")));
+                assertThat(queryFlag.getName(), not(startsWith("-")));
             }
         }
     }

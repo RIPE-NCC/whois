@@ -208,6 +208,7 @@ public enum QueryFlag {
 
     private final List<String> flags;
     private final String longFlag;
+    private final String name;
     private final String searchKey;
     private final String description;
     private final Class<?> requiredArgument;
@@ -228,17 +229,22 @@ public enum QueryFlag {
 
             final String flagString = flag.length() == 1 ? "-" + flag : "--" + flag;
             toStringBuilder.append(flagString);
-            if (longestFlag.length() < flagString.length()) {
-                longestFlag = flagString;
+            if (longestFlag.length() < flag.length()) {
+                longestFlag = flag;
             }
         }
 
         this.toString = toStringBuilder.toString();
-        this.longFlag = longestFlag;
+        this.name = longestFlag;
+        this.longFlag = longestFlag.length() == 1 ? "-" + longestFlag : "--" + longestFlag;
     }
 
     public List<String> getFlags() {
         return flags;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getLongFlag() {
