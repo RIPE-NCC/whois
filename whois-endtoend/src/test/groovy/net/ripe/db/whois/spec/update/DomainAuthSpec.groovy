@@ -1737,7 +1737,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
         syncUpdate(getTransient("ASSIGN-PA-LOW-DOM") + "override: denis,override1")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
 
         expect:
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
@@ -1779,7 +1779,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
 
         expect:
