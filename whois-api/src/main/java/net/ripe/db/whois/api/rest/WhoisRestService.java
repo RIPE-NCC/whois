@@ -368,9 +368,9 @@ public class WhoisRestService {
                                     tagResponseObjects.add((TagResponseObject) responseObject);
                                 } else if (responseObject instanceof RpslObject) {
                                     if (!rpslObjectFound) {
+                                        rpslObjectFound = true;
                                         startStreaming(output);
                                     }
-                                    rpslObjectFound = true;
                                     streamObject(rpslObjectQueue.poll(), tagResponseObjects);
                                     rpslObjectQueue.add((RpslObject) responseObject);
                                 }
