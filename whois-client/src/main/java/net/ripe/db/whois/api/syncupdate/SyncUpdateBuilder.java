@@ -21,6 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SyncUpdateBuilder {
+    private String url;
     private String host;
     private int port;
     private String source;
@@ -29,6 +30,11 @@ public class SyncUpdateBuilder {
     private boolean diff;
     private boolean aNew;
     private boolean redirect;
+
+    public SyncUpdateBuilder setUrl(String url) {
+        this.url = url;
+        return this;
+    }
 
     public SyncUpdateBuilder setHost(String host) {
         this.host = host;
@@ -71,7 +77,17 @@ public class SyncUpdateBuilder {
     }
 
     public Client build() {
+        if (host==null || source==null) {
+            throw new IllegalStateException("host and source should not be null");
+        }
         return new Client(host, port, source, data, help, diff, aNew, redirect);
+    }
+
+    public Client buildUsingUrl() {
+        if (url==null) {
+            throw new IllegalStateException("url should not be null");
+        }
+        return new Client(url, data, help, diff, aNew, redirect);
     }
 
     public static class Client {
@@ -80,6 +96,7 @@ public class SyncUpdateBuilder {
         private static final Pattern CHARSET_PATTERN = Pattern.compile(".*;charset=(.*)");
         private static final String CHARSET = "ISO-8859-1";
 
+        private final String url;
         private final String host;
         private final int port;
         private final String source;
@@ -98,11 +115,24 @@ public class SyncUpdateBuilder {
             this.isDiff = isDiff;
             this.isNew = isNew;
             this.isRedirect = isRedirect;
+            this.url = null;
         }
+
+        public Client(final String url, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
+            this.url = url;
+            this.data = data;
+            this.isHelp = isHelp;
+            this.isDiff = isDiff;
+            this.isNew = isNew;
+            this.isRedirect = isRedirect;
+            this.host = null;
+            this.port = 0;
+            this.source = null;
+       }
 
         public String post() {
             try {
-                HttpURLConnection connection = (HttpURLConnection) getUrl(host, port, source).openConnection();
+                HttpURLConnection connection = (HttpURLConnection) getUrl().openConnection();
 
                 final String body = getBody();
                 connection.setRequestProperty(HttpHeaders.CONTENT_LENGTH, Integer.toString(body.length()));
@@ -174,9 +204,21 @@ public class SyncUpdateBuilder {
             }
         }
 
+        private URL getUrl(){
+            if (url!=null){
+                return getUrlFromString(url);
+            } else {
+                return getUrl(host, port, source);
+            }
+        }
+
         private static URL getUrl(final String host, final int port, final String source) {
+            return getUrlFromString(String.format("http://%s%s/whois/syncupdates/%s", host, (port != 0 ? ":" + Integer.toString(port) : ""), source));
+        }
+
+        private static URL getUrlFromString(final String url){
             try {
-                return new URL(String.format("http://%s%s/whois/syncupdates/%s", host, (port != 0 ? ":" + Integer.toString(port) : ""), source));
+                return new URL(url);
             } catch (MalformedURLException e) {
                 throw new IllegalArgumentException(e);
             }
