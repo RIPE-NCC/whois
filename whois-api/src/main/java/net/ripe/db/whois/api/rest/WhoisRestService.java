@@ -94,9 +94,13 @@ import static net.ripe.db.whois.query.QueryFlag.VERSION;
 @Path("/")
 public class WhoisRestService {
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
+
     public static final String SERVICE_SEARCH = "search";
-    private static final Joiner JOINER = Joiner.on(",");
-    private static final Splitter AMPERSAND = Splitter.on("&");
+
+    private static final Joiner COMMA_JOINER = Joiner.on(',');
+    private static final Joiner SPACE_JOINER = Joiner.on(' ');
+    private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&');
+
     private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(Iterables.concat(
             // flags for port43 only
             VERSION.getFlags(),
@@ -152,7 +156,7 @@ public class WhoisRestService {
     @DELETE
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}")
-    public Response restDelete(
+    public Response delete(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
@@ -179,7 +183,7 @@ public class WhoisRestService {
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}")
-    public Response restUpdate(
+    public Response update(
             final WhoisResources resource,
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
@@ -208,11 +212,11 @@ public class WhoisRestService {
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}")
-    public Response restCreate(
+    public Response create(
             final WhoisResources resource,
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
-            @PathParam("objectType") final String objectType,
+            @PathParam("objectType") final String objectType,               // TODO: [ES] unused argument - remove?
             @QueryParam("password") final List<String> passwords,
             @QueryParam("override") final String override) {
 
@@ -240,7 +244,7 @@ public class WhoisRestService {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}")
-    public Response restGet(
+    public Response lookup(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
@@ -268,7 +272,7 @@ public class WhoisRestService {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}/versions")
-    public Response restVersions(
+    public Response versions(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
@@ -306,7 +310,7 @@ public class WhoisRestService {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}/versions/{version}")
-    public Response restVersion(
+    public Response version(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
@@ -454,7 +458,7 @@ public class WhoisRestService {
             return Collections.emptyList();
         }
 
-        return Iterables.transform(AMPERSAND.split(queryString), new Function<String, String>() {
+        return Iterables.transform(AMPERSAND_SPLITTER.split(queryString), new Function<String, String>() {
             @Override
             public String apply(final String input) {
                 String result = input.toLowerCase();
@@ -504,17 +508,17 @@ public class WhoisRestService {
 
         final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s %s %s %s",
                 QueryFlag.SOURCES.getLongFlag(),
-                JOINER.join(validSources),
+                COMMA_JOINER.join(validSources),
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 CollectionUtils.isEmpty(types) ? "" : QueryFlag.SELECT_TYPES.getLongFlag(),
-                JOINER.join(types),
+                COMMA_JOINER.join(types),
                 CollectionUtils.isEmpty(inverseAttributes) ? "" : QueryFlag.INVERSE.getLongFlag(),
-                JOINER.join(inverseAttributes),
+                COMMA_JOINER.join(inverseAttributes),
                 CollectionUtils.isEmpty(includeTags) ? "" : QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(),
-                JOINER.join(includeTags),
+                COMMA_JOINER.join(includeTags),
                 CollectionUtils.isEmpty(excludeTags) ? "" : QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(),
-                JOINER.join(excludeTags),
-                Joiner.on(" ").join(Iterables.transform(separateFlags, new Function<String, String>() {
+                COMMA_JOINER.join(excludeTags),
+                SPACE_JOINER.join(Iterables.transform(separateFlags, new Function<String, String>() {
                     @Override
                     public String apply(String input) {
                         return input.length() > 1 ? "--" + input : "-" + input;
