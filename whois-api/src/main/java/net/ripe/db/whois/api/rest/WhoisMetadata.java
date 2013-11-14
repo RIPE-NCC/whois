@@ -49,7 +49,7 @@ public class WhoisMetadata {
         GRSSOURCES = Lists.newArrayList();
         for (CIString source: sourceContext.getGrsSourceNames()) {
             final String id = source.toLowerCase();
-            GRSSOURCES.add(new GrsSource(id).setGrsId(id).setName(id.toUpperCase()));
+            GRSSOURCES.add(new GrsSource(id.toUpperCase(), id, id));
         }
 
         Source ripeSource = new Source("ripe");

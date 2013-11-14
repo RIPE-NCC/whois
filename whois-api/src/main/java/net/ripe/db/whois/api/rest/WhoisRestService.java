@@ -532,12 +532,13 @@ public class WhoisRestService {
                 })),
                 (searchKey == null ? "" : searchKey)));
 
-        final Parameters parameters = new Parameters();
-        parameters.setSources(validSources);
-        parameters.setQueryStrings(searchKey);
-        parameters.setInverseLookup(inverseAttributes);
-        parameters.setTypeFilters(types);
-        parameters.setFlags(separateFlags);
+        final Parameters parameters = new Parameters(
+                new InverseAttributes(inverseAttributes),
+                new TypeFilters(types),
+                new Flags(separateFlags),
+                new QueryStrings(new QueryString(searchKey)),
+                new Sources(validSources),
+                null);
 
         Service service = new Service(SERVICE_SEARCH);
 

@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest.domain;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import net.ripe.db.whois.api.rest.mapper.ValidXmlAdapter;
 
+import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -11,6 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+@Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "link",
@@ -54,40 +56,20 @@ public class Attribute {
         return link;
     }
 
-    public void setLink(Link value) {
-        this.link = value;
-    }
-
     public String getValue() {
         return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public String getReferencedType() {
         return referencedType;
     }
 
-    public void setReferencedType(String value) {
-        this.referencedType = value;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setName(String value) {
-        this.name = value;
-    }
-
     public String getComment() {
         return comment;
-    }
-
-    public void setComment(String value) {
-        this.comment = value;
     }
 
     @Override
@@ -119,6 +101,6 @@ public class Attribute {
     }
 
     public String toString() {
-        return name + ": " + value;
+        return String.format("%s: %s", name, value);
     }
 }

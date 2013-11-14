@@ -131,13 +131,7 @@ public abstract class AbstractWhoisObjectMapper {
     }
 
     protected Attribute createAttribute(final String name, final String value, final String comment, final String referencedType, final Link link) {
-        final Attribute attribute = new Attribute();
-        attribute.setName(name);
-        attribute.setValue(value);
-        attribute.setComment(comment);
-        attribute.setReferencedType(referencedType);
-        attribute.setLink(link);
-        return attribute;
+        return new Attribute(name, value, comment, referencedType, link);
     }
 
     protected WhoisObject createWhoisObject(final Source source, final String type, final List<Attribute> attributes, final List<Attribute> primaryKey, final Link link) {
