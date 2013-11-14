@@ -4,11 +4,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -31,7 +29,7 @@ import java.util.Collection;
 import java.util.Set;
 
 @Component
-public final class RestClient {
+public class RestClient {
     private final Client client;
     private String restApiUrl;
     private String sourceName;
@@ -143,9 +141,9 @@ public final class RestClient {
     }
 
     public AbuseContact abuseContact(final String resource, final String source) {
-        AbuseResources abuseResources = client.target(String.format("%s/abuse-contact/%s/%s",
+        //TODO use source
+        AbuseResources abuseResources = client.target(String.format("%s/abuse-contact/%s",
                 restApiUrl,
-                source,
                 resource
         )).request().get(AbuseResources.class);
         return abuseResources.getAbuseContact();
