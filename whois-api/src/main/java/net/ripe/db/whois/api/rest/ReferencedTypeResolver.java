@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 @Component
 public class ReferencedTypeResolver {
 
-    private static final Pattern MNT_ROUTES_NO_REFERENCE = Pattern.compile("^\\s*(ANY|\\{.*\\})$");
+    private static final Pattern MNT_ROUTES_NO_REFERENCE = Pattern.compile("(?i)^\\s*(ANY|\\{.*\\})$");
 
     private final RpslObjectDao rpslObjectDao;
 
