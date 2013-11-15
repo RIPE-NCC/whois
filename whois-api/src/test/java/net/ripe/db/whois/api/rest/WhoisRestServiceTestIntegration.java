@@ -4,31 +4,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rest.domain.Attribute;
-import net.ripe.db.whois.api.rest.domain.Flag;
-import net.ripe.db.whois.api.rest.domain.Flags;
-import net.ripe.db.whois.api.rest.domain.InverseAttributes;
-import net.ripe.db.whois.api.rest.domain.Link;
-import net.ripe.db.whois.api.rest.domain.Parameters;
-import net.ripe.db.whois.api.rest.domain.QueryStrings;
-import net.ripe.db.whois.api.rest.domain.Sources;
-import net.ripe.db.whois.api.rest.domain.TypeFilters;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
-import net.ripe.db.whois.api.rest.domain.WhoisVersion;
-import net.ripe.db.whois.api.rest.domain.WhoisVersions;
+import net.ripe.db.whois.api.rest.domain.*;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.query.QueryFlag;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -38,12 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.NotAllowedException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.ServiceUnavailableException;
+import javax.ws.rs.*;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -51,25 +29,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 @Category(IntegrationTest.class)
 public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
@@ -2008,6 +1975,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
     }
 
+
+    //Tests using the RestClient
+
     @Test
     public void search_restClient() {
         databaseHelper.addObject("" +
@@ -2028,5 +1998,29 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final RpslObject rpslObject = iterator.next();
         assertFalse(iterator.hasNext());
         assertThat(rpslObject.getKey().toUpperCase(), is("AS102"));
+    }
+
+    @Test
+    public void update_person_with_empty_remarks_has_remarks() throws Exception {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        RpslObject updatedObject = new RpslObjectFilter(PAULETH_PALTHEN).addAttributes(
+                Lists.newArrayList(new RpslAttribute(AttributeType.REMARKS, "")));
+
+        final RestClient restClient = new RestClient();
+        restClient.setRestApiUrl(String.format("http://localhost:%d/whois", getPort()));
+        restClient.setSource("TEST");
+
+        RpslObject updated = restClient.update(updatedObject, "test");
+        assertThat(updated.findAttributes(AttributeType.REMARKS), hasSize(2));
+    }
+
+    @Test
+    public void search_with_empty_query_param_should_not_return_400() throws Exception {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=PP1-TEST&source=TEST&type-filter=&flags=no-referenced")
+                .request(MediaType.APPLICATION_XML_TYPE).get(WhoisResources.class);
+
+        assertThat(whoisResources, notNullValue());
     }
 }
