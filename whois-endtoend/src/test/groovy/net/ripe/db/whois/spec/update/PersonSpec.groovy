@@ -1510,4 +1510,35 @@ class PersonSpec extends BaseQueryUpdateSpec  {
 
         query_object_not_matches("-r -T person FP2-TEST", "person", "Second Person", "20121016")
     }
+
+    def "modify person with empty remarks"() {
+        given:
+        dbfixture(getTransient("PN"))
+
+        expect:
+        queryObject("-r -T person FP1-TEST", "person", "First Person")
+
+        when:
+        def message = send new Message(
+                subject: "modify person FP1-TEST",
+                body: """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                remarks:
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                changed: denis@ripe.net
+                source:  TEST
+                password: owner
+
+                """.stripIndent()
+        )
+
+        then:
+        ackFor message
+        queryLineMatches("-GBr -T person FP1-TEST", "remarks")
+    }
 }
