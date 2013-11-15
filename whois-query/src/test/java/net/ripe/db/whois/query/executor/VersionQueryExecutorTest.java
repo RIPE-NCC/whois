@@ -82,7 +82,7 @@ public class VersionQueryExecutorTest {
         subject.execute(Query.parse("--list-versions AS2050"), responseHandler);
 
         Iterator<? extends ResponseObject> result = responseHandler.getResponseObjects().iterator();
-        assertThat(result.next().toString(), containsString(QueryMessages.versionListHeader("AUT-NUM", "AS2050").toString()));
+        assertThat(result.next().toString(), containsString(QueryMessages.versionListStart("AUT-NUM", "AS2050").toString()));
 
         assertThat(result.next().toString(), matchesPattern("rev#\\s+Date\\s+Op.*"));
 
@@ -109,7 +109,7 @@ public class VersionQueryExecutorTest {
         subject.execute(Query.parse("--list-versions AS2050"), responseHandler);
 
         final List<ResponseObject> responseObjects = responseHandler.getResponseObjects();
-        assertThat(new String(responseObjects.get(0).toByteArray()), is(QueryMessages.versionListHeader(ObjectType.AUT_NUM.getName().toUpperCase(), "AS2050").toString()));
+        assertThat(new String(responseObjects.get(0).toByteArray()), is(QueryMessages.versionListStart(ObjectType.AUT_NUM.getName().toUpperCase(), "AS2050").toString()));
         assertThat(new String(responseObjects.get(1).toByteArray()), is(QueryMessages.versionDeleted("2012-04-25 06:55").toString()));
     }
 
@@ -128,7 +128,7 @@ public class VersionQueryExecutorTest {
         subject.execute(Query.parse("--show-version 1 AS2050"), responseHandler);
 
         final List<ResponseObject> responseObjects = responseHandler.getResponseObjects();
-        assertThat(new String(responseObjects.get(0).toByteArray()), is(QueryMessages.versionListHeader(ObjectType.AUT_NUM.getName().toUpperCase(), "AS2050").toString()));
+        assertThat(new String(responseObjects.get(0).toByteArray()), is(QueryMessages.versionListStart(ObjectType.AUT_NUM.getName().toUpperCase(), "AS2050").toString()));
         assertThat(new String(responseObjects.get(1).toByteArray()), is(QueryMessages.versionDeleted("2012-04-10 13:58").toString()));
     }
 

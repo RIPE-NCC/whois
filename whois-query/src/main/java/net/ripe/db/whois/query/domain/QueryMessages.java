@@ -75,7 +75,7 @@ public final class QueryMessages {
                 version, Hosts.getLocalHost());
     }
 
-    public static Message versionListHeader(final CharSequence type, final CharSequence key) {
+    public static Message versionListStart(final CharSequence type, final CharSequence key) {
         return new Message(Type.INFO, ""
                 + "%% Version history for %s object \"%s\"\n"
                 + "%% You can use \"%s rev#\" to get an exact version of the object.\n",
@@ -306,6 +306,10 @@ public final class QueryMessages {
 
     public static Message tagInfoStart(final CharSequence pkey) {
         return new Message(Type.INFO, "%% Tags relating to '%s'", pkey);
+    }
+
+    public static Message tagInfoEnd() {
+        return new Message(Type.INFO, "");
     }
 
     public static Message tagInfo(final CharSequence tagType, final CharSequence tagValue) {

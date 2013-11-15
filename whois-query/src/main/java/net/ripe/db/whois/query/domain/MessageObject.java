@@ -45,7 +45,6 @@ public class MessageObject implements ResponseObject {
 
         MessageObject that = (MessageObject) o;
         return text.equals(that.text);
-
     }
 
     @Override

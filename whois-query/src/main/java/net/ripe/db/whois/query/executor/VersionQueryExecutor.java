@@ -98,7 +98,7 @@ public class VersionQueryExecutor implements QueryExecutor {
         final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
         if (versionInfos.isEmpty() && lastDeletionTimestamp != null) {
             return Lists.newArrayList(
-                    new MessageObject(QueryMessages.versionListHeader(objectType.getName().toUpperCase(), searchKey)),
+                    new MessageObject(QueryMessages.versionListStart(objectType.getName().toUpperCase(), searchKey)),
                     new DeletedVersionResponseObject(lastDeletionTimestamp, objectType, searchKey));
         }
 
@@ -122,7 +122,7 @@ public class VersionQueryExecutor implements QueryExecutor {
     private Iterable<? extends ResponseObject> getAllVersions(final VersionLookupResult res, final String searchKey) {
         final ObjectType objectType = res.getObjectType();
         final List<ResponseObject> messages = Lists.newArrayList();
-        messages.add(new MessageObject(QueryMessages.versionListHeader(objectType.getName().toUpperCase(), searchKey)));
+        messages.add(new MessageObject(QueryMessages.versionListStart(objectType.getName().toUpperCase(), searchKey)));
 
         final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
         final String pkey = res.getPkey();

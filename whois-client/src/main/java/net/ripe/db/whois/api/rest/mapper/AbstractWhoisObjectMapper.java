@@ -149,5 +149,4 @@ public abstract class AbstractWhoisObjectMapper {
         whoisObject.setPrimaryKey(primaryKey);
         return whoisObject;
     }
-
 }
