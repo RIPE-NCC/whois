@@ -134,8 +134,8 @@ public final class Query {
     private final SearchKey searchKey;
 
     private Query(final String query) {
+        originalStringQuery = query;
         String[] args = Iterables.toArray(SPACE_SPLITTER.split(query), String.class);
-        originalStringQuery = SPACE_JOINER.join(args);
         if (args.length > MAX_QUERY_ELEMENTS) {
             messages.add(QueryMessages.malformedQuery());
         }
