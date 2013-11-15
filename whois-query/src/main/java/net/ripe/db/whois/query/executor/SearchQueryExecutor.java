@@ -72,7 +72,7 @@ public class SearchQueryExecutor implements QueryExecutor {
                     }
                 }
             } catch (IllegalSourceException e) {
-                responseHandler.handle(new MessageObject(QueryMessages.unknownSource(source.getName()) + "\n"));
+                responseHandler.handle(new MessageObject(QueryMessages.unknownSource(source.getName())));
                 noResults = false;
             } finally {
                 sourceContext.removeCurrentSource();

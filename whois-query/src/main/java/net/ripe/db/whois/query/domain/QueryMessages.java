@@ -133,7 +133,7 @@ public final class QueryMessages {
                 + "%%ERROR:102: unknown source\n"
                 + "%%\n"
                 + "%% \"%s\" is not a known source.\n"
-                + "%% Use \"-q sources\" to list known sources.",
+                + "%% Use \"-q sources\" to list known sources.\n",
                 source);
     }
 
