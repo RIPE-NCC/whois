@@ -175,14 +175,14 @@ public class RestClient {
                             @Nullable
                             @Override
                             public String apply(@Nullable ObjectType input) {
-                                return input.getName();
+                                return (input == null ? null : input.getName());
                             }
                         })),
                         queryParam("flags", Collections2.transform(flags, new Function<QueryFlag, String>() {
                             @Nullable
                             @Override
                             public String apply(@Nullable QueryFlag input) {
-                                return input.getName();
+                                return (input == null ? null : input.getName());
                             }
                         }))
                 )
