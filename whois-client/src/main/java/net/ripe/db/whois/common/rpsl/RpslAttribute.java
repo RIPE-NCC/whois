@@ -18,6 +18,7 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.domain.CIString.ciImmutableSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
@@ -27,7 +28,7 @@ public final class RpslAttribute {
 
     private final AttributeType type;
     private final String key;
-    private final String value;
+    private final String value;     // non-clean, contains EOL comments too
 
     private int hash;
     private Set<CIString> cleanValues;
@@ -79,17 +80,10 @@ public final class RpslAttribute {
         if (cleanValues == null) {
             final String cleanedValue = determineCleanValue(value);
 
-            final Set<CIString> values;
             if (type == null) {
                 cleanValues = Collections.singleton(ciString(cleanedValue));
             } else {
-                cleanValues = ImmutableSet.copyOf(Iterables.transform(type.splitValue(cleanedValue), new Function<String, CIString>() {
-                    @Nullable
-                    @Override
-                    public CIString apply(@Nullable String input) {
-                        return ciString(input);
-                    }
-                }));
+                cleanValues = ciImmutableSet(type.splitValue(cleanedValue));
             }
         }
 
