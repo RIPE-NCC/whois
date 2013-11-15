@@ -33,7 +33,7 @@ public class TagResponseObject implements ResponseObject {
 
     @Override
     public byte[] toByteArray() {
-        if (getType().equals(CIString.ciString("unref"))) {
+        if (getType().toLowerCase().equals("unref")) {
             return QueryMessages.unreferencedTagInfo(objectKey, getValue()).toString().getBytes();
         } else {
             return QueryMessages.tagInfo(getType(), getValue()).toString().getBytes();

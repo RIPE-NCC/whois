@@ -43,7 +43,7 @@ public final class Source {
     }
 
     public boolean isGrs() {
-        return name.endsWith(ciString("-GRS"));
+        return name.toLowerCase().endsWith("-grs");
     }
 
     @Override
