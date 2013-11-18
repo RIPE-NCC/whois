@@ -42,7 +42,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
         }
 
         try {
-            final byte[] bytes = new RpslObjectFilter(object).getCertificateFromKeyCert().getBytes(Charsets.ISO_8859_1);
+            final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(object).getBytes(Charsets.ISO_8859_1);
             final ArmoredInputStream armoredInputStream = (ArmoredInputStream) PGPUtil.getDecoderStream(new ByteArrayInputStream(bytes));
             PGPPublicKey masterKey = null;
             List<PGPPublicKey> subKeys = Lists.newArrayList();
@@ -121,7 +121,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
     }
 
     static boolean looksLikePgpKey(final RpslObject rpslObject) {
-        final String pgpKey = new RpslObjectFilter(rpslObject).getCertificateFromKeyCert();
+        final String pgpKey = RpslObjectFilter.getCertificateFromKeyCert(rpslObject);
         return pgpKey.indexOf(PGP_HEADER) != -1 && pgpKey.indexOf(PGP_FOOTER) != -1;
     }
 

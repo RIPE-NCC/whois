@@ -14,7 +14,8 @@ public class FilterAuthFunction implements FilterFunction {
 
     @Override
     public RpslObject apply(RpslObject rpslObject) {
-        if (!ObjectTemplate.getTemplate(rpslObject.getType()).hasAttribute(AttributeType.AUTH)) {
+//        if (!ObjectTemplate.getTemplate(rpslObject.getType()).hasAttribute(AttributeType.AUTH)) {
+        if (!rpslObject.containsAttribute(AttributeType.AUTH)) {
             return rpslObject;
         }
 
@@ -26,7 +27,11 @@ public class FilterAuthFunction implements FilterFunction {
             }
         }
 
-        RpslObject filtered = new RpslObjectFilter(rpslObject).replaceAttributes(replace);
-        return filtered == rpslObject ? rpslObject : RpslObjectFilter.setFiltered(filtered);
+        if (replace.isEmpty()) {
+            return rpslObject;
+        } else {
+            RpslObjectFilter.addFilteredSourceReplacement(rpslObject, replace);
+            return new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
+        }
     }
 }

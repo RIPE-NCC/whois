@@ -240,16 +240,16 @@ public final class RpslAttribute {
         RpslAttribute attribute = (RpslAttribute) o;
 
         if (type == null) {
-            if (attribute.type != null || !key.equals(attribute.key)) {
+            if (attribute.type != null) {
                 return false;
             }
+            return key.equals(attribute.key);
         } else {
             if (type != attribute.type) {
                 return false;
             }
+            return Iterables.elementsEqual(getCleanValues(), attribute.getCleanValues());
         }
-
-        return Iterables.elementsEqual(getCleanValues(), attribute.getCleanValues());
     }
 
     @Override

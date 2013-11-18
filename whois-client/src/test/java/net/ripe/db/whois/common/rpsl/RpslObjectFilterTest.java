@@ -8,7 +8,6 @@ import static org.junit.Assert.assertThat;
 
 public class RpslObjectFilterTest {
     RpslObject mntner;
-    RpslObjectFilter subject;
 
     @Before
     public void setUp() throws Exception {
@@ -26,18 +25,11 @@ public class RpslObjectFilterTest {
                 "changed:         BECHA@example.net 20101010\n" +
                 "source:          DEV\n"
         );
-
-        subject = new RpslObjectFilter(mntner);
     }
 
     @Test(expected = AuthenticationException.class)
     public void getCertificateFromKeyCert() {
-        subject.getCertificateFromKeyCert();
-    }
-
-    @Test
-    public void getSource() {
-        assertThat(subject.getSource().toString(), is("DEV"));
+        RpslObjectFilter.getCertificateFromKeyCert(mntner);
     }
 
     @Test
@@ -54,7 +46,7 @@ public class RpslObjectFilterTest {
                         "        MIIHaTCCBlGgAwIBAgICGSowDQYJKoZIhvcNAQEFBQAwgYwxCzAJBgNVBAYTAklM\n" +
                         "        -----END CERTIFICATE-----");
 
-        final String certificate = (new RpslObjectFilter(keycert)).getCertificateFromKeyCert();
+        final String certificate = RpslObjectFilter.getCertificateFromKeyCert(keycert);
 
         assertThat(certificate, is(
                 "-----BEGIN CERTIFICATE-----\n" +
@@ -70,7 +62,7 @@ public class RpslObjectFilterTest {
                         "certif: MIIHaTCCBlGgAwIBAgICGSowDQYJKoZIhvcNAQEFBQAwgYwxCzAJBgNVBAYTAklM\n" +
                         "certif: -----END CERTIFICATE-----");
 
-        final String certificate = (new RpslObjectFilter(keycert)).getCertificateFromKeyCert();
+        final String certificate = RpslObjectFilter.getCertificateFromKeyCert(keycert);
 
         assertThat(certificate, is(
                 "-----BEGIN CERTIFICATE-----\n" +
@@ -87,7 +79,7 @@ public class RpslObjectFilterTest {
                         "\t      MRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRh\n" +
                         "+       -----END CERTIFICATE-----");
 
-        final String certificate = (new RpslObjectFilter(keycert)).getCertificateFromKeyCert();
+        final String certificate = RpslObjectFilter.getCertificateFromKeyCert(keycert);
 
         assertThat(certificate, is(
                 "-----BEGIN CERTIFICATE-----\n" +

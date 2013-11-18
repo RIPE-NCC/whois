@@ -64,8 +64,7 @@ public class ObjectLoader {
 
         try {
             if (pass == 1) {
-                final List<RpslAttribute> attributes = RpslObjectFilter.keepKeyAttributesOnly(rpslObject);
-                rpslObject = new RpslObject((Integer) null, attributes);
+                rpslObject = RpslObjectFilter.keepKeyAttributesOnly(new RpslObjectBuilder(rpslObject)).get();
                 rpslObjectUpdateDao.createObject(rpslObject);
             } else {
                 final RpslObjectInfo existing = rpslObjectDao.findByKey(rpslObject.getType(), rpslObject.getKey().toString());

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
+// TODO: [AH] this should be moved to RpslObjectBuilder
 public class RpslAttributes implements ResponseObject {
     private final Iterable<RpslAttribute> attributes;
 

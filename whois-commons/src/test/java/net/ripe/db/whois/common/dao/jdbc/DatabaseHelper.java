@@ -45,6 +45,7 @@ import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
+import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.keepKeyAttributesOnly;
 
 @Component
 public class DatabaseHelper implements EmbeddedValueResolverAware {
@@ -310,8 +311,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     private RpslObjectUpdateInfo addObjectWithoutReferences(final RpslObject rpslObject, final RpslObjectUpdateDao rpslObjectUpdateDao) {
-        final List<RpslAttribute> attributes = RpslObjectFilter.keepKeyAttributesOnly(rpslObject);
-        return rpslObjectUpdateDao.createObject(new RpslObject((Integer) null, attributes));
+        return rpslObjectUpdateDao.createObject(keepKeyAttributesOnly(new RpslObjectBuilder(rpslObject)).get());
     }
 
     public RpslObject updateObject(final String rpslString) {

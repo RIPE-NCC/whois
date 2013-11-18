@@ -47,10 +47,7 @@ public class AttributeGenerator {
             updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(attribute.getType()));
         }
 
-        RpslObject result = object;
-        result = new RpslObjectFilter(result).replaceAttributes(replacements);
-        result = new RpslObjectFilter(result).addAttributes(additions);
-        return result;
+        return new RpslObjectBuilder(object).replaceAttributes(replacements).addAttributes(additions).sort().get();
     }
 
     private void addOrReplaceAttribute(final RpslObject rpslObject, final AttributeType attributeType, final String attributeValue, final Map<RpslAttribute, RpslAttribute> replacements, final List<RpslAttribute> additions) {

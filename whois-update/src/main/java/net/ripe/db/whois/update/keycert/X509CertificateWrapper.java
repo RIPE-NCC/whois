@@ -33,7 +33,7 @@ public final class X509CertificateWrapper implements KeyWrapper {
         }
 
         try {
-            final byte[] bytes = new RpslObjectFilter(rpslObject).getCertificateFromKeyCert().getBytes(Charsets.ISO_8859_1);
+            final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(Charsets.ISO_8859_1);
 
             X509CertParser parser = new X509CertParser();
             parser.engineInit(new ByteArrayInputStream(bytes));
@@ -51,7 +51,7 @@ public final class X509CertificateWrapper implements KeyWrapper {
     }
 
     static boolean looksLikeX509Key(final RpslObject rpslObject) {
-        final String pgpKey = new RpslObjectFilter(rpslObject).getCertificateFromKeyCert();
+        final String pgpKey = RpslObjectFilter.getCertificateFromKeyCert(rpslObject);
         return pgpKey.indexOf(X509_HEADER) != -1 && pgpKey.indexOf(X509_FOOTER) != -1;
     }
 

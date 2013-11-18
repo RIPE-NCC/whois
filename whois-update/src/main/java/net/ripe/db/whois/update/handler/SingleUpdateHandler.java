@@ -156,7 +156,7 @@ public class SingleUpdateHandler {
             updateContext.addMessage(update, UpdateMessages.filteredNotAllowed());
         }
 
-        final CIString objectSource = new RpslObjectFilter(updatedObject).getSource();
+        final CIString objectSource = updatedObject.getValueForAttribute(AttributeType.SOURCE);
         if (objectSource != null && !source.equals(objectSource)) {
             updateContext.addMessage(update, UpdateMessages.unrecognizedSource(objectSource));
         }
