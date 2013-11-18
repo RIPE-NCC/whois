@@ -143,7 +143,13 @@ public class WhoisRestService {
     private final InternalUpdatePerformer updatePerformer;
 
     @Autowired
-    public WhoisRestService(final DateTimeProvider dateTimeProvider, final LoggerContext loggerContext, final RpslObjectDao rpslObjectDao, final SourceContext sourceContext, final QueryHandler queryHandler, final WhoisObjectServerMapper whoisObjectMapper, final InternalUpdatePerformer updatePerformer) {
+    public WhoisRestService(final DateTimeProvider dateTimeProvider,
+                            final LoggerContext loggerContext,
+                            final RpslObjectDao rpslObjectDao,
+                            final SourceContext sourceContext,
+                            final QueryHandler queryHandler,
+                            final WhoisObjectServerMapper whoisObjectMapper,
+                            final InternalUpdatePerformer updatePerformer) {
         this.dateTimeProvider = dateTimeProvider;
         this.loggerContext = loggerContext;
         this.rpslObjectDao = rpslObjectDao;
@@ -474,7 +480,7 @@ public class WhoisRestService {
      * The search interface resembles a standard Whois client query with the extra features of multi-registry client, multiple response styles that can be selected via content negotiation and with an extensible URL parameters schema.
      *
      * @param sources           Mandatory. It's possible to specify multiple sources.
-     * @param searchKey       Mandatory.
+     * @param searchKey         Mandatory.
      * @param inverseAttributes If specified the query is an inverse lookup on the given attribute, if not specified the query is a direct lookup search.
      * @param includeTags       Only show RPSL objects with given tags. Can be multiple.
      * @param excludeTags       Only show RPSL objects that <i>do not</i> have given tags. Can be multiple.

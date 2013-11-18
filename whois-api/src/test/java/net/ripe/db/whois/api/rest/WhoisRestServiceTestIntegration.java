@@ -2005,43 +2005,4 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         maintenanceMode.set("NONE,NONE");
         WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
     }
-
-
-    //Tests using the RestClient
-
-    @Test
-    public void search_restClient() {
-        databaseHelper.addObject("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-
-        final RestClient restClient = new RestClient();
-        restClient.setRestApiUrl(String.format("http://localhost:%d/whois", getPort()));
-        final Iterable<RpslObject> result = restClient.search("AS102", Collections.<String>emptySet(), Collections.<AttributeType>emptySet(),
-                Collections.<String>emptySet(), Collections.<String>emptySet(), ImmutableSet.of(ObjectType.AUT_NUM), ImmutableSet.of(QueryFlag.NO_REFERENCED));
-        final Iterator<RpslObject> iterator = result.iterator();
-        assertTrue(iterator.hasNext());
-        final RpslObject rpslObject = iterator.next();
-        assertFalse(iterator.hasNext());
-        assertThat(rpslObject.getKey().toUpperCase(), is("AS102"));
-    }
-
-    @Test
-    public void update_person_with_empty_remarks_has_remarks() throws Exception {
-        databaseHelper.addObject(PAULETH_PALTHEN);
-
-        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "")).sort().get();
-
-        final RestClient restClient = new RestClient();
-        restClient.setRestApiUrl(String.format("http://localhost:%d/whois", getPort()));
-        restClient.setSource("TEST");
-
-        RpslObject updated = restClient.update(updatedObject, "test");
-        assertThat(updated.findAttributes(AttributeType.REMARKS), hasSize(2));
-    }
 }
