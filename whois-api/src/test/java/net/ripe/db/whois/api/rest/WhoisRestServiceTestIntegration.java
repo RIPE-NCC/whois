@@ -2014,13 +2014,4 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         RpslObject updated = restClient.update(updatedObject, "test");
         assertThat(updated.findAttributes(AttributeType.REMARKS), hasSize(2));
     }
-
-    @Test
-    public void search_with_empty_query_param_should_not_return_400() throws Exception {
-        databaseHelper.addObject(PAULETH_PALTHEN);
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=PP1-TEST&source=TEST&type-filter=&flags=no-referenced")
-                .request(MediaType.APPLICATION_XML_TYPE).get(WhoisResources.class);
-
-        assertThat(whoisResources, notNullValue());
-    }
 }
