@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -393,6 +394,20 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         TEMPLATE_MAP = Collections.unmodifiableMap(templateMap);
     }
 
+    private class AttributeTypeComparator implements Comparator<RpslAttribute> {
+        private EnumMap<AttributeType, Integer> order = new EnumMap(AttributeType.class);
+        public AttributeTypeComparator(final AttributeTemplate... attributeTemplates) {
+            for (int i = 0; i < attributeTemplates.length; i++) {
+                order.put(attributeTemplates[i].getAttributeType(), i);
+            }
+        }
+
+        @Override
+        public int compare(RpslAttribute o1, RpslAttribute o2) {
+            return order.get(o1.getType()) - order.get(o2.getType());
+        }
+    }
+
     private final ObjectType objectType;
     private final int orderPosition;
     private final Map<AttributeType, AttributeTemplate> attributeTemplateMap;
@@ -403,6 +418,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     private final Set<AttributeType> inverseLookupAttributes;
     private final Set<AttributeType> mandatoryAttributes;
     private final Set<AttributeType> multipleAttributes;
+    private final Comparator<RpslAttribute> comparator;
 
     private ObjectTemplate(final ObjectType objectType, final int orderPosition, final AttributeTemplate... attributeTemplates) {
         this.objectType = objectType;
@@ -427,6 +443,8 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         inverseLookupAttributes = getAttributes(attributeTemplates, INVERSE_KEY);
         mandatoryAttributes = getAttributes(attributeTemplates, MANDATORY);
         multipleAttributes = getAttributes(attributeTemplates, MULTIPLE);
+
+        comparator = new AttributeTypeComparator(attributeTemplates);
     }
 
     private Set<AttributeType> getAttributes(final AttributeTemplate[] attributeTemplates, final Key key) {
@@ -505,6 +523,10 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
     public Set<AttributeType> getMultipleAttributes() {
         return multipleAttributes;
+    }
+
+    public Comparator<RpslAttribute> getAttributeTypeComparator() {
+        return comparator;
     }
 
     public boolean isSet() {

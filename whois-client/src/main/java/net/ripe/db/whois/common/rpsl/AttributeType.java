@@ -636,7 +636,7 @@ public enum AttributeType implements Documented {
     }
 
     public Set<ObjectType> getReferences(final CIString value) {
-        if (this == AUTH && value.startsWith(ciString("MD5-PW"))) {
+        if (this == AUTH && value.toLowerCase().startsWith("md5-pw")) {
             return Collections.emptySet();
         }
 

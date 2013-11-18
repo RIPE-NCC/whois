@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class Maintainers {
         this.enumMaintainers = ciImmutableSet(enumMaintainers);
         this.dbmMaintainers = ciImmutableSet(dbmMaintainers);
 
-        this.rsMaintainers = Sets.newLinkedHashSet(Iterables.concat(this.powerMaintainers, this.enduserMaintainers, this.allocMaintainers));
+        this.rsMaintainers = ImmutableSet.copyOf(Iterables.concat(this.powerMaintainers, this.enduserMaintainers, this.allocMaintainers));
     }
 
     public Set<CIString> getPowerMaintainers() {
