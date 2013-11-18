@@ -218,7 +218,6 @@ public class RpslObjectTest {
         final List<RpslAttribute> source = object.findAttributes(AttributeType.SOURCE);
         final RpslAttribute attribute = source.get(0);
 
-        Assert.assertFalse(attribute.equals(null));
         Assert.assertFalse(attribute.equals(1));
 
         assertThat(attribute, is(attribute));

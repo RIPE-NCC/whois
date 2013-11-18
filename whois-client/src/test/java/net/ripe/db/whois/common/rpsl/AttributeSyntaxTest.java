@@ -354,6 +354,7 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.ROUTE, AttributeType.HOLES, "0/100");
         verifyFailure(ObjectType.ROUTE, AttributeType.HOLES, "::0/0");
         verifyFailure(ObjectType.ROUTE, AttributeType.HOLES, "");
+        verifyFailure(ObjectType.ROUTE, AttributeType.HOLES, ",");
 
         verifySuccess(ObjectType.ROUTE, AttributeType.HOLES, "192.168.1.10");
         verifySuccess(ObjectType.ROUTE, AttributeType.HOLES, "192.168.1.10,192.168.1.11");
