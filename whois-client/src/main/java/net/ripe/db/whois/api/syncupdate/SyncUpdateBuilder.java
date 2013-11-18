@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 public class SyncUpdateBuilder {
     private String url;
     private String host;
-    private int port;
+    private Integer port;
     private String source;
     private String data;
     private boolean help;
@@ -77,17 +77,15 @@ public class SyncUpdateBuilder {
     }
 
     public Client build() {
-        if (host==null || source==null) {
-            throw new IllegalStateException("host and source should not be null");
+        if (url != null) {
+            return new Client(url, data, help, diff, aNew, redirect);
         }
-        return new Client(host, port, source, data, help, diff, aNew, redirect);
-    }
 
-    public Client buildUsingUrl() {
-        if (url==null) {
-            throw new IllegalStateException("url should not be null");
+        if (host != null && port != null && source != null) {
+            return new Client(host, port, source, data, help, diff, aNew, redirect);
         }
-        return new Client(url, data, help, diff, aNew, redirect);
+
+        throw new IllegalStateException("Either (host, port, source) or (url) should not be null");
     }
 
     public static class Client {
@@ -96,10 +94,7 @@ public class SyncUpdateBuilder {
         private static final Pattern CHARSET_PATTERN = Pattern.compile(".*;charset=(.*)");
         private static final String CHARSET = "ISO-8859-1";
 
-        private final String url;
-        private final String host;
-        private final int port;
-        private final String source;
+        private final URL url;
         private final String data;
         private final boolean isHelp;
         private final boolean isDiff;
@@ -107,32 +102,26 @@ public class SyncUpdateBuilder {
         private final boolean isRedirect;
 
         public Client(final String host, final int port, final String source, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
-            this.host = host;
-            this.port = port;
-            this.source = source;
+            this.url = getUrl(host, port, source);
             this.data = data;
             this.isHelp = isHelp;
             this.isDiff = isDiff;
             this.isNew = isNew;
             this.isRedirect = isRedirect;
-            this.url = null;
         }
 
         public Client(final String url, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
-            this.url = url;
+            this.url = getUrl(url);
             this.data = data;
             this.isHelp = isHelp;
             this.isDiff = isDiff;
             this.isNew = isNew;
             this.isRedirect = isRedirect;
-            this.host = null;
-            this.port = 0;
-            this.source = null;
        }
 
         public String post() {
             try {
-                HttpURLConnection connection = (HttpURLConnection) getUrl().openConnection();
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
                 final String body = getBody();
                 connection.setRequestProperty(HttpHeaders.CONTENT_LENGTH, Integer.toString(body.length()));
@@ -204,19 +193,11 @@ public class SyncUpdateBuilder {
             }
         }
 
-        private URL getUrl(){
-            if (url!=null){
-                return getUrlFromString(url);
-            } else {
-                return getUrl(host, port, source);
-            }
-        }
-
         private static URL getUrl(final String host, final int port, final String source) {
-            return getUrlFromString(String.format("http://%s%s/whois/syncupdates/%s", host, (port != 0 ? ":" + Integer.toString(port) : ""), source));
+            return getUrl(String.format("http://%s%s/whois/syncupdates/%s", host, (port != 0 ? ":" + Integer.toString(port) : ""), source));
         }
 
-        private static URL getUrlFromString(final String url){
+        private static URL getUrl(final String url){
             try {
                 return new URL(url);
             } catch (MalformedURLException e) {
