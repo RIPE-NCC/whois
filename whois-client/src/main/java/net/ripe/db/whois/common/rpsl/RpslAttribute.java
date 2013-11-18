@@ -1,8 +1,6 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
@@ -10,7 +8,6 @@ import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import org.apache.commons.lang.Validate;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -231,6 +228,10 @@ public final class RpslAttribute {
     public boolean equals(Object o) {
         if (this == o) {
             return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
         }
 
         RpslAttribute attribute = (RpslAttribute) o;
