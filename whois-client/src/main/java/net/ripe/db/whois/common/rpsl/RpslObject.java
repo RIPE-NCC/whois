@@ -270,6 +270,14 @@ public class RpslObject implements Identifiable, ResponseObject {
         return findAttribute(attributeType).getCleanValue();
     }
 
+    public CIString getValueOrNullForAttribute(final AttributeType attributeType) {
+        List<RpslAttribute> attributes = findAttributes(attributeType);
+        if (attributes.isEmpty()) {
+            return null;
+        }
+        return attributes.get(0).getCleanValue();
+    }
+
     public Set<CIString> getValuesForAttribute(final AttributeType attributeType) {
         final List<RpslAttribute> attributeList = findAttributes(attributeType);
         if (attributeList.isEmpty()) {

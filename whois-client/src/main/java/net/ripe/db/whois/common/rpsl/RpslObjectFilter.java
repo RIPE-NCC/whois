@@ -20,7 +20,8 @@ public class RpslObjectFilter {
 
     private static final Splitter LINE_CONTINUATION_SPLITTER = Splitter.on(Pattern.compile("(\\n\\+|\\n[ ]|\\n\\t|\\n)")).trimResults();
 
-    private RpslObjectFilter() {}
+    private RpslObjectFilter() {
+    }
 
     public static String getCertificateFromKeyCert(final RpslObject object) {
         if (!ObjectType.KEY_CERT.equals(object.getType())) {

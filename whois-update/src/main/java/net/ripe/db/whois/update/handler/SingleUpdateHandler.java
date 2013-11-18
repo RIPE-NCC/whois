@@ -46,7 +46,17 @@ public class SingleUpdateHandler {
     }
 
     @Autowired
-    public SingleUpdateHandler(final AutoKeyResolver autoKeyResolver, final AttributeGenerator attributeGenerator, final AttributeSanitizer attributeSanitizer, final UpdateLockDao updateLockDao, final LoggerContext loggerContext, final Authenticator authenticator, final UpdateObjectHandler updateObjectHandler, final RpslObjectDao rpslObjectDao, final RpslObjectUpdateDao rpslObjectUpdateDao, final IpTreeUpdater ipTreeUpdater, final PendingUpdateHandler pendingUpdateHandler) {
+    public SingleUpdateHandler(final AutoKeyResolver autoKeyResolver,
+                               final AttributeGenerator attributeGenerator,
+                               final AttributeSanitizer attributeSanitizer,
+                               final UpdateLockDao updateLockDao,
+                               final LoggerContext loggerContext,
+                               final Authenticator authenticator,
+                               final UpdateObjectHandler updateObjectHandler,
+                               final RpslObjectDao rpslObjectDao,
+                               final RpslObjectUpdateDao rpslObjectUpdateDao,
+                               final IpTreeUpdater ipTreeUpdater,
+                               final PendingUpdateHandler pendingUpdateHandler) {
         this.autoKeyResolver = autoKeyResolver;
         this.attributeGenerator = attributeGenerator;
         this.attributeSanitizer = attributeSanitizer;
@@ -156,7 +166,7 @@ public class SingleUpdateHandler {
             updateContext.addMessage(update, UpdateMessages.filteredNotAllowed());
         }
 
-        final CIString objectSource = updatedObject.getValueForAttribute(AttributeType.SOURCE);
+        final CIString objectSource = updatedObject.getValueOrNullForAttribute(AttributeType.SOURCE);
         if (objectSource != null && !source.equals(objectSource)) {
             updateContext.addMessage(update, UpdateMessages.unrecognizedSource(objectSource));
         }
