@@ -194,7 +194,6 @@ public class RpslObjectTest {
         assertThat(subject.findAttributes(AttributeType.MNTNER, AttributeType.ADMIN_C, AttributeType.TECH_C), hasSize(3));
     }
 
-
     @Test
     public void testEquality() {
         parseAndAssign("mntner:DEV-TST-MNT\nsource:RIPE");
@@ -217,9 +216,6 @@ public class RpslObjectTest {
         final RpslObject object = parse("mntner:DEV-TST-MNT\nsource:RIPE\nsource:RIPE2\nsource:RIPE\nauth:bar");
         final List<RpslAttribute> source = object.findAttributes(AttributeType.SOURCE);
         final RpslAttribute attribute = source.get(0);
-
-        Assert.assertFalse(attribute.equals(null));
-        Assert.assertFalse(attribute.equals(1));
 
         assertThat(attribute, is(attribute));
         assertThat(attribute.hashCode(), is(attribute.hashCode()));

@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 public class RpslAttributeTest {
@@ -111,16 +112,16 @@ public class RpslAttributeTest {
         assertThat(subject.equals(new RpslAttribute("unknown", "THE QUICK BROWN FOX.")), is(true));
     }
 
-    @Test(expected = ClassCastException.class)
+    @Test
     public void equals_Integer() {
         subject = new RpslAttribute("remarks", "The quick brown fox.");
-        subject.equals(1);
+        assertFalse(subject.equals(1));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void equals_null() {
         subject = new RpslAttribute("remarks", "The quick brown fox.");
-        subject.equals(null);
+        assertFalse(subject.equals(null));
     }
 
     @Test
