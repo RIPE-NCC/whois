@@ -424,7 +424,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         this.objectType = objectType;
         this.orderPosition = orderPosition;
 
-        this.attributeTemplates = Collections.unmodifiableList(Lists.newArrayList(attributeTemplates));
+        this.attributeTemplates = ImmutableList.copyOf(attributeTemplates);
         this.allAttributeTypes = Collections.unmodifiableSet(Sets.newLinkedHashSet(Iterables.transform(this.attributeTemplates, new Function<AttributeTemplate, AttributeType>() {
             @Nullable
             @Override

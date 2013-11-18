@@ -24,6 +24,8 @@ public class RpslObject implements Identifiable, ResponseObject {
 
     private final ObjectType type;
     private final RpslAttribute typeAttribute;
+
+    // TODO: [AH] add sequence_id here too (to form the basis of versioning)
     private Integer objectId;
 
     private List<RpslAttribute> attributes;
@@ -80,6 +82,10 @@ public class RpslObject implements Identifiable, ResponseObject {
 
     public List<RpslAttribute> getAttributes() {
         return attributes;
+    }
+
+    public int size() {
+        return attributes.size();
     }
 
     public final CIString getKey() {
@@ -159,7 +165,7 @@ public class RpslObject implements Identifiable, ResponseObject {
                 list.add(attribute);
             }
 
-            typeCache = Collections.unmodifiableMap(map);
+            typeCache = map;
         }
 
         return typeCache;
@@ -278,18 +284,6 @@ public class RpslObject implements Identifiable, ResponseObject {
         return values;
     }
 
-    public void forAttributes(final AttributeType attributeType, final AttributeCallback attributeCallback) {
-        for (final RpslAttribute rpslAttribute : findAttributes(attributeType)) {
-            for (final CIString value : rpslAttribute.getCleanValues()) {
-                attributeCallback.execute(rpslAttribute, value);
-            }
-        }
-    }
-
-    public interface AttributeCallback {
-        void execute(RpslAttribute attribute, CIString value);
-    }
-
     public String diff(final RpslObject rpslObject) {
         final StringBuilder builder = new StringBuilder();
 
@@ -306,5 +300,4 @@ public class RpslObject implements Identifiable, ResponseObject {
 
         return builder.toString();
     }
-
 }
