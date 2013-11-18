@@ -111,6 +111,18 @@ public class RpslAttributeTest {
         assertThat(subject.equals(new RpslAttribute("unknown", "THE QUICK BROWN FOX.")), is(true));
     }
 
+    @Test(expected = ClassCastException.class)
+    public void equals_Integer() {
+        subject = new RpslAttribute("remarks", "The quick brown fox.");
+        subject.equals(1);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void equals_null() {
+        subject = new RpslAttribute("remarks", "The quick brown fox.");
+        subject.equals(null);
+    }
+
     @Test
     public void equals_shorthand() {
         subject = new RpslAttribute("remarks", "The quick brown fox.");
