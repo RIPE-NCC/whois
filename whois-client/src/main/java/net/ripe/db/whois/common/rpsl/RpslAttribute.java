@@ -233,10 +233,6 @@ public final class RpslAttribute {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
         RpslAttribute attribute = (RpslAttribute) o;
 
         if (type == null) {
@@ -255,17 +251,8 @@ public final class RpslAttribute {
     @Override
     public int hashCode() {
         if (hash == 0) {
-            int result = 0;
-            if (type != null) {
-                result += type.hashCode();
-            } else {
-                result += key.hashCode();
-            }
-
-            result = 31 * result + getCleanValues().hashCode();
-            hash = result == 0 ? 1 : result;
+            hash = 31*key.hashCode() + getCleanValues().hashCode();
         }
-
         return hash;
     }
 
