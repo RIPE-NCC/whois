@@ -134,7 +134,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void downloader_test() throws Exception {
+    public void lookup_downloader_test() throws Exception {
         Path path = Files.createTempFile("downloader_test", "");
         Downloader downloader = new Downloader();
         downloader.downloadTo(LoggerFactory.getLogger("downloader_test"), new URL(String.format("http://localhost:%d/whois/test/mntner/owner-mnt", getPort())), path);
@@ -1680,14 +1680,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void search_hierarchical_flags() {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "descr:          Private Network\n" +
-                        "country:        NL\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "mnt-lower:      OWNER-MNT\n" +
-                        "source:         TEST");
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
         ipTreeUpdater.rebuild();
 
         WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=2001:2002:2003:2004::5&flags=Lr")
@@ -1798,7 +1798,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void streaming_puts_xlink_into_root_element_and_nowhere_else() throws Exception {
+    public void search_streaming_puts_xlink_into_root_element_and_nowhere_else() throws Exception {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -1818,7 +1818,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void non_streaming_puts_xlink_into_root_element_and_nowhere_else() throws Exception {
+    public void search_non_streaming_puts_xlink_into_root_element_and_nowhere_else() throws Exception {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -1860,14 +1860,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void search_not_contains_empty_xmlns() {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "descr:          Private Network\n" +
-                        "country:        NL\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "mnt-lower:      OWNER-MNT\n" +
-                        "source:         TEST");
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
         ipTreeUpdater.rebuild();
 
         final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=2001:2002:2003:2004::5")
@@ -1980,7 +1980,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Test(expected = ServiceUnavailableException.class)
     public void maintenance_mode_readonly_update() {
         maintenanceMode.set("READONLY,READONLY");
-        String response = RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
     }
@@ -1995,7 +1995,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Test(expected = ServiceUnavailableException.class)
     public void maintenance_mode_none_update() {
         maintenanceMode.set("NONE,NONE");
-        String response = RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Lists.newArrayList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
     }
@@ -2003,6 +2003,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Test(expected = ServiceUnavailableException.class)
     public void maintenance_mode_none_query() {
         maintenanceMode.set("NONE,NONE");
-        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
     }
 }
