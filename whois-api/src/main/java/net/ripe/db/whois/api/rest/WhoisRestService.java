@@ -641,6 +641,7 @@ public class WhoisRestService {
     private void validateSubmittedObject(final RpslObject object, final String objectType, final String key) {
         if (!(object.getKey().equals(CIString.ciString(key)) &&
                 object.getType().getName().equalsIgnoreCase(objectType))) {
+            //TODO: Add a message
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
     }
