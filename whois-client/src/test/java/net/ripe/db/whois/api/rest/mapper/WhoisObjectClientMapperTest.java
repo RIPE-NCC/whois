@@ -69,7 +69,7 @@ public class WhoisObjectClientMapperTest {
                 "descr:     AS-set containing all attendees' ASNs.\n" + // TODO: on transform map to &apos;
                 "tech-c:    TS1-TEST\n" +
                 "admin-c:   TS1-TEST\n" +
-                "members:   as1,as2,as3\n" +
+                "members:   as1,as2,as3,\n" +
                 "mnt-by:    TS1-MNT\n" +
                 "changed:   hostmaster@ripe.net 20121115\n" +
                 "source:    TEST");
