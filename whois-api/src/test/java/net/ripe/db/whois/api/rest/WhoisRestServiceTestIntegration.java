@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
@@ -29,8 +28,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import net.ripe.db.whois.query.QueryFlag;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -52,8 +49,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -66,9 +61,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -77,15 +70,15 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     private static final String VERSION_DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}";
 
     private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
-            "person:  Pauleth Palthen\n" +
-            "address: Singel 258\n" +
-            "phone:   +31-1234567890\n" +
-            "e-mail:  noreply@ripe.net\n" +
-            "mnt-by:  OWNER-MNT\n" +
-            "nic-hdl: PP1-TEST\n" +
-            "changed: noreply@ripe.net 20120101\n" +
-            "remarks: remark\n" +
-            "source:  TEST\n");
+            "person:    Pauleth Palthen\n" +
+            "address:   Singel 258\n" +
+            "phone:     +31-1234567890\n" +
+            "e-mail:    noreply@ripe.net\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "nic-hdl:   PP1-TEST\n" +
+            "changed:   noreply@ripe.net 20120101\n" +
+            "remarks:   remark\n" +
+            "source:    TEST\n");
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
@@ -99,13 +92,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "source:      TEST");
 
     private static final RpslObject TEST_PERSON = RpslObject.parse("" +
-            "person:  Test Person\n" +
-            "address: Singel 258\n" +
-            "phone:   +31 6 12345678\n" +
-            "nic-hdl: TP1-TEST\n" +
-            "mnt-by:  OWNER-MNT\n" +
-            "changed: dbtest@ripe.net 20120101\n" +
-            "source:  TEST\n");
+            "person:    Test Person\n" +
+            "address:   Singel 258\n" +
+            "phone:     +31 6 12345678\n" +
+            "nic-hdl:   TP1-TEST\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "changed:   dbtest@ripe.net 20120101\n" +
+            "source:    TEST\n");
 
     private static final RpslObject TEST_ROLE = RpslObject.parse("" +
             "role:      Test Role\n" +
@@ -117,6 +110,17 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "mnt-by:    OWNER-MNT\n" +
             "changed:   dbtest@ripe.net 20120101\n" +
             "source:    TEST\n");
+
+    private static final RpslObject TEST_IRT = RpslObject.parse("" +
+            "irt:          irt-test\n" +
+            "address:      RIPE NCC\n" +
+            "e-mail:       noreply@ripe.net\n" +
+            "admin-c:      TP1-TEST\n" +
+            "tech-c:       TP1-TEST\n" +
+            "auth:         MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+            "mnt-by:       OWNER-MNT\n" +
+            "changed:      dbtest@ripe.net 20120101\n" +
+            "source:       TEST\n");
 
     @Autowired
     private WhoisObjectServerMapper whoisObjectMapper;
@@ -133,6 +137,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         maintenanceMode.set("FULL,FULL");
     }
 
+    // lookup
+
     @Test
     public void lookup_downloader_test() throws Exception {
         Path path = Files.createTempFile("downloader_test", "");
@@ -147,14 +153,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void lookup_inet6num_without_prefix_length() {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "descr:          Private Network\n" +
-                        "country:        NL\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "mnt-lower:      OWNER-MNT\n" +
-                        "source:         TEST");
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
         ipTreeUpdater.rebuild();
 
         try {
@@ -169,14 +175,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void lookup_inet6num_with_prefix_length() {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "descr:          Private Network\n" +
-                        "country:        NL\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "mnt-lower:      OWNER-MNT\n" +
-                        "source:         TEST");
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
         ipTreeUpdater.rebuild();
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::/48").request().get(WhoisResources.class);
@@ -213,7 +219,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void get_inet6num() throws Exception {
+    public void lookup_inet6num() throws Exception {
         final RpslObject inet6num = RpslObject.parse("" +
                 "inet6num: 2001::/48\n" +
                 "netname: RIPE-NCC\n" +
@@ -244,7 +250,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void get_route() throws Exception {
+    public void lookup_route() throws Exception {
         final RpslObject route = RpslObject.parse("" +
                 "route:           193.254.30.0/24\n" +
                 "descr:           Test route\n" +
@@ -268,7 +274,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void rest_get_person_json() throws Exception {
+    public void lookup_person_json() throws Exception {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
@@ -287,7 +293,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void json_lookup_correct_object() {
+    public void lookup_correct_object_json() {
         final String whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
@@ -383,9 +389,15 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final String result = RestTest.target(getPort(), "whois/test-grs/aut-num/AS102").request().get(String.class);
 
         assertThat(result, containsString("" +
-                "<source id=\"test-grs\" /><primary-key><attribute name=\"aut-num\" value=\"AS102\" /></primary-key><attributes><attribute name=\"aut-num\" value=\"AS102\" /><attribute name=\"as-name\" value=\"End-User-2\" />"));
+                "<source id=\"test-grs\" />" +
+                "<primary-key><attribute name=\"aut-num\" value=\"AS102\" /></primary-key>" +
+                "<attributes>" +
+                "<attribute name=\"aut-num\" value=\"AS102\" />" +
+                "<attribute name=\"as-name\" value=\"End-User-2\" />"));
         assertThat(result, containsString("" +
-                "<attribute name=\"source\" value=\"TEST-GRS\" /><attribute name=\"remarks\" value=\"****************************\" /><attribute name=\"remarks\" value=\"* THIS OBJECT IS MODIFIED\" />"));
+                "<attribute name=\"source\" value=\"TEST-GRS\" />" +
+                "<attribute name=\"remarks\" value=\"****************************\" />" +
+                "<attribute name=\"remarks\" value=\"* THIS OBJECT IS MODIFIED\" />"));
     }
 
     @Test
@@ -415,6 +427,112 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new WhoisTag("foobar", "description"),
                 new WhoisTag("other", "other stuff"),
                 new WhoisTag("unref", "28")));
+    }
+
+    @Test
+    public void lookup_mntner() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("auth", "MD5-PW", "Filtered", null, null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST", "Filtered", null, null)));
+    }
+
+    @Test
+    public void lookup_mntner_correct_password() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("upd-to", "noreply@ripe.net", null, null, null),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("changed", "dbtest@ripe.net 20120101", null, null, null),
+                new Attribute("source", "TEST", null, null, null)));
+    }
+
+    @Test
+    public void lookup_mntner_incorrect_password() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=incorrect").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("auth", "MD5-PW", "Filtered", null, null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST", "Filtered", null, null)));
+    }
+
+    @Test
+    public void lookup_mntner_multiple_passwords() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=incorrect&password=test").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("upd-to", "noreply@ripe.net", null, null, null),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("changed", "dbtest@ripe.net 20120101", null, null, null),
+                new Attribute("source", "TEST", null, null, null)));
+    }
+
+    @Test
+    public void lookup_irt_correct_password() {
+        databaseHelper.addObject(TEST_IRT);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/irt/irt-test?password=test").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("irt", "irt-test"),
+                new Attribute("address", "RIPE NCC"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("tech-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("changed", "dbtest@ripe.net 20120101", null, null, null),
+                new Attribute("source", "TEST")));
+    }
+
+    @Test
+    public void lookup_irt_incorrect_password() {
+        databaseHelper.addObject(TEST_IRT);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/irt/irt-test?password=incorrect").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("irt", "irt-test"),
+                new Attribute("address", "RIPE NCC"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("tech-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("auth", "MD5-PW", "Filtered", null, null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
     // create
