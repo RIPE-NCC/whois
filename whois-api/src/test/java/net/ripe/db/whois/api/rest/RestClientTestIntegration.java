@@ -1,22 +1,17 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.query.QueryFlag;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -92,5 +87,26 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
         RpslObject updated = restClient.update(updatedObject, "test");
         assertThat(updated.findAttributes(AttributeType.REMARKS), hasSize(1));
+    }
+
+    @Test
+    public void testLookupWithoutPass() throws Exception {
+        RestClient restClient = new RestClient();
+        restClient.setRestApiUrl(String.format("http://localhost:%d/whois", getPort()));
+        restClient.setSource("TEST");
+        RpslObject object = restClient.lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
+
+        assertThat(object.findAttribute(AttributeType.AUTH).getValue(), is("MD5-PW"));
+    }
+
+    @Test
+    public void testLookupWithPass() throws Exception {
+        RestClient restClient = new RestClient();
+        restClient.setRestApiUrl(String.format("http://localhost:%d/whois", getPort()));
+        restClient.setSource("TEST");
+
+        RpslObject object = restClient.lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString(), "test");
+
+        assertThat(object.findAttribute(AttributeType.AUTH).getValue(), is("MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/"));
     }
 }

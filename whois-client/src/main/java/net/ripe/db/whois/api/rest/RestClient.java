@@ -83,6 +83,7 @@ public class RestClient {
     }
 
     public RpslObject update(final RpslObject rpslObject, final String... passwords) {
+        WhoisResources entity = whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject));
         final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s",
                 restApiUrl,
                 sourceName,
@@ -90,7 +91,7 @@ public class RestClient {
                 rpslObject.getKey().toString(),
                 queryParams(queryParam("password", passwords))
         )).request().put(
-                Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
+                Entity.entity(entity, MediaType.APPLICATION_XML),
                 WhoisResources.class
         );
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
@@ -130,12 +131,14 @@ public class RestClient {
         )).request().delete(String.class);
     }
 
-    public RpslObject lookup(final ObjectType objectType, final String pkey) {
-        final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s?unfiltered",
+    public RpslObject lookup(final ObjectType objectType, final String pkey, final String... passwords) {
+        final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s%s",
                 restApiUrl,
                 sourceName,
                 objectType.getName(),
-                pkey
+                pkey,
+                queryParams(queryParam("password", passwords)),
+                (passwords.length == 0) ? "?unfiltered" : "&unfiltered"
         )).request().get(WhoisResources.class);
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
     }
@@ -203,7 +206,7 @@ public class RestClient {
                 }
             }
         }
-        return res.toString();
+        return res==null ? "" : res.toString();
     }
 
     String queryParam(String queryParam, String... values) {
