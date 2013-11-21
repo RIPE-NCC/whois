@@ -82,7 +82,7 @@ public class GrsImporterApnicTestIntegration extends AbstractSchedulerIntegratio
         assertThat(query("-s APNIC-GRS -i mnt-by SOME-MNT"), containsString("mntner:         SOME-MNT"));
     }
 
-    private void awaitAll(final List<Future<?>> futures) throws ExecutionException, InterruptedException {
+    private void awaitAll(final List<Future> futures) throws ExecutionException, InterruptedException {
         for (final Future<?> future : futures) {
             future.get();
         }

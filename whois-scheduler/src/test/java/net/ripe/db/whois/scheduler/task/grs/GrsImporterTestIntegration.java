@@ -60,7 +60,7 @@ public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest
         awaitAll(grsImporter.grsImport("RIPE-GRS", false));
     }
 
-    private void awaitAll(final List<Future<?>> futures) throws ExecutionException, InterruptedException {
+    private void awaitAll(final List<Future> futures) throws ExecutionException, InterruptedException {
         for (final Future<?> future : futures) {
             future.get();
         }
