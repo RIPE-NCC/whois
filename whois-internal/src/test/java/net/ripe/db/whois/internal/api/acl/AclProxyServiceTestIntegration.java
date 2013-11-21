@@ -79,6 +79,24 @@ public class AclProxyServiceTestIntegration extends AbstractInternalTest {
         assertThat(getProxies(), hasSize(0));
     }
 
+    @Test
+    public void deleteProxyUnencodedPrefix() throws Exception {
+        databaseHelper.insertAclIpProxy("2a01:488:67:1000::/64");
+
+        RestTest.target(getPort(), PROXIES_PATH + "/2a01:488:67:1000::/64", null, apiKey).request().delete();
+
+        assertThat(getProxies(), hasSize(1));
+    }
+
+    @Test
+    public void deleteProxyUnencodedPrefixWithExtension() throws Exception {
+        databaseHelper.insertAclIpProxy("2a01:488:67:1000::/64");
+
+        RestTest.target(getPort(), PROXIES_PATH + "/2a01:488:67:1000::/64.json", null, apiKey).request().delete();
+
+        assertThat(getProxies(), hasSize(1));
+    }
+
     @SuppressWarnings("unchecked")
     private List<Proxy> getProxies() {
         return RestTest.target(getPort(), PROXIES_PATH, null, apiKey)

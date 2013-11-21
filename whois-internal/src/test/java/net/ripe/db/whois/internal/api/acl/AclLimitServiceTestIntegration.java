@@ -157,6 +157,24 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
         assertThat(getLimits(), hasSize(2));
     }
 
+    @Test
+    public void deleteLimitUnencodedPrefix() throws Exception {
+        databaseHelper.insertAclIpLimit("2a01:488:67:1000::/64", 1, true);
+
+        RestTest.target(getPort(), LIMITS_PATH + "/2a01:488:67:1000::/64", null, apiKey).request().delete();
+
+        assertThat(getLimits(), hasSize(2));
+    }
+
+    @Test
+    public void deleteLimitUnencodedPrefixWithExtension() throws Exception {
+        databaseHelper.insertAclIpDenied("2a01:488:67:1000::/64");
+
+        RestTest.target(getPort(), LIMITS_PATH + "/2a01:488:67:1000::/64.json", null, apiKey).request().delete();
+
+        assertThat(getLimits(), hasSize(2));
+    }
+
     @SuppressWarnings("unchecked")
     private List<Limit> getLimits() {
         return RestTest.target(getPort(), LIMITS_PATH, null, apiKey)

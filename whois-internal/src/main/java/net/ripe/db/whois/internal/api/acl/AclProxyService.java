@@ -50,7 +50,7 @@ public class AclProxyService {
      * @return Current proxy authorisation for the specified prefix.
      */
     @GET
-    @Path("/{prefix}")
+    @Path("/{prefix:.*}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getProxy(@PathParam("prefix") final String prefix) {
 
@@ -96,7 +96,7 @@ public class AclProxyService {
      * @return The deleted proxy authorisation.
      */
     @DELETE
-    @Path("/{prefix}")
+    @Path("/{prefix:.*}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response deleteProxy(@PathParam("prefix") final String prefix) {
 

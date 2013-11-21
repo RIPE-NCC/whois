@@ -53,7 +53,7 @@ public class AclMirrorService {
      * @return Current mirror authorisation for the specified prefix.
      */
     @GET
-    @Path("/{prefix}")
+    @Path("/{prefix:.*}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getMirror(@PathParam("prefix") String prefix) {
@@ -100,7 +100,7 @@ public class AclMirrorService {
      * @return The deleted mirror authorisation.
      */
     @DELETE
-    @Path("/{prefix}")
+    @Path("/{prefix:.*}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response deleteMirror(@PathParam("prefix") final String prefix) {
         try {

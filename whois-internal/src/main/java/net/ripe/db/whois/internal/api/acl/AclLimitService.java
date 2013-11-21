@@ -53,7 +53,7 @@ public class AclLimitService {
      * @return Current limit for the specified prefix.
      */
     @GET
-    @Path("/{prefix}")
+    @Path("/{prefix:.*}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getLimit(@PathParam("prefix") final String prefix) {
 
@@ -106,7 +106,7 @@ public class AclLimitService {
      * @return The deleted limit.
      */
     @DELETE
-    @Path("/{prefix}")
+    @Path("/{prefix:.*}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response deleteLimit(@PathParam("prefix") final String prefix) {
 

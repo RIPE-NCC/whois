@@ -202,6 +202,24 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
     }
 
     @Test
+    public void deleteBanUnencodedPrefix() throws Exception {
+        databaseHelper.insertAclIpDenied("2a01:488:67:1000::/64");
+
+        RestTest.target(getPort(), BANS_PATH + "/2a01:488:67:1000::/64", null, apiKey).request().delete();
+
+        assertThat(getBans(), hasSize(1));
+    }
+
+    @Test
+    public void deleteBanUnencodedPrefixWithExtension() throws Exception {
+        databaseHelper.insertAclIpDenied("2a01:488:67:1000::/64");
+
+        RestTest.target(getPort(), BANS_PATH + "/2a01:488:67:1000::/64.json", null, apiKey).request().delete();
+
+        assertThat(getBans(), hasSize(1));
+    }
+
+    @Test
     public void getBan() throws Exception {
         final Ban ban = RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)

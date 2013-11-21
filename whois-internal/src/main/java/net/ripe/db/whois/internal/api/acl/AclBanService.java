@@ -49,7 +49,7 @@ public class AclBanService {
      * @return Current permanent ban for the specified prefix.
      */
     @GET
-    @Path("/{prefix}")
+    @Path("/{prefix:.*}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getBan(@PathParam("prefix") final String prefix) {
 
@@ -95,7 +95,7 @@ public class AclBanService {
      * @return The deleted permanent ban.
      */
     @DELETE
-    @Path("/{prefix}")
+    @Path("/{prefix:.*}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response deleteBan(@PathParam("prefix") final String prefix) {
 
@@ -119,7 +119,7 @@ public class AclBanService {
      * @return Current permanent ban for the specified prefix.
      */
     @GET
-    @Path("/{prefix}/events")
+    @Path("/{prefix:.*}/events")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public List<BanEvent> getBanEvents(@PathParam("prefix") final String prefix) {
 

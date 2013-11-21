@@ -118,7 +118,24 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
 
         assertThat(mirror.getPrefix(), is("10.0.0.2/32"));
         assertThat(getMirrors(), hasSize(2));
+    }
 
+    @Test
+    public void deleteMirrorUnencodedPrefix() throws Exception {
+        databaseHelper.insertAclMirror("2a01:488:67:1000::/64");
+
+        RestTest.target(getPort(), MIRRORS_PATH + "/2a01:488:67:1000::/64", null, apiKey).request().delete();
+
+        assertThat(getMirrors(), hasSize(3));
+    }
+
+    @Test
+    public void deleteMirrorUnencodedPrefixWithExtension() throws Exception {
+        databaseHelper.insertAclIpDenied("2a01:488:67:1000::/64");
+
+        RestTest.target(getPort(), MIRRORS_PATH + "/2a01:488:67:1000::/64.json", null, apiKey).request().delete();
+
+        assertThat(getMirrors(), hasSize(3));
     }
 
     @SuppressWarnings("unchecked")
