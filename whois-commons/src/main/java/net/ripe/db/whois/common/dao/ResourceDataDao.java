@@ -64,7 +64,7 @@ public class ResourceDataDao {
 
         final List<String> resources = authoritativeResource.getResources();
 
-        jdbcTemplate.batchUpdate("INSERT INTO authoritative_resource VALUES (?, ?)", new BatchPreparedStatementSetter() {
+        jdbcTemplate.batchUpdate("INSERT INTO authoritative_resource (source, resource) VALUES (?, ?)", new BatchPreparedStatementSetter() {
             @Override
             public void setValues(final PreparedStatement ps, final int i) throws SQLException {
                 ps.setString(1, source);
