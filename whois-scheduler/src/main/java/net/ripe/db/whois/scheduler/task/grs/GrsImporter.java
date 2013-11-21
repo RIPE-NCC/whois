@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -87,14 +88,22 @@ public class GrsImporter implements DailyScheduledTask {
             return;
         }
 
-        grsImport(defaultSources, false);
+        List<Future> futures = grsImport(defaultSources, false);
+
+        // block here so dailyscheduler will mark the job as 'done' correctly
+        for (Future future : futures) {
+            try {
+                future.get();
+            } catch (InterruptedException | ExecutionException e) {
+            }
+        }
     }
 
-    public List<Future<?>> grsImport(String sources, final boolean rebuild) {
+    public List<Future> grsImport(String sources, final boolean rebuild) {
         final Set<CIString> sourcesToImport = splitSources(sources);
         LOGGER.info("GRS import sources: {}", sourcesToImport);
 
-        final List<Future<?>> futures = Lists.newArrayListWithCapacity(sourcesToImport.size());
+        final List<Future> futures = Lists.newArrayListWithCapacity(sourcesToImport.size());
         for (final CIString enabledSource : sourcesToImport) {
             final GrsSource grsSource = grsSources.get(enabledSource);
             if (grsSource == null) {
