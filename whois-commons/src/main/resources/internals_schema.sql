@@ -20,8 +20,10 @@ CREATE TABLE `scheduler` (
 
 DROP TABLE IF EXISTS `authoritative_resource`;
 CREATE TABLE `authoritative_resource` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `source` varchar(16) NOT NULL,
   `resource` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`),
   KEY(`source`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
