@@ -64,7 +64,7 @@ public class AuthoritativeResourceData {
         final LocalDate date = dateTimeProvider.getCurrentDate();
         final long lastImportTime = dailySchedulerDao.getDailyTaskFinishTime(date, AuthoritativeResourceImportTask.class);
         if (lastImportTime > lastRefresh) {
-            LOGGER.debug("Authoritative resource data import detected, finished at {} (previous run: {})", new LocalDateTime(lastImportTime), new LocalDateTime(lastRefresh));
+            LOGGER.info("Authoritative resource data import detected, finished at {} (previous run: {})", new LocalDateTime(lastImportTime), new LocalDateTime(lastRefresh));
             lastRefresh = lastImportTime;
             for (final String sourceName : sourceNames) {
                 try {

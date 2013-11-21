@@ -46,7 +46,7 @@ public class DailyScheduler {
 
             final Stopwatch stopwatch = new Stopwatch().start();
             try {
-                LOGGER.debug("Starting scheduled task: {}", task);
+                LOGGER.info("Starting scheduled task: {}", task);
                 task.run();
                 dailySchedulerDao.markTaskDone(System.currentTimeMillis(), date, task.getClass());
             } catch (RuntimeException e) {
@@ -56,7 +56,8 @@ public class DailyScheduler {
             }
         }
 
+        LOGGER.info("Finished! (no unclaimed tasks left)");
         final int deletedRows = dailySchedulerDao.removeOldScheduledEntries(date);
-        LOGGER.info("Performing daily cluster maintenance (key: {}, purged {} old entries)", date, deletedRows);
+        LOGGER.info("Purging old entries from scheduler table (key: {}, purged {} old entries)", date, deletedRows);
     }
 }
