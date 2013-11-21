@@ -5,7 +5,7 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.70</version>
+        <version>1.70.1-SNAPSHOT</version>
     </parent>
 
     <groupId>net.ripe.db</groupId>
