@@ -2,14 +2,13 @@ package net.ripe.db.whois.api;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import net.ripe.db.whois.api.rest.RestClientUtils;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 public class RestTest {
     private static final Client client;
@@ -31,25 +30,13 @@ public class RestTest {
     public static final WebTarget target(final int port, final String path, String queryParam, final String apiKey) {
         final String format = String.format("http://localhost:%d/%s?%sapiKey=%s", port, path,
                 StringUtils.isBlank(queryParam) ? "" : queryParam + "&",
-                encode(apiKey));
-        return client.target(format);
+                RestClientUtils.encode(apiKey));
+        return client.target(RestClientUtils.encode(format));
     }
 
     public static final WebTarget target(final int port, final String path, final String pathParam, String queryParam, final String apiKey) {
-        return client.target(String.format("http://localhost:%d/%s/%s?%sapiKey=%s", port, path, encode(pathParam),
+        return client.target(String.format("http://localhost:%d/%s/%s?%sapiKey=%s", port, path, RestClientUtils.encode(pathParam),
                 StringUtils.isBlank(queryParam) ? "" : queryParam + "&",
-                encode(apiKey)));
-    }
-
-    public static final String encode(final String param) {
-        return encode(param, "UTF-8");
-    }
-
-    public static final String encode(final String param, final String encoding) {
-        try {
-            return URLEncoder.encode(param, encoding);
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
+                RestClientUtils.encode(apiKey)));
     }
 }

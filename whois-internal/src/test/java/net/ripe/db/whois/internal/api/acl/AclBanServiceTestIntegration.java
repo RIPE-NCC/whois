@@ -1,6 +1,7 @@
 package net.ripe.db.whois.internal.api.acl;
 
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.domain.BlockEvent;
@@ -261,7 +262,7 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
 
     @SuppressWarnings("unchecked")
     private List<BanEvent> getBanEvents(final String prefix) {
-        return RestTest.target(getPort(), String.format("%s/%s/events", BANS_PATH, RestTest.encode(prefix)), null, apiKey)
+        return RestTest.target(getPort(), String.format("%s/%s/events", BANS_PATH, RestClientUtils.encode(prefix)), null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(new GenericType<List<BanEvent>>() {
                 });

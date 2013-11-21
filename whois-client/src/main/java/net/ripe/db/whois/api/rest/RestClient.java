@@ -160,10 +160,10 @@ public class RestClient {
                                        Set<ObjectType> types,
                                        Set<QueryFlag> flags) {
 
-        final String URI = String.format("%s/search%s",
+        final String uri = String.format("%s/search%s",
                 restApiUrl,
                 queryParams(
-                        queryParam("query-string", searchKey),
+                        queryParam("query-string", RestClientUtils.encode(searchKey)),
                         queryParam("source", sources),
                         queryParam("inverse-attribute", Collections2.transform(inverseAttributes, new Function<AttributeType, String>() {
                             @Nullable
@@ -190,7 +190,7 @@ public class RestClient {
                         }))
                 )
         );
-        final WhoisResources whoisResources = client.target(URI).request().get(WhoisResources.class);
+        final WhoisResources whoisResources = client.target(uri).request().get(WhoisResources.class);
 
         return whoisObjectClientMapper.mapWhoisObjects(whoisResources.getWhoisObjects());
     }
