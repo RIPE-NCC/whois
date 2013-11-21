@@ -17,6 +17,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
@@ -35,9 +36,7 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
         databaseHelper.insertAclMirror("10.0.0.0/32");
         databaseHelper.insertAclMirror("10.0.0.1/32");
 
-        List<Mirror> mirrors = getMirrors();
-
-        assertThat(mirrors, hasSize(5));
+        assertThat(getMirrors(), hasSize(5));
     }
 
     @Test
@@ -46,6 +45,7 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
             RestTest.target(getPort(), MIRRORS_PATH, "10.0.0.0/32", null, apiKey)
                     .request(MediaType.APPLICATION_JSON)
                     .get(Mirror.class);
+            fail();
         } catch (NotFoundException ignored) {
             // expected
         }
@@ -68,6 +68,7 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
             RestTest.target(getPort(), MIRRORS_PATH, "10", null, apiKey)
                     .request(MediaType.APPLICATION_JSON)
                     .get(Mirror.class);
+            fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), is("'10' is not an IP string literal."));
         }
@@ -92,10 +93,9 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
             RestTest.target(getPort(), MIRRORS_PATH, null, apiKey)
                     .request(MediaType.APPLICATION_JSON)
                     .post(Entity.entity(new Mirror("10", "comment"), MediaType.APPLICATION_JSON));
-
-        } catch (Exception e) {
-            System.out.println(e.getClass());
-//            assertThat(e.getResponse().readEntity(String.class), is("'10' is not an IP string literal."));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage(), is("'10' is not an IP string literal."));
         }
     }
 

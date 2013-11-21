@@ -4,6 +4,7 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -18,6 +19,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class AclLimitServiceTestIntegration extends AbstractInternalTest {
@@ -65,6 +67,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
             RestTest.target(getPort(), LIMITS_PATH, "10", null, apiKey)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Limit.class);
+            fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), is("'10' is not an IP string literal."));
         }
@@ -81,8 +84,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
         assertThat(limit.getPersonObjectLimit(), is(10000));
         assertThat(limit.isUnlimitedConnections(), is(true));
 
-        final List<Limit> limits = getLimits();
-        assertThat(limits, hasSize(3));
+        assertThat(getLimits(), hasSize(3));
     }
 
     @Test
@@ -96,8 +98,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
         assertThat(limit.getPersonObjectLimit(), is(10000));
         assertThat(limit.isUnlimitedConnections(), is(true));
 
-        final List<Limit> limits = getLimits();
-        assertThat(limits, hasSize(2));
+        assertThat(getLimits(), hasSize(2));
     }
 
     @Test
