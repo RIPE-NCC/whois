@@ -28,15 +28,14 @@ public class RestTest {
     }
 
     public static final WebTarget target(final int port, final String path, String queryParam, final String apiKey) {
-        final String format = String.format("http://localhost:%d/%s?%sapiKey=%s", port, path,
+        return client.target(String.format("http://localhost:%d/%s?%sapiKey=%s", port, path,
                 StringUtils.isBlank(queryParam) ? "" : queryParam + "&",
-                RestClientUtils.encode(apiKey));
-        return client.target(RestClientUtils.encode(format));
+                apiKey));
     }
 
     public static final WebTarget target(final int port, final String path, final String pathParam, String queryParam, final String apiKey) {
         return client.target(String.format("http://localhost:%d/%s/%s?%sapiKey=%s", port, path, RestClientUtils.encode(pathParam),
                 StringUtils.isBlank(queryParam) ? "" : queryParam + "&",
-                RestClientUtils.encode(apiKey)));
+                apiKey));
     }
 }
