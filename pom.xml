@@ -127,6 +127,11 @@
             </dependency>
             <dependency>
                 <groupId>net.ripe.db</groupId>
+                <artifactId>whois-internal</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
                 <artifactId>whois-query</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
