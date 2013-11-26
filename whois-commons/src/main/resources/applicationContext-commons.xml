@@ -13,9 +13,7 @@
 
     <context:spring-configured/>
 
-    <context:component-scan base-package="net.ripe.db.whois">
-        <context:exclude-filter type="regex" expression="net\.ripe\.db\.whois\.internal\..*" />
-    </context:component-scan>
+    <context:component-scan base-package="net.ripe.db.whois"/>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="sourceAwareDataSource"/>
