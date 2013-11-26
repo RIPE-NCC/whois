@@ -374,138 +374,7 @@ public class WhoisRestService {
 
         final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
 
-        return Response.ok(new StreamingOutput() {
-            private boolean rpslObjectFound;
-
-            @Override
-            public void write(final OutputStream output) throws IOException {
-
-                try {
-                    // TODO [AK] Crude way to handle tags, but working
-
-                    final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
-                    final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
-
-                    try {
-                        final int contextId = System.identityHashCode(Thread.currentThread());
-                        queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
-
-                            @Override
-                            public void handle(final ResponseObject responseObject) {
-                                if (responseObject instanceof TagResponseObject) {
-                                    tagResponseObjects.add((TagResponseObject) responseObject);
-                                } else if (responseObject instanceof RpslObject) {
-                                    if (passwords != null && !passwords.isEmpty()) {
-                                        switch (((RpslObject)responseObject).getType()) {
-                                            case MNTNER:
-                                            case IRT:
-                                                final RpslObject unfilteredObject = rpslObjectDao.getById(((RpslObject)responseObject).getObjectId());
-                                                if (authenticate(unfilteredObject, passwords)) {
-                                                    streamRpslObject(unfilteredObject);
-                                                    return;
-                                                }
-                                                break;
-                                            default:
-                                                break;
-                                        }
-                                    }
-
-                                    streamRpslObject((RpslObject)responseObject);
-                                }
-
-                                // TODO [AK] Handle related messages
-                            }
-
-                            private void streamRpslObject(final RpslObject rpslObject) {
-                                if (!rpslObjectFound) {
-                                    rpslObjectFound = true;
-                                    startStreaming(output);
-                                }
-                                streamObject(rpslObjectQueue.poll(), tagResponseObjects);
-                                rpslObjectQueue.add(rpslObject);
-                            }
-
-                            private boolean authenticate(final RpslObject rpslObject, final List<String> passwords) {
-                                for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
-                                    for (String password : passwords) {
-                                        if (authenticate(auth, password)) {
-                                            return true;
-                                        }
-                                    }
-                                }
-
-                                return false;
-                            }
-
-                            private boolean authenticate(final RpslAttribute auth, final String password) {
-                                final Matcher matcher = MD5_PATTERN.matcher(auth.getCleanValue().toString());
-                                if (!matcher.matches()) {
-                                    return false;
-                                }
-
-                                try {
-                                    final String salt = matcher.group(1);
-                                    final String known = String.format("$1$%s$%s", salt, matcher.group(2));
-                                    final String offered = Md5Crypt.md5Crypt(password.getBytes(), String.format("$1$%s", salt));
-
-                                    return known.equals(offered);
-                                } catch (IllegalArgumentException e) {
-                                    return false;
-                                }
-                            }
-                        });
-
-                        streamObject(rpslObjectQueue.poll(), tagResponseObjects);
-
-                        if (!rpslObjectFound) {
-                            throw new WebApplicationException(Response.Status.NOT_FOUND);
-                        }
-                    } catch (QueryException e) {
-                        if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                            throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
-                        } else {
-                            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
-                        }
-                    }
-
-                    streamingMarshal.end();
-                    streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
-                    streamingMarshal.close();
-
-                } catch (StreamingException ignored) {  // only happens on IOException
-                }
-            }
-
-            private void startStreaming(final OutputStream output) {
-                streamingMarshal.open(output, "whois-resources");
-
-                if (service != null) {
-                    streamingMarshal.write("service", service);
-                }
-
-                if (parameters != null) {
-                    streamingMarshal.write("parameters", parameters);
-                }
-
-                streamingMarshal.start("objects");
-            }
-
-            private void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
-                if (rpslObject == null) {
-                    return;
-                }
-
-                final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, tagResponseObjects);
-
-                if (streamingMarshal instanceof StreamingMarshalJson) {
-                    streamingMarshal.write("object", Collections.singletonList(whoisObject));
-                } else {
-                    streamingMarshal.write("object", whoisObject);
-                }
-
-                tagResponseObjects.clear();
-            }
-        }).build();
+        return Response.ok(new RpslObjectStreamer(query, remoteAddress, parameters, service, passwords, streamingMarshal)).build();
     }
 
     private StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
@@ -741,4 +610,162 @@ public class WhoisRestService {
         }
     }
 
+    private class RpslObjectStreamer implements StreamingOutput {
+        private final Query query;
+        private final InetAddress remoteAddress;
+        private final Parameters parameters;
+        private final Service service;
+        private final List<String> passwords;
+        private final StreamingMarshal streamingMarshal;
+
+        private boolean rpslObjectFound;
+
+        public RpslObjectStreamer(Query query, InetAddress remoteAddress, Parameters parameters, Service service, List<String> passwords, StreamingMarshal streamingMarshal) {
+            this.query = query;
+            this.remoteAddress = remoteAddress;
+            this.parameters = parameters;
+            this.service = service;
+            this.passwords = passwords;
+            this.streamingMarshal = streamingMarshal;
+        }
+
+        @Override
+        public void write(final OutputStream output) throws IOException, WebApplicationException {
+            try {
+                // TODO [AK] Crude way to handle tags, but working
+
+                final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
+                final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
+
+                try {
+                    final int contextId = System.identityHashCode(Thread.currentThread());
+                    queryHandler.streamResults(query, remoteAddress, contextId, new SearchResponseHandler(output, rpslObjectQueue, tagResponseObjects));
+
+                    streamObject(rpslObjectQueue.poll(), tagResponseObjects);
+
+                    if (!rpslObjectFound) {
+                        throw new WebApplicationException(Response.Status.NOT_FOUND);
+                    }
+                } catch (QueryException e) {
+                    if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
+                        throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
+                    } else {
+                        throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+                    }
+                }
+
+                streamingMarshal.end();
+                streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+                streamingMarshal.close();
+
+            } catch (StreamingException ignored) {  // only happens on IOException
+            }
+        }
+
+        private void startStreaming(final OutputStream output) {
+            streamingMarshal.open(output, "whois-resources");
+
+            if (service != null) {
+                streamingMarshal.write("service", service);
+            }
+
+            if (parameters != null) {
+                streamingMarshal.write("parameters", parameters);
+            }
+
+            streamingMarshal.start("objects");
+        }
+
+        private void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
+            if (rpslObject == null) {
+                return;
+            }
+
+            final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, tagResponseObjects);
+
+            if (streamingMarshal instanceof StreamingMarshalJson) {
+                streamingMarshal.write("object", Collections.singletonList(whoisObject));
+            } else {
+                streamingMarshal.write("object", whoisObject);
+            }
+
+            tagResponseObjects.clear();
+        }
+
+        private class SearchResponseHandler extends ApiResponseHandler {
+            private final OutputStream output;
+            private final Queue<RpslObject> rpslObjectQueue;
+            private final List<TagResponseObject> tagResponseObjects;
+
+            public SearchResponseHandler(OutputStream output, Queue<RpslObject> rpslObjectQueue, List<TagResponseObject> tagResponseObjects) {
+                this.output = output;
+                this.rpslObjectQueue = rpslObjectQueue;
+                this.tagResponseObjects = tagResponseObjects;
+            }
+
+            @Override
+            public void handle(final ResponseObject responseObject) {
+                if (responseObject instanceof TagResponseObject) {
+                    tagResponseObjects.add((TagResponseObject) responseObject);
+                } else if (responseObject instanceof RpslObject) {
+                    if (passwords != null && !passwords.isEmpty()) {
+                        switch (((RpslObject) responseObject).getType()) {
+                            case MNTNER:
+                            case IRT:
+                                final RpslObject unfilteredObject = rpslObjectDao.getById(((RpslObject) responseObject).getObjectId());
+                                if (authenticate(unfilteredObject, passwords)) {
+                                    streamRpslObject(unfilteredObject);
+                                    return;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    streamRpslObject((RpslObject) responseObject);
+                }
+
+                // TODO [AK] Handle related messages
+            }
+
+            private void streamRpslObject(final RpslObject rpslObject) {
+                if (!rpslObjectFound) {
+                    rpslObjectFound = true;
+                    startStreaming(output);
+                }
+                streamObject(rpslObjectQueue.poll(), tagResponseObjects);
+                rpslObjectQueue.add(rpslObject);
+            }
+
+            private boolean authenticate(final RpslObject rpslObject, final List<String> passwords) {
+                for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
+                    for (String password : passwords) {
+                        if (authenticate(auth, password)) {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+
+            private boolean authenticate(final RpslAttribute auth, final String password) {
+                final Matcher matcher = MD5_PATTERN.matcher(auth.getCleanValue().toString());
+                if (!matcher.matches()) {
+                    return false;
+                }
+
+                try {
+                    final String salt = matcher.group(1);
+                    final String known = String.format("$1$%s$%s", salt, matcher.group(2));
+                    final String offered = Md5Crypt.md5Crypt(password.getBytes(), String.format("$1$%s", salt));
+
+                    return known.equals(offered);
+                } catch (IllegalArgumentException e) {
+                    return false;
+                }
+            }
+        }
+    }
 }

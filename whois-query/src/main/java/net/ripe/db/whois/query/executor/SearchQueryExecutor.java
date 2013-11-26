@@ -26,7 +26,9 @@ public class SearchQueryExecutor implements QueryExecutor {
     private final RpslResponseDecorator rpslResponseDecorator;
 
     @Autowired
-    public SearchQueryExecutor(final SourceContext sourceContext, final RpslObjectSearcher rpslObjectSearcher, final RpslResponseDecorator rpslResponseDecorator) {
+    public SearchQueryExecutor(final SourceContext sourceContext,
+                               final RpslObjectSearcher rpslObjectSearcher,
+                               final RpslResponseDecorator rpslResponseDecorator) {
         this.sourceContext = sourceContext;
         this.rpslObjectSearcher = rpslObjectSearcher;
         this.rpslResponseDecorator = rpslResponseDecorator;
