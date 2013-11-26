@@ -5,7 +5,6 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.mapper.AbuseContactMapper;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.planner.RpslAttributes;
@@ -28,31 +27,22 @@ import java.util.List;
 public class AbuseContactService {
 
     private final QueryHandler queryHandler;
-    private final SourceContext sourceContext;
 
     @Autowired
-    public AbuseContactService(final QueryHandler queryHandler, final SourceContext sourceContext) {
+    public AbuseContactService(final QueryHandler queryHandler) {
         this.queryHandler = queryHandler;
-        this.sourceContext = sourceContext;
     }
 
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @Path("/{source}/{key:.*}")
+    @Path("/{key:.*}")
     public AbuseResources abuseContact(
             @Context final HttpServletRequest request,
-            @PathParam("source") final String source,
             @PathParam("key") final String key) {
 
-        if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
-            throw new IllegalArgumentException("Invalid source: " + source);
-        }
-
-        final String format = String.format("%s %s %s %s ",
+        final String format = String.format("%s %s",
                 QueryFlag.ABUSE_CONTACT.getLongFlag(),
-                QueryFlag.SOURCES.getLongFlag(),
-                source,
-                (key == null ? "" : key));
+                key);
         final Query query = Query.parse(format);
 
         final List<AbuseResources> abuseResources = Lists.newArrayList();

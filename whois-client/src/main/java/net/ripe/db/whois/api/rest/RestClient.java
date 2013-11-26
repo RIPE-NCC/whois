@@ -143,8 +143,7 @@ public class RestClient {
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
-    public AbuseContact abuseContact(final String resource, final String source) {
-        //TODO use source
+    public AbuseContact lookupAbuseContact(final String resource) {
         AbuseResources abuseResources = client.target(String.format("%s/abuse-contact/%s",
                 restApiUrl,
                 resource

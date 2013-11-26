@@ -109,7 +109,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/193.0.0.0 - 193.0.0.255")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/193.0.0.0 - 193.0.0.255")
                 .request()
                 .get(String.class);
 
@@ -145,7 +145,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/193.0.0.1")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/193.0.0.1")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
 
@@ -192,7 +192,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/193.0.0.1")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/193.0.0.1")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
 
@@ -221,7 +221,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     @Test
     public void inetnum_not_found() {
         try {
-            RestTest.target(getPort(), "whois/abuse-contact/test/193.0.1.2")
+            RestTest.target(getPort(), "whois/abuse-contact/193.0.1.2")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
             fail();
@@ -254,7 +254,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/2a00:1f78::/32")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/2a00:1f78::/32")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
 
@@ -302,7 +302,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/2a00:1f78::/32")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/2a00:1f78::/32")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
 
@@ -321,7 +321,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     @Test
     public void inet6num_not_found() {
         try {
-            RestTest.target(getPort(), "whois/abuse-contact/test/2a00:1234::/32")
+            RestTest.target(getPort(), "whois/abuse-contact/2a00:1234::/32")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
             fail();
@@ -351,7 +351,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "changed:       org@ripe.net 20120505\n" +
                 "source:        TEST");
 
-        final AbuseResources result = RestTest.target(getPort(), "whois/abuse-contact/test/AS333")
+        final AbuseResources result = RestTest.target(getPort(), "whois/abuse-contact/AS333")
                 .request(MediaType.APPLICATION_XML)
                 .get(AbuseResources.class);
 
@@ -376,7 +376,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "changed:       org@ripe.net 20120505\n" +
                 "source:        test");
 
-        final AbuseResources abuseResources = RestTest.target(getPort(), "whois/abuse-contact/test/AS333")
+        final AbuseResources abuseResources = RestTest.target(getPort(), "whois/abuse-contact/AS333")
                 .request(MediaType.APPLICATION_XML)
                 .get(AbuseResources.class);
 
@@ -387,7 +387,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     @Test
     public void autnum_not_found() {
         try {
-            RestTest.target(getPort(), "whois/abuse-contact/test/AS333")
+            RestTest.target(getPort(), "whois/abuse-contact/AS333")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
             fail();
@@ -415,7 +415,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "changed:       org@ripe.net 20120505\n" +
                 "source:        test");
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/AS333.json")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/AS333.json")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
 
