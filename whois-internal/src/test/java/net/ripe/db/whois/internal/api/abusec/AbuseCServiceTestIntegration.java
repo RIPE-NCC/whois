@@ -147,16 +147,11 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
         }
     }
 
-    @Test
+    @Test(expected = ForbiddenException.class)
     public void post_wrong_apikey() throws IOException {
-        try {
-            RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, "DB-WHOIS-totallywrongkey")
-                    .request(MediaType.TEXT_PLAIN)
-                    .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
-            fail();
-        } catch (ForbiddenException e) {
-            // expected
-        }
+        RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, "DB-WHOIS-totallywrongkey")
+                .request(MediaType.TEXT_PLAIN)
+                .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
     }
 
     @Test
@@ -218,42 +213,32 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
     }
 
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void get_abusecontact_not_found() {
         databaseHelperRest.addObject(
                 "mntner:    TEST-MNT\n" +
-                        "mnt-by:    TEST-MNT\n" +
-                        "source:    TEST");
+                "mnt-by:    TEST-MNT\n" +
+                "source:    TEST");
         databaseHelperRest.addObject(
                 "organisation:  ORG-TOL1-TEST\n" +
-                        "org-name:      Test Organisation Left\n" +
-                        "org-type:      OTHER\n" +
-                        "address:       street\n" +
-                        "e-mail:        some@email.net\n" +
-                        "mnt-ref:       TEST-MNT\n" +
-                        "mnt-by:        TEST-MNT\n" +
-                        "changed:       denis@ripe.net 20121016\n" +
-                        "source:        TEST");
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       TEST-MNT\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
 
-        try {
-            RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
-                    .request(MediaType.TEXT_PLAIN)
-                    .get(String.class);
-            fail();
-        } catch (NotFoundException e) {
-            // expected
-        }
+        RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void get_organisation_not_found() {
-        try {
-            RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
-                    .request(MediaType.TEXT_PLAIN)
-                    .get(String.class);
-            fail();
-        } catch (NotFoundException e) {
-            // expected
-        }
+        RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
     }
 }
