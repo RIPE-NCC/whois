@@ -2,14 +2,28 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.update.domain.Credentials;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.Operation;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.OverrideCredential;
+import net.ripe.db.whois.update.domain.Paragraph;
+import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateRequest;
+import net.ripe.db.whois.update.domain.UpdateResponse;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -24,11 +38,13 @@ public class InternalUpdatePerformer {
 
     private final UpdateRequestHandler updateRequestHandler;
     private final RpslObjectDao rpslObjectDao;
+    private final DateTimeProvider dateTimeProvider;
 
     @Autowired
-    public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler, final RpslObjectDao rpslObjectDao) {
+    public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler, final RpslObjectDao rpslObjectDao, final DateTimeProvider dateTimeProvider) {
         this.updateRequestHandler = updateRequestHandler;
         this.rpslObjectDao = rpslObjectDao;
+        this.dateTimeProvider = dateTimeProvider;
     }
 
     public RpslObject performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword, final LoggerContext loggerContext) {
@@ -77,6 +93,41 @@ public class InternalUpdatePerformer {
         }
 
         return new Paragraph(rpslObject.toString(), new Credentials(credentials));
+    }
+
+    public Origin createOrigin(final HttpServletRequest request) {
+        return new WhoisRestApi(dateTimeProvider, request.getRemoteAddr());
+    }
+
+    public String createContent(final RpslObject rpslObject, final List<String> passwords, final String deleteReason, String override) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(rpslObject.toString());
+
+        if (builder.charAt(builder.length() - 1) != '\n') {
+            builder.append('\n');
+        }
+
+        if (deleteReason != null) {
+            builder.append("delete: ");
+            builder.append(deleteReason);
+            builder.append("\n\n");
+        }
+
+        if (passwords != null) {
+            for (final String password : passwords) {
+                builder.append("password: ");
+                builder.append(password);
+                builder.append('\n');
+            }
+        }
+
+        if (override != null) {
+            builder.append("override: ");
+            builder.append(override);
+            builder.append("\n\n");
+        }
+
+        return builder.toString();
     }
 
     private Response getResponse(final UpdateResponse updateResponse) {

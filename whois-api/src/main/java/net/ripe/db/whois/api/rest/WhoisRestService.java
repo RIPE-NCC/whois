@@ -20,7 +20,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -39,7 +38,6 @@ import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.Keyword;
-import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.codec.digest.Md5Crypt;
 import org.apache.commons.collections.CollectionUtils;
@@ -147,7 +145,6 @@ public class WhoisRestService {
             SHOW_VERSION.getFlags()
     ));
 
-    private final DateTimeProvider dateTimeProvider;
     private final LoggerContext loggerContext;
     private final RpslObjectDao rpslObjectDao;
     private final SourceContext sourceContext;
@@ -156,14 +153,12 @@ public class WhoisRestService {
     private final InternalUpdatePerformer updatePerformer;
 
     @Autowired
-    public WhoisRestService(final DateTimeProvider dateTimeProvider,
-                            final LoggerContext loggerContext,
+    public WhoisRestService(final LoggerContext loggerContext,
                             final RpslObjectDao rpslObjectDao,
                             final SourceContext sourceContext,
                             final QueryHandler queryHandler,
                             final WhoisObjectServerMapper whoisObjectMapper,
                             final InternalUpdatePerformer updatePerformer) {
-        this.dateTimeProvider = dateTimeProvider;
         this.loggerContext = loggerContext;
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
@@ -189,9 +184,9 @@ public class WhoisRestService {
         final RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
 
         updatePerformer.performUpdate(
-                createOrigin(request),
+                updatePerformer.createOrigin(request),
                 updatePerformer.createUpdate(originalObject, passwords, reason, override),
-                createContent(originalObject, passwords, reason, override),
+                updatePerformer.createContent(originalObject, passwords, reason, override),
                 Keyword.NONE,
                 loggerContext);
 
@@ -217,9 +212,9 @@ public class WhoisRestService {
         validateSubmittedObject(submittedObject, objectType, key);
 
         final RpslObject response = updatePerformer.performUpdate(
-                createOrigin(request),
+                updatePerformer.createOrigin(request),
                 updatePerformer.createUpdate(submittedObject, passwords, null, override),
-                createContent(submittedObject, passwords, null, override),
+                updatePerformer.createContent(submittedObject, passwords, null, override),
                 Keyword.NONE,
                 loggerContext);
 
@@ -244,9 +239,9 @@ public class WhoisRestService {
         final RpslObject submittedObject = getSubmittedObject(resource);
 
         final RpslObject response = updatePerformer.performUpdate(
-                createOrigin(request),
+                updatePerformer.createOrigin(request),
                 updatePerformer.createUpdate(submittedObject, passwords, null, override),
-                createContent(submittedObject, passwords, null, override),
+                updatePerformer.createContent(submittedObject, passwords, null, override),
                 Keyword.NEW,
                 loggerContext);
 
@@ -507,39 +502,6 @@ public class WhoisRestService {
                 throw new IllegalArgumentException(String.format("Disallowed option '%s'", flag));
             }
         }
-    }
-
-    private String createContent(final RpslObject rpslObject, final List<String> passwords, final String deleteReason, String override) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(rpslObject.toString());
-
-        if (builder.charAt(builder.length() - 1) != '\n') {
-            builder.append('\n');
-        }
-
-        if (deleteReason != null) {
-            builder.append("delete: ");
-            builder.append(deleteReason);
-            builder.append("\n\n");
-        }
-
-        for (final String password : passwords) {
-            builder.append("password: ");
-            builder.append(password);
-            builder.append('\n');
-        }
-
-        if (override != null) {
-            builder.append("override: ");
-            builder.append(override);
-            builder.append("\n\n");
-        }
-
-        return builder.toString();
-    }
-
-    private Origin createOrigin(final HttpServletRequest request) {
-        return new WhoisRestApi(dateTimeProvider, request.getRemoteAddr());
     }
 
     private WhoisResources createWhoisResources(final HttpServletRequest request, final RpslObject rpslObject, boolean filter) {

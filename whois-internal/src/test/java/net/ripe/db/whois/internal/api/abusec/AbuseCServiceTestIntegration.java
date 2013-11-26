@@ -83,7 +83,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
     }
 
     @Test
-    public void post_abusec_role_created_for_organisation_without_abusec() throws IOException {
+    public void create_abusec_role_created_for_organisation_without_abusec() throws IOException {
         databaseHelperRest.addObject("" +
                 "mntner:    TEST-MNT\n" +
                 "mnt-by:    TEST-MNT\n" +
@@ -114,7 +114,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
     }
 
     @Test
-    public void post_organisation_abusec_role_already_exists() throws IOException {
+    public void create_organisation_abusec_role_already_exists() throws IOException {
         databaseHelperRest.addObject("" +
                 "mntner:        TEST-MNT\n" +
                 "mnt-by:        TEST-MNT\n" +
@@ -148,14 +148,14 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
     }
 
     @Test(expected = ForbiddenException.class)
-    public void post_wrong_apikey() throws IOException {
+    public void create_wrong_apikey() throws IOException {
         RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, "DB-WHOIS-totallywrongkey")
                 .request(MediaType.TEXT_PLAIN)
                 .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
     }
 
     @Test
-    public void post_organisation_without_abusec_role_has_ripe_mntner() {
+    public void create_organisation_without_abusec_role_has_ripe_mntner() {
         databaseHelperRest.addObject("" +
                 "mntner:    TEST-MNT\n" +
                 "mnt-by:    TEST-MNT\n" +
@@ -183,7 +183,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
     }
 
     @Test
-    public void get_abusecontact_exists() {
+    public void lookup_abusecontact_exists() {
         databaseHelperRest.addObject("" +
                 "mntner:        TEST-MNT\n" +
                 "mnt-by:        TEST-MNT\n" +
@@ -214,7 +214,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
 
     @Test(expected = NotFoundException.class)
-    public void get_abusecontact_not_found() {
+    public void lookup_abusecontact_not_found() {
         databaseHelperRest.addObject(
                 "mntner:    TEST-MNT\n" +
                 "mnt-by:    TEST-MNT\n" +
@@ -236,7 +236,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
     }
 
     @Test(expected = NotFoundException.class)
-    public void get_organisation_not_found() {
+    public void lookup_organisation_not_found() {
         RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
                 .request(MediaType.TEXT_PLAIN)
                 .get(String.class);

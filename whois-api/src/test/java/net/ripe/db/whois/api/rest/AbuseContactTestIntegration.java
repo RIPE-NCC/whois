@@ -4,11 +4,18 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.domain.User;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
@@ -88,7 +95,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     // inetnum
 
     @Test
-    public void inetnum_exact_match_abuse_contact_found() {
+    public void lookup_inetnum_exact_match_abuse_contact_found() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -124,7 +131,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void inetnum_child_address_abuse_contact_found() {
+    public void lookup_inetnum_child_address_abuse_contact_found() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -172,7 +179,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void inetnum_abuse_contact_not_found() {
+    public void lookup_inetnum_abuse_contact_not_found() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -218,22 +225,17 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "}"));
     }
 
-    @Test
-    public void inetnum_not_found() {
-        try {
-            RestTest.target(getPort(), "whois/abuse-contact/193.0.1.2")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(String.class);
-            fail();
-        } catch (NotFoundException e) {
-            // expected
-        }
+    @Test(expected = NotFoundException.class)
+    public void lookup_inetnum_not_found() {
+        RestTest.target(getPort(), "whois/abuse-contact/193.0.1.2")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
     }
 
     // inet6num
 
     @Test
-    public void inet6num_abuse_contact_found_accept_json() throws IOException {
+    public void lookup_inet6num_abuse_contact_found_accept_json() throws IOException {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -281,7 +283,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void inet6num_abuse_contact_found_accept_xml() {
+    public void lookup_inet6num_abuse_contact_found_accept_xml() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -318,22 +320,17 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "</abuse-resources>"));
     }
 
-    @Test
-    public void inet6num_not_found() {
-        try {
-            RestTest.target(getPort(), "whois/abuse-contact/2a00:1234::/32")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(String.class);
-            fail();
-        } catch (NotFoundException e) {
-            // expected
-        }
+    @Test(expected = NotFoundException.class)
+    public void lookup_inet6num_not_found() {
+        RestTest.target(getPort(), "whois/abuse-contact/2a00:1234::/32")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
     }
 
     // autnum
 
     @Test
-    public void autnum_abuse_contact_found() {
+    public void lookup_autnum_abuse_contact_found() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -359,7 +356,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void autnum_abuse_contact_not_found() {
+    public void lookup_autnum_abuse_contact_not_found() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -384,20 +381,15 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
         assertThat(abuseResources.getAbuseContact().getEmail(), is(""));
     }
 
-    @Test
-    public void autnum_not_found() {
-        try {
-            RestTest.target(getPort(), "whois/abuse-contact/AS333")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(String.class);
-            fail();
-        } catch (NotFoundException e) {
-            // expected
-        }
+    @Test(expected = NotFoundException.class)
+    public void lookup_autnum_not_found() {
+        RestTest.target(getPort(), "whois/abuse-contact/AS333")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
     }
 
     @Test
-    public void autnum_abuse_contact_found_json_extension() {
+    public void lookup_autnum_abuse_contact_found_json_extension() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -427,4 +419,210 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/AS333\"\n" +
                 "  },"));
     }
+
+    @Test
+    public void create_abuse_contact() throws IOException {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
+
+        RestTest.target(getPort(), "whois/abuse-contact/ORG-TOL1-TEST")
+                .request()
+                .post(Entity.entity("email=email@email.net&password=test", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+
+        final RpslObject updatedOrganisation = databaseHelper.lookupObject(ObjectType.ORGANISATION, "ORG-TOL1-TEST");
+        final String nicHdl = updatedOrganisation.getValueForAttribute(AttributeType.ABUSE_C).toString();
+        final RpslObject abuseCRole = databaseHelper.lookupObject(ObjectType.ROLE, nicHdl);
+        final String abuseMailbox = abuseCRole.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString();
+        assertThat(abuseMailbox, is("email@email.net"));
+    }
+
+    @Test
+    public void create_abuse_contact_multiple_passwords() throws IOException {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
+
+        RestTest.target(getPort(), "whois/abuse-contact/ORG-TOL1-TEST")
+                .request()
+                .post(Entity.entity("email=email@email.net&password=invalid&password=test", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+
+        final RpslObject updatedOrganisation = databaseHelper.lookupObject(ObjectType.ORGANISATION, "ORG-TOL1-TEST");
+        final String nicHdl = updatedOrganisation.getValueForAttribute(AttributeType.ABUSE_C).toString();
+        final RpslObject abuseCRole = databaseHelper.lookupObject(ObjectType.ROLE, nicHdl);
+        final String abuseMailbox = abuseCRole.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString();
+        assertThat(abuseMailbox, is("email@email.net"));
+    }
+
+    @Test(expected = NotAuthorizedException.class)
+    public void create_abuse_contact_invalid_password() throws IOException {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
+
+        RestTest.target(getPort(), "whois/abuse-contact/ORG-TOL1-TEST")
+                .request()
+                .post(Entity.entity("email=email@email.net&password=invalid", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+    }
+
+    @Test
+    public void create_abuse_contact_with_override() throws IOException {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("superuser", "password", ObjectType.ORGANISATION, ObjectType.ROLE));
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
+
+        RestTest.target(getPort(), "whois/abuse-contact/ORG-TOL1-TEST")
+                .request()
+                .post(Entity.entity("email=email@email.net&override=superuser,password,reason", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+
+        final RpslObject updatedOrganisation = databaseHelper.lookupObject(ObjectType.ORGANISATION, "ORG-TOL1-TEST");
+        final String nicHdl = updatedOrganisation.getValueForAttribute(AttributeType.ABUSE_C).toString();
+        final RpslObject abuseCRole = databaseHelper.lookupObject(ObjectType.ROLE, nicHdl);
+        final String abuseMailbox = abuseCRole.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString();
+        assertThat(abuseMailbox, is("email@email.net"));
+    }
+
+    @Test(expected = NotAuthorizedException.class)
+    public void create_abuse_contact_with_override_unauthorized_object_type() throws IOException {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("superuser", "password", ObjectType.PERSON));
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
+
+        RestTest.target(getPort(), "whois/abuse-contact/ORG-TOL1-TEST")
+                .request()
+                .post(Entity.entity("email=email@email.net&override=superuser,password,reason", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+    }
+
+    @Test(expected = NotAuthorizedException.class)
+    public void create_abuse_contact_with_invalid_override_password() throws IOException {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("superuser", "password", ObjectType.ORGANISATION, ObjectType.ROLE));
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
+
+        RestTest.target(getPort(), "whois/abuse-contact/ORG-TOL1-TEST")
+                .request()
+                .post(Entity.entity("email=email@email.net&override=superuser,invalid,reason", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+    }
+
+    @Test(expected = NotAuthorizedException.class)
+    public void create_abuse_contact_with_incorrect_override_format() throws IOException {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
+
+        RestTest.target(getPort(), "whois/abuse-contact/ORG-TOL1-TEST")
+                .request()
+                .post(Entity.entity("email=email@email.net&override=invalid", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void create_abuse_contact_nonexistant_organisation() throws IOException {
+        RestTest.target(getPort(), "whois/abuse-contact/ORG-NONE1-TEST")
+                .request()
+                .post(Entity.entity("email=email@email.net&password=test", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+    }
+
+    @Test
+    public void create_abuse_contact_already_exists() throws IOException {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "nic-hdl:       AC1-TEST\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       AC1-TEST\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
+
+        try {
+            RestTest.target(getPort(), "whois/abuse-contact/ORG-TOL1-TEST")
+                    .request()
+                    .post(Entity.entity("email=email@email.net&password=test", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+            fail();
+        } catch (ClientErrorException e) {
+            assertThat(e.getResponse().getStatus(), is(409));
+        }
+    }
+
+    @Test(expected = NotAuthorizedException.class)
+    public void create_abuse_contact_organisation_has_ripe_mntner() {
+        databaseHelper.addObject("" +
+                "mntner:        RIPE-NCC-HM-MNT\n" +
+                "mnt-by:        RIPE-NCC-HM-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        RIPE-NCC-HM-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
+
+        RestTest.target(getPort(), "whois/abuse-contact/ORG-TOL1-TEST")
+                .request()
+                .post(Entity.entity("email=email@email.net&password=test", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+    }
+
 }
