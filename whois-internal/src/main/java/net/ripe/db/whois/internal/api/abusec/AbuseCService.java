@@ -74,8 +74,8 @@ public class AbuseCService {
             return Response.ok(String.format("http://apps.db.ripe.net/search/lookup.html?source=%s&key=%s&type=ORGANISATION", sourceName, orgkey)).build();
         } catch (Exception e) {
             LOGGER.error("exception", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-        return null;
     }
 
     @GET
