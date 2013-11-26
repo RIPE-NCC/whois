@@ -365,18 +365,6 @@ public class WhoisRestService {
         return Response.ok(whoisResources).build();
     }
 
-    private Response handleQueryAndStreamResponse(final Query query,
-                                                  final HttpServletRequest request,
-                                                  final InetAddress remoteAddress,
-                                                  @Nullable final Parameters parameters,
-                                                  @Nullable final Service service,
-                                                  @Nullable final List<String> passwords) {
-
-        final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
-
-        return Response.ok(new RpslObjectStreamer(query, remoteAddress, parameters, service, passwords, streamingMarshal)).build();
-    }
-
     private StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
         final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
         for (final String accept : Splitter.on(',').split(acceptHeader)) {
@@ -610,6 +598,18 @@ public class WhoisRestService {
         }
     }
 
+    private Response handleQueryAndStreamResponse(final Query query,
+                                                  final HttpServletRequest request,
+                                                  final InetAddress remoteAddress,
+                                                  @Nullable final Parameters parameters,
+                                                  @Nullable final Service service,
+                                                  @Nullable final List<String> passwords) {
+
+        final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
+
+        return Response.ok(new RpslObjectStreamer(query, remoteAddress, parameters, service, passwords, streamingMarshal)).build();
+    }
+
     private class RpslObjectStreamer implements StreamingOutput {
         private final Query query;
         private final InetAddress remoteAddress;
@@ -617,8 +617,6 @@ public class WhoisRestService {
         private final Service service;
         private final List<String> passwords;
         private final StreamingMarshal streamingMarshal;
-
-        private boolean rpslObjectFound;
 
         public RpslObjectStreamer(Query query, InetAddress remoteAddress, Parameters parameters, Service service, List<String> passwords, StreamingMarshal streamingMarshal) {
             this.query = query;
@@ -639,11 +637,12 @@ public class WhoisRestService {
 
                 try {
                     final int contextId = System.identityHashCode(Thread.currentThread());
-                    queryHandler.streamResults(query, remoteAddress, contextId, new SearchResponseHandler(output, rpslObjectQueue, tagResponseObjects));
+                    SearchResponseHandler responseHandler = new SearchResponseHandler(output, rpslObjectQueue, tagResponseObjects);
+                    queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
 
-                    streamObject(rpslObjectQueue.poll(), tagResponseObjects);
+                    responseHandler.flush();
 
-                    if (!rpslObjectFound) {
+                    if (!responseHandler.rpslObjectFound()) {
                         throw new WebApplicationException(Response.Status.NOT_FOUND);
                     }
                 } catch (QueryException e) {
@@ -662,40 +661,11 @@ public class WhoisRestService {
             }
         }
 
-        private void startStreaming(final OutputStream output) {
-            streamingMarshal.open(output, "whois-resources");
-
-            if (service != null) {
-                streamingMarshal.write("service", service);
-            }
-
-            if (parameters != null) {
-                streamingMarshal.write("parameters", parameters);
-            }
-
-            streamingMarshal.start("objects");
-        }
-
-        private void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
-            if (rpslObject == null) {
-                return;
-            }
-
-            final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, tagResponseObjects);
-
-            if (streamingMarshal instanceof StreamingMarshalJson) {
-                streamingMarshal.write("object", Collections.singletonList(whoisObject));
-            } else {
-                streamingMarshal.write("object", whoisObject);
-            }
-
-            tagResponseObjects.clear();
-        }
-
         private class SearchResponseHandler extends ApiResponseHandler {
             private final OutputStream output;
             private final Queue<RpslObject> rpslObjectQueue;
             private final List<TagResponseObject> tagResponseObjects;
+            private boolean rpslObjectFound;
 
             public SearchResponseHandler(OutputStream output, Queue<RpslObject> rpslObjectQueue, List<TagResponseObject> tagResponseObjects) {
                 this.output = output;
@@ -738,6 +708,36 @@ public class WhoisRestService {
                 rpslObjectQueue.add(rpslObject);
             }
 
+            private void startStreaming(final OutputStream output) {
+                streamingMarshal.open(output, "whois-resources");
+
+                if (service != null) {
+                    streamingMarshal.write("service", service);
+                }
+
+                if (parameters != null) {
+                    streamingMarshal.write("parameters", parameters);
+                }
+
+                streamingMarshal.start("objects");
+            }
+
+            private void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
+                if (rpslObject == null) {
+                    return;
+                }
+
+                final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, tagResponseObjects);
+
+                if (streamingMarshal instanceof StreamingMarshalJson) {
+                    streamingMarshal.write("object", Collections.singletonList(whoisObject));
+                } else {
+                    streamingMarshal.write("object", whoisObject);
+                }
+
+                tagResponseObjects.clear();
+            }
+
             private boolean authenticate(final RpslObject rpslObject, final List<String> passwords) {
                 for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
                     for (String password : passwords) {
@@ -765,6 +765,14 @@ public class WhoisRestService {
                 } catch (IllegalArgumentException e) {
                     return false;
                 }
+            }
+
+            public boolean rpslObjectFound() {
+                return rpslObjectFound;
+            }
+
+            public void flush() {
+                streamObject(rpslObjectQueue.poll(), tagResponseObjects);
             }
         }
     }
