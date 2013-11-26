@@ -18,6 +18,8 @@ CREATE TABLE `scheduler` (
   PRIMARY KEY (`date`, `task`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- the id columns is only there because of a mysql bug (see http://bugs.mysql.com/bug.php?id=58481http://bugs.mysql.com/bug.php?id=58481)
+-- it should be dropped once we manage to upgrade
 DROP TABLE IF EXISTS `authoritative_resource`;
 CREATE TABLE `authoritative_resource` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
