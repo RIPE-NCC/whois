@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import net.ripe.db.whois.api.rest.mapper.ValidXmlAdapter;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -101,6 +102,10 @@ public class Attribute {
     }
 
     public String toString() {
-        return String.format("%s: %s", name, value);
+        if (StringUtils.isBlank(comment)) {
+            return String.format("%s: %s", name, value);
+        } else {
+            return String.format("%s: %s # %s", name, value, comment);
+        }
     }
 }
