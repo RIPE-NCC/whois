@@ -23,9 +23,7 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
@@ -39,7 +37,6 @@ import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.codec.digest.Md5Crypt;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,8 +70,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.query.QueryFlag.ABUSE_CONTACT;
@@ -109,8 +104,6 @@ public class WhoisRestService {
     private static final Joiner COMMA_JOINER = Joiner.on(',');
     private static final Joiner SPACE_JOINER = Joiner.on(' ');
     private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&');
-
-    private static final Pattern MD5_PATTERN = Pattern.compile("(?i)^.*MD5-PW \\$1\\$(.{1,8})\\$(.{22}).*$");
 
     private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(Iterables.concat(
             // flags for port43 only
@@ -279,9 +272,9 @@ public class WhoisRestService {
                 ObjectType.getByName(objectType).getName(),
                 QueryFlag.SHOW_TAG_INFO.getLongFlag(),
                 unfiltered ? QueryFlag.NO_FILTERING.getLongFlag() : "",
-                key));
+                key), passwords);
 
-        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null, passwords);
+        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
     }
 
     @GET
@@ -462,7 +455,7 @@ public class WhoisRestService {
 
         Service service = new Service(SERVICE_SEARCH);
 
-        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service, null);
+        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service);
     }
 
     private void checkForInvalidSources(final Set<String> sources) {
@@ -564,12 +557,11 @@ public class WhoisRestService {
                                                   final HttpServletRequest request,
                                                   final InetAddress remoteAddress,
                                                   @Nullable final Parameters parameters,
-                                                  @Nullable final Service service,
-                                                  @Nullable final List<String> passwords) {
+                                                  @Nullable final Service service) {
 
         final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
 
-        return Response.ok(new RpslObjectStreamer(query, remoteAddress, parameters, service, passwords, streamingMarshal)).build();
+        return Response.ok(new RpslObjectStreamer(query, remoteAddress, parameters, service, streamingMarshal)).build();
     }
 
     private class RpslObjectStreamer implements StreamingOutput {
@@ -577,36 +569,30 @@ public class WhoisRestService {
         private final InetAddress remoteAddress;
         private final Parameters parameters;
         private final Service service;
-        private final List<String> passwords;
         private final StreamingMarshal streamingMarshal;
 
-        public RpslObjectStreamer(Query query, InetAddress remoteAddress, Parameters parameters, Service service, List<String> passwords, StreamingMarshal streamingMarshal) {
+        public RpslObjectStreamer(Query query, InetAddress remoteAddress, Parameters parameters, Service service, StreamingMarshal streamingMarshal) {
             this.query = query;
             this.remoteAddress = remoteAddress;
             this.parameters = parameters;
             this.service = service;
-            this.passwords = passwords;
             this.streamingMarshal = streamingMarshal;
         }
 
         @Override
         public void write(final OutputStream output) throws IOException, WebApplicationException {
             try {
-                // TODO [AK] Crude way to handle tags, but working
-
-                final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
-                final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
-
                 try {
                     final int contextId = System.identityHashCode(Thread.currentThread());
-                    SearchResponseHandler responseHandler = new SearchResponseHandler(output, rpslObjectQueue, tagResponseObjects);
+                    SearchResponseHandler responseHandler = new SearchResponseHandler(output);
                     queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
-
-                    responseHandler.flush();
 
                     if (!responseHandler.rpslObjectFound()) {
                         throw new WebApplicationException(Response.Status.NOT_FOUND);
                     }
+
+                    responseHandler.flush();
+
                 } catch (QueryException e) {
                     if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
                         throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
@@ -615,24 +601,21 @@ public class WhoisRestService {
                     }
                 }
 
-                streamingMarshal.end();
-                streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
-                streamingMarshal.close();
-
             } catch (StreamingException ignored) {  // only happens on IOException
             }
         }
 
         private class SearchResponseHandler extends ApiResponseHandler {
             private final OutputStream output;
-            private final Queue<RpslObject> rpslObjectQueue;
-            private final List<TagResponseObject> tagResponseObjects;
+
             private boolean rpslObjectFound;
 
-            public SearchResponseHandler(OutputStream output, Queue<RpslObject> rpslObjectQueue, List<TagResponseObject> tagResponseObjects) {
+            // tags come separately
+            private final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
+            private final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
+
+            public SearchResponseHandler(OutputStream output) {
                 this.output = output;
-                this.rpslObjectQueue = rpslObjectQueue;
-                this.tagResponseObjects = tagResponseObjects;
             }
 
             @Override
@@ -640,25 +623,8 @@ public class WhoisRestService {
                 if (responseObject instanceof TagResponseObject) {
                     tagResponseObjects.add((TagResponseObject) responseObject);
                 } else if (responseObject instanceof RpslObject) {
-                    if (passwords != null && !passwords.isEmpty()) {
-                        switch (((RpslObject) responseObject).getType()) {
-                            case MNTNER:
-                            case IRT:
-                                final RpslObject unfilteredObject = rpslObjectDao.getById(((RpslObject) responseObject).getObjectId());
-                                if (authenticate(unfilteredObject, passwords)) {
-                                    streamRpslObject(unfilteredObject);
-                                    return;
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-
                     streamRpslObject((RpslObject) responseObject);
                 }
-
-                // TODO [AK] Handle related messages
             }
 
             private void streamRpslObject(final RpslObject rpslObject) {
@@ -700,41 +666,15 @@ public class WhoisRestService {
                 tagResponseObjects.clear();
             }
 
-            private boolean authenticate(final RpslObject rpslObject, final List<String> passwords) {
-                for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
-                    for (String password : passwords) {
-                        if (authenticate(auth, password)) {
-                            return true;
-                        }
-                    }
-                }
-
-                return false;
-            }
-
-            private boolean authenticate(final RpslAttribute auth, final String password) {
-                final Matcher matcher = MD5_PATTERN.matcher(auth.getCleanValue().toString());
-                if (!matcher.matches()) {
-                    return false;
-                }
-
-                try {
-                    final String salt = matcher.group(1);
-                    final String known = String.format("$1$%s$%s", salt, matcher.group(2));
-                    final String offered = Md5Crypt.md5Crypt(password.getBytes(), String.format("$1$%s", salt));
-
-                    return known.equals(offered);
-                } catch (IllegalArgumentException e) {
-                    return false;
-                }
-            }
-
             public boolean rpslObjectFound() {
                 return rpslObjectFound;
             }
 
             public void flush() {
                 streamObject(rpslObjectQueue.poll(), tagResponseObjects);
+                streamingMarshal.end();
+                streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+                streamingMarshal.close();
             }
         }
     }
