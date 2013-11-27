@@ -64,7 +64,7 @@ public class WhoisObjectServerMapperTest {
                         "changed:     dbtest@ripe.net\n" +
                         "source:      TEST\n");
 
-        final WhoisObject whoisObject = mapper.map(rpslObject, true);
+        final WhoisObject whoisObject = mapper.map(rpslObject);
 
         assertThat(whoisObject.getType(), is("mntner"));
         assertThat(whoisObject.getSource().getId(), is("test"));
@@ -79,12 +79,12 @@ public class WhoisObjectServerMapperTest {
                 new Attribute("descr", "MNTNER for test", null, null, null),
                 new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest.db.ripe.net/lookup/test/person/TP1-TEST")),
                 new Attribute("upd-to", "dbtest@ripe.net", null, null, null),
-                new Attribute("auth", "MD5-PW", "Filtered", null, null),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
                 new Attribute("auth", "PGPKEY-28F6CD6C", null, "key-cert", new Link("locator", "http://rest.db.ripe.net/lookup/test/key-cert/PGPKEY-28F6CD6C")),
                 new Attribute("mnt-by", "TST-MNT", null, "mntner", new Link("locator", "http://rest.db.ripe.net/lookup/test/mntner/TST-MNT")),
                 new Attribute("referral-by", "TST-MNT", null, "mntner", new Link("locator", "http://rest.db.ripe.net/lookup/test/mntner/TST-MNT")),
                 new Attribute("changed", "dbtest@ripe.net", null, null, null),
-                new Attribute("source", "TEST", "Filtered", null, null)
+                new Attribute("source", "TEST", null, null, null)
         ));
     }
 
