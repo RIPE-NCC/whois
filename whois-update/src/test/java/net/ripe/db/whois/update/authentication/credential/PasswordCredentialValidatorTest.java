@@ -25,9 +25,9 @@ public class PasswordCredentialValidatorTest {
     public void authenticatePassword() {
         assertThat(authenticate("emptypassword", "MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0"), is(true));
         assertThat(authenticate("emptypassword", "md5-pw $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0"), is(true));
-        assertThat(authenticate("emptypassword", "MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0 # comment"), is(true));
         assertThat(authenticate("emptypassword", "MD5-PW $1$ID$T6JBFWOLNhasGbO3Jkj37."), is(true));
 
+        assertThat(authenticate("emptypassword", "MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0 # comment"), is(false));
         assertThat(authenticate("EmptyPassword", "MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0"), is(false));
         assertThat(authenticate("", "MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0"), is(false));
         assertThat(authenticate("emptypassword", "$1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0"), is(false));
