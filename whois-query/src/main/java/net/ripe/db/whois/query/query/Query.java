@@ -133,6 +133,8 @@ public final class Query {
     private final MatchOperation matchOperation;
     private final SearchKey searchKey;
 
+    private List<String> passwords;
+
     private Query(final String query) {
         originalStringQuery = query;
         String[] args = Iterables.toArray(SPACE_SPLITTER.split(query), String.class);
@@ -149,7 +151,6 @@ public final class Query {
         matchOperation = parseMatchOperations();
     }
 
-    @SuppressWarnings("PMD.PreserveStackTrace")
     public static Query parse(final String args) {
         try {
             final Query query = new Query(args.trim());
@@ -167,6 +168,16 @@ public final class Query {
         } catch (OptionException e) {
             throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
         }
+    }
+
+    public static Query parse(final String args, final List<String> passwords) {
+        Query query = parse(args);
+        query.passwords = passwords;
+        return query;
+    }
+
+    public List<String> getPasswords() {
+        return passwords;
     }
 
     public Collection<Message> getWarnings() {
