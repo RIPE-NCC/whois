@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -18,10 +19,13 @@ import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
 import java.util.Set;
 
 // TODO [AK] Wrap related response objects (messages + rpsl) in a single response object
@@ -34,7 +38,6 @@ import java.util.Set;
  */
 @Component
 public class RpslResponseDecorator {
-    // TODO: [AH] refactor this class; there are 3 different ways to write a decorator ATM!
     private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
 
@@ -86,7 +89,7 @@ public class RpslResponseDecorator {
 
         decoratedResult = applySyntaxFilter(query, decoratedResult);
         decoratedResult = filterEmail(query, decoratedResult);
-        decoratedResult = filterAuth(decoratedResult);
+        decoratedResult = filterAuth(query, decoratedResult);
 
         decoratedResult = applyOutputFilters(query, decoratedResult);
 
@@ -138,13 +141,16 @@ public class RpslResponseDecorator {
         return new GroupObjectTypesFunction(rpslObjectDao, query, decorators);
     }
 
-    private Iterable<? extends ResponseObject> filterAuth(final Iterable<? extends ResponseObject> objects) {
+    private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {
+        List<String> passwords = query.getPasswords();
+        final FilterAuthFunction filterAuthFunction = CollectionUtils.isEmpty(passwords) ? FILTER_AUTH_FUNCTION : new FilterAuthFunction(passwords);
+
         return Iterables.transform(objects, new Function<ResponseObject, ResponseObject>() {
             @Nullable
             @Override
             public ResponseObject apply(final ResponseObject input) {
                 if (input instanceof RpslObject) {
-                    return FILTER_AUTH_FUNCTION.apply((RpslObject) input);
+                    return filterAuthFunction.apply((RpslObject) input);
                 }
 
                 return input;

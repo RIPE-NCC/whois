@@ -2,9 +2,17 @@ package net.ripe.db.whois.common.rpsl.transform;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.PasswordHelper;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @ThreadSafe
@@ -12,18 +20,30 @@ public class FilterAuthFunction implements FilterFunction {
     public static final Splitter SPACE_SPLITTER = Splitter.on(' ');
     public static final String FILTERED_APPENDIX = " # Filtered";
 
+    private final List<String> passwords;
+
+    public FilterAuthFunction(List<String> passwords) {
+        this.passwords = passwords;
+    }
+
+    public FilterAuthFunction() {
+        passwords = Collections.emptyList();
+    }
+
     @Override
     public RpslObject apply(RpslObject rpslObject) {
-//        if (!ObjectTemplate.getTemplate(rpslObject.getType()).hasAttribute(AttributeType.AUTH)) {
         if (!rpslObject.containsAttribute(AttributeType.AUTH)) {
             return rpslObject;
         }
 
         Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
         for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
-            String passwordType = SPACE_SPLITTER.split(auth.getCleanValue().toUpperCase()).iterator().next();
+            CIString authValue = auth.getCleanValue();
+            String passwordType = SPACE_SPLITTER.split(authValue.toUpperCase()).iterator().next();
             if (passwordType.endsWith("-PW")) {     // history table has CRYPT-PW, has to be able to dummify that too!
-                replace.put(auth, new RpslAttribute(auth.getKey(), passwordType + FILTERED_APPENDIX));
+                if (passwords.isEmpty() || !passwordType.startsWith("MD5") || !PasswordHelper.authenticateMd5Passwords(authValue.toString(), passwords)) {
+                    replace.put(auth, new RpslAttribute(auth.getKey(), passwordType + FILTERED_APPENDIX));
+                }
             }
         }
 
