@@ -211,10 +211,11 @@ public class WhoisRestService {
                 Keyword.NONE,
                 loggerContext);
 
-        WhoisResources whoisResources = createWhoisResources(request, response, false);
+        WhoisResources whoisResources = createWhoisResources(request, response);
         return Response.ok(whoisResources).build();
     }
 
+    // TODO: deprecate mod_proxy for 'POST /ripe' and add check for objectType == submitted object type here
     @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -223,7 +224,7 @@ public class WhoisRestService {
             final WhoisResources resource,
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
-            @PathParam("objectType") final String objectType,               // TODO: [ES] unused argument - remove?
+            @PathParam("objectType") final String objectType,
             @QueryParam("password") final List<String> passwords,
             @QueryParam("override") final String override) {
 
@@ -238,7 +239,7 @@ public class WhoisRestService {
                 Keyword.NEW,
                 loggerContext);
 
-        WhoisResources whoisResources = createWhoisResources(request, response, false);
+        WhoisResources whoisResources = createWhoisResources(request, response);
         return Response.ok(whoisResources).build();
     }
 
@@ -497,9 +498,9 @@ public class WhoisRestService {
         }
     }
 
-    private WhoisResources createWhoisResources(final HttpServletRequest request, final RpslObject rpslObject, boolean filter) {
+    private WhoisResources createWhoisResources(final HttpServletRequest request, final RpslObject rpslObject) {
         final WhoisResources whoisResources = new WhoisResources();
-        whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(rpslObject, filter)));
+        whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(rpslObject)));
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
         whoisResources.includeTermsAndConditions();
         return whoisResources;
