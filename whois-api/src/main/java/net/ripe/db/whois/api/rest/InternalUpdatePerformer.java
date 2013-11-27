@@ -37,13 +37,12 @@ public class InternalUpdatePerformer {
     private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
 
     private final UpdateRequestHandler updateRequestHandler;
-    private final RpslObjectDao rpslObjectDao;
     private final DateTimeProvider dateTimeProvider;
 
     @Autowired
-    public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler, final RpslObjectDao rpslObjectDao, final DateTimeProvider dateTimeProvider) {
+    public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler,
+                                   final DateTimeProvider dateTimeProvider) {
         this.updateRequestHandler = updateRequestHandler;
-        this.rpslObjectDao = rpslObjectDao;
         this.dateTimeProvider = dateTimeProvider;
     }
 
