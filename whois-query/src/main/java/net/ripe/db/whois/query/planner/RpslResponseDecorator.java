@@ -163,17 +163,17 @@ public class RpslResponseDecorator {
             return groupedObjects;
         }
 
-        return Iterables.concat(Collections.singletonList(new MessageObject(QueryMessages.outputFilterNotice())), Iterables.transform(groupedObjects, new Function<ResponseObject, ResponseObject>() {
-            @Nullable
+        return new IterableTransformer<ResponseObject>(groupedObjects) {
             @Override
-            public ResponseObject apply(final ResponseObject input) {
-                if (input instanceof RpslObject) {
-                    return FILTER_EMAIL_FUNCTION.apply((RpslObject) input);
+            public void apply(ResponseObject input, Deque<ResponseObject> result) {
+                if (!(input instanceof RpslObject)) {
+                    result.add(input);
+                } else {
+                    result.add(FILTER_EMAIL_FUNCTION.apply((RpslObject) input));
                 }
 
-                return input;
             }
-        }));
+        }.setHeader(new MessageObject(QueryMessages.outputFilterNotice()));
     }
 
     private Iterable<? extends ResponseObject> applyOutputFilters(final Query query, final Iterable<? extends ResponseObject> objects) {
