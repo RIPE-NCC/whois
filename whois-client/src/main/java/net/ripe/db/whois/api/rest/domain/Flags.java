@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.query.QueryFlag;
 
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -19,9 +20,9 @@ public class Flags {
     @XmlElement(name = "flag")
     protected List<Flag> flags;
 
-    public Flags(final Collection<String> flags) {
+    public Flags(final Collection<QueryFlag> flags) {
         this.flags = Lists.newArrayList();
-        for (String flag : flags) {
+        for (QueryFlag flag : flags) {
             this.flags.add(new Flag(flag));
         }
     }

@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -37,7 +38,6 @@ import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -66,6 +66,7 @@ import java.net.InetAddress;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
@@ -101,42 +102,41 @@ public class WhoisRestService {
 
     public static final String SERVICE_SEARCH = "search";
 
-    private static final Joiner COMMA_JOINER = Joiner.on(',');
-    private static final Joiner SPACE_JOINER = Joiner.on(' ');
+    private static final Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings().trimResults();
     private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&');
 
-    private static final Set<String> NOT_ALLOWED_SEARCH_QUERY_FLAGS = Sets.newHashSet(Iterables.concat(
+    private static final Set<QueryFlag> NOT_ALLOWED_SEARCH_QUERY_FLAGS = ImmutableSet.of(
             // flags for port43 only
-            VERSION.getFlags(),
-            PERSISTENT_CONNECTION.getFlags(),
+            VERSION,
+            PERSISTENT_CONNECTION,
 
             // port43 filter flags that make no sense in xml/json
-            NO_GROUPING.getFlags(),
-            BRIEF.getFlags(),
-            ABUSE_CONTACT.getFlags(),
-            PRIMARY_KEYS.getFlags(),
+            NO_GROUPING,
+            BRIEF,
+            ABUSE_CONTACT,
+            PRIMARY_KEYS,
 
             // flags that are covered by path/query params or other rest calls
-            TEMPLATE.getFlags(),
-            VERBOSE.getFlags(),
-            CLIENT.getFlags(),
-            LIST_SOURCES.getFlags(),
-            LIST_SOURCES_OR_VERSION.getFlags(),
-            SOURCES.getFlags(),
-            ALL_SOURCES.getFlags(),
-            SELECT_TYPES.getFlags(),
+            TEMPLATE,
+            VERBOSE,
+            CLIENT,
+            LIST_SOURCES,
+            LIST_SOURCES_OR_VERSION,
+            SOURCES,
+            ALL_SOURCES,
+            SELECT_TYPES,
 
             // tags are handled from queryparam
-            NO_TAG_INFO.getFlags(),
-            SHOW_TAG_INFO.getFlags(),
-            FILTER_TAG_EXCLUDE.getFlags(),
-            FILTER_TAG_INCLUDE.getFlags(),
+            NO_TAG_INFO,
+            SHOW_TAG_INFO,
+            FILTER_TAG_EXCLUDE,
+            FILTER_TAG_INCLUDE,
 
             // versions are accessible via REST URL /versions/
-            DIFF_VERSIONS.getFlags(),
-            LIST_VERSIONS.getFlags(),
-            SHOW_VERSION.getFlags()
-    ));
+            DIFF_VERSIONS,
+            LIST_VERSIONS,
+            SHOW_VERSION
+    );
 
     private final LoggerContext loggerContext;
     private final RpslObjectDao rpslObjectDao;
@@ -415,43 +415,31 @@ public class WhoisRestService {
             @QueryParam("type-filter") Set<String> types,
             @QueryParam("flags") Set<String> flags) {
 
-        Set<String> validSources;
-        if (CollectionUtils.isEmpty(sources)) {
-            validSources = Collections.singleton(sourceContext.getCurrentSource().getName().toString());
-        } else {
-            validSources = sources;
-            checkForInvalidSources(validSources);
-        }
+        validateSources(sources);
+        validateSearchKey(searchKey);
 
-        final Set<String> separateFlags = splitInputFlags(flags);
+        final Set<QueryFlag> separateFlags = splitInputFlags(flags);
         checkForInvalidFlags(separateFlags);
 
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s %s %s %s",
-                QueryFlag.SOURCES.getLongFlag(),
-                COMMA_JOINER.join(validSources),
-                QueryFlag.SHOW_TAG_INFO.getLongFlag(),
-                CollectionUtils.isEmpty(types) ? "" : QueryFlag.SELECT_TYPES.getLongFlag(),
-                COMMA_JOINER.join(types),
-                CollectionUtils.isEmpty(inverseAttributes) ? "" : QueryFlag.INVERSE.getLongFlag(),
-                COMMA_JOINER.join(inverseAttributes),
-                CollectionUtils.isEmpty(includeTags) ? "" : QueryFlag.FILTER_TAG_INCLUDE.getLongFlag(),
-                COMMA_JOINER.join(includeTags),
-                CollectionUtils.isEmpty(excludeTags) ? "" : QueryFlag.FILTER_TAG_EXCLUDE.getLongFlag(),
-                COMMA_JOINER.join(excludeTags),
-                SPACE_JOINER.join(Iterables.transform(separateFlags, new Function<String, String>() {
-                    @Override
-                    public String apply(String input) {
-                        return input.length() > 1 ? "--" + input : "-" + input;
-                    }
-                })),
-                (searchKey == null ? "" : searchKey)));
+        QueryBuilder queryBuilder = new QueryBuilder();
+        queryBuilder.addFlag(QueryFlag.SHOW_TAG_INFO);
+        queryBuilder.addCommaList(QueryFlag.SOURCES, sources);
+        queryBuilder.addCommaList(QueryFlag.SELECT_TYPES, types);
+        queryBuilder.addCommaList(QueryFlag.INVERSE, inverseAttributes);
+        queryBuilder.addCommaList(QueryFlag.FILTER_TAG_INCLUDE, includeTags);
+        queryBuilder.addCommaList(QueryFlag.FILTER_TAG_EXCLUDE, excludeTags);
+        for (QueryFlag separateFlag : separateFlags) {
+            queryBuilder.addFlag(separateFlag);
+        }
+
+        final Query query = Query.parse(queryBuilder.build(searchKey));
 
         final Parameters parameters = new Parameters(
                 new InverseAttributes(inverseAttributes),
                 new TypeFilters(types),
                 new Flags(separateFlags),
                 new QueryStrings(new QueryString(searchKey)),
-                new Sources(validSources),
+                new Sources(sources),
                 null);
 
         Service service = new Service(SERVICE_SEARCH);
@@ -459,7 +447,18 @@ public class WhoisRestService {
         return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service);
     }
 
-    private void checkForInvalidSources(final Set<String> sources) {
+    private void validateSearchKey(String searchKey) {
+        if (StringUtils.isBlank(searchKey)) {
+            throw new IllegalArgumentException("query-string cannot be empty");
+        }
+        for (String word : SPACE_SPLITTER.split(searchKey)) {
+            if (word.startsWith("-")) {
+                throw new IllegalArgumentException(String.format("Flags are not allowed in query-string: %s", word));
+            }
+        }
+    }
+
+    private void validateSources(final Set<String> sources) {
         for (final String source : sources) {
             checkForInvalidSource(source);
         }
@@ -471,29 +470,32 @@ public class WhoisRestService {
         }
     }
 
-    private Set<String> splitInputFlags(final Set<String> inputFlags) {
-        final Set<String> separateFlags = Sets.newLinkedHashSet();  // reporting errors should happen in the same order
+    private Set<QueryFlag> splitInputFlags(final Set<String> inputFlags) {
+        final Set<QueryFlag> separateFlags = Sets.newLinkedHashSet();  // reporting errors should happen in the same order
         for (final String flagParameter : inputFlags) {
-            if (QueryFlag.getValidLongFlags().contains(flagParameter)) {
-                separateFlags.add(flagParameter);
+            QueryFlag forLongFlag = QueryFlag.getForLongFlag(flagParameter);
+            if (forLongFlag != null) {
+                separateFlags.add(forLongFlag);
             } else {
                 final CharacterIterator charIterator = new StringCharacterIterator(flagParameter);
                 for (char flag = charIterator.first(); flag != CharacterIterator.DONE; flag = charIterator.next()) {
                     final String flagString = String.valueOf(flag);
-                    if (!QueryFlag.getValidShortFlags().contains(flagString)) {
+                    QueryFlag forShortFlag = QueryFlag.getForShortFlag(flagString);
+                    if (forShortFlag != null) {
+                        separateFlags.add(forShortFlag);
+                    } else {
                         throw new IllegalArgumentException(String.format("Invalid option '%s'", flag));
                     }
-                    separateFlags.add(flagString);
                 }
             }
         }
         return separateFlags;
     }
 
-    private void checkForInvalidFlags(final Set<String> flags) {
-        for (final String flag : flags) {
+    private void checkForInvalidFlags(final Set<QueryFlag> flags) {
+        for (final QueryFlag flag : flags) {
             if (NOT_ALLOWED_SEARCH_QUERY_FLAGS.contains(flag)) {
-                throw new IllegalArgumentException(String.format("Disallowed option '%s'", flag));
+                throw new IllegalArgumentException(String.format("Disallowed option '%s'", flag.getName()));
             }
         }
     }
@@ -677,6 +679,29 @@ public class WhoisRestService {
                 streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
                 streamingMarshal.close();
             }
+        }
+    }
+
+    private static class QueryBuilder {
+        private static final Joiner COMMA_JOINER = Joiner.on(',');
+        private final StringBuilder query = new StringBuilder(128);
+
+        public QueryBuilder addFlag(QueryFlag queryFlag) {
+            query.append(queryFlag.getLongFlag()).append(' ');
+            return this;
+        }
+
+        public QueryBuilder addCommaList(QueryFlag queryFlag, Collection<String> args) {
+            if (args.size() > 0) {
+                query.append(queryFlag.getLongFlag()).append(' ');
+                COMMA_JOINER.appendTo(query, args);
+                query.append(' ');
+            }
+            return this;
+        }
+
+        public String build(String searchKey) {
+            return query.append(searchKey).toString();
         }
     }
 }

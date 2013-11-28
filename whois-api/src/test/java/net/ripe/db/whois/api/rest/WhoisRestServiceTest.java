@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.rest.WhoisRestService;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -22,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
@@ -66,7 +65,7 @@ public class WhoisRestServiceTest {
                         Sets.newHashSet(disallowedFlag));
                 fail("Disallowed option " + disallowedFlag + " did not throw error");
             } catch (IllegalArgumentException expected) {
-                assertThat(expected.getMessage(), is("Disallowed option '" + disallowedFlag + "'"));
+                assertThat(expected.getMessage(), startsWith("Disallowed option '"));
             }
 
         }
