@@ -77,7 +77,7 @@ public class SyncUpdatesService {
         // Characters in query params in GET requests are not decoded properly, so use @Encoded and decode ourselves
         final Charset charset = getCharset(contentType);
         final Request request = new Request(decode(data, charset), nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source);
-        return doSyncUpdate(request);
+        return doSyncUpdate(httpServletRequest, request);
     }
 
     @POST
@@ -92,7 +92,7 @@ public class SyncUpdatesService {
             @FormParam(Command.DIFF) final String diff,
             @FormParam(Command.REDIRECT) final String redirect) {
         final Request request = new Request(data, nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source);
-        return doSyncUpdate(request);
+        return doSyncUpdate(httpServletRequest, request);
     }
 
     @POST
@@ -107,10 +107,10 @@ public class SyncUpdatesService {
             @FormDataParam(Command.DIFF) final String diff,
             @FormDataParam(Command.REDIRECT) final String redirect) {
         final Request request = new Request(data, nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source);
-        return doSyncUpdate(request);
+        return doSyncUpdate(httpServletRequest, request);
     }
 
-    private Response doSyncUpdate(final Request request) {
+    private Response doSyncUpdate(final HttpServletRequest httpServletRequest, final Request request) {
         loggerContext.init(getRequestId(request.getRemoteAddress()));
 
         try {
@@ -138,6 +138,8 @@ public class SyncUpdatesService {
             if (!request.hasParam(Command.DATA) && !request.isParam(Command.HELP)) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Invalid request").build();
             }
+
+            InternalUpdatePerformer.logHttpHeaders(loggerContext, httpServletRequest);
 
             loggerContext.log("msg-in.txt", new SyncUpdateLogCallback(request.toString()));
 

@@ -181,7 +181,8 @@ public class WhoisRestService {
                 updatePerformer.createUpdate(originalObject, passwords, reason, override),
                 updatePerformer.createContent(originalObject, passwords, reason, override),
                 Keyword.NONE,
-                loggerContext);
+                loggerContext,
+                request);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -209,7 +210,8 @@ public class WhoisRestService {
                 updatePerformer.createUpdate(submittedObject, passwords, null, override),
                 updatePerformer.createContent(submittedObject, passwords, null, override),
                 Keyword.NONE,
-                loggerContext);
+                loggerContext,
+                request);
 
         WhoisResources whoisResources = createWhoisResources(request, response);
         return Response.ok(whoisResources).build();
@@ -237,7 +239,8 @@ public class WhoisRestService {
                 updatePerformer.createUpdate(submittedObject, passwords, null, override),
                 updatePerformer.createContent(submittedObject, passwords, null, override),
                 Keyword.NEW,
-                loggerContext);
+                loggerContext,
+                request);
 
         WhoisResources whoisResources = createWhoisResources(request, response);
         return Response.ok(whoisResources).build();
