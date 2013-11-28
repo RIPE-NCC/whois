@@ -1442,10 +1442,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(resources.getWhoisObjects(), hasSize(1));
 
         final List<Flag> flags = resources.getParameters().getFlags().getFlags();
-        assertThat(flags, hasSize(3));
-        assertThat(flags.get(0).getValue(), is("r"));
-        assertThat(flags.get(1).getValue(), is("B"));
-        assertThat(flags.get(2).getValue(), is("no-filtering"));
+        assertThat(flags, hasSize(2));
+        assertThat(flags.get(0).getValue(), is("no-referenced"));
+        assertThat(flags.get(1).getValue(), is("no-filtering"));
     }
 
     @Test
@@ -1842,7 +1841,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("Disallowed option 'k'"));
+            assertThat(e.getResponse().readEntity(String.class), is("Disallowed option 'persistent-connection'"));
         }
     }
 
@@ -1904,8 +1903,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final Parameters parameters = whoisResources.getParameters();
         final Flags flags = parameters.getFlags();
-        assertThat(flags.getFlags().get(0).getValue(), is("r"));
-        assertThat(flags.getFlags().get(1).getValue(), is("B"));
+        assertThat(flags.getFlags().get(0).getValue(), is("no-referenced"));
+        assertThat(flags.getFlags().get(1).getValue(), is("no-filtering"));
         final InverseAttributes inverseAttributes = parameters.getInverseLookup();
         assertThat(inverseAttributes.getInverseAttributes().get(0).getValue(), is("person"));
         final TypeFilters typeFilters = parameters.getTypeFilters();
