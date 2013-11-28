@@ -1,13 +1,17 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.collect.Iterators;
 import net.ripe.db.whois.api.UpdatesParser;
-import net.ripe.db.whois.api.rest.SyncUpdatesService;
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.domain.IpRanges;
+import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateRequest;
+import net.ripe.db.whois.update.domain.UpdateResponse;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
@@ -31,7 +35,11 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SyncUpdatesServiceTest {
@@ -50,6 +58,7 @@ public class SyncUpdatesServiceTest {
     @Before
     public void setUp() throws Exception {
         when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+        when(request.getHeaderNames()).thenReturn(Iterators.asEnumeration(Iterators.<String>emptyIterator()));
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
     }
