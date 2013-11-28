@@ -13,9 +13,11 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
+import net.ripe.db.whois.query.executor.decorators.ResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.Fixture;
 import org.junit.Before;
@@ -23,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -31,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
@@ -51,42 +55,34 @@ public class RpslResponseDecoratorTest {
     @Mock RpslObjectDao rpslObjectDaoMock;
     @Mock PrimaryObjectDecorator decorator;
     @Mock AbuseCFinder abuseCFinder;
-    @Mock DummifyFunction dummifyFunction;
+    @Mock DummifyDecorator dummifyDecorator;
     @Mock FilterTagsDecorator filterTagsDecorator;
     @Mock FilterPlaceholdersDecorator filterPlaceholdersDecorator;
-    @InjectMocks @Autowired AbuseCInfoDecorator abuseCInfoDecorator;
+    @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
 
     RpslResponseDecorator subject;
 
     @Before
     public void setup() {
-        subject = new RpslResponseDecorator(rpslObjectDaoMock, filterPersonalDecorator, sourceContext, abuseCFinder, dummifyFunction, filterTagsDecorator, filterPlaceholdersDecorator, abuseCInfoDecorator, decorator);
+        subject = new RpslResponseDecorator(rpslObjectDaoMock, filterPersonalDecorator, dummifyDecorator, sourceContext, abuseCFinder, filterTagsDecorator, filterPlaceholdersDecorator, abuseCInfoDecorator, decorator);
         when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);
         when(sourceContext.isMain()).thenReturn(true);
         Fixture.mockRpslObjectDaoLoadingBehavior(rpslObjectDaoMock);
 
-        when(filterPersonalDecorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return invocationOnMock.getArguments()[1];
-            }
-        });
+        decoratorPassthrough(filterPersonalDecorator, filterPlaceholdersDecorator, filterTagsDecorator, dummifyDecorator);
+    }
 
-        when(filterTagsDecorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return invocationOnMock.getArguments()[1];
-            }
-        });
-
-        when(filterPlaceholdersDecorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return invocationOnMock.getArguments()[1];
-            }
-        });
+    private static void decoratorPassthrough(ResponseDecorator... responseDecorator) {
+        for (ResponseDecorator decorator : responseDecorator) {
+            when(decorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
+                @Override
+                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                    return invocationOnMock.getArguments()[1];
+                }
+            });
+        }
     }
 
     @Test
@@ -425,47 +421,28 @@ public class RpslResponseDecoratorTest {
     public void dummify_response() {
         when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("GRS1", "GRS2"));
         when(sourceContext.isDummificationRequired()).thenReturn(true);
-        when(dummifyFunction.apply(any(ResponseObject.class))).thenReturn(DummifierLegacy.PLACEHOLDER_PERSON_OBJECT);
         when(sourceContext.isMain()).thenReturn(false);
+        when(dummifyDecorator.decorate(any(Query.class), any(Iterable.class))).thenReturn(Collections.EMPTY_LIST);
 
         final String response = execute("-s TEST-GRS -T person test", RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST"));
         assertThat(response, is("" +
                 "% Note: this output has been filtered.\n" +
-                "%       To receive output for a database update, use the \"-B\" flag.\n" +
-                "\n" +
-                "% Information related to 'DUMY-RIPE'\n" +
-                "\n" +
-                "person:         Placeholder Person Object\n" +
-                "address:        RIPE Network Coordination Centre\n" +
-                "address:        P.O. Box 10096\n" +
-                "address:        1001 EB Amsterdam\n" +
-                "address:        The Netherlands\n" +
-                "phone:          +31 20 535 4444\n" +
-                "nic-hdl:        DUMY-RIPE\n" +
-                "mnt-by:         RIPE-DBM-MNT\n" +
-                "remarks:        **********************************************************\n" +
-                "remarks:        * This is a placeholder object to protect personal data.\n" +
-                "remarks:        * To view the original object, please query the RIPE\n" +
-                "remarks:        * Database at:\n" +
-                "remarks:        * http://www.ripe.net/whois\n" +
-                "remarks:        **********************************************************\n" +
-                "source:         RIPE # Filtered\n" +
-                "\n"));
+                "%       To receive output for a database update, use the \"-B\" flag.\n\n"));
 
-        verify(dummifyFunction, atLeastOnce()).apply(any(ResponseObject.class));
+        verify(dummifyDecorator, atLeastOnce()).decorate(any(Query.class), any(Iterable.class));
     }
 
     @Test
     public void dummify_filter() {
         when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("GRS1", "GRS2"));
         when(sourceContext.isDummificationRequired()).thenReturn(true);
-        when(dummifyFunction.apply(any(ResponseObject.class))).thenReturn(null);
+        when(dummifyDecorator.decorate(any(Query.class), any(Iterable.class))).thenReturn(Collections.EMPTY_LIST);
 
         final RpslObject inetnum = RpslObject.parse(1, "inetnum: 10.0.0.0\norg:ORG1-TEST");
 
         final String response = execute("-G -B -T inetnum 10.0.0.0", inetnum);
         assertThat(response, is(""));
 
-        verify(dummifyFunction, atLeastOnce()).apply(any(ResponseObject.class));
+        verify(dummifyDecorator, atLeastOnce()).decorate(any(Query.class), any(Iterable.class));
     }
 }

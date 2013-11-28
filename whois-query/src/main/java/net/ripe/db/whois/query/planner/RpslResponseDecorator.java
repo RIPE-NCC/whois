@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
@@ -43,9 +44,9 @@ public class RpslResponseDecorator {
 
     private final RpslObjectDao rpslObjectDao;
     private final FilterPersonalDecorator filterPersonalDecorator;
+    private final DummifyDecorator dummifyDecorator;
     private final SourceContext sourceContext;
     private final BriefAbuseCFunction briefAbuseCFunction;
-    private final DummifyFunction dummifyFunction;
     private final SyntaxFilterFunction validSyntaxFilterFunction;
     private final SyntaxFilterFunction invalidSyntaxFilterFunction;
     private final FilterTagsDecorator filterTagsDecorator;
@@ -56,17 +57,17 @@ public class RpslResponseDecorator {
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
                                  final FilterPersonalDecorator filterPersonalDecorator,
+                                 final DummifyDecorator dummifyDecorator,
                                  final SourceContext sourceContext,
                                  final AbuseCFinder abuseCFinder,
-                                 final DummifyFunction dummifyFunction,
                                  final FilterTagsDecorator filterTagsDecorator,
                                  final FilterPlaceholdersDecorator filterPlaceholdersDecorator,
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
+        this.dummifyDecorator = dummifyDecorator;
         this.sourceContext = sourceContext;
-        this.dummifyFunction = dummifyFunction;
         this.abuseCInfoDecorator = abuseCInfoDecorator;
         this.validSyntaxFilterFunction = new SyntaxFilterFunction(true);
         this.invalidSyntaxFilterFunction = new SyntaxFilterFunction(false);
@@ -80,7 +81,7 @@ public class RpslResponseDecorator {
         Iterable<? extends ResponseObject> decoratedResult = filterPlaceholdersDecorator.decorate(query, result);
 
         decoratedResult = filterPlaceholdersDecorator.decorate(query, decoratedResult);
-        decoratedResult = dummify(decoratedResult);
+        decoratedResult = dummifyDecorator.decorate(query, decoratedResult);
 
         decoratedResult = groupRelatedObjects(query, decoratedResult);
         decoratedResult = filterTagsDecorator.decorate(query, decoratedResult);
@@ -102,14 +103,6 @@ public class RpslResponseDecorator {
         }
         if (query.isNoValidSyntax()) {
             return Iterables.concat(Iterables.transform(result, invalidSyntaxFilterFunction));
-        }
-
-        return result;
-    }
-
-    private Iterable<? extends ResponseObject> dummify(final Iterable<? extends ResponseObject> result) {
-        if (sourceContext.isDummificationRequired()) {
-            return Iterables.filter(Iterables.transform(result, dummifyFunction), Predicates.notNull());
         }
 
         return result;

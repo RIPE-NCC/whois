@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
-public final class Query {
+public class Query {
     public static final Pattern FLAG_PATTERN = Pattern.compile("(--?)([^-].*)");
 
     public static final int MAX_QUERY_ELEMENTS = 60;
