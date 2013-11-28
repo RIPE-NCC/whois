@@ -13,6 +13,7 @@ import java.util.List;
         "parameters",
         "objects",
         "sources",
+        "errors",
         "grsSources",
         "geolocationAttributes",
         "versions",
