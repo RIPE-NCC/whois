@@ -5,11 +5,15 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class Message {
     private final Messages.Type type;
+    private final String text;
+    private final Object[] args;
     private final String value;
 
-    public Message(final Messages.Type type, final String value, final Object... args) {
+    public Message(final Messages.Type type, final String text, final Object... args) {
         this.type = type;
-        this.value = args.length == 0 ? value : String.format(value, args);
+        this.text = text;
+        this.args = args;
+        this.value = args.length == 0 ? text : String.format(text, args);
     }
 
     @Override
@@ -44,5 +48,13 @@ public final class Message {
 
     public String getValue() {
         return value;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public Object[] getArgs() {
+        return args;
     }
 }
