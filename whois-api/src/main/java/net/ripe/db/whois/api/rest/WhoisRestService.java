@@ -66,6 +66,7 @@ import java.net.InetAddress;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -266,17 +267,19 @@ public class WhoisRestService {
 
         final boolean unfiltered = Iterables.contains(getQueryParamNames(request.getQueryString()), "unfiltered");
 
-        final Query query = Query.parse(String.format("%s %s %s %s %s %s %s %s %s %s",
-                QueryFlag.EXACT.getLongFlag(),
-                QueryFlag.NO_GROUPING.getLongFlag(),
-                QueryFlag.NO_REFERENCED.getLongFlag(),
-                QueryFlag.SOURCES.getLongFlag(),
-                source,
-                QueryFlag.SELECT_TYPES.getLongFlag(),
-                ObjectType.getByName(objectType).getName(),
-                QueryFlag.SHOW_TAG_INFO.getLongFlag(),
-                unfiltered ? QueryFlag.NO_FILTERING.getLongFlag() : "",
-                key), passwords);
+        QueryBuilder queryBuilder = new QueryBuilder().
+                addFlag(QueryFlag.EXACT).
+                addFlag(QueryFlag.NO_GROUPING).
+                addFlag(QueryFlag.NO_REFERENCED).
+                addFlag(QueryFlag.SHOW_TAG_INFO).
+                addCommaList(QueryFlag.SOURCES, source).
+                addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName());
+
+        if (unfiltered) {
+            queryBuilder.addFlag(QueryFlag.NO_FILTERING);
+        }
+
+        final Query query = Query.parse(queryBuilder.build(key), passwords);
 
         return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
     }
@@ -685,12 +688,17 @@ public class WhoisRestService {
         }
     }
 
-    private static class QueryBuilder {
+    private static final class QueryBuilder {
         private static final Joiner COMMA_JOINER = Joiner.on(',');
         private final StringBuilder query = new StringBuilder(128);
 
         public QueryBuilder addFlag(QueryFlag queryFlag) {
             query.append(queryFlag.getLongFlag()).append(' ');
+            return this;
+        }
+
+        public QueryBuilder addCommaList(QueryFlag queryFlag, String arg) {
+            query.append(queryFlag.getLongFlag()).append(' ').append(arg).append(' ');
             return this;
         }
 
