@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,6 @@ public class DummifierCurrent implements Dummifier {
 
     private static final Set<AttributeType> EMAIL_ATTRIBUTES = Sets.immutableEnumSet(E_MAIL, NOTIFY, CHANGED, REF_NFY, IRT_NFY, MNT_NFY, UPD_TO);
     private static final Set<AttributeType> PHONE_FAX_ATTRIBUTES = Sets.immutableEnumSet(PHONE, FAX_NO);
-
 
     public RpslObject dummify(final int version, final RpslObject rpslObject) {
         final ObjectType objectType = rpslObject.getType();
@@ -92,7 +92,6 @@ public class DummifierCurrent implements Dummifier {
         return attribute;
     }
 
-    // TODO: [AH] use the FilterAuthFunction from RpslResponseDecorator
     private RpslAttribute replaceAuth(final AttributeType attributeType, final RpslAttribute attribute) {
         if (attributeType != AUTH) {
             return attribute;
@@ -100,7 +99,7 @@ public class DummifierCurrent implements Dummifier {
 
         String passwordType = SPACE_SPLITTER.split(attribute.getCleanValue().toUpperCase()).iterator().next();
         if (passwordType.endsWith("-PW")) {     // history table has CRYPT-PW, has to be able to dummify that too!
-            return new RpslAttribute(attribute.getKey(), passwordType + FILTERED_APPENDIX);
+            return new RpslAttribute(AttributeType.AUTH, passwordType + FILTERED_APPENDIX);
         }
 
         return attribute;
