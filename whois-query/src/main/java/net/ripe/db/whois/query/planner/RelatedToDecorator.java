@@ -37,6 +37,7 @@ class RelatedToDecorator implements PrimaryObjectDecorator {
                 ? NO_PERSONAL_EXCLUDES
                 : Collections.<ObjectType>emptySet();
 
+        // TODO: [AH] we know exactly what object types each related-to lookup refers to, so we should just have an adjusted relatedto field lookup set, not object type exclusion
         return rpslObjectDao.relatedTo(rpslObject, excludeObjectTypes);
     }
 }
