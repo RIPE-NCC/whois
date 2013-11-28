@@ -37,6 +37,8 @@ public class WhoisResources {
     private Link link;
     @XmlElement(name = "geolocation-attributes")
     private GeolocationAttributes geolocationAttributes;
+    @XmlElement(name = "errors")
+    private Errors errors;
     @XmlElement(name = "versions")
     protected WhoisVersions versions;
     @XmlElement(name = "terms-and-conditions")
