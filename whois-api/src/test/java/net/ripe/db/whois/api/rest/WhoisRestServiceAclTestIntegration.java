@@ -71,7 +71,7 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
                 fail();
             } catch (ClientErrorException e) {
                 assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
-                assertThat(e.getResponse().readEntity(String.class), containsString("Error 429"));          // TODO: HTML response should be plaintext, and doesn't include acl denied message
+                WhoisRestServiceTestIntegration.assertOnlyErrorMessage(e, "Error", "%%ERROR:201: access denied for %s\n%%\n%% Sorry, access from your host has been permanently\n%% denied because of a repeated excessive querying.\n%% For more information, see\n%% http://www.ripe.net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied\n", "127.0.0.1");
             }
         } finally {
             databaseHelper.unban(LOCALHOST_WITH_PREFIX);

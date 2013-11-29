@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Flag;
 import net.ripe.db.whois.api.rest.domain.Flags;
 import net.ripe.db.whois.api.rest.domain.InverseAttributes;
@@ -45,7 +46,6 @@ import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -154,14 +154,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void lookup_inet6num_without_prefix_length() {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
-                "netname:        RIPE-NCC\n" +
-                "descr:          Private Network\n" +
-                "country:        NL\n" +
-                "tech-c:         TP1-TEST\n" +
-                "status:         ASSIGNED PA\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "mnt-lower:      OWNER-MNT\n" +
-                "source:         TEST");
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST");
         ipTreeUpdater.rebuild();
 
         try {
@@ -176,14 +176,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void lookup_inet6num_with_prefix_length() {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
-                "netname:        RIPE-NCC\n" +
-                "descr:          Private Network\n" +
-                "country:        NL\n" +
-                "tech-c:         TP1-TEST\n" +
-                "status:         ASSIGNED PA\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "mnt-lower:      OWNER-MNT\n" +
-                "source:         TEST");
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST");
         ipTreeUpdater.rebuild();
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::/48").request().get(WhoisResources.class);
@@ -372,7 +372,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.target(getPort(), "whois/pez/person/PP1-TEST").request().get(String.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorMessage(e, "Error", "Invalid source '%s'", "pez");
+            assertOnlyErrorMessage(e, "Error", "Invalid source '%s'", "pez");
         }
     }
 
@@ -597,7 +597,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(rpslObject)), MediaType.APPLICATION_XML), String.class);
             fail("expected request to fail");
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), containsString("Unrecognized source: NONE"));
+            assertOnlyErrorMessage(e, "Error", "Unrecognized source: %s", "NONE");
         }
     }
 
@@ -626,7 +626,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                             "</whois-resources>", MediaType.APPLICATION_XML), String.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), containsString("\"admin-c\" is not valid for this object type"));
+            WhoisResources whoisResources = mapClientException(e);
+            assertErrorMessage(whoisResources, 0, "Error", "Unrecognized source: %s", "RIPE");
+            assertErrorMessage(whoisResources, 1, "Error", "\"%s\" is not valid for this object type", "admin-c");
         }
     }
 
@@ -645,7 +647,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
             fail();
         } catch (NotAuthorizedException e) {
-            assertErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
+            assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
 
@@ -657,8 +659,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
             fail();
         } catch (NotAuthorizedException e) {
-            assertThat(e.getResponse().readEntity(String.class),
-                    containsString("Authorisation for [person] PP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"));
+            assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
 
@@ -669,10 +670,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .request()
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(OWNER_MNT)), MediaType.APPLICATION_XML), String.class);
             fail();
-        } catch (ClientErrorException e) {
-            assertThat(e.getResponse().getStatus(), is(HttpURLConnection.HTTP_CONFLICT));
-            assertThat(e.getResponse().readEntity(String.class),
-                    containsString("Enforced new keyword specified, but the object already exists in the database"));
+        } catch (BadRequestException e) {
+            assertOnlyErrorMessage(e, "Error", "Enforced new keyword specified, but the object already exists in the database");
         }
     }
 
@@ -750,7 +749,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test").request().delete(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorMessage(e, "Error", "Object [%s] %s is referenced from other objects", "person", "TP1-TEST");
+            assertOnlyErrorMessage(e, "Error", "Object [%s] %s is referenced from other objects", "person", "TP1-TEST");
         }
     }
 
@@ -761,8 +760,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=invalid").request().delete(String.class);
             fail();
         } catch (NotAuthorizedException e) {
-            assertThat(e.getResponse().readEntity(String.class),
-                    containsString("Authorisation for [person] PP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"));
+            assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
 
@@ -773,8 +771,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().delete(String.class);
             fail();
         } catch (NotAuthorizedException e) {
-            assertThat(e.getResponse().readEntity(String.class),
-                    containsString("Authorisation for [person] PP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"));
+            assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
 
@@ -1461,7 +1458,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("Invalid option 'h'"));
+            assertOnlyErrorMessage(e, "Error", "Invalid search flag '%s' (in parameter '%s')", "h", "show-tag-inforG");
         }
     }
 
@@ -1473,7 +1470,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorMessage(e, "Error", "Disallowed search flag '%s'", "q");
+            assertOnlyErrorMessage(e, "Error", "Disallowed search flag '%s'", "q");
         }
     }
 
@@ -1657,7 +1654,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorMessage(e, "Error", "Invalid source '%s'", "INVALID");
+            assertOnlyErrorMessage(e, "Error", "Invalid source '%s'", "INVALID");
         }
     }
 
@@ -1669,7 +1666,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorMessage(e, "Error", "Invalid source '%s'", "RIPE");
+            assertOnlyErrorMessage(e, "Error", "Invalid source '%s'", "RIPE");
         }
     }
 
@@ -1792,14 +1789,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void search_hierarchical_flags() {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
-                "netname:        RIPE-NCC\n" +
-                "descr:          Private Network\n" +
-                "country:        NL\n" +
-                "tech-c:         TP1-TEST\n" +
-                "status:         ASSIGNED PA\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "mnt-lower:      OWNER-MNT\n" +
-                "source:         TEST");
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST");
         ipTreeUpdater.rebuild();
 
         WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=2001:2002:2003:2004::5&flags=Lr")
@@ -1823,7 +1820,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("Disallowed option 'persistent-connection'"));
+            assertOnlyErrorMessage(e, "Error", "Disallowed search flag '%s'", "persistent-connection");
         }
     }
 
@@ -1972,14 +1969,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void search_not_contains_empty_xmlns() {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
-                "netname:        RIPE-NCC\n" +
-                "descr:          Private Network\n" +
-                "country:        NL\n" +
-                "tech-c:         TP1-TEST\n" +
-                "status:         ASSIGNED PA\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "mnt-lower:      OWNER-MNT\n" +
-                "source:         TEST");
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST");
         ipTreeUpdater.rebuild();
 
         final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=2001:2002:2003:2004::5")
@@ -2118,14 +2115,33 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
     }
 
-    private void assertErrorMessage(final ClientErrorException e, final String severity, final String text, final String... argument) {
+    private WhoisResources mapClientException(final ClientErrorException e) {
+        return e.getResponse().readEntity(WhoisResources.class);
+    }
+
+    static void assertOnlyErrorMessage(final ClientErrorException e, final String severity, final String text, final String... argument) {
         WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
-        assertThat(whoisResources.getErrorMessages(), hasSize(1));
-        assertThat(whoisResources.getErrorMessages().get(0).getText(), is(text));
-        assertThat(whoisResources.getErrorMessages().get(0).getSeverity(), is(severity));
-        assertThat(whoisResources.getErrorMessages().get(0).getArgs(), hasSize(argument.length));
-        for (int i = 0; i < argument.length; i++) {
-            assertThat(whoisResources.getErrorMessages().get(0).getArgs().get(i).getValue(), is(argument[i]));
+        assertErrorCount(whoisResources, 1);
+        assertErrorMessage(whoisResources, 0, severity, text, argument);
+    }
+
+    static void assertErrorMessage(final ClientErrorException e, final int number, final String severity, final String text, final String... argument) {
+        WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+        assertErrorMessage(whoisResources, number, severity, text, argument);
+    }
+
+    static void assertErrorMessage(final WhoisResources whoisResources, final int number, final String severity, final String text, final String... argument) {
+        assertThat(whoisResources.getErrorMessages().get(number).getText(), is(text));
+        assertThat(whoisResources.getErrorMessages().get(number).getSeverity(), is(severity));
+        if (argument.length > 0) {
+            assertThat(whoisResources.getErrorMessages().get(number).getArgs(), hasSize(argument.length));
+            for (int i = 0; i < argument.length; i++) {
+                assertThat(whoisResources.getErrorMessages().get(number).getArgs().get(i).getValue(), is(argument[i]));
+            }
         }
+    }
+
+    static void assertErrorCount(final WhoisResources whoisResources, final int count) {
+        assertThat(whoisResources.getErrorMessages(), hasSize(count));
     }
 }
