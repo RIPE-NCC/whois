@@ -72,10 +72,22 @@ public class InternalUpdatePerformer {
                     Lists.newArrayList(update),
                     notificationsEnabled);
 
-            final UpdateResponse response = updateRequestHandler.handle(updateRequest, updateContext);
+            updateRequestHandler.handle(updateRequest, updateContext);
+
             final RpslObject responseObject = updateContext.getPreparedUpdate(update).getUpdatedObject();
 
-            Response.ResponseBuilder responseBuilder = response.getStatus() != UpdateStatus.SUCCESS ? Response.status(Response.Status.BAD_REQUEST) : Response.status(Response.Status.OK);
+            Response.ResponseBuilder responseBuilder;
+            UpdateStatus status = updateContext.getStatus(update);
+            if (status == UpdateStatus.FAILED_AUTHENTICATION) {
+                responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
+            } else if (status == UpdateStatus.EXCEPTION) {
+                responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+            } else if (status != UpdateStatus.SUCCESS) {
+                responseBuilder = Response.status(Response.Status.BAD_REQUEST);
+            } else {
+                responseBuilder = Response.status(Response.Status.OK);
+            }
+
             responseBuilder.entity(createResponse(request, updateContext, update, responseObject));
             return responseBuilder.build();
         } finally {
@@ -167,51 +179,8 @@ public class InternalUpdatePerformer {
         return builder.toString();
     }
 
-    private Response getResponse(final UpdateResponse updateResponse) {
-        int status;
-        switch (updateResponse.getStatus()) {
-            case FAILED: {
-                status = HttpServletResponse.SC_BAD_REQUEST;
-
-                final String errors = findAllErrors(updateResponse);
-                if (!errors.isEmpty()) {
-                    if (errors.contains("Enforced new keyword specified, but the object already exists")) {
-                        status = HttpServletResponse.SC_CONFLICT;
-                    }
-                    return Response.status(status).entity(errors).build();
-                }
-
-                break;
-            }
-            case EXCEPTION:
-                status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-                break;
-            case FAILED_AUTHENTICATION:
-                status = HttpServletResponse.SC_UNAUTHORIZED;
-                final String errors = findAllErrors(updateResponse);
-                if (!errors.isEmpty()) {
-                    return Response.status(status).entity(errors).build();
-                }
-                break;
-            default:
-                status = HttpServletResponse.SC_OK;
-        }
-
-        return Response.status(status).build();
-    }
-
     private String getRequestId(final String remoteAddress) {
         return String.format("rest_%s_%s", remoteAddress, System.nanoTime());
-    }
-
-    private String findAllErrors(final UpdateResponse updateResponse) {
-        final StringBuilder builder = new StringBuilder();
-        final Matcher matcher = UPDATE_RESPONSE_ERRORS.matcher(updateResponse.getResponse());
-        while (matcher.find()) {
-            builder.append(matcher.group(1).replaceAll("[\\n ]+", " "));
-            builder.append('\n');
-        }
-        return builder.toString();
     }
 
     public static void logHttpHeaders(final LoggerContext loggerContext, final HttpServletRequest request) {
