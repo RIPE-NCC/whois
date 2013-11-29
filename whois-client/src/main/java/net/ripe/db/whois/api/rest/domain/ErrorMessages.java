@@ -15,7 +15,7 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ErrorMessages {
 
-    @XmlElement(name = "errormessages")
+    @XmlElement(name = "errormessage")
     protected List<ErrorMessage> errorMessages = Lists.newArrayList();
 
     public void addErrorMessage(ErrorMessage error) {
