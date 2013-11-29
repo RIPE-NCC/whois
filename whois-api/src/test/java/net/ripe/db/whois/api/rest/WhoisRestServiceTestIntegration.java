@@ -2120,12 +2120,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     private void assertErrorMessage(final WhoisResources whoisResources, final String text, final String severity, final String... argument) {
-        assertThat(whoisResources.getErrorMessages().getErrorMessages(), hasSize(1));
-        assertThat(whoisResources.getErrorMessages().getErrorMessages().get(0).getText(), is(text));
-        assertThat(whoisResources.getErrorMessages().getErrorMessages().get(0).getSeverity(), is(severity));
-        assertThat(whoisResources.getErrorMessages().getErrorMessages().get(0).getArgs(), hasSize(argument.length));
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().get(0).getText(), is(text));
+        assertThat(whoisResources.getErrorMessages().get(0).getSeverity(), is(severity));
+        assertThat(whoisResources.getErrorMessages().get(0).getArgs(), hasSize(argument.length));
         for (int i = 0; i < argument.length; i++) {
-            assertThat(whoisResources.getErrorMessages().getErrorMessages().get(0).getArgs().get(i).getValue(), is(argument[i]));
+            assertThat(whoisResources.getErrorMessages().get(0).getArgs().get(i).getValue(), is(argument[i]));
         }
     }
 }
