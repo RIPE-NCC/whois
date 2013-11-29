@@ -2,9 +2,15 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.ErrorMessages;
+import net.ripe.db.whois.api.rest.domain.Link;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
@@ -26,10 +32,11 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,15 +47,18 @@ public class InternalUpdatePerformer {
 
     private final UpdateRequestHandler updateRequestHandler;
     private final DateTimeProvider dateTimeProvider;
+    private final WhoisObjectServerMapper whoisObjectMapper;
 
     @Autowired
     public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler,
-                                   final DateTimeProvider dateTimeProvider) {
+                                   final DateTimeProvider dateTimeProvider,
+                                   final WhoisObjectServerMapper whoisObjectMapper) {
         this.updateRequestHandler = updateRequestHandler;
         this.dateTimeProvider = dateTimeProvider;
+        this.whoisObjectMapper = whoisObjectMapper;
     }
 
-    public RpslObject performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword, final LoggerContext loggerContext, final HttpServletRequest request) {
+    public Response performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword, final LoggerContext loggerContext, final HttpServletRequest request) {
         loggerContext.init(getRequestId(origin.getFrom()));
         try {
             final UpdateContext updateContext = new UpdateContext(loggerContext);
@@ -64,19 +74,37 @@ public class InternalUpdatePerformer {
                     notificationsEnabled);
 
             final UpdateResponse response = updateRequestHandler.handle(updateRequest, updateContext);
+            final RpslObject responseObject = updateContext.getPreparedUpdate(update).getUpdatedObject();
 
-            if (updateContext.getStatus(update) == UpdateStatus.FAILED_AUTHENTICATION) {
-                throw new WebApplicationException(getResponse(new UpdateResponse(UpdateStatus.FAILED_AUTHENTICATION, response.getResponse())));
-            }
-            if (response.getStatus() != UpdateStatus.SUCCESS) {
-                throw new WebApplicationException(getResponse(response));
-            }
-
-            return updateContext.getPreparedUpdate(update).getUpdatedObject();
+            Response.ResponseBuilder responseBuilder = response.getStatus() != UpdateStatus.SUCCESS ? Response.status(Response.Status.BAD_REQUEST) : Response.status(Response.Status.OK);
+            responseBuilder.entity(createResponse(request, updateContext, update, responseObject));
+            return responseBuilder.build();
         } finally {
             loggerContext.remove();
         }
     }
+
+    private WhoisResources createResponse(final HttpServletRequest request, UpdateContext updateContext, Update update, RpslObject responseObject) {
+        final WhoisResources whoisResources = new WhoisResources();
+        ErrorMessages errorMessages = new ErrorMessages();
+        for (Message message : updateContext.getGlobalMessages().getAllMessages()) {
+            errorMessages.addErrorMessage(new ErrorMessage(message));
+        }
+
+        for (Map.Entry<RpslAttribute, Messages> entry: updateContext.getMessages(update).getAttributeMessages().entrySet()) {
+            RpslAttribute rpslAttribute = entry.getKey();
+            for (Message message : entry.getValue().getAllMessages()) {
+                errorMessages.addErrorMessage(new ErrorMessage(message, rpslAttribute));
+            }
+        }
+
+        whoisResources.setErrorMessages(errorMessages);
+        whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(responseObject)));
+        whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
+        whoisResources.includeTermsAndConditions();
+        return whoisResources;
+    }
+
 
     public Update createUpdate(final RpslObject rpslObject, final List<String> passwords, final String deleteReason, String override) {
         return new Update(

@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest.domain;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -39,12 +40,17 @@ public class ErrorMessage {
 
     public ErrorMessage(Message message) {
         this.severity = message.getType().toString();
-        this.attribute = null;  // TODO
+        this.attribute = null;
         this.text = message.getText();
         this.args = Lists.newArrayList();
         for (Object arg : message.getArgs()) {
             this.args.add(new Arg(arg.toString()));
         }
+    }
+
+    public ErrorMessage(Message message, RpslAttribute attribute) {
+        this(message);
+        this.attribute = new Attribute(attribute.getKey(), attribute.getValue());
     }
 
     public String getSeverity() {

@@ -32,7 +32,13 @@ public class UpdateRequestHandler {
     private final UpdateLog updateLog;
 
     @Autowired
-    public UpdateRequestHandler(final SourceContext sourceContext, final ResponseFactory responseFactory, final SingleUpdateHandler singleUpdateHandler, final LoggerContext loggerContext, final DnsChecker dnsChecker, final UpdateNotifier updateNotifier, final UpdateLog updateLog) {
+    public UpdateRequestHandler(final SourceContext sourceContext,
+                                final ResponseFactory responseFactory,
+                                final SingleUpdateHandler singleUpdateHandler,
+                                final LoggerContext loggerContext,
+                                final DnsChecker dnsChecker,
+                                final UpdateNotifier updateNotifier,
+                                final UpdateLog updateLog) {
         this.sourceContext = sourceContext;
         this.responseFactory = responseFactory;
         this.singleUpdateHandler = singleUpdateHandler;

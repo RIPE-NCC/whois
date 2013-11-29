@@ -178,7 +178,7 @@ public class WhoisRestService {
             @QueryParam("password") final List<String> passwords,
             @QueryParam("override") final String override) {
 
-        checkForMainSource(source);
+        checkForMainSource(request, source);
 
         final RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
 
@@ -206,12 +206,12 @@ public class WhoisRestService {
             @QueryParam("password") final List<String> passwords,
             @QueryParam("override") final String override) {
 
-        checkForMainSource(source);
+        checkForMainSource(request, source);
 
         final RpslObject submittedObject = getSubmittedObject(request, resource);
         validateSubmittedObject(request, submittedObject, objectType, key);
 
-        final RpslObject response = updatePerformer.performUpdate(
+        return updatePerformer.performUpdate(
                 updatePerformer.createOrigin(request),
                 updatePerformer.createUpdate(submittedObject, passwords, null, override),
                 updatePerformer.createContent(submittedObject, passwords, null, override),
@@ -219,8 +219,6 @@ public class WhoisRestService {
                 loggerContext,
                 request);
 
-        WhoisResources whoisResources = createWhoisResources(request, response);
-        return Response.ok(whoisResources).build();
     }
 
     // TODO: deprecate mod_proxy for 'POST /ripe' and add check for objectType == submitted object type here
@@ -236,25 +234,22 @@ public class WhoisRestService {
             @QueryParam("password") final List<String> passwords,
             @QueryParam("override") final String override) {
 
-        checkForMainSource(source);
+        checkForMainSource(request, source);
 
         final RpslObject submittedObject = getSubmittedObject(request, resource);
 
-        final RpslObject response = updatePerformer.performUpdate(
+        return updatePerformer.performUpdate(
                 updatePerformer.createOrigin(request),
                 updatePerformer.createUpdate(submittedObject, passwords, null, override),
                 updatePerformer.createContent(submittedObject, passwords, null, override),
                 Keyword.NEW,
                 loggerContext,
                 request);
-
-        WhoisResources whoisResources = createWhoisResources(request, response);
-        return Response.ok(whoisResources).build();
     }
 
-    private void checkForMainSource(String source) {
+    private void checkForMainSource(HttpServletRequest request, String source) {
         if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
-            throw new IllegalArgumentException("Invalid source: " + source);
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.invalidSource(source))).build());
         }
     }
 
@@ -269,7 +264,7 @@ public class WhoisRestService {
             @QueryParam("password") final List<String> passwords) {
 
         if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
-            throw new IllegalArgumentException(String.format("Invalid source '%s'", source));
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.invalidSource(source))).build());
         }
 
         final boolean unfiltered = Iterables.contains(getQueryParamNames(request.getQueryString()), "unfiltered");
@@ -300,7 +295,7 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key) {
 
-        checkForMainSource(source);
+        checkForMainSource(request, source);
 
         final Query query = Query.parse(String.format("%s %s %s %s",
                 QueryFlag.SELECT_TYPES.getLongFlag(),
@@ -316,7 +311,7 @@ public class WhoisRestService {
         final List<VersionResponseObject> versions = versionsResponseHandler.getVersionObjects();
 
         if (versions.isEmpty() && deleted.isEmpty()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(createErrorEntity(request, versionsResponseHandler.getErrors())).build());
         }
 
         final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
@@ -324,6 +319,7 @@ public class WhoisRestService {
 
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setVersions(whoisVersions);
+        whoisResources.setErrorMessages(createErrorMessages(versionsResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
 
         return Response.ok(whoisResources).build();
@@ -339,7 +335,7 @@ public class WhoisRestService {
             @PathParam("key") final String key,
             @PathParam("version") final Integer version) {
 
-        checkForMainSource(source);
+        checkForMainSource(request, source);
 
         final Query query = Query.parse(String.format("%s %s %s %s %s",
                 QueryFlag.SELECT_TYPES.getLongFlag(),
@@ -355,13 +351,14 @@ public class WhoisRestService {
         final VersionWithRpslResponseObject versionWithRpslResponseObject = versionsResponseHandler.getVersionWithRpslResponseObject();
 
         if (versionWithRpslResponseObject == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(createErrorEntity(request, versionsResponseHandler.getErrors())).build());
         }
 
         final WhoisResources whoisResources = new WhoisResources();
         final WhoisObject whoisObject = whoisObjectMapper.map(versionWithRpslResponseObject.getRpslObject());
         whoisObject.setVersion(versionWithRpslResponseObject.getVersion());
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
+        whoisResources.setErrorMessages(createErrorMessages(versionsResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
 
         return Response.ok(whoisResources).build();
@@ -510,14 +507,6 @@ public class WhoisRestService {
         }
     }
 
-    private WhoisResources createWhoisResources(final HttpServletRequest request, final RpslObject rpslObject) {
-        final WhoisResources whoisResources = new WhoisResources();
-        whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(rpslObject)));
-        whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
-        whoisResources.includeTermsAndConditions();
-        return whoisResources;
-    }
-
     private ErrorMessages createErrorMessages(List<Message> messages) {
         ErrorMessages errorMessages = new ErrorMessages();
         for (Message message : messages) {
@@ -555,6 +544,7 @@ public class WhoisRestService {
         final List<VersionResponseObject> versionObjects = Lists.newArrayList();
         final List<DeletedVersionResponseObject> deletedObjects = Lists.newArrayList();
         VersionWithRpslResponseObject versionWithRpslResponseObject;
+        private final List<Message> errors = Lists.newArrayList();
 
         public List<VersionResponseObject> getVersionObjects() {
             return versionObjects;
@@ -568,18 +558,23 @@ public class WhoisRestService {
             return versionWithRpslResponseObject;
         }
 
+        public List<Message> getErrors() {
+            return errors;
+        }
+
         @Override
         public void handle(final ResponseObject responseObject) {
             if (responseObject instanceof VersionWithRpslResponseObject) {
                 versionWithRpslResponseObject = (VersionWithRpslResponseObject) responseObject;
-            }
-
-            if (responseObject instanceof VersionResponseObject) {
+            } else if (responseObject instanceof VersionResponseObject) {
                 versionObjects.add((VersionResponseObject) responseObject);
-            }
-
-            if (responseObject instanceof DeletedVersionResponseObject) {
+            } else if (responseObject instanceof DeletedVersionResponseObject) {
                 deletedObjects.add((DeletedVersionResponseObject) responseObject);
+            } else if (responseObject instanceof MessageObject) {
+                Message message = ((MessageObject) responseObject).getMessage();
+                if (message != null && Messages.Type.INFO.compareTo(message.getType()) < 0) {
+                    errors.add(message);
+                }
             }
         }
     }
@@ -670,7 +665,7 @@ public class WhoisRestService {
                 } else if (responseObject instanceof RpslObject) {
                     streamRpslObject((RpslObject) responseObject);
                 } else if (responseObject instanceof MessageObject) {
-                    Message message = ((MessageObject)responseObject).getMessage();
+                    Message message = ((MessageObject) responseObject).getMessage();
                     if (message != null && Messages.Type.INFO.compareTo(message.getType()) < 0) {
                         errors.add(message);
                     }
