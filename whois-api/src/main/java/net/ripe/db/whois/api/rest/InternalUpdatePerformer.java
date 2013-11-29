@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
-import net.ripe.db.whois.api.rest.domain.ErrorMessages;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
@@ -86,23 +85,22 @@ public class InternalUpdatePerformer {
 
     private WhoisResources createResponse(final HttpServletRequest request, UpdateContext updateContext, Update update, RpslObject responseObject) {
         final WhoisResources whoisResources = new WhoisResources();
-        ErrorMessages errorMessages = new ErrorMessages();
-
         // global messages
+        List<ErrorMessage> errorMessages = Lists.newArrayList();
         for (Message message : updateContext.getGlobalMessages().getAllMessages()) {
-            errorMessages.addErrorMessage(new ErrorMessage(message));
+            errorMessages.add(new ErrorMessage(message));
         }
 
         // object messages
         for (Message message : updateContext.getMessages(update).getMessages().getAllMessages()) {
-            errorMessages.addErrorMessage(new ErrorMessage(message));
+            errorMessages.add(new ErrorMessage(message));
         }
 
         // attribute messages
         for (Map.Entry<RpslAttribute, Messages> entry: updateContext.getMessages(update).getAttributeMessages().entrySet()) {
             RpslAttribute rpslAttribute = entry.getKey();
             for (Message message : entry.getValue().getAllMessages()) {
-                errorMessages.addErrorMessage(new ErrorMessage(message, rpslAttribute));
+                errorMessages.add(new ErrorMessage(message, rpslAttribute));
             }
         }
 

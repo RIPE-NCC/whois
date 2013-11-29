@@ -54,12 +54,12 @@ public class WhoisResources {
         return this;
     }
 
-    public void setErrorMessages(ErrorMessages errorMessages) {
-        this.errorMessages = errorMessages;
+    public void setErrorMessages(List<ErrorMessage> errorMessages) {
+        this.errorMessages = new ErrorMessages(errorMessages);
     }
 
-    public ErrorMessages getErrorMessages() {
-        return errorMessages;
+    public List<ErrorMessage> getErrorMessages() {
+        return errorMessages != null ? errorMessages.errorMessages : null;
     }
 
     public Parameters getParameters() {

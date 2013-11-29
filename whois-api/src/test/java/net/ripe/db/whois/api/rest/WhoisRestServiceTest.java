@@ -23,7 +23,6 @@ import javax.ws.rs.WebApplicationException;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -68,7 +67,7 @@ public class WhoisRestServiceTest {
                         Sets.newHashSet(disallowedFlag));
                 fail("Disallowed option " + disallowedFlag + " did not throw error");
             } catch (WebApplicationException e) {
-                assertThat(((WhoisResources)e.getResponse().getEntity()).getErrorMessages().getErrorMessages().get(0).getText(), is("Disallowed search flag '%s'"));
+                assertThat(((WhoisResources)e.getResponse().getEntity()).getErrorMessages().get(0).getText(), is("Disallowed search flag '%s'"));
             }
         }
     }

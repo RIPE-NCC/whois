@@ -194,7 +194,7 @@ public class RestClient {
         return whoisObjectClientMapper.mapWhoisObjects(whoisResources.getWhoisObjects());
     }
 
-    String queryParams(String... queryParam) {
+    public String queryParams(final String... queryParam) {
         StringBuilder res = null;
         for (String s : queryParam) {
             if (!StringUtils.isBlank(s)) {
@@ -208,11 +208,11 @@ public class RestClient {
         return res==null ? "" : res.toString();
     }
 
-    String queryParam(String queryParam, String... values) {
+    public String queryParam(final String queryParam, final String... values) {
         return queryParam(queryParam, Arrays.asList(values));
     }
 
-    String queryParam(String queryParam, Collection<String> values) {
+    public String queryParam(final String queryParam, final Collection<String> values) {
         if (!CollectionUtils.isEmpty(values)) {
             return String.format("%s=%s", queryParam, StringUtils.join(values, "&" + queryParam + "="));
         }
