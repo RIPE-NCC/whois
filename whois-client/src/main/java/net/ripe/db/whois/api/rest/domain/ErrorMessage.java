@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -8,33 +10,41 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import java.util.Arrays;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "error")
+@XmlRootElement(name = "errormessage")
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class Error {
+public class ErrorMessage {
 
     @XmlAttribute(required = true)
     protected String severity;
     @XmlElement
     protected Attribute attribute;
     @XmlAttribute(required = true)
-    protected String name;
-    @XmlAttribute(required = true)
     protected String text;
     @XmlElement
     protected List<Arg> args;
 
-    public Error(String severity, Attribute attribute, String name, String text, List<Arg> args) {
+    public ErrorMessage(String severity, Attribute attribute, String text, List<Arg> args) {
         this.severity = severity;
         this.attribute = attribute;
-        this.name = name;
         this.text = text;
         this.args = args;
     }
 
-    public Error() {
+    public ErrorMessage() {
+    }
+
+    public ErrorMessage(Message message) {
+        this.severity = message.getType().toString();
+        this.attribute = null;  // TODO
+        this.text = message.getText();
+        this.args = Lists.newArrayList();
+        for (Object arg : message.getArgs()) {
+            this.args.add(new Arg(arg.toString()));
+        }
     }
 
     public String getSeverity() {
@@ -43,10 +53,6 @@ public class Error {
 
     public Attribute getAttribute() {
         return attribute;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getText() {

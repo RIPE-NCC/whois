@@ -50,7 +50,7 @@ public class MessagesTest {
         subject.addAll(additionalMessages);
 
         assertThat(subject.getAllMessages(), hasSize(3));
-        assertThat(subject.getAllMessages(), contains(error1, error2, info));
+        assertThat(subject.getAllMessages(), contains(info, error1, error2));
     }
 
     @Test

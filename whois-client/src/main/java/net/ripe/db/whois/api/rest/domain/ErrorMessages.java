@@ -11,22 +11,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@XmlRootElement(name = "errors")
+@XmlRootElement(name = "errormessages")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Errors {
+public class ErrorMessages {
 
-    @XmlElement(name = "errors")
-    protected List<Error> errors = Lists.newArrayList();
+    @XmlElement(name = "errormessages")
+    protected List<ErrorMessage> errorMessages = Lists.newArrayList();
 
-    public void addError(Error error) {
-        errors.add(error);
+    public void addErrorMessage(ErrorMessage error) {
+        errorMessages.add(error);
     }
 
-    public Errors() {
+    public ErrorMessages() {
         // required no-arg constructor
     }
 
-    public List<Error> geterrors() {
-        return errors;
+    public List<ErrorMessage> getErrorMessages() {
+        return errorMessages;
     }
 }

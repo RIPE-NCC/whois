@@ -24,7 +24,7 @@ public final class UpdateMessages {
     private static final Joiner LIST_JOINED = Joiner.on(", ");
 
     public static String print(final Message message) {
-        return prettyPrint(String.format("***%s: ", message.getType()), message.getValue(), 12, 80);
+        return prettyPrint(String.format("***%s: ", message.getType()), message.getFormattedText(), 12, 80);
     }
 
     private UpdateMessages() {

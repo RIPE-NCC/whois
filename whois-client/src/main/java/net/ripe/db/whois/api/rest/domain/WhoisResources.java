@@ -13,7 +13,7 @@ import java.util.List;
         "parameters",
         "objects",
         "sources",
-        "errors",
+        "errorMessages",
         "grsSources",
         "geolocationAttributes",
         "versions",
@@ -38,8 +38,8 @@ public class WhoisResources {
     private Link link;
     @XmlElement(name = "geolocation-attributes")
     private GeolocationAttributes geolocationAttributes;
-    @XmlElement(name = "errors")
-    private Errors errors;
+    @XmlElement(name = "errormessages")
+    private ErrorMessages errorMessages;
     @XmlElement(name = "versions")
     protected WhoisVersions versions;
     @XmlElement(name = "terms-and-conditions")
@@ -52,6 +52,14 @@ public class WhoisResources {
     public WhoisResources setLink(Link value) {
         this.link = value;
         return this;
+    }
+
+    public void setErrorMessages(ErrorMessages errorMessages) {
+        this.errorMessages = errorMessages;
+    }
+
+    public ErrorMessages getErrorMessages() {
+        return errorMessages;
     }
 
     public Parameters getParameters() {

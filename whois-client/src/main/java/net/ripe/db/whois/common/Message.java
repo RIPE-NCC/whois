@@ -7,18 +7,18 @@ public final class Message {
     private final Messages.Type type;
     private final String text;
     private final Object[] args;
-    private final String value;
+    private final String formattedText;
 
     public Message(final Messages.Type type, final String text, final Object... args) {
         this.type = type;
         this.text = text;
         this.args = args;
-        this.value = args.length == 0 ? text : String.format(text, args);
+        this.formattedText = args.length == 0 ? text : String.format(text, args);
     }
 
     @Override
     public String toString() {
-        return value;
+        return formattedText;
     }
 
     @Override
@@ -32,13 +32,13 @@ public final class Message {
         }
 
         final Message message = (Message) o;
-        return type == message.type && value.equals(message.value);
+        return type == message.type && formattedText.equals(message.formattedText);
     }
 
     @Override
     public int hashCode() {
         int result = type.hashCode();
-        result = 31 * result + value.hashCode();
+        result = 31 * result + formattedText.hashCode();
         return result;
     }
 
@@ -46,8 +46,8 @@ public final class Message {
         return type;
     }
 
-    public String getValue() {
-        return value;
+    public String getFormattedText() {
+        return formattedText;
     }
 
     public String getText() {

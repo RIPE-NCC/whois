@@ -94,9 +94,9 @@ public final class Messages {
     }
 
     public enum Type {
-        ERROR("Error"),
+        INFO("Info"),
         WARNING("Warning"),
-        INFO("Info");
+        ERROR("Error");
 
         private final String string;
 

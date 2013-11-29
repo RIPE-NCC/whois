@@ -70,6 +70,6 @@ public class AbuseCInfoDecoratorTest {
 
         final MessageObject result = (MessageObject) iterator.next();
 
-        assertThat(result.toString(), is(QueryMessages.abuseCNotRegistered("AS333").getValue()));
+        assertThat(result.toString(), is(QueryMessages.abuseCNotRegistered("AS333").getFormattedText()));
     }
 }

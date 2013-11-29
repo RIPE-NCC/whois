@@ -347,5 +347,4 @@ public final class QueryMessages {
     public static Message validSyntax(final CharSequence objectKey) {
         return new Message(Type.INFO, "%% '%s' has valid syntax", objectKey);
     }
-
 }

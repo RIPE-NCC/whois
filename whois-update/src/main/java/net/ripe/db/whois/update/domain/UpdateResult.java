@@ -126,7 +126,7 @@ public class UpdateResult {
         for (final Message message : messages.getAllMessages()) {
             Messages.Type type = message.getType();
             if (UpdateStatus.PENDING_AUTHENTICATION.equals(status) && Messages.Type.ERROR.equals(type)) {
-                writer.write(UpdateMessages.print(new Message(Messages.Type.INFO, message.getValue())));
+                writer.write(UpdateMessages.print(new Message(Messages.Type.INFO, message.getFormattedText())));
             } else {
                 writer.write(UpdateMessages.print(message));
             }
