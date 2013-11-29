@@ -1,7 +1,8 @@
 package net.ripe.db.whois.internal.api.acl;
 
-import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.domain.IpResourceTree;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -76,6 +77,7 @@ public class AclLimitService {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response saveLimit(final Limit limit) {
         final IpInterval<?> ipInterval = IpInterval.parse(limit.getPrefix());
+        validate(ipInterval);
         limit.setPrefix(ipInterval.toString());
 
         final IpResourceTree<Limit> limitsTree = getLimitsTree();
@@ -121,5 +123,11 @@ public class AclLimitService {
         }
 
         return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    private void validate(final IpInterval<?> ipInterval) {
+        if (ipInterval instanceof Ipv6Resource && ipInterval.getPrefixLength() > 64) {
+            throw new IllegalArgumentException("IPv6 must be at least a /64 prefix range");
+        }
     }
 }

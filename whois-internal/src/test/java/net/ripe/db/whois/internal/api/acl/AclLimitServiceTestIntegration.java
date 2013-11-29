@@ -88,6 +88,27 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
     }
 
     @Test
+    public void createLimit_no_prefix_length_ipv4() throws Exception {
+            final Limit limit = RestTest.target(getPort(), LIMITS_PATH, null, apiKey)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Entity.entity(new Limit("10.0.0.1", "test", 10000, true), MediaType.APPLICATION_JSON_TYPE), Limit.class);
+
+        assertThat(limit.getPrefix(), is("10.0.0.1/32"));
+    }
+
+    @Test
+    public void createLimit_no_prefix_length_ipv6() throws Exception {
+        try {
+            RestTest.target(getPort(), LIMITS_PATH, null, apiKey)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Entity.entity(new Limit("1001:1002::", "test", 10000, true), MediaType.APPLICATION_JSON_TYPE), Limit.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), is("IPv6 must be at least a /64 prefix range"));
+        }
+    }
+
+    @Test
     public void updateLimit() throws Exception {
         final Limit limit = RestTest.target(getPort(), LIMITS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
