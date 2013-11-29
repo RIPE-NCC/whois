@@ -17,7 +17,6 @@ import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.client.Client;
@@ -61,7 +60,7 @@ public class RestClient {
                 restApiUrl,
                 sourceName,
                 rpslObject.getType().getName(),
-                queryParams(queryParam("password", passwords))
+                joinQueryParams(createQueryParams("password", passwords))
         )).request().post(
                 Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
                 WhoisResources.class
@@ -74,7 +73,7 @@ public class RestClient {
                 restApiUrl,
                 sourceName,
                 rpslObject.getType().getName(),
-                queryParams(queryParam("override", override))
+                joinQueryParams(createQueryParams("override", override))
         )).request().post(
                 Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
                 WhoisResources.class
@@ -89,7 +88,7 @@ public class RestClient {
                 sourceName,
                 rpslObject.getType().getName(),
                 rpslObject.getKey().toString(),
-                queryParams(queryParam("password", passwords))
+                joinQueryParams(createQueryParams("password", passwords))
         )).request().put(
                 Entity.entity(entity, MediaType.APPLICATION_XML),
                 WhoisResources.class
@@ -103,7 +102,7 @@ public class RestClient {
                 sourceName,
                 rpslObject.getType().getName(),
                 rpslObject.getKey().toString(),
-                queryParams(queryParam("override", override))
+                joinQueryParams(createQueryParams("override", override))
         )).request().put(
                 Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
                 WhoisResources.class
@@ -117,7 +116,7 @@ public class RestClient {
                 sourceName,
                 rpslObject.getType().getName(),
                 rpslObject.getKey().toString(),
-                queryParams(queryParam("password", passwords))
+                joinQueryParams(createQueryParams("password", passwords))
         )).request().delete(String.class);
     }
 
@@ -127,7 +126,7 @@ public class RestClient {
                 sourceName,
                 rpslObject.getType().getName(),
                 rpslObject.getKey().toString(),
-                queryParams(queryParam("override", override))
+                joinQueryParams(createQueryParams("override", override))
         )).request().delete(String.class);
     }
 
@@ -137,7 +136,7 @@ public class RestClient {
                 sourceName,
                 objectType.getName(),
                 pkey,
-                queryParams(queryParam("password", passwords)),
+                joinQueryParams(createQueryParams("password", passwords)),
                 (passwords.length == 0) ? "?unfiltered" : "&unfiltered"
         )).request().get(WhoisResources.class);
         return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
@@ -161,26 +160,26 @@ public class RestClient {
 
         final String uri = String.format("%s/search%s",
                 restApiUrl,
-                queryParams(
-                        queryParam("query-string", RestClientUtils.encode(searchKey)),
-                        queryParam("source", sources),
-                        queryParam("inverse-attribute", Collections2.transform(inverseAttributes, new Function<AttributeType, String>() {
+                joinQueryParams(
+                        createQueryParams("query-string", RestClientUtils.encode(searchKey)),
+                        createQueryParams("source", sources),
+                        createQueryParams("inverse-attribute", Collections2.transform(inverseAttributes, new Function<AttributeType, String>() {
                             @Nullable
                             @Override
                             public String apply(@Nullable AttributeType input) {
                                 return input.getName();
                             }
                         })),
-                        queryParam("include-tag", includeTags),
-                        queryParam("exclude-tag", excludeTags),
-                        queryParam("type-filter", Collections2.transform(types, new Function<ObjectType, String>() {
+                        createQueryParams("include-tag", includeTags),
+                        createQueryParams("exclude-tag", excludeTags),
+                        createQueryParams("type-filter", Collections2.transform(types, new Function<ObjectType, String>() {
                             @Nullable
                             @Override
                             public String apply(@Nullable ObjectType input) {
                                 return (input == null ? null : input.getName());
                             }
                         })),
-                        queryParam("flags", Collections2.transform(flags, new Function<QueryFlag, String>() {
+                        createQueryParams("flags", Collections2.transform(flags, new Function<QueryFlag, String>() {
                             @Nullable
                             @Override
                             public String apply(@Nullable QueryFlag input) {
@@ -194,28 +193,32 @@ public class RestClient {
         return whoisObjectClientMapper.mapWhoisObjects(whoisResources.getWhoisObjects());
     }
 
-    public String queryParams(final String... queryParam) {
-        StringBuilder res = null;
-        for (String s : queryParam) {
-            if (!StringUtils.isBlank(s)) {
-                if (res == null) {
-                    res = new StringBuilder("?").append(s);
+    public static String joinQueryParams(final String... queryParams) {
+        final StringBuilder result = new StringBuilder();
+        for (String queryParam : queryParams) {
+            if (!StringUtils.isBlank(queryParam)) {
+                if (result.length() == 0) {
+                    result.append('?').append(queryParam);
                 } else {
-                    res.append('&').append(s);
+                    result.append('&').append(queryParam);
                 }
             }
         }
-        return res==null ? "" : res.toString();
+        return result.toString();
     }
 
-    public String queryParam(final String queryParam, final String... values) {
-        return queryParam(queryParam, Arrays.asList(values));
+    public static String createQueryParams(final String key, final String... values) {
+        return createQueryParams(key, Arrays.asList(values));
     }
 
-    public String queryParam(final String queryParam, final Collection<String> values) {
-        if (!CollectionUtils.isEmpty(values)) {
-            return String.format("%s=%s", queryParam, StringUtils.join(values, "&" + queryParam + "="));
+    public static String createQueryParams(final String key, final Collection<String> values) {
+        final StringBuilder result = new StringBuilder();
+        for (String value : values) {
+            if (result.length() > 0) {
+                result.append('&');
+            }
+            result.append(key).append('=').append(value);
         }
-        return "";
+        return result.toString();
     }
 }
