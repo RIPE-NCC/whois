@@ -87,10 +87,18 @@ public class InternalUpdatePerformer {
     private WhoisResources createResponse(final HttpServletRequest request, UpdateContext updateContext, Update update, RpslObject responseObject) {
         final WhoisResources whoisResources = new WhoisResources();
         ErrorMessages errorMessages = new ErrorMessages();
+
+        // global messages
         for (Message message : updateContext.getGlobalMessages().getAllMessages()) {
             errorMessages.addErrorMessage(new ErrorMessage(message));
         }
 
+        // object messages
+        for (Message message : updateContext.getMessages(update).getMessages().getAllMessages()) {
+            errorMessages.addErrorMessage(new ErrorMessage(message));
+        }
+
+        // attribute messages
         for (Map.Entry<RpslAttribute, Messages> entry: updateContext.getMessages(update).getAttributeMessages().entrySet()) {
             RpslAttribute rpslAttribute = entry.getKey();
             for (Message message : entry.getValue().getAllMessages()) {

@@ -372,7 +372,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.target(getPort(), "whois/pez/person/PP1-TEST").request().get(String.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("Invalid source 'pez'"));
+            assertErrorMessage(e.getResponse().readEntity(WhoisResources.class), "Invalid source '%s'", "Error", "pez");
         }
     }
 
@@ -748,11 +748,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void delete_referenced_from_other_objects() {
         try {
-            RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test").request().delete(String.class);
+            RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test").request().delete(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class),
-                    containsString("Object [person] TP1-TEST is referenced from other objects"));
+            assertErrorMessage(e.getResponse().readEntity(WhoisResources.class), "Object [%s] %s is referenced from other objects", "Error", "person", "TP1-TEST");
         }
     }
 
@@ -1475,7 +1474,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("Disallowed option 'q'"));
+            assertErrorMessage(e.getResponse().readEntity(WhoisResources.class), "Disallowed search flag '%s'", "Error", "q");
         }
     }
 
@@ -1659,23 +1658,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, is("Invalid source 'INVALID'"));
-            assertThat(response, not(containsString("Caused by:")));
-        }
-    }
-
-    @Test
-    public void grs_search_invalid_source() {
-        try {
-            RestTest.target(getPort(), "whois/search?query-string=AS102&source=INVALID")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-            fail();
-        } catch (BadRequestException e) {
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, is("Invalid source 'INVALID'"));
-            assertThat(response, not(containsString("Caused by:")));
+            assertErrorMessage(e.getResponse().readEntity(WhoisResources.class), "Invalid source '%s'", "Error", "INVALID");
         }
     }
 
@@ -1686,8 +1669,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
-        } catch (BadRequestException ignored) {
-            // expected
+        } catch (BadRequestException e) {
+            assertErrorMessage(e.getResponse().readEntity(WhoisResources.class), "Invalid source '%s'", "Error", "RIPE");
         }
     }
 
@@ -2134,5 +2117,15 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void maintenance_mode_none_query() {
         maintenanceMode.set("NONE,NONE");
         RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
+    }
+
+    private void assertErrorMessage(final WhoisResources whoisResources, final String text, final String severity, final String... argument) {
+        assertThat(whoisResources.getErrorMessages().getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getErrorMessages().get(0).getText(), is(text));
+        assertThat(whoisResources.getErrorMessages().getErrorMessages().get(0).getSeverity(), is(severity));
+        assertThat(whoisResources.getErrorMessages().getErrorMessages().get(0).getArgs(), hasSize(argument.length));
+        for (int i = 0; i < argument.length; i++) {
+            assertThat(whoisResources.getErrorMessages().getErrorMessages().get(0).getArgs().get(i).getValue(), is(argument[i]));
+        }
     }
 }

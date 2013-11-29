@@ -182,15 +182,13 @@ public class WhoisRestService {
 
         final RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
 
-        updatePerformer.performUpdate(
+        return updatePerformer.performUpdate(
                 updatePerformer.createOrigin(request),
                 updatePerformer.createUpdate(originalObject, passwords, reason, override),
                 updatePerformer.createContent(originalObject, passwords, reason, override),
                 Keyword.NONE,
                 loggerContext,
                 request);
-
-        return Response.status(Response.Status.OK).build();
     }
 
     @PUT
