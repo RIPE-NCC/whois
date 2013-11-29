@@ -9,7 +9,6 @@ import com.google.common.net.InetAddresses;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
 import joptsimple.OptionSpecBuilder;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -78,7 +77,7 @@ public class Query {
             return queryFlag != null;
         }
 
-        QueryFlag getQueryFlag() {
+        public QueryFlag getQueryFlag() {
             return queryFlag;
         }
     }
