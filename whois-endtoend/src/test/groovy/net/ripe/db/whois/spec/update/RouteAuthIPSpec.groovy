@@ -4,6 +4,7 @@ import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
+// TODO: tests broken by commit 340cbb9 on 29/NOV @ 1410 (order of INFO / WARN messages in response has changed)
 class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
     @Override
