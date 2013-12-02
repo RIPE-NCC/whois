@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -186,6 +187,11 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                             return FileVisitResult.CONTINUE;
                         }
                     });
+                } catch (FileSystemException e) {
+                    // stale file handle is a normal event when daily logs are rotated into tar files
+                    if (!e.getReason().equals("Stale file handle")) {
+                        LOGGER.error(e.getMessage(), e);
+                    }
                 } catch (IOException e) {
                     LOGGER.error(e.getMessage(), e);
                 }
