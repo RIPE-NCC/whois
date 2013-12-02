@@ -181,16 +181,20 @@ public class RestClientTest {
 
         assertThat(results.next(), is(MNTNER_OBJECT));
         assertThat(results.hasNext(), is(false));
-        assertThat(url, containsString("http://localhost/search?" +
-                "query-string=OWNER-MNT" +
-                "&source=ARIN-GRS&source=RIPE-GRS" +
-                "&inverse-attribute=tech-c&inverse-attribute=admin-c" +
-                "&include-tag=include-tag2&include-tag=include-tag1" +
-                "&exclude-tag=exclude-tag2&exclude-tag=exclude-tag1" +
-                "&type-filter=mntner"));
+        assertThat(url, containsString("http://localhost/search?"));
+        assertThat(url, containsString("query-string=OWNER-MNT"));
+        assertThat(url, containsString("source=ARIN-GRS"));
+        assertThat(url, containsString("source=RIPE-GRS"));
+        assertThat(url, containsString("inverse-attribute=tech-c"));
+        assertThat(url, containsString("inverse-attribute=admin-c"));
+        assertThat(url, containsString("include-tag=include-tag1"));
+        assertThat(url, containsString("include-tag=include-tag2"));
+        assertThat(url, containsString("exclude-tag=exclude-tag1"));
+        assertThat(url, containsString("exclude-tag=exclude-tag2"));
         assertThat(url, containsString("flags=all-sources"));
         assertThat(url, containsString("flags=inverse"));
         assertThat(url, containsString("flags=brief"));
+        assertThat(url, containsString("type-filter=mntner"));
     }
 
     @Test
