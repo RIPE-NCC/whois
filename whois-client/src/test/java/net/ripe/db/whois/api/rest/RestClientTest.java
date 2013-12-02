@@ -118,6 +118,8 @@ public class RestClientTest {
         assertThat(result.getType(), is(ObjectType.MNTNER));
     }
 
+    // TODO: create w/ error response
+
     @Test
     public void create_override() {
         final RpslObject result = subject.createOverride(MNTNER_OBJECT, "override1");

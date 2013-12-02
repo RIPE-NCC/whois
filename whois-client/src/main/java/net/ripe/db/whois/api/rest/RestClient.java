@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -54,16 +56,28 @@ public class RestClient {
     }
 
     public RpslObject create(final RpslObject rpslObject, final String... passwords) {
-        final WhoisResources whoisResources = client.target(String.format("%s/%s/%s%s",
-                restApiUrl,
-                sourceName,
-                rpslObject.getType().getName(),
-                joinQueryParams(createQueryParams("password", passwords))
-        )).request().post(
-                Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
-                WhoisResources.class
-        );
-        return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+        try {
+            final WhoisResources whoisResources = client.target(String.format("%s/%s/%s%s",
+                    restApiUrl,
+                    sourceName,
+                    rpslObject.getType().getName(),
+                    joinQueryParams(createQueryParams("password", passwords))
+            )).request().post(
+                    Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
+                    WhoisResources.class
+            );
+            return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+
+        } catch (ClientErrorException e) {
+            // TODO: is there always a WhoisResources object when there is an error?
+            try {
+                final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+                throw new RestClientException(whoisResources.getErrorMessages());
+            } catch (ProcessingException | IllegalStateException e1) {
+                // TODO: handle in some way?
+                throw e;
+            }
+        }
     }
 
     public RpslObject createOverride(final RpslObject rpslObject, final String override) {
