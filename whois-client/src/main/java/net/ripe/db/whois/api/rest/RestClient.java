@@ -29,19 +29,13 @@ import java.util.Set;
 
 @Component
 public class RestClient {
-    private final Client client;
+    private Client client;
     private String restApiUrl;
     private String sourceName;
     private WhoisObjectClientMapper whoisObjectClientMapper;
 
     public RestClient() {
-        final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
-        jsonProvider.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
-        jsonProvider.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        client = ClientBuilder.newBuilder()
-                .register(MultiPartFeature.class)
-                .register(jsonProvider)
-                .build();
+        this.client = createClient();
     }
 
     @Value("${api.rest.baseurl}")
@@ -53,6 +47,10 @@ public class RestClient {
     @Value("${whois.source}")
     public void setSource(final String sourceName) {
         this.sourceName = sourceName;
+    }
+
+    public void setClient(final Client client) {
+        this.client = client;
     }
 
     public RpslObject create(final RpslObject rpslObject, final String... passwords) {
@@ -193,7 +191,17 @@ public class RestClient {
         return whoisObjectClientMapper.mapWhoisObjects(whoisResources.getWhoisObjects());
     }
 
-    public static String joinQueryParams(final String... queryParams) {
+    private Client createClient() {
+        final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
+        jsonProvider.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
+        jsonProvider.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        return ClientBuilder.newBuilder()
+                .register(MultiPartFeature.class)
+                .register(jsonProvider)
+                .build();
+    }
+
+    private static String joinQueryParams(final String... queryParams) {
         final StringBuilder result = new StringBuilder();
         for (String queryParam : queryParams) {
             if (!StringUtils.isBlank(queryParam)) {
@@ -207,11 +215,11 @@ public class RestClient {
         return result.toString();
     }
 
-    public static String createQueryParams(final String key, final String... values) {
+    private static String createQueryParams(final String key, final String... values) {
         return createQueryParams(key, Arrays.asList(values));
     }
 
-    public static String createQueryParams(final String key, final Collection<String> values) {
+    private static String createQueryParams(final String key, final Collection<String> values) {
         final StringBuilder result = new StringBuilder();
         for (String value : values) {
             if (result.length() > 0) {
