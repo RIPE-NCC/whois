@@ -111,7 +111,11 @@ public class Query {
                 }
             }
 
-            return super.parse(arguments);
+            try {
+                return super.parse(arguments);
+            } catch (OptionException e) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
+            }
         }
 
         private boolean isValidOption(final Matcher matcher) {
