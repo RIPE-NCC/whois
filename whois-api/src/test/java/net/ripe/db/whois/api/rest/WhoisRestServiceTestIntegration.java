@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
-import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Flag;
 import net.ripe.db.whois.api.rest.domain.Flags;
 import net.ripe.db.whois.api.rest.domain.InverseAttributes;
@@ -1462,6 +1461,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    @Ignore("TODO test search key validation")
+    @Test(expected = NotFoundException.class)
+    public void search_space_with_dash_is_not_a_flag() {
+        RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20%2D10.1.1.1&source=TEST")
+            .request(MediaType.APPLICATION_XML)
+            .get(WhoisResources.class);
+    }
+
     @Test
     public void search_invalid_flag() {
         try {
@@ -2055,7 +2062,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                                 "] } } ] } }", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
     }
 
-
     @Test
     public void override_update_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
@@ -2083,6 +2089,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
+
+    // maintenance mode
 
     // TODO: [AH] also test origin, i.e. maintenanceMode.set("NONE,READONLY")
 
@@ -2114,6 +2122,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         maintenanceMode.set("NONE,NONE");
         RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
     }
+
+    // helper methods
 
     private WhoisResources mapClientException(final ClientErrorException e) {
         return e.getResponse().readEntity(WhoisResources.class);
