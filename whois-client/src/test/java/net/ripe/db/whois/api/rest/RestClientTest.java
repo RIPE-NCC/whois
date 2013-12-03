@@ -30,7 +30,9 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import java.util.Iterator;
 
+import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -45,7 +47,6 @@ public class RestClientTest {
     private Client clientMock;
     private WhoisResources whoisResourcesMock;
     private AbuseResources abuseResourcesMock;
-    private AbuseContact abuseContactMock;
     private RestClient subject;
     private String url;
 
@@ -58,46 +59,10 @@ public class RestClientTest {
         when(whoisObject.getAttributes()).thenReturn(Lists.newArrayList(new Attribute("mntner", "OWNER-MNT"), new Attribute("source", "RIPE")));
         when(whoisResourcesMock.getWhoisObjects()).thenReturn(Lists.newArrayList(whoisObject));
 
-        abuseContactMock = mock(AbuseContact.class);
+        final AbuseContact abuseContactMock = mock(AbuseContact.class);
         when(abuseContactMock.getEmail()).thenReturn("user@host.org");
         abuseResourcesMock = mock(AbuseResources.class);
         when(abuseResourcesMock.getAbuseContact()).thenReturn(abuseContactMock);
-
-        when(clientMock.target(any(String.class))).thenAnswer(new Answer<WebTarget>() {
-            @Override
-            public WebTarget answer(InvocationOnMock invocation) throws Throwable {
-                url = (String) invocation.getArguments()[0];
-                final WebTarget webTarget = mock(WebTarget.class);
-                final Builder builder = mock(Builder.class);
-                when(builder.post(any(Entity.class), any(Class.class))).thenAnswer(new Answer() {
-                    @Override
-                    public Object answer(InvocationOnMock invocation) throws Throwable {
-                        return ((Entity) invocation.getArguments()[0]).getEntity();
-                    }
-                });
-                when(builder.get(any(Class.class))).thenAnswer(new Answer() {
-                    @Override
-                    public Object answer(InvocationOnMock invocation) throws Throwable {
-                        final Class type = (Class) invocation.getArguments()[0];
-                        if (type.equals(WhoisResources.class)) {
-                            return whoisResourcesMock;
-                        }
-                        if (type.equals(AbuseResources.class)) {
-                            return abuseResourcesMock;
-                        }
-                        return null;
-                    }
-                });
-                when(builder.put(any(Entity.class), any(Class.class))).thenAnswer(new Answer() {
-                    @Override
-                    public Object answer(InvocationOnMock invocation) throws Throwable {
-                        return ((Entity) invocation.getArguments()[0]).getEntity();
-                    }
-                });
-                when(webTarget.request()).thenReturn(builder);
-                return webTarget;
-            }
-        });
 
         subject = new RestClient();
         subject.setRestApiUrl("http://localhost");
@@ -107,6 +72,8 @@ public class RestClientTest {
 
     @Test
     public void create() {
+        mockWithResponse(whoisResourcesMock);
+
         final RpslObject result = subject.create(MNTNER_OBJECT, "password1");
 
         assertThat(url, is("http://localhost/RIPE/mntner?password=password1"));
@@ -116,6 +83,8 @@ public class RestClientTest {
 
     @Test
     public void create_with_multiple_passwords() {
+        mockWithResponse(whoisResourcesMock);
+
         final RpslObject result = subject.create(MNTNER_OBJECT, "password1", "password2", "password3");
 
         assertThat(url, is("http://localhost/RIPE/mntner?password=password1&password=password2&password=password3"));
@@ -125,39 +94,29 @@ public class RestClientTest {
 
     @Test
     public void create_with_error() {
-        Mockito.reset(clientMock);
-        Response responseMock = mock(Response.class);
-        final BadRequestException breMock = mock(BadRequestException.class);
-
-        WhoisResources whoisResources = new WhoisResources();
-        whoisResources.setErrorMessages(Lists.newArrayList(new ErrorMessage("Error", null, "Invalid argument %s", Lists.newArrayList(new Arg("flag")))));
-
-        when(breMock.getResponse()).thenReturn(responseMock);
+        final BadRequestException exceptionMock = mock(BadRequestException.class);
+        final WhoisResources whoisResources = new WhoisResources();
+        final ErrorMessage errorMessage = new ErrorMessage("Error", null, "Invalid argument %s", Lists.newArrayList(new Arg("flag")));
+        whoisResources.setErrorMessages(Lists.newArrayList(errorMessage));
+        final Response responseMock = mock(Response.class);
+        when(exceptionMock.getResponse()).thenReturn(responseMock);
         when(responseMock.readEntity(WhoisResources.class)).thenReturn(whoisResources);
+        mockWithException(exceptionMock);
 
-        when(clientMock.target(any(String.class))).thenAnswer(new Answer<WebTarget>() {
-            @Override
-            public WebTarget answer(InvocationOnMock invocation) throws Throwable {
-                url = (String) invocation.getArguments()[0];
-                final WebTarget webTarget = mock(WebTarget.class);
-                final Builder builder = mock(Builder.class);
-                when(builder.post(any(Entity.class), any(Class.class))).thenThrow(breMock);
-                when(webTarget.request()).thenReturn(builder);
-                return webTarget;
-            }
-        });
         try {
             subject.create(MNTNER_OBJECT);
+            fail();
         } catch (RestClientException e) {
-           ErrorMessage message = e.getErrorMessages().iterator().next();
-           assertThat(message.getText(), is("Invalid argument %s"));
-           assertThat(message.getSeverity(), is("Error"));
-           assertThat(message.getArgs().size(), is(1));
+            assertThat(url, is("http://localhost/RIPE/mntner"));
+            assertThat(e.getErrorMessages(), hasSize(1));
+            assertThat(e.getErrorMessages().get(0), is(errorMessage));
         }
     }
 
     @Test
     public void create_override() {
+        mockWithResponse(whoisResourcesMock);
+
         final RpslObject result = subject.createOverride(MNTNER_OBJECT, "override1");
 
         assertThat(url, is("http://localhost/RIPE/mntner?override=override1"));
@@ -167,6 +126,8 @@ public class RestClientTest {
 
     @Test
     public void delete() {
+        mockWithResponse(null);
+
         subject.delete(MNTNER_OBJECT, "password1");
 
         assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?password=password1"));
@@ -174,6 +135,8 @@ public class RestClientTest {
 
     @Test
     public void delete_override() {
+        mockWithResponse(null);
+
         subject.deleteOverride(MNTNER_OBJECT, "override1");
 
         assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?override=override1"));
@@ -181,6 +144,8 @@ public class RestClientTest {
 
     @Test
     public void lookup() {
+        mockWithResponse(whoisResourcesMock);
+
         final RpslObject result = subject.lookup(ObjectType.MNTNER, "OWNER-MNT");
 
         assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?unfiltered"));
@@ -190,6 +155,8 @@ public class RestClientTest {
 
     @Test
     public void lookup_with_password() {
+        mockWithResponse(whoisResourcesMock);
+
         final RpslObject result = subject.lookup(ObjectType.MNTNER, "OWNER-MNT", "password1");
 
         assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?password=password1&unfiltered"));
@@ -199,6 +166,8 @@ public class RestClientTest {
 
     @Test
     public void lookup_abuse_contact() {
+        mockWithResponse(abuseResourcesMock);
+
         final AbuseContact result = subject.lookupAbuseContact("10.0.0.1");
 
         assertThat(url, is("http://localhost/abuse-contact/10.0.0.1"));
@@ -206,7 +175,25 @@ public class RestClientTest {
     }
 
     @Test
+    public void lookup_abuse_contact_error() {
+        final BadRequestException exceptionMock = mock(BadRequestException.class);
+        when(exceptionMock.getMessage()).thenReturn("bad request");
+        mockWithException(exceptionMock);
+
+        try {
+            subject.lookupAbuseContact("10.0.0.1");
+            fail();
+        } catch (RestClientException e) {
+            assertThat(url, is("http://localhost/abuse-contact/10.0.0.1"));
+            assertThat(e.getErrorMessages(), hasSize(1));
+            assertThat(e.getErrorMessages().get(0).getText(), is("bad request"));
+        }
+    }
+
+    @Test
     public void search() {
+        mockWithResponse(whoisResourcesMock);
+
         final Iterator<RpslObject> results = subject.search("OWNER-MNT",
                 Sets.newHashSet("RIPE-GRS", "ARIN-GRS"),
                 Sets.newHashSet(AttributeType.ADMIN_C, AttributeType.TECH_C),
@@ -235,6 +222,8 @@ public class RestClientTest {
 
     @Test
     public void update() {
+        mockWithResponse(whoisResourcesMock);
+
         final RpslObject result = subject.update(MNTNER_OBJECT, "password1");
 
         assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?password=password1"));
@@ -244,10 +233,64 @@ public class RestClientTest {
 
     @Test
     public void update_override() {
+        mockWithResponse(whoisResourcesMock);
+
        final RpslObject result = subject.updateOverride(MNTNER_OBJECT, "override1");
 
         assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?override=override1"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
         assertThat(result.getType(), is(ObjectType.MNTNER));
+    }
+
+    // helper methods
+
+    private void mockWithException(final Exception exceptionMock) {
+        Mockito.reset(clientMock);
+        when(clientMock.target(any(String.class))).thenAnswer(new Answer<WebTarget>() {
+            @Override
+            public WebTarget answer(InvocationOnMock invocation) throws Throwable {
+                url = (String) invocation.getArguments()[0];
+                final WebTarget webTarget = mock(WebTarget.class);
+                final Builder builder = mock(Builder.class);
+                when(builder.get(any(Class.class))).thenThrow(exceptionMock);
+                when(builder.post(any(Entity.class), any(Class.class))).thenThrow(exceptionMock);
+                when(webTarget.request()).thenReturn(builder);
+                return webTarget;
+            }
+        });
+    }
+
+    private void mockWithResponse(final Object objectMock) {
+        Mockito.reset(clientMock);
+        when(clientMock.target(any(String.class))).thenAnswer(new Answer<WebTarget>() {
+            @Override
+            public WebTarget answer(InvocationOnMock invocation) throws Throwable {
+                url = (String) invocation.getArguments()[0];
+                final WebTarget webTarget = mock(WebTarget.class);
+                final Builder builder = mock(Builder.class);
+                when(builder.post(any(Entity.class), any(Class.class))).thenAnswer(new Answer() {
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        //return ((Entity) invocation.getArguments()[0]).getEntity();
+                        return objectMock;
+                    }
+                });
+                when(builder.get(any(Class.class))).thenAnswer(new Answer() {
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        return objectMock;
+                    }
+                });
+                when(builder.put(any(Entity.class), any(Class.class))).thenAnswer(new Answer() {
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        return objectMock;
+                    }
+                });
+                when(builder.delete(any(Class.class))).thenReturn(objectMock);
+                when(webTarget.request()).thenReturn(builder);
+                return webTarget;
+            }
+        });
     }
 }
