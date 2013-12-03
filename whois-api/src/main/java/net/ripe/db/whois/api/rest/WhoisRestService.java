@@ -460,7 +460,12 @@ public class WhoisRestService {
         if (StringUtils.isBlank(searchKey)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.queryStringEmpty())).build());
         }
-        if (Query.hasFlags(searchKey)) {
+
+        try {
+            if (Query.hasFlags(searchKey)) {
+                throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString())).build());
+            }
+        } catch (QueryException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString())).build());
         }
     }
