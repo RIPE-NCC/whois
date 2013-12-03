@@ -80,4 +80,9 @@ public class ErrorMessage {
     public List<Arg> getArgs() {
         return args;
     }
+
+    @Override
+    public String toString() {
+        return String.format(text, args.toArray());
+    }
 }
