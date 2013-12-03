@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.ClientErrorException;
 import java.net.InetAddress;
 
+import static net.ripe.db.whois.api.rest.WhoisRestServiceTestIntegration.assertOnlyErrorMessage;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -71,7 +72,7 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
                 fail();
             } catch (ClientErrorException e) {
                 assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
-                WhoisRestServiceTestIntegration.assertOnlyErrorMessage(e, "Error", "%%ERROR:201: access denied for %s\n%%\n%% Sorry, access from your host has been permanently\n%% denied because of a repeated excessive querying.\n%% For more information, see\n%% http://www.ripe.net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied\n", "127.0.0.1");
+                assertOnlyErrorMessage(e, "Error", "ERROR:201: access denied for %s\n\nSorry, access from your host has been permanently\ndenied because of a repeated excessive querying.\nFor more information, see\nhttp://www.ripe.net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied\n", "127.0.0.1");
             }
         } finally {
             databaseHelper.unban(LOCALHOST_WITH_PREFIX);

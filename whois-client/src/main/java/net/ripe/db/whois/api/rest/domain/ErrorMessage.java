@@ -57,7 +57,7 @@ public class ErrorMessage {
         if (matcher.find()) {
             text = text.substring(matcher.group(1).length());
         }
-        BEGINNING_OF_LINE_PERCENT_SIGNS.matcher(text).replaceAll("");
+        text = BEGINNING_OF_LINE_PERCENT_SIGNS.matcher(text).replaceAll("");
     }
 
     public ErrorMessage(Message message, RpslAttribute attribute) {

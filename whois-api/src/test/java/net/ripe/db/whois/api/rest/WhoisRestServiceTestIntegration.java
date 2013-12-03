@@ -61,6 +61,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -2141,7 +2142,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     static void assertErrorMessage(final WhoisResources whoisResources, final int number, final String severity, final String text, final String... argument) {
-        assertThat(whoisResources.getErrorMessages().get(number).getText(), is(text));
+        assertEquals(whoisResources.getErrorMessages().get(number).getText(), text);
         assertThat(whoisResources.getErrorMessages().get(number).getSeverity(), is(severity));
         if (argument.length > 0) {
             assertThat(whoisResources.getErrorMessages().get(number).getArgs(), hasSize(argument.length));
