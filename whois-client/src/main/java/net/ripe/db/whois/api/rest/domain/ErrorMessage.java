@@ -4,15 +4,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import org.springframework.util.CollectionUtils;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,9 +37,6 @@ public class ErrorMessage {
         this.args = args;
     }
 
-    public ErrorMessage() {
-    }
-
     public ErrorMessage(Message message) {
         this.severity = message.getType().toString();
         this.attribute = null;
@@ -65,6 +59,10 @@ public class ErrorMessage {
         this.attribute = new Attribute(attribute.getKey(), attribute.getValue());
     }
 
+    public ErrorMessage() {
+        // required no-arg constructor
+    }
+
     public String getSeverity() {
         return severity;
     }
@@ -83,6 +81,6 @@ public class ErrorMessage {
 
     @Override
     public String toString() {
-        return String.format(text, args.toArray());
+        return (args != null) ? String.format(text, args.toArray()) : text;
     }
 }

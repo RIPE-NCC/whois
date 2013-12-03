@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.Messages;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class ErrorMessageTest {
@@ -22,5 +23,10 @@ public class ErrorMessageTest {
     @Test
     public void to_string_with_multiple_arguments() {
         assertThat(new ErrorMessage(new Message(Messages.Type.INFO, "message with %s %s", "argument", "ending")).toString(), is("message with argument ending"));
+    }
+
+    @Test
+    public void to_string_default_constructor() {
+        assertThat(new ErrorMessage().toString(), is(nullValue()));
     }
 }
