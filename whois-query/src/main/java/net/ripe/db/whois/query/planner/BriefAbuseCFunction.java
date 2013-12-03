@@ -43,7 +43,6 @@ class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
             }
         }
 
-        // TODO: [AH] make this into a distinct responseobject, so that rest api can also display it
         final List<RpslAttribute> newAttributes = new ArrayList<>(2);
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             if (BRIEF_ATTRIBUTES.contains(attribute.getType())) {
