@@ -11,9 +11,11 @@ import net.ripe.db.whois.query.QueryFlag;
 import java.net.InetAddress;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.Messages.Type;
 
+// TODO: [AH] remove PORT43 formatting from QueryMessages, add formatting on output (PORT43/REST)
 public final class QueryMessages {
     private static final Joiner JOINER = Joiner.on(", ");
 

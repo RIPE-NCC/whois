@@ -4,18 +4,25 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import org.springframework.util.CollectionUtils;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "errormessage")
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class ErrorMessage {
+    private static final Pattern BEGINNING_OF_QUERY_ERROR_MESSAGES = Pattern.compile("^(%+)(?:ERROR|WARNING):");
+    private static final Pattern BEGINNING_OF_LINE_PERCENT_SIGNS = Pattern.compile("(?m)^%+ *");
 
     @XmlAttribute(required = true)
     protected String severity;
@@ -44,6 +51,13 @@ public class ErrorMessage {
         for (Object arg : message.getArgs()) {
             this.args.add(new Arg(arg.toString()));
         }
+
+        // TODO: instead of removing extra %/%% signs, we should make QueryMessages structured and add it where necessary
+        Matcher matcher = BEGINNING_OF_QUERY_ERROR_MESSAGES.matcher(text);
+        if (matcher.find()) {
+            text = text.substring(matcher.group(1).length());
+        }
+        BEGINNING_OF_LINE_PERCENT_SIGNS.matcher(text).replaceAll("");
     }
 
     public ErrorMessage(Message message, RpslAttribute attribute) {
