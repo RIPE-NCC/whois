@@ -186,6 +186,10 @@ public class Query {
         return passwords;
     }
 
+    public static boolean hasFlags(String queryString) {
+        return !PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class)).specs().isEmpty();
+    }
+
     public Collection<Message> getWarnings() {
         return messages.getMessages(Messages.Type.WARNING);
     }

@@ -29,7 +29,7 @@ public class RestMessages {
         return new Message(Messages.Type.ERROR, "Query param 'query-string' cannot be empty");
     }
 
-    public static Message flagsNotAllowedInQueryString(final CharSequence word) {
-        return new Message(Messages.Type.ERROR, "Flags are not allowed in query-string: '%s", word);
+    public static Message flagsNotAllowedInQueryString() {
+        return new Message(Messages.Type.ERROR, "Flags are not allowed in 'query-string'");
     }
 }

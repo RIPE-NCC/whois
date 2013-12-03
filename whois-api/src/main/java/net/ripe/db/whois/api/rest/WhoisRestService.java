@@ -76,6 +76,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.query.QueryFlag.ABUSE_CONTACT;
@@ -107,7 +109,7 @@ public class WhoisRestService {
 
     public static final String SERVICE_SEARCH = "search";
 
-    private static final Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings().trimResults();
+    private static final Pattern HAS_FLAGS_IN_SEARCHKEY = Pattern.compile("(?i) (-[a-z]+)");
     private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&');
 
     private static final Set<QueryFlag> NOT_ALLOWED_SEARCH_QUERY_FLAGS = ImmutableSet.of(
@@ -458,11 +460,8 @@ public class WhoisRestService {
         if (StringUtils.isBlank(searchKey)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.queryStringEmpty())).build());
         }
-        for (String word : SPACE_SPLITTER.split(searchKey)) {
-            // FIXME: this marks search key '10.0.0.0 -10.1.1.1' as invalid, even though it's not!
-            if (word.startsWith("-")) {
-                throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString(word))).build());
-            }
+        if (Query.hasFlags(searchKey)) {
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString())).build());
         }
     }
 
