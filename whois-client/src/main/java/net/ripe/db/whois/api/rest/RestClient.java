@@ -20,7 +20,6 @@ import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.ClientErrorException;
@@ -31,6 +30,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -179,7 +179,7 @@ public class RestClient {
             )).request().get(AbuseResources.class);
             return abuseResources.getAbuseContact();
         } catch (ClientErrorException e) {
-            throw createException(e);
+            throw createExceptionFromMessage(e);
         }
     }
 
@@ -276,9 +276,13 @@ public class RestClient {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             return new RestClientException(whoisResources.getErrorMessages());
         } catch (ProcessingException | IllegalStateException e1) {
-            final List<ErrorMessage> errorMessages = Lists.newArrayList();
-            errorMessages.add(new ErrorMessage(new Message(Messages.Type.ERROR, e.getMessage())));
-            return new RestClientException(errorMessages);
+            return createExceptionFromMessage(e);
         }
+    }
+
+    private static RuntimeException createExceptionFromMessage(final ClientErrorException e) {
+        final List<ErrorMessage> errorMessages = Lists.newArrayList();
+        errorMessages.add(new ErrorMessage(new Message(Messages.Type.ERROR, e.getMessage())));
+        return new RestClientException(errorMessages);
     }
 }
