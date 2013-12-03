@@ -1462,12 +1462,16 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("TODO test search key validation")
-    @Test(expected = NotFoundException.class)
-    public void search_space_with_dash_is_not_a_flag() {
-        RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20%2D10.1.1.1&source=TEST")
-            .request(MediaType.APPLICATION_XML)
-            .get(WhoisResources.class);
+    @Test
+    public void search_space_with_dash_invalid_flag() {
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20%2D10.1.1.1&source=TEST")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertOnlyErrorMessage(e, "Error", "Flags are not allowed in 'query-string'");
+        }
     }
 
     @Test
@@ -2142,7 +2146,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     static void assertErrorMessage(final WhoisResources whoisResources, final int number, final String severity, final String text, final String... argument) {
-        assertEquals(whoisResources.getErrorMessages().get(number).getText(), text);
+        assertEquals(text, whoisResources.getErrorMessages().get(number).getText());
         assertThat(whoisResources.getErrorMessages().get(number).getSeverity(), is(severity));
         if (argument.length > 0) {
             assertThat(whoisResources.getErrorMessages().get(number).getArgs(), hasSize(argument.length));
