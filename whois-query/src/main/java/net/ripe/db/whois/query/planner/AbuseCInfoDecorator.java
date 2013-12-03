@@ -33,7 +33,7 @@ class AbuseCInfoDecorator implements ResponseDecorator {
 
     @Override
     public Iterable<? extends ResponseObject> decorate(Query query, Iterable<? extends ResponseObject> input) {
-        if (query.isBriefAbuseContact() || !sourceContext.isMain()) {
+        if (query.via(Query.Origin.REST) || query.isBriefAbuseContact() || !sourceContext.isMain()) {
             return input;
         }
 

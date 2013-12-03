@@ -86,6 +86,10 @@ public class Query {
         VERSION, TYPES, SOURCES
     }
 
+    public static enum Origin {
+        PORT43, REST;
+    }
+
     private static final OptionParser PARSER = new OptionParser() {
         {
             for (final QueryFlag queryFlag : QueryFlag.values()) {
@@ -140,6 +144,7 @@ public class Query {
     private final SearchKey searchKey;
 
     private List<String> passwords;
+    private Origin origin;
 
     private Query(final String query) {
         originalStringQuery = query;
@@ -158,6 +163,10 @@ public class Query {
     }
 
     public static Query parse(final String args) {
+        return parse(args, Origin.PORT43);
+    }
+
+    public static Query parse(final String args, final Origin origin) {
         try {
             final Query query = new Query(args.trim());
 
@@ -177,13 +186,17 @@ public class Query {
     }
 
     public static Query parse(final String args, final List<String> passwords) {
-        Query query = parse(args);
+        Query query = parse(args, Origin.REST);
         query.passwords = passwords;
         return query;
     }
 
     public List<String> getPasswords() {
         return passwords;
+    }
+
+    public boolean via(Origin origin) {
+        return this.origin == origin;
     }
 
     public static boolean hasFlags(String queryString) {
