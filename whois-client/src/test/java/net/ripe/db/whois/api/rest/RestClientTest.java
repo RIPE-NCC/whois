@@ -4,7 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
+import net.ripe.db.whois.api.rest.domain.Arg;
 import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.domain.CIString;
@@ -15,14 +17,17 @@ import net.ripe.db.whois.query.QueryFlag;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 import java.util.Iterator;
 
 import static org.hamcrest.Matchers.containsString;
@@ -118,7 +123,38 @@ public class RestClientTest {
         assertThat(result.getType(), is(ObjectType.MNTNER));
     }
 
-    // TODO: create w/ error response
+    @Test
+    public void create_with_error() {
+        Mockito.reset(clientMock);
+        Response responseMock = mock(Response.class);
+        final BadRequestException breMock = mock(BadRequestException.class);
+
+        WhoisResources whoisResources = new WhoisResources();
+        whoisResources.setErrorMessages(Lists.newArrayList(new ErrorMessage("Error", null, "Invalid argument %s", Lists.newArrayList(new Arg("flag")))));
+
+        when(breMock.getResponse()).thenReturn(responseMock);
+        when(responseMock.readEntity(WhoisResources.class)).thenReturn(whoisResources);
+
+        when(clientMock.target(any(String.class))).thenAnswer(new Answer<WebTarget>() {
+            @Override
+            public WebTarget answer(InvocationOnMock invocation) throws Throwable {
+                url = (String) invocation.getArguments()[0];
+                final WebTarget webTarget = mock(WebTarget.class);
+                final Builder builder = mock(Builder.class);
+                when(builder.post(any(Entity.class), any(Class.class))).thenThrow(breMock);
+                when(webTarget.request()).thenReturn(builder);
+                return webTarget;
+            }
+        });
+        try {
+            subject.create(MNTNER_OBJECT);
+        } catch (RestClientException e) {
+           ErrorMessage message = e.getErrorMessages().iterator().next();
+           assertThat(message.getText(), is("Invalid argument %s"));
+           assertThat(message.getSeverity(), is("Error"));
+           assertThat(message.getArgs().size(), is(1));
+        }
+    }
 
     @Test
     public void create_override() {
