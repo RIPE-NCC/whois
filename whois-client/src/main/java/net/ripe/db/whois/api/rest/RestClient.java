@@ -212,7 +212,7 @@ public class RestClient {
                                         @Nullable
                                         @Override
                                         public String apply(@Nullable ObjectType input) {
-                                            return (input == null ? null : input.getName());
+                                            return input.getName();
                                         }
                                     })),
                             createQueryParams("flags", Collections2.transform(flags,
@@ -220,7 +220,7 @@ public class RestClient {
                                         @Nullable
                                         @Override
                                         public String apply(@Nullable QueryFlag input) {
-                                            return (input == null ? null : input.getName());
+                                            return input.getName();
                                         }
                                     }))
                     ));
