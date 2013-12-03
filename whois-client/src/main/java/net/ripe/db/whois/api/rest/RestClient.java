@@ -7,8 +7,11 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -17,6 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.ClientErrorException;
@@ -268,13 +272,13 @@ public class RestClient {
     }
 
     private static RuntimeException createException(final ClientErrorException e) {
-        // TODO: is there always a WhoisResources object when there is an error?
         try {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             return new RestClientException(whoisResources.getErrorMessages());
         } catch (ProcessingException | IllegalStateException e1) {
-            // TODO: handle in some way?
-            return e;
+            final List<ErrorMessage> errorMessages = Lists.newArrayList();
+            errorMessages.add(new ErrorMessage(new Message(Messages.Type.ERROR, e.getMessage())));
+            return new RestClientException(errorMessages);
         }
     }
 }
