@@ -67,99 +67,116 @@ public class RestClient {
                     WhoisResources.class
             );
             return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
-
         } catch (ClientErrorException e) {
-            // TODO: is there always a WhoisResources object when there is an error?
-            try {
-                final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
-                throw new RestClientException(whoisResources.getErrorMessages());
-            } catch (ProcessingException | IllegalStateException e1) {
-                // TODO: handle in some way?
-                throw e;
-            }
+            throw createException(e);
         }
     }
 
     public RpslObject createOverride(final RpslObject rpslObject, final String override) {
-        final WhoisResources whoisResources = client.target(String.format("%s/%s/%s%s",
-                restApiUrl,
-                sourceName,
-                rpslObject.getType().getName(),
-                joinQueryParams(createQueryParams("override", override))
-        )).request().post(
-                Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
-                WhoisResources.class
-        );
-        return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+        try {
+            final WhoisResources whoisResources = client.target(String.format("%s/%s/%s%s",
+                    restApiUrl,
+                    sourceName,
+                    rpslObject.getType().getName(),
+                    joinQueryParams(createQueryParams("override", override))
+            )).request().post(
+                    Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
+                    WhoisResources.class
+            );
+            return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+        } catch (ClientErrorException e) {
+            throw createException(e);
+        }
     }
 
     public RpslObject update(final RpslObject rpslObject, final String... passwords) {
-        WhoisResources entity = whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject));
-        final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s",
-                restApiUrl,
-                sourceName,
-                rpslObject.getType().getName(),
-                rpslObject.getKey().toString(),
-                joinQueryParams(createQueryParams("password", passwords))
-        )).request().put(
-                Entity.entity(entity, MediaType.APPLICATION_XML),
-                WhoisResources.class
-        );
-        return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+        try {
+            WhoisResources entity = whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject));
+            final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s",
+                    restApiUrl,
+                    sourceName,
+                    rpslObject.getType().getName(),
+                    rpslObject.getKey().toString(),
+                    joinQueryParams(createQueryParams("password", passwords))
+            )).request().put(Entity.entity(entity, MediaType.APPLICATION_XML), WhoisResources.class);
+            return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+        } catch (ClientErrorException e) {
+            throw createException(e);
+        }
     }
 
     public RpslObject updateOverride(final RpslObject rpslObject, final String override) {
-        final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s",
-                restApiUrl,
-                sourceName,
-                rpslObject.getType().getName(),
-                rpslObject.getKey().toString(),
-                joinQueryParams(createQueryParams("override", override))
-        )).request().put(
-                Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
-                WhoisResources.class
-        );
-        return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+        try {
+            final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s",
+                    restApiUrl,
+                    sourceName,
+                    rpslObject.getType().getName(),
+                    rpslObject.getKey().toString(),
+                    joinQueryParams(createQueryParams("override", override))
+            )).request().put(
+                    Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
+                    WhoisResources.class
+            );
+            return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+        } catch (ClientErrorException e) {
+            throw createException(e);
+        }
     }
 
     public void delete(final RpslObject rpslObject, final String... passwords) {
-        client.target(String.format("%s/%s/%s/%s%s",
-                restApiUrl,
-                sourceName,
-                rpslObject.getType().getName(),
-                rpslObject.getKey().toString(),
-                joinQueryParams(createQueryParams("password", passwords))
-        )).request().delete(String.class);
+        try {
+            client.target(String.format("%s/%s/%s/%s%s",
+                    restApiUrl,
+                    sourceName,
+                    rpslObject.getType().getName(),
+                    rpslObject.getKey().toString(),
+                    joinQueryParams(createQueryParams("password", passwords))
+            )).request().delete(String.class);
+        } catch (ClientErrorException e) {
+            throw createException(e);
+        }
     }
 
     public void deleteOverride(final RpslObject rpslObject, final String override) {
-        client.target(String.format("%s/%s/%s/%s%s",
-                restApiUrl,
-                sourceName,
-                rpslObject.getType().getName(),
-                rpslObject.getKey().toString(),
-                joinQueryParams(createQueryParams("override", override))
-        )).request().delete(String.class);
+        try {
+            client.target(String.format("%s/%s/%s/%s%s",
+                    restApiUrl,
+                    sourceName,
+                    rpslObject.getType().getName(),
+                    rpslObject.getKey().toString(),
+                    joinQueryParams(createQueryParams("override", override))
+            )).request().delete(String.class);
+        } catch (ClientErrorException e) {
+            throw createException(e);
+        }
     }
 
     public RpslObject lookup(final ObjectType objectType, final String pkey, final String... passwords) {
-        final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s%s",
-                restApiUrl,
-                sourceName,
-                objectType.getName(),
-                pkey,
-                joinQueryParams(createQueryParams("password", passwords)),
-                (passwords.length == 0) ? "?unfiltered" : "&unfiltered"
-        )).request().get(WhoisResources.class);
-        return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+        try {
+            final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s%s",
+                    restApiUrl,
+                    sourceName,
+                    objectType.getName(),
+                    pkey,
+                    joinQueryParams(createQueryParams("password", passwords)),
+                    (passwords.length == 0) ? "?unfiltered" : "&unfiltered"
+            )).request().get(WhoisResources.class);
+            return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+        } catch (ClientErrorException e) {
+            throw createException(e);
+        }
     }
 
     public AbuseContact lookupAbuseContact(final String resource) {
-        AbuseResources abuseResources = client.target(String.format("%s/abuse-contact/%s",
-                restApiUrl,
-                resource
-        )).request().get(AbuseResources.class);
-        return abuseResources.getAbuseContact();
+        try {
+            AbuseResources abuseResources = client.target(String.format("%s/abuse-contact/%s",
+                    restApiUrl,
+                    resource
+            )).request().get(AbuseResources.class);
+            return abuseResources.getAbuseContact();
+        } catch (ClientErrorException e) {
+            throw createException(e);
+        }
     }
 
     public Iterable<RpslObject> search(String searchKey,
@@ -169,43 +186,49 @@ public class RestClient {
                                        Set<String> excludeTags,
                                        Set<ObjectType> types,
                                        Set<QueryFlag> flags) {
+        try {
+            final String uri = String.format(
+                    "%s/search%s",
+                    restApiUrl,
+                    joinQueryParams(
+                            createQueryParams("query-string", RestClientUtils.encode(searchKey)),
+                            createQueryParams("source", sources),
+                            createQueryParams("inverse-attribute", Collections2.transform(inverseAttributes,
+                                    new Function<AttributeType, String>() {
+                                        @Nullable
+                                        @Override
+                                        public String apply(@Nullable AttributeType input) {
+                                            return input.getName();
+                                        }
+                                    })),
+                            createQueryParams("include-tag", includeTags),
+                            createQueryParams("exclude-tag", excludeTags),
+                            createQueryParams("type-filter", Collections2.transform(types,
+                                    new Function<ObjectType, String>() {
+                                        @Nullable
+                                        @Override
+                                        public String apply(@Nullable ObjectType input) {
+                                            return (input == null ? null : input.getName());
+                                        }
+                                    })),
+                            createQueryParams("flags", Collections2.transform(flags,
+                                    new Function<QueryFlag, String>() {
+                                        @Nullable
+                                        @Override
+                                        public String apply(@Nullable QueryFlag input) {
+                                            return (input == null ? null : input.getName());
+                                        }
+                                    }))
+                    ));
 
-        final String uri = String.format("%s/search%s",
-                restApiUrl,
-                joinQueryParams(
-                        createQueryParams("query-string", RestClientUtils.encode(searchKey)),
-                        createQueryParams("source", sources),
-                        createQueryParams("inverse-attribute", Collections2.transform(inverseAttributes, new Function<AttributeType, String>() {
-                            @Nullable
-                            @Override
-                            public String apply(@Nullable AttributeType input) {
-                                return input.getName();
-                            }
-                        })),
-                        createQueryParams("include-tag", includeTags),
-                        createQueryParams("exclude-tag", excludeTags),
-                        createQueryParams("type-filter", Collections2.transform(types, new Function<ObjectType, String>() {
-                            @Nullable
-                            @Override
-                            public String apply(@Nullable ObjectType input) {
-                                return (input == null ? null : input.getName());
-                            }
-                        })),
-                        createQueryParams("flags", Collections2.transform(flags, new Function<QueryFlag, String>() {
-                            @Nullable
-                            @Override
-                            public String apply(@Nullable QueryFlag input) {
-                                return (input == null ? null : input.getName());
-                            }
-                        }))
-                )
-        );
-        final WhoisResources whoisResources = client.target(uri).request().get(WhoisResources.class);
-
-        return whoisObjectClientMapper.mapWhoisObjects(whoisResources.getWhoisObjects());
+            final WhoisResources whoisResources = client.target(uri).request().get(WhoisResources.class);
+            return whoisObjectClientMapper.mapWhoisObjects(whoisResources.getWhoisObjects());
+        } catch (ClientErrorException e) {
+            throw createException(e);
+        }
     }
 
-    private Client createClient() {
+    private static Client createClient() {
         final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
         jsonProvider.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
         jsonProvider.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
@@ -242,5 +265,16 @@ public class RestClient {
             result.append(key).append('=').append(value);
         }
         return result.toString();
+    }
+
+    private static RuntimeException createException(final ClientErrorException e) {
+        // TODO: is there always a WhoisResources object when there is an error?
+        try {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            return new RestClientException(whoisResources.getErrorMessages());
+        } catch (ProcessingException | IllegalStateException e1) {
+            // TODO: handle in some way?
+            return e;
+        }
     }
 }
