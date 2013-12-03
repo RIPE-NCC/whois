@@ -181,8 +181,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         final String mntnerInvalidSource = MNTNER_TEST_MNTNER.replaceAll("source:\\s+TEST", "source: invalid");
 
-        System.out.println("mntner = " + mntnerInvalidSource);
-
         String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(mntnerInvalidSource + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);

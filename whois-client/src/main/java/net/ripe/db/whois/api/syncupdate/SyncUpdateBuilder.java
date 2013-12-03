@@ -6,11 +6,7 @@ import org.springframework.util.FileCopyUtils;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -135,7 +131,7 @@ public class SyncUpdateBuilder {
                 writer.close();
 
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    throw new IllegalStateException("Unexpected response code: " + connection.getResponseCode());
+                    throw new IllegalStateException(connection.getResponseMessage());
                 }
 
                 return readResponse(connection);
