@@ -11,4 +11,8 @@ public class RestClientException extends RuntimeException {
     public RestClientException(final List<ErrorMessage> errorMessages) {
         this.errorMessages = errorMessages;
     }
+
+    public List<ErrorMessage> getErrorMessages() {
+        return errorMessages;
+    }
 }
