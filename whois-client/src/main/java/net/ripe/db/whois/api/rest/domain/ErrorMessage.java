@@ -22,7 +22,7 @@ public class ErrorMessage {
     private static final Pattern BEGINNING_OF_LINE_PERCENT_SIGNS = Pattern.compile("(?m)^%+ *");
 
     @XmlAttribute(required = true)
-    protected String severity;
+    protected String severity;          // TODO: severity should be enum
     @XmlElement
     protected Attribute attribute;
     @XmlAttribute(required = true)
