@@ -18,6 +18,8 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryFlag;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +40,8 @@ public class RestClient {
     private String restApiUrl;
     private String sourceName;
     private WhoisObjectClientMapper whoisObjectClientMapper;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
 
     public RestClient() {
         this.client = createClient();
@@ -223,6 +227,8 @@ public class RestClient {
                                         }
                                     }))
                     ));
+
+            LOGGER.info("search URL = {}", uri);
 
             final WhoisResources whoisResources = client.target(uri).request().get(WhoisResources.class);
             return whoisObjectClientMapper.mapWhoisObjects(whoisResources.getWhoisObjects());
