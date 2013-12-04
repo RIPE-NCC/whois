@@ -51,8 +51,8 @@ public class LogFileSearch {
             writer.write("\n\n");
             writer.write(filteredContents);
             writer.write("\n\n");
-        } catch (IOException e) {
-            throw new IllegalStateException("Writing contents", e);
+        } catch (IOException ignored) {
+            // don't care if clients disconnect
         }
     }
 
