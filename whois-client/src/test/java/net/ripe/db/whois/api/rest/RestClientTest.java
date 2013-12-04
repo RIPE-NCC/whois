@@ -23,6 +23,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
@@ -177,7 +178,9 @@ public class RestClientTest {
     @Test
     public void lookup_abuse_contact_error() {
         final BadRequestException exceptionMock = mock(BadRequestException.class);
-        when(exceptionMock.getMessage()).thenReturn("bad request");
+        final Response responseMock = mock(Response.class);
+        when(exceptionMock.getResponse()).thenReturn(responseMock);
+        when(responseMock.readEntity(String.class)).thenReturn("bad request");
         mockWithException(exceptionMock);
 
         try {
@@ -244,7 +247,7 @@ public class RestClientTest {
 
     // helper methods
 
-    private void mockWithException(final Exception exceptionMock) {
+    private void mockWithException(final ClientErrorException exceptionMock) {
         Mockito.reset(clientMock);
         when(clientMock.target(any(String.class))).thenAnswer(new Answer<WebTarget>() {
             @Override
@@ -254,6 +257,7 @@ public class RestClientTest {
                 final Builder builder = mock(Builder.class);
                 when(builder.get(any(Class.class))).thenThrow(exceptionMock);
                 when(builder.post(any(Entity.class), any(Class.class))).thenThrow(exceptionMock);
+                when(builder.put(any(Entity.class))).thenThrow(exceptionMock);
                 when(webTarget.request()).thenReturn(builder);
                 return webTarget;
             }

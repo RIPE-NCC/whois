@@ -30,7 +30,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 @Component
@@ -175,8 +174,8 @@ public class RestClient {
         try {
             AbuseResources abuseResources = client.target(String.format("%s/abuse-contact/%s",
                     restApiUrl,
-                    resource
-            )).request().get(AbuseResources.class);
+                    resource)
+            ).request().get(AbuseResources.class);
             return abuseResources.getAbuseContact();
         } catch (ClientErrorException e) {
             throw createExceptionFromMessage(e);
@@ -281,8 +280,15 @@ public class RestClient {
     }
 
     private static RuntimeException createExceptionFromMessage(final ClientErrorException e) {
-        final List<ErrorMessage> errorMessages = Lists.newArrayList();
-        errorMessages.add(new ErrorMessage(new Message(Messages.Type.ERROR, e.getMessage())));
-        return new RestClientException(errorMessages);
+        String message;
+        try {
+            message = e.getResponse().readEntity(String.class);
+        } catch (IllegalStateException e1) {
+            // stream has already been closed
+            message = e.getMessage();
+        }
+
+        final ErrorMessage errorMessage = new ErrorMessage(new Message(Messages.Type.ERROR, message));
+        return new RestClientException(Lists.newArrayList(errorMessage));
     }
 }
