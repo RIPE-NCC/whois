@@ -186,6 +186,7 @@ public class RestClient {
         }
     }
 
+    // TODO: [AH] make this streaming; result can be gigantic
     public Iterable<RpslObject> search(String searchKey,
                                        Set<String> sources,
                                        Set<AttributeType> inverseAttributes,
