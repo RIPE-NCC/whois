@@ -7,7 +7,6 @@ import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import org.joda.time.LocalDateTime
 
-// TODO: tests broken by commit 340cbb9 on 29/NOV @ 1410 (order of INFO / WARN messages in response has changed)
 class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     @Override
