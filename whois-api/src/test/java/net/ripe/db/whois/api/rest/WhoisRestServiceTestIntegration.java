@@ -44,6 +44,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -670,8 +671,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .request()
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(OWNER_MNT)), MediaType.APPLICATION_XML), String.class);
             fail();
-        } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "Enforced new keyword specified, but the object already exists in the database");
+        } catch (ClientErrorException e1) {
+            assertThat(e1.getResponse().getStatus(), is(Response.Status.CONFLICT.getStatusCode()));
+            assertOnlyErrorMessage(e1, "Error", "Enforced new keyword specified, but the object already exists in the database");
         }
     }
 

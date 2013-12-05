@@ -21,8 +21,8 @@ import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
-import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -30,14 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
@@ -83,7 +81,11 @@ public class InternalUpdatePerformer {
             } else if (status == UpdateStatus.EXCEPTION) {
                 responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
             } else if (status != UpdateStatus.SUCCESS) {
-                responseBuilder = Response.status(Response.Status.BAD_REQUEST);
+                if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())){
+                    responseBuilder = Response.status(Response.Status.CONFLICT);
+                } else {
+                    responseBuilder = Response.status(Response.Status.BAD_REQUEST);
+                }
             } else {
                 responseBuilder = Response.status(Response.Status.OK);
             }
