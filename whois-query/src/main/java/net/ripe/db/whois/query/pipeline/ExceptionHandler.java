@@ -50,7 +50,7 @@ public class ExceptionHandler extends SimpleChannelUpstreamHandler {
                     query,
                     cause);
 
-            handleException(channel, Collections.singletonList(QueryMessages.internalErrorOccured()), QueryCompletionInfo.EXCEPTION);
+            handleException(channel, Collections.singletonList(QueryMessages.internalErroroccurred()), QueryCompletionInfo.EXCEPTION);
         }
     }
 

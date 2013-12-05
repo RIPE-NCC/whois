@@ -128,7 +128,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "\n\n\n");
 
         assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -141,7 +141,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "help\nhelp");
 
         assertThat(response, containsString("RIPE Database Reference Manual"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -149,7 +149,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-q version");
 
         assertThat(response, containsString("% whois-server-"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -157,7 +157,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "--version");
 
         assertThat(response, containsString("% whois-server-"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -165,7 +165,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-r -T inetnum RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -173,7 +173,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-r -T mntner RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -181,7 +181,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "--no-referenced --select-types mntner RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -189,7 +189,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-r -T organisation");
 
         assertThat(response, containsString("no search key specified"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -197,7 +197,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-r -T as-block AS2 - AS1");
 
         assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -206,7 +206,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-rT domain 9.4.e164.arpa.");
 
         assertThat(response, not(containsString("trailing dot in domain query")));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -214,7 +214,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "80-28.79.198.195.in-addr.arpa");
 
         assertThat(response, containsString("no entries found"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -311,7 +311,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-rT person");
 
         assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -319,7 +319,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-rT as-block AS2-AS1");
 
         assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
         assertThat(response, not(containsString(QueryMessages.outputFilterNotice().toString())));
     }
 

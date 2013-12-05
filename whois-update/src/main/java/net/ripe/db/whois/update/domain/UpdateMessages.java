@@ -39,7 +39,7 @@ public final class UpdateMessages {
     }
 
     public static Message unexpectedError() {
-        return new Message(Type.ERROR, "Unexpected error occured");
+        return new Message(Type.ERROR, "Unexpected error occurred");
     }
 
     public static Message filteredNotAllowed() {

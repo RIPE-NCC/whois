@@ -90,7 +90,7 @@ public class QueryExecutor {
             }
         }
 
-        logger.warn("Error occured: \n\n{}", StringUtils.left(response.substring(errorIndex), 200));
+        logger.warn("Error occurred: \n\n{}", StringUtils.left(response.substring(errorIndex), 200));
     }
 
     private List<ResponseObject> parseWhoisResponseIntoRpslObjects(final String query, String response) throws IOException {

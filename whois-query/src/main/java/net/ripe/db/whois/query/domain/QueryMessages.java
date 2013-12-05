@@ -115,7 +115,7 @@ public final class QueryMessages {
                 "%% History not available for PERSON and ROLE objects.\n", type, key);
     }
 
-    public static Message internalErrorOccured() {
+    public static Message internalErroroccurred() {
         return new Message(Type.ERROR, ""
                 + "%ERROR:100: internal software error\n"
                 + "%\n"

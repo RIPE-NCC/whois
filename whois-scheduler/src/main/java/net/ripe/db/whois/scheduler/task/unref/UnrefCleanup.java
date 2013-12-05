@@ -196,7 +196,7 @@ public class UnrefCleanup implements DailyScheduledTask {
                         }
 
                         if (nrErrors++ > MAX_ERRORS) {
-                            throw new IllegalStateException("Too many errors occured removing delete candidates, aborting unref cleanup");
+                            throw new IllegalStateException("Too many errors occurred removing delete candidates, aborting unref cleanup");
                         }
                     }
                 }
