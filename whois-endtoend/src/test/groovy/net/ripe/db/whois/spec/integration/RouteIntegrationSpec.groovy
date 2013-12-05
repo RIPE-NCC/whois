@@ -1725,4 +1725,20 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ "Delete SUCCEEDED: \\[route\\] 182.125.0.0/32AS132"
     }
+
+    def "create route with partially missing primary key should return proper error"() {
+        given:
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route:
+                            descr: Test route
+                            origin: AS12726
+                            mnt-by: TEST-MNT
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent()))
+        expect:
+        insertRoute =~ /\nNumber of objects found:\s+0\n/
+    }
 }

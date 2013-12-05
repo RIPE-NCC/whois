@@ -15,8 +15,18 @@ import org.apache.commons.lang.Validate;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Immutable
 public class RpslObject implements Identifiable, ResponseObject {
@@ -24,6 +34,7 @@ public class RpslObject implements Identifiable, ResponseObject {
 
     private final ObjectType type;
     private final RpslAttribute typeAttribute;
+    private final CIString key;
 
     // TODO: [AH] add sequence_id here too (to form the basis of versioning)
     private Integer objectId;
@@ -31,7 +42,6 @@ public class RpslObject implements Identifiable, ResponseObject {
     private List<RpslAttribute> attributes;
     private Map<AttributeType, List<RpslAttribute>> typeCache;
     private int hash;
-    private CIString key;
 
     public RpslObject(final RpslObject oldObject, final List<RpslAttribute> attributes) {
         this(oldObject.objectId, attributes);
@@ -46,12 +56,22 @@ public class RpslObject implements Identifiable, ResponseObject {
         Validate.notEmpty(attributes);
 
         this.typeAttribute = attributes.get(0);
-        this.type = ObjectType.getByNameOrNull(typeAttribute.getKey());
+        this.type = ObjectType.getByName(typeAttribute.getKey());
         this.attributes = Collections.unmodifiableList(attributes);
 
-        Validate.notNull(type, "Type cannot be null");
-        Validate.notNull(getKey(), "Key cannot be null");
-        Validate.notEmpty(getKey().toString(), "Key cannot be empty");
+        Set<AttributeType> keyAttributes = ObjectTemplate.getTemplate(type).getKeyAttributes();
+        if (keyAttributes.size() == 1) {
+            this.key = getValueForAttribute(keyAttributes.iterator().next());
+            Validate.notEmpty(this.key.toString(), "key attributes must have value");
+        } else {
+            StringBuilder keyBuilder = new StringBuilder(32);
+            for (AttributeType keyAttribute : keyAttributes) {
+                String key = getValueForAttribute(keyAttribute).toString();
+                Validate.notEmpty(key, "key attributes must have value");
+                keyBuilder.append(key);
+            }
+            this.key = CIString.ciString(keyBuilder.toString());
+        }
     }
 
     public static RpslObject parse(final String input) {
@@ -89,19 +109,6 @@ public class RpslObject implements Identifiable, ResponseObject {
     }
 
     public final CIString getKey() {
-        if (key == null) {
-            final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(type);
-            final Iterator<AttributeType> keyAttributeIterator = objectTemplate.getKeyAttributes().iterator();
-
-            CIString tmpKey = findAttribute(keyAttributeIterator.next()).getCleanValue();
-            // route(6) has two primary keys
-            while (keyAttributeIterator.hasNext()) {
-                tmpKey = tmpKey.append(findAttribute(keyAttributeIterator.next()).getCleanValue());
-            }
-
-            key = tmpKey;
-        }
-
         return key;
     }
 

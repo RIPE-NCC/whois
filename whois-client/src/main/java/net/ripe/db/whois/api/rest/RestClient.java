@@ -32,6 +32,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 @Component
@@ -296,6 +297,6 @@ public class RestClient {
         }
 
         final ErrorMessage errorMessage = new ErrorMessage(new Message(Messages.Type.ERROR, message));
-        return new RestClientException(Lists.newArrayList(errorMessage));
+        return new RestClientException(Collections.singletonList(errorMessage));
     }
 }

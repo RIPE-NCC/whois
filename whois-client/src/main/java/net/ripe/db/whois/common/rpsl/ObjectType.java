@@ -70,7 +70,7 @@ public enum ObjectType {
     public static ObjectType getByName(final String name) throws IllegalArgumentException {
         final ObjectType ret = getByNameOrNull(name);
         if (ret == null) {
-            throw new IllegalArgumentException("Object type " + name + " not found");
+            throw new IllegalArgumentException("Invalid object type: " + name);
         }
         return ret;
     }
