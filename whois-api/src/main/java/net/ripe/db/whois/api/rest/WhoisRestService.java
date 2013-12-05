@@ -76,7 +76,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -575,7 +574,7 @@ public class WhoisRestService {
                 deletedObjects.add((DeletedVersionResponseObject) responseObject);
             } else if (responseObject instanceof MessageObject) {
                 Message message = ((MessageObject) responseObject).getMessage();
-                if (message != null && Messages.Type.INFO.compareTo(message.getType()) < 0) {
+                if (message != null && Messages.Type.INFO != message.getType()) {
                     errors.add(message);
                 }
             }
@@ -669,7 +668,7 @@ public class WhoisRestService {
                     streamRpslObject((RpslObject) responseObject);
                 } else if (responseObject instanceof MessageObject) {
                     Message message = ((MessageObject) responseObject).getMessage();
-                    if (message != null && Messages.Type.INFO.compareTo(message.getType()) < 0) {
+                    if (message != null && Messages.Type.INFO != message.getType()) {
                         errors.add(message);
                     }
                 }
