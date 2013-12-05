@@ -59,4 +59,18 @@ public class FilterAuthFunctionTest {
                 "auth:           MD5-PW # Filtered\n" +
                 "source:         RIPE # Filtered\n"));
     }
+
+    @Test
+    public void apply_sso() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "mntner: SSO-MNT\n" +
+                "auth: SSO T2hOz8tlmka5lxoZQxzC1Q00\n" +
+                "source: RIPE");
+
+        final RpslObject result = subject.apply(rpslObject);
+        assertThat(result.toString(), is("" +
+                "mntner:         SSO-MNT\n" +
+                "auth:           SSO  # Filtered\n" +
+                "source:         RIPE # Filtered\n"));
+    }
 }

@@ -3,12 +3,7 @@ package net.ripe.db.whois.common.rpsl.transform;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.PasswordHelper;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.rpsl.*;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collections;
@@ -44,6 +39,8 @@ public class FilterAuthFunction implements FilterFunction {
                 if (passwords.isEmpty() || !passwordType.startsWith("MD5") || !PasswordHelper.authenticateMd5Passwords(authValue.toString(), passwords)) {
                     replace.put(auth, new RpslAttribute(auth.getKey(), passwordType + FILTERED_APPENDIX));
                 }
+            } else if (passwordType.equalsIgnoreCase("SSO")) {
+                replace.put(auth, new RpslAttribute(auth.getKey(), "SSO " + FILTERED_APPENDIX));
             }
         }
 
