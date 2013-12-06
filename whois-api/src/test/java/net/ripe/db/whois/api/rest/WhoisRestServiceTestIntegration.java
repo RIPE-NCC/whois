@@ -2097,6 +2097,34 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
+    @Test
+    public void error_message_not_included_in_success() throws Exception {
+        final String response = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML))
+                .readEntity(String.class);
+
+        assertThat(response, not(containsString("errormessage")));
+    }
+
+    @Test
+    public void error_message_not_included_in_search() throws Exception {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String response = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        assertThat(response, not(containsString("errormessage")));
+    }
+
     // maintenance mode
 
     // TODO: [AH] also test origin, i.e. maintenanceMode.set("NONE,READONLY")

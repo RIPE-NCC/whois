@@ -118,7 +118,9 @@ public class InternalUpdatePerformer {
             }
         }
 
-        whoisResources.setErrorMessages(errorMessages);
+        if (!errorMessages.isEmpty()) {
+            whoisResources.setErrorMessages(errorMessages);
+        }
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(responseObject)));
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
         whoisResources.includeTermsAndConditions();
