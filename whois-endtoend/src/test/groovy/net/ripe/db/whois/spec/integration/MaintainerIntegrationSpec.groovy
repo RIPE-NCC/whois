@@ -168,6 +168,52 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Error:   Unknown object referenced ORG-ACME-DE/
     }
 
+    def "create maintainer with sso authentication"() {
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+            mntner: SSO-MNT
+            descr: description
+            admin-c: TEST-RIPE
+            mnt-by: SSO-MNT
+            referral-by: ADMIN-MNT
+            upd-to: dbtest@ripe.net
+            auth:   SSO testusername
+            changed: dbtest@ripe.net 20120707
+            source: TEST
+            """)
+      then:
+        response =~ /Create SUCCEEDED: \[mntner\] SSO-MNT/
+    }
+
+    def "modify maintainer with sso authentication"() {
+      when:
+        syncUpdate new SyncUpdate(data: """\
+            mntner: SSO-MNT
+            descr: description
+            admin-c: TEST-RIPE
+            mnt-by: SSO-MNT
+            referral-by: ADMIN-MNT
+            upd-to: dbtest@ripe.net
+            auth:   SSO testusername
+            changed: dbtest@ripe.net 20120707
+            source: TEST
+            """)
+
+        def response = syncUpdate new SyncUpdate(data: """\
+            mntner: SSO-MNT
+            descr: update
+            admin-c: TEST-RIPE
+            mnt-by: SSO-MNT
+            referral-by: ADMIN-MNT
+            upd-to: dbtest@ripe.net
+            auth:   SSO test@usern.ame
+            changed: dbtest@ripe.net 20120707
+            source: TEST
+            """)
+      then:
+        response =~ /Modify SUCCEEDED: \[mntner\] SSO-MNT/
+    }
+
     def "update maintainer"() {
       given:
         def update = new SyncUpdate(data: """\

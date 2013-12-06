@@ -1,35 +1,10 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Splitter;
-import net.ripe.db.whois.common.generated.AggrBndryParser;
-import net.ripe.db.whois.common.generated.AggrMtdParser;
-import net.ripe.db.whois.common.generated.ComponentsParser;
-import net.ripe.db.whois.common.generated.ComponentsR6Parser;
-import net.ripe.db.whois.common.generated.DefaultParser;
-import net.ripe.db.whois.common.generated.ExportParser;
-import net.ripe.db.whois.common.generated.FilterParser;
-import net.ripe.db.whois.common.generated.IfaddrParser;
-import net.ripe.db.whois.common.generated.ImportParser;
-import net.ripe.db.whois.common.generated.InjectParser;
-import net.ripe.db.whois.common.generated.InjectR6Parser;
-import net.ripe.db.whois.common.generated.InterfaceParser;
-import net.ripe.db.whois.common.generated.MpDefaultParser;
-import net.ripe.db.whois.common.generated.MpExportParser;
-import net.ripe.db.whois.common.generated.MpFilterParser;
-import net.ripe.db.whois.common.generated.MpImportParser;
-import net.ripe.db.whois.common.generated.MpPeerParser;
-import net.ripe.db.whois.common.generated.MpPeeringParser;
-import net.ripe.db.whois.common.generated.NameParser;
-import net.ripe.db.whois.common.generated.PeerParser;
-import net.ripe.db.whois.common.generated.PeeringParser;
-import net.ripe.db.whois.common.generated.V6FilterParser;
+import net.ripe.db.whois.common.generated.*;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.rpsl.attrs.AddressPrefixRange;
-import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
-import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
-import net.ripe.db.whois.common.rpsl.attrs.OrgType;
-import net.ripe.db.whois.common.rpsl.attrs.RangeOperation;
+import net.ripe.db.whois.common.rpsl.attrs.*;
 
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -77,7 +52,7 @@ public interface AttributeSyntax extends Documented {
             "inbound | outbound [<as-expression>]\n");
 
     AttributeSyntax AUTH_SCHEME_SYNTAX = new AttributeSyntaxRegexp(
-            Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
+            Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|SSO (\\w|\\d|@|\\.){1,90}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
             "<auth-scheme> <scheme-info>       Description\n" +
             "\n" +
             "MD5-PW        encrypted           This scheme is the weakest form of\n" +
@@ -102,7 +77,9 @@ public interface AttributeSyntax extends Documented {
             "X509-<nnn>                       Strong scheme of authentication.\n" +
             "                                  <nnn> is the index number of the\n" +
             "                                  corresponding key-cert object's\n" +
-            "                                  \"key-cert:\" attribute (X509-nnn).\n");
+            "                                  \"key-cert:\" attribute (X509-nnn).\n" +
+            "\n" +
+            "SSO           username           Scheme for Single Sign On authentication.\n");
 
     AttributeSyntax CERTIF_SYNTAX = new AnySyntax("" +
             "The value of the public key should be supplied either using\n" +

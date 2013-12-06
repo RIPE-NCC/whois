@@ -113,10 +113,13 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "Md5-Pw $1$a$bcdefghijklmnopqrstuvw");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "mD5-pW $1$abc012./$./01234567890123456789");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "pgpkey-01234567");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO test2@ripe.net");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "pgpkey-ghij./12");
+        verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO tes,,,.....");
+        verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO ");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "md5-pw bcdefghijklmnopqrstuvwx");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "md5-pw $1$abcdefghi$bcdefghijklmnopqrstuvwx");

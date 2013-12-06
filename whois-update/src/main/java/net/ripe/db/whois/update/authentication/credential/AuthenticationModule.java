@@ -77,6 +77,10 @@ public class AuthenticationModule {
             return X509Credential.createKnownCredential(auth.toString());
         }
 
+        if (auth.startsWith(ciString("SSO"))) {
+            return new SSOCredential(auth.toString());
+        }
+
         return null;
     }
 }
