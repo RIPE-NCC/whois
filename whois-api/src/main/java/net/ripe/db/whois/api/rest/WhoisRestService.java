@@ -108,7 +108,6 @@ public class WhoisRestService {
 
     public static final String SERVICE_SEARCH = "search";
 
-    private static final Pattern HAS_FLAGS_IN_SEARCHKEY = Pattern.compile("(?i) (-[a-z]+)");
     private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&');
 
     private static final Set<QueryFlag> NOT_ALLOWED_SEARCH_QUERY_FLAGS = ImmutableSet.of(

@@ -70,7 +70,6 @@ public class SingleUpdateHandler {
         this.pendingUpdateHandler = pendingUpdateHandler;
     }
 
-    // TODO: [AH] this code is too script-like, with updateContext acting as a global variable stash, with sub-scripts like authenticator altering it.
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void handle(final Origin origin, final Keyword keyword, final Update update, final UpdateContext updateContext) {
         updateLockDao.setUpdateLock();
@@ -100,6 +99,7 @@ public class SingleUpdateHandler {
             throw new UpdateFailedException();
         }
 
+        // TODO: [AH] Hard to follow spaghetti code from here, made worse by pendigupdate hacksies. Refactor on next change.
         final RpslObject objectWithResolvedKeys = autoKeyResolver.resolveAutoKeys(updatedObject, update, updateContext, action);
         preparedUpdate = new PreparedUpdate(update, originalObject, objectWithResolvedKeys, action, overrideOptions);
 
@@ -205,7 +205,7 @@ public class SingleUpdateHandler {
         return Action.MODIFY;
     }
 
-    // `TODO: [AH] Optimize the DAO call to work on objectid
+    // `TODO: [AH] Replace with versioning
     private void checkForUnexpectedModification(final Update update) {
         if (update.getSubmittedObjectInfo() != null) {
             final RpslObjectUpdateInfo latestUpdateInfo = rpslObjectUpdateDao.lookupObject(

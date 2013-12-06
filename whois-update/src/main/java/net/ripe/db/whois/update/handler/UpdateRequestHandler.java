@@ -4,7 +4,14 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.dns.DnsChecker;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Ack;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.UpdateRequest;
+import net.ripe.db.whois.update.domain.UpdateResponse;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.response.ResponseFactory;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -141,7 +148,12 @@ public class UpdateRequestHandler {
                 }
             }
 
-            updates = reattemptQueue.size() < updates.size() ? reattemptQueue : Collections.<Update>emptyList();
+            if (updates.size() == 1 || reattemptQueue.size() == updates.size()) {
+                break;
+            }
+
+            updates = reattemptQueue;
+
             for (final Update update : updates) {
                 updateContext.prepareForReattempt(update);
             }
