@@ -31,4 +31,10 @@
         <property name="password" value="${acl.database.password}"/>
     </bean>
 
+    <bean id="whoisReadOnlySlaveDataSource" parent="abstractDataSource">
+        <property name="jdbcUrl" value="${whois.db.slave.url}"/>
+        <property name="user" value="${whois.db.slave.username}"/>
+        <property name="password" value="${whois.db.slave.password}"/>
+    </bean>
+
 </beans>
