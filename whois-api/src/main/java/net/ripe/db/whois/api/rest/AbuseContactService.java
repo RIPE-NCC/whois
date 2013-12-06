@@ -14,12 +14,13 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Component
@@ -60,14 +61,14 @@ public class AbuseContactService {
         });
 
         if (abuseResources.isEmpty()) {
-            throw new NotFoundException();
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("No abuse contact found for " + key).build());
         }
 
         final AbuseResources result = abuseResources.get(0);
 
         final String parametersKey = result.getParameters().getPrimaryKey().getValue();
         if (parametersKey.equals("::/0") || parametersKey.equals("0.0.0.0 - 255.255.255.255")) {
-            throw new NotFoundException();
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("No abuse contact found for " + key).build());
         }
 
         return result;

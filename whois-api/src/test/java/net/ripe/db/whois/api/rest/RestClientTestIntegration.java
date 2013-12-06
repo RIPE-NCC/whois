@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class RestClientTestIntegration extends AbstractIntegrationTest {
@@ -157,8 +158,13 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         assertThat(abuseContact.getEmail(), is("abuse@test.net"));
     }
 
-    @Test(expected = RestClientException.class)
+    @Test
     public void lookup_abuse_contact_not_found() {
-        restClient.lookupAbuseContact("10.0.0.1");
+        try {
+            restClient.lookupAbuseContact("10.0.0.1");
+            fail();
+        } catch (RestClientException e) {
+            assertThat(e.getErrorMessages().get(0).getText(), is("No abuse contact found for 10.0.0.1"));
+        }
     }
 }
