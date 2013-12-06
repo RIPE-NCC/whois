@@ -16,8 +16,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.NotFoundException;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -159,12 +157,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         assertThat(abuseContact.getEmail(), is("abuse@test.net"));
     }
 
-    @Test
+    @Test(expected = RestClientException.class)
     public void lookup_abuse_contact_not_found() {
-        try {
-            restClient.lookupAbuseContact("10.0.0.1");
-        } catch (RestClientException e) {
-            assertThat(e.getErrorMessages().get(0).getText(), is(""));
-        }
+        restClient.lookupAbuseContact("10.0.0.1");
     }
 }
