@@ -1,6 +1,21 @@
 ## next
 
-## 1.70
+## 1.71
+[api] #97 REST calls should return error messages
+[api] #95 REST /search should not accept query flags in 'query-string'
+[api] #92 Uniform use to flag names in error messages
+[api] #91 REST API /search puts flags in <Parameters> section in the same format as they were received in the request
+[api] #87 Fixed error on NOOP update via REST API
+[api] #86 Fixed email address filtering
+[api] #89 Maintenance mode should return error on Syncupdates and REST API
+[api] Created REST Client module
+[api] Added authentication support for REST lookups
+[api] log HTTP headers in update audit log
+
+## 1.70.1 (deployed on 2013-11-21)
+[all] Fixed MySQL replication issue
+
+## 1.70 (deployed on 2013-11-14)
 [update] DIFF keyword no longer supported
 [api] added service element in responses
 [api] added GETter for the abuse contact creation service
