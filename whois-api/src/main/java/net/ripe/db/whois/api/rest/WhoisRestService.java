@@ -229,7 +229,7 @@ public class WhoisRestService {
             final WhoisResources resource,
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
-            @PathParam("objectType") final String objectType,
+            @PathParam("objectType") final String objectType,               // TODO: [ES] validate object type (REST paradigm suggests specifying resource type on creation)
             @QueryParam("password") final List<String> passwords,
             @QueryParam("override") final String override) {
 
