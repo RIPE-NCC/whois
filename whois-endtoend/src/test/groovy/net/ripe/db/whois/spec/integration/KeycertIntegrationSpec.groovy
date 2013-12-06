@@ -202,6 +202,40 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             value/
     }
 
+    def "create keycert replace multiple owner fields"() {
+      given:
+        def response = syncUpdate new SyncUpdate(data:  """
+            key-cert:       PGPKEY-459F13C0
+            method:         PGP
+            owner:          Test User (testing) <dbtest@ripe.net>
+            owner:          Another owner
+            fingerpr:       F127 F439 9286 0A5E 06D0  809B 471A AB9F D83C 3FBD
+            certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
+                            Version: GnuPG v1.4.12 (Darwin)
+            +
+                            mI0EUM8WtAEEALnqIV3MGrTZpzspsUPFozlNYts2KK136IvmHNjySNSlp8inLTTq
+                            hOU+6bdpQYsLJOhzlFwoH/RXdCouRJ64Xq3VginxqpYfww5PKuO3MHs6hkBZgted
+                            I/+/qcBvK4PWTNeD6xEWvKFZiBPsijU7etXbo+K2hQOSu2LrbDncLFkBABEBAAG0
+                            MkRCIFRlc3QgKFJTQSBrZXkgZm9yIERCIHRlc3RpbmcpIDxkYnRlc3RAcmlwZS5u
+                            ZXQ+iLkEEwECACMFAlDPFrQCGy8HCwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAK
+                            CRByxObDRZ8TwLPkA/42vdjRKQ3zQmFYcjszCy5L/MLlj4gYjZkOJICVudLMz3c1
+                            Ztda5JaUu+KnFZ664ekVLxLJY6coH1N9bxWKNSzKaoEx4WhV8OHGk2xdSkJHK887
+                            f4UYpA4085JxwkgzljzxAxfLf1GQuSNw3eY0b3T2GDgXRQwcSl4xdufto0zERQ==
+                            =t1N2
+                            -----END PGP PUBLIC KEY BLOCK-----
+            mnt-by:         UPD-MNT
+            changed:        noreply@ripe.net
+            source:         TEST
+            password: update
+            """.stripIndent())
+      expect:
+        response =~ /Create SUCCEEDED: \[key-cert\] PGPKEY-459F13C0/
+        response =~ /\*\*\*Warning: Supplied attribute 'method' has been replaced with a generated value/
+        response =~ /\*\*\*Warning: Supplied attribute 'owner' has been replaced with a generated value/
+        response =~ /\*\*\*Warning: Supplied attribute 'fingerpr' has been replaced with a generated
+            value/
+    }
+
     def "noop keycert replace generated fields"() {
       given:
         def request = getResource("keycerts/PGPKEY-28F6CD6C.TXT") + "password: update";
