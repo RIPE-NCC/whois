@@ -17,6 +17,6 @@ public class SSOCredentialValidator implements CredentialValidator<SSOCredential
 
     @Override
     public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<SSOCredential> offeredCredentials, final SSOCredential knownCredential) {
-        return true;
+        return false;
     }
 }
