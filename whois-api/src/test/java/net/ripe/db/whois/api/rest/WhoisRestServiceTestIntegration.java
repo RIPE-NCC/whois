@@ -726,7 +726,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void delete_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test").request().delete(String.class);
+        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test").request().delete(WhoisResources.class);
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         try {
             databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST");
             fail();
