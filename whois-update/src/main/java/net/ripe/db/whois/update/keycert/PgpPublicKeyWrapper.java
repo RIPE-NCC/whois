@@ -1,6 +1,8 @@
 package net.ripe.db.whois.update.keycert;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -8,7 +10,14 @@ import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.SignatureSubpacketTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openpgp.*;
+import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPKeyFlags;
+import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.PGPPublicKeyRing;
+import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
+import org.bouncycastle.openpgp.PGPSignature;
+import org.bouncycastle.openpgp.PGPSignatureSubpacketVector;
+import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
 import org.joda.time.LocalDateTime;
 
@@ -139,15 +148,14 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
     }
 
     @Override
-    public String getOwner() {
-        String uid = null;
-
-        Iterator iterator = masterKey.getUserIDs();
-        while (iterator.hasNext()) {
-            uid = iterator.next().toString(); // return last uid found
-        }
-
-        return uid;
+    public List<String> getOwners() {
+        return Lists.newArrayList(Iterators.<Object, String>transform(masterKey.getUserIDs(),
+                new Function<Object, String>() {
+                    @Override
+                    public String apply(final Object input) {
+                        return input.toString();
+                    }
+                }));
     }
 
     @Override

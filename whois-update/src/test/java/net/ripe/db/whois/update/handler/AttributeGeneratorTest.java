@@ -1,8 +1,14 @@
 package net.ripe.db.whois.update.handler;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
@@ -13,8 +19,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -54,9 +69,10 @@ public class AttributeGeneratorTest {
 
         final RpslObject updatedObject = subject.generateAttributes(keycert, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(AttributeType.METHOD).getCleanValue().toString(), is("X509"));
-        assertThat(updatedObject.findAttribute(AttributeType.FINGERPR).getCleanValue().toString(), is("E7:0F:3B:D4:2F:DD:F5:84:3F:4C:D2:98:78:F3:10:3D"));
-        assertThat(updatedObject.findAttribute(AttributeType.OWNER).getCleanValue().toString(), is("/C=NL/O=RIPE NCC/OU=Members/CN=zz.example.denis/EMAILADDRESS=denis@ripe.net"));
+        validateAttributeType(updatedObject, AttributeType.METHOD, "X509");
+        validateAttributeType(updatedObject, AttributeType.FINGERPR, "E7:0F:3B:D4:2F:DD:F5:84:3F:4C:D2:98:78:F3:10:3D");
+        validateAttributeType(updatedObject, AttributeType.OWNER, "/C=NL/O=RIPE NCC/OU=Members/CN=zz.example.denis/EMAILADDRESS=denis@ripe.net");
+        validateMessages();
     }
 
     @Test
@@ -102,17 +118,18 @@ public class AttributeGeneratorTest {
 
         final RpslObject updatedObject = subject.generateAttributes(keycert, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(AttributeType.METHOD).getCleanValue().toString(), is("PGP"));
-        assertThat(updatedObject.findAttribute(AttributeType.FINGERPR).getValue(), is("884F 8E23 69E5 E6F1 9FB3  63F4 BBCC BB2D 5763 950D"));
-        assertThat(updatedObject.findAttribute(AttributeType.OWNER).getCleanValue().toString(), is("noreply@ripe.net <noreply@ripe.net>"));
+        validateAttributeType(updatedObject, AttributeType.METHOD, "PGP");
+        validateAttributeType(updatedObject, AttributeType.FINGERPR, "884F 8E23 69E5 E6F1 9FB3  63F4 BBCC BB2D 5763 950D");
+        validateAttributeType(updatedObject, AttributeType.OWNER, "noreply@ripe.net <noreply@ripe.net>");
+        validateMessages();
     }
 
     @Test
-    public void multiple_owner_attributes() {
+    public void invalid_owner_attribute() {
         RpslObject keycert = RpslObject.parse(
                 "key-cert:     PGPKEY-5763950D\n" +
-                "owner:        one\n" +
-                "owner:        two\n" +
+                "owner:        noreply@ripe.net <noreply@ripe.net>\n" +
+                "owner:        invalid\n" +
                 "certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
                 "certif:       Version: GnuPG v1.4.12 (Darwin)\n" +
                 "certif:       \n" +
@@ -151,9 +168,55 @@ public class AttributeGeneratorTest {
 
         final RpslObject updatedObject = subject.generateAttributes(keycert, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(AttributeType.METHOD).getCleanValue().toString(), is("PGP"));
-        assertThat(updatedObject.findAttribute(AttributeType.FINGERPR).getValue(), is("884F 8E23 69E5 E6F1 9FB3  63F4 BBCC BB2D 5763 950D"));
-        assertThat(updatedObject.findAttribute(AttributeType.OWNER).getCleanValue().toString(), is("noreply@ripe.net <noreply@ripe.net>"));
+        validateAttributeType(updatedObject, AttributeType.METHOD, "PGP");
+        validateAttributeType(updatedObject, AttributeType.FINGERPR, "884F 8E23 69E5 E6F1 9FB3  63F4 BBCC BB2D 5763 950D");
+        validateAttributeType(updatedObject, AttributeType.OWNER, "noreply@ripe.net <noreply@ripe.net>");
+        validateMessages(ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.OWNER));
+    }
+
+    @Test
+    public void public_key_with_multiple_owners() {
+        RpslObject keycert = RpslObject.parse(
+                "key-cert:   PGPKEY-5763950D\n" +
+                "owner:      invalid\n" +
+                "certif:     -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                "certif:     Version: GnuPG v1.4.15 (Darwin)\n" +
+                "certif:     Comment: GPGTools - http://gpgtools.org\n" +
+                "certif:     \n" +
+                "certif:     mI0EUqWQnQEEAMKfJ/wK0TuUxgTbDdE5LjDuoDNTNfGr0iw2fNSlsxNME3bpRKW9\n" +
+                "certif:     YjgllY7D0wbx4BIdV7MUOaYMDEEPCkApHNwK256Ve2S4WxLCWpyGMiXECs6r4Fj+\n" +
+                "certif:     Bkyc2O4bxuXoQocbnKVOiFI0SPpkX1pa0IJleqAq5cz77zK1Ha5OOMErABEBAAG0\n" +
+                "certif:     G0FkbWluIFVzZXIgPGFkbWluQHJpcGUubmV0Poi4BBMBAgAiBQJSpZCdAhsDBgsJ\n" +
+                "certif:     CAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRDHIn7s6l+7lIpAA/4lExw9e9L2pSsx\n" +
+                "certif:     JsDZe0JqukvI6bipuFWa26brAlef+6NtDJjQWvfLAAEoeDBlBchHZ4tpl1Wiyt3J\n" +
+                "certif:     kIyeIYDIbb9e/w+romlDlyTQo+8/U1iAdb+TOGzacgbJoykU6OjaGbuMbWn0bu2S\n" +
+                "certif:     cmnH08tu0Ydhj04v5yPaSfEYGBF9ULQgSG9zdG1hc3RlciA8aG9zdG1hc3RlckBy\n" +
+                "certif:     aXBlLm5ldD6IuAQTAQIAIgUCUqWRMQIbAwYLCQgHAwIGFQgCCQoLBBYCAwECHgEC\n" +
+                "certif:     F4AACgkQxyJ+7Opfu5SCzAQAqoRLx76WWa5AcVKUr5BYt2MCPn695iOJ7/Lcxgtq\n" +
+                "certif:     wVx8ItIzd0rW5L5iqrreJBSof9W8WfSkHJuwTIzznDzjZZgYaU8eb7zB/g4VAr7b\n" +
+                "certif:     ZcfW0b5+IcUI+W1XNdX1ByYsXFkwp/si9QT0VO2rEf+Nxt8zrZ8sygSTWoTWEBWY\n" +
+                "certif:     1X24jQRSpZCdAQQAz3jzZHoumwM2tpNQjLdbb/agjeH9zDEb2lMQXSdLx+VdQWeN\n" +
+                "certif:     +ywh40Z0beMySXC+4e/pTyliGO5OUly75BiYsowWwLRA17AdR7YNHv+e22mTVf0O\n" +
+                "certif:     TkrzUAsU5TAA6ObX6NZWIt3XSCyDOB7m5imOO+vyGwp8p6+6tg2h/oKfedMAEQEA\n" +
+                "certif:     AYifBBgBAgAJBQJSpZCdAhsMAAoJEMcifuzqX7uUqBcEAJ4g4bzoRXWJJ6vjuT6w\n" +
+                "certif:     UgYCXmEcPSZIwwKPauTj3j7QX46T7u2+yb0qeyK+gFgb4e+iua3KNGb9L82xSEYy\n" +
+                "certif:     M8BQ5qhoZnUZjU1DvusYcX7g8Pwe7nntlucKXaMc/1Rgsx2Wpolu59uMLHZ7FUUM\n" +
+                "certif:     FUJok98LaNd+xfMg7u+8Fpca\n" +
+                "certif:     =tiwc\n" +
+                "certif:     -----END PGP PUBLIC KEY BLOCK-----        \n" +
+                "mnt-by:       UPD-MNT\n" +
+                "notify:       noreply@ripe.net\n" +
+                "changed:      noreply@ripe.net 20120213\n" +
+                "source:       TEST\n");
+
+        when(keyWrapperFactory.createKeyWrapper(keycert, update, updateContext)).thenReturn(PgpPublicKeyWrapper.parse(keycert));
+
+        final RpslObject updatedObject = subject.generateAttributes(keycert, update, updateContext);
+
+        validateAttributeType(updatedObject, AttributeType.METHOD, "PGP");
+        validateAttributeType(updatedObject, AttributeType.FINGERPR, "FBFD 0527 454D 5880 3484  413F C722 7EEC EA5F BB94");
+        validateAttributeType(updatedObject, AttributeType.OWNER, "Admin User <admin@ripe.net>", "Hostmaster <hostmaster@ripe.net>");
+        validateMessages(ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.OWNER));
     }
 
     @Test
@@ -162,7 +225,8 @@ public class AttributeGeneratorTest {
 
         final RpslObject updatedObject = subject.generateAttributes(keycert, update, updateContext);
 
-        assertThat(updatedObject.getAttributes().size(), is(1));
+        assertThat(updatedObject.getAttributes(), hasSize(1));
+        validateMessages();
     }
 
     @Test
@@ -172,5 +236,30 @@ public class AttributeGeneratorTest {
         final RpslObject updatedObject = subject.generateAttributes(person, update, updateContext);
 
         assertThat(updatedObject, is(person));
+        validateMessages();
+    }
+
+    // helper methods
+
+    private void validateAttributeType(final RpslObject rpslObject, final AttributeType attributeType, final String... values) {
+        final List attributes = Lists.transform(Arrays.<String>asList(values), new Function<String, RpslAttribute>() {
+            @Override
+            public RpslAttribute apply(@Nullable String input) {
+                return new RpslAttribute(attributeType, input);
+            }
+        });
+
+        assertThat(rpslObject.findAttributes(attributeType), is(attributes));
+    }
+
+    private void validateMessages(final Message... messages) {
+        if (messages.length == 0) {
+            verify(updateContext, never()).addMessage(any(UpdateContainer.class), any(Message.class));
+        } else {
+            verify(updateContext, times(messages.length)).addMessage(any(UpdateContainer.class), any(Message.class));
+            for (final Message message : messages) {
+                verify(updateContext).addMessage(update, message);
+            }
+        }
     }
 }

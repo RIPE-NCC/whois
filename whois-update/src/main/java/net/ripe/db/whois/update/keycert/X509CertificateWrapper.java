@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.keycert;
 
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
@@ -14,6 +15,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 public final class X509CertificateWrapper implements KeyWrapper {
     private static final String X509_HEADER = "-----BEGIN CERTIFICATE-----";
@@ -100,8 +102,8 @@ public final class X509CertificateWrapper implements KeyWrapper {
     }
 
     @Override
-    public String getOwner() {
-        return convertFromRfc2253ToCompatFormat(certificate.getSubjectDN().getName());
+    public List<String> getOwners() {
+        return Lists.newArrayList(convertFromRfc2253ToCompatFormat(certificate.getSubjectDN().getName()));
     }
 
     @Override
