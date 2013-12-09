@@ -32,6 +32,7 @@ public class UpdateContext {
     private final Map<CIString, GeneratedKey> generatedKeys = Maps.newHashMap();
     private final Map<Update, Context> contexts = Maps.newLinkedHashMap();
     private final Map<DnsCheckRequest, DnsCheckResponse> dnsCheckResponses = Maps.newHashMap();
+    private final Map<String, String> ssoTranslation = Maps.newHashMap();
     private final LoggerContext loggerContext;
 
     private int nrSinceRestart;
@@ -60,6 +61,22 @@ public class UpdateContext {
         if (previous != null) {
             throw new IllegalStateException("Existing response for request: " + request);
         }
+    }
+
+    public void addSsoTranslationResult(String username, String uuid) {
+        String duplicateUuid = ssoTranslation.put(username, uuid);
+        String duplicateUsername = ssoTranslation.put(uuid, username);
+
+        if (duplicateUuid != null) {
+            throw new IllegalStateException("Duplicate UUID '" + duplicateUuid + "' in SSO translation! (" + username + "=" + uuid + ")");
+        }
+        if (duplicateUsername != null) {
+            throw new IllegalStateException("Duplicate username '" + duplicateUsername + "' in SSO translation! (" + username + "=" + uuid + ")");
+        }
+    }
+
+    public String getSsoTranslationResult(String usernameOrUuid) {
+        return ssoTranslation.get(usernameOrUuid);
     }
 
     public void addPendingUpdate(final UpdateContainer updateContainer, final PendingUpdate pendingUpdate) {

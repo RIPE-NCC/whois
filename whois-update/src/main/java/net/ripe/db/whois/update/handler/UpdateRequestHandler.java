@@ -2,6 +2,8 @@ package net.ripe.db.whois.update.handler;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.dns.DnsChecker;
 import net.ripe.db.whois.update.domain.Ack;
@@ -16,6 +18,7 @@ import net.ripe.db.whois.update.handler.response.ResponseFactory;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.log.UpdateLog;
+import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,7 @@ public class UpdateRequestHandler {
     private final SingleUpdateHandler singleUpdateHandler;
     private final LoggerContext loggerContext;
     private final DnsChecker dnsChecker;
+    private final SsoTranslator ssoTranslator;
     private final UpdateNotifier updateNotifier;
     private final UpdateLog updateLog;
 
@@ -44,6 +48,7 @@ public class UpdateRequestHandler {
                                 final SingleUpdateHandler singleUpdateHandler,
                                 final LoggerContext loggerContext,
                                 final DnsChecker dnsChecker,
+                                final SsoTranslator ssoTranslator,
                                 final UpdateNotifier updateNotifier,
                                 final UpdateLog updateLog) {
         this.sourceContext = sourceContext;
@@ -51,6 +56,7 @@ public class UpdateRequestHandler {
         this.singleUpdateHandler = singleUpdateHandler;
         this.loggerContext = loggerContext;
         this.dnsChecker = dnsChecker;
+        this.ssoTranslator = ssoTranslator;
         this.updateNotifier = updateNotifier;
         this.updateLog = updateLog;
     }
@@ -122,41 +128,53 @@ public class UpdateRequestHandler {
     private void processUpdateQueue(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         List<Update> updates = updateRequest.getUpdates();
 
-        while (!updates.isEmpty()) {
-            final List<Update> reattemptQueue = Lists.newArrayList();
+        for (final Update update : updates) {
+            dnsChecker.check(update, updateContext);
+            ssoTranslator.populate(update, updateContext);
+        }
 
-            for (final Update update : updates) {
-                final Stopwatch stopwatch = new Stopwatch().start();
+        if (updates.size() == 1) {
+            attemptUpdates(updateRequest, updateContext, updates);
+        } else {
+            while (!updates.isEmpty()) {
+                List<Update> reattemptQueue = attemptUpdates(updateRequest, updateContext, updates);
 
-                try {
-                    loggerContext.logUpdateStarted(update);
-                    dnsChecker.check(update, updateContext);
-                    singleUpdateHandler.handle(updateRequest.getOrigin(), updateRequest.getKeyword(), update, updateContext);
-                    loggerContext.logUpdateCompleted(update);
-                } catch (UpdateAbortedException e) {
-                    loggerContext.logUpdateCompleted(update);
-                } catch (UpdateFailedException e) {
-                    updateContext.failedUpdate(update);
-                    reattemptQueue.add(update);
-                    loggerContext.logUpdateCompleted(update);
-                } catch (RuntimeException e) {
-                    updateContext.failedUpdate(update, UpdateMessages.unexpectedError());
-                    loggerContext.logUpdateFailed(update, e);
-                    LOGGER.error("Updating {}", update.getSubmittedObject().getFormattedKey(), e);
-                } finally {
-                    updateLog.logUpdateResult(updateRequest, updateContext, update, stopwatch.stop());
+                if (reattemptQueue.size() == updates.size()) {
+                    break;
+                }
+
+                updates = reattemptQueue;
+
+                for (final Update update : updates) {
+                    updateContext.prepareForReattempt(update);
                 }
             }
+        }
+    }
 
-            if (updates.size() == 1 || reattemptQueue.size() == updates.size()) {
-                break;
-            }
+    private List<Update> attemptUpdates(UpdateRequest updateRequest, UpdateContext updateContext, List<Update> updates) {
+        final List<Update> reattemptQueue = Lists.newArrayList();
+        for (final Update update : updates) {
+            final Stopwatch stopwatch = new Stopwatch().start();
 
-            updates = reattemptQueue;
-
-            for (final Update update : updates) {
-                updateContext.prepareForReattempt(update);
+            try {
+                loggerContext.logUpdateStarted(update);
+                singleUpdateHandler.handle(updateRequest.getOrigin(), updateRequest.getKeyword(), update, updateContext);
+                loggerContext.logUpdateCompleted(update);
+            } catch (UpdateAbortedException e) {
+                loggerContext.logUpdateCompleted(update);
+            } catch (UpdateFailedException e) {
+                updateContext.failedUpdate(update);
+                reattemptQueue.add(update);
+                loggerContext.logUpdateCompleted(update);
+            } catch (RuntimeException e) {
+                updateContext.failedUpdate(update, UpdateMessages.unexpectedError());
+                loggerContext.logUpdateFailed(update, e);
+                LOGGER.error("Updating {}", update.getSubmittedObject().getFormattedKey(), e);
+            } finally {
+                updateLog.logUpdateResult(updateRequest, updateContext, update, stopwatch.stop());
             }
         }
+        return reattemptQueue;
     }
 }

@@ -134,7 +134,7 @@ public class RpslObjectBuilder {
         return this;
     }
 
-    /** attribute order in template */
+    /** by attribute order in template */
     public RpslObjectBuilder sort() {
         AttributeType attributeType = getTypeAttributeOrNull();
         if (attributeType != null) {

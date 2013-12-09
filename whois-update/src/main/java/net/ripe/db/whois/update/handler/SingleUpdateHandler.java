@@ -11,6 +11,7 @@ import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.autokey.AutoKeyResolver;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.log.LoggerContext;
+import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -38,6 +39,7 @@ public class SingleUpdateHandler {
     private final UpdateObjectHandler updateObjectHandler;
     private final IpTreeUpdater ipTreeUpdater;
     private final PendingUpdateHandler pendingUpdateHandler;
+    private final SsoTranslator ssoTranslator;
     private CIString source;
 
     @Value("${whois.source}")
@@ -56,7 +58,8 @@ public class SingleUpdateHandler {
                                final RpslObjectDao rpslObjectDao,
                                final RpslObjectUpdateDao rpslObjectUpdateDao,
                                final IpTreeUpdater ipTreeUpdater,
-                               final PendingUpdateHandler pendingUpdateHandler) {
+                               final PendingUpdateHandler pendingUpdateHandler,
+                               final SsoTranslator ssoTranslator) {
         this.autoKeyResolver = autoKeyResolver;
         this.attributeGenerator = attributeGenerator;
         this.attributeSanitizer = attributeSanitizer;
@@ -68,6 +71,7 @@ public class SingleUpdateHandler {
         this.updateObjectHandler = updateObjectHandler;
         this.ipTreeUpdater = ipTreeUpdater;
         this.pendingUpdateHandler = pendingUpdateHandler;
+        this.ssoTranslator = ssoTranslator;
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
@@ -156,11 +160,7 @@ public class SingleUpdateHandler {
     }
 
     private RpslObject getUpdatedObject(final Update update, final UpdateContext updateContext, final Keyword keyword) {
-        RpslObject updatedObject = attributeSanitizer.sanitize(update.getSubmittedObject(), updateContext.getMessages(update));
-
-        if (!Operation.DELETE.equals(update.getOperation())) {
-            updatedObject = attributeGenerator.generateAttributes(updatedObject, update, updateContext);
-        }
+        RpslObject updatedObject = update.getSubmittedObject();
 
         if (RpslObjectFilter.isFiltered(updatedObject)) {
             updateContext.addMessage(update, UpdateMessages.filteredNotAllowed());
@@ -180,6 +180,10 @@ public class SingleUpdateHandler {
                 updateContext.addMessage(update, UpdateMessages.multipleReasonsSpecified(update.getOperation()));
             }
         } else {
+            updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
+            updatedObject = ssoTranslator.translateAuthToUuid(updateContext, updatedObject);
+            updatedObject = attributeGenerator.generateAttributes(updatedObject, update, updateContext);
+
             final ObjectMessages messages = ObjectTemplate.getTemplate(updatedObject.getType()).validate(updatedObject);
             if (messages.hasMessages()) {
                 updateContext.addMessages(update, messages);

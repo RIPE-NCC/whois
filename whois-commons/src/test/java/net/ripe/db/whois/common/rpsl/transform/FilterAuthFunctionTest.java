@@ -70,7 +70,7 @@ public class FilterAuthFunctionTest {
         final RpslObject result = subject.apply(rpslObject);
         assertThat(result.toString(), is("" +
                 "mntner:         SSO-MNT\n" +
-                "auth:           SSO  # Filtered\n" +
+                "auth:           SSO # Filtered\n" +
                 "source:         RIPE # Filtered\n"));
     }
 }

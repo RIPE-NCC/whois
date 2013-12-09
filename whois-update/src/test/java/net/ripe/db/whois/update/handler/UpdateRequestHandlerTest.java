@@ -9,6 +9,7 @@ import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.response.ResponseFactory;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.log.UpdateLog;
+import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +40,7 @@ public class UpdateRequestHandlerTest {
     @Mock DnsChecker dnsChecker;
     @Mock UpdateNotifier updateNotifier;
     @Mock UpdateLog updateLog;
+    @Mock SsoTranslator ssoTranslator;
 
     @InjectMocks UpdateRequestHandler subject;
 
