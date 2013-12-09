@@ -177,9 +177,11 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: SSO-MNT
             referral-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
-            auth:   SSO testusername
+            auth: SSO testusername
+            auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
             source: TEST
+            password: update
             """)
       then:
         response =~ /Create SUCCEEDED: \[mntner\] SSO-MNT/
@@ -194,9 +196,11 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: SSO-MNT
             referral-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
-            auth:   SSO testusername
+            auth: SSO testusername
+            auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
             source: TEST
+            password: update
             """)
 
         def response = syncUpdate new SyncUpdate(data: """\
@@ -206,9 +210,11 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: SSO-MNT
             referral-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
-            auth:   SSO test@usern.ame
+            auth: SSO test@usern.ame
+            auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
             source: TEST
+            password: update
             """)
       then:
         response =~ /Modify SUCCEEDED: \[mntner\] SSO-MNT/
