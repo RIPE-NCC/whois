@@ -39,8 +39,8 @@ public class FilterAuthFunction implements FilterFunction {
                 if (passwords.isEmpty() || !passwordType.startsWith("MD5") || !PasswordHelper.authenticateMd5Passwords(authValue.toString(), passwords)) {
                     replace.put(auth, new RpslAttribute(auth.getKey(), passwordType + FILTERED_APPENDIX));
                 }
-            } else if (passwordType.equalsIgnoreCase("SSO")) {
-                replace.put(auth, new RpslAttribute(auth.getKey(), "SSO " + FILTERED_APPENDIX));
+            } else if (passwordType.equals("SSO")) {
+                replace.put(auth, new RpslAttribute(auth.getKey(), passwordType + FILTERED_APPENDIX));
             }
         }
 
