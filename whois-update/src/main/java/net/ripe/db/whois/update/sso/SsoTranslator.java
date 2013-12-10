@@ -59,62 +59,35 @@ public class SsoTranslator {
         }
     }
 
+    private enum TranslationMode {
+        TO_UUID, FROM_UUID;
+    }
+
     public RpslObject translateAuthToUuid(UpdateContext updateContext, RpslObject rpslObject) {
-        if (!ObjectType.MNTNER.equals(rpslObject.getType())) {
-            return rpslObject;
-        }
-
-        Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
-            CIString authValue = auth.getCleanValue();
-            Iterator<String> authIterator = SPACE_SPLITTER.split(authValue.toUpperCase()).iterator();
-            String passwordType = authIterator.next();
-            if (passwordType.equals("SSO")) {
-                replace.put(auth, new RpslAttribute(auth.getKey(), "SSO" + getUuidForUsername(updateContext, authIterator.next())));
-            }
-        }
-
-        if (replace.isEmpty()) {
-            return rpslObject;
-        } else {
-            return new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
-        }
+        return translateAuth(updateContext, rpslObject, TranslationMode.TO_UUID);
     }
 
-    public RpslObject translateAuthToUsername(UpdateContext updateContext, RpslObject rpslObject) {
-        if (!ObjectType.MNTNER.equals(rpslObject.getType())) {
-            return rpslObject;
-        }
-
-        Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
-            CIString authValue = auth.getCleanValue();
-            Iterator<String> authIterator = SPACE_SPLITTER.split(authValue.toUpperCase()).iterator();
-            String passwordType = authIterator.next();
-            if (passwordType.equals("SSO")) {
-                replace.put(auth, new RpslAttribute(auth.getKey(), "SSO" + getUsernameForUuid(updateContext, authIterator.next())));
-            }
-        }
-
-        if (replace.isEmpty()) {
-            return rpslObject;
-        } else {
-            return new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
-        }
+    public RpslObject translateAuthToUsername(final UpdateContext updateContext, final RpslObject rpslObject) {
+        return translateAuth(updateContext, rpslObject, TranslationMode.FROM_UUID);
     }
 
-    private RpslObject translateAuth(UpdateContext updateContext, RpslObject rpslObject) {
+    private RpslObject translateAuth(final UpdateContext updateContext, final RpslObject rpslObject, final TranslationMode mode) {
         if (!ObjectType.MNTNER.equals(rpslObject.getType())) {
             return rpslObject;
         }
 
         Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
         for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
-            CIString authValue = auth.getCleanValue();
-            Iterator<String> authIterator = SPACE_SPLITTER.split(authValue.toUpperCase()).iterator();
+            final Iterator<String> authIterator = SPACE_SPLITTER.split(auth.getCleanValue().toUpperCase()).iterator();
             String passwordType = authIterator.next();
             if (passwordType.equals("SSO")) {
-                replace.put(auth, new RpslAttribute(auth.getKey(), "SSO" + getUsernameForUuid(updateContext, authIterator.next())));
+                String authValue;
+                if (mode == TranslationMode.FROM_UUID) {
+                    authValue = "SSO " + getUsernameForUuid(updateContext, authIterator.next());
+                }  else {
+                    authValue = "SSO " + getUuidForUsername(updateContext, authIterator.next());
+                }
+                replace.put(auth, new RpslAttribute(auth.getKey(), authValue));
             }
         }
 
