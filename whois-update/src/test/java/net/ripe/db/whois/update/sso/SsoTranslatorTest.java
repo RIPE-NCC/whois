@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.sso;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +18,7 @@ import static org.mockito.Mockito.when;
 public class SsoTranslatorTest {
 
     @Mock UpdateContext updateContext;
-
+    @Mock Update update;
 
     @Test
     public void translate_not_a_maintainer() {
@@ -31,6 +32,27 @@ public class SsoTranslatorTest {
 
     @Test
     public void translate_to_uuid_username_stored_in_context_already() {
+        final RpslObject object = RpslObject.parse("mntner: TEST-MNT\nauth: SSO username@test.net");
+        when(updateContext.getSsoTranslationResult("USERNAME@TEST.NET")).thenReturn("BBBB-1234-CCCC-DDDD");
+
+        final RpslObject result = new SsoTranslator().translateAuthToUsername(updateContext, object);
+
+        assertThat(result, is(RpslObject.parse("mntner: TEST-MNT\nauth: SSO BBBB-1234-CCCC-DDDD")));
+    }
+
+    @Test
+    public void translate_to_uuid_username_not_stored_in_context() {
+        final RpslObject object = RpslObject.parse("mntner: TEST-MNT\nauth: SSO username@test.net");
+        when(updateContext.getSsoTranslationResult("USERNAME@TEST.NET")).thenReturn(null).thenReturn("BBBB-1234-CCCC-DDDD");
+
+        final RpslObject result = new SsoTranslator().translateAuthToUuid(updateContext, object);
+
+        assertThat(result, is(RpslObject.parse("mntner: TEST-MNT\nauth: SSO BBBB-1234-CCCC-DDDD")));
+        verify(updateContext).addSsoTranslationResult("USERNAME@TEST.NET", "1234-5678-90AB-DCEF"); //TODO change after lookup is implemented
+    }
+
+    @Test
+    public void translate_to_username_uuid_stored_in_context_already() {
         final RpslObject object = RpslObject.parse("mntner: TEST-MNT\nauth: SSO aadd-2132-aaa-fff");
 
         when(updateContext.getSsoTranslationResult("AADD-2132-AAA-FFF")).thenReturn("username@test.net");
@@ -40,13 +62,33 @@ public class SsoTranslatorTest {
     }
 
     @Test
-    public void translate_to_uuid_username_not_stored_in_context() {
-        final RpslObject object = RpslObject.parse("mntner: TEST-MNT\nauth: SSO aadd-2132-aaa-fff");
-        when(updateContext.getSsoTranslationResult("AADD-2132-AAA-FFF")).thenReturn(null);
+    public void populate_not_maintainer_object() {
+        final RpslObject object = RpslObject.parse("aut-num: AS1234");
+        when(update.getSubmittedObject()).thenReturn(object);
 
-        final RpslObject result = new SsoTranslator().translateAuthToUuid(updateContext, object);
+        new SsoTranslator().populate(update, updateContext);
 
-        assertThat(result, is(RpslObject.parse("mntner: TEST-MNT\nauth: SSO username@test.net")));
-        verify(updateContext).addSsoTranslationResult("username@test.net", "1234-5678-90AB-DCEF");
+        verifyZeroInteractions(updateContext);
+    }
+
+    @Test
+    public void populate_no_sso_auth() {
+        final RpslObject object = RpslObject.parse("mntner: TEST-MNT\nauth: MD5-PW aaff1232431");
+        when(update.getSubmittedObject()).thenReturn(object);
+
+        new SsoTranslator().populate(update, updateContext);
+
+        verifyZeroInteractions(updateContext);
+    }
+
+    @Test
+    public void populate_sso_auth() {
+        final RpslObject object = RpslObject.parse("mntner: TEST-MNT\nauth: SSO user@test.net");
+        when(update.getSubmittedObject()).thenReturn(object);
+        when(updateContext.getSsoTranslationResult("USER@TEST.NET")).thenReturn(null).thenReturn("1234-5678-90AB-DCEF");
+
+        new SsoTranslator().populate(update, updateContext);
+
+        verify(updateContext).addSsoTranslationResult("user@test.net", "1234-5678-90AB-DCEF");
     }
 }

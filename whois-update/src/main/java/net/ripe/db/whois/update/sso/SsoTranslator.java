@@ -2,7 +2,6 @@ package net.ripe.db.whois.update.sso;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -20,7 +19,7 @@ public class SsoTranslator {
     public static final Splitter SPACE_SPLITTER = Splitter.on(' ');
 
     public String getUuidForUsername(UpdateContext updateContext, String username) {
-        String ssoTranslationResult = updateContext.getSsoTranslationResult(username);
+        final String ssoTranslationResult = updateContext.getSsoTranslationResult(username);
         if (ssoTranslationResult != null) {
             return ssoTranslationResult;
         }
@@ -32,7 +31,7 @@ public class SsoTranslator {
     }
 
     public String getUsernameForUuid(UpdateContext updateContext, String uuid) {
-        String ssoTranslationResult = updateContext.getSsoTranslationResult(uuid);
+        final String ssoTranslationResult = updateContext.getSsoTranslationResult(uuid);
         if (ssoTranslationResult != null) {
             return ssoTranslationResult;
         }
@@ -43,16 +42,15 @@ public class SsoTranslator {
 //        throw new IllegalArgumentException("Unknown RIPE Access UUID: " + uuid);
     }
 
-    public void populate(Update update, UpdateContext updateContext) {
-        RpslObject submittedObject = update.getSubmittedObject();
+    public void populate(final Update update, final UpdateContext updateContext) {
+        final RpslObject submittedObject = update.getSubmittedObject();
         if (!ObjectType.MNTNER.equals(submittedObject.getType())) {
             return;
         }
 
-        for (RpslAttribute auth : submittedObject.findAttributes(AttributeType.AUTH)) {
-            CIString authValue = auth.getCleanValue();
-            Iterator<String> authIterator = SPACE_SPLITTER.split(authValue).iterator();
-            String passwordType = authIterator.next();
+        for (final RpslAttribute auth : submittedObject.findAttributes(AttributeType.AUTH)) {
+            final Iterator<String> authIterator = SPACE_SPLITTER.split(auth.getCleanValue()).iterator();
+            final String passwordType = authIterator.next();
             if (passwordType.equalsIgnoreCase("SSO")) {
                 getUuidForUsername(updateContext, authIterator.next());
             }
@@ -60,7 +58,7 @@ public class SsoTranslator {
     }
 
     private enum TranslationMode {
-        TO_UUID, FROM_UUID;
+        TO_UUID, FROM_UUID
     }
 
     public RpslObject translateAuthToUuid(UpdateContext updateContext, RpslObject rpslObject) {
