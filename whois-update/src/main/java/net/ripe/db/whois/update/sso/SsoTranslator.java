@@ -80,4 +80,48 @@ public class SsoTranslator {
             return new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
         }
     }
+
+    public RpslObject translateAuthToUsername(UpdateContext updateContext, RpslObject rpslObject) {
+        if (!ObjectType.MNTNER.equals(rpslObject.getType())) {
+            return rpslObject;
+        }
+
+        Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
+        for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
+            CIString authValue = auth.getCleanValue();
+            Iterator<String> authIterator = SPACE_SPLITTER.split(authValue.toUpperCase()).iterator();
+            String passwordType = authIterator.next();
+            if (passwordType.equals("SSO")) {
+                replace.put(auth, new RpslAttribute(auth.getKey(), "SSO" + getUsernameForUuid(updateContext, authIterator.next())));
+            }
+        }
+
+        if (replace.isEmpty()) {
+            return rpslObject;
+        } else {
+            return new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
+        }
+    }
+
+    private RpslObject translateAuth(UpdateContext updateContext, RpslObject rpslObject) {
+        if (!ObjectType.MNTNER.equals(rpslObject.getType())) {
+            return rpslObject;
+        }
+
+        Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
+        for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
+            CIString authValue = auth.getCleanValue();
+            Iterator<String> authIterator = SPACE_SPLITTER.split(authValue.toUpperCase()).iterator();
+            String passwordType = authIterator.next();
+            if (passwordType.equals("SSO")) {
+                replace.put(auth, new RpslAttribute(auth.getKey(), "SSO" + getUsernameForUuid(updateContext, authIterator.next())));
+            }
+        }
+
+        if (replace.isEmpty()) {
+            return rpslObject;
+        } else {
+            return new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
+        }
+    }
 }
