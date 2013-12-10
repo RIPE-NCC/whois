@@ -22,15 +22,15 @@ import static org.hamcrest.Matchers.empty;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AuthServiceTest {
+public class InverseOrgFinderTest {
     @Mock RpslObjectDao objectDao;
     @Mock RpslObjectUpdateDao updateDao;
 
-    AuthService subject;
+    InverseOrgFinder subject;
 
     @Before
     public void setup() {
-        subject = new AuthService();
+        subject = new InverseOrgFinder();
         subject.setObjectDao(objectDao);
         subject.setUpdateDao(updateDao);
     }
@@ -39,7 +39,7 @@ public class AuthServiceTest {
     public void no_such_auth() {
         when(objectDao.findByAttribute(AttributeType.AUTH, "SSO test@ripe.net")).thenReturn(Collections.EMPTY_LIST);
 
-        final Set<RpslObject> organisationsForUser = subject.getOrganisationsForAuth("SSO test@ripe.net");
+        final Set<RpslObject> organisationsForUser = subject.findOrganisationsForAuth("SSO test@ripe.net");
         assertThat(organisationsForUser, empty());
     }
 
@@ -48,7 +48,7 @@ public class AuthServiceTest {
         when(objectDao.findByAttribute(AttributeType.AUTH, "SSO test@ripe.net")).thenReturn(Collections.singletonList(new RpslObjectInfo(2, ObjectType.MNTNER, "SSO-MNT")));
         when(updateDao.getAttributeReference(AttributeType.MNT_REF, CIString.ciString("SSO-MNT"))).thenReturn(null);
 
-        final Set<RpslObject> organisationsForUser = subject.getOrganisationsForAuth("SSO test@ripe.net");
+        final Set<RpslObject> organisationsForUser = subject.findOrganisationsForAuth("SSO test@ripe.net");
         assertThat(organisationsForUser, empty());
     }
 
@@ -59,7 +59,7 @@ public class AuthServiceTest {
         final RpslObject org = RpslObject.parse("organisation: ORG-TOL-TEST");
         when(objectDao.getById(3)).thenReturn(org);
 
-        final Set<RpslObject> organisationsForUser = subject.getOrganisationsForAuth("SSO test@ripe.net");
+        final Set<RpslObject> organisationsForUser = subject.findOrganisationsForAuth("SSO test@ripe.net");
         assertThat(organisationsForUser, contains(org));
     }
 }

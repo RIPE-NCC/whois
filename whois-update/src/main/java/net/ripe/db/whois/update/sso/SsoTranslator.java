@@ -61,7 +61,7 @@ public class SsoTranslator {
         TO_UUID, FROM_UUID
     }
 
-    public RpslObject translateAuthToUuid(UpdateContext updateContext, RpslObject rpslObject) {
+    public RpslObject translateAuthToUuid(final UpdateContext updateContext, final RpslObject rpslObject) {
         return translateAuth(updateContext, rpslObject, TranslationMode.TO_UUID);
     }
 
@@ -77,12 +77,12 @@ public class SsoTranslator {
         Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
         for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
             final Iterator<String> authIterator = SPACE_SPLITTER.split(auth.getCleanValue().toUpperCase()).iterator();
-            String passwordType = authIterator.next();
+            final String passwordType = authIterator.next();
             if (passwordType.equals("SSO")) {
                 String authValue;
                 if (mode == TranslationMode.FROM_UUID) {
                     authValue = "SSO " + getUsernameForUuid(updateContext, authIterator.next());
-                }  else {
+                } else {
                     authValue = "SSO " + getUuidForUsername(updateContext, authIterator.next());
                 }
                 replace.put(auth, new RpslAttribute(auth.getKey(), authValue));
