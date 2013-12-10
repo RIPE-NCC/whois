@@ -67,11 +67,11 @@ class InetnumAuthentication extends AuthenticationStrategyBase {
     private IpEntry getParentEntry(final IpInterval ipInterval) {
         if (ipInterval instanceof Ipv4Resource) {
             final List<Ipv4Entry> parent = ipv4Tree.findFirstLessSpecific((Ipv4Resource) ipInterval);
-            Validate.isTrue(parent.size() == 1);
+            Validate.isTrue(parent.size() == 1, "must have exactly one parent: ", ipInterval);
             return parent.get(0);
         } else if (ipInterval instanceof Ipv6Resource) {
             final List<Ipv6Entry> parent = ipv6Tree.findFirstLessSpecific((Ipv6Resource) ipInterval);
-            Validate.isTrue(parent.size() == 1);
+            Validate.isTrue(parent.size() == 1, "must have exactly one parent: ", ipInterval);
             return parent.get(0);
         }
 
