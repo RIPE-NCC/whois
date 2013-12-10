@@ -51,9 +51,9 @@ public class SsoTranslator {
 
         for (RpslAttribute auth : submittedObject.findAttributes(AttributeType.AUTH)) {
             CIString authValue = auth.getCleanValue();
-            Iterator<String> authIterator = SPACE_SPLITTER.split(authValue.toUpperCase()).iterator();
+            Iterator<String> authIterator = SPACE_SPLITTER.split(authValue).iterator();
             String passwordType = authIterator.next();
-            if (passwordType.equals("SSO")) {
+            if (passwordType.equalsIgnoreCase("SSO")) {
                 getUuidForUsername(updateContext, authIterator.next());
             }
         }

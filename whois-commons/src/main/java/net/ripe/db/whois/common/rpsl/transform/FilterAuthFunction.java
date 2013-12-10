@@ -48,8 +48,8 @@ public class FilterAuthFunction implements FilterFunction {
         Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
         for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
             CIString authValue = auth.getCleanValue();
-            Iterator<String> authIterator = SPACE_SPLITTER.split(authValue.toUpperCase()).iterator();
-            String passwordType = authIterator.next();
+            Iterator<String> authIterator = SPACE_SPLITTER.split(authValue).iterator();
+            String passwordType = authIterator.next().toUpperCase();
             if (passwordType.endsWith("-PW")) {     // history table has CRYPT-PW, has to be able to dummify that too!
                 if (passwords.isEmpty() || !passwordType.startsWith("MD5") || !PasswordHelper.authenticateMd5Passwords(authValue.toString(), passwords)) {
                     replace.put(auth, new RpslAttribute(auth.getKey(), passwordType + FILTERED_APPENDIX));
