@@ -1,8 +1,13 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.util.CollectionUtils;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import java.util.List;
 
 @SuppressWarnings("UnusedDeclaration")
@@ -55,7 +60,9 @@ public class WhoisResources {
     }
 
     public void setErrorMessages(List<ErrorMessage> errorMessages) {
-        this.errorMessages = new ErrorMessages(errorMessages);
+        if (!CollectionUtils.isEmpty(errorMessages)) {
+            this.errorMessages = new ErrorMessages(errorMessages);
+        }
     }
 
     public List<ErrorMessage> getErrorMessages() {
