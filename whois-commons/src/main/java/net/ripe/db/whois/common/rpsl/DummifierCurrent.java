@@ -92,13 +92,14 @@ public class DummifierCurrent implements Dummifier {
         return attribute;
     }
 
+    // TODO: [AH] we should relay on a single implementation of Authentication Filter; this method duplicates FilterAuthFunction
     private RpslAttribute replaceAuth(final AttributeType attributeType, final RpslAttribute attribute) {
         if (attributeType != AUTH) {
             return attribute;
         }
 
         String passwordType = SPACE_SPLITTER.split(attribute.getCleanValue().toUpperCase()).iterator().next();
-        if (passwordType.endsWith("-PW")) {     // history table has CRYPT-PW, has to be able to dummify that too!
+        if (passwordType.endsWith("-PW") || passwordType.startsWith("SSO")) {     // history table has CRYPT-PW, has to be able to dummify that too!
             return new RpslAttribute(AttributeType.AUTH, passwordType + FILTERED_APPENDIX);
         }
 
