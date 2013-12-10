@@ -99,6 +99,10 @@ public class UpdateRequestHandler {
     private UpdateResponse handleUpdates(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         dnsChecker.checkAll(updateRequest, updateContext);
 
+        for (final Update update : updateRequest.getUpdates()) {
+            ssoTranslator.populate(update, updateContext);
+        }
+
         processUpdateQueue(updateRequest, updateContext);
 
         // Create update response before sending notifications, so in case of an exception
@@ -127,11 +131,6 @@ public class UpdateRequestHandler {
 
     private void processUpdateQueue(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         List<Update> updates = updateRequest.getUpdates();
-
-        for (final Update update : updates) {
-            dnsChecker.check(update, updateContext);
-            ssoTranslator.populate(update, updateContext);
-        }
 
         if (updates.size() == 1) {
             attemptUpdates(updateRequest, updateContext, updates);
