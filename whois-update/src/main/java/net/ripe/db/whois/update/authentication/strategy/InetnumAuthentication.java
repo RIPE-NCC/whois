@@ -29,7 +29,10 @@ class InetnumAuthentication extends AuthenticationStrategyBase {
     private final RpslObjectDao rpslObjectDao;
 
     @Autowired
-    public InetnumAuthentication(final AuthenticationModule authenticationModule, final Ipv4Tree ipv4Tree, final Ipv6Tree ipv6Tree, final RpslObjectDao rpslObjectDao) {
+    public InetnumAuthentication(final AuthenticationModule authenticationModule,
+                                 final Ipv4Tree ipv4Tree,
+                                 final Ipv6Tree ipv6Tree,
+                                 final RpslObjectDao rpslObjectDao) {
         this.authenticationModule = authenticationModule;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
