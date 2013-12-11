@@ -248,4 +248,23 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         response =~ /End of line comments not allowed on "source:" attribute/
     }
+
+    def "lowercase source with filtered comment"() {
+        when:
+        def response = syncUpdate new SyncUpdate(data: """
+                mntner:      OWNER-MNT
+                descr:       has end of line comment on source
+                admin-c:     TP1-TEST
+                auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
+                mnt-by:      OWNER-MNT
+                referral-by: OWNER-MNT
+                upd-to:      dbtest@ripe.net
+                changed:     dbtest@ripe.net
+                source:      Test # Filtered
+                password:    owner
+                """.stripIndent())
+
+        then:
+        response =~ /Cannot submit filtered whois output for updates/
+    }
 }
