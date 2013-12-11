@@ -184,7 +184,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response =~ /Delete FAILED/
-        response =~ /Object \[inet6num\] 2a00:1f78::\/48 does not exist in the database/
+        response =~ /Object \[inet6num\] 2a00:1f78::fffe\/48 does not exist in the database/
     }
 
     def "modify, unrecognised status"() {
@@ -1035,7 +1035,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
 
       when:
         def delete = syncUpdate(new SyncUpdate(data: """\
-                inet6num:   fdf8:f53b:82e4:1000::/50
+                inet6num:   fdf8:f53b:82e4::/50
                 netname:    dens_test
                 descr:      testing inet6num operations
                 country:    EU #Country is really world wide
