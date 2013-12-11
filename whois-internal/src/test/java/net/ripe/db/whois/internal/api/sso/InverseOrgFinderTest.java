@@ -46,7 +46,7 @@ public class InverseOrgFinderTest {
     @Test
     public void no_referenced_organisation() {
         when(objectDao.findByAttribute(AttributeType.AUTH, "SSO test@ripe.net")).thenReturn(Collections.singletonList(new RpslObjectInfo(2, ObjectType.MNTNER, "SSO-MNT")));
-        when(updateDao.getAttributeReference(AttributeType.MNT_REF, CIString.ciString("SSO-MNT"))).thenReturn(null);
+        when(updateDao.getAttributeReference(AttributeType.MNT_BY, CIString.ciString("SSO-MNT"))).thenReturn(null);
 
         final Set<RpslObject> organisationsForUser = subject.findOrganisationsForAuth("SSO test@ripe.net");
         assertThat(organisationsForUser, empty());
@@ -55,8 +55,11 @@ public class InverseOrgFinderTest {
     @Test
     public void organisation_found() {
         when(objectDao.findByAttribute(AttributeType.AUTH, "SSO test@ripe.net")).thenReturn(Collections.singletonList(new RpslObjectInfo(2, ObjectType.MNTNER, "SSO-MNT")));
-        when(updateDao.getAttributeReference(AttributeType.MNT_REF, CIString.ciString("SSO-MNT"))).thenReturn(new RpslObjectInfo(3, ObjectType.ORGANISATION, "ORG-TOL-TEST"));
-        final RpslObject org = RpslObject.parse("organisation: ORG-TOL-TEST");
+        final RpslObject mntner = RpslObject.parse("mntner: SSO-MNT\nauth: SSO 1234-5678-90ab-cdef");
+        when(objectDao.getByKey(ObjectType.MNTNER, "SSO-MNT")).thenReturn(mntner);
+
+        when(updateDao.getReferences(mntner)).thenReturn(Collections.singleton(new RpslObjectInfo(3, ObjectType.ORGANISATION, "ORG-TOL-TEST")));
+        final RpslObject org = RpslObject.parse("organisation: ORG-TOL-TEST\nmnt-by: SSO-MNT");
         when(objectDao.getById(3)).thenReturn(org);
 
         final Set<RpslObject> organisationsForUser = subject.findOrganisationsForAuth("SSO test@ripe.net");

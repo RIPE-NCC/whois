@@ -37,10 +37,14 @@ public class InverseOrgFinder {
         final Set<RpslObject> organisations = Sets.newHashSet();
 
         for (final RpslObjectInfo mntner : mntners) {
-            // TODO is this correct, can there be more than one reference? An alternative is to use getReferences, which gets ALL references
-            final RpslObjectInfo attributeReference = updateDao.getAttributeReference(AttributeType.MNT_REF, CIString.ciString(mntner.getKey()));
-            if (attributeReference != null && attributeReference.getObjectType() == ObjectType.ORGANISATION) {
-                organisations.add(objectDao.getById(attributeReference.getObjectId()));
+            final Set<RpslObjectInfo> references = updateDao.getReferences(objectDao.getByKey(mntner.getObjectType(), mntner.getKey()));
+            for (final RpslObjectInfo reference : references) {
+                if (reference.getObjectType() == ObjectType.ORGANISATION) {
+                    final RpslObject organisation = objectDao.getById(reference.getObjectId());
+                    if (organisation.getValuesForAttribute(AttributeType.MNT_BY).contains(CIString.ciString(mntner.getKey()))) {
+                        organisations.add(organisation);
+                    }
+                }
             }
         }
 

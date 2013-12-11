@@ -14,24 +14,24 @@ import javax.ws.rs.core.Response;
 import java.util.Set;
 
 @Component
-@Path("/sso")
-public class AuthService {
+@Path("/user")
+public class OrganisationsForSSOAuthService {
 
     private final InverseOrgFinder orgFinder;
     private final WhoisObjectServerMapper whoisObjectMapper;
 
     @Autowired
-    public AuthService(final InverseOrgFinder orgFinder) {
+    public OrganisationsForSSOAuthService(final InverseOrgFinder orgFinder) {
         this.orgFinder = orgFinder;
         this.whoisObjectMapper = new WhoisObjectServerMapper(null, "");
     }
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Path("/{auth}")
-    public Response getOrganisationsForAuth(@PathParam("auth") final String auth) {
+    @Path("/{uuid}/organisations")
+    public Response getOrganisationsForAuth(@PathParam("uuid") final String uuid) {
 
-        final Set<RpslObject> organisationsForAuth = orgFinder.findOrganisationsForAuth(auth);
+        final Set<RpslObject> organisationsForAuth = orgFinder.findOrganisationsForAuth("SSO " + uuid);
         if (organisationsForAuth.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
