@@ -752,6 +752,29 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "        }, {"));
     }
 
+    @Test
+    public void create_utf8_character_encoding() {
+        final RpslObject person = RpslObject.parse("" +
+            "person:    Pauleth Palthen\n" +
+            "address:   test \u03A3 and \u00DF characters\n" +
+            "phone:     +31-1234567890\n" +
+            "e-mail:    noreply@ripe.net\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "nic-hdl:   PP1-TEST\n" +
+            "changed:   noreply@ripe.net 20120101\n" +
+            "remarks:   remark\n" +
+            "source:    TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(person)), MediaType.APPLICATION_XML))
+                .readEntity(WhoisResources.class);
+
+        // UTF-8 characters are mapped to latin1. Characters outside the latin1 charset are substituted by '?'
+        final WhoisObject responseObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(responseObject.getAttributes().get(1).getValue(), is("test ? and \u00DF characters"));
+    }
+
     // delete
 
     @Test
