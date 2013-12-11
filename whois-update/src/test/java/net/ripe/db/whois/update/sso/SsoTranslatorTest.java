@@ -33,7 +33,7 @@ public class SsoTranslatorTest {
     @Test
     public void translate_to_uuid_username_stored_in_context_already() {
         final RpslObject object = RpslObject.parse("mntner: TEST-MNT\nauth: SSO username@test.net");
-        when(updateContext.getSsoTranslationResult("USERNAME@TEST.NET")).thenReturn("BBBB-1234-CCCC-DDDD");
+        when(updateContext.getSsoTranslationResult("username@test.net")).thenReturn("BBBB-1234-CCCC-DDDD");
 
         final RpslObject result = new SsoTranslator().translateAuthToUsername(updateContext, object);
 
@@ -43,19 +43,19 @@ public class SsoTranslatorTest {
     @Test
     public void translate_to_uuid_username_not_stored_in_context() {
         final RpslObject object = RpslObject.parse("mntner: TEST-MNT\nauth: SSO username@test.net");
-        when(updateContext.getSsoTranslationResult("USERNAME@TEST.NET")).thenReturn(null).thenReturn("BBBB-1234-CCCC-DDDD");
+        when(updateContext.getSsoTranslationResult("username@test.net")).thenReturn("BBBB-1234-CCCC-DDDD");
 
         final RpslObject result = new SsoTranslator().translateAuthToUuid(updateContext, object);
 
         assertThat(result, is(RpslObject.parse("mntner: TEST-MNT\nauth: SSO BBBB-1234-CCCC-DDDD")));
-        verify(updateContext).addSsoTranslationResult("USERNAME@TEST.NET", "1234-5678-90AB-DCEF"); //TODO change after lookup is implemented
+        verify(updateContext).getSsoTranslationResult("username@test.net"); //TODO change after lookup is implemented
     }
 
     @Test
     public void translate_to_username_uuid_stored_in_context_already() {
         final RpslObject object = RpslObject.parse("mntner: TEST-MNT\nauth: SSO aadd-2132-aaa-fff");
 
-        when(updateContext.getSsoTranslationResult("AADD-2132-AAA-FFF")).thenReturn("username@test.net");
+        when(updateContext.getSsoTranslationResult("aadd-2132-aaa-fff")).thenReturn("username@test.net");
 
         final RpslObject result = new SsoTranslator().translateAuthToUuid(updateContext, object);
         assertThat(result, is(RpslObject.parse("mntner: TEST-MNT\nauth: SSO username@test.net")));
@@ -85,10 +85,9 @@ public class SsoTranslatorTest {
     public void populate_sso_auth() {
         final RpslObject object = RpslObject.parse("mntner: TEST-MNT\nauth: SSO user@test.net");
         when(update.getSubmittedObject()).thenReturn(object);
-        when(updateContext.getSsoTranslationResult("USER@TEST.NET")).thenReturn(null).thenReturn("1234-5678-90AB-DCEF");
 
         new SsoTranslator().populate(update, updateContext);
 
-        verify(updateContext).addSsoTranslationResult("user@test.net", "1234-5678-90AB-DCEF");
+        verify(updateContext).addSsoTranslationResult("user@test.net", "1234-5678-90AB-DCEF"); //TODO change after lookup is implemented
     }
 }
