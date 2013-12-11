@@ -6,11 +6,14 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.mockito.Mockito.*;
@@ -21,7 +24,7 @@ public class UpdateObjectHandlerImplTest {
 
     @Mock UpdateContext updateContext;
     @Mock RpslObjectUpdateDao rpslObjectUpdateDao;
-    @Mock DateTimeProvider dateTimeProvider;
+    @Mock SsoTranslator ssoTranslator;
     private UpdateObjectHandler subject;
 
     private final String RIPE_NCC_BA_MNT_MAINTAINER = "" +
@@ -37,7 +40,19 @@ public class UpdateObjectHandlerImplTest {
 
     @Before
     public void setUp() throws Exception {
-        subject = new UpdateObjectHandler(rpslObjectUpdateDao, Lists.<BusinessRuleValidator>newArrayList(), dateTimeProvider);
+        when(ssoTranslator.translateAuthToUsername(any(UpdateContext.class), any(RpslObject.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return invocation.getArguments()[1];
+            }
+        });
+        when(ssoTranslator.translateAuthToUuid(any(UpdateContext.class), any(RpslObject.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return invocation.getArguments()[1];
+            }
+        });
+        subject = new UpdateObjectHandler(rpslObjectUpdateDao, Lists.<BusinessRuleValidator>newArrayList(), ssoTranslator);
     }
 
     @Test

@@ -12,6 +12,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -24,13 +25,15 @@ import java.util.Map;
 
 @Component
 class UpdateObjectHandler {
-    private final DateTimeProvider dateTimeProvider;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
+    private final SsoTranslator ssoTranslator;
     private final Map<Action, Map<ObjectType, List<BusinessRuleValidator>>> validatorsByActionAndType;
 
     @Autowired
-    public UpdateObjectHandler(final RpslObjectUpdateDao rpslObjectUpdateDao, final List<BusinessRuleValidator> businessRuleValidators,
-                                   final DateTimeProvider dateTimeProvider) {
+    public UpdateObjectHandler(final RpslObjectUpdateDao rpslObjectUpdateDao,
+                               final List<BusinessRuleValidator> businessRuleValidators,
+                               final SsoTranslator ssoTranslator) {
+        this.ssoTranslator = ssoTranslator;
 
         // Sort the business rules in some predictable order so they are processed for end-to-end error checking
        Collections.sort(businessRuleValidators, new Comparator<BusinessRuleValidator>(){
@@ -39,7 +42,6 @@ class UpdateObjectHandler {
             }
         });
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
-        this.dateTimeProvider = dateTimeProvider;
 
         validatorsByActionAndType = Maps.newEnumMap(Action.class);
         for (final Action action : Action.values()) {
@@ -65,13 +67,14 @@ class UpdateObjectHandler {
     public void execute(final PreparedUpdate update, final UpdateContext updateContext) {
         if (!updateContext.hasErrors(update)) {
             final RpslObjectUpdateInfo updateInfo;
+            RpslObject updatedObject = ssoTranslator.translateAuthToUuid(updateContext, update.getUpdatedObject());
             switch (update.getAction()) {
                 case CREATE:
-                    updateInfo = rpslObjectUpdateDao.createObject(update.getUpdatedObject());
+                    updateInfo = rpslObjectUpdateDao.createObject(updatedObject);
                     updateContext.updateInfo(update, updateInfo);
                     break;
                 case MODIFY:
-                    updateInfo = rpslObjectUpdateDao.updateObject(update.getReferenceObject().getObjectId(), update.getUpdatedObject());
+                    updateInfo = rpslObjectUpdateDao.updateObject(update.getReferenceObject().getObjectId(), updatedObject);
                     updateContext.updateInfo(update, updateInfo);
                     break;
                 case DELETE:
