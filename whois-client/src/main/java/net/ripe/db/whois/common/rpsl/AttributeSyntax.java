@@ -1,10 +1,35 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Splitter;
-import net.ripe.db.whois.common.generated.*;
+import net.ripe.db.whois.common.generated.AggrBndryParser;
+import net.ripe.db.whois.common.generated.AggrMtdParser;
+import net.ripe.db.whois.common.generated.ComponentsParser;
+import net.ripe.db.whois.common.generated.ComponentsR6Parser;
+import net.ripe.db.whois.common.generated.DefaultParser;
+import net.ripe.db.whois.common.generated.ExportParser;
+import net.ripe.db.whois.common.generated.FilterParser;
+import net.ripe.db.whois.common.generated.IfaddrParser;
+import net.ripe.db.whois.common.generated.ImportParser;
+import net.ripe.db.whois.common.generated.InjectParser;
+import net.ripe.db.whois.common.generated.InjectR6Parser;
+import net.ripe.db.whois.common.generated.InterfaceParser;
+import net.ripe.db.whois.common.generated.MpDefaultParser;
+import net.ripe.db.whois.common.generated.MpExportParser;
+import net.ripe.db.whois.common.generated.MpFilterParser;
+import net.ripe.db.whois.common.generated.MpImportParser;
+import net.ripe.db.whois.common.generated.MpPeerParser;
+import net.ripe.db.whois.common.generated.MpPeeringParser;
+import net.ripe.db.whois.common.generated.NameParser;
+import net.ripe.db.whois.common.generated.PeerParser;
+import net.ripe.db.whois.common.generated.PeeringParser;
+import net.ripe.db.whois.common.generated.V6FilterParser;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.rpsl.attrs.*;
+import net.ripe.db.whois.common.rpsl.attrs.AddressPrefixRange;
+import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
+import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
+import net.ripe.db.whois.common.rpsl.attrs.RangeOperation;
 
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -55,17 +80,11 @@ public interface AttributeSyntax extends Documented {
             Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|SSO [-@.\\w]{1,90}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
             "<auth-scheme> <scheme-info>       Description\n" +
             "\n" +
-            "MD5-PW        encrypted           This scheme is the weakest form of\n" +
-            "              password, produced  authentication. It is by no means\n" +
-            "              using the FreeBSD   to keep out a determined malicious\n" +
-            "              crypt_md5           attacker. As you are publishing the\n" +
-            "              algorithm           encrypted password in the RIPE\n" +
-            "                                  database, it is open to attack.\n" +
-            "                                  We strongly advise phrases longer\n" +
-            "                                  than 8 characters to be used,\n" +
-            "                                  avoiding the use of words or\n" +
-            "                                  combinations of words found in any\n" +
-            "                                  dictionary of any language.\n" +
+            "MD5-PW        encrypted           We strongly advise phrases longer\n" +
+            "              password, produced  than 8 characters to be used,\n" +
+            "              using the FreeBSD   avoiding the use of words or\n" +
+            "              crypt_md5           combinations of words found in any\n" +
+            "              algorithm           dictionary of any language.\n" +
             "\n" +
             "PGPKEY-<id>                       Strong scheme of authentication.\n" +
             "                                  <id> is the PGP key ID to be\n" +
@@ -79,8 +98,10 @@ public interface AttributeSyntax extends Documented {
             "                                  corresponding key-cert object's\n" +
             "                                  \"key-cert:\" attribute (X509-nnn).\n" +
             "\n" +
-            "SSO           username            Scheme for RIPE Access Single Sign On" +
-            "                                  authentication.\n");
+            "SSO           username            The username is the same as one used \n" +
+            "                                  for a RIPE Access account. This must \n" +
+            "                                  be a valid username and is checked \n" +
+            "                                  against the RIPE Access user list.\n");
 
     AttributeSyntax CERTIF_SYNTAX = new AnySyntax("" +
             "The value of the public key should be supplied either using\n" +
