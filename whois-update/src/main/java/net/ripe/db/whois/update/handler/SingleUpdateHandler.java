@@ -6,10 +6,25 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.autokey.AutoKeyResolver;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.Operation;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.OverrideOptions;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +118,7 @@ public class SingleUpdateHandler {
             throw new UpdateFailedException();
         }
 
-        // TODO: [AH] Hard to follow spaghetti code from here, made worse by pendigupdate hacksies. Refactor on next change.
+        // TODO: [AH] Hard to follow code from here. Refactor on next change.
         final RpslObject objectWithResolvedKeys = autoKeyResolver.resolveAutoKeys(updatedObject, update, updateContext, action);
         preparedUpdate = new PreparedUpdate(update, originalObject, objectWithResolvedKeys, action, overrideOptions);
 
@@ -129,18 +144,17 @@ public class SingleUpdateHandler {
 
     @CheckForNull
     private RpslObject getOriginalObject(final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final OverrideOptions overrideOptions) {
+        RpslObject originalObject;
         if (overrideOptions.isObjectIdOverride()) {
             final int objectId = overrideOptions.getObjectId();
             try {
-                final RpslObject rpslObject = rpslObjectDao.getById(objectId);
+                originalObject = rpslObjectDao.getById(objectId);
 
                 final ObjectType objectType = update.getType();
                 final CIString key = update.getSubmittedObject().getKey();
-                if (!objectType.equals(rpslObject.getType()) || !key.equals(rpslObject.getKey())) {
+                if (!objectType.equals(originalObject.getType()) || !key.equals(originalObject.getKey())) {
                     updateContext.addMessage(update, UpdateMessages.overrideOriginalMismatch(objectId, objectType, key));
                 }
-
-                return attributeSanitizer.sanitize(rpslObject, new ObjectMessages());
             } catch (EmptyResultDataAccessException e) {
                 updateContext.addMessage(update, UpdateMessages.overrideOriginalNotFound(objectId));
                 return null;
@@ -149,14 +163,16 @@ public class SingleUpdateHandler {
             final CIString key = updatedObject.getKey();
 
             try {
-                final RpslObject originalObject = rpslObjectDao.getByKey(updatedObject.getType(), key);
-                return attributeSanitizer.sanitize(originalObject, new ObjectMessages());
+                originalObject = rpslObjectDao.getByKey(updatedObject.getType(), key);
             } catch (EmptyResultDataAccessException e) {
                 return null;
             } catch (IncorrectResultSizeDataAccessException e) {
                 throw new IllegalStateException(String.format("Invalid number of results for %s", key), e);
             }
         }
+        originalObject = ssoTranslator.translateAuthToUsername(updateContext, originalObject);
+        originalObject = attributeSanitizer.sanitize(originalObject, new ObjectMessages());
+        return originalObject;
     }
 
     private RpslObject getUpdatedObject(final Update update, final UpdateContext updateContext, final Keyword keyword) {
@@ -168,7 +184,7 @@ public class SingleUpdateHandler {
 
         final CIString objectSource = updatedObject.getValueOrNullForAttribute(AttributeType.SOURCE);
         if (objectSource != null && !source.equals(objectSource)) {
-            updateContext.addMessage(update, UpdateMessages.unrecognizedSource(objectSource));
+            updateContext.addMessage(update, UpdateMessages.unrecognizedSource(objectSource.toUpperCase()));
         }
 
         if (Operation.DELETE.equals(update.getOperation())) {
@@ -181,7 +197,6 @@ public class SingleUpdateHandler {
             }
         } else {
             updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
-            updatedObject = ssoTranslator.translateAuthToUuid(updateContext, updatedObject);
             updatedObject = attributeGenerator.generateAttributes(updatedObject, update, updateContext);
 
             final ObjectMessages messages = ObjectTemplate.getTemplate(updatedObject.getType()).validate(updatedObject);
