@@ -15,7 +15,6 @@ import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.lang.Validate;
 
 import javax.annotation.CheckForNull;
 import java.util.List;
@@ -64,7 +63,7 @@ public class UpdateContext {
         }
     }
 
-    public void addSsoTranslationResult(String username, String uuid) {
+    public void addSsoTranslationResult(final String username, final String uuid) {
         String duplicateUuid = ssoTranslation.put(username, uuid);
         String duplicateUsername = ssoTranslation.put(uuid, username);
 
@@ -80,12 +79,8 @@ public class UpdateContext {
         return ssoTranslation.containsKey(usernameOrUuid);
     }
 
-    public String getSsoTranslationResult(String usernameOrUuid) {
-        String result = ssoTranslation.get(usernameOrUuid);
-        if (result == null) {
-            throw new IllegalStateException("username or uuid not found in sso translator cache: "+usernameOrUuid);
-        }
-        return result;
+    public String getSsoTranslationResult(final String usernameOrUuid) {
+        return ssoTranslation.get(usernameOrUuid);
     }
 
     public void addPendingUpdate(final UpdateContainer updateContainer, final PendingUpdate pendingUpdate) {

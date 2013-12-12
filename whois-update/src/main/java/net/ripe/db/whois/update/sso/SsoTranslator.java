@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import java.util.Iterator;
@@ -33,59 +34,48 @@ public class SsoTranslator {
         client = ClientBuilder.newBuilder().register(new HttpBasicAuthFilter(crowdAuthUser, crowdAuthPassword)).build();
     }
 
-    public String getUuidForUsername(final UpdateContext updateContext, final String username) {
-        final String ssoTranslationResult = updateContext.getSsoTranslationResult(username);
-        if (ssoTranslationResult != null) {
-            return ssoTranslationResult;
-        }
-
+    public String getUuidForUsername(final String username) {
         final String url = String.format(
                 "%s/rest/usermanagement/latest/user/attribute?username=%s",
                 restUrl,
                 username);
-        //TODO
-        final String response = client.target(url).request().get(String.class);
-        final String uuid = extractUUID(response);
-        updateContext.addSsoTranslationResult(username, uuid);
-//        return updateContext.getSsoTranslationResult(username);
-        return uuid;
-    }
 
-    public String getUsernameForUuid(final UpdateContext updateContext, final String uuid) {
-        final String ssoTranslationResult = updateContext.getSsoTranslationResult(uuid);
-        if (ssoTranslationResult != null) {
-            return ssoTranslationResult;
+        String response = "";
+        try {
+            response = client.target(url).request().get(String.class);
+        } catch (NotFoundException e) {
+            throw new IllegalArgumentException("Unknown RIPE Access user: " + username);
         }
 
+        return extractUUID(response);
+    }
+
+    public String getUsernameForUuid(final String uuid) {
         final String url = String.format(
                 "%scrowd/rest/sso/latest/uuid=%s",
                 restUrl,
                 uuid);
 
-        // TODO:
-        final String response = client.target(url).request().get(String.class);
-        final String username = extractUsername(response);
-        updateContext.addSsoTranslationResult(uuid, username);
-        //return updateContext.getSsoTranslationResult(uuid);
-        return username;
-    }
-
-    private String extractUUID(final String response) {
-        if (response.contains("USER_NOT_FOUND")) {
-            throw new IllegalArgumentException("Unknown RIPE Access user: FOOBAR");
+        final String response = "";
+        try {
+            client.target(url).request().get(String.class);
+        } catch (NotFoundException e) {
+            throw new IllegalArgumentException("Unknown RIPE Access uuid: " + uuid);
         }
 
+        return extractUsername(response);
+    }
+
+//    TODO
+    private String extractUUID(final String response) {
         final StringBuilder builder = new StringBuilder(response);
         int pre = builder.indexOf("<value>", builder.indexOf("name=uuid"));
         int post = builder.indexOf("</value>", pre);
         return builder.substring(pre + "<value>".length(), post);
     }
 
+//    TODO
     private String extractUsername(final String response) {
-        if (response.contains("Status 404")) {
-            throw new IllegalArgumentException("Unknown RIPE Access uuid: " + "FOOBAR");
-        }
-
         int pre = response.indexOf("name=");
         int post = response.indexOf("\">", pre);
         return response.substring(pre + "name=\"".length(), post);
@@ -103,7 +93,7 @@ public class SsoTranslator {
             if (passwordType.equalsIgnoreCase("SSO")) {
                 String username = authIterator.next();
                 if (!updateContext.hasSsoTranslationResult(username)) {
-                    updateContext.addSsoTranslationResult(username, getUuidForUsername(updateContext, username));
+                    updateContext.addSsoTranslationResult(username, getUuidForUsername(username));
                 }
             }
         }
