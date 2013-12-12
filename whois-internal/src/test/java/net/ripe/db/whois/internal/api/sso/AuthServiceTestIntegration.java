@@ -90,10 +90,6 @@ public class AuthServiceTestIntegration extends AbstractInternalTest {
                 .get(WhoisResources.class);
             fail();
         } catch (NotFoundException expected) {}
-
-//        final RpslObject resultOrg = new WhoisObjectClientMapper("test.url").map(result.getWhoisObjects().get(0));
-//
-//        assertThat(resultOrg, is(organisation));
     }
 
     @Test
