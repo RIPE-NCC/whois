@@ -27,7 +27,7 @@ public class SsoTranslator {
 
     @Autowired
     public SsoTranslator(@Value("${rest.crowd.url}") final String translatorUrl,
-                         @Value("${rest.crowd.user}") final String crowdAuthUser,
+                         @Value("${rest.crowd.username}") final String crowdAuthUser,
                          @Value("${rest.crowd.password}") final String crowdAuthPassword) {
         this.restUrl = translatorUrl;
         client = ClientBuilder.newBuilder().register(new HttpBasicAuthFilter(crowdAuthUser, crowdAuthPassword)).build();
