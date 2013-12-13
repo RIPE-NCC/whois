@@ -28,6 +28,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.support.DummyWhoisClient;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,7 +44,6 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -154,20 +154,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void test_lookup_with_empty_accepts_header() throws Exception {
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/owner-mnt")
-                .request()
-                .header(HttpHeaders.ACCEPT, null)
-                .get(WhoisResources.class);
+        final String query = DummyWhoisClient.query(getPort(), "GET /whois/test/mntner/owner-mnt HTTP/1.1\nHost: localhost\nConnection: close\n");
 
-        final RpslObject object = whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
-        assertThat(object, is(RpslObject.parse("" +
-                "mntner:         OWNER-MNT\n" +
-                "descr:          Owner Maintainer\n" +
-                "admin-c:        TP1-TEST\n" +
-                "auth:           MD5-PW\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "referral-by:    OWNER-MNT\n" +
-                "source:         TEST")));
+        assertThat(query, containsString("HTTP/1.1 200 OK"));
+        assertThat(query, containsString("<whois-resources xmlns"));
     }
 
     @Test
