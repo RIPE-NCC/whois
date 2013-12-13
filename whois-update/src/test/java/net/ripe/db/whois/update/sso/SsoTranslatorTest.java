@@ -23,7 +23,7 @@ public class SsoTranslatorTest {
 
     @Mock UpdateContext updateContext;
     @Mock Update update;
-    @Mock CrowdClient crowdClient;
+    @Mock CrowdClientImpl crowdClient;
 
     private SsoTranslator subject;
 

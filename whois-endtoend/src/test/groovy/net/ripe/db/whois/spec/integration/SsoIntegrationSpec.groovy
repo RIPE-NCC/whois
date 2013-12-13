@@ -42,7 +42,7 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                             descr: sso mntner
                             admin-c: TEST-PN
                             upd-to: test@ripe.net
-                            auth: SSO thies@rrm.net
+                            auth: SSO person@net.net
                             auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                             referral-by: TEST-MNT3
                             mnt-by: TEST-MNT3
@@ -104,7 +104,7 @@ source:         TEST # Filtered/
                             descr: sso mntner
                             admin-c: TEST-PN
                             upd-to: test@ripe.net
-                            auth: SSO thies@rrm.net
+                            auth: SSO person@net.net
                             auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                             referral-by: TEST-MNT3
                             mnt-by: TEST-MNT3
@@ -118,7 +118,7 @@ source:         TEST # Filtered/
                             descr: updated sso mntner
                             admin-c: TEST-PN
                             upd-to: test@ripe.net
-                            auth: SSO thies@rrm.net
+                            auth: SSO person@net.net
                             auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                             referral-by: TEST-MNT3
                             mnt-by: TEST-MNT3
