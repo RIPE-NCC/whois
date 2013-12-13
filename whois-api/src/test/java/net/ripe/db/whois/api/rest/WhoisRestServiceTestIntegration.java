@@ -153,9 +153,38 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void test_lookup_with_empty_accepts_header() throws Exception {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/owner-mnt")
+                .request()
+                .header(HttpHeaders.ACCEPT, null)
+                .get(WhoisResources.class);
+
+        final RpslObject object = whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+        assertThat(object, is(RpslObject.parse("" +
+                "mntner:         OWNER-MNT\n" +
+                "descr:          Owner Maintainer\n" +
+                "admin-c:        TP1-TEST\n" +
+                "auth:           MD5-PW\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "referral-by:    OWNER-MNT\n" +
+                "source:         TEST")));
+    }
+
+    @Test
     public void test_lookup_without_accepts_header() throws Exception {
-        // TODO: test empty || missing accept: header response
-        RestTest.target(getPort(), "whois/test/mntner/owner-mnt").request().header(HttpHeaders.ACCEPT, null).get(String.class);
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/owner-mnt")
+                .request()
+                .get(WhoisResources.class);
+
+        final RpslObject object = whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+        assertThat(object, is(RpslObject.parse("" +
+                "mntner:         OWNER-MNT\n" +
+                "descr:          Owner Maintainer\n" +
+                "admin-c:        TP1-TEST\n" +
+                "auth:           MD5-PW\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "referral-by:    OWNER-MNT\n" +
+                "source:         TEST")));
     }
 
     @Test
