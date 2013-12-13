@@ -16,6 +16,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/*
+password and cookie parameters are reserved for rest api, so the port43 netty worker pool is not affected by any SSO
+server timeouts or network hiccups. Jetty could suffer from that, though - AH
+ */
 @ThreadSafe
 public class FilterAuthFunction implements FilterFunction {
     public static final Splitter SPACE_SPLITTER = Splitter.on(' ');

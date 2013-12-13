@@ -43,6 +43,7 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -149,6 +150,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final String result = new String(Files.readAllBytes(path));
         assertThat(result, containsString("OWNER-MNT"));
         assertThat(result, endsWith("</whois-resources>"));
+    }
+
+    @Test
+    public void test_lookup_without_accepts_header() throws Exception {
+        // TODO: test empty || missing accept: header response
+        RestTest.target(getPort(), "whois/test/mntner/owner-mnt").request().header(HttpHeaders.ACCEPT, null).get(String.class);
     }
 
     @Test
