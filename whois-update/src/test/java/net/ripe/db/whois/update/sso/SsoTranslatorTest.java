@@ -23,12 +23,13 @@ public class SsoTranslatorTest {
 
     @Mock UpdateContext updateContext;
     @Mock Update update;
+    @Mock CrowdClient crowdClient;
 
     private SsoTranslator subject;
 
     @Before
     public void setup() {
-        subject = new SsoTranslator("url", "user", "password");
+        subject = new SsoTranslator(crowdClient);
     }
 
     @Test
