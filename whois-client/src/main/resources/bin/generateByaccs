@@ -9,22 +9,18 @@ if [[ $(find $GENERATED_PATH -name '*.java' | wc -l) -gt 5 ]]; then
 	exit 0
 fi
 
-case $OSTYPE in
-	darwin*)
-		echo 'using byacc for OSX'
-		YACC='src/main/resources/bin/yacc.macosx'
-		;;
+YACC="../tools/byaccj-p2/yacc"
 
-	linux*)
-		echo 'using byacc for Linux'
-		YACC='src/main/resources/bin/yacc.linux'
-		;;
-
-	*)
-		echo "ERROR: unknown OS '$OSTYPE', failing"
-		exit 1
-		;;
-esac
+if [ -f ${YACC} ]; then
+    echo "using existing yacc binary"
+else
+    echo "will compile the byaccj-p2 tool"
+    pushd .
+    cd ../tools/byaccj-p2/
+    make -C src
+    echo "done building byaccj-p2"
+    popd
+fi
 
 echo 'AggrBndryParser src/main/resources/byacc/aggr_bndry.y
 AggrMtdParser src/main/resources/byacc/aggr_mtd.y

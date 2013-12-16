@@ -1,3 +1,13 @@
+RIPE Whois Server intergration notes:
+=====================================
+
+The following command was used to clone the existing repo on github into
+this code repository:
+
+$ git subtree pull --prefix tools/byaccj-p2 https://github.com/job/byaccj-p2.git master --squash
+
+Original README:
+
 Building
 ========
 
