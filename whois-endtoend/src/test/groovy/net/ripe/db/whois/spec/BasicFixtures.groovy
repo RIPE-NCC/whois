@@ -595,7 +595,7 @@ class BasicFixtures {
                 descr:       exact match route object
                 origin:      AS999000
                 mnt-by:      EXACT-MB-MNT
-                changed:     dbtest@ripe.net
+                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
             "AS1000": """\
