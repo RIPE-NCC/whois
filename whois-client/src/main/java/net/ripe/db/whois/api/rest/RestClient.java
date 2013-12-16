@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -30,6 +31,8 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -131,18 +134,32 @@ public class RestClient {
         }
     }
 
-    public void delete(final RpslObject rpslObject, final String... passwords) {
+    public void delete(final RpslObject rpslObject, final String reason, final String... passwords) {
         try {
-            client.target(String.format("%s/%s/%s/%s%s",
+            client.target(String.format("%s/%s/%s/%s%s&reason=%s",
                     restApiUrl,
                     sourceName,
                     rpslObject.getType().getName(),
                     rpslObject.getKey().toString(),
-                    joinQueryParams(createQueryParams("password", passwords))
-            )).request().delete(String.class);
+                    joinQueryParams(createQueryParams("password", passwords)),
+                    encode(reason))).request().delete(String.class);
         } catch (ClientErrorException e) {
             throw createException(e);
         }
+    }
+
+    private String encode(final String str) {
+        String encoded;
+        if (str == null) {
+            return "";
+        }
+
+        try {
+            encoded = URLEncoder.encode(str, Charsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            encoded = "";
+        }
+        return encoded;
     }
 
     public void deleteOverride(final RpslObject rpslObject, final String override) {

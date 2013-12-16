@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -166,5 +167,45 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         } catch (RestClientException e) {
             assertThat(e.getErrorMessages().get(0).getText(), is("No abuse contact found for 10.0.0.1"));
         }
+    }
+
+    @Test
+    public void delete_with_reason() {
+        final RpslObject person = RpslObject.parse("" +
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST\n");
+        databaseHelper.addObject(person);
+
+        restClient.delete(person, "not used anymore", "test");
+
+        try {
+            databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST");
+            fail();
+        } catch (EmptyResultDataAccessException expected) {}
+    }
+
+    @Test
+    public void delete_without_reason() {
+        final RpslObject person = RpslObject.parse("" +
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST\n");
+        databaseHelper.addObject(person);
+
+        restClient.delete(person, "", "test");
+
+        try {
+            databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST");
+            fail();
+        } catch (EmptyResultDataAccessException expected) {}
     }
 }
