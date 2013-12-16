@@ -76,7 +76,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.query.QueryFlag.ABUSE_CONTACT;
@@ -363,18 +362,20 @@ public class WhoisRestService {
         return Response.ok(whoisResources).build();
     }
 
-    private StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
+    StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
         final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
-        for (final String accept : Splitter.on(',').split(acceptHeader)) {
-            try {
-                final MediaType mediaType = MediaType.valueOf(accept);
-                final String subtype = mediaType.getSubtype().toLowerCase();
-                if (subtype.equals("json") || subtype.endsWith("+json")) {
-                    return new StreamingMarshalJson();
-                } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
-                    return new StreamingMarshalXml();
+        if (acceptHeader != null) {
+            for (final String accept : Splitter.on(',').split(acceptHeader)) {
+                try {
+                    final MediaType mediaType = MediaType.valueOf(accept);
+                    final String subtype = mediaType.getSubtype().toLowerCase();
+                    if (subtype.equals("json") || subtype.endsWith("+json")) {
+                        return new StreamingMarshalJson();
+                    } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
+                        return new StreamingMarshalXml();
+                    }
+                } catch (IllegalArgumentException ignored) {
                 }
-            } catch (IllegalArgumentException ignored) {
             }
         }
 

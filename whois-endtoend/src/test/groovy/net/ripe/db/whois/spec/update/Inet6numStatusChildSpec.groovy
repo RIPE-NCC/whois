@@ -2,6 +2,7 @@ package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
+import spock.lang.Ignore
 
 class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
     @Override
@@ -2017,7 +2018,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                assignment-size: 35
+                assignment-size: 48
                 changed:      dbtest@ripe.net
                 source:       TEST
 
@@ -2049,13 +2050,13 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
       expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+        queryObjectNotFound("-r -T inet6num 2001:600::/56", "inet6num", "2001:600::/56")
 
       when:
         def message = send new Message(
                 subject: "",
                 body: """\
-                inet6num:     2001:600::/32
+                inet6num:     2001:600::/56
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
                 country:      EU
@@ -2064,7 +2065,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
-                assignment-size: 30
+                assignment-size: 48
                 changed:      dbtest@ripe.net
                 source:       TEST
 
@@ -2081,11 +2082,11 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
-        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
-                ["\"assignment-size:\" value must be greater than prefix size 32"]
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/56" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/56") ==
+                ["\"assignment-size:\" value must be greater than prefix size 56"]
 
-        queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+        queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/56")
     }
 
     def "create child AGGREGATED-BY-LIR, assignment-size = prefix length"() {
@@ -2096,13 +2097,13 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
       expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+        queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/48")
 
       when:
         def message = send new Message(
                 subject: "",
                 body: """\
-                inet6num:     2001:600::/32
+                inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
                 country:      EU
@@ -2111,7 +2112,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
-                assignment-size: 32
+                assignment-size: 48
                 changed:      dbtest@ripe.net
                 source:       TEST
 
@@ -2128,11 +2129,11 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
-        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
-                ["\"assignment-size:\" value must be greater than prefix size 32"]
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/48") ==
+                ["\"assignment-size:\" value must be greater than prefix size 48"]
 
-        queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+        queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/48")
     }
 
     def "create child AGGREGATED-BY-LIR, assignment-size = 0"() {
@@ -2182,6 +2183,55 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
     }
 
+    @Ignore
+    def "create child AGGREGATED-BY-LIR, assignment-size = 40"() {
+        given:
+        syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
+        queryObject("-r -T inet6num 2001::/20", "inet6num", "2001::/20")
+        syncUpdate(getTransient("LIR-ALLOC-30") + "password: owner3\npassword: hm\npassword: lir")
+        queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+
+        expect:
+        queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inet6num:     2001:600::/32
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       LIR-MNT
+                mnt-lower:    liR-MNT
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 40
+                changed:      dbtest@ripe.net
+                source:       TEST
+
+                password: lir
+                password: owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
+                ["\"assignment-size:\" value cannot be smaller than 48"]
+
+        queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+    }
+
+    @Ignore
     def "create child AGGREGATED-BY-LIR, assignment-size = 128"() {
       given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
@@ -2218,15 +2268,18 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
+                ["\"assignment-size:\" value cannot be greater than 64"]
 
         queryObject("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
     }
 
+    @Ignore
     def "create child AGGREGATED-BY-LIR, assignment-size > 128"() {
       given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
@@ -2269,7 +2322,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
-                ["\"assignment-size:\" value must not be greater than the maximum prefix size 128"]
+                ["\"assignment-size:\" value value cannot be greater than 64"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
     }
@@ -2344,7 +2397,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
-                assignment-size: 34
+                assignment-size: 48
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
@@ -2357,7 +2410,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
-                assignment-size: 35
+                assignment-size: 50
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
@@ -2379,7 +2432,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/32") ==
                 ["\"assignment-size:\" value cannot be changed"]
 
-        query_object_matches("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32", "34")
+        query_object_matches("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32", "48")
     }
 
     def "create child AGGREGATED-BY-LIR, then create grand-child AGGREGATED-BY-LIR"() {
