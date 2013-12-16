@@ -51,7 +51,7 @@ public class ReferencedTypeResolver {
 
             case 1:
                 if (AttributeType.AUTH.equals(attributeType)) {
-                    if (value.toLowerCase().startsWith("md5-pw")) {
+                    if (value.toLowerCase().startsWith("md5-pw") || value.toLowerCase().startsWith("sso") ) {
                         return null;
                     }
                 }

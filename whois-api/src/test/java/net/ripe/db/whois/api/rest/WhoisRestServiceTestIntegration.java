@@ -58,6 +58,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -378,6 +379,29 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (NotFoundException ignored) {
             // expected
         }
+    }
+
+    @Test
+    //TODO: [TP] It fails because the SSO attribute is returned filtered
+    public void lookup_mntner_does_not_have_referenced_type_in_SSO() throws Exception {
+        databaseHelper.addObject(""+
+                "mntner:         MNT-TEST" +"\n" +
+                "descr:          test\n" +
+                "admin-c:        TP1-TEST\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:           SSO test@ripe.net\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "referral-by:    OWNER-MNT\n" +
+                "changed:        asd@as.com\n" +
+                "source:         TEST");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/TEST/mntner/MNT-TEST?password=test&unfiltered")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        Attribute expected = new Attribute("auth", "SSO test@ripe.net", null, null, null);
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(expected));
     }
 
     @Test
