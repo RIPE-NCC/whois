@@ -1,15 +1,23 @@
 package net.ripe.db.whois.update.dns;
 
+import net.ripe.db.whois.update.domain.Update;
+
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
 public class DnsCheckRequest {
+    private final Update update;
     private final String domain;
     private final String glue;
 
-    DnsCheckRequest(final String domain, final String glue) {
+    DnsCheckRequest(final Update update, final String domain, final String glue) {
+        this.update = update;
         this.domain = domain;
         this.glue = glue;
+    }
+
+    public Update getUpdate() {
+        return update;
     }
 
     public String getDomain() {
