@@ -348,7 +348,7 @@ class BasicFixtures {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
                 referral-by: TST-MNT4
-                changed:     dbtest@ripe.net
+                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
             "TST-MNT5": """\
