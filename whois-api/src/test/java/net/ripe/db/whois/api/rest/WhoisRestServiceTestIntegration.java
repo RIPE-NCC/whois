@@ -175,6 +175,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "descr:          Owner Maintainer\n" +
                 "admin-c:        TP1-TEST\n" +
                 "auth:           MD5-PW\n" +
+                "auth:           SSO\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "referral-by:    OWNER-MNT\n" +
                 "source:         TEST")));

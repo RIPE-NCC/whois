@@ -51,7 +51,6 @@ public class ReferencedTypeResolver {
                 return null;
 
             case 1:
-                // TODO: [AH] this is duplicate implementation for FilterAuthFunction
                 if (AttributeType.AUTH.equals(attributeType)) {
                     String authType = SPACE_SPLITTER.split(value).iterator().next().toUpperCase();
                     if (authType.endsWith("-PW") || authType.equals("SSO")) {

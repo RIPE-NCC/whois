@@ -370,7 +370,7 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
         final RpslObject rpslObject = RpslObject.parse("" +
                 "mntner:        NINJA-MNT\n" +
                 "auth:          MD5-PW $1$YmPozTxJ$s3eGZRVrKVGdSDTeEZJu\n" +
-                "auth:          SSO ninja@realultimatepower.net\n" +
+                "auth:          SSO person@net.net\n" +
                 "source:        RIPE\n");
 
         databaseHelper.addObject(rpslObject);
@@ -379,7 +379,7 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
         assertThat(byMd5, hasSize(1));
         assertThat(byMd5.get(0).getKey().toString(), is(rpslObject.getKey().toString()));
 
-        final List<RpslObjectInfo> bySso = subject.findByAttribute(AttributeType.AUTH, "SSO ninja@realultimatepower.net");
+        final List<RpslObjectInfo> bySso = subject.findByAttribute(AttributeType.AUTH, "SSO 906635c2-0405-429a-800b-0602bd716124");
         assertThat(bySso, hasSize(1));
         assertThat(bySso.get(0).getKey().toString(), is(rpslObject.getKey().toString()));
     }
