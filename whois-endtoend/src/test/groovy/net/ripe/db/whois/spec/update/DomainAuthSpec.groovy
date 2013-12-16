@@ -14,7 +14,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 descr:          Full ASN range
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
+                changed:        dbtest@ripe.net 20120202
                 source:         TEST
                 """,
             "ALLOC-PA": """\

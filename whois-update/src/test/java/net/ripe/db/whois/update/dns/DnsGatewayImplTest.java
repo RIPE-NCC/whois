@@ -5,9 +5,11 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoTest;
+import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -29,13 +31,14 @@ public class DnsGatewayImplTest extends AbstractUpdateDaoTest {
     private DnsGatewayImpl subject;
     private JdbcTemplate dnscheckTemplate;
     private DnsCheckRequest dnsCheckRequest;
+    @Mock Update update;
 
     @Before
     public void setup() throws Exception {
         subject = new DnsGatewayImpl(databaseHelper.getDnsCheckDataSource());
         dnscheckTemplate = new JdbcTemplate(databaseHelper.getDnsCheckDataSource());
         truncateTables(dnscheckTemplate);
-        dnsCheckRequest = new DnsCheckRequest("domain", "ns1.test.se/80.84.32.12 ns2.test.se/80.84.32.10");
+        dnsCheckRequest = new DnsCheckRequest(update, "domain", "ns1.test.se/80.84.32.12 ns2.test.se/80.84.32.10");
     }
 
     @Test
@@ -52,15 +55,15 @@ public class DnsGatewayImplTest extends AbstractUpdateDaoTest {
 
         Set<DnsCheckRequest> dnsCheckRequests = Sets.newLinkedHashSet();
         dnsCheckRequests.add(dnsCheckRequest);
-        dnsCheckRequests.add(new DnsCheckRequest("domain", "ns3.test.se/80.84.32.14 ns4.test.se/80.84.32.16"));
-        dnsCheckRequests.add(new DnsCheckRequest("domain", "ns5.test.se/80.84.32.18 ns6.test.se/80.84.32.20"));
+        dnsCheckRequests.add(new DnsCheckRequest(update, "domain", "ns3.test.se/80.84.32.14 ns4.test.se/80.84.32.16"));
+        dnsCheckRequests.add(new DnsCheckRequest(update, "domain", "ns5.test.se/80.84.32.18 ns6.test.se/80.84.32.20"));
 
         final Map<DnsCheckRequest, DnsCheckResponse> dnsResults = subject.performDnsChecks(dnsCheckRequests);
 
         assertThat(dnsResults.values(), hasSize(3));
         assertThat(dnsResults.get(dnsCheckRequest).getMessages(), contains(UpdateMessages.dnsCheckTimeout()));
-        assertThat(dnsResults.get(new DnsCheckRequest("domain", "ns3.test.se/80.84.32.14 ns4.test.se/80.84.32.16")).getMessages(), contains(UpdateMessages.dnsCheckTimeout()));
-        assertThat(dnsResults.get(new DnsCheckRequest("domain", "ns5.test.se/80.84.32.18 ns6.test.se/80.84.32.20")).getMessages(), contains(UpdateMessages.dnsCheckTimeout()));
+        assertThat(dnsResults.get(new DnsCheckRequest(update, "domain", "ns3.test.se/80.84.32.14 ns4.test.se/80.84.32.16")).getMessages(), contains(UpdateMessages.dnsCheckTimeout()));
+        assertThat(dnsResults.get(new DnsCheckRequest(update, "domain", "ns5.test.se/80.84.32.18 ns6.test.se/80.84.32.20")).getMessages(), contains(UpdateMessages.dnsCheckTimeout()));
     }
 
     @Test
