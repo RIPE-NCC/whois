@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.dao.jdbc;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.Properties;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ActiveProfiles("TEST")
+@ActiveProfiles(WhoisProfile.TEST)
 @TestExecutionListeners(listeners = {TransactionalTestExecutionListener.class})
 public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringContextTests {
     @Autowired protected ApplicationContext applicationContext;
