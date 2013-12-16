@@ -1,6 +1,10 @@
 package net.ripe.db.whois.internal.api.sso;
 
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,6 +15,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.Set;
 
 @Component
@@ -33,7 +38,9 @@ public class OrganisationsForSSOAuthService {
 
         final Set<RpslObject> organisationsForAuth = orgFinder.findOrganisationsForAuth("SSO " + uuid);
         if (organisationsForAuth.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            final WhoisResources whoisResources = new WhoisResources();
+            whoisResources.setErrorMessages(Collections.singletonList(new ErrorMessage(new Message(Messages.Type.ERROR, "No organisations found"))));
+            return Response.status(Response.Status.NOT_FOUND).entity(whoisResources).build();
         }
 
         return Response.ok(whoisObjectMapper.mapRpslObjects(organisationsForAuth)).build();

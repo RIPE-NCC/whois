@@ -1,6 +1,7 @@
 package net.ripe.db.whois.internal.api.sso;
 
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
@@ -17,6 +18,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
@@ -27,7 +29,7 @@ import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 @ContextConfiguration(locations = {"classpath:applicationContext-internal-test.xml"}, inheritLocations = false)
-public class AuthServiceTestIntegration extends AbstractInternalTest {
+public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInternalTest {
 
     private ClassPathXmlApplicationContext applicationContextRest;
     private DatabaseHelper databaseHelperRest;
@@ -55,7 +57,15 @@ public class AuthServiceTestIntegration extends AbstractInternalTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
             fail();
-        } catch (NotFoundException expected) { }
+        } catch (WebApplicationException expected) {
+            final WhoisResources entity = expected.getResponse().readEntity(WhoisResources.class);
+
+            assertThat(entity.getErrorMessages().size(), is(1));
+
+            final ErrorMessage errorMessage = entity.getErrorMessages().get(0);
+            assertThat(errorMessage.getSeverity(), is("Error"));
+            assertThat(errorMessage.getText(), is("No organisations found"));
+        }
     }
 
     @Test
