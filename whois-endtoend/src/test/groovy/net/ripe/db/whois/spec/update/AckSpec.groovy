@@ -16,7 +16,7 @@ class AckSpec extends BaseQueryUpdateSpec {
             auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
             mnt-by:      DEL-MNT
             referral-by: DEL-MNT
-            changed:     dbtest@ripe.net
+            changed:     dbtest@ripe.net 20120202
             source:      TEST
             """
     ]}
