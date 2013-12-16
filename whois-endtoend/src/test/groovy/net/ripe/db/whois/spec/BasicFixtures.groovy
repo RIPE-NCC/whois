@@ -24,7 +24,7 @@ class BasicFixtures {
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
                 referral-by: OWNER-MNT
-                changed:     dbtest@ripe.net
+                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
             "OWNER2-MNT": """\
