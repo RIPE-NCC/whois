@@ -820,6 +820,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void delete_with_reason_succeeds() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test&reason=not_needed_no_more").request().delete(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(nullValue()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        try {
+            databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST");
+            fail();
+        } catch (EmptyResultDataAccessException expected) {}
+    }
+
+    @Test
     public void delete_nonexistant() {
         try {
             RestTest.target(getPort(), "whois/test/person/NON-EXISTANT").request().delete(String.class);
