@@ -94,6 +94,7 @@ public class Attribute {
         }
 
         final Attribute attribute = (Attribute) o;
+
         return (attribute.name != null ? attribute.name.equals(name) : name == null) &&
                 (attribute.value != null ? attribute.value.equals(value) : value == null) &&
                 (attribute.comment != null ? attribute.comment.equals(comment) : comment == null) &&
@@ -102,10 +103,21 @@ public class Attribute {
     }
 
     public String toString() {
-        if (StringUtils.isBlank(comment)) {
-            return String.format("%s: %s", name, value);
-        } else {
-            return String.format("%s: %s # %s", name, value, comment);
+        StringBuilder builder = new StringBuilder();
+        builder.append(name).append(": ").append(value);
+
+        if (!StringUtils.isBlank(comment)) {
+            builder.append(" # ").append(comment);
         }
+
+        if (!StringUtils.isBlank(referencedType)) {
+            builder.append(" [").append(referencedType).append("]");
+        }
+
+        if (link != null) {
+            builder.append(" [").append(link).append("]");
+        }
+
+        return builder.toString();
     }
 }

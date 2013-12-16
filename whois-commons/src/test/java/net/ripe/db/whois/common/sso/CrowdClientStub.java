@@ -1,7 +1,8 @@
-package net.ripe.db.whois.update.sso;
+package net.ripe.db.whois.common.sso;
 
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.profiles.TestingProfile;
+import net.ripe.db.whois.common.sso.CrowdClient;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

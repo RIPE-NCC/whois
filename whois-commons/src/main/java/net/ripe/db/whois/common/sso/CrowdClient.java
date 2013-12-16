@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.sso;
+package net.ripe.db.whois.common.sso;
 
 public interface CrowdClient {
 

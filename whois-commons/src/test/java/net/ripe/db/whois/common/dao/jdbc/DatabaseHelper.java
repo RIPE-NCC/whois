@@ -18,6 +18,10 @@ import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthTranslator;
+import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.CrowdClientStub;
+import net.ripe.db.whois.common.sso.SsoHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.joda.time.LocalDateTime;
@@ -53,6 +57,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String LOGGING_HANDLER = "net.ripe.db.whois.common.jdbc.driver.DelegatingLoggingHandler";
+    public static final Splitter SPACE_SPLITTER = Splitter.on(' ');
 
     private DataSource mailupdatesDataSource;
     private DataSource dnsCheckDataSource;
@@ -68,6 +73,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     @Autowired RpslObjectUpdateDao rpslObjectUpdateDao;
     @Autowired SourceAwareDataSource sourceAwareDataSource;
     @Autowired SourceContext sourceContext;
+    @Autowired CrowdClient crowdClient;
     private StringValueResolver valueResolver;
 
     @Autowired(required = false)
@@ -272,8 +278,21 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return addObject(RpslObject.parse(rpslString));
     }
 
+    public RpslObject translateAuth(final RpslObject rpslObject) {
+        return SsoHelper.translateAuth(rpslObject, new AuthTranslator() {
+            @Override
+            public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
+                if (authType.equals("SSO")) {
+                    String authValue = "SSO " + crowdClient.getUuid(authToken);
+                    return new RpslAttribute(originalAttribute.getKey(), authValue);
+                }
+                return null;
+            }
+        });
+    }
+
     public RpslObject addObject(final RpslObject rpslObject) {
-        final RpslObjectUpdateInfo objectUpdateInfo = rpslObjectUpdateDao.createObject(rpslObject);
+        final RpslObjectUpdateInfo objectUpdateInfo = rpslObjectUpdateDao.createObject(translateAuth(rpslObject));
         return RpslObject.parse(objectUpdateInfo.getObjectId(), rpslObject.toByteArray());
     }
 
@@ -298,6 +317,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         for (final RpslObject rpslObject : rpslObjects) {
             // create object with key attribute(s) only - without reference to other objects
             RpslObject transformedObject = attributeSanitizer.sanitize(rpslObject, new ObjectMessages());
+            transformedObject = translateAuth(transformedObject);
             final RpslObjectUpdateInfo updateInfo = addObjectWithoutReferences(transformedObject, rpslObjectUpdateDao);
             updateInfoMap.put(rpslObject, updateInfo);
             transformedInfoMap.put(transformedObject, updateInfo);

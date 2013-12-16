@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
@@ -53,6 +54,7 @@ public class RpslResponseDecorator {
     private final FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     private final AbuseCInfoDecorator abuseCInfoDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
+    private final CrowdClient crowdClient;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -63,12 +65,14 @@ public class RpslResponseDecorator {
                                  final FilterTagsDecorator filterTagsDecorator,
                                  final FilterPlaceholdersDecorator filterPlaceholdersDecorator,
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
+                                 final CrowdClient crowdClient,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
         this.dummifyDecorator = dummifyDecorator;
         this.sourceContext = sourceContext;
         this.abuseCInfoDecorator = abuseCInfoDecorator;
+        this.crowdClient = crowdClient;
         this.validSyntaxFilterFunction = new SyntaxFilterFunction(true);
         this.invalidSyntaxFilterFunction = new SyntaxFilterFunction(false);
         this.filterTagsDecorator = filterTagsDecorator;
@@ -136,7 +140,7 @@ public class RpslResponseDecorator {
 
     private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {
         List<String> passwords = query.getPasswords();
-        final FilterAuthFunction filterAuthFunction = CollectionUtils.isEmpty(passwords) ? FILTER_AUTH_FUNCTION : new FilterAuthFunction(passwords);
+        final FilterAuthFunction filterAuthFunction = CollectionUtils.isEmpty(passwords) ? FILTER_AUTH_FUNCTION : new FilterAuthFunction(passwords, null, crowdClient);
 
         return Iterables.transform(objects, new Function<ResponseObject, ResponseObject>() {
             @Nullable

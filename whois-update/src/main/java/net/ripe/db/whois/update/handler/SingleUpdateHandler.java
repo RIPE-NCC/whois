@@ -224,7 +224,7 @@ public class SingleUpdateHandler {
         return Action.MODIFY;
     }
 
-    // `TODO: [AH] Replace with versioning
+    // TODO: [AH] Replace with versioning
     private void checkForUnexpectedModification(final Update update) {
         if (update.getSubmittedObjectInfo() != null) {
             final RpslObjectUpdateInfo latestUpdateInfo = rpslObjectUpdateDao.lookupObject(
