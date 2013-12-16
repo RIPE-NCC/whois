@@ -70,14 +70,14 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
 
     @Test
     public void organisations_found_via_mnt_by() {
-        databaseHelperRest.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO aaaa-bbbb-cccc-dddd-1234");
+        databaseHelperRest.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO random@ripe.net");
         final RpslObject organisation = RpslObject.parse("" +
                 "organisation: ORG-TST-TEST\n" +
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         databaseHelperRest.addObject(organisation);
 
-        final WhoisResources result = RestTest.target(getPort(), "api/user/aaaa-bbbb-cccc-dddd-1234/organisations", null, apiKey)
+        final WhoisResources result = RestTest.target(getPort(), "api/user/017f750e-6eb8-4ab1-b5ec-8ad64ce9a503/organisations", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 
@@ -88,14 +88,14 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
 
     @Test
     public void organisations_not_found_via_mnt_ref() {
-        databaseHelperRest.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO aaaa-bbbb-cccc-dddd-1234");
+        databaseHelperRest.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO db-test@ripe.net");
         final RpslObject organisation = RpslObject.parse("" +
                 "organisation: ORG-TST-TEST\n" +
                 "mnt-ref: TEST-MNT\n" +
                 "source: TEST");
         databaseHelperRest.addObject(organisation);
         try {
-            RestTest.target(getPort(), "api/user/aaaa-bbbb-cccc-dddd-1234/organisations", null, apiKey)
+            RestTest.target(getPort(), "api/user/ed7cd420-6402-11e3-949a-0800200c9a66/organisations", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
             fail();
@@ -104,7 +104,7 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
 
     @Test
     public void organisation_only_added_once() {
-        databaseHelperRest.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO aaaa-bbbb-cccc-dddd-1234");
+        databaseHelperRest.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO person@net.net");
         final RpslObject organisation = RpslObject.parse("" +
                 "organisation: ORG-TST-TEST\n" +
                 "mnt-by: TEST-MNT\n" +
@@ -112,7 +112,7 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
                 "source: TEST");
         databaseHelperRest.addObject(organisation);
 
-        final WhoisResources result = RestTest.target(getPort(), "api/user/aaaa-bbbb-cccc-dddd-1234/organisations", null, apiKey)
+        final WhoisResources result = RestTest.target(getPort(), "api/user/906635c2-0405-429a-800b-0602bd716124/organisations", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 
@@ -126,7 +126,7 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
 
     @Test
     public void only_organisations_returned() {
-        databaseHelperRest.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO aaaa-bbbb-cccc-dddd-1234");
+        databaseHelperRest.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO test@ripe.net");
         final RpslObject organisation = RpslObject.parse("" +
                 "organisation: ORG-TST-TEST\n" +
                 "mnt-ref: TEST-MNT\n" +
@@ -135,7 +135,7 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
         databaseHelperRest.addObject(organisation);
         databaseHelperRest.addObject("person: Test Person\nnic-hdl: TST-TEST\nmnt-by: TEST-MNT");
 
-        final WhoisResources result = RestTest.target(getPort(), "api/user/aaaa-bbbb-cccc-dddd-1234/organisations", null, apiKey)
+        final WhoisResources result = RestTest.target(getPort(), "api/user/8ffe29be-89ef-41c8-ba7f-0e1553a623e5/organisations", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 
@@ -149,8 +149,8 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
 
     @Test
     public void only_auth_sso_mntners_yield_results() {
-        databaseHelperRest.addObject("mntner: SSO-MNT\nmnt-by:SSO-MNT\nauth: SSO aaaa-bbbb-cccc-dddd-1234");
-        databaseHelperRest.addObject("mntner: MD5-MNT\nmnt-by:MD5-MNT\nauth: MD5-PW aaaa-bbbb-cccc-dddd-1234");
+        databaseHelperRest.addObject("mntner: SSO-MNT\nmnt-by:SSO-MNT\nauth: SSO random@ripe.net");
+        databaseHelperRest.addObject("mntner: MD5-MNT\nmnt-by:MD5-MNT\nauth: MD5-PW 017f750e-6eb8-4ab1-b5ec-8ad64ce9a503");
         final RpslObject organisation = RpslObject.parse("" +
                 "organisation: ORG-SSO-TEST\n" +
                 "mnt-ref: SSO-MNT\n" +
@@ -163,7 +163,7 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
                 "mnt-by: MD5-MNT\n" +
                 "source: TEST");
 
-        final WhoisResources result = RestTest.target(getPort(), "api/user/aaaa-bbbb-cccc-dddd-1234/organisations", null, apiKey)
+        final WhoisResources result = RestTest.target(getPort(), "api/user/017f750e-6eb8-4ab1-b5ec-8ad64ce9a503/organisations", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 
@@ -177,7 +177,7 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
 
     @Test
     public void all_organisations_returned() {
-        databaseHelperRest.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO aaaa-bbbb-cccc-dddd-1234");
+        databaseHelperRest.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO db-test@ripe.net\nsource:test");
         final RpslObject org1 = RpslObject.parse("" +
                 "organisation: ORG-TST1-TEST\n" +
                 "mnt-by: TEST-MNT\n" +
@@ -189,7 +189,7 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
                 "source: TEST");
         databaseHelperRest.addObject(org2);
 
-        final WhoisResources result = RestTest.target(getPort(), "api/user/aaaa-bbbb-cccc-dddd-1234/organisations", null, apiKey)
+        final WhoisResources result = RestTest.target(getPort(), "api/user/ed7cd420-6402-11e3-949a-0800200c9a66/organisations", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 

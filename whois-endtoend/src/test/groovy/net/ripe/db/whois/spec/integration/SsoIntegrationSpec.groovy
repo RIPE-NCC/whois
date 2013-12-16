@@ -152,10 +152,10 @@ source:         TEST # Filtered/
         query =~/auth:           SSO # Filtered/
 
       when:
-        def ack = ackFor("nfy@ripe.net")
+        def notif = notificationFor("nfy@ripe.net")
 
       then:
-        ack =~ /mntner:         SSO-MNT
+        notif =~ /mntner:         SSO-MNT
 descr:          updated sso mntner
 admin-c:        TEST-PN
 upd-to:         test@ripe.net
