@@ -5008,48 +5008,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-DBM-MNT")
     }
 
-    @Ignore //TODO pick the changes around this
-    def "delete assignment, using prefix notation"() {
-      given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASS") + "password: lir\npassword: end")
-        queryObject("-GBr -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.168.200/24
-                netname:      RIPE-NET1
-                descr:        /24 assigned
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PA
-                mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                delete:  using prefix
-
-                password: end
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 1, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-        ack.infoSuccessMessagesFor("Delete", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
-                "Value 192.168.200/24 converted to 192.168.200.0 - 192.168.200.255"]
-
-        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-    }
-
     def "Remove mnt-routes, inverse lookup"() {
       when:
         def message = syncUpdate("""\
