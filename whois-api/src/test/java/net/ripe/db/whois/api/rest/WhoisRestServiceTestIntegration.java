@@ -153,7 +153,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void test_lookup_with_empty_accepts_header() throws Exception {
+    public void lookup_without_accepts_header() throws Exception {
         final String query = DummyWhoisClient.query(getPort(), "GET /whois/test/mntner/owner-mnt HTTP/1.1\nHost: localhost\nConnection: close\n");
 
         assertThat(query, containsString("HTTP/1.1 200 OK"));
@@ -161,12 +161,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void test_lookup_without_accepts_header() throws Exception {
+    public void lookup_with_empty_accepts_header() throws Exception {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/owner-mnt")
                 .request()
                 .get(WhoisResources.class);
 
         final RpslObject object = whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+
         assertThat(object, is(RpslObject.parse("" +
                 "mntner:         OWNER-MNT\n" +
                 "descr:          Owner Maintainer\n" +
