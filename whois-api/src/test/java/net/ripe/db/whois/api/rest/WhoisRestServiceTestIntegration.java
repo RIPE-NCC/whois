@@ -636,6 +636,38 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
+
+    @Test
+    public void lookup_sso_auth_filtered() {
+        databaseHelper.addObject("" +
+                "mntner: TEST-MNT\n" +
+                "mnt-by:TEST-MNT\n" +
+                "auth: SSO test@ripe.net\n" +
+                "source: TEST");
+
+        final String response = RestTest.target(getPort(), "whois/test/mntner/TEST-MNT")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        assertThat(response, containsString("<attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\" />"));
+
+    }
+
+    @Test
+    public void sso_auth_filtered_on_search() {
+        databaseHelper.addObject("" +
+                "mntner: TEST-MNT\n" +
+                "mnt-by:TEST-MNT\n" +
+                "auth: SSO test@ripe.net\n" +
+                "source: TEST");
+
+        final String response = RestTest.target(getPort(), "whois/search?query-string=TEST-MNT&source=TEST")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        assertThat(response, containsString("<attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\" />"));
+    }
+
     // create
 
     @Test
@@ -2315,11 +2347,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
         assertErrorCount(whoisResources, 1);
         assertErrorMessage(whoisResources, 0, severity, text, argument);
-    }
-
-    static void assertErrorMessage(final ClientErrorException e, final int number, final String severity, final String text, final String... argument) {
-        WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
-        assertErrorMessage(whoisResources, number, severity, text, argument);
     }
 
     static void assertErrorMessage(final WhoisResources whoisResources, final int number, final String severity, final String text, final String... argument) {
