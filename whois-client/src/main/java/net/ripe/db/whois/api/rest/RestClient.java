@@ -230,8 +230,6 @@ public class RestClient {
                                     }))
                     ));
 
-            LOGGER.info("search URL = {}", uri);
-
             final WhoisResources whoisResources = client.target(uri).request().get(WhoisResources.class);
             return whoisObjectClientMapper.mapWhoisObjects(whoisResources.getWhoisObjects());
         } catch (ClientErrorException e) {
