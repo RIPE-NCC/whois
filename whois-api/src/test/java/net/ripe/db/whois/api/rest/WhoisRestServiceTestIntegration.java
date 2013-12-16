@@ -411,7 +411,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    //TODO: [TP] It fails because the SSO attribute is returned filtered
     public void lookup_mntner_does_not_have_referenced_type_in_SSO() throws Exception {
         databaseHelper.addObject(""+
                 "mntner:         MNT-TEST" +"\n" +
