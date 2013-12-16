@@ -3,7 +3,6 @@ package net.ripe.db.whois.common.sso;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
@@ -19,14 +18,16 @@ public class SsoHelper {
             return rpslObject;
         }
 
-        Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
+        final Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
         for (RpslAttribute authAttribute : rpslObject.findAttributes(AttributeType.AUTH)) {
             final Iterator<String> authIterator = SPACE_SPLITTER.split(authAttribute.getCleanValue()).iterator();
             final String authType = authIterator.next().toUpperCase();
-            final String authToken = authIterator.next();
-            RpslAttribute result = authTranslator.translate(authType, authToken, authAttribute);
-            if (result != null) {
-                replace.put(authAttribute, result);
+            if (authIterator.hasNext()) {
+                final String authToken = authIterator.next();
+                final RpslAttribute result = authTranslator.translate(authType, authToken, authAttribute);
+                if (result != null) {
+                    replace.put(authAttribute, result);
+                }
             }
         }
 
