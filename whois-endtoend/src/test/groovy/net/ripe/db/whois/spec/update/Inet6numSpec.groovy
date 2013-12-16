@@ -516,7 +516,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
-                inet6num:     2001:600:1:1:1:1:1:1/64
+                inet6num:     2001:600:1:1::/64
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
                 country:      EU
@@ -539,13 +539,11 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 2)
+        ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600:1:1::/64" }
         ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600:1:1::/64") ==
                 ["Value 2001:600:1:1:1:1:1:1/64 converted to 2001:600:1:1::/64"]
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600:1:1::/64" }
-        ack.infoSuccessMessagesFor("Delete", "[inet6num] 2001:600:1:1::/64") ==
-                ["Value 2001:600:1:1:1:1:1:1/64 converted to 2001:600:1:1::/64"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600:1:1::/64", "inet6num", "2001:600:1:1::/64")
     }
@@ -1113,7 +1111,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
     def "delete with invalid legacy status"() {
         expect:
-        queryObject("-r -T inet6num 1981:600::/25", "inet6num", "1981:600::/25")
+        queryObject("-B -r -T inet6num 1981:600::/25", "inet6num", "1981:600::/25")
 
         when:
         def message = send new Message(
@@ -1129,7 +1127,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       SUBTLA
-                changed:      dbtest@ripe.net
+                changed:      dbtest@ripe.net 20120202
                 source:       TEST
                 delete:       old status
 

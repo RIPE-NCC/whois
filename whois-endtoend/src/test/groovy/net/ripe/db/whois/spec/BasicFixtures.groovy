@@ -907,7 +907,7 @@ class BasicFixtures {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       SUBTLA
-                changed:      dbtest@ripe.net
+                changed:      dbtest@ripe.net 20120202
                 source:       TEST
                 """,
     ]
