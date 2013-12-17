@@ -149,7 +149,7 @@ public class RestClientTest {
 
         final RpslObject result = subject.lookup(ObjectType.MNTNER, "OWNER-MNT");
 
-        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?unfiltered"));
+        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
         assertThat(result.getType(), is(ObjectType.MNTNER));
     }
