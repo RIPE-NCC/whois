@@ -189,7 +189,7 @@ public class RestClient {
                     pkey,
                     joinQueryParams(
                             createQueryParams("password", passwords),
-                            (passwords.length == 0) ? null : "unfiltered")
+                            "unfiltered")
             )).request().get(WhoisResources.class);
             return whoisResources.getWhoisObjects().get(0);
         } catch (ClientErrorException e) {
