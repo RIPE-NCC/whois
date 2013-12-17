@@ -149,11 +149,11 @@ public class RestClientTest {
 
         final RpslObject result = subject.lookup(ObjectType.MNTNER, "OWNER-MNT");
 
-        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT"));
+        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?unfiltered"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
         assertThat(result.getType(), is(ObjectType.MNTNER));
     }
-
+1
     @Test
     public void lookup_with_password() {
         mockWithResponse(whoisResourcesMock);
