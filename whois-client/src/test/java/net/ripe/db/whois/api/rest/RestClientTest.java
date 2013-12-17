@@ -153,7 +153,7 @@ public class RestClientTest {
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
         assertThat(result.getType(), is(ObjectType.MNTNER));
     }
-1
+
     @Test
     public void lookup_with_password() {
         mockWithResponse(whoisResourcesMock);
