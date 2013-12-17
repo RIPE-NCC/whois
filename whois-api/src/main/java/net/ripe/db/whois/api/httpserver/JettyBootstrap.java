@@ -28,13 +28,11 @@ public class JettyBootstrap implements ApplicationService {
     private final List<ServletDeployer> servletDeployers;
     private Server server;
 
-    private int port;
+    private int port = 0;
 
-    @Value("${port.api:-1}")
+    @Value("${port.api}")
     public void setPort(final int port) {
-        if (port <= 0) {
-            this.port = 0;
-        } else {
+        if (port > 0) {
             this.port = port;
         }
     }
