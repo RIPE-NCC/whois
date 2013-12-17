@@ -149,7 +149,7 @@ public class RestClientTest {
 
         final RpslObject result = subject.lookup(ObjectType.MNTNER, "OWNER-MNT");
 
-        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?unfiltered"));
+        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
         assertThat(result.getType(), is(ObjectType.MNTNER));
     }
@@ -171,7 +171,17 @@ public class RestClientTest {
 
         final WhoisObject result = subject.lookupWhoisObject(ObjectType.MNTNER, "OWNER-MNT");
 
-        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?unfiltered"));
+        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT"));
+        assertThat(result.getAttributes().iterator().next().getValue(), is("OWNER-MNT"));
+    }
+
+    @Test
+    public void lookupWhoisObjectWithPassword() {
+        mockWithResponse(whoisResourcesMock);
+
+        final WhoisObject result = subject.lookupWhoisObject(ObjectType.MNTNER, "OWNER-MNT", "mylittlepony");
+
+        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?password=mylittlepony&unfiltered"));
         assertThat(result.getAttributes().iterator().next().getValue(), is("OWNER-MNT"));
     }
 
