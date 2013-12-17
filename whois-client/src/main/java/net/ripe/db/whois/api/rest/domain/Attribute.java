@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Objects;
 
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -95,11 +96,11 @@ public class Attribute {
 
         final Attribute attribute = (Attribute) o;
 
-        return (attribute.name != null ? attribute.name.equals(name) : name == null) &&
-                (attribute.value != null ? attribute.value.equals(value) : value == null) &&
-                (attribute.comment != null ? attribute.comment.equals(comment) : comment == null) &&
-                (attribute.referencedType != null ? attribute.referencedType.equals(referencedType) : referencedType == null) &&
-                (attribute.link != null ? attribute.link.equals(link) : link == null);
+        return Objects.equals(attribute.name, name) &&
+                Objects.equals(attribute.value, value) &&
+                Objects.equals(attribute.comment, comment) &&
+                Objects.equals(attribute.referencedType, referencedType) &&
+                Objects.equals(attribute.link, link);
     }
 
     public String toString() {

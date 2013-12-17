@@ -178,6 +178,7 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
+        // TODO: [AH] sso translator is not applied
         final RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
 
         return updatePerformer.performUpdate(
