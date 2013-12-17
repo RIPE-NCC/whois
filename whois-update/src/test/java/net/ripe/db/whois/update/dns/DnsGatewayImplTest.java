@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +46,7 @@ public class DnsGatewayImplTest extends AbstractUpdateDaoTest {
     public void performDnsCheck_timeout() {
         subject.setTimeout(0);
 
-        final DnsCheckResponse dnsCheckResponse = subject.performDnsCheck(dnsCheckRequest);
+        final DnsCheckResponse dnsCheckResponse = subject.performDnsChecks(Collections.singleton(dnsCheckRequest)).get(dnsCheckRequest);
         assertThat(dnsCheckResponse.getMessages(), contains(UpdateMessages.dnsCheckTimeout()));
     }
 
@@ -71,7 +72,7 @@ public class DnsGatewayImplTest extends AbstractUpdateDaoTest {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         executorService.scheduleAtFixedRate(new DnsCheckStub(1, 0, ImmutableList.of(new TestMessage("ERROR", "This %sis%s.", "this%dis awesome.", "fruit ", "4"))), 100, 100, TimeUnit.MILLISECONDS);
 
-        final DnsCheckResponse dnsCheckResponse = subject.performDnsCheck(dnsCheckRequest);
+        final DnsCheckResponse dnsCheckResponse = subject.performDnsChecks(Collections.singleton(dnsCheckRequest)).get(dnsCheckRequest);
         executorService.shutdown();
 
         final List<Message> messages = dnsCheckResponse.getMessages();
@@ -85,7 +86,7 @@ public class DnsGatewayImplTest extends AbstractUpdateDaoTest {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         executorService.scheduleAtFixedRate(new DnsCheckStub(1, 1, ImmutableList.of(new TestMessage("CRITICAL", "This is %s.", "This is description", "critical", null), new TestMessage("WARNING", "This %sis%s.", "this%dis awesome.", "fruit ", "4"))), 100, 100, TimeUnit.MILLISECONDS);
 
-        final DnsCheckResponse dnsCheckResponse = subject.performDnsCheck(dnsCheckRequest);
+        final DnsCheckResponse dnsCheckResponse = subject.performDnsChecks(Collections.singleton(dnsCheckRequest)).get(dnsCheckRequest);
         executorService.shutdown();
 
         final List<Message> messages = dnsCheckResponse.getMessages();
