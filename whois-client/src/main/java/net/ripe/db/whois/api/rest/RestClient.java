@@ -182,13 +182,14 @@ public class RestClient {
 
     public WhoisObject lookupWhoisObject(final ObjectType objectType, final String pkey, final String... passwords) {
         try {
-            final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s%s",
+            final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s",
                     restApiUrl,
                     sourceName,
                     objectType.getName(),
                     pkey,
-                    joinQueryParams(createQueryParams("password", passwords)),
-                    (passwords.length == 0) ? "?unfiltered" : "&unfiltered"
+                    joinQueryParams(
+                            createQueryParams("password", passwords),
+                            (passwords.length == 0) ? null : "unfiltered")
             )).request().get(WhoisResources.class);
             return whoisResources.getWhoisObjects().get(0);
         } catch (ClientErrorException e) {
