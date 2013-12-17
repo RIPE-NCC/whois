@@ -1,12 +1,7 @@
 package net.ripe.db.whois.update.sso;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.sso.AuthTranslator;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.SsoHelper;
@@ -14,9 +9,6 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Iterator;
-import java.util.Map;
 
 @Component
 public class SsoTranslator {

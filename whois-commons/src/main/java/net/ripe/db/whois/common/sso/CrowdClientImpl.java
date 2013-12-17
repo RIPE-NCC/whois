@@ -43,6 +43,7 @@ public class CrowdClientImpl implements CrowdClient {
         }
     }
 
+    @Override
     public String getUuid(final String username) {
         final String url = String.format(
                 "%s/rest/usermanagement/latest/user/attribute?username=%s",
@@ -59,6 +60,7 @@ public class CrowdClientImpl implements CrowdClient {
         return extractUUID(response);
     }
 
+    @Override
     public String getUsername(final String uuid) {
         final String url = String.format(
                 "%scrowd/rest/sso/latest/uuid=%s",
