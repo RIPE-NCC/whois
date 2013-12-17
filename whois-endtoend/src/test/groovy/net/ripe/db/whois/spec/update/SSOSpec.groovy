@@ -3,8 +3,6 @@ package net.ripe.db.whois.spec.update
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
-import net.ripe.db.whois.spec.domain.Message
-import net.ripe.db.whois.spec.domain.SyncUpdate
 
 /**
  * Created with IntelliJ IDEA.
@@ -479,7 +477,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any {it.operation == "Modify" && it.key == "[mntner] NO-SSO-MNT"}
         ack.errorMessagesFor("Modify", "[mntner] NO-SSO-MNT") ==
-                ["Mandatory attribute \"auth\" is missing"]
+                ["No Ripe Access Account found for unknown@ripe.net"]
 
         query_object_not_matches("-r -BG -T mntner NO-SSO-MNT", "mntner", "NO-SSO-MNT", "auth:\\s*SSO")
         query_object_matches("-r -BG -T mntner NO-SSO-MNT", "mntner", "NO-SSO-MNT", "auth:\\s*MD5")
@@ -523,7 +521,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any {it.operation == "Modify" && it.key == "[mntner] ONE-SSO-MNT"}
         ack.errorMessagesFor("Modify", "[mntner] ONE-SSO-MNT") ==
-                ["Mandatory attribute \"auth\" is missing"]
+                ["No Ripe Access Account found for unknown@ripe.net"]
 
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*SSO")
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*MD5")

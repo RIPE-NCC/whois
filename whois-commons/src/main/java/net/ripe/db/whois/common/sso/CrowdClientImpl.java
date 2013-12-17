@@ -54,7 +54,7 @@ public class CrowdClientImpl implements CrowdClient {
         try {
             response = client.target(url).request().get(String.class);
         } catch (NotFoundException e) {
-            throw new IllegalArgumentException("Unknown RIPE Access user: " + username);
+            return null;
         }
 
         return extractUUID(response);
@@ -71,7 +71,7 @@ public class CrowdClientImpl implements CrowdClient {
         try {
             client.target(url).request().get(String.class);
         } catch (NotFoundException e) {
-            throw new IllegalArgumentException("Unknown RIPE Access uuid: " + uuid);
+            return null;
         }
 
         return extractUsername(response);

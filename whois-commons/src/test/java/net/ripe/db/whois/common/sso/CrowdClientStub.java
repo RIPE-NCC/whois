@@ -26,20 +26,16 @@ public class CrowdClientStub implements CrowdClient {
     }
 
     @Override
-    public String getUuid(String username) {
+    public String getUuid(final String username) {
         return get(username);
     }
 
     @Override
-    public String getUsername(String uuid) {
+    public String getUsername(final String uuid) {
         return get(uuid);
     }
 
     private String get(final String userOrUuid) {
-        final String result = usermap.get(userOrUuid);
-        if (result == null) {
-            throw new IllegalArgumentException("Unknown RIPE Access user: " + userOrUuid);
-        }
-        return result;
+        return usermap.get(userOrUuid);
     }
 }

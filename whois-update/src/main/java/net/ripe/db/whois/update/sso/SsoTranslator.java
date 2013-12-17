@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.SsoHelper;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,12 @@ public class SsoTranslator {
             public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
                     if (!updateContext.hasSsoTranslationResult(authToken)) {
-                        updateContext.addSsoTranslationResult(authToken, crowdClient.getUuid(authToken));
+                        final String uuid = crowdClient.getUuid(authToken);
+                        if (uuid != null) {
+                            updateContext.addSsoTranslationResult(authToken, uuid);
+                        } else {
+                            updateContext.addMessage(update, originalAttribute, UpdateMessages.ripeAccessAccountUnavailable(authToken));
+                        }
                     }
                 }
                 return null;

@@ -8,12 +8,12 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
-import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
-import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
-import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
+import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 
 import java.util.Set;
 
@@ -536,5 +536,9 @@ public final class UpdateMessages {
 
     public static Message dryRunNotice() {
         return new Message(Type.INFO, "Dry-run performed, no changes to the database have been made");
+    }
+
+    public static Message ripeAccessAccountUnavailable(final CharSequence username) {
+        return new Message(Type.ERROR, "No Ripe Access Account found for %s", username);
     }
 }
