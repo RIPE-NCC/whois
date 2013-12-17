@@ -129,9 +129,9 @@ public class RestClientTest {
     public void delete() {
         mockWithResponse(null);
 
-        subject.delete(MNTNER_OBJECT, "password1");
+        subject.delete(MNTNER_OBJECT, "reason1", "password1");
 
-        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?password=password1"));
+        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?password=password1&reason=reason1"));
     }
 
     @Test
