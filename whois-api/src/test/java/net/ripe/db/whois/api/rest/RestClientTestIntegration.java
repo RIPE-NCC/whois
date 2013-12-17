@@ -159,6 +159,27 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_with_sso_password() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:        SSO-MNT\n" +
+                "descr:         sso Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          SSO random@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        SSO-MNT\n" +
+                "referral-by:   SSO-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST"));
+
+        final RpslObject object = restClient.lookup(ObjectType.MNTNER, "SSO-MNT", "test");
+
+        assertThat(object.findAttributes(AttributeType.AUTH),
+                hasItems(new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/"),
+                        new RpslAttribute(AttributeType.AUTH, "SSO random@ripe.net")));
+    }
+
+    @Test
     public void lookup_abuse_contact() {
         databaseHelper.addObject(ABUSE_CONTACT_ROLE);
         databaseHelper.addObject(ABUSE_CONTACT_ORGANISATION);

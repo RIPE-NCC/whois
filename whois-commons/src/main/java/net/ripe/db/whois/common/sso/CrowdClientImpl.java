@@ -63,13 +63,13 @@ public class CrowdClientImpl implements CrowdClient {
     @Override
     public String getUsername(final String uuid) {
         final String url = String.format(
-                "%scrowd/rest/sso/latest/uuid=%s",
+                "%s/rest/sso/latest/uuid-search?uuid=%s",
                 restUrl,
                 uuid);
 
-        final String response = "";
+        String response = "";
         try {
-            client.target(url).request().get(String.class);
+            response = client.target(url).request().get(String.class);
         } catch (NotFoundException e) {
             return null;
         }
