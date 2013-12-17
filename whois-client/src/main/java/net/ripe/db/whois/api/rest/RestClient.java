@@ -124,10 +124,7 @@ public class RestClient {
                     rpslObject.getType().getName(),
                     rpslObject.getKey().toString(),
                     joinQueryParams(createQueryParams("override", override))
-            )).request().put(
-                    Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
-                    WhoisResources.class
-            );
+            )).request().put(Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
             return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
         } catch (ClientErrorException e) {
             throw createException(e);
@@ -136,13 +133,15 @@ public class RestClient {
 
     public void delete(final RpslObject rpslObject, final String reason, final String... passwords) {
         try {
-            client.target(String.format("%s/%s/%s/%s%s&reason=%s",
+            client.target(String.format("%s/%s/%s/%s%s",
                     restApiUrl,
                     sourceName,
                     rpslObject.getType().getName(),
                     rpslObject.getKey().toString(),
-                    joinQueryParams(createQueryParams("password", passwords)),
-                    encode(reason))).request().delete(String.class);
+                    joinQueryParams(
+                            createQueryParams("password", passwords),
+                            createQueryParams("reason", encode(reason)))))
+                    .request().delete(String.class);
         } catch (ClientErrorException e) {
             throw createException(e);
         }
