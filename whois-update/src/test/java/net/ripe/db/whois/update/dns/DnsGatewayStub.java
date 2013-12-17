@@ -38,21 +38,6 @@ public class DnsGatewayStub implements DnsGateway, Stub {
     }
 
     @Override
-    public DnsCheckResponse performDnsCheck(final DnsCheckRequest dnsCheckRequest) {
-        dnsCheckRequests.add(dnsCheckRequest);
-
-        final CIString domain = ciString(dnsCheckRequest.getDomain());
-        checkedUpdates.add(domain);
-
-        List<Message> messages = responses.get(domain);
-        if (messages == null) {
-            messages = Collections.emptyList();
-        }
-
-        return new DnsCheckResponse(messages);
-    }
-
-    @Override
     public Map<DnsCheckRequest, DnsCheckResponse> performDnsChecks(final Set<DnsCheckRequest> dnsCheckRequests) {
         Map<DnsCheckRequest, DnsCheckResponse> dnsResults = Maps.newHashMap();
         for (DnsCheckRequest dnsCheckRequest : dnsCheckRequests) {
