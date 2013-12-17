@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseEndToEndSpec
 import org.joda.time.LocalDateTime
 
-// TODO [AK] Now that we also have access to query here, we can expand our tests
+// TODO [AK] Add query/restapi e2e tests
 abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
 
     def setupSpec(){

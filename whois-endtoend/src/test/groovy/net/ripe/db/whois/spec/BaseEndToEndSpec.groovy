@@ -1,8 +1,10 @@
 package net.ripe.db.whois.spec
-
 import net.ripe.db.whois.WhoisFixture
+import net.ripe.db.whois.api.rest.domain.Attribute
+import net.ripe.db.whois.api.rest.domain.WhoisObject
 import net.ripe.db.whois.common.TestDateTimeProvider
 import net.ripe.db.whois.common.profiles.WhoisProfile
+import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
@@ -53,6 +55,24 @@ ${result}
 """
 
         result
+    }
+
+    WhoisObject restLookup(ObjectType objectType, String pkey, String... passwords) {
+        whoisFixture.reloadTrees();
+        return whoisFixture.restLookup(objectType, pkey, passwords);
+    }
+
+    boolean hasAttribute(WhoisObject whoisObject, String attribute, String value, String comment) {
+        println " >>> " + whoisObject.getPrimaryKey() + " hasAttribute [" + attribute +": " + value + " # " + comment +"]";
+        for (Attribute attr : whoisObject.getAttributes()) {
+            if (Objects.equals(attr.getName(), attribute)) {
+                println "Matching attribute name found: " + attr;
+                if (Objects.equals(attr.getValue(), value) && Objects.equals(attr.getComment(), comment)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public List<String> queryPersistent(final List<String> queries){

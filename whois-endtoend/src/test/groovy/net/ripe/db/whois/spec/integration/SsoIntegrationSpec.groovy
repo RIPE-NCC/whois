@@ -99,6 +99,7 @@ source:         TEST # Filtered/
                 "changed: ripe@test.net\n" +
                 "mnt-by: TEST-MNT3\n" +
                 "source: TEST")
+
         syncUpdate(new SyncUpdate(data: """\
                             mntner: SSO-MNT
                             descr: sso mntner
@@ -130,20 +131,11 @@ source:         TEST # Filtered/
         response =~ /SUCCESS/
 
       when:
-        def mntner = databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT")
+        def mntner = restLookup(ObjectType.MNTNER, "SSO-MNT", "update");
 
       then:
-        mntner.toString() ==
-                "mntner:         SSO-MNT\n" +
-                "descr:          updated sso mntner\n" +
-                "admin-c:        TEST-PN\n" +
-                "upd-to:         test@ripe.net\n" +
-                "auth:           SSO 906635c2-0405-429a-800b-0602bd716124\n" +
-                "auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "referral-by:    TEST-MNT3\n" +
-                "mnt-by:         TEST-MNT3\n" +
-                "changed:        ripe@test.net 20091015\n" +
-                "source:         TEST\n"
+        hasAttribute(mntner, "auth", "SSO person@net.net", null);
+        hasAttribute(mntner, "auth", "MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7.", "update");
 
       when:
         def query = query("SSO-MNT")
