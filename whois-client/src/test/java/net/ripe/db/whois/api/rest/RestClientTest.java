@@ -166,6 +166,16 @@ public class RestClientTest {
     }
 
     @Test
+    public void lookupWhoisObject() {
+        mockWithResponse(whoisResourcesMock);
+
+        final WhoisObject result = subject.lookupWhoisObject(ObjectType.MNTNER, "OWNER-MNT");
+
+        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?unfiltered"));
+        assertThat(result.getAttributes().iterator().next().getValue(), is("OWNER-MNT"));
+    }
+
+    @Test
     public void lookup_abuse_contact() {
         mockWithResponse(abuseResourcesMock);
 

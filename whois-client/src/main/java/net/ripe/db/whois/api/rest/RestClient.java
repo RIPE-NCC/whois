@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import net.ripe.db.whois.common.Message;
@@ -177,6 +178,10 @@ public class RestClient {
     }
 
     public RpslObject lookup(final ObjectType objectType, final String pkey, final String... passwords) {
+        return whoisObjectClientMapper.map(lookupWhoisObject(objectType, pkey, passwords));
+    }
+
+    public WhoisObject lookupWhoisObject(final ObjectType objectType, final String pkey, final String... passwords) {
         try {
             final WhoisResources whoisResources = client.target(String.format("%s/%s/%s/%s%s%s",
                     restApiUrl,
@@ -186,7 +191,7 @@ public class RestClient {
                     joinQueryParams(createQueryParams("password", passwords)),
                     (passwords.length == 0) ? "?unfiltered" : "&unfiltered"
             )).request().get(WhoisResources.class);
-            return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
+            return whoisResources.getWhoisObjects().get(0);
         } catch (ClientErrorException e) {
             throw createException(e);
         }
@@ -315,5 +320,9 @@ public class RestClient {
 
         final ErrorMessage errorMessage = new ErrorMessage(new Message(Messages.Type.ERROR, message));
         return new RestClientException(Collections.singletonList(errorMessage));
+    }
+
+    public WhoisObjectClientMapper getWhoisObjectClientMapper() {
+        return whoisObjectClientMapper;
     }
 }

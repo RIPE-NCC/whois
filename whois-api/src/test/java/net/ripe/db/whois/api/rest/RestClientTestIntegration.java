@@ -3,6 +3,8 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.ImmutableSet;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
+import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -20,6 +22,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import java.util.Collections;
 import java.util.Iterator;
 
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -138,6 +141,14 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         final RpslObject object = restClient.lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
 
         assertThat(object.findAttribute(AttributeType.AUTH).getValue(), is("MD5-PW"));
+    }
+
+    @Test
+    public void lookup_whoisObject_with_wrong_password() throws Exception {
+        final WhoisObject object = restClient.lookupWhoisObject(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
+        Attribute expected1 = new Attribute("source", "TEST", "Filtered", null, null);
+        Attribute expected2 = new Attribute("auth", "MD5-PW", "Filtered", null, null);
+        assertThat(object.getAttributes(), hasItems(expected1, expected2));
     }
 
     @Test
