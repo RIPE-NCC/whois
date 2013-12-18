@@ -296,9 +296,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
                     final String uuid = crowdClient.getUuid(authToken);
-                    if (uuid != null)  {
-                        return new RpslAttribute(originalAttribute.getKey(), "SSO " + uuid);
-                    }
+                    return new RpslAttribute(originalAttribute.getKey(), "SSO " + uuid);
                 }
                 return null;
             }

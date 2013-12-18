@@ -56,11 +56,7 @@ public class FilterAuthFunction implements FilterFunction {
             if (authenticated) {
                 if (passwordType.equals("SSO")) {
                     final String username = crowdClient.getUsername(authIterator.next());
-                    if (username != null) {
-                        replace.put(authAttribute, new RpslAttribute(authAttribute.getKey(), "SSO " + username));
-                    } else {
-                        // TODO[as] - yes, what if that uuid is no longer in crowd?
-                    }
+                    replace.put(authAttribute, new RpslAttribute(authAttribute.getKey(), "SSO " + username));
                 }
             } else {
                 if (passwordType.endsWith("-PW") || passwordType.equals("SSO")) {     // history table has CRYPT-PW, dummify that too!

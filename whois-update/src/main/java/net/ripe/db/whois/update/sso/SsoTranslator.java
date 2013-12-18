@@ -27,10 +27,10 @@ public class SsoTranslator {
             public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
                     if (!updateContext.hasSsoTranslationResult(authToken)) {
-                        final String uuid = crowdClient.getUuid(authToken);
-                        if (uuid != null) {
+                        try {
+                            final String uuid = crowdClient.getUuid(authToken);
                             updateContext.addSsoTranslationResult(authToken, uuid);
-                        } else {
+                        } catch (IllegalArgumentException e) {
                             updateContext.addMessage(update, originalAttribute, UpdateMessages.ripeAccessAccountUnavailable(authToken));
                         }
                     }

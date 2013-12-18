@@ -35,6 +35,7 @@ import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
+import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
@@ -42,6 +43,8 @@ import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.Keyword;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -102,6 +105,8 @@ import static net.ripe.db.whois.query.QueryFlag.VERSION;
 @Component
 @Path("/")
 public class WhoisRestService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRestService.class);
+
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
 
     public static final String SERVICE_SEARCH = "search";
@@ -631,6 +636,16 @@ public class WhoisRestService {
                     if (!messages.isEmpty()) {
                         responseBuilder.entity(createErrorEntity(request, messages));
                     }
+
+                    throw new WebApplicationException(responseBuilder.build());
+                } catch (RuntimeException e) {
+                    LOGGER.info("handleQueryAndStreamResponse", e);
+                    Response.ResponseBuilder responseBuilder;
+                    responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+
+                    List<Message> messages = responseHandler.flushAndGetErrors();
+                    messages.add(QueryMessages.internalErroroccurred());
+                    responseBuilder.entity(createErrorEntity(request, messages));
 
                     throw new WebApplicationException(responseBuilder.build());
                 }
