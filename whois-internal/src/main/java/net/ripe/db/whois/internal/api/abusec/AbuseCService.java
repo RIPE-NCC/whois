@@ -68,6 +68,8 @@ public class AbuseCService {
             final RpslObject role = createAbuseCRole(organisation, email);
             final RpslObject createdRole = restClient.createOverride(role, String.format("%s,%s", override, ABUSEC_SERVICE));
 
+//            System.err.println(orgkey + ": " + createdRole.getKey());
+
             final RpslObject updatedOrganisation = createOrganisationWithAbuseCAttribute(organisation, createdRole.getKey().toString());
             restClient.updateOverride(updatedOrganisation, String.format("%s,%s", override, ABUSEC_SERVICE));
 
@@ -114,7 +116,7 @@ public class AbuseCService {
         for (RpslAttribute address : organisation.findAttributes(AttributeType.ADDRESS)) {
             attributes.add(address);
         }
-        final RpslAttribute email = organisation.findAttribute(AttributeType.E_MAIL);
+        final RpslAttribute email = organisation.findAttributes(AttributeType.E_MAIL).get(0);
         attributes.add(organisation.findAttribute(AttributeType.E_MAIL));
         attributes.add(new RpslAttribute(AttributeType.CHANGED, email.getValue()));
         final RpslAttribute source = organisation.findAttribute(AttributeType.SOURCE);
