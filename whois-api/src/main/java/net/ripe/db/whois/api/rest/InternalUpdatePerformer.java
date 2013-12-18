@@ -36,26 +36,26 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 @Component
 public class InternalUpdatePerformer {
-    private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
-
     private final UpdateRequestHandler updateRequestHandler;
     private final DateTimeProvider dateTimeProvider;
     private final WhoisObjectServerMapper whoisObjectMapper;
+    private final LoggerContext loggerContext;
 
     @Autowired
     public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler,
                                    final DateTimeProvider dateTimeProvider,
-                                   final WhoisObjectServerMapper whoisObjectMapper) {
+                                   final WhoisObjectServerMapper whoisObjectMapper,
+                                   final LoggerContext loggerContext) {
         this.updateRequestHandler = updateRequestHandler;
         this.dateTimeProvider = dateTimeProvider;
         this.whoisObjectMapper = whoisObjectMapper;
+        this.loggerContext = loggerContext;
     }
 
-    public Response performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword, final LoggerContext loggerContext, final HttpServletRequest request) {
+    public Response performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword, final HttpServletRequest request) {
         loggerContext.init(getRequestId(origin.getFrom()));
         try {
             final UpdateContext updateContext = new UpdateContext(loggerContext);
