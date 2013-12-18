@@ -78,7 +78,7 @@
         <profile>
             <id>release</id>
             <properties>
-                <whois.main>net.ripe.db.ascleanup.AutNumCleanup</whois.main>
+                <whois.main>net.ripe.db.defaultabusec.DefaultAbuseC</whois.main>
             </properties>
             <build>
                 <plugins>
