@@ -41,7 +41,6 @@ import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.Keyword;
-import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -142,7 +141,6 @@ public class WhoisRestService {
             SHOW_VERSION
     );
 
-    private final LoggerContext loggerContext;
     private final RpslObjectDao rpslObjectDao;
     private final SourceContext sourceContext;
     private final QueryHandler queryHandler;
@@ -150,13 +148,11 @@ public class WhoisRestService {
     private final InternalUpdatePerformer updatePerformer;
 
     @Autowired
-    public WhoisRestService(final LoggerContext loggerContext,
-                            final RpslObjectDao rpslObjectDao,
+    public WhoisRestService(final RpslObjectDao rpslObjectDao,
                             final SourceContext sourceContext,
                             final QueryHandler queryHandler,
                             final WhoisObjectServerMapper whoisObjectMapper,
                             final InternalUpdatePerformer updatePerformer) {
-        this.loggerContext = loggerContext;
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
@@ -178,7 +174,7 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        // TODO: [AH] sso translator is not applied
+        // TODO: [AH] sso translator is not applied; add sso translator layer ontop of DAO layer and use that everywhere
         final RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
 
         return updatePerformer.performUpdate(
@@ -186,7 +182,6 @@ public class WhoisRestService {
                 updatePerformer.createUpdate(originalObject, passwords, reason, override),
                 updatePerformer.createContent(originalObject, passwords, reason, override),
                 Keyword.NONE,
-                loggerContext,
                 request);
     }
 
@@ -214,7 +209,6 @@ public class WhoisRestService {
                 updatePerformer.createUpdate(submittedObject, passwords, null, override),
                 updatePerformer.createContent(submittedObject, passwords, null, override),
                 Keyword.NONE,
-                loggerContext,
                 request);
 
     }
@@ -242,7 +236,6 @@ public class WhoisRestService {
                 updatePerformer.createUpdate(submittedObject, passwords, null, override),
                 updatePerformer.createContent(submittedObject, passwords, null, override),
                 Keyword.NEW,
-                loggerContext,
                 request);
     }
 
