@@ -1,5 +1,6 @@
 package net.ripe.db.whois;
 
+import net.ripe.db.whois.api.CrowdServerDummy;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
@@ -23,6 +24,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
@@ -73,6 +75,7 @@ public class WhoisFixture {
     protected IndexDao indexDao;
     protected WhoisServer whoisServer;
     protected RestClient restClient;
+    protected CrowdServerDummy crowdServerDummy;
 
     static {
         Slf4JLogConfiguration.init();
@@ -115,9 +118,12 @@ public class WhoisFixture {
         unrefCleanup = applicationContext.getBean(UnrefCleanup.class);
         indexDao = applicationContext.getBean(IndexDao.class);
         restClient = applicationContext.getBean(RestClient.class);
+        crowdServerDummy = new CrowdServerDummy();
 
         databaseHelper.setup();
         whoisServer.start();
+        crowdServerDummy.start();
+        applicationContext.getBean(CrowdClient.class).setRestUrl(String.format("http://localhost:%s/crowd", crowdServerDummy.getPort()));
 
         restClient.setRestApiUrl(String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
         restClient.setSource("test");

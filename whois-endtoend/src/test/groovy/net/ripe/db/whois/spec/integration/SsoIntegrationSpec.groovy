@@ -114,6 +114,8 @@ source:         TEST # Filtered/
                             password: update3
                             """.stripIndent()))
 
+        notificationFor("nfy@ripe.net")
+
         def response = syncUpdate(new SyncUpdate(data: """\
                             mntner: SSO-MNT
                             descr: updated sso mntner

@@ -11,7 +11,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.sso.CrowdClientStub;
+import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
@@ -38,10 +38,16 @@ import java.util.HashMap;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 // TODO: [AH] this should have been an integration test
 
@@ -56,6 +62,7 @@ public class RpslResponseDecoratorTest {
     @Mock DummifyDecorator dummifyDecorator;
     @Mock FilterTagsDecorator filterTagsDecorator;
     @Mock FilterPlaceholdersDecorator filterPlaceholdersDecorator;
+    @Mock CrowdClient crowdClient;
     @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
 
     RpslResponseDecorator subject;
@@ -70,7 +77,7 @@ public class RpslResponseDecoratorTest {
                 filterTagsDecorator,
                 filterPlaceholdersDecorator,
                 abuseCInfoDecorator,
-                new CrowdClientStub(),
+                crowdClient,
                 decorator);
         when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
