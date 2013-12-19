@@ -178,17 +178,23 @@ public class RpslObjectBuilder {
         return this;
     }
 
-    public RpslObjectBuilder replaceAttribute(RpslAttribute oldAttribute, RpslAttribute newAttribute) {
+    public RpslObjectBuilder replaceAttribute(final RpslAttribute oldAttribute, final RpslAttribute newAttribute) {
         for (int i = 0; i < attributes.size(); i++) {
             if (attributes.get(i).equals(oldAttribute)) {
                 attributes.set(i, newAttribute);
+                return this;
             }
         }
         return this;
     }
 
-    public RpslObjectBuilder removeAttribute(final RpslObject rpslObject, final int index) {
-        attributes.remove(index);
+    public RpslObjectBuilder removeAttribute(final RpslAttribute attribute) {
+        for (int i = 0; i < attributes.size(); i++) {
+            if (attributes.get(i).equals(attribute)) {
+                attributes.remove(i);
+                return this;
+            }
+        }
         return this;
     }
 
