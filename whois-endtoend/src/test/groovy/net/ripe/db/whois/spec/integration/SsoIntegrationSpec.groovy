@@ -1,6 +1,7 @@
 package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
@@ -52,6 +53,20 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                             """.stripIndent()))
       expect:
         response =~ /SUCCESS/
+
+      when:
+        def md5ObjectInfo = whoisFixture.getRpslObjectDao().findByAttribute(AttributeType.AUTH, "MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7.")
+
+      then:
+        md5ObjectInfo.size() == 1
+        md5ObjectInfo.get(0).getKey().toString() == "SSO-MNT"
+
+      when:
+        def ssoObjectInfo = whoisFixture.getRpslObjectDao().findByAttribute(AttributeType.AUTH, "SSO 906635c2-0405-429a-800b-0602bd716124")
+
+      then:
+        ssoObjectInfo.size() == 1
+        ssoObjectInfo.get(0).getKey().toString() == "SSO-MNT"
 
       when:
         def mntner = databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT")

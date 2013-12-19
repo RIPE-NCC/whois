@@ -2,7 +2,6 @@ package net.ripe.db.whois.common.dao.jdbc;
 
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
@@ -18,7 +17,9 @@ import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -363,24 +364,5 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
 
         final List<RpslObject> byKeys = subject.getByKeys(ObjectType.ROLE, ciSet("TEST-PN"));
         assertThat(byKeys, hasSize(0));
-    }
-
-    @Test
-    public void mntner_auth_password_sso_filled() {
-        final RpslObject rpslObject = RpslObject.parse("" +
-                "mntner:        NINJA-MNT\n" +
-                "auth:          MD5-PW $1$YmPozTxJ$s3eGZRVrKVGdSDTeEZJu\n" +
-                "auth:          SSO person@net.net\n" +
-                "source:        RIPE\n");
-
-        databaseHelper.addObject(rpslObject);
-
-        final List<RpslObjectInfo> byMd5 = subject.findByAttribute(AttributeType.AUTH, "MD5-PW $1$YmPozTxJ$s3eGZRVrKVGdSDTeEZJu");
-        assertThat(byMd5, hasSize(1));
-        assertThat(byMd5.get(0).getKey().toString(), is(rpslObject.getKey().toString()));
-
-        final List<RpslObjectInfo> bySso = subject.findByAttribute(AttributeType.AUTH, "SSO 906635c2-0405-429a-800b-0602bd716124");
-        assertThat(bySso, hasSize(1));
-        assertThat(bySso.get(0).getKey().toString(), is(rpslObject.getKey().toString()));
     }
 }
