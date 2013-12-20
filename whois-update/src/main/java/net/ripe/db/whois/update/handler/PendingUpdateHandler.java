@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.text.MessageFormat;
 import java.util.Set;
 
 @Component
@@ -66,7 +65,7 @@ class PendingUpdateHandler {
 
                 updateObjectHandler.execute(freshPreparedUpdate, updateContext);
             } else {
-                loggerContext.log(new Message(Messages.Type.INFO, MessageFormat.format("Pending update found but still doesn't complete authentication; updating DB: {}", updatedPendingUpdate.getPassedAuthentications())));
+                loggerContext.log(new Message(Messages.Type.INFO, String.format("Pending update found but still doesn't complete authentication; updating DB: %s", updatedPendingUpdate.getPassedAuthentications().toString())));
 
                 if (updatedPendingUpdate.getPassedAuthentications().size() > pendingUpdate.getPassedAuthentications().size()) {
                     pendingUpdateDao.updatePassedAuthentications(updatedPendingUpdate);
