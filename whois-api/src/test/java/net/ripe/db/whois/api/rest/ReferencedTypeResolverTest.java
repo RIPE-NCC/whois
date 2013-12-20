@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;

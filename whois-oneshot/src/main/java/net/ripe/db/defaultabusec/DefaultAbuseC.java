@@ -1,10 +1,8 @@
 package net.ripe.db.defaultabusec;
 
-import com.google.common.collect.Lists;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.whois.api.rest.RestClient;
-import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;

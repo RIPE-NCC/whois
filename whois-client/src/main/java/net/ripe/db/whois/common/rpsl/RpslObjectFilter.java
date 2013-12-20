@@ -1,14 +1,8 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.domain.CIString;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.concurrent.Immutable;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

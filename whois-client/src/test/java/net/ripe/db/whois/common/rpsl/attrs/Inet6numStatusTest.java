@@ -2,11 +2,21 @@ package net.ripe.db.whois.common.rpsl.attrs;
 
 
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import org.junit.Test;
 
-import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.*;
-import static net.ripe.db.whois.common.rpsl.attrs.OrgType.*;
+import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.AGGREGATED_BY_LIR;
+import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_LIR;
+import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_RIR;
+import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ASSIGNED;
+import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ASSIGNED_ANYCAST;
+import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ASSIGNED_PI;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.DIRECT_ASSIGNMENT;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.IANA;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.LIR;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.NIR;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.OTHER;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.RIR;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.WHITEPAGES;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;

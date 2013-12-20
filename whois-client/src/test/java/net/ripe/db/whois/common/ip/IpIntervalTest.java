@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.ip;
 
-import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import org.junit.Test;
 

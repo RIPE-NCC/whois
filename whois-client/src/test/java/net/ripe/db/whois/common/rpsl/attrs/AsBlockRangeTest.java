@@ -1,7 +1,5 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
-import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
-import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

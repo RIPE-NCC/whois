@@ -1,12 +1,14 @@
 package net.ripe.db.whois.common.ip;
 
-import net.ripe.db.whois.common.ip.Ipv4Resource;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class Ipv4ResourceTest {
 
