@@ -42,6 +42,9 @@ import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,18 +154,21 @@ public class WhoisRestService {
     private final QueryHandler queryHandler;
     private final WhoisObjectServerMapper whoisObjectMapper;
     private final InternalUpdatePerformer updatePerformer;
+    private final SsoTranslator ssoTranslator;
 
     @Autowired
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
                             final SourceContext sourceContext,
                             final QueryHandler queryHandler,
                             final WhoisObjectServerMapper whoisObjectMapper,
-                            final InternalUpdatePerformer updatePerformer) {
+                            final InternalUpdatePerformer updatePerformer,
+                            final SsoTranslator ssoTranslator) {
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
         this.whoisObjectMapper = whoisObjectMapper;
         this.updatePerformer = updatePerformer;
+        this.ssoTranslator = ssoTranslator;
     }
 
     @DELETE
@@ -179,15 +185,23 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        // TODO: [AH] sso translator is not applied; add sso translator layer ontop of DAO layer and use that everywhere
-        final RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
+        Origin origin = updatePerformer.createOrigin(request);
+        UpdateContext updateContext = updatePerformer.initContext(origin);
+        try {
+            // TODO: [AH] add delete by primary key to DAO layer, so there is no race condition from here to SingleUpdateHandler
+            RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
+            originalObject = ssoTranslator.translateAuthToUsername(updateContext, originalObject);
 
-        return updatePerformer.performUpdate(
-                updatePerformer.createOrigin(request),
-                updatePerformer.createUpdate(originalObject, passwords, reason, override),
-                updatePerformer.createContent(originalObject, passwords, reason, override),
-                Keyword.NONE,
-                request);
+            return updatePerformer.performUpdate(
+                    updateContext,
+                    origin,
+                    updatePerformer.createUpdate(originalObject, passwords, reason, override),
+                    updatePerformer.createContent(originalObject, passwords, reason, override),
+                    Keyword.NONE,
+                    request);
+        } finally {
+            updatePerformer.closeContext();
+        }
     }
 
     @PUT

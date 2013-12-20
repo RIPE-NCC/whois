@@ -55,45 +55,57 @@ public class InternalUpdatePerformer {
         this.loggerContext = loggerContext;
     }
 
-    public Response performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword, final HttpServletRequest request) {
+    public UpdateContext initContext(Origin origin) {
         loggerContext.init(getRequestId(origin.getFrom()));
-        try {
-            final UpdateContext updateContext = new UpdateContext(loggerContext);
-            final boolean notificationsEnabled = true;
+        return new UpdateContext(loggerContext);
+    }
 
-            logHttpHeaders(loggerContext, request);
+    public void closeContext() {
+        loggerContext.remove();
+    }
 
-            final UpdateRequest updateRequest = new UpdateRequest(
-                    origin,
-                    keyword,
-                    content,
-                    Lists.newArrayList(update),
-                    notificationsEnabled);
+    public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
+                                  final String content, final Keyword keyword, final HttpServletRequest request) {
 
-            updateRequestHandler.handle(updateRequest, updateContext);
+        logHttpHeaders(loggerContext, request);
 
-            final RpslObject responseObject = updateContext.getPreparedUpdate(update).getUpdatedObject();
+        final UpdateRequest updateRequest = new UpdateRequest(
+                origin,
+                keyword,
+                content,
+                Lists.newArrayList(update),
+                true);
 
-            Response.ResponseBuilder responseBuilder;
-            UpdateStatus status = updateContext.getStatus(update);
-            if (status == UpdateStatus.FAILED_AUTHENTICATION) {
-                responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
-            } else if (status == UpdateStatus.EXCEPTION) {
-                responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
-            } else if (status != UpdateStatus.SUCCESS) {
-                if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())){
-                    responseBuilder = Response.status(Response.Status.CONFLICT);
-                } else {
-                    responseBuilder = Response.status(Response.Status.BAD_REQUEST);
-                }
+        updateRequestHandler.handle(updateRequest, updateContext);
+
+        final RpslObject responseObject = updateContext.getPreparedUpdate(update).getUpdatedObject();
+
+        Response.ResponseBuilder responseBuilder;
+        UpdateStatus status = updateContext.getStatus(update);
+        if (status == UpdateStatus.FAILED_AUTHENTICATION) {
+            responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
+        } else if (status == UpdateStatus.EXCEPTION) {
+            responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+        } else if (status != UpdateStatus.SUCCESS) {
+            if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
+                responseBuilder = Response.status(Response.Status.CONFLICT);
             } else {
-                responseBuilder = Response.status(Response.Status.OK);
+                responseBuilder = Response.status(Response.Status.BAD_REQUEST);
             }
+        } else {
+            responseBuilder = Response.status(Response.Status.OK);
+        }
 
-            responseBuilder.entity(createResponse(request, updateContext, update, responseObject));
-            return responseBuilder.build();
+        responseBuilder.entity(createResponse(request, updateContext, update, responseObject));
+        return responseBuilder.build();
+    }
+
+    public Response performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword, final HttpServletRequest request) {
+        final UpdateContext updateContext = initContext(origin);
+        try {
+            return performUpdate(updateContext, origin, update, content, keyword, request);
         } finally {
-            loggerContext.remove();
+            closeContext();
         }
     }
 
@@ -111,7 +123,7 @@ public class InternalUpdatePerformer {
         }
 
         // attribute messages
-        for (Map.Entry<RpslAttribute, Messages> entry: updateContext.getMessages(update).getAttributeMessages().entrySet()) {
+        for (Map.Entry<RpslAttribute, Messages> entry : updateContext.getMessages(update).getAttributeMessages().entrySet()) {
             RpslAttribute rpslAttribute = entry.getKey();
             for (Message message : entry.getValue().getAllMessages()) {
                 errorMessages.add(new ErrorMessage(message, rpslAttribute));
