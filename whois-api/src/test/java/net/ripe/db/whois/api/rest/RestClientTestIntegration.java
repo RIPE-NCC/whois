@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -82,6 +84,17 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             "status:        SUB-ALLOCATED PA\n" +
             "mnt-by:        OWNER-MNT\n" +
             "changed:       org@ripe.net 20120505\n" +
+            "source:        TEST");
+
+    private static final RpslObject SECOND_MNT = RpslObject.parse("" +
+            "mntner:        SECOND-MNT\n" +
+            "descr:         Owner Maintainer\n" +
+            "admin-c:       TP1-TEST\n" +
+            "upd-to:        noreply@ripe.net\n" +
+            "auth:          MD5-PW $1$1ZnhrEYU$h8QUAsDPLZYOYVjm3uGQr1 #secondmnt\n" +
+            "mnt-by:        OWNER-MNT\n" +
+            "referral-by:   OWNER-MNT\n" +
+            "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST");
 
     @Autowired
@@ -177,6 +190,39 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         assertThat(object.findAttributes(AttributeType.AUTH),
                 hasItems(new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/"),
                         new RpslAttribute(AttributeType.AUTH, "SSO random@ripe.net")));
+    }
+
+    @Test
+    public void lookup_mntner_with_mntby_password() throws Exception {
+        databaseHelper.addObject(SECOND_MNT);
+
+        RpslObject obj = restClient.lookup(SECOND_MNT.getType(), SECOND_MNT.getKey().toString(), "test");
+
+        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), startsWith("MD5-PW"));
+        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), not(is("MD5-PW")));
+    }
+
+    @Test
+    public void lookup_mntner_with_one_of_mntby_passwords() throws Exception {
+        RpslObject THIRD_MNT = RpslObject.parse("" +
+                "mntner:        THIRD-MNT\n" +
+                "descr:         Owner Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$L9a6Y39t$wuu.ykzgp596KK56tpJm31 #thirdmnt\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mnt-by:        SECOND-MNT\n" +
+                "referral-by:   OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject(SECOND_MNT);
+        databaseHelper.addObject(THIRD_MNT);
+
+        RpslObject obj = restClient.lookup(THIRD_MNT.getType(), THIRD_MNT.getKey().toString(), "secondmnt");
+
+        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), startsWith("MD5-PW"));
+        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), not(is("MD5-PW")));
     }
 
     @Test

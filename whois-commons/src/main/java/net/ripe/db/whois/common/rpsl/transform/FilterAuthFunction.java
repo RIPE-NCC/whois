@@ -1,8 +1,12 @@
 package net.ripe.db.whois.common.rpsl.transform;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -16,6 +20,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /*
 password and cookie parameters are reserved for rest api, so the port43 netty worker pool is not affected by any SSO
@@ -29,11 +34,13 @@ public class FilterAuthFunction implements FilterFunction {
     List<String> passwords = null;
     String cookie = null;
     CrowdClient crowdClient = null;
+    RpslObjectDao rpslObjectDao = null;
 
-    public FilterAuthFunction(List<String> passwords, String cookie, CrowdClient crowdClient) {
+    public FilterAuthFunction(List<String> passwords, String cookie, CrowdClient crowdClient, RpslObjectDao rpslObjectDao) {
         this.cookie = cookie;
         this.crowdClient = crowdClient;
         this.passwords = passwords;
+        this.rpslObjectDao = rpslObjectDao;
     }
 
     public FilterAuthFunction() {
@@ -46,9 +53,9 @@ public class FilterAuthFunction implements FilterFunction {
         }
 
         Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
-        boolean authenticated = passwordAuthentication(passwords, authAttributes) || ssoAuthentication(cookie, authAttributes);
+        boolean authenticated = isMntnerAuthenticated(passwords, cookie, rpslObject, rpslObjectDao);
 
+        List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
         for (RpslAttribute authAttribute : authAttributes) {
             Iterator<String> authIterator = SPACE_SPLITTER.split(authAttribute.getCleanValue()).iterator();
             String passwordType = authIterator.next().toUpperCase();
@@ -73,6 +80,31 @@ public class FilterAuthFunction implements FilterFunction {
             }
             return new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
         }
+    }
+
+    private boolean isMntnerAuthenticated(List<String> passwords, String cookie, RpslObject rpslObject, RpslObjectDao rpslObjectDao) {
+        if (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(cookie)){
+            return false;
+        }
+
+        List<RpslAttribute> extendedAuthAttributes = Lists.newArrayList();
+        List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
+
+        extendedAuthAttributes.addAll(authAttributes);
+        extendedAuthAttributes.addAll(getMntByAuthAttributes(rpslObject, rpslObjectDao));
+
+        return passwordAuthentication(passwords, extendedAuthAttributes) || ssoAuthentication(cookie, extendedAuthAttributes);
+    }
+
+    private Set<RpslAttribute> getMntByAuthAttributes(RpslObject rpslObject, RpslObjectDao rpslObjectDao) {
+        Set<RpslAttribute> auths = Sets.newHashSet();
+        if (rpslObject.containsAttribute(AttributeType.MNT_BY)){
+            List<RpslObject> mntByMntners = rpslObjectDao.getByKeys(ObjectType.MNTNER, rpslObject.getValuesForAttribute(AttributeType.MNT_BY));
+            for (RpslObject mntner : mntByMntners) {
+                auths.addAll(mntner.findAttributes(AttributeType.AUTH));
+            }
+        }
+        return auths;
     }
 
     private boolean ssoAuthentication(String cookie, List<RpslAttribute> authAttributes) {

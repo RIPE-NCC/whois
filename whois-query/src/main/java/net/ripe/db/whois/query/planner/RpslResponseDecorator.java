@@ -140,7 +140,9 @@ public class RpslResponseDecorator {
 
     private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {
         List<String> passwords = query.getPasswords();
-        final FilterAuthFunction filterAuthFunction = CollectionUtils.isEmpty(passwords) ? FILTER_AUTH_FUNCTION : new FilterAuthFunction(passwords, null, crowdClient);
+
+        //TODO [TP]: check for cookie in case of SSO as we do for passwords
+        final FilterAuthFunction filterAuthFunction = CollectionUtils.isEmpty(passwords) ? FILTER_AUTH_FUNCTION : new FilterAuthFunction(passwords, null, crowdClient, rpslObjectDao);
 
         return Iterables.transform(objects, new Function<ResponseObject, ResponseObject>() {
             @Nullable
