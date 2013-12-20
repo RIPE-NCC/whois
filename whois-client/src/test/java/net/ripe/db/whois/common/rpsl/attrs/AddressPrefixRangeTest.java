@@ -2,8 +2,6 @@ package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.rpsl.attrs.AddressPrefixRange;
-import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;

@@ -9,7 +9,6 @@ import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.mail.MailSenderStub;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

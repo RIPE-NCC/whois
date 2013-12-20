@@ -1,7 +1,6 @@
 package net.ripe.db.whois.query;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 import javax.annotation.CheckForNull;

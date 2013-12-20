@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
-import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;

@@ -1,7 +1,5 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
-import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
-import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.hasSize;

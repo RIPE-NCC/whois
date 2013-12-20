@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.mail.internet.MimeMessage;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @Ignore("TODO: ignored until WhoisProfile.isDeployed() check is removed from Authenticator")
