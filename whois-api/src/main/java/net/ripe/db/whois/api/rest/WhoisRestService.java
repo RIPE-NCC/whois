@@ -619,38 +619,44 @@ public class WhoisRestService {
                     if (!responseHandler.rpslObjectFound()) {
                         throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(createErrorEntity(request, responseHandler.flushAndGetErrors())).build());
                     }
-
                     responseHandler.flushAndGetErrors();
 
-                } catch (QueryException e) {
-                    Response.ResponseBuilder responseBuilder;
-                    if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                        responseBuilder = Response.status(STATUS_TOO_MANY_REQUESTS);
-                    } else {
-                        responseBuilder = Response.status(Response.Status.BAD_REQUEST);
-                    }
-
-                    List<Message> messages = responseHandler.flushAndGetErrors();
-                    messages.addAll(e.getMessages());
-
-                    if (!messages.isEmpty()) {
-                        responseBuilder.entity(createErrorEntity(request, messages));
-                    }
-
-                    throw new WebApplicationException(responseBuilder.build());
                 } catch (RuntimeException e) {
-                    LOGGER.info("handleQueryAndStreamResponse", e);
-                    Response.ResponseBuilder responseBuilder;
-                    responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+                    throw createWebApplicationException(e, responseHandler);
+                }
+            } catch (StreamingException ignored) {  // only happens on IOException
+            }
+        }
 
-                    List<Message> messages = responseHandler.flushAndGetErrors();
-                    messages.add(QueryMessages.internalErroroccurred());
-                    responseBuilder.entity(createErrorEntity(request, messages));
-
-                    throw new WebApplicationException(responseBuilder.build());
+        private WebApplicationException createWebApplicationException(RuntimeException e, SearchResponseHandler responseHandler){
+            if (e instanceof WebApplicationException) {
+                return (WebApplicationException) e;
+            } else if (e instanceof QueryException) {
+                Response.ResponseBuilder responseBuilder;
+                if (((QueryException) e).getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
+                    responseBuilder = Response.status(STATUS_TOO_MANY_REQUESTS);
+                } else {
+                    responseBuilder = Response.status(Response.Status.BAD_REQUEST);
                 }
 
-            } catch (StreamingException ignored) {  // only happens on IOException
+                List<Message> messages = responseHandler.flushAndGetErrors();
+                messages.addAll(((QueryException) e).getMessages());
+
+                if (!messages.isEmpty()) {
+                    responseBuilder.entity(createErrorEntity(request, messages));
+                }
+
+                return new WebApplicationException(responseBuilder.build());
+            } else {
+                LOGGER.info("handleQueryAndStreamResponse", e);
+                Response.ResponseBuilder responseBuilder;
+                responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+
+                List<Message> messages = responseHandler.flushAndGetErrors();
+                messages.add(QueryMessages.internalErroroccurred());
+                responseBuilder.entity(createErrorEntity(request, messages));
+
+                return new WebApplicationException(responseBuilder.build());
             }
         }
 
