@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.jdbc;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +11,12 @@ import java.beans.PropertyVetoException;
 @Component
 public class SimpleDataSourceFactory implements DataSourceFactory {
 
-    @Value("${whois.db.driver}") private String driverClass;
+    private final String driverClass;
+
+    @Autowired
+    public SimpleDataSourceFactory(@Value("${whois.db.driver}") String driverClass) {
+        this.driverClass = driverClass;
+    }
 
     @Override
     public DataSource createDataSource(final String url, final String username, final String password) {
