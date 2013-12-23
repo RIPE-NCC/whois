@@ -83,8 +83,7 @@ public class RpslResponseDecorator {
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
         Iterable<? extends ResponseObject> decoratedResult = filterPlaceholdersDecorator.decorate(query, result);
-
-        decoratedResult = filterPlaceholdersDecorator.decorate(query, decoratedResult);
+        decoratedResult = applySyntaxFilter(query, decoratedResult);
         decoratedResult = dummifyDecorator.decorate(query, decoratedResult);
 
         decoratedResult = groupRelatedObjects(query, decoratedResult);
@@ -92,7 +91,6 @@ public class RpslResponseDecorator {
         decoratedResult = filterPersonalDecorator.decorate(query, decoratedResult);
         decoratedResult = abuseCInfoDecorator.decorate(query, decoratedResult);
 
-        decoratedResult = applySyntaxFilter(query, decoratedResult);
         decoratedResult = filterEmail(query, decoratedResult);
         decoratedResult = filterAuth(query, decoratedResult);
 
@@ -112,7 +110,12 @@ public class RpslResponseDecorator {
         return result;
     }
 
+    // TODO: [AH] This is really inefficient, multiple (as high as 3-4!) wrapping in iterables/collections
     private Iterable<? extends ResponseObject> groupRelatedObjects(final Query query, Iterable<? extends ResponseObject> primaryObjects) {
+        if (query.via(Query.Origin.REST)) {
+            return primaryObjects;
+        }
+
         final GroupFunction groupFunction = getGroupFunction(query);
         if (groupFunction == null) {
             return primaryObjects;

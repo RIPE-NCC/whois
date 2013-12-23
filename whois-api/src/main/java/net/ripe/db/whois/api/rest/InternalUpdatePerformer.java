@@ -69,15 +69,8 @@ public class InternalUpdatePerformer {
 
         logHttpHeaders(loggerContext, request);
 
-        final UpdateRequest updateRequest = new UpdateRequest(
-                origin,
-                keyword,
-                content,
-                Lists.newArrayList(update),
-                true);
-
+        final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
         updateRequestHandler.handle(updateRequest, updateContext);
-
         final RpslObject responseObject = updateContext.getPreparedUpdate(update).getUpdatedObject();
 
         Response.ResponseBuilder responseBuilder;
