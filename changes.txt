@@ -11,6 +11,7 @@
 [api] Created REST Client module
 [api] Added authentication support for REST lookups
 [api] log HTTP headers in update audit log
+[update] Allow import-via/export-via rpsl attributes - Job Snijders <job@atrato.com>
 
 ## 1.70.1 (deployed on 2013-11-21)
 [all] Fixed MySQL replication issue
@@ -23,7 +24,6 @@
 [logsearch] switched to lucene 4.4 from 4.1.
 [query] added option --valid-syntax and --no-valid-syntax
 [query] added comment if no abuse contact registered.
-[update] Allow import-via/export-via rpsl attributes - Job Snijders <job@atrato.com>
 [oneshot] added autnum cleanup
 [api] renamed abuse-finder to abuse-contact (also changed references on DbWebWar abusefinder branch)
 [api] added abuse contact creation helper rest call
