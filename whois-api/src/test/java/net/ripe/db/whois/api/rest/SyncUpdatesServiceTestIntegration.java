@@ -18,8 +18,13 @@ import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
@@ -185,7 +190,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     .request()
                     .get(String.class);
 
-        assertThat(response, containsString("Error:   Unrecognized source: INVALID"));
+        assertThat(response, containsString("Error:   Unrecognized source: invalid"));
     }
 
     @Test
