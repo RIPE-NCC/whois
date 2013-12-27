@@ -2,8 +2,10 @@ package net.ripe.db.whois.common.rpsl;
 
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
@@ -14,18 +16,21 @@ public class RpslAttributeTest {
     public void remove_comments_single_line() throws Exception {
         subject = new RpslAttribute("source", "    RIPE #");
         assertThat(subject.getCleanValue().toString(), is("RIPE"));
+        assertThat(subject.getFirstComment(), is(""));
     }
 
     @Test
     public void remove_comments_on_single_line() throws Exception {
         subject = new RpslAttribute("source", "    RIPE # Some comment");
         assertThat(subject.getCleanValue().toString(), is("RIPE"));
+        assertThat(subject.getFirstComment(), is("Some comment"));
     }
 
     @Test
     public void remove_comments_multiple_lines() throws Exception {
         subject = new RpslAttribute("source", "    RIPE #\n RIPE");
         assertThat(subject.getCleanValue().toString(), is("RIPE RIPE"));
+        assertThat(subject.getFirstComment(), is(""));
     }
 
     @Test
@@ -121,7 +126,9 @@ public class RpslAttributeTest {
     @Test
     public void equals_null() {
         subject = new RpslAttribute("remarks", "The quick brown fox.");
+        assertThat(subject, not(is(nullValue())));
         assertFalse(subject.equals(null));
+
     }
 
     @Test
@@ -173,5 +180,28 @@ public class RpslAttributeTest {
     public void reference_value_mnt_routes() {
         subject = new RpslAttribute("mnt-routes", "DEV-MNT ANY");
         assertThat(subject.getReferenceValue().toString(), is("DEV-MNT"));
+    }
+
+    @Test
+    public void get_comment_in_second_line() throws Exception {
+        subject = new RpslAttribute("remarks", "remark1 \nremark2 # comment");
+        assertThat(subject.getFirstComment(), is("comment"));
+
+        subject = new RpslAttribute("remarks", "foo\t  # comment1 \n bar # comment2\n+ bla");
+        assertThat(subject.getFirstComment(), is("comment1"));
+    }
+
+    @Test
+    public void equals_skip_comments() throws Exception {
+        subject = new RpslAttribute(AttributeType.REMARKS, "remark value", "remark comment");
+        RpslAttribute attribute = new RpslAttribute(AttributeType.REMARKS, "remark value");
+
+        assertThat(subject, is(attribute));
+    }
+
+    @Test
+    public void explicit_overrides_value_comment() throws Exception {
+        subject = new RpslAttribute(AttributeType.REMARKS, "remark value # comment", "explicit comment");
+        assertThat(subject.getFirstComment(), is("explicit comment"));
     }
 }

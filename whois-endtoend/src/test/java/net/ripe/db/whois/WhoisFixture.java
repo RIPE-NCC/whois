@@ -5,7 +5,6 @@ import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
 import net.ripe.db.whois.api.rest.RestClient;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
@@ -240,8 +239,8 @@ public class WhoisFixture {
         return DummyWhoisClient.query(QueryServer.port, query);
     }
 
-    public WhoisObject restLookup(ObjectType objectType, String pkey, String... passwords) {
-        return restClient.lookupWhoisObject(objectType, pkey, passwords);
+    public RpslObject restLookup(ObjectType objectType, String pkey, String... passwords) {
+        return restClient.lookup(objectType, pkey, passwords);
     }
 
     public List<String> queryPersistent(final List<String> queries) throws Exception {

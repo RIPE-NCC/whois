@@ -5,13 +5,6 @@ import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import spock.lang.Ignore
 
-/**
- * Created with IntelliJ IDEA.
- * User: denis
- * Date: 17/12/2013
- * Time: 10:20
- * To change this template use File | Settings | File Templates.
- */
 class SSOSpec extends BaseQueryUpdateSpec {
 
     @Override
