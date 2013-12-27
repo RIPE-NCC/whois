@@ -32,7 +32,6 @@ public class RcDatabaseDummifier {
     private static final String ARG_PASS = "pass";
 
     private static final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("com.mysql.jdbc.Driver");
-    private static DataSource dataSource;
     private static JdbcTemplate jdbcTemplate;
 
     private static DummifierCurrent dummifier = new DummifierCurrent();
@@ -41,11 +40,11 @@ public class RcDatabaseDummifier {
         setupLogging();
 
         final OptionSet options = setupOptionParser().parse(argv);
-        String jdbcUrl = options.valueOf(ARG_JDBCURL).toString();
-        String user = options.valueOf(ARG_USER).toString();
-        String pass = options.valueOf(ARG_PASS).toString();
+        final String jdbcUrl = options.valueOf(ARG_JDBCURL).toString();
+        final String user = options.valueOf(ARG_USER).toString();
+        final String pass = options.valueOf(ARG_PASS).toString();
 
-        dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
+        final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
         jdbcTemplate = new JdbcTemplate(dataSource);
 
         // default threadpool is backed by unlimited linkedlist, just the right one for us
@@ -66,7 +65,7 @@ public class RcDatabaseDummifier {
         LOGGER.info("Dummifying " + table);
         JdbcStreamingHelper.executeStreaming(jdbcTemplate, "SELECT object_id, sequence_id FROM "+table+" WHERE sequence_id > 0", new ResultSetExtractor<DatabaseObjectProcessor>() {
             @Override
-            public DatabaseObjectProcessor extractData(ResultSet rs) throws SQLException, DataAccessException {
+            public DatabaseObjectProcessor extractData(final ResultSet rs) throws SQLException, DataAccessException {
                 executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getInt(2), table));
                 return null;
             }
@@ -78,7 +77,7 @@ public class RcDatabaseDummifier {
         final int sequenceId;
         final String table;
 
-        private DatabaseObjectProcessor(int objectId, int sequenceId, String table) {
+        private DatabaseObjectProcessor(final int objectId, final int sequenceId, final String table) {
             this.objectId = objectId;
             this.sequenceId = sequenceId;
             this.table = table;
@@ -86,16 +85,16 @@ public class RcDatabaseDummifier {
 
         @Override
         public void run() {
-            RpslObject rpslObject = jdbcTemplate.queryForObject("SELECT object_id, object FROM "+table+" WHERE object_id = ? AND sequence_id = ?",
+            final RpslObject rpslObject = jdbcTemplate.queryForObject("SELECT object_id, object FROM "+table+" WHERE object_id = ? AND sequence_id = ?",
                     new RpslObjectRowMapper(), objectId, sequenceId);
-            RpslObject dummyObject = dummifier.dummify(3, rpslObject);
+            final RpslObject dummyObject = dummifier.dummify(3, rpslObject);
             jdbcTemplate.update("UPDATE "+table+" SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject);
         }
     }
 
     private static void setupLogging() {
         LogManager.getRootLogger().setLevel(Level.INFO);
-        ConsoleAppender console = new ConsoleAppender();
+        final ConsoleAppender console = new ConsoleAppender();
         console.setLayout(new PatternLayout("%d [%c|%C{1}] %m%n"));
         console.setThreshold(Level.INFO);
         console.activateOptions();
