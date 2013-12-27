@@ -3,6 +3,9 @@ package net.ripe.db.whois.spec
 import net.ripe.db.whois.WhoisFixture
 import net.ripe.db.whois.common.TestDateTimeProvider
 import net.ripe.db.whois.common.profiles.WhoisProfile
+import net.ripe.db.whois.common.rpsl.AttributeType
+import net.ripe.db.whois.common.rpsl.ObjectType
+import net.ripe.db.whois.common.rpsl.RpslAttribute
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
@@ -53,6 +56,23 @@ ${result}
 """
 
         result
+    }
+
+    RpslObject restLookup(ObjectType objectType, String pkey, String... passwords) {
+        whoisFixture.reloadTrees();
+        return whoisFixture.restLookup(objectType, pkey, passwords);
+    }
+
+    boolean hasAttribute(RpslObject object, String attribute, String value, String comment) {
+        println " >>> " + object.getKey().toString() + " hasAttribute [" + attribute +": " + value + " # " + comment +"]";
+
+        List<RpslAttribute> attributes = object.findAttributes(AttributeType.getByName(attribute));
+        for (RpslAttribute attr : attributes) {
+            if (Objects.equals(attr.getValue(), value) && Objects.equals(attr.getFirstComment(), comment)){
+                return true;
+            }
+        }
+        return false;
     }
 
     public List<String> queryPersistent(final List<String> queries){

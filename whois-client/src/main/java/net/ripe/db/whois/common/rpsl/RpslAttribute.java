@@ -14,6 +14,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciImmutableSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -22,10 +24,12 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 public final class RpslAttribute {
     private static final int LEADING_CHARS = 16;
     private static final int LEADING_CHARS_SHORTHAND = 5;
+    private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)^[^#]*[#](.*)$");
 
     private final AttributeType type;
     private final String key;
     private final String value;     // non-clean, contains EOL comments too
+    private String comment;
 
     private int hash;
     private Set<CIString> cleanValues;
@@ -36,22 +40,36 @@ public final class RpslAttribute {
         Validate.notNull(key);
         Validate.notNull(value);
 
+        String strValue = new String(value, Charsets.ISO_8859_1);
+
         this.key = new String(key, Charsets.ISO_8859_1).toLowerCase();
-        this.value = new String(value, Charsets.ISO_8859_1);
+        this.value = strValue;
         this.type = AttributeType.getByNameOrNull(this.key);
+        this.comment = extractFirstCommentFromValue(strValue);
     }
 
     public RpslAttribute(final AttributeType attributeType, final String value) {
         this(attributeType.getName(), value);
     }
 
+    public RpslAttribute(final AttributeType attributeType, final String value, final String comment) {
+        this(attributeType.getName(), value, comment);
+    }
+
     public RpslAttribute(final String key, final String value) {
+        this(key, value, null);
+        this.comment = extractFirstCommentFromValue(value);
+    }
+
+    public RpslAttribute(final String key, final String value, final String comment) {
         Validate.notNull(key);
         Validate.notNull(value);
         this.key = key.toLowerCase();
         this.value = value;
         this.type = AttributeType.getByNameOrNull(this.key);
+        this.comment = comment;
     }
+
 
     public String getKey() {
         return key;
@@ -59,6 +77,10 @@ public final class RpslAttribute {
 
     public String getValue() {
         return value;
+    }
+
+    public String getFirstComment() {
+        return comment;
     }
 
     public CIString getCleanValue() {
@@ -124,6 +146,16 @@ public final class RpslAttribute {
             default:
                 throw new IllegalStateException("Multiple reference values found: " + values);
         }
+    }
+
+    // Using final and private together is redundant. Both keywords are used
+    // for emphasis because the method is used in the constructor.
+    final private String extractFirstCommentFromValue(final String value) {
+        Matcher m = COMMENT_PATTERN.matcher(value);
+        if (m.find()) {
+            return m.group(1).trim();
+        }
+        return null;
     }
 
     private static String determineCleanValue(final String value) {

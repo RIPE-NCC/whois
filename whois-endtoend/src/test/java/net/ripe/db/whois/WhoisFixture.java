@@ -3,6 +3,7 @@ package net.ripe.db.whois;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
+import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
@@ -70,6 +71,7 @@ public class WhoisFixture {
     protected UnrefCleanup unrefCleanup;
     protected IndexDao indexDao;
     protected WhoisServer whoisServer;
+    protected RestClient restClient;
 
     static {
         Slf4JLogConfiguration.init();
@@ -111,10 +113,13 @@ public class WhoisFixture {
         sourceContext = applicationContext.getBean(SourceContext.class);
         unrefCleanup = applicationContext.getBean(UnrefCleanup.class);
         indexDao = applicationContext.getBean(IndexDao.class);
+        restClient = applicationContext.getBean(RestClient.class);
 
         databaseHelper.setup();
-
         whoisServer.start();
+
+        restClient.setRestApiUrl(String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
+        restClient.setSource("test");
 
         initData();
     }
@@ -226,6 +231,10 @@ public class WhoisFixture {
 
     public String query(final String query) {
         return DummyWhoisClient.query(QueryServer.port, query);
+    }
+
+    public RpslObject restLookup(ObjectType objectType, String pkey, String... passwords) {
+        return restClient.lookup(objectType, pkey, passwords);
     }
 
     public List<String> queryPersistent(final List<String> queries) throws Exception {

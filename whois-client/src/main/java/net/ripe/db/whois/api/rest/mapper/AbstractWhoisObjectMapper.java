@@ -13,18 +13,12 @@ import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public abstract class AbstractWhoisObjectMapper {
 
-    // TODO: [AH] this should be in RpslAttribute
-    private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)^[^#]*[#](.*)$");
-
-    protected final String baseUrl;
+   protected final String baseUrl;
 
     public AbstractWhoisObjectMapper(final String baseUrl) {
         this.baseUrl = baseUrl;
@@ -33,7 +27,7 @@ public abstract class AbstractWhoisObjectMapper {
     public RpslObject map(final WhoisObject whoisObject) {
         final List<RpslAttribute> rpslAttributes = Lists.newArrayList();
         for (final Attribute attribute : whoisObject.getAttributes()) {
-            rpslAttributes.add(new RpslAttribute(attribute.getName(), attribute.getValue()));
+            rpslAttributes.add(new RpslAttribute(attribute.getName(), attribute.getValue(), attribute.getComment()));
         }
 
         return new RpslObject(rpslAttributes);
@@ -79,24 +73,14 @@ public abstract class AbstractWhoisObjectMapper {
     private List<Attribute> buildAttributes(RpslObject rpslObject, String source) {
         final List<Attribute> attributes = Lists.newArrayList();
         for (RpslAttribute attribute : rpslObject.getAttributes()) {
-            final String comment = getComment(attribute);
             for (CIString value : attribute.getCleanValues()) {
-                attributes.add(buildAttribute(attribute, value, comment, source));
+                attributes.add(buildAttribute(attribute, value, source));
             }
         }
         return attributes;
     }
 
-    abstract Attribute buildAttribute(RpslAttribute attribute, final CIString value, final String comment, final String source);
-
-    @Nullable
-    protected String getComment(final RpslAttribute attribute) {
-        Matcher m = COMMENT_PATTERN.matcher(attribute.getValue());
-        if (m.find()) {
-            return m.group(1).trim();
-        }
-        return null;
-    }
+    abstract Attribute buildAttribute(RpslAttribute attribute, final CIString value, final String source);
 
     protected Link createLink(final RpslObject rpslObject) {
         final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
