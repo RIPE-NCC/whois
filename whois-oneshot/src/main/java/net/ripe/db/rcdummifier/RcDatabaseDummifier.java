@@ -3,7 +3,6 @@ package net.ripe.db.rcdummifier;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
 import net.ripe.db.whois.common.jdbc.SimpleDataSourceFactory;
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -86,11 +85,11 @@ public class RcDatabaseDummifier {
         transactionTemplate.execute(new TransactionCallback<Object>() {
             @Override
             public Object doInTransaction(TransactionStatus status) {
-                JdbcStreamingHelper.executeStreaming(jdbcTemplate, "SELECT object_id, sequence_id FROM " + table + " WHERE sequence_id > 0", new ResultSetExtractor<DatabaseObjectProcessor>() {
+                JdbcStreamingHelper.executeStreaming(jdbcTemplate, "SELECT object_id, sequence_id, object FROM " + table + " WHERE sequence_id > 0", new ResultSetExtractor<DatabaseObjectProcessor>() {
                     @Override
                     public DatabaseObjectProcessor extractData(final ResultSet rs) throws SQLException, DataAccessException {
                         while (rs.next()) {
-                            executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getInt(2), table));
+                            executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getInt(2), rs.getBytes(3), table));
                             jobsAdded.incrementAndGet();
                         }
                         return null;
@@ -106,11 +105,13 @@ public class RcDatabaseDummifier {
         final int objectId;
         final int sequenceId;
         final String table;
+        final byte[] object;
 
-        private DatabaseObjectProcessor(int objectId, int sequenceId, String table) {
+        private DatabaseObjectProcessor(int objectId, int sequenceId, byte[] object, String table) {
             this.objectId = objectId;
             this.sequenceId = sequenceId;
             this.table = table;
+            this.object = object;
         }
 
         @Override
@@ -119,12 +120,11 @@ public class RcDatabaseDummifier {
                 @Override
                 public Object doInTransaction(TransactionStatus status) {
                     try {
-                        final RpslObject rpslObject = jdbcTemplate.queryForObject("SELECT object_id, object FROM " + table + " WHERE object_id = ? AND sequence_id = ?",
-                                new RpslObjectRowMapper(), objectId, sequenceId);
+                        final RpslObject rpslObject = RpslObject.parse(object);
                         final RpslObject dummyObject = dummifier.dummify(3, rpslObject);
                         jdbcTemplate.update("UPDATE " + table + " SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject.toByteArray(), objectId, sequenceId);
                     } catch (RuntimeException e) {
-                        LOGGER.error(table + ": " + objectId + "," + sequenceId + " failed", e);
+                        LOGGER.error(table + ": " + objectId + "," + sequenceId + " failed\n" + object.toString(), e);
                     }
                     int count = jobsDone.incrementAndGet();
                     if (count % 100000 == 0) {
