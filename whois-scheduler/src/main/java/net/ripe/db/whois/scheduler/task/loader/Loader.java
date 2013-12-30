@@ -1,7 +1,6 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -62,7 +60,7 @@ public class Loader {
     private void runPass(Result result, String entry, int pass) {
         // sadly Executors don't offer a bounded/blocking submit() implementation
         final int numThreads = Runtime.getRuntime().availableProcessors();
-        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(256);
+        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads*16);
         final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
                 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
 

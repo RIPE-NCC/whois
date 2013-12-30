@@ -16,25 +16,35 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RcDatabaseDummifier {
-    private static final Logger LOGGER = LoggerFactory.getLogger("AutNumCleanup");
+    private static final Logger LOGGER = LoggerFactory.getLogger(RcDatabaseDummifier.class);
 
     private static final String ARG_JDBCURL = "jdbc-url";
     private static final String ARG_USER = "user";
     private static final String ARG_PASS = "pass";
 
-    private static final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("com.mysql.jdbc.Driver");
+    private static TransactionTemplate transactionTemplate;
     private static JdbcTemplate jdbcTemplate;
 
-    private static DummifierCurrent dummifier = new DummifierCurrent();
+    private static final DummifierCurrent dummifier = new DummifierCurrent();
+
+    private static final AtomicInteger jobsAdded = new AtomicInteger();
+    private static final AtomicInteger jobsDone = new AtomicInteger();
 
     public static void main(final String[] argv) throws Exception {
         setupLogging();
@@ -44,11 +54,21 @@ public class RcDatabaseDummifier {
         final String user = options.valueOf(ARG_USER).toString();
         final String pass = options.valueOf(ARG_PASS).toString();
 
+        final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("com.mysql.jdbc.Driver");
         final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
         jdbcTemplate = new JdbcTemplate(dataSource);
 
-        // default threadpool is backed by unlimited linkedlist, just the right one for us
-        final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
+        transactionTemplate = new TransactionTemplate(transactionManager);
+        transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
+        // sadly Executors don't offer a bounded/blocking submit() implementation
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads*64);
+        final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
+                0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+
+        LOGGER.info("Started " + numThreads + " threads");
 
         addWork("last", jdbcTemplate, executorService);
         addWork("history", jdbcTemplate, executorService);
@@ -63,21 +83,31 @@ public class RcDatabaseDummifier {
 
     private static void addWork(final String table, final JdbcTemplate jdbcTemplate, final ExecutorService executorService) {
         LOGGER.info("Dummifying " + table);
-        JdbcStreamingHelper.executeStreaming(jdbcTemplate, "SELECT object_id, sequence_id FROM "+table+" WHERE sequence_id > 0", new ResultSetExtractor<DatabaseObjectProcessor>() {
+        transactionTemplate.execute(new TransactionCallback<Object>() {
             @Override
-            public DatabaseObjectProcessor extractData(final ResultSet rs) throws SQLException, DataAccessException {
-                executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getInt(2), table));
+            public Object doInTransaction(TransactionStatus status) {
+                JdbcStreamingHelper.executeStreaming(jdbcTemplate, "SELECT object_id, sequence_id FROM " + table + " WHERE sequence_id > 0", new ResultSetExtractor<DatabaseObjectProcessor>() {
+                    @Override
+                    public DatabaseObjectProcessor extractData(final ResultSet rs) throws SQLException, DataAccessException {
+                        while (rs.next()) {
+                            executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getInt(2), table));
+                            jobsAdded.incrementAndGet();
+                        }
+                        return null;
+                    }
+                });
                 return null;
             }
         });
+        LOGGER.info("Jobs size:" + jobsAdded);
     }
 
-    private static class DatabaseObjectProcessor implements Runnable {
+    private static final class DatabaseObjectProcessor implements Runnable {
         final int objectId;
         final int sequenceId;
         final String table;
 
-        private DatabaseObjectProcessor(final int objectId, final int sequenceId, final String table) {
+        private DatabaseObjectProcessor(int objectId, int sequenceId, String table) {
             this.objectId = objectId;
             this.sequenceId = sequenceId;
             this.table = table;
@@ -85,10 +115,24 @@ public class RcDatabaseDummifier {
 
         @Override
         public void run() {
-            final RpslObject rpslObject = jdbcTemplate.queryForObject("SELECT object_id, object FROM "+table+" WHERE object_id = ? AND sequence_id = ?",
-                    new RpslObjectRowMapper(), objectId, sequenceId);
-            final RpslObject dummyObject = dummifier.dummify(3, rpslObject);
-            jdbcTemplate.update("UPDATE "+table+" SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject);
+            transactionTemplate.execute(new TransactionCallback<Object>() {
+                @Override
+                public Object doInTransaction(TransactionStatus status) {
+                    try {
+                        final RpslObject rpslObject = jdbcTemplate.queryForObject("SELECT object_id, object FROM " + table + " WHERE object_id = ? AND sequence_id = ?",
+                                new RpslObjectRowMapper(), objectId, sequenceId);
+                        final RpslObject dummyObject = dummifier.dummify(3, rpslObject);
+                        jdbcTemplate.update("UPDATE " + table + " SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject.toByteArray(), objectId, sequenceId);
+                    } catch (RuntimeException e) {
+                        LOGGER.error(table + ": " + objectId + "," + sequenceId + " failed", e);
+                    }
+                    int count = jobsDone.incrementAndGet();
+                    if (count % 100000 == 0) {
+                        LOGGER.info("Finished jobs: " + count);
+                    }
+                    return null;
+                }
+            });
         }
     }
 

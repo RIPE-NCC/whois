@@ -38,7 +38,7 @@
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-client</artifactId>
         </dependency>
-        <dependency>
+        <dependency> <!-- Make sure this is not shaded -->
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-internal</artifactId>
         </dependency>
@@ -78,7 +78,7 @@
         <profile>
             <id>release</id>
             <properties>
-                <whois.main>net.ripe.db.defaultabusec.DefaultAbuseC</whois.main>
+                <whois.main>net.ripe.db.rcdummifier.RcDatabaseDummifier</whois.main>
             </properties>
             <build>
                 <plugins>
