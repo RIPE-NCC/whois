@@ -124,7 +124,7 @@ public class RcDatabaseDummifier {
                         final RpslObject dummyObject = dummifier.dummify(3, rpslObject);
                         jdbcTemplate.update("UPDATE " + table + " SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject.toByteArray(), objectId, sequenceId);
                     } catch (RuntimeException e) {
-                        LOGGER.error(table + ": " + objectId + "," + sequenceId + " failed\n" + object.toString(), e);
+                        LOGGER.error(table + ": " + objectId + "," + sequenceId + " failed\n" + new String(object), e);
                     }
                     int count = jobsDone.incrementAndGet();
                     if (count % 100000 == 0) {
