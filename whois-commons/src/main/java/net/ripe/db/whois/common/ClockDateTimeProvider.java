@@ -10,11 +10,18 @@ import org.springframework.stereotype.Component;
 @Primary
 @Component
 public class ClockDateTimeProvider implements DateTimeProvider {
+    @Override
     public LocalDate getCurrentDate() {
         return new LocalDate();
     }
 
+    @Override
     public LocalDateTime getCurrentDateTime() {
         return new LocalDateTime();
+    }
+
+    @Override
+    public long getNanoTime() {
+        return System.nanoTime();
     }
 }

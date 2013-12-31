@@ -54,7 +54,12 @@ public class SyncUpdatesService {
     private final IpRanges ipRanges;
 
     @Autowired
-    public SyncUpdatesService(final DateTimeProvider dateTimeProvider, final UpdateRequestHandler updateRequestHandler, final UpdatesParser updatesParser, final LoggerContext loggerContext, final SourceContext sourceContext, final IpRanges ipRanges) {
+    public SyncUpdatesService(final DateTimeProvider dateTimeProvider,
+                              final UpdateRequestHandler updateRequestHandler,
+                              final UpdatesParser updatesParser,
+                              final LoggerContext loggerContext,
+                              final SourceContext sourceContext,
+                              final IpRanges ipRanges) {
         this.dateTimeProvider = dateTimeProvider;
         this.updateRequestHandler = updateRequestHandler;
         this.updatesParser = updatesParser;
@@ -253,7 +258,7 @@ public class SyncUpdatesService {
     }
 
     private String getRequestId(final String remoteAddress) {
-        return "syncupdate_" + remoteAddress + "_" + System.nanoTime();
+        return "syncupdate_" + remoteAddress + "_" + dateTimeProvider.getNanoTime();
     }
 
     private boolean sourceMatchesContext(final String source) {

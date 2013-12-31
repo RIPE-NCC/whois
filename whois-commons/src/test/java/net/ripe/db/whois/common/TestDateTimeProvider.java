@@ -9,21 +9,34 @@ import org.springframework.stereotype.Component;
 @Component
 public class TestDateTimeProvider implements DateTimeProvider, Stub {
     private LocalDateTime localDateTime;
+    private long nanoTime;
 
     @Override
     public void reset() {
         localDateTime = null;
+        nanoTime = 0;
     }
 
+    @Override
     public LocalDate getCurrentDate() {
         return localDateTime == null ? LocalDate.now() : localDateTime.toLocalDate();
     }
 
+    @Override
     public LocalDateTime getCurrentDateTime() {
         return localDateTime == null ? LocalDateTime.now() : localDateTime;
     }
 
+    @Override
+    public long getNanoTime() {
+        return nanoTime;
+    }
+
     public void setTime(LocalDateTime dateTime) {
         localDateTime = dateTime;
+    }
+
+    public void setNanoTime(long nanoTime) {
+        nanoTime = nanoTime;
     }
 }
