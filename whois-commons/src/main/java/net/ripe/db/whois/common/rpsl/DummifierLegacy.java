@@ -100,7 +100,7 @@ public class DummifierLegacy implements Dummifier {
 
         attributes.addAll(getDummificationRemarks(rpslObject));
 
-        return new RpslObject(rpslObject.getObjectId(), attributes);
+        return new RpslObject(rpslObject, attributes);
     }
 
     private void stripOptionalAttributes(List<RpslAttribute> attributes, ObjectType objectType) {

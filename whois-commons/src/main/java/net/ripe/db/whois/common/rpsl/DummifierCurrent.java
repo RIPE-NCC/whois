@@ -3,7 +3,6 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static net.ripe.db.whois.common.rpsl.AttributeType.*;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AUTH;
+import static net.ripe.db.whois.common.rpsl.AttributeType.CHANGED;
+import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IRT_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PHONE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.REF_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.UPD_TO;
 
 @Component
 public class DummifierCurrent implements Dummifier {
@@ -65,7 +76,7 @@ public class DummifierCurrent implements Dummifier {
             attributes.set(lastAddressLineIndex, lastAddressLine);
         }
 
-        return new RpslObject(rpslObject.getObjectId(), attributes);
+        return new RpslObject(rpslObject, attributes);
     }
 
     private RpslAttribute replacePhoneFax(final AttributeType attributeType, final RpslAttribute attribute) {
