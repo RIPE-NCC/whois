@@ -208,4 +208,20 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (EmptyResultDataAccessException expected) {}
     }
+
+    @Test
+    public void create_with_attribute_comment() {
+        final RpslObject person = RpslObject.parse("" +
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP2-TEST\n" +
+                "mnt-by:        OWNER-MNT # comment\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST\n");
+
+        final RpslObject created = restClient.create(person, "test");
+
+        assertThat(created, is(person));
+    }
 }
