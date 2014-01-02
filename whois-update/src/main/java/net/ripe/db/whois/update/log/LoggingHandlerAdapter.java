@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/** Used to allow LoggingDriver from whois-commons to access LoggerContext from whois-update */
 @Component
 public class LoggingHandlerAdapter implements LoggingHandler {
     private LoggerContext loggerContext;
