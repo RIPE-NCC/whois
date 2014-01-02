@@ -5,13 +5,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DelegatingLoggingHandler implements LoggingHandler {
-    public interface Delegate extends LoggingHandler {
-    }
-
-    private Delegate delegate;
+    private LoggingHandler delegate;
 
     @Autowired(required = false)
-    void setDelegate(final Delegate delegate) {
+    void setDelegate(final LoggingHandler delegate) {
         this.delegate = delegate;
     }
 

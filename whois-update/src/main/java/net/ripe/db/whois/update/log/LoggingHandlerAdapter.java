@@ -1,13 +1,13 @@
 package net.ripe.db.whois.update.log;
 
-import net.ripe.db.whois.common.jdbc.driver.DelegatingLoggingHandler;
+import net.ripe.db.whois.common.jdbc.driver.LoggingHandler;
 import net.ripe.db.whois.common.jdbc.driver.ResultInfo;
 import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LoggingHandlerAdapter implements DelegatingLoggingHandler.Delegate {
+public class LoggingHandlerAdapter implements LoggingHandler {
     private LoggerContext loggerContext;
 
     public LoggingHandlerAdapter() {
