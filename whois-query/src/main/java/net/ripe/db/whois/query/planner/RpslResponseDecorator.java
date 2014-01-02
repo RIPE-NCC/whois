@@ -83,7 +83,6 @@ public class RpslResponseDecorator {
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
         Iterable<? extends ResponseObject> decoratedResult = filterPlaceholdersDecorator.decorate(query, result);
-        decoratedResult = applySyntaxFilter(query, decoratedResult);
         decoratedResult = dummifyDecorator.decorate(query, decoratedResult);
 
         decoratedResult = groupRelatedObjects(query, decoratedResult);
@@ -91,6 +90,7 @@ public class RpslResponseDecorator {
         decoratedResult = filterPersonalDecorator.decorate(query, decoratedResult);
         decoratedResult = abuseCInfoDecorator.decorate(query, decoratedResult);
 
+        decoratedResult = applySyntaxFilter(query, decoratedResult);
         decoratedResult = filterEmail(query, decoratedResult);
         decoratedResult = filterAuth(query, decoratedResult);
 
