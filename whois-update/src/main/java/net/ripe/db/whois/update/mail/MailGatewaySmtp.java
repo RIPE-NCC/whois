@@ -53,7 +53,7 @@ public class MailGatewaySmtp implements MailGateway {
     @Override
     public void sendEmail(final String to, final String subject, final String text) {
             if (!outgoingMailEnabled) {
-                LOGGER.warn("" +
+                LOGGER.debug("" +
                         "Outgoing mail disabled\n" +
                         "\n" +
                         "to      : {}\n" +

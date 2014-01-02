@@ -11,6 +11,7 @@
 [api] Created REST Client module
 [api] Added authentication support for REST lookups
 [api] log HTTP headers in update audit log
+[update] Allow import-via/export-via rpsl attributes - Job Snijders <job@atrato.com>
 
 ## 1.70.1 (deployed on 2013-11-21)
 [all] Fixed MySQL replication issue

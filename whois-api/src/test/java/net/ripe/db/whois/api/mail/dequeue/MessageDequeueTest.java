@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
@@ -49,6 +50,7 @@ public class MessageDequeueTest {
     @Mock UpdateRequestHandler messageHandler;
     @Mock LoggerContext loggerContext;
     @Mock UpdateLog updateLog;
+    @Mock DateTimeProvider dateTimeProvider;
     @InjectMocks MessageDequeue subject;
 
     @Before

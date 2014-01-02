@@ -60,6 +60,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             export:         to AS1 announce AS2
             mp-import:      afi ipv6.unicast from AS1 accept ANY
             mp-export:      afi ipv6.unicast to AS1 announce AS2
+            import-via:     AS6777 from AS5580 accept AS-ATRATO
+            export-via:     AS6777 to AS5580 announce AS2
             remarks:        remarkable
             org:            ORG-NCC1-RIPE
             admin-c:        AP1-TEST
@@ -116,6 +118,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         export:         to AS1 announce AS2
                         mp-import:      afi ipv6.unicast from AS1 accept ANY
                         mp-export:      afi ipv6.unicast to AS1 announce AS2
+                        import-via:     AS6777 from AS5580 accept AS-ATRATO
+                        export-via:     AS6777 to AS5580 announce AS2
                         remarks:        remarkable
                         org:            ORG-NCC1-RIPE
                         admin-c:        AP1-TEST
@@ -148,6 +152,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         default:        to AS1
                         mp-import:      afi ipv6.unicast from AS1 accept ANY
                         mp-export:      afi ipv6.unicast to AS1 announce AS2
+                        import-via:     AS6777 from AS5580 accept AS-ATRATO
+                        export-via:     AS6777 to AS5580 announce AS2
                         mp-default:     to AS1
                         remarks:        remarkable
                         org:            ORG-NCC1-RIPE
@@ -182,6 +188,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         default:        to AS1
                         mp-import:      afi ipv6.unicast from AS1 accept ANY
                         mp-export:      afi ipv6.unicast to AS1 announce AS2
+                        import-via:     AS6777 from AS5580 accept AS-ATRATO
+                        export-via:     AS6777 to AS5580 announce AS2
                         mp-default:     to AS1
                         remarks:        remarkable
                         org:            ORG-NCC1-RIPE
@@ -499,6 +507,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         default:        to AS1
                         mp-import:      afi ipv6.unicast from AS1 accept ANY
                         mp-export:      afi ipv6.unicast to AS1 announce AS2
+                        import-via:     AS6777 from AS5580 accept AS-ATRATO
+                        export-via:     to AS5580 announce AS2
                         mp-default:     to AS1
                         remarks:        remarkable
                         org:            ORG-NCC1-RIPE
@@ -521,5 +531,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Syntax error in from AS1 accept/
         response =~ /Syntax error in ato AS1 announce 192.0.0.1/
         response =~ /Syntax error in _UPD-MNT-MNT-MNT/
+        response =~ /Syntax error in to AS5580 announce AS2/
     }
 }

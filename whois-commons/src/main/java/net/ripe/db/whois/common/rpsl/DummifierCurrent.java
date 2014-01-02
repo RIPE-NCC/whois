@@ -76,7 +76,7 @@ public class DummifierCurrent implements Dummifier {
             attributes.set(lastAddressLineIndex, lastAddressLine);
         }
 
-        return new RpslObject(rpslObject.getObjectId(), attributes);
+        return new RpslObject(rpslObject, attributes);
     }
 
     private RpslAttribute replacePhoneFax(final AttributeType attributeType, final RpslAttribute attribute) {

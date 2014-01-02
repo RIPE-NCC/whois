@@ -189,7 +189,7 @@ public class InternalUpdatePerformer {
     }
 
     private String getRequestId(final String remoteAddress) {
-        return String.format("rest_%s_%s", remoteAddress, System.nanoTime());
+        return String.format("rest_%s_%s", remoteAddress, dateTimeProvider.getNanoTime());
     }
 
     public static void logHttpHeaders(final LoggerContext loggerContext, final HttpServletRequest request) {

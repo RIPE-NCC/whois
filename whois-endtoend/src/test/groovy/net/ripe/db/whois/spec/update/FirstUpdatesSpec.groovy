@@ -301,7 +301,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(2, 0, 1)
         ack.errorMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
                 "Syntax error in 20121016",
-                "Unrecognized source: OWNER"
+                "Unrecognized source: owner"
         ]
         ack.infoMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
                 "Value owner converted to OWNER"

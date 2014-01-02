@@ -1024,8 +1024,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 body: """\
                 route:          192.168.0.0/16
                 descr:          Route
-                origin:         AS100
                 remarks:         same same but different
+                origin:         AS100
                 mnt-by:         OWNER-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
