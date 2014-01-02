@@ -324,6 +324,7 @@ public interface AttributeSyntax extends Documented {
     AttributeSyntax NUMBER_SYNTAX = new AttributeSyntaxRegexp(Pattern.compile("^[0-9]+$"), "" +
             "Specifies a numeric value.\n");
 
+    // TODO: [AH] replace nameparser with regex
     AttributeSyntax OBJECT_NAME_SYNTAX = new AttributeSyntaxParser(new NameParser(), "" +
             "Made up of letters, digits, the character underscore \"_\",\n" +
             "and the character hyphen \"-\"; the first character of a name\n" +

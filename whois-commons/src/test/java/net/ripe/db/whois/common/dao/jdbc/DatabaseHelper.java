@@ -65,7 +65,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
 
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String LOGGING_HANDLER = "net.ripe.db.whois.update.log.LoggingHandlerAdapter";
+    private static final String LOGGING_HANDLER = "loggingHandlerAdapter";
 
     private DataSource mailupdatesDataSource;
     private DataSource dnsCheckDataSource;

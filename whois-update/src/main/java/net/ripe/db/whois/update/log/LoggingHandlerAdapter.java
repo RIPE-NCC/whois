@@ -11,9 +11,6 @@ import org.springframework.stereotype.Component;
 public class LoggingHandlerAdapter implements LoggingHandler {
     private LoggerContext loggerContext;
 
-    public LoggingHandlerAdapter() {
-    }
-
     @Autowired
     public LoggingHandlerAdapter(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;

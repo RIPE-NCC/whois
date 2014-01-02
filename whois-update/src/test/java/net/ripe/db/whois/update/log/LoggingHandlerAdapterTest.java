@@ -31,14 +31,6 @@ public class LoggingHandlerAdapterTest {
     }
 
     @Test
-    public void log_not_initialized() throws Exception {
-        subject = new LoggingHandlerAdapter();
-        subject.log(statementInfo, resultInfo);
-
-        verifyZeroInteractions(loggerContext);
-    }
-
-    @Test
     public void log() throws Exception {
         subject = new LoggingHandlerAdapter(loggerContext);
         subject.log(statementInfo, resultInfo);
