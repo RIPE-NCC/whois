@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Lists;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -30,6 +31,7 @@ public class Source {
     }
 
     public Source() {
+        // default no-arg constructor
     }
 
     public String getId() {

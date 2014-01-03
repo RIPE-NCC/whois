@@ -1,8 +1,10 @@
 package net.ripe.db.whois.api.rest.domain;
 
 
+import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.*;
 
+@Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "value",
