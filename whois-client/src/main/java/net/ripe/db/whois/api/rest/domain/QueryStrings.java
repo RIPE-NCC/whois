@@ -24,7 +24,7 @@ public class QueryStrings {
     }
 
     public QueryStrings() {
-        // required no-arg constructor
+        this.queryStrings = Lists.newArrayList();
     }
 
     public List<QueryString> getQueryStrings() {

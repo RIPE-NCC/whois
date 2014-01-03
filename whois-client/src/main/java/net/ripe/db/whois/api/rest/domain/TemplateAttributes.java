@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import com.google.common.collect.Lists;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -19,7 +21,7 @@ public class TemplateAttributes {
     }
 
     public TemplateAttributes() {
-        // required no-arg constructor
+        this.attributes = Lists.newArrayList();
     }
 
     public List<TemplateAttribute> getAttributes() {

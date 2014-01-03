@@ -28,7 +28,7 @@ public class TypeFilters {
     }
 
     public TypeFilters() {
-        // required no-arg constructor
+        this.typeFilters = Lists.newArrayList();
     }
 
     public List<TypeFilter> getTypeFilters() {

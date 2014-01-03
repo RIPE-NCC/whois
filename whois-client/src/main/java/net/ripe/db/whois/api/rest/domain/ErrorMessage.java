@@ -60,7 +60,7 @@ public class ErrorMessage {
     }
 
     public ErrorMessage() {
-        // required no-arg constructor
+        this.args = Lists.newArrayList();
     }
 
     public String getSeverity() {
@@ -81,6 +81,6 @@ public class ErrorMessage {
 
     @Override
     public String toString() {
-        return (args != null) ? String.format(text, args.toArray()) : text;
+        return (args.isEmpty()) ? text : String.format(text, args.toArray());
     }
 }

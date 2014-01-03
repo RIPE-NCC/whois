@@ -29,7 +29,7 @@ public class Sources {
     }
 
     public Sources() {
-        // required no-arg constructor
+        this.sources = Lists.newArrayList();
     }
 
     public List<Source> getSources() {

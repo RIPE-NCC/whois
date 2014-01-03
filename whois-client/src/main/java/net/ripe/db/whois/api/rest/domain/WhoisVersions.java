@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import com.google.common.collect.Lists;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -30,7 +32,7 @@ public class WhoisVersions {
     }
 
     public WhoisVersions() {
-        // required no-arg constructor
+        this.versions = Lists.newArrayList();
     }
 
     public List<WhoisVersion> getVersions() {
