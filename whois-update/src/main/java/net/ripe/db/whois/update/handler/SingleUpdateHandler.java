@@ -6,10 +6,25 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.autokey.AutoKeyResolver;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.Operation;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.OverrideOptions;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,6 +186,7 @@ public class SingleUpdateHandler {
             updateContext.addMessage(update, UpdateMessages.unrecognizedSource(objectSource));
         }
 
+        updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
         if (Operation.DELETE.equals(update.getOperation())) {
             if (Keyword.NEW.equals(keyword)) {
                 updateContext.addMessage(update, UpdateMessages.operationNotAllowedForKeyword(keyword, update.getOperation()));
@@ -180,7 +196,6 @@ public class SingleUpdateHandler {
                 updateContext.addMessage(update, UpdateMessages.multipleReasonsSpecified(update.getOperation()));
             }
         } else {
-            updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
             updatedObject = ssoTranslator.translateAuthToUuid(updateContext, updatedObject);
             updatedObject = attributeGenerator.generateAttributes(updatedObject, update, updateContext);
 
