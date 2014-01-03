@@ -15,7 +15,7 @@ public class Service {
 
     @XmlAttribute
     @JsonProperty
-    protected String name;
+    private String name;
 
     public Service(String name) {
         this.name = name;

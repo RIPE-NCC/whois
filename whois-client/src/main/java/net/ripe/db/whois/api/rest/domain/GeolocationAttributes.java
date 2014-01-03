@@ -15,13 +15,13 @@ import java.util.List;
 @XmlRootElement(name = "geolocation-attributes")
 public class GeolocationAttributes {
     @XmlElement(name = "location")
-    private List<Location> locations;
+    private List<Location> locations = Lists.newArrayList();
     @XmlElement(name = "language")
-    private List<Language> languages;
+    private List<Language> languages = Lists.newArrayList();
 
     public GeolocationAttributes(final Location location, final List<Language> languages) {
-        this.locations = Lists.newArrayList(location);
-        this.languages = languages;
+        this.locations.add(location);
+        this.languages.addAll(languages);
     }
 
     public GeolocationAttributes() {

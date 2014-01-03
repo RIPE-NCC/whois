@@ -13,7 +13,7 @@ import java.util.List;
 public class QueryStrings {
 
     @XmlElement(name = "query-string")
-    protected List<QueryString> queryStrings;
+    private List<QueryString> queryStrings;
 
     public QueryStrings(final List<QueryString> queryStrings) {
         this.queryStrings = queryStrings;

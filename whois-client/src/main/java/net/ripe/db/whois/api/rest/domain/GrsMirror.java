@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.*;
 public class GrsMirror {
 
     @XmlAttribute(name = "id", required = true)
-    protected String id;
+    private String id;
 
     public GrsMirror(final String id) {
         this.id = id;

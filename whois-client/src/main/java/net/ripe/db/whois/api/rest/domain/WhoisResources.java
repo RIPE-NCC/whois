@@ -29,12 +29,12 @@ import java.util.List;
 public class WhoisResources {
     public static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/db/support/db-terms-conditions.pdf";
 
-    protected Parameters parameters;
+    private Parameters parameters;
 
     @XmlElement
-    protected Service service;
-    @XmlElement(name = "objects")
-    protected WhoisObjects objects;
+    private Service service;
+    @XmlElement(name = "objects", required = true)
+    private WhoisObjects objects;
     @XmlElement(name = "sources")
     private Sources sources;
     @XmlElement(name = "grs-sources")
@@ -46,7 +46,7 @@ public class WhoisResources {
     @XmlElement(name = "errormessages")
     private ErrorMessages errorMessages;
     @XmlElement(name = "versions")
-    protected WhoisVersions versions;
+    private WhoisVersions versions;
     @XmlElement(name = "terms-and-conditions")
     private Link termsAndConditions;
 

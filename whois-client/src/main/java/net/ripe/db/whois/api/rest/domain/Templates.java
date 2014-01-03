@@ -11,7 +11,7 @@ import java.util.List;
 public class Templates {
 
     @XmlElement(name = "template")
-    protected List<Template> templates;
+    private List<Template> templates;
 
     public Templates(final List<Template> templates) {
         this.templates = templates;
@@ -19,5 +19,9 @@ public class Templates {
 
     public Templates() {
         // required no-arg constructor
+    }
+
+    public List<Template> getTemplates() {
+        return this.templates;
     }
 }

@@ -12,13 +12,13 @@ import javax.xml.bind.annotation.*;
 @XmlRootElement(name = "version")
 public class WhoisVersion {
     @XmlAttribute(name = "deleted")
-    protected String deletedDate;
+    private String deletedDate;
     @XmlElement(name = "revision", required = false)
-    protected Integer revision;
+    private Integer revision;
     @XmlElement(name = "date", required = false)
-    protected String date;
+    private String date;
     @XmlElement(name = "operation", required = false)
-    protected String operation;
+    private String operation;
 
     public WhoisVersion(final String operation, final String date, final int revision) {
         this.operation = operation;

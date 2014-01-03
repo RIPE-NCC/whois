@@ -13,7 +13,7 @@ import java.util.List;
 public class GrsSources {
 
     @XmlElement(name = "source")
-    protected List<GrsSource> sources;
+    private List<GrsSource> sources;
 
     public GrsSources(final List<GrsSource> sources) {
         this.sources = sources;
@@ -21,5 +21,9 @@ public class GrsSources {
 
     public GrsSources() {
         // required no-arg constructor
+    }
+
+    public List<GrsSource> getSources() {
+        return sources;
     }
 }

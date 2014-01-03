@@ -13,7 +13,7 @@ import java.util.List;
 public class Attributes {
 
     @XmlElement(name = "attribute")
-    protected List<Attribute> attributes;
+    private List<Attribute> attributes;
 
     public Attributes(final List<Attribute> attributes) {
         this.attributes = attributes;
@@ -21,5 +21,9 @@ public class Attributes {
 
     public Attributes() {
         // required no-arg constructor
+    }
+
+    public List<Attribute> getAttributes() {
+        return this.attributes;
     }
 }

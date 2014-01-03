@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.*;
 public class TypeFilter {
 
     @XmlAttribute(name = "id", required = true)
-    protected String id;
+    private String id;
 
     public TypeFilter(final String id) {
         this.id = id;

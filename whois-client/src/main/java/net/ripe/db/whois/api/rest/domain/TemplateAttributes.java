@@ -12,7 +12,7 @@ import java.util.List;
 public class TemplateAttributes {
 
     @XmlElement(name = "attribute")
-    protected List<TemplateAttribute> attributes;
+    private List<TemplateAttribute> attributes;
 
     public TemplateAttributes(final List<TemplateAttribute> attributes) {
         this.attributes = attributes;
@@ -20,5 +20,9 @@ public class TemplateAttributes {
 
     public TemplateAttributes() {
         // required no-arg constructor
+    }
+
+    public List<TemplateAttribute> getAttributes() {
+        return this.attributes;
     }
 }

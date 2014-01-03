@@ -8,11 +8,11 @@ import java.util.List;
 public class Template {
 
     @XmlAttribute
-    protected String type;
+    private String type;
     @XmlElement
-    protected Source source;
+    private Source source;
     @XmlElement
-    protected TemplateAttributes attributes;
+    private TemplateAttributes attributes;
 
     public String getType() {
         return type;

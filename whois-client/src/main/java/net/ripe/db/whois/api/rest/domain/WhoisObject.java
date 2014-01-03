@@ -25,25 +25,25 @@ import java.util.List;
 public class WhoisObject {
 
     @XmlElement
-    protected Link link;
+    private Link link;
 
     @XmlElement
-    protected Source source;
+    private Source source;
 
     @XmlElement(name = "primary-key")
-    protected PrimaryKey primaryKey;
+    private PrimaryKey primaryKey;
 
     @XmlElement(name = "attributes", required = true)
-    protected Attributes attributes;
+    private Attributes attributes;
 
     @XmlElement(name = "tags")
-    protected WhoisTags tags;
+    private WhoisTags tags;
 
     @XmlAttribute(required = true)
-    protected String type;
+    private String type;
 
     @XmlAttribute(name = "version")
-    protected Integer version;
+    private Integer version;
 
     public Link getLink() {
         return link;

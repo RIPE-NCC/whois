@@ -18,10 +18,9 @@ import java.util.List;
 public class Flags {
 
     @XmlElement(name = "flag")
-    protected List<Flag> flags;
+    private List<Flag> flags = Lists.newArrayList();
 
     public Flags(final Collection<QueryFlag> flags) {
-        this.flags = Lists.newArrayList();
         for (QueryFlag flag : flags) {
             this.flags.add(new Flag(flag));
         }

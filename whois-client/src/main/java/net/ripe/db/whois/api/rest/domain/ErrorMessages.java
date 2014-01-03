@@ -14,14 +14,14 @@ import java.util.List;
 public class ErrorMessages {
 
     @XmlElement(name = "errormessage")
-    protected List<ErrorMessage> errorMessages = Lists.newArrayList();
+    private List<ErrorMessage> errorMessages;
 
     public ErrorMessages(final List<ErrorMessage> errorMessages) {
         this.errorMessages = errorMessages;
     }
 
     public ErrorMessages() {
-        // required no-arg constructor
+        this.errorMessages = Lists.newArrayList();
     }
 
     public void addErrorMessage(ErrorMessage error) {

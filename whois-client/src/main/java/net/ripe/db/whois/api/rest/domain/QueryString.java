@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.*;
 public class QueryString {
 
     @XmlAttribute(name = "value", required = true)
-    protected String value;
+    private String value;
 
     public QueryString(final String value) {
         this.value = value;

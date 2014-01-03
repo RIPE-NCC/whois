@@ -11,7 +11,7 @@ import java.util.List;
 public class PrimaryKey {
 
     @XmlElement(name = "attribute")
-    protected List<Attribute> attributes;
+    private List<Attribute> attributes;
 
     public PrimaryKey(final List<Attribute> attributes) {
         this.attributes = attributes;
@@ -19,5 +19,9 @@ public class PrimaryKey {
 
     public PrimaryKey() {
         // required no-arg constructor
+    }
+
+    public List<Attribute> getAttributes() {
+        return this.attributes;
     }
 }

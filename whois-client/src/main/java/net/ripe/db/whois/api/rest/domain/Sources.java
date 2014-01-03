@@ -15,7 +15,7 @@ import java.util.List;
 public class Sources {
 
     @XmlElement(name = "source")
-    protected List<Source> sources;
+    private List<Source> sources;
 
     public Sources(final List<Source> sources) {
         this.sources = sources;

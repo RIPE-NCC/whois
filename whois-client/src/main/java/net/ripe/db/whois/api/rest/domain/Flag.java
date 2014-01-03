@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.*;
 public class Flag {
 
     @XmlAttribute(name = "value", required = true)
-    protected String value;
+    private String value;
 
     public Flag(final QueryFlag value) {
         this.value = value.getName();

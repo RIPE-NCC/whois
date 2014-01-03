@@ -11,7 +11,7 @@ import java.util.List;
 public class WhoisTags {
 
     @XmlElement(name = "tag")
-    protected List<WhoisTag> tags;
+    private List<WhoisTag> tags;
 
     public WhoisTags(final List<WhoisTag> tags) {
         this.tags = tags;

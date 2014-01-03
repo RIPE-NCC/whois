@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.*;
 public class InverseAttribute {
 
     @XmlAttribute(name = "value", required = true)
-    protected String value;
+    private String value;
 
     public InverseAttribute(final String value) {
         this.value = value;

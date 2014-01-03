@@ -17,11 +17,11 @@ import java.util.List;
 @XmlRootElement(name = "versions")
 public class WhoisVersions {
     @XmlElement(name = "version")
-    protected List<WhoisVersion> versions;
+    private List<WhoisVersion> versions;
     @XmlAttribute(name = "type")
-    protected String type;
+    private String type;
     @XmlAttribute(name = "key")
-    protected String key;
+    private String key;
 
     public WhoisVersions(final String type, final String key, final List<WhoisVersion> versions) {
         this.type = type;

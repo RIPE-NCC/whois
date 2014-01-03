@@ -11,13 +11,13 @@ import static net.ripe.db.whois.common.rpsl.AttributeTemplate.*;
 public class TemplateAttribute {
 
     @XmlAttribute(required = true)
-    protected String name;
+    private String name;
     @XmlAttribute(required = true)
-    protected Requirement requirement;
+    private Requirement requirement;
     @XmlAttribute(required = true)
-    protected Cardinality cardinality;
+    private Cardinality cardinality;
     @XmlAttribute
-    protected Set<Key> keys;
+    private Set<Key> keys = Collections.emptySet();
 
     public String getName() {
         return name;

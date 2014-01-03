@@ -7,11 +7,11 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TemplateResources {
     @XmlElement
-    protected Link link;
+    private Link link;
     @XmlElement
-    protected Service service;
+    private Service service;
     @XmlElement
-    protected Templates templates;
+    private Templates templates;
 
     public Link getLink() {
         return link;

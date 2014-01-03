@@ -19,11 +19,11 @@ import java.util.List;
 public class Source {
 
     @XmlElement(name = "grs-mirror")
-    protected List<GrsMirror> grsMirror;
+    private List<GrsMirror> grsMirror = Lists.newArrayList();
     @XmlAttribute(required = true)
-    protected String name;
+    private String name;
     @XmlAttribute(required = true)
-    protected String id;
+    private String id;
 
     public Source(final String id) {
         this.id = id;

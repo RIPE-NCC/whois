@@ -27,16 +27,16 @@ import java.util.Objects;
 public class Attribute {
 
     @XmlElement
-    protected Link link;
+    private Link link;
     @XmlAttribute(name = "value", required = true)
     @XmlJavaTypeAdapter(value = ValidXmlAdapter.class)
-    protected String value;
+    private String value;
     @XmlAttribute(name = "referenced-type")
-    protected String referencedType;
+    private String referencedType;
     @XmlAttribute(name = "name")
-    protected String name;
+    private String name;
     @XmlAttribute(name = "comment")
-    protected String comment;
+    private String comment;
 
     public Attribute(final String name, final String value, final String comment, final String referencedType, final Link link) {
         this.name = name;
