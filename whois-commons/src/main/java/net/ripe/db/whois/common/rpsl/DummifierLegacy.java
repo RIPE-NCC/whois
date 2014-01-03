@@ -100,7 +100,7 @@ public class DummifierLegacy implements Dummifier {
 
         attributes.addAll(getDummificationRemarks(rpslObject));
 
-        return new RpslObject(rpslObject.getObjectId(), attributes);
+        return new RpslObject(rpslObject, attributes);
     }
 
     private void stripOptionalAttributes(List<RpslAttribute> attributes, ObjectType objectType) {
@@ -158,19 +158,11 @@ public class DummifierLegacy implements Dummifier {
                 continue;
             }
 
-            final RpslAttribute replacement;
             if (seenAttributes.add(attribute.getType())) {
-                replacement = new RpslAttribute(attribute.getKey(), PERSON_ROLE_PLACEHOLDER);
+                attributes.set(i, new RpslAttribute(attribute.getKey(), PERSON_ROLE_PLACEHOLDER));
             } else {
-                replacement = null;
-            }
-
-            attributes.set(i, replacement);
-        }
-
-        for (Iterator<RpslAttribute> iterator = attributes.iterator(); iterator.hasNext(); ) {
-            if (iterator.next() == null) {
-                iterator.remove();
+                attributes.remove(i);
+                i--;
             }
         }
     }
@@ -187,12 +179,12 @@ public class DummifierLegacy implements Dummifier {
     }
 
     private static List<RpslAttribute> getDummificationRemarks(final RpslObject rpslObject) {
-        final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString();
+        final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toLowerCase();
         switch(source) {
-            case "RIPE":
-            case "RIPE-GRS":
-            case "TEST":
-            case "TEST-GRS":
+            case "ripe":
+            case "ripe-grs":
+            case "test":
+            case "test-grs":
                 return Lists.newArrayList(
                         new RpslAttribute("remarks", "        ****************************"),
                         new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
@@ -202,7 +194,7 @@ public class DummifierLegacy implements Dummifier {
                         new RpslAttribute("remarks", "        * http://www.ripe.net/whois"),
                         new RpslAttribute("remarks", "        ****************************"));
 
-            case "AFRINIC-GRS":
+            case "afrinic-grs":
                 return Lists.newArrayList(
                         new RpslAttribute("remarks", "        ****************************"),
                         new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
@@ -212,7 +204,7 @@ public class DummifierLegacy implements Dummifier {
                         new RpslAttribute("remarks", "        * http://www.afrinic.net/"),
                         new RpslAttribute("remarks", "        ****************************"));
 
-            case "APNIC-GRS":
+            case "apnic-grs":
                 return Lists.newArrayList(
                         new RpslAttribute("remarks", "        ****************************"),
                         new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
@@ -222,7 +214,7 @@ public class DummifierLegacy implements Dummifier {
                         new RpslAttribute("remarks", "        * http://www.apnic.net/"),
                         new RpslAttribute("remarks", "        ****************************"));
 
-            case "ARIN-GRS":
+            case "arin-grs":
                 return Lists.newArrayList(
                         new RpslAttribute("remarks", "        ****************************"),
                         new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
@@ -232,7 +224,7 @@ public class DummifierLegacy implements Dummifier {
                         new RpslAttribute("remarks", "        * http://www.arin.net/"),
                         new RpslAttribute("remarks", "        ****************************"));
 
-            case "JPIRR-GRS":
+            case "jpirr-grs":
                 return Lists.newArrayList(
                         new RpslAttribute("remarks", "        ****************************"),
                         new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
@@ -242,7 +234,7 @@ public class DummifierLegacy implements Dummifier {
                         new RpslAttribute("remarks", "        * http://www.nic.ad.jp/"),
                         new RpslAttribute("remarks", "        ****************************"));
 
-            case "LACNIC-GRS":
+            case "lacnic-grs":
                 return Lists.newArrayList(
                         new RpslAttribute("remarks", "        ****************************"),
                         new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
@@ -252,7 +244,7 @@ public class DummifierLegacy implements Dummifier {
                         new RpslAttribute("remarks", "        * http://www.lacnic.net/"),
                         new RpslAttribute("remarks", "        ****************************"));
 
-            case "RADB-GRS":
+            case "radb-grs":
                 return Lists.newArrayList(
                         new RpslAttribute("remarks", "        ****************************"),
                         new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),

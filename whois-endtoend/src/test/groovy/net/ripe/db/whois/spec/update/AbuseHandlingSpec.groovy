@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.Message
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
 import spock.lang.Ignore
 
-class AbuseHandlingSpec extends BaseSpec {
+class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
@@ -504,7 +504,7 @@ class AbuseHandlingSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 domain:         193.in-addr.arpa
                 descr:          reverse domain
@@ -552,7 +552,7 @@ class AbuseHandlingSpec extends BaseSpec {
                 ping-hdl:       TP1-test
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 route:          99.13.0.0/16
                 descr:          Route
@@ -602,7 +602,7 @@ class AbuseHandlingSpec extends BaseSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:   override1
+                override:   denis,override1
 
                 inetnum:      192.168.200.0 - 192.168.200.127
                 netname:      TEST-NET-NAME
@@ -657,7 +657,7 @@ class AbuseHandlingSpec extends BaseSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:   override1
+                override:   denis,override1
 
                 inetnum:      192.168.200.0 - 192.168.200.127
                 netname:      TEST-NET-NAME
@@ -712,7 +712,7 @@ class AbuseHandlingSpec extends BaseSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:   override1
+                override:   denis,override1
 
                 inetnum:      192.168.200.0 - 192.168.200.127
                 netname:      TEST-NET-NAME
@@ -1913,7 +1913,7 @@ class AbuseHandlingSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
         query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        syncUpdate(getTransient("EARLY-A") + "override: override1")
+        syncUpdate(getTransient("EARLY-A") + "override: denis,override1")
         query_object_matches("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-OFA1-TEST")
 
       expect:
@@ -1955,7 +1955,7 @@ class AbuseHandlingSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
         query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        syncUpdate(getTransient("ERX-ASSPI-A") + "override: override1")
+        syncUpdate(getTransient("ERX-ASSPI-A") + "override: denis,override1")
         query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA1-TEST")
 
       expect:
@@ -1998,7 +1998,7 @@ class AbuseHandlingSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
         query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        syncUpdate(getTransient("ASSPI-A") + "override: override1")
+        syncUpdate(getTransient("ASSPI-A") + "override: denis,override1")
         query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA1-TEST")
         query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-NCC-HM-MNT")
 
@@ -2044,7 +2044,7 @@ class AbuseHandlingSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
         query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        syncUpdate(getTransient("ASSANY-A") + "override: override1")
+        syncUpdate(getTransient("ASSANY-A") + "override: denis,override1")
         query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA1-TEST")
         query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-NCC-HM-MNT")
 
@@ -2090,7 +2090,7 @@ class AbuseHandlingSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
         query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        syncUpdate(getTransient("AS352-A") + "override: override1")
+        syncUpdate(getTransient("AS352-A") + "override: denis,override1")
         query_object_matches("-r -T aut-num AS352", "aut-num", "AS352", "ORG-OFA1-TEST")
 
       expect:
@@ -2133,7 +2133,7 @@ class AbuseHandlingSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
         query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        syncUpdate(getTransient("ASS-END-A") + "override: override1")
+        syncUpdate(getTransient("ASS-END-A") + "override: denis,override1")
         query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA1-TEST")
 
       expect:
@@ -2174,7 +2174,7 @@ class AbuseHandlingSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
         query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        syncUpdate(getTransient("LIR-AGGR-32-48-A") + "override: override1")
+        syncUpdate(getTransient("LIR-AGGR-32-48-A") + "override: denis,override1")
         query_object_matches("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32", "ORG-OFA1-TEST")
 
       expect:
@@ -2254,7 +2254,7 @@ class AbuseHandlingSpec extends BaseSpec {
 
     def "create ALLOCATED UNSPECIFIED ref ORGANISATION with no abuse-c, type RIR"() {
       given:
-        syncUpdate(getTransient("ALLOC-UNS") + "override: override1")
+        syncUpdate(getTransient("ALLOC-UNS") + "override: denis,override1")
         query_object_matches("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32", "ORG-OFA1-TEST")
 
       expect:
@@ -2295,7 +2295,7 @@ class AbuseHandlingSpec extends BaseSpec {
 
     def "modify ALLOCATED UNSPECIFIED ref ORGANISATION with no abuse-c, type RIR"() {
       given:
-        syncUpdate(getTransient("ALLOC-UNS") + "override: override1")
+        syncUpdate(getTransient("ALLOC-UNS") + "override: denis,override1")
         query_object_matches("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32", "ORG-OFA1-TEST")
 
       expect:
@@ -2352,7 +2352,7 @@ class AbuseHandlingSpec extends BaseSpec {
 
     def "create ALLOCATED PA ref ORGANISATION with no abuse-c, type LIR"() {
       given:
-        syncUpdate(getTransient("ALLOC-UNS") + "override: override1")
+        syncUpdate(getTransient("ALLOC-UNS") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
 
       expect:
@@ -2396,9 +2396,9 @@ class AbuseHandlingSpec extends BaseSpec {
     @Ignore
     def "modify ALLOCATED PA ref ORGANISATION with no abuse-c, type LIR"() {
       given:
-        syncUpdate(getTransient("ALLOC-UNS") + "override: override1")
+        syncUpdate(getTransient("ALLOC-UNS") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
 
       expect:

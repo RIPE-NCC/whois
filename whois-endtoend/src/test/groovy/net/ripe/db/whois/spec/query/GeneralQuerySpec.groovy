@@ -1,18 +1,7 @@
 package net.ripe.db.whois.spec.query
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.Message
-import spock.lang.Ignore
-
-/**
- * Created with IntelliJ IDEA.
- * User: denis
- * Date: 31/05/2013
- * Time: 15:33
- * To change this template use File | Settings | File Templates.
- */
-class GeneralQuerySpec extends BaseSpec {
+class GeneralQuerySpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
@@ -48,7 +37,7 @@ class GeneralQuerySpec extends BaseSpec {
 
     def "query pkey only with -K, object returned, no %ERROR:101"() {
         given:
-        syncUpdate(getTransient("ALLOC-UNS") + "override: override1")
+        syncUpdate(getTransient("ALLOC-UNS") + "override: denis,override1")
 
         expect:
         // "ALLOC-UNS"

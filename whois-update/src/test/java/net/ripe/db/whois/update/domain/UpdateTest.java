@@ -33,7 +33,7 @@ public class UpdateTest {
 
     @Test
     public void is_not_signed_with_one_password_credential() {
-        final Paragraph paragraph = new Paragraph(content, new Credentials(Sets.newHashSet(PasswordCredential.forPasswords("password"))));
+        final Paragraph paragraph = new Paragraph(content, new Credentials(Sets.newHashSet(new PasswordCredential("password"))));
 
         Update subject = new Update(paragraph, Operation.UNSPECIFIED, Lists.<String>newArrayList(), rpslObject);
 
@@ -51,7 +51,7 @@ public class UpdateTest {
 
     @Test
     public void is_not_override() {
-        final Paragraph paragraph = new Paragraph(content, new Credentials(Sets.newHashSet(PasswordCredential.forPasswords("password"))));
+        final Paragraph paragraph = new Paragraph(content, new Credentials(Sets.newHashSet(new PasswordCredential("password"))));
 
         Update subject = new Update(paragraph, Operation.UNSPECIFIED, Lists.<String>newArrayList(), rpslObject);
 

@@ -11,7 +11,7 @@ public class MessageTest {
         final Message subject = new Message(Messages.Type.INFO, "info");
         assertThat(subject.toString(), is("info"));
         assertThat(subject.getType(), is(Messages.Type.INFO));
-        assertThat(subject.getValue(), is("info"));
+        assertThat(subject.getFormattedText(), is("info"));
     }
 
     @Test

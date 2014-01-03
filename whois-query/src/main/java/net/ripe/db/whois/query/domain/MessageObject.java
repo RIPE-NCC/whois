@@ -8,14 +8,22 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class MessageObject implements ResponseObject {
-    private final String text;
+    private final String formattedText;
+    private final Message message;
 
-    public MessageObject(final String text) {
-        this.text = text;
+    // TODO: [AH] this (String) constructor should be dropped & MessageObject merged with Message
+    public MessageObject(final String formattedText) {
+        this.formattedText = formattedText;
+        this.message = null;
     }
 
     public MessageObject(final Message message) {
-        this(message.toString());
+        this.formattedText = message.getFormattedText();
+        this.message = message;
+    }
+
+    public Message getMessage() {
+        return message;
     }
 
     @Override
@@ -25,12 +33,12 @@ public class MessageObject implements ResponseObject {
 
     @Override
     public byte[] toByteArray() {
-        return text.getBytes(Charsets.UTF_8);
+        return formattedText.getBytes(Charsets.UTF_8);
     }
 
     @Override
     public String toString() {
-        return text;
+        return formattedText;
     }
 
     @Override
@@ -44,12 +52,11 @@ public class MessageObject implements ResponseObject {
         }
 
         MessageObject that = (MessageObject) o;
-        return text.equals(that.text);
-
+        return formattedText.equals(that.formattedText);
     }
 
     @Override
     public int hashCode() {
-        return text.hashCode();
+        return formattedText.hashCode();
     }
 }

@@ -1,8 +1,11 @@
 package net.ripe.db.whois.update.handler;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.rpsl.*;
+import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.keycert.KeyWrapper;
@@ -10,8 +13,10 @@ import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.ListIterator;
+import java.util.Set;
 
 @Component
 public class AttributeGenerator {
@@ -37,27 +42,49 @@ public class AttributeGenerator {
             return object;
         }
 
-        final Map<RpslAttribute, RpslAttribute> replacements = Maps.newLinkedHashMap();
-        final List<RpslAttribute> additions = Lists.newArrayList();
-        addOrReplaceAttribute(object, AttributeType.METHOD, keyWrapper.getMethod(), replacements, additions);
-        addOrReplaceAttribute(object, AttributeType.OWNER, keyWrapper.getOwner(), replacements, additions);
-        addOrReplaceAttribute(object, AttributeType.FINGERPR, keyWrapper.getFingerprint(), replacements, additions);
+        final RpslObjectBuilder builder = new RpslObjectBuilder(object);
 
-        for (final RpslAttribute attribute : replacements.values()) {
-            updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(attribute.getType()));
-        }
+        cleanupAttributeType(update, updateContext, builder, AttributeType.METHOD, keyWrapper.getMethod());
+        cleanupAttributeType(update, updateContext, builder, AttributeType.OWNER, keyWrapper.getOwners());
+        cleanupAttributeType(update, updateContext, builder, AttributeType.FINGERPR, keyWrapper.getFingerprint());
 
-        RpslObject result = object;
-        result = new RpslObjectFilter(result).replaceAttributes(replacements);
-        result = new RpslObjectFilter(result).addAttributes(additions);
-        return result;
+        return builder.get();
     }
 
-    private void addOrReplaceAttribute(final RpslObject rpslObject, final AttributeType attributeType, final String attributeValue, final Map<RpslAttribute, RpslAttribute> replacements, final List<RpslAttribute> additions) {
-        if (!rpslObject.containsAttribute(attributeType)) {
-            additions.add(new RpslAttribute(attributeType, attributeValue));
-        } else {
-            replacements.put(rpslObject.findAttribute(attributeType), new RpslAttribute(attributeType, attributeValue));
+    private static void cleanupAttributeType(final Update update, final UpdateContext updateContext, final RpslObjectBuilder builder, final AttributeType attributeType, final String validAttributeValue) {
+        cleanupAttributeType(update, updateContext, builder, attributeType, Collections.singleton(validAttributeValue));
+    }
+
+    private static void cleanupAttributeType(final Update update, final UpdateContext updateContext, final RpslObjectBuilder builder, final AttributeType attributeType, final Collection<String> validAttributeValues) {
+        final Set<String> found = Sets.newHashSet();
+
+        final ListIterator<RpslAttribute> iterator = builder.getAttributes().listIterator();
+        while (iterator.hasNext()) {
+            final RpslAttribute attribute = iterator.next();
+            if (attribute.getType() == attributeType) {
+                final String attributeValue = attribute.getValue().trim();
+
+                if (!found.contains(attributeValue)) {
+                    if (validAttributeValues.contains(attributeValue)) {
+                        // matched valid attribute
+                        found.add(attributeValue);
+                    } else {
+                        // remove invalid attribute
+                        updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(attributeType));
+                        iterator.remove();
+                    }
+                } else {
+                    // remove duplicate attribute
+                    iterator.remove();
+                }
+            }
+        }
+
+        for (String attributeValue : validAttributeValues) {
+            if (!found.contains(attributeValue)) {
+                // add missing attribute
+                builder.addAttribute(new RpslAttribute(attributeType, attributeValue)).sort();
+            }
         }
     }
 }

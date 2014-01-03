@@ -51,7 +51,7 @@ public class SetnameMustExistValidator implements BusinessRuleValidator {
         }
 
         final String key = update.getUpdatedObject().getTypeAttribute().getCleanValue().toString();
-        final int lastColon = key.lastIndexOf(":");
+        final int lastColon = key.lastIndexOf(':');
         if (lastColon < 0) {
             return;
         }

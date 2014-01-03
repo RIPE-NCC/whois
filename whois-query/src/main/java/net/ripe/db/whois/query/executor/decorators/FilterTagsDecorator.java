@@ -10,7 +10,7 @@ import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.query.QueryFlag;
+import net.ripe.db.whois.query.QueryFlag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -88,8 +88,7 @@ public class FilterTagsDecorator implements ResponseDecorator {
             result.add(new TagResponseObject(object.getKey(), tag.getType(), tag.getValue()));
         }
 
-        // TODO [AH]: formatting to take place in queryhandler
-        result.add(new MessageObject(""));
+        result.add(new MessageObject(QueryMessages.tagInfoEnd()));
     }
 
     private static boolean containsTag(List<Tag> objectTags, Set<CIString> tagsFromQuery) {

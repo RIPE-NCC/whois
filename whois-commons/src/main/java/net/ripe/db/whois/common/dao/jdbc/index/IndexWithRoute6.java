@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
-import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -60,7 +60,7 @@ class IndexWithRoute6 extends IndexStrategyWithSingleLookupTable {
         }
     }
 
-    private static class Route6Key {
+    private static final class Route6Key {
         private static final Pattern ROUTE_PATTERN = Pattern.compile("(?i)(.*)(AS(?:\\d+))");
 
         private final Ipv6Resource resource;

@@ -2,7 +2,7 @@ package net.ripe.db.whois.query.query;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.domain.IpInterval;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 
 import java.util.Collection;
@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 abstract class AttributeMatcher { // TODO [AK] Figure out what can be delegated to AttributeSyntax
     static final AttributeMatcher ANYTHING_CONTAINING_ALPHA_MATCHER = new RegExpMatcher(".*[A-Z].*");
-    static final AttributeMatcher AS_NUMBER_MATCHER = new RegExpMatcher("^AS\\d+");
+    static final AttributeMatcher AS_NUMBER_MATCHER = new RegExpMatcher("^AS\\d+$");
     static final AttributeMatcher AS_SET_MATCHER = new RegExpMatcher("(^|.*:)AS-[A-Z0-9_-]*(:.*|$)");
     static final AttributeMatcher DOMAIN_MATCHER = new RegExpMatcher("^[A-Z0-9/-]*(\\.[A-Z0-9-]+)*\\.?$");
     static final AttributeMatcher EMAIL_MATCHER = new RegExpMatcher("^.+@.+$");

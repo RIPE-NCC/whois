@@ -74,14 +74,6 @@ class DnsGatewayImpl implements DnsGateway {
         return new DnsCheckResponse();
     }
 
-    @Override
-    public DnsCheckResponse performDnsCheck(final DnsCheckRequest dnsCheckRequest) {
-        final String processId = queueDnsCheck(dnsCheckRequest);
-        final DnsResult dnsResult = pollResult(processId);
-
-        return getDnsResponseForPollResult(dnsResult);
-    }
-
     private List<Message> getMessages(final DnsResult dnsResult) {
         return jdbcTemplate.query("" +
                 "SELECT LEVEL,formatstring,description,arg0,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9 " +
@@ -166,7 +158,7 @@ class DnsGatewayImpl implements DnsGateway {
         return null;
     }
 
-    private static class DnsResult {
+    private static final class DnsResult {
         private int id;
         private int nrErrors;
 

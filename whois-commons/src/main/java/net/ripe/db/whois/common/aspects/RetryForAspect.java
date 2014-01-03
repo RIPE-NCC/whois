@@ -1,17 +1,17 @@
 package net.ripe.db.whois.common.aspects;
 
+import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.DeclarePrecedence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
+
+// @Order is not supported with compile-time weaving, so we resorted to AspectJ annotation
 
 @Aspect
-@Component
-@Order(Ordered.LOWEST_PRECEDENCE)
+@DeclarePrecedence("RetryForAspect, *")
 public class RetryForAspect {
     @Around("@within(retryFor) && execution(public * *(..)) && !@annotation(RetryFor)")
     public Object retryForPublicMethodInAnnotatedType(final ProceedingJoinPoint pjp, final RetryFor retryFor) throws Throwable {
@@ -37,14 +37,14 @@ public class RetryForAspect {
                     }
 
                     final Logger logger = LoggerFactory.getLogger(pjp.getSignature().getDeclaringType());
-                    final String signature = pjp.getSignature().toShortString();
+                    final String signature = pjp.getSignature().toShortString().replaceFirst("\\.\\.", StringUtils.join(pjp.getArgs(), ", "));
 
                     final int attempts = retryFor.attempts();
                     if (++attempt < attempts) {
                         logger.error("{} attempt {}/{} failed, retrying in {} ms", signature, attempt, attempts, retryFor.intervalMs(), e);
                         Thread.sleep(retryFor.intervalMs());
                     } else {
-                        logger.error("{} attempt {}/{} failed", signature, attempt, attempts, e);
+                        logger.error("{} attempt {}/{} failed, giving up", signature, attempt, attempts, e);
                         throw originalException;
                     }
                 } else {

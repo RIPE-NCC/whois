@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.Message
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
 
-class RtrSetSpec extends BaseSpec {
+class RtrSetSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
@@ -1535,7 +1535,7 @@ class RtrSetSpec extends BaseSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net
                 source:  TEST
-                override:     override1
+                override:     denis,override1
                 """.stripIndent()
         )
 

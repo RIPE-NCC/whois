@@ -6,14 +6,16 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Hosts;
 import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
-import net.ripe.db.whois.query.query.QueryFlag;
+import net.ripe.db.whois.query.QueryFlag;
 
 import java.net.InetAddress;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.Messages.Type;
 
+// TODO: [AH] remove PORT43 formatting from QueryMessages, add formatting on output (PORT43/REST)
 public final class QueryMessages {
     private static final Joiner JOINER = Joiner.on(", ");
 
@@ -52,6 +54,10 @@ public final class QueryMessages {
         return new Message(Type.INFO, "%% Abuse contact for '%s' is '%s'\n", entry.getKey(), entry.getValue());
     }
 
+    public static Message abuseCNotRegistered(final CharSequence key) {
+        return new Message(Type.INFO, "%% No abuse contact registered for %s\n", key);
+    }
+
     public static Message outputFilterNotice() {
         return new Message(Type.INFO, ""
                 + "% Note: this output has been filtered.\n"
@@ -71,7 +77,7 @@ public final class QueryMessages {
                 version, Hosts.getLocalHost());
     }
 
-    public static Message versionListHeader(final CharSequence type, final CharSequence key) {
+    public static Message versionListStart(final CharSequence type, final CharSequence key) {
         return new Message(Type.INFO, ""
                 + "%% Version history for %s object \"%s\"\n"
                 + "%% You can use \"%s rev#\" to get an exact version of the object.\n",
@@ -109,7 +115,7 @@ public final class QueryMessages {
                 "%% History not available for PERSON and ROLE objects.\n", type, key);
     }
 
-    public static Message internalErrorOccured() {
+    public static Message internalErroroccurred() {
         return new Message(Type.ERROR, ""
                 + "%ERROR:100: internal software error\n"
                 + "%\n"
@@ -129,7 +135,7 @@ public final class QueryMessages {
                 + "%%ERROR:102: unknown source\n"
                 + "%%\n"
                 + "%% \"%s\" is not a known source.\n"
-                + "%% Use \"-q sources\" to list known sources.",
+                + "%% Use \"-q sources\" to list known sources.\n",
                 source);
     }
 
@@ -304,6 +310,10 @@ public final class QueryMessages {
         return new Message(Type.INFO, "%% Tags relating to '%s'", pkey);
     }
 
+    public static Message tagInfoEnd() {
+        return new Message(Type.INFO, "");
+    }
+
     public static Message tagInfo(final CharSequence tagType, final CharSequence tagValue) {
         if (tagValue != null && tagValue.length() > 0) {
             return new Message(Type.INFO, "%% %s # %s", tagType, tagValue);
@@ -330,5 +340,13 @@ public final class QueryMessages {
         }
 
         return new Message(Type.INFO, message.toString());
+    }
+
+    public static Message invalidSyntax(final CharSequence objectKey) {
+        return new Message(Type.INFO, "%% '%s' invalid syntax", objectKey);
+    }
+
+    public static Message validSyntax(final CharSequence objectKey) {
+        return new Message(Type.INFO, "%% '%s' has valid syntax", objectKey);
     }
 }

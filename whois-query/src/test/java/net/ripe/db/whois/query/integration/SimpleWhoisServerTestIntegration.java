@@ -88,7 +88,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractWhoisIntegrationTe
         String response = new DummyWhoisClient(QueryServer.port).sendQuery("-rBGxTinetnum 10.0.0.0");
 
         assertThat(stripHeader(response), Matchers.containsString("% This query was served by the RIPE Database Query"));
-        assertThat(stripHeader(response), Matchers.containsString(trim(QueryMessages.internalErrorOccured())));
+        assertThat(stripHeader(response), Matchers.containsString(trim(QueryMessages.internalErroroccurred())));
     }
 
     @Test

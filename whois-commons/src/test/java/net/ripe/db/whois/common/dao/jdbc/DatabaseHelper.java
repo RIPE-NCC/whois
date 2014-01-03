@@ -2,7 +2,6 @@ package net.ripe.db.whois.common.dao.jdbc;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -14,7 +13,11 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.jdbc.driver.LoggingDriver;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
+import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
@@ -38,14 +41,24 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.StringValueResolver;
 
 import javax.sql.DataSource;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
+import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.keepKeyAttributesOnly;
 
 @Component
 public class DatabaseHelper implements EmbeddedValueResolverAware {
@@ -58,9 +71,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private DataSource dnsCheckDataSource;
 
     private JdbcTemplate aclTemplate;
-    private JdbcTemplate schedulerTemplate;
     private JdbcTemplate mailupdatesTemplate;
-    private JdbcTemplate pendingUpdatesTemplate;
+    private JdbcTemplate internalsTemplate;
 
     @Autowired Environment environment;
     @Autowired DateTimeProvider dateTimeProvider;
@@ -73,14 +85,12 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     @Autowired(required = false)
     @Qualifier("aclDataSource")
-    public void setAclTemplate(final DataSource aclDataSource) {
+    public void setAclDataSource(final DataSource aclDataSource) {
         this.aclTemplate = new JdbcTemplate(aclDataSource);
     }
 
-    @Autowired(required = false)
-    @Qualifier("schedulerDataSource")
-    public void setSchedulerDataSource(DataSource schedulerDataSource) {
-        schedulerTemplate = new JdbcTemplate(schedulerDataSource);
+    public JdbcTemplate getAclTemplate() {
+        return aclTemplate;
     }
 
     @Autowired(required = false)
@@ -97,9 +107,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     @Autowired(required = false)
-    @Qualifier("pendingUpdateDataSource")
+    @Qualifier("internalsDataSource")
     public void setPendingDataSource(DataSource pendingDataSource) {
-        pendingUpdatesTemplate = new JdbcTemplate(pendingDataSource);
+        internalsTemplate = new JdbcTemplate(pendingDataSource);
     }
 
     @Override
@@ -127,10 +137,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
         setupDatabase(jdbcTemplate, "acl.database", "ACL", "acl_schema.sql");
         setupDatabase(jdbcTemplate, "dnscheck.database", "DNSCHECK", "dnscheck_schema.sql");
-        setupDatabase(jdbcTemplate, "scheduler.database", "SCHEDULER", "scheduler_schema.sql");
         setupDatabase(jdbcTemplate, "mailupdates.database", "MAILUPDATES", "mailupdates_schema.sql");
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
-        setupDatabase(jdbcTemplate, "pending.database", "PENDING", "pending_schema.sql");
+        setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
 
         final String masterUrl = String.format("jdbc:log:mysql://localhost/%s_WHOIS;driver=%s;logger=%s", dbBaseName, JDBC_DRIVER, LOGGING_HANDLER);
         System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
@@ -225,11 +234,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     public void setup() {
         // Setup configured sources
-        final Splitter splitter = Splitter.on(',');
-        final Iterable<String> mainSources = Collections.singletonList(valueResolver.resolveStringValue("${whois.source}"));
-        final Iterable<String> grsSources = splitter.split(valueResolver.resolveStringValue("${grs.sources:}"));
-        final Iterable<String> nrtmSources = splitter.split(valueResolver.resolveStringValue("${nrtm.import.sources:}"));
-        final Set<String> sources = Sets.newLinkedHashSet(Iterables.concat(mainSources, grsSources, nrtmSources));
+        final Splitter splitter = Splitter.on(',').trimResults().omitEmptyStrings();
+        final String sourcesConfig = valueResolver.resolveStringValue("${whois.source},${nrtm.import.sources:},${grs.sources:}");
+        final Set<String> sources = Sets.newHashSet(splitter.split(sourcesConfig));
 
         for (final String source : sources) {
             try {
@@ -241,7 +248,13 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             }
         }
 
-        truncateTables(aclTemplate, schedulerTemplate, mailupdatesTemplate, pendingUpdatesTemplate);
+        setupAclDatabase();
+        truncateTables(mailupdatesTemplate, internalsTemplate);
+        loadScripts(internalsTemplate, "internals_data.sql");
+    }
+
+    public void setupAclDatabase() {
+        truncateTables(aclTemplate);
     }
 
     public DataSource getMailupdatesDataSource() {
@@ -252,8 +265,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return dnsCheckDataSource;
     }
 
-    public JdbcTemplate getPendingUpdatesTemplate() {
-        return pendingUpdatesTemplate;
+    public JdbcTemplate getInternalsTemplate() {
+        return internalsTemplate;
     }
 
     public JdbcTemplate getWhoisTemplate() {
@@ -311,8 +324,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     private RpslObjectUpdateInfo addObjectWithoutReferences(final RpslObject rpslObject, final RpslObjectUpdateDao rpslObjectUpdateDao) {
-        final List<RpslAttribute> attributes = RpslObjectFilter.keepKeyAttributesOnly(rpslObject);
-        return rpslObjectUpdateDao.createObject(new RpslObject((Integer) null, attributes));
+        return rpslObjectUpdateDao.createObject(keepKeyAttributesOnly(new RpslObjectBuilder(rpslObject)).get());
     }
 
     public RpslObject updateObject(final String rpslString) {
@@ -387,6 +399,12 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return aclTemplate.queryForList(
                 "SELECT * FROM acl_event"
         );
+    }
+
+    public void insertApiKey(final String apiKey, final String uri, final String comment) {
+        aclTemplate.update(
+                "INSERT INTO apikeys (apikey, uri_prefix, comment) VALUES(?, ?, ?)",
+                apiKey, uri, comment);
     }
 
     public void insertUser(final User user) {

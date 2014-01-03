@@ -1,14 +1,3 @@
-#    ________ .___ ___________
-#   /  _____/ |   |\__    ___/
-#  /   \  ___ |   |  |    |   
-#  \    \_\  \|   |  |    |   
-#   \______  /|___|  |____|   
-#          \/                 
-# git clone git:operational
-# conf/whois-test/TEST.db
-# ****************************************
-#
-
 ###
 ### Objects inherited from legacy (pre-whois-cluster) test DB; simply a standard set of objects that seem to be useful
 ###
@@ -415,6 +404,8 @@ import:		from AS-set-attendees accept PeerAS
 export:		to AS-set-attendees announce ANY
 mp-import:	afi ipv6.unicast from AS-set-attendees accept PeerAS
 mp-export:	afi ipv6.unicast to AS-set-attendees announce ANY
+import-via: AS67777 from AS5580 accept AS-ATRATO
+export-via: AS67777 to AS5580 announce AS101
 mnt-by:		TEST-DBM-MNT
 mnt-by:		TS1-MNT
 changed:	hostmaster@ripe.net 20121115

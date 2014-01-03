@@ -212,13 +212,12 @@ public class UpdatesParserTest {
     }
 
     @Test
-    public void no_source() {
+    public void no_source_still_parses() {
         List<ContentWithCredentials> content = Lists.newArrayList();
         content.add(new ContentWithCredentials("mntner: DEV-MNT"));
 
         final List<Update> updates = subject.parse(updateContext, content);
 
-        assertThat(updates, hasSize(0));
-        verify(updateContext).ignore(any(Paragraph.class));
+        assertThat(updates, hasSize(1));
     }
 }

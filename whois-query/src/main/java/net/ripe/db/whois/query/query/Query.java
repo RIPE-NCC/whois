@@ -13,35 +13,43 @@ import joptsimple.OptionSpecBuilder;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.attrs.AsBlockRange;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
+import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.QueryMessages;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
-public final class Query {
+public class Query {
     public static final Pattern FLAG_PATTERN = Pattern.compile("(--?)([^-].*)");
 
     public static final int MAX_QUERY_ELEMENTS = 60;
 
-    private static final Set<ObjectType> GRS_LIMIT_TYPES = Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
-    private static final Set<ObjectType> DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS = Sets.newHashSet(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
-    private static final Set<ObjectType> DEFAULT_TYPES_ALL = Sets.newHashSet(ObjectType.values());
+    public static final EnumSet<ObjectType> ABUSE_CONTACT_OBJECT_TYPES = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
+    private static final EnumSet<ObjectType> GRS_LIMIT_TYPES = EnumSet.of(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
+    private static final EnumSet<ObjectType> DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
+    private static final EnumSet<ObjectType> DEFAULT_TYPES_ALL = EnumSet.allOf(ObjectType.class);
 
     private static final List<QueryValidator> QUERY_VALIDATORS = Lists.newArrayList(
             new MatchOperationValidator(),
             new ProxyValidator(),
-            new BriefValidator(),
+            new AbuseContactValidator(),
             new CombinationValidator(),
             new SearchKeyValidator(),
             new TagValidator(),
@@ -69,13 +77,17 @@ public final class Query {
             return queryFlag != null;
         }
 
-        QueryFlag getQueryFlag() {
+        public QueryFlag getQueryFlag() {
             return queryFlag;
         }
     }
 
     public static enum SystemInfoOption {
         VERSION, TYPES, SOURCES
+    }
+
+    public static enum Origin {
+        PORT43, REST;
     }
 
     private static final OptionParser PARSER = new OptionParser() {
@@ -99,7 +111,11 @@ public final class Query {
                 }
             }
 
-            return super.parse(arguments);
+            try {
+                return super.parse(arguments);
+            } catch (OptionException e) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
+            }
         }
 
         private boolean isValidOption(final Matcher matcher) {
@@ -131,9 +147,12 @@ public final class Query {
     private final MatchOperation matchOperation;
     private final SearchKey searchKey;
 
+    private List<String> passwords;
+    private Origin origin;
+
     private Query(final String query) {
+        originalStringQuery = query;
         String[] args = Iterables.toArray(SPACE_SPLITTER.split(query), String.class);
-        originalStringQuery = SPACE_JOINER.join(args);
         if (args.length > MAX_QUERY_ELEMENTS) {
             messages.add(QueryMessages.malformedQuery());
         }
@@ -147,8 +166,11 @@ public final class Query {
         matchOperation = parseMatchOperations();
     }
 
-    @SuppressWarnings("PMD.PreserveStackTrace")
     public static Query parse(final String args) {
+        return parse(args, Origin.PORT43);
+    }
+
+    public static Query parse(final String args, final Origin origin) {
         try {
             final Query query = new Query(args.trim());
 
@@ -165,6 +187,24 @@ public final class Query {
         } catch (OptionException e) {
             throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
         }
+    }
+
+    public static Query parse(final String args, final List<String> passwords) {
+        Query query = parse(args, Origin.REST);
+        query.passwords = passwords;
+        return query;
+    }
+
+    public List<String> getPasswords() {
+        return passwords;
+    }
+
+    public boolean via(Origin origin) {
+        return this.origin == origin;
+    }
+
+    public static boolean hasFlags(String queryString) {
+        return !PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class)).specs().isEmpty();
     }
 
     public Collection<Message> getWarnings() {
@@ -198,14 +238,14 @@ public final class Query {
     }
 
     public boolean isReturningIrt() {
-        return isBrief() || (!isKeysOnly() && hasOption(QueryFlag.IRT));
+        return isBriefAbuseContact() || (!isKeysOnly() && hasOption(QueryFlag.IRT));
     }
 
     public boolean isGrouping() {
-        return (!isKeysOnly() && !hasOption(QueryFlag.NO_GROUPING)) && !isBrief();
+        return (!isKeysOnly() && !hasOption(QueryFlag.NO_GROUPING)) && !isBriefAbuseContact();
     }
 
-    public boolean isBrief() {
+    public boolean isBriefAbuseContact() {
         return hasOption(QueryFlag.ABUSE_CONTACT);
     }
 
@@ -230,7 +270,7 @@ public final class Query {
     }
 
     public boolean isReturningReferencedObjects() {
-        return !(hasOption(QueryFlag.NO_REFERENCED) || isShortHand() || isKeysOnly() || isResource() || isBrief());
+        return !(hasOption(QueryFlag.NO_REFERENCED) || isShortHand() || isKeysOnly() || isResource() || isBriefAbuseContact());
     }
 
     public boolean isInverse() {
@@ -291,6 +331,14 @@ public final class Query {
         return hasOption(QueryFlag.VERBOSE);
     }
 
+    public boolean isValidSyntax() {
+        return hasOption(QueryFlag.VALID_SYNTAX);
+    }
+
+    public boolean isNoValidSyntax() {
+        return hasOption(QueryFlag.NO_VALID_SYNTAX);
+    }
+
     public SystemInfoOption getSystemInfoOption() {
         if (hasOption(QueryFlag.LIST_SOURCES_OR_VERSION)) {
             final String optionValue = getOptionValue(QueryFlag.LIST_SOURCES_OR_VERSION).trim();
@@ -337,7 +385,7 @@ public final class Query {
     }
 
     public boolean hasIpFlags() {
-        return isLookupInBothDirections() || isBrief() || matchOperation != null;
+        return isLookupInBothDirections() || matchOperation != null;
     }
 
     public boolean hasObjectTypeFilter(ObjectType objectType) {
@@ -477,6 +525,10 @@ public final class Query {
 
         if (hasOption(QueryFlag.RESOURCE)) {
             response.retainAll(GRS_LIMIT_TYPES);
+        }
+
+        if (hasOption(QueryFlag.ABUSE_CONTACT)) {
+            response.retainAll(ABUSE_CONTACT_OBJECT_TYPES);
         }
 
         if (!isInverse()) {
@@ -628,7 +680,7 @@ public final class Query {
         return originalStringQuery;
     }
 
-    public boolean MatchesObjectTypeAndAttribute(final ObjectType objectType, final AttributeType attributeType) {
+    public boolean matchesObjectTypeAndAttribute(final ObjectType objectType, final AttributeType attributeType) {
         return ObjectTemplate.getTemplate(objectType).getLookupAttributes().contains(attributeType) && AttributeMatcher.fetchableBy(attributeType, this);
     }
 }

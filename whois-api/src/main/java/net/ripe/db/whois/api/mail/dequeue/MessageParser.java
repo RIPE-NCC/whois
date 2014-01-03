@@ -94,6 +94,9 @@ public class MessageParser {
                 updateContext.addGlobalMessage(UpdateMessages.invalidKeywordsFound(subject));
                 updateContext.addGlobalMessage(UpdateMessages.allKeywordsIgnored());
             } else {
+                if (keyword.equals(Keyword.DIFF)) {
+                    updateContext.addGlobalMessage(UpdateMessages.diffNotSupported());
+                }
                 messageBuilder.keyword(keyword);
             }
         }
@@ -273,7 +276,7 @@ public class MessageParser {
         }
     }
 
-    private static class MessagePart {
+    private static final class MessagePart {
         private final String text;
         private final Part part;
         private final List<Credential> credentials = Lists.newArrayList();

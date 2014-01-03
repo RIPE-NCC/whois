@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.Message
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
 
-class InetnumStatusBetweenSpec extends BaseSpec {
+class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
@@ -1978,7 +1978,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:       override1
+                override:       denis,override1
 
                 """.stripIndent()
         )
@@ -2994,7 +2994,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3039,7 +3039,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3087,7 +3087,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3135,7 +3135,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3183,7 +3183,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3231,7 +3231,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3279,7 +3279,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3326,7 +3326,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3373,7 +3373,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: override1")
+        syncUpdate(getTransient("EARLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3419,7 +3419,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
 
     def "create between EARLY-REGISTRATION and LIR-PARTITIONED PI, with status LIR-PARTITIONED PA"() {
       given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: override1")
+        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("PART-PI") + "password: owner3\npassword: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3466,7 +3466,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
 
     def "create between EARLY-REGISTRATION and LIR-PARTITIONED PI, with status LIR-PARTITIONED PI"() {
       given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: override1")
+        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("PART-PI") + "password: owner3\npassword: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3511,7 +3511,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
 
     def "create between EARLY-REGISTRATION and LIR-PARTITIONED PI, with status SUB-ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: override1")
+        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("PART-PI") + "password: owner3\npassword: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3558,7 +3558,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
 
     def "create between EARLY-REGISTRATION and LIR-PARTITIONED PI, with status ASSIGNED PA"() {
       given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: override1")
+        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("PART-PI") + "password: owner3\npassword: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3605,7 +3605,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
 
     def "create between EARLY-REGISTRATION and LIR-PARTITIONED PI, with status ASSIGNED PI"() {
       given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: override1")
+        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("PART-PI") + "password: owner3\npassword: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3654,7 +3654,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
 
     def "create between EARLY-REGISTRATION and SUB-ALLOCATED PA, with status LIR-PARTITIONED PI"() {
       given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: override1")
+        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -3702,7 +3702,7 @@ class InetnumStatusBetweenSpec extends BaseSpec {
 
     def "create between EARLY-REGISTRATION and SUB-ALLOCATED PA, with status ASSIGNED PI"() {
       given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: override1")
+        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")

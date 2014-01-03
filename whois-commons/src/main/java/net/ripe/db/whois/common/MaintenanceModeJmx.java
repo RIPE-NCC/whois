@@ -18,7 +18,7 @@ import java.util.concurrent.Callable;
 @Component
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "MaintenanceMode", description = "Enable/disable accepting new requests for all whois services")
 public class MaintenanceModeJmx extends JmxBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseMaintenanceJmx.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MaintenanceModeJmx.class);
 
     private final MaintenanceMode maintenanceMode;
     private final IpRanges ipRanges;

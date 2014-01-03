@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.database;
 
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.update.dao.AbstractDaoTest;
+import net.ripe.db.whois.update.dao.AbstractUpdateDaoTest;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
-public class UpdateLockTestIntegration extends AbstractDaoTest {
+public class UpdateLockTestIntegration extends AbstractUpdateDaoTest {
 
     private static final String MNTNER = "Dot: ";
     private final int threads = 12;

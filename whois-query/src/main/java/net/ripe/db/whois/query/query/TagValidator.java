@@ -3,6 +3,7 @@ package net.ripe.db.whois.query.query;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.domain.QueryMessages;
 
 class TagValidator implements QueryValidator {

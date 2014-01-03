@@ -1,11 +1,9 @@
 package net.ripe.db.whois.spec.update
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.Message
-import spock.lang.Ignore
-
-class KeycertSpec extends BaseSpec {
+class KeycertSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
@@ -24,7 +22,7 @@ class KeycertSpec extends BaseSpec {
             "X509-1": """\
                 key-cert:     AUTO-1
                 method:       X509
-                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-receiver/emailAddress=test-receiver@linux.testlab.ripe.net
+                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-receiver/EMAILADDRESS=test-receiver@linux.testlab.ripe.net
                 fingerpr:     D5:92:29:08:F8:AB:75:5F:42:F5:A8:5F:A3:8D:08:2E
                 certif:       -----BEGIN CERTIFICATE-----
                 certif:       MIID/DCCA2WgAwIBAgICAIQwDQYJKoZIhvcNAQEEBQAwcTELMAkGA1UEBhMCRVUx
@@ -639,7 +637,7 @@ class KeycertSpec extends BaseSpec {
                 body: """\
                 key-cert:     AUTO-1
                 method:       X509
-                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-receiver/emailAddress=test-receiver@linux.testlab.ripe.net
+                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-receiver/EMAILADDRESS=test-receiver@linux.testlab.ripe.net
                 fingerpr:     D5:92:29:08:F8:AB:75:5F:42:F5:A8:5F:A3:8D:08:2E
                 certif:       -----BEGIN CERTIFICATE-----
                 certif:       MIID/DCCA2WgAwIBAgICAIQwDQYJKoZIhvcNAQEEBQAwcTELMAkGA1UEBhMCRVUx
@@ -682,12 +680,8 @@ class KeycertSpec extends BaseSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
-        ack.warningSuccessMessagesFor("Create", "[key-cert] X509-1") == [
-                "Supplied attribute 'method' has been replaced with a generated value",
-                "Supplied attribute 'owner' has been replaced with a generated value",
-                "Supplied attribute 'fingerpr' has been replaced with a generated value"]
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
     }
@@ -1621,9 +1615,9 @@ class KeycertSpec extends BaseSpec {
                 subject: "",
                 body: """\
                 key-cert:     X509-1
-                method:       X509
-                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-receiver/emailAddress=test-receiver@linux.testlab.ripe.net
-                fingerpr:     D5:92:29:08:F8:AB:75:5F:42:F5:A8:5F:A3:8D:08:2E
+                method:       Placeholder
+                owner:        Placeholder
+                fingerpr:     Placeholder
                 certif:       -----BEGIN CERTIFICATE-----
                 certif:       MIID/DCCA2WgAwIBAgICAIQwDQYJKoZIhvcNAQEEBQAwcTELMAkGA1UEBhMCRVUx
                 certif:       EDAOBgNVBAgTB0hvbGxhbmQxEDAOBgNVBAoTB25jY0RFTU8xHTAbBgNVBAMTFFNv
@@ -1813,7 +1807,7 @@ class KeycertSpec extends BaseSpec {
                 body: """\
                 key-cert:     X509-1
                 method:       X509
-                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-user/emailAddress=test-user@linux.testlab.ripe.net
+                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-user/EMAILADDRESS=test-user@linux.testlab.ripe.net
                 fingerpr:     AC:B5:B1:36:95:F3:46:93:B1:2D:58:EB:E1:46:DA:3F
                 certif:       -----BEGIN CERTIFICATE-----
                 certif:       MIID8zCCA1ygAwIBAgICAIIwDQYJKoZIhvcNAQEEBQAwcTELMAkGA1UEBhMCRVUx
@@ -1856,12 +1850,8 @@ class KeycertSpec extends BaseSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
-        ack.warningSuccessMessagesFor("Modify", "[key-cert] X509-1") == [
-                "Supplied attribute 'method' has been replaced with a generated value",
-                "Supplied attribute 'owner' has been replaced with a generated value",
-                "Supplied attribute 'fingerpr' has been replaced with a generated value"]
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
     }
@@ -2294,9 +2284,7 @@ class KeycertSpec extends BaseSpec {
         queryObject("-rGBT person FP1-TEST", "person", "First Person")
     }
 
-    // modify key-cert with single key, wrong generated values
-    @Ignore
-    def "modify key-cert with single key, wrong generated values"() { // TODO [AK] Check this test with Dennis
+    def "modify key-cert with single key, wrong generated values"() {
       expect:
         queryObject("-rBT key-cert PGPKEY-459F13C0", "key-cert", "PGPKEY-459F13C0")
 
@@ -2334,11 +2322,16 @@ class KeycertSpec extends BaseSpec {
 
         ack.success
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 3, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] PGPKEY-459F13C0" }
+
+        ack.successes.any { it.operation == "No operation" && it.key == "[key-cert] PGPKEY-459F13C0" }
+        ack.warningSuccessMessagesFor("No operation", "[key-cert] PGPKEY-459F13C0") == [
+                "Supplied attribute 'owner' has been replaced with a generated value",
+                "Supplied attribute 'fingerpr' has been replaced with a generated value",
+                "Submitted object identical to database object"]
 
         query_object_matches("-rBT key-cert PGPKEY-459F13C0", "key-cert", "PGPKEY-459F13C0", "DB Test \\(RSA key for DB testing\\) <dbtest@ripe.net>")
     }

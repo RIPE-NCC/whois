@@ -13,7 +13,10 @@
 
     <context:spring-configured/>
 
-    <context:component-scan base-package="net.ripe.db.whois"/>
+    <context:component-scan base-package="net.ripe.db.whois">
+        <!-- whois-internal tests create a whois-api applicationContext which would pick up the whois.internal package too -->
+        <context:exclude-filter type="regex" expression="net\.ripe\.db\.whois\.internal\..*" />
+    </context:component-scan>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="sourceAwareDataSource"/>
@@ -47,16 +50,10 @@
         <property name="password" value="${mailupdates.database.password}"/>
     </bean>
 
-    <bean id="schedulerDataSource" parent="abstractDataSource">
-        <property name="jdbcUrl" value="${scheduler.database.url}"/>
-        <property name="user" value="${scheduler.database.username}"/>
-        <property name="password" value="${scheduler.database.password}"/>
-    </bean>
-
-    <bean id="pendingUpdateDataSource" parent="abstractDataSource">
-        <property name="jdbcUrl" value="${pending.database.url}"/>
-        <property name="user" value="${pending.database.username}"/>
-        <property name="password" value="${pending.database.password}"/>
+    <bean id="internalsDataSource" parent="abstractDataSource">
+        <property name="jdbcUrl" value="${internals.database.url}"/>
+        <property name="user" value="${internals.database.username}"/>
+        <property name="password" value="${internals.database.password}"/>
     </bean>
 
     <bean id="whoisMasterDataSource" parent="abstractDataSource">

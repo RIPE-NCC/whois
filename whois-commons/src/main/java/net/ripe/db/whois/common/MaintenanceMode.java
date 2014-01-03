@@ -1,8 +1,7 @@
 package net.ripe.db.whois.common;
 
-import net.ripe.db.whois.common.dao.DatabaseMaintenanceJmx;
+import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.domain.IpRanges;
-import net.ripe.db.whois.common.etree.Interval;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,10 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-// TODO: [AH] add tests (as/if possible)
 @Component
 public class MaintenanceMode {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseMaintenanceJmx.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MaintenanceMode.class);
 
     public enum AccessType {FULL, READONLY, NONE};
 

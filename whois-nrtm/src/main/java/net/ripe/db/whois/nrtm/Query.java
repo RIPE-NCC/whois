@@ -9,6 +9,9 @@ import com.google.common.collect.Iterables;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public class Query {
     private static final OptionParser PARSER = new OptionParser() {{
         accepts("g", "Get the NRTM stream").withRequiredArg().ofType(String.class).describedAs("<SOURCE>:<VERSION>:<FIRST_SERIAL-LAST_SERIAL>, e.g. RIPE:3:155753-LAST");

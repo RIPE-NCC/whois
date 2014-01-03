@@ -1,11 +1,10 @@
 package net.ripe.db.whois.common.dao.jdbc.index;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
-import net.ripe.db.whois.common.domain.attrs.MntRoutes;
+import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -50,12 +49,7 @@ class IndexWithMntRoutes extends IndexWithReference {
 
     @Override
     public List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final String value) {
-        return Lists.newArrayList(Iterables.concat(
-                findInIndex(jdbcTemplate, value, "mnt_routes"),
-
-                // TODO [AK] Remove reference to mnt_routes6 after rebuilding indexes
-                findInIndex(jdbcTemplate, value, "mnt_routes6")
-        ));
+        return Lists.newArrayList(findInIndex(jdbcTemplate, value, "mnt_routes"));
     }
 
     private List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final String value, final String lookupTableName) {
@@ -78,8 +72,5 @@ class IndexWithMntRoutes extends IndexWithReference {
     @Override
     public void removeFromIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo) {
         jdbcTemplate.update("DELETE FROM mnt_routes WHERE object_id = ?", objectInfo.getObjectId());
-
-        // TODO [AK] Remove reference to mnt_routes6 after rebuilding indexes
-        jdbcTemplate.update("DELETE FROM mnt_routes6 WHERE object_id = ?", objectInfo.getObjectId());
     }
 }

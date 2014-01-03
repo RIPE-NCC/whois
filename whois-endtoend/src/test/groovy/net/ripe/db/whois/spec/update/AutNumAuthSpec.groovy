@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.Message
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
 
-class AutNumAuthSpec extends BaseSpec {
+class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
@@ -124,7 +124,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, with mnt-by RS and LIR, and a parent mnt-lower RS"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
@@ -169,7 +169,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, with mnt-by RS and LIR, and a parent no mnt-lower, mnt-by pw supplied"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333-NOLOW") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS222 - AS333-NOLOW") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
@@ -217,7 +217,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, with mnt-by RS and LIR, mnt-by pw supplied, and a parent mnt-lower RS, no pw supplied"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
@@ -263,7 +263,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, with mnt-by RS and LIR, no pw for parent mnt-lower RS, with override"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
@@ -285,7 +285,7 @@ class AutNumAuthSpec extends BaseSpec {
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:       override1
+                override:       denis,override1
 
                 """.stripIndent()
         )
@@ -364,7 +364,7 @@ class AutNumAuthSpec extends BaseSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:      override1
+                override:      denis,override1
 
                 """.stripIndent()
         )
@@ -391,7 +391,7 @@ class AutNumAuthSpec extends BaseSpec {
     // we test AS 32 number as a part of the set name
     def "create aut-num, testing some elements of policy attrs"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
@@ -490,7 +490,7 @@ class AutNumAuthSpec extends BaseSpec {
     // we test AS 32 number as a part of the set name
     def "create aut-num, testing some more elements of policy attrs"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
@@ -546,7 +546,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, mix up import/export syntax"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
@@ -602,7 +602,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, mp- attrs"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
@@ -661,7 +661,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, import only"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
@@ -702,7 +702,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, export only"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
@@ -743,7 +743,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create 32 bit aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
@@ -788,7 +788,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create max 32 bit aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
@@ -829,7 +829,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create highest 16 bit aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
@@ -874,7 +874,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create lowest 16 bit aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
@@ -919,7 +919,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num range"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
@@ -966,7 +966,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create -ve aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
@@ -1013,7 +1013,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create leading 0 aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
@@ -1060,7 +1060,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num > 32 bit"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
@@ -1107,7 +1107,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num AS2.3"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
@@ -1154,9 +1154,9 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, member-of, mbrs-by-ref"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS-SET") + "password: lir\noverride: override1")
+        syncUpdate(getTransient("AS-SET") + "password: lir\noverride: denis,override1")
         queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
 
       expect:
@@ -1200,9 +1200,9 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, member-of, mbrs-by-ref, syntax errors"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS-SET") + "password: lir\noverride: override1")
+        syncUpdate(getTransient("AS-SET") + "password: lir\noverride: denis,override1")
         queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
 
       expect:
@@ -1253,9 +1253,9 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, member-of, mbrs-by-ref, wrong mntner"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS-SET") + "password: lir\noverride: override1")
+        syncUpdate(getTransient("AS-SET") + "password: lir\noverride: denis,override1")
         queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
 
       expect:
@@ -1301,9 +1301,9 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, member-of, no mbrs-by-ref"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS-SET-NO-REF") + "password: lir\noverride: override1")
+        syncUpdate(getTransient("AS-SET-NO-REF") + "password: lir\noverride: denis,override1")
         queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
 
       expect:
@@ -1349,7 +1349,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, member-of, set does not exist"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
@@ -1396,9 +1396,9 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "delete aut-num, RS auth"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1438,9 +1438,9 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "delete aut-num, LIR auth"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1482,9 +1482,9 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "delete aut-num, RS auth, referenced in route"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
-        syncUpdate(getTransient("ROUTE") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("ROUTE") + "override: denis,override1")
 
       expect:
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
@@ -1531,11 +1531,11 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "delete aut-num, RS auth, referenced in other aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
-        syncUpdate(getTransient("AS300") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS300") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT aut-num AS300", "aut-num", "AS300")
 
       expect:
@@ -1579,11 +1579,11 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "delete aut-num, RS auth, referenced in as-set"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
-        syncUpdate(getTransient("AS-SET-200") + "password: lir\noverride: override1")
+        syncUpdate(getTransient("AS-SET-200") + "password: lir\noverride: denis,override1")
         query_object_matches("-rGBT as-set AS7775535:AS-TEST", "as-set", "AS7775535:AS-TEST", "AS200")
 
       when:
@@ -1624,9 +1624,9 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "modify aut-num, LIR auth"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1666,9 +1666,9 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "modify aut-num, LIR auth, remove RS mntner"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1709,7 +1709,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, (mp-)import/export/default have invalid AS values"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
@@ -1799,7 +1799,7 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create very long aut-num, no org ref"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:

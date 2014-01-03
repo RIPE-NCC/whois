@@ -46,7 +46,7 @@ class ResourceTagger {
             sourceContext.setCurrent(Source.master(grsSource.getName()));
             tagObjectsInContext(grsSource);
 
-            if (grsSource instanceof RipeGrsSource) {
+            if (sourceContext.isTagRoutes()) {
                 tagRouteObjectsInContext(grsSource);
             }
 
@@ -135,10 +135,9 @@ class ResourceTagger {
                     public void processRow(ResultSet rs) throws SQLException {
                         try {
                             final RpslObject object = RpslObject.parse(rs.getInt(1), rs.getBytes(2));
-                            final CIString origin = object.getValueForAttribute(AttributeType.ORIGIN);
 
-                            final boolean autnumMaintainedByRir = authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, origin);
-                            final boolean prefixMaintainedByRir = authoritativeResource.isMaintainedInRirSpace(object.getType() == ObjectType.ROUTE ? ObjectType.INETNUM : ObjectType.INET6NUM, object.getKey());
+                            final boolean autnumMaintainedByRir = isAutnumMaintainedByRir(object);
+                            final boolean prefixMaintainedByRir = isRouteMaintainedInRirSpace(object);
 
                             if (autnumMaintainedByRir) {
                                 if (prefixMaintainedByRir) {
@@ -158,6 +157,21 @@ class ResourceTagger {
 
                         } catch (RuntimeException e) {
                             grsSource.getLogger().error("Unexpected", e);
+                        }
+                    }
+
+                    private boolean isAutnumMaintainedByRir(final RpslObject object) {
+                        return authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, object.getValueForAttribute(AttributeType.ORIGIN));
+                    }
+
+                    private boolean isRouteMaintainedInRirSpace(final RpslObject object) {
+                        switch (object.getType()) {
+                            case ROUTE:
+                                return authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, object.getValueForAttribute(AttributeType.ROUTE));
+                            case ROUTE6:
+                                return authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, object.getValueForAttribute(AttributeType.ROUTE6));
+                            default:
+                                throw new IllegalArgumentException("Unhandled type " + object.getType());
                         }
                     }
                 }

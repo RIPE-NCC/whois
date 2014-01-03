@@ -3,13 +3,13 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.69.1-SNAPSHOT</version>
+        <version>1.72-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois-db</artifactId>
-    <version>1.69.1-SNAPSHOT</version>
+    <version>1.72-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -28,6 +28,16 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-api</artifactId>
+            <!-- The reason we add this exclusion is that the common-beanutils (or commons-beanutils-core) jar
+            contain some classes which are identical and come from the commons-collections jars. The whois-api
+            module depends on commons-validator, which depends on commons-beanutils. Because we do not want
+            duplicate class problems during mvn builds we exclude the jar in the whois-api dependency. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-beanutils</groupId>
+                    <artifactId>commons-beanutils</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
@@ -38,6 +48,11 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-client</artifactId>
             <type>test-jar</type>
         </dependency>
         <dependency>
@@ -99,17 +114,6 @@
     </profiles>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>

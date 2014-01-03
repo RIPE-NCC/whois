@@ -33,6 +33,7 @@ public class SourceContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(SourceContext.class);
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings();
 
+    private final CIString mainSourceName;
     private final Source mainMasterSource;
     private final Source mainSlaveSource;
 
@@ -40,6 +41,7 @@ public class SourceContext {
 
     private final Set<CIString> grsSourceNames;
     private final Set<CIString> grsSourceNamesForDummification;
+    private final Set<CIString> grsSourceNamesToTagRoutes;
     private final Set<CIString> allSourceNames;
     private final Set<CIString> additionalSourceNames;
     private final Map<CIString, CIString> aliases;
@@ -52,7 +54,8 @@ public class SourceContext {
             @Value("${whois.additional.sources}") final String additionalSourceNames,
             @Value("${grs.sources}") final String grsSourceNames,
             @Value("${nrtm.import.sources}") final String nrtmSourceNames,
-            @Value("${grs.sources.dummify}") final String grsSourceNamesForDummification,
+            @Value("${grs.sources.dummify:}") final String grsSourceNamesForDummification,
+            @Value("${grs.import.sources.tagRoutes:}") final String grsSourceNamesToTagRoutes,
             @Value("${whois.db.grs.master.baseurl}") final String grsMasterBaseUrl,
             @Value("${whois.db.master.username}") final String whoisMasterUsername,
             @Value("${whois.db.master.password}") final String whoisMasterPassword,
@@ -63,13 +66,13 @@ public class SourceContext {
             @Qualifier("whoisSlaveDataSource") final DataSource whoisSlaveDataSource,
             final DataSourceFactory dataSourceFactory) {
 
-        final CIString mainSourceName = ciString(mainSourceNameString);
+        mainSourceName = ciString(mainSourceNameString);
         this.mainMasterSource = Source.master(mainSourceName);
         this.mainSlaveSource = Source.slave(mainSourceName);
 
         final Set<CIString> additionalSources = Sets.newLinkedHashSet();
         final Set<CIString> grsSources = Sets.newLinkedHashSet();
-        final Map<CIString, CIString> aliases = Maps.newLinkedHashMap();
+        final Map<CIString, CIString> newAliases = Maps.newLinkedHashMap();
 
         sourceConfigurations.put(mainMasterSource, new SourceConfiguration(mainMasterSource, whoisMasterDataSource));
         sourceConfigurations.put(mainSlaveSource, new SourceConfiguration(mainSlaveSource, whoisSlaveDataSource));
@@ -106,7 +109,7 @@ public class SourceContext {
 
             if (grsSourceName.contains(mainSourceName)) {
                 LOGGER.info("Delegating source {} to {}", grsSourceName, mainSourceName);
-                aliases.put(grsSourceName, mainSlaveSource.getName());
+                newAliases.put(grsSourceName, mainSlaveSource.getName());
                 sourceConfigurations.put(grsMasterSource, new SourceConfiguration(grsMasterSource, whoisMasterDataSource));
                 sourceConfigurations.put(grsSlaveSource, new SourceConfiguration(grsSlaveSource, whoisSlaveDataSource));
             } else {
@@ -124,7 +127,8 @@ public class SourceContext {
 
         this.grsSourceNames = Collections.unmodifiableSet(grsSources);
         this.grsSourceNamesForDummification = ciSet(COMMA_SPLITTER.split(grsSourceNamesForDummification));
-        this.aliases = Collections.unmodifiableMap(aliases);
+        this.grsSourceNamesToTagRoutes = ciSet(COMMA_SPLITTER.split(grsSourceNamesToTagRoutes));
+        this.aliases = Collections.unmodifiableMap(newAliases);
         this.allSourceNames = Collections.unmodifiableSet(Sets.newLinkedHashSet(Iterables.transform(sourceConfigurations.keySet(), new Function<Source, CIString>() {
             @Nullable
             @Override
@@ -233,6 +237,10 @@ public class SourceContext {
         return !grsSourceNames.contains(getCurrentSource().getName());
     }
 
+    public boolean isMain() {
+        return getCurrentSource().getName().equals(mainSourceName);
+    }
+
     public boolean isVirtual() {
         return isVirtual(getCurrentSource().getName());
     }
@@ -244,5 +252,10 @@ public class SourceContext {
     public boolean isDummificationRequired() {
         final CIString sourceName = getCurrentSource().getName();
         return grsSourceNamesForDummification.contains(sourceName);
+    }
+
+    public boolean isTagRoutes() {
+        final CIString sourceName = getCurrentSource().getName();
+        return grsSourceNamesToTagRoutes.contains(sourceName);
     }
 }

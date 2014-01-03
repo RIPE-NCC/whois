@@ -1,8 +1,8 @@
 package net.ripe.db.whois.common.grs;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.etree.IntervalMap;
 import net.ripe.db.whois.common.etree.NestedIntervalMap;
 import org.junit.Before;
@@ -36,7 +36,7 @@ public class AuthoritativeResourceDataValidatorTest {
 
     @Before
     public void setUp() throws Exception {
-        subject = new AuthoritativeResourceDataValidator("GRS1,GRS2,GRS3", authoritativeResourceData);
+        subject = new AuthoritativeResourceDataValidator(new String[] {"GRS1","GRS2","GRS3"}, authoritativeResourceData);
 
         prepareAuthoritativeResourceData(
                 "GRS1",

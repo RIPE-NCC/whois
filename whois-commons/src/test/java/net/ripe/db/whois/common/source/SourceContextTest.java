@@ -30,6 +30,7 @@ public class SourceContextTest {
     final String grsSourceNames = "RIPE-GRS,APNIC-GRS";
     final String nrtmSourceNames = "NRTM-GRS";
     final String grsSourceNamesForDummification = "RIPE-GRS";
+    final String grsSourceNamesToTagRoutes = "RIPE-GRS";
     final String grsMasterBaseUrl = "jdbc://localhost/master";
     final String whoisMasterUsername = "masterUser";
     final String whoisMasterPassword = "masterPw";
@@ -52,6 +53,7 @@ public class SourceContextTest {
                 grsSourceNames,
                 nrtmSourceNames,
                 grsSourceNamesForDummification,
+                grsSourceNamesToTagRoutes,
                 grsMasterBaseUrl,
                 whoisMasterUsername,
                 whoisMasterPassword,
@@ -116,6 +118,7 @@ public class SourceContextTest {
                 grsSourceNames,
                 nrtmSourceNames,
                 grsSourceNamesForDummification,
+                grsSourceNamesToTagRoutes,
                 grsMasterBaseUrl,
                 whoisMasterUsername,
                 whoisMasterPassword,
@@ -141,6 +144,7 @@ public class SourceContextTest {
             grsSourceNames,
             nrtmSourceNames,
             grsSourceNamesForDummification,
+            grsSourceNamesToTagRoutes,
             grsMasterBaseUrl,
             whoisMasterUsername,
             whoisMasterPassword,

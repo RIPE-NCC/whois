@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.query
 
-import net.ripe.db.whois.spec.BaseSpec
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.BasicFixtures
-import spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.AckResponse
 
-class VersionHistorySpec extends BaseSpec {
+class VersionHistorySpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getBasicFixtures() {
@@ -156,7 +156,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --list-versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -170,7 +170,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --list-versions, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -191,7 +191,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -214,7 +214,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version 2, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -235,7 +235,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -257,7 +257,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --list-versions, 3 versions"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -278,7 +278,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -293,7 +293,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 3
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -317,7 +317,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version 3, 3 versions"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -338,7 +338,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -353,7 +353,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 3
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -375,7 +375,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version 2, 3 versions"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -396,7 +396,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -411,7 +411,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 3
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -433,7 +433,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version 1, 3 versions"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -454,7 +454,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -469,7 +469,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 3
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -490,7 +490,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --list-versions, 4 versions, deleted"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -511,7 +511,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -526,7 +526,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 3
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -542,7 +542,7 @@ class VersionHistorySpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:       comment
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -567,7 +567,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --list-versions, 4 versions, deleted, re-created with only 1 version of new object"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -588,7 +588,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -604,7 +604,7 @@ class VersionHistorySpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:       comment
-                override:  override1
+                override:  denis,override1
 
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -619,7 +619,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 1
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -645,7 +645,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --list-versions, 2 versions, person object"() {
       given:
-        syncUpdate(getTransient("PN-FF") + "override: override1")
+        syncUpdate(getTransient("PN-FF") + "override: denis,override1")
 
       expect:
         // "PN-FF"
@@ -663,7 +663,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks: version 2
                 changed: dbtest@ripe.net 20120101
                 source:  TEST
-                override:  override1
+                override:  denis,override1
                 """.stripIndent()
         )
 
@@ -686,7 +686,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --list-versions, 2 versions, role object"() {
       given:
-        syncUpdate(getTransient("RL-FR") + "override: override1")
+        syncUpdate(getTransient("RL-FR") + "override: denis,override1")
 
       expect:
         // "RL-FR"
@@ -704,7 +704,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks: version 2
                 changed: dbtest@ripe.net 20121016
                 source:  TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -742,7 +742,7 @@ class VersionHistorySpec extends BaseSpec {
                 mnt-by:          owner2-mnt
                 changed:         denis@ripe.net 20121016
                 source:          TEST
-                override:  override1
+                override:  denis,override1
 
                 organisation:    ORG-FVO1-TEST
                 org-type:        other
@@ -758,7 +758,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks: version 2
                 changed:         denis@ripe.net 20121016
                 source:          TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -782,7 +782,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --list-versions, 2 versions, mntner object"() {
       given:
-        syncUpdate(getTransient("SELF-MNT") + "override: override1")
+        syncUpdate(getTransient("SELF-MNT") + "override: denis,override1")
 
       expect:
         // "SELF-MNT"
@@ -800,7 +800,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks: version 2
                 changed: dbtest@ripe.net 20120707
                 source:  TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -824,7 +824,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --list-versions, 2 versions, mntner object with name PAUL"() {
       given:
-        syncUpdate(getTransient("PAUL") + "override: override1")
+        syncUpdate(getTransient("PAUL") + "override: denis,override1")
 
       expect:
         // "SELF-MNT"
@@ -842,7 +842,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks: version 2
                 changed: dbtest@ripe.net 20120707
                 source:  TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -874,9 +874,9 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --list-versions, 2 exact matching route, 2 versions of each"() {
       given:
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
-        syncUpdate(getTransient("AS2000") + "override: override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
+        syncUpdate(getTransient("AS2000") + "override: denis,override1")
 
       expect:
         // "ASS-END"
@@ -894,7 +894,7 @@ class VersionHistorySpec extends BaseSpec {
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:  override1
+                override:  denis,override1
 
                 route:          192.168.200.0/24
                 descr:          Route
@@ -903,7 +903,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:        version 2
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:  override1
+                override:  denis,override1
 
                 route:          192.168.200.0/24
                 descr:          Route
@@ -911,7 +911,7 @@ class VersionHistorySpec extends BaseSpec {
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:  override1
+                override:  denis,override1
 
                 route:          192.168.200.0/24
                 descr:          Route
@@ -920,7 +920,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:        version 2
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -949,9 +949,9 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version for 2 exact matching route, 2 & 3 versions exist"() {
       given:
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
-        syncUpdate(getTransient("AS2000") + "override: override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
+        syncUpdate(getTransient("AS2000") + "override: denis,override1")
 
       expect:
         // "ASS-END"
@@ -969,7 +969,7 @@ class VersionHistorySpec extends BaseSpec {
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:  override1
+                override:  denis,override1
 
                 route:          192.168.200.0/24
                 descr:          Route
@@ -978,7 +978,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:        version 2
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:  override1
+                override:  denis,override1
 
                 route:          192.168.200.0/24
                 descr:          Route
@@ -986,7 +986,7 @@ class VersionHistorySpec extends BaseSpec {
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:  override1
+                override:  denis,override1
 
                 route:          192.168.200.0/24
                 descr:          Route
@@ -995,7 +995,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:        version 2
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:  override1
+                override:  denis,override1
 
                 route:          192.168.200.0/24
                 descr:          Route
@@ -1004,7 +1004,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:        version 3
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1034,7 +1034,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --version-list, 3 versions, no space in range"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -1055,7 +1055,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -1070,7 +1070,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 3
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1094,7 +1094,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version 5, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -1115,7 +1115,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1136,7 +1136,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version 0, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -1157,7 +1157,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1179,7 +1179,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version -2, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -1200,7 +1200,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1222,7 +1222,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version 1.5, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -1243,7 +1243,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1264,7 +1264,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version fred, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -1285,7 +1285,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1305,7 +1305,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version 2 and --list-versions, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -1326,7 +1326,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1348,7 +1348,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version 2 and -b, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -1369,7 +1369,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1389,7 +1389,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --list-versions and -m, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -1410,7 +1410,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1428,9 +1428,9 @@ class VersionHistorySpec extends BaseSpec {
         queryLineMatches("-m --list-versions 2001::/20", "^%ERROR:109: invalid combination of flags passed")
     }
 
-    def "query --list-versions and -k, 2 versions"() {
+    def "query --list-versions, with persistent connection, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -1451,7 +1451,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1466,14 +1466,17 @@ class VersionHistorySpec extends BaseSpec {
         ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
 
-        queryLineMatches("-k --show-version 1 2001::/20\n\n--show-version 2 2001::/20\n\n-k", "^% Version 1 of object \"2001::/20\"")
-        queryLineMatches("-k --show-version 1 2001::/20\n\n--show-version 2 2001::/20\n\n-k", "^% Version 2 \\(current version\\) of object \"2001::/20\"")
-//        queryLineMatches("-k -rBG 2001::/20\n\n--show-version 1 2001::/20\n\n--show-version 2 2001::/20\n\n-k", "^% Version 1 of object \"2001::/20\"")
+        def responses = queryPersistent(["-k --show-version 1 2001::/20",
+                                     "-k --show-version 2 2001::/20"])
+
+        responseMatches(responses.get(0),"^% Version 1 of object \"2001::/20\"")
+        !responseMatches(responses.get(0),"^% Version 2 \\(current version\\) of object \"2001::/20\"")
+        responseMatches(responses.get(1),"^% Version 2 \\(current version\\) of object \"2001::/20\"")
     }
 
     def "query --show-version 2 and -F, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -1494,7 +1497,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1514,7 +1517,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version 2 and -K, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -1535,7 +1538,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1555,7 +1558,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --show-version 2 and -T route6, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -1576,7 +1579,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1591,12 +1594,12 @@ class VersionHistorySpec extends BaseSpec {
         ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
 
-        queryLineMatches("-T route6 --show-version 2 2001::/20", "^%ERROR:109: invalid combination of flags passed")
+        queryLineMatches("-T route6 --show-version 2 2001::/20", "^%ERROR:101: no entries found")
     }
 
     def "query --show-version 2 and -V client-tag, 2 versions"() {
       given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "override: override1")
+        syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
 
       expect:
         // "RIR-ALLOC-20"
@@ -1617,7 +1620,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1649,7 +1652,7 @@ class VersionHistorySpec extends BaseSpec {
                 auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed:        dbtest@ripe.net 20120707
                 source:         TEST
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
             )
@@ -1671,7 +1674,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --dif-versions 2:3, 3 versions"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
 
         expect:
         // "ALLOC-PA"
@@ -1692,7 +1695,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -1707,7 +1710,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 3
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1730,7 +1733,7 @@ class VersionHistorySpec extends BaseSpec {
 
     def "query --dif-versions 3:2, 3 versions"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
 
         expect:
         // "ALLOC-PA"
@@ -1751,7 +1754,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 2
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -1766,7 +1769,7 @@ class VersionHistorySpec extends BaseSpec {
                 remarks:      version 3
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -1786,5 +1789,4 @@ class VersionHistorySpec extends BaseSpec {
         queryLineMatches("--diff-versions 3:2 192.168.0.0 - 192.169.255.255", "\\+remarks:\\s*version 2")
         queryLineMatches("--diff-versions 3:2 192.168.0.0 - 192.169.255.255", "-remarks:\\s*version 3")
     }
-
 }

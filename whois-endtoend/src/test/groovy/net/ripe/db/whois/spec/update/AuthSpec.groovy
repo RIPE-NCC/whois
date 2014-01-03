@@ -1,12 +1,12 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.Message
-import spec.domain.SyncUpdate
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
+import net.ripe.db.whois.spec.domain.SyncUpdate
 import spock.lang.Ignore
 
-class AuthSpec extends BaseSpec {
+class AuthSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
@@ -1254,7 +1254,7 @@ class AuthSpec extends BaseSpec {
                 mnt-by:       END-USER-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )
@@ -1297,7 +1297,7 @@ class AuthSpec extends BaseSpec {
                 source:       TEST
 
 
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )

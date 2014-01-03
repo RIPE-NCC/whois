@@ -6,13 +6,11 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.domain.Ipv6Resource;
-import net.ripe.db.whois.common.domain.attrs.Changed;
-import net.ripe.db.whois.common.domain.attrs.DsRdata;
-import net.ripe.db.whois.common.domain.attrs.NServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
+import net.ripe.db.whois.common.rpsl.attrs.Changed;
+import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
+import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +22,6 @@ import java.util.Set;
 // TODO: [AH] during syntax check/sanitization we parse all attributes into their domain object, we should keep a reference to that instead of reparsing all the time
 @Component
 public class AttributeSanitizer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AttributeSanitizer.class);
     private static final Splitter LINE_SPLITTER = Splitter.on('\n').trimResults().omitEmptyStrings();
 
     private final DateTimeProvider dateTimeProvider;
@@ -46,6 +43,7 @@ public class AttributeSanitizer {
         SANITIZER_MAP.put(AttributeType.ALIAS, new AliasSanitizer());
         SANITIZER_MAP.put(AttributeType.CHANGED, new ChangedSanitizer());
         SANITIZER_MAP.put(AttributeType.DS_RDATA, new DsRdataSanitizer());
+        SANITIZER_MAP.put(AttributeType.SOURCE, new SourceSanitizer());
 
         // add the default sanitizer for keys and primary attributes
         for (ObjectTemplate objectTemplate : ObjectTemplate.getTemplates()) {
@@ -103,7 +101,7 @@ public class AttributeSanitizer {
             }
         }
 
-        return new RpslObjectFilter(object).replaceAttributes(replacements);
+        return new RpslObjectBuilder(object).replaceAttributes(replacements).get();
     }
 
     private String getCommentReplacement(final RpslAttribute attribute) {
@@ -175,9 +173,9 @@ public class AttributeSanitizer {
     private class InetrtrSanitizer extends Sanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
-            final String inet_rtr = attribute.getCleanValue().toString();
-            if (inet_rtr.endsWith(".")) {
-                return inet_rtr.substring(0, inet_rtr.length() - 1);
+            final String inetRtr = attribute.getCleanValue().toString();
+            if (inetRtr.endsWith(".")) {
+                return inetRtr.substring(0, inetRtr.length() - 1);
             }
 
             return null;
@@ -237,6 +235,13 @@ public class AttributeSanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
             return Ipv6Resource.parse(attribute.getCleanValue()).toString();
+        }
+    }
+
+    private class SourceSanitizer extends Sanitizer {
+        @Override
+        public String sanitize(final RpslObject object, final RpslAttribute attribute) {
+            return attribute.getCleanValue().toUpperCase();
         }
     }
 }

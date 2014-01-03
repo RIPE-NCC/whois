@@ -4,8 +4,10 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
+import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
@@ -14,7 +16,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
 import java.util.HashSet;
 
 import static org.hamcrest.Matchers.is;
@@ -33,6 +34,7 @@ public class AuthenticatorPendingTest {
     @Mock Maintainers maintainers;
     @Mock LoggerContext loggerContext;
     @Mock Subject authSubject;
+    @Mock PendingUpdateDao pendingUpdateDao;
 
     Authenticator subject;
 
@@ -42,23 +44,23 @@ public class AuthenticatorPendingTest {
 
         when(authStrategyPending1.getName()).thenReturn("authStrategyPending1");
         when(authStrategyPending2.getName()).thenReturn("authStrategyPending2");
+        when(authStrategyPending1.compareTo(authStrategyPending2)).thenReturn(-1);
+        when(authStrategyPending2.compareTo(authStrategyPending1)).thenReturn(1);
 
         final HashSet<ObjectType> delayedAuthenticationTypes = Sets.newHashSet(ObjectType.ROUTE, ObjectType.ROUTE6);
         when(authStrategyPending1.getTypesWithPendingAuthenticationSupport()).thenReturn(delayedAuthenticationTypes);
         when(authStrategyPending2.getTypesWithPendingAuthenticationSupport()).thenReturn(delayedAuthenticationTypes);
         when(updateContext.getSubject(update)).thenReturn(authSubject);
 
-        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authStrategyPending1, authStrategyPending2});
+        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authStrategyPending1, authStrategyPending2}, pendingUpdateDao);
     }
 
     @Test
     public void pending_authentication_allowed() {
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getType()).thenReturn(ObjectType.ROUTE);
-        when(authSubject.getPendingAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
-        when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, authSubject);
+        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, Sets.newHashSet("authStrategyPending1"));
         assertThat(pendingAuthenticationAllowed, is(true));
     }
 
@@ -66,32 +68,8 @@ public class AuthenticatorPendingTest {
     public void pending_authentication_no_create() {
         when(update.getAction()).thenReturn(Action.MODIFY);
         when(update.getType()).thenReturn(ObjectType.ROUTE);
-        when(authSubject.getPendingAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
-        when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
 
-        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, authSubject);
-        assertThat(pendingAuthenticationAllowed, is(false));
-    }
-
-    @Test
-    public void pending_authentication_unsupported_type() {
-        when(update.getAction()).thenReturn(Action.CREATE);
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
-        when(authSubject.getPendingAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
-        when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
-
-        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, authSubject);
-        assertThat(pendingAuthenticationAllowed, is(false));
-    }
-
-    @Test
-    public void pending_authentication_failed_other() {
-        when(update.getAction()).thenReturn(Action.CREATE);
-        when(update.getType()).thenReturn(ObjectType.ROUTE);
-        when(authSubject.getFailedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1, authStrategy"));
-        when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
-
-        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, authSubject);
+        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, Sets.newHashSet("authStrategyPending1"));
         assertThat(pendingAuthenticationAllowed, is(false));
     }
 
@@ -99,10 +77,8 @@ public class AuthenticatorPendingTest {
     public void pending_authentication_passed_none() {
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getType()).thenReturn(ObjectType.ROUTE);
-        when(authSubject.getPendingAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1", "authStrategyPending2"));
-        when(authSubject.getPassedAuthentications()).thenReturn(Collections.<String>emptySet());
 
-        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, authSubject);
+        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, Sets.newHashSet("authStrategyPending1", "authStrategyPending2"));
         assertThat(pendingAuthenticationAllowed, is(false));
     }
 
@@ -111,20 +87,17 @@ public class AuthenticatorPendingTest {
         when(updateContext.hasErrors(update)).thenReturn(true);
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getType()).thenReturn(ObjectType.ROUTE);
-        when(authSubject.getPendingAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending1"));
-        when(authSubject.getPassedAuthentications()).thenReturn(Sets.newHashSet("authStrategyPending2"));
-        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, authSubject);
+        final boolean pendingAuthenticationAllowed = subject.isPending(update, updateContext, Sets.newHashSet("authStrategyPending1"));
         assertThat(pendingAuthenticationAllowed, is(false));
     }
 
     @Test
     public void isCompleteAuthentication_incomplete() {
-        assertThat(subject.isAuthenticationForTypeComplete(ObjectType.ROUTE, Sets.newHashSet("authStrategyPending1")), is(false));
+        assertThat(subject.isAuthenticationForTypeComplete(ObjectType.ROUTE, new PendingUpdate(null, Sets.newHashSet("authStrategyPending1"), null, null)), is(false));
     }
 
     @Test
     public void isCompleteAuthentication_complete() {
-        assertThat(subject.isAuthenticationForTypeComplete(ObjectType.ROUTE, Sets.newHashSet("mnt-by", "authStrategyPending1", "authStrategyPending2")), is(true));
+        assertThat(subject.isAuthenticationForTypeComplete(ObjectType.ROUTE, new PendingUpdate(null, Sets.newHashSet("mnt-by", "authStrategyPending1", "authStrategyPending2"), null, null)), is(true));
     }
-
 }

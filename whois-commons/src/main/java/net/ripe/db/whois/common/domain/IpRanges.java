@@ -1,7 +1,8 @@
 package net.ripe.db.whois.common.domain;
 
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.etree.Interval;
+import net.ripe.db.whois.common.ip.Interval;
+import net.ripe.db.whois.common.ip.IpInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +20,7 @@ public class IpRanges {
     @Value("${ipranges.trusted}")
     public void setTrusted(final String... trusted) {
         this.trusted = getIntervals(trusted);
-        LOGGER.info("trusted ranges: {}", this.trusted);
+        LOGGER.info("Trusted ranges: {}", this.trusted);
     }
 
     public boolean isTrusted(final Interval ipResource) {

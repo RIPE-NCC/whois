@@ -6,8 +6,8 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
@@ -99,10 +99,10 @@ class AbuseCFinder {
     }
 
     private boolean isMaintainedByRs(final RpslObject inetObject) {
-        final Set<CIString> maintainers = Sets.newHashSet();
-        maintainers.addAll(inetObject.getValuesForAttribute(AttributeType.MNT_BY));
-        maintainers.addAll(inetObject.getValuesForAttribute(AttributeType.MNT_LOWER));
+        final Set<CIString> objectMaintainers = Sets.newHashSet();
+        objectMaintainers.addAll(inetObject.getValuesForAttribute(AttributeType.MNT_BY));
+        objectMaintainers.addAll(inetObject.getValuesForAttribute(AttributeType.MNT_LOWER));
 
-        return !Sets.intersection(this.maintainers.getRsMaintainers(), maintainers).isEmpty();
+        return !Sets.intersection(this.maintainers.getRsMaintainers(), objectMaintainers).isEmpty();
     }
 }

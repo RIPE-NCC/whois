@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 public class JdbcTagsDaoTest extends AbstractDaoTest {
     @Autowired TagsDao subject;
+    @Value("${whois.source}") protected String source;
 
     @Before
     public void setup() {

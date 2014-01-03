@@ -1,7 +1,6 @@
 package net.ripe.db.whois.query.support;
 
-import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperTest;
-import net.ripe.db.whois.common.iptree.IpTreeUpdater;
+import net.ripe.db.whois.common.support.AbstractDaoTest;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.domain.QueryMessages;
@@ -21,20 +20,19 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
         DependencyInjectionTestExecutionListener.class,
         DirtiesContextTestExecutionListener.class},
         inheritListeners = false)
-public abstract class AbstractWhoisIntegrationTest extends AbstractDatabaseHelperTest {
+public abstract class AbstractWhoisIntegrationTest extends AbstractDaoTest {
     public static final String HOST = "localhost";
 
     @Autowired protected QueryServer queryServer;
     @Autowired protected IpResourceConfiguration ipResourceConfiguration;
-    @Autowired protected IpTreeUpdater ipTreeUpdater;
 
+    // TODO: [AH] not do this for each test, but reinit context only where needed
     @Before
     public final void setUpAbstractIntegrationTest() throws Exception {
         databaseHelper.clearAclLimits();
         databaseHelper.insertAclIpLimit("0/0", -1, true);
         databaseHelper.insertAclIpLimit("::0/0", -1, true);
         ipResourceConfiguration.reload();
-        ipTreeUpdater.rebuild();
     }
 
     public static String stripHeader(final String response) {

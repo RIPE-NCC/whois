@@ -1,16 +1,16 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.Message
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
 import spock.lang.Ignore
 
-class Inet6numSpec extends BaseSpec {
+class Inet6numSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
         [
-            "RIR-ALLOC-20": """\
+                "RIR-ALLOC-20": """\
                 inet6num:     2001::/20
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -24,7 +24,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-            "RIR-ALLOC-25": """\
+                "RIR-ALLOC-25": """\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -38,7 +38,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-            "USER-RIR-ALLOC-25": """\
+                "USER-RIR-ALLOC-25": """\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -53,7 +53,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-            "RIR-ALLOC-25-NO-LOW": """\
+                "RIR-ALLOC-25-NO-LOW": """\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -66,7 +66,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-            "RIR-ALLOC-25-LOW-R-D": """\
+                "RIR-ALLOC-25-LOW-R-D": """\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -83,7 +83,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-            "LIR-ALLOC-30": """\
+                "LIR-ALLOC-30": """\
                 inet6num:     2001:600::/30
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -97,7 +97,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-            "LIR-AGGR-32-48": """\
+                "LIR-AGGR-32-48": """\
                 inet6num:     2001:600::/32
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -112,7 +112,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-            "LIR-AGGR-32-50": """\
+                "LIR-AGGR-32-50": """\
                 inet6num:     2001:600::/32
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -127,7 +127,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-            "LIR-AGGR-48-56": """\
+                "LIR-AGGR-48-56": """\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -142,7 +142,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-            "LIR-AGGR-48-64": """\
+                "LIR-AGGR-48-64": """\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -157,7 +157,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-            "LIR-AGGR-56-64": """\
+                "LIR-AGGR-56-64": """\
                 inet6num:     2001:600::/56
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -172,7 +172,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-            "ASS-64": """\
+                "ASS-64": """\
                 inet6num:     2001:600::/64
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -185,7 +185,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-            "ASSPI-64": """\
+                "ASSPI-64": """\
                 inet6num:     2001:600::/64
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -199,7 +199,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-            "PN": """\
+                "PN": """\
                 person:  First Person
                 address: St James Street
                 address: Burnley
@@ -210,7 +210,7 @@ class Inet6numSpec extends BaseSpec {
                 changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
-            "IRT": """\
+                "IRT": """\
                 irt:          irt-test
                 address:      RIPE NCC
                 e-mail:       irt-dbtest@ripe.net
@@ -222,15 +222,16 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """
-    ]}
+        ]
+    }
 
     // Create 0::/0 without override
     @Ignore
     def "create 0::/0 without override"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num ::/0", "inet6num", "::/0")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -256,7 +257,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.failed
 
@@ -277,10 +278,10 @@ class Inet6numSpec extends BaseSpec {
     // Create 0::/0 with override
     @Ignore
     def "create 0::/0 with override"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 0::/0", "inetnum", "0::/0")
 
-      when:
+        when:
         def message = syncUpdate("""\
                 inet6num:      0::/0
                 netname:      IANA-BLK
@@ -298,12 +299,12 @@ class Inet6numSpec extends BaseSpec {
                 mnt-routes:   owner-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
@@ -317,10 +318,10 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "modify with invalid prefix 1::/0"() {
-      expect:
+        expect:
         queryObject("-r -T inet6num ::/0", "inet6num", "::/0")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -346,7 +347,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -362,10 +363,10 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create allocation with leading zero"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -387,7 +388,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -403,16 +404,16 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /64 assignment with all zeroes"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -431,7 +432,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -447,16 +448,16 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /64 assignment with all bits, 1 at end"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600:1:1::/64", "inet6num", "2001:600:1:1::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -475,7 +476,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -491,16 +492,16 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /64 assignment with all bits, 1 at end, then delete with same format"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600:1:1::/64", "inet6num", "2001:600:1:1::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -515,7 +516,7 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
-                inet6num:     2001:600:1:1:1:1:1:1/64
+                inet6num:     2001:600:1:1::/64
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
                 country:      EU
@@ -531,35 +532,33 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 1, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 2)
+        ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600:1:1::/64" }
         ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600:1:1::/64") ==
                 ["Value 2001:600:1:1:1:1:1:1/64 converted to 2001:600:1:1::/64"]
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600:1:1::/64" }
-        ack.infoSuccessMessagesFor("Delete", "[inet6num] 2001:600:1:1::/64") ==
-                ["Value 2001:600:1:1:1:1:1:1/64 converted to 2001:600:1:1::/64"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600:1:1::/64", "inet6num", "2001:600:1:1::/64")
     }
 
     def "create /64 assignment with most zeros, gap in middle"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -578,7 +577,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -594,16 +593,16 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /128 assignment with all zeroes and modify it"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/128")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -634,7 +633,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 2
@@ -653,16 +652,16 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /128 assignment with all bits, 1 at end"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::1/128", "inet6num", "2001:600::1/128")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -681,7 +680,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -697,10 +696,10 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create allocation with invalid legacy status"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -722,7 +721,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -738,10 +737,10 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create allocation with invalid unknown status"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -763,7 +762,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -779,10 +778,10 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create allocation with invalid IPv4 status"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -804,7 +803,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -820,10 +819,10 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create allocation, parent has invalid legacy status"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 1981:600::/48", "inet6num", "1981:600::/48")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -846,7 +845,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -862,10 +861,10 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create RIR allocation not mnt-by RS"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -888,7 +887,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -904,10 +903,10 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create RIR allocation, mnt-by RS"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -929,7 +928,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -943,10 +942,10 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create RIR allocation, joint mnt-by RS & LIR, using RS password"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -968,7 +967,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -982,14 +981,14 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create RIR allocation, joint mnt-by RS & LIR, using LIR password"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1012,7 +1011,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1021,19 +1020,20 @@ class Inet6numSpec extends BaseSpec {
 
         ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
-        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/30").sort() ==
-                ["Adding or removing a RIPE NCC maintainer requires administrative authorisation",
-                        "Status ALLOCATED-BY-RIR can only be created by the database administrator"]
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/30") == [
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation",
+                "Status ALLOCATED-BY-RIR can only be created by the database administrator"
+        ]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
     }
 
     def "modify RIR allocation, joint mnt-by RS & LIR, using LIR password"() {
-      given:
-        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "override: override1")
+        given:
+        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "override: denis,override1")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1057,7 +1057,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1071,10 +1071,10 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create RIR allocation, joint mnt-by RS & LIR, using override"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      when:
+        when:
         def message = syncUpdate("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
@@ -1089,12 +1089,12 @@ class Inet6numSpec extends BaseSpec {
                 status:       ALLOCATED-BY-RIR
                 changed:      dbtest@ripe.net
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
@@ -1110,10 +1110,10 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "delete with invalid legacy status"() {
-      expect:
-        queryObject("-r -T inet6num 1981:600::/25", "inet6num", "1981:600::/25")
+        expect:
+        queryObject("-B -r -T inet6num 1981:600::/25", "inet6num", "1981:600::/25")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1127,7 +1127,7 @@ class Inet6numSpec extends BaseSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       SUBTLA
-                changed:      dbtest@ripe.net
+                changed:      dbtest@ripe.net 20120202
                 source:       TEST
                 delete:       old status
 
@@ -1135,7 +1135,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1149,7 +1149,7 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "delete assignment"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
@@ -1157,7 +1157,7 @@ class Inet6numSpec extends BaseSpec {
         syncUpdate(getTransient("ASS-64") + "password: lir\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1178,7 +1178,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1192,13 +1192,13 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "delete PI assignment, lir pw"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001::/20", "inet6num", "2001::/20")
         syncUpdate(getTransient("ASSPI-64") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1220,7 +1220,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1236,13 +1236,13 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "delete PI assignment, RS pw"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001::/20", "inet6num", "2001::/20")
         syncUpdate(getTransient("ASSPI-64") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1264,7 +1264,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1278,11 +1278,11 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "delete allocation, lir pw"() {
-      given:
-        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "password: hm\npassword: owner3\noverride: override1")
+        given:
+        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "password: hm\npassword: owner3\noverride: denis,override1")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1305,7 +1305,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1321,11 +1321,11 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "delete allocation, RS pw"() {
-      given:
-        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "password: hm\npassword: owner3\noverride: override1")
+        given:
+        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "password: hm\npassword: owner3\noverride: denis,override1")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1348,7 +1348,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1362,11 +1362,11 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "delete allocation, override"() {
-      given:
-        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "override: override1\n")
+        given:
+        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "override: denis,override1\n")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      when:
+        when:
         def message = syncUpdate("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
@@ -1382,12 +1382,12 @@ class Inet6numSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete:       alloc
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
@@ -1403,14 +1403,14 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create RIR allocation, joint mnt-by RS & LIR, using RS password, parent no mnt-lower"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25-NO-LOW") + "password: hm\npassword: owner3\n")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1432,7 +1432,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1446,14 +1446,14 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create RIR allocation, joint mnt-by RS & LIR, using RS password, parent has mnt-lower, no mnt-lower pw supplied"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3\n")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1475,7 +1475,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1491,14 +1491,14 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create RIR allocation, parent has mnt-lower, MNT-ROUTES, MNT-DOMAINS, mnt-ROUTES,MNT-DOMAINS pw supplied"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "password: hm\npassword: owner3\n")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1522,7 +1522,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1538,14 +1538,14 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create RIR allocation, parent has mnt-lower, MNT-ROUTES, MNT-DOMAINS, mnt-lower pw supplied"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "password: hm\npassword: owner3\n")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1568,7 +1568,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1582,14 +1582,14 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create RIR allocation, obj has 2 RS mnt-by, parent has 2 mnt-lower, MNT-ROUTES, MNT-DOMAINS, 2nd mnt-by and 2nd mnt-lower pw supplied"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "password: hm\npassword: owner3\n")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1613,7 +1613,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1627,14 +1627,14 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "modify RIR allocation, obj has 2 RS mnt-by, parent has 2 mnt-lower, MNT-ROUTES, MNT-DOMAINS, 2nd lir mnt-by and no parent pw supplied"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "password: hm\npassword: owner3\n")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      when:
+        when:
         def message = syncUpdate("""\
                 inet6num:     2001:600::/30
                 netname:      EU-ZZ-2001-0600
@@ -1651,7 +1651,7 @@ class Inet6numSpec extends BaseSpec {
                 status:       ALLOCATED-BY-RIR
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inet6num:     2001:600::/30
                 netname:      EU-ZZ-2001-0600
@@ -1675,7 +1675,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 2
@@ -1692,7 +1692,7 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "modify change status"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
@@ -1700,7 +1700,7 @@ class Inet6numSpec extends BaseSpec {
         syncUpdate(getTransient("LIR-AGGR-32-48") + "password: lir\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1734,7 +1734,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 2
@@ -1754,7 +1754,7 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "modify change status with override"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
@@ -1762,7 +1762,7 @@ class Inet6numSpec extends BaseSpec {
         syncUpdate(getTransient("LIR-AGGR-32-48") + "password: lir\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
 
-      when:
+        when:
         def message = syncUpdate("""\
                 inet6num:     2001:600::/32
                 netname:      EU-ZZ-2001-0600
@@ -1776,7 +1776,7 @@ class Inet6numSpec extends BaseSpec {
                 status:       ASSIGNED
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 inet6num:     2001:600::/30
                 netname:      EU-ZZ-2001-0600
@@ -1790,12 +1790,12 @@ class Inet6numSpec extends BaseSpec {
                 status:       ASSIGNED PI
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 2
@@ -1815,7 +1815,7 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "delete and re-create to change status"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
@@ -1823,7 +1823,7 @@ class Inet6numSpec extends BaseSpec {
         syncUpdate(getTransient("LIR-AGGR-32-48") + "password: lir\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
 
-      when:
+        when:
         def message = syncUpdate("""\
                 inet6num:     2001:600::/32
                 netname:      EU-ZZ-2001-0600
@@ -1873,7 +1873,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 3
@@ -1890,16 +1890,16 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /64 assignment with mnt-routes no op data"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1919,7 +1919,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1933,16 +1933,16 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /64 assignment with mnt-routes op data ANY"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1962,7 +1962,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1976,16 +1976,16 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /64 assignment with mnt-routes op data exact match"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -2005,7 +2005,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -2019,16 +2019,16 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /64 assignment with mnt-routes op data exact match split"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -2048,7 +2048,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -2062,7 +2062,7 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /64 assignment with IRT ref, irt pw supplied"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
@@ -2070,10 +2070,10 @@ class Inet6numSpec extends BaseSpec {
         syncUpdate(getTransient("IRT") + "password: owner")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -2094,7 +2094,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -2108,7 +2108,7 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /64 assignment with IRT ref, no irt pw supplied"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
@@ -2116,10 +2116,10 @@ class Inet6numSpec extends BaseSpec {
         syncUpdate(getTransient("IRT") + "password: owner")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -2139,7 +2139,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -2155,16 +2155,16 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /64 assignment, syntactically incorrect netname"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -2183,7 +2183,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -2199,16 +2199,16 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /64 assignment, in range notation"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -2227,7 +2227,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -2243,16 +2243,16 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /64 assignment, invalid address"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -2271,7 +2271,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -2287,7 +2287,7 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "create /64 assignment with all optional attrs supplied"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
         syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
@@ -2295,10 +2295,10 @@ class Inet6numSpec extends BaseSpec {
         syncUpdate(getTransient("IRT") + "password: owner")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -2350,7 +2350,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -2366,13 +2366,13 @@ class Inet6numSpec extends BaseSpec {
     }
 
     def "modify PI assignment, LIR pw"() {
-      given:
+        given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001::/20", "inet6num", "2001::/20")
         syncUpdate(getTransient("ASSPI-64") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -2394,7 +2394,7 @@ class Inet6numSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1

@@ -7,11 +7,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.io.Downloader;
+import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ class LacnicGrsSource extends GrsSource {
     }
 
     @Override
-    public void acquireDump(final File file) throws IOException {
+    public void acquireDump(final Path path) throws IOException {
         final String action = "http://lacnic.net" + Jsoup.connect("http://www.lacnic.net/login")
                 .timeout(10000)
                 .get()
@@ -66,7 +67,7 @@ class LacnicGrsSource extends GrsSource {
 
 
         final String downloadAction = action.replace("stini", "bulkWhoisLoader");
-        downloader.downloadToFile(logger, new URL(downloadAction), file);
+        downloader.downloadTo(logger, new URL(downloadAction), path);
     }
 
     @Override

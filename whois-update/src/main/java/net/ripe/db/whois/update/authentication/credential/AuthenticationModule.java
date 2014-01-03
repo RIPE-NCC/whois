@@ -65,16 +65,20 @@ public class AuthenticationModule {
     }
 
     private Credential getCredential(final CIString auth) {
-        if (auth.startsWith(ciString("MD5-PW"))) {
+        if (auth.toLowerCase().startsWith("md5-pw")) {
             return new PasswordCredential(auth.toString());
         }
 
-        if (auth.startsWith(ciString("PGPKEY"))) {
+        if (auth.toLowerCase().startsWith("pgpkey")) {
             return PgpCredential.createKnownCredential(auth.toString());
         }
 
-        if (auth.startsWith(ciString("X509"))) {
+        if (auth.toLowerCase().startsWith("x509")) {
             return X509Credential.createKnownCredential(auth.toString());
+        }
+
+        if (auth.toLowerCase().startsWith("sso")) {
+            return new SSOCredential(auth.toString());
         }
 
         return null;

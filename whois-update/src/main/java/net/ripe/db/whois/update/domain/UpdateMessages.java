@@ -5,12 +5,12 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.domain.attrs.Inet6numStatus;
-import net.ripe.db.whois.common.domain.attrs.InetStatus;
-import net.ripe.db.whois.common.domain.attrs.OrgType;
-import net.ripe.db.whois.common.etree.Interval;
+import net.ripe.db.whois.common.ip.Interval;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
+import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -24,7 +24,7 @@ public final class UpdateMessages {
     private static final Joiner LIST_JOINED = Joiner.on(", ");
 
     public static String print(final Message message) {
-        return prettyPrint(String.format("***%s: ", message.getType()), message.getValue(), 12, 80);
+        return prettyPrint(String.format("***%s: ", message.getType()), message.getFormattedText(), 12, 80);
     }
 
     private UpdateMessages() {
@@ -39,7 +39,7 @@ public final class UpdateMessages {
     }
 
     public static Message unexpectedError() {
-        return new Message(Type.ERROR, "Unexpected error occured");
+        return new Message(Type.ERROR, "Unexpected error occurred");
     }
 
     public static Message filteredNotAllowed() {
@@ -472,6 +472,10 @@ public final class UpdateMessages {
 
     public static Message neitherSimpleOrComplex(final ObjectType objectType, final CharSequence simple, final CharSequence complex) {
         return new Message(Type.ERROR, "A %s object must contain either %s or %s attribute", objectType.getName(), simple, complex);
+    }
+
+    public static Message diffNotSupported() {
+        return new Message(Type.WARNING, "The DIFF keyword is not supported.");
     }
 
     public static Message abuseMailboxRequired(final CharSequence key) {

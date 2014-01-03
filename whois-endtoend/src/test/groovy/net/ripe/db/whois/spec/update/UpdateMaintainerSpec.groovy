@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.Message
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.Message
 import spock.lang.Ignore
 
-class UpdateMaintainerSpec extends BaseSpec {
+class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {

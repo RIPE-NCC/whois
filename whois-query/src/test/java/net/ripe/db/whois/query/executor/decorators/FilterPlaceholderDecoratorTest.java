@@ -22,11 +22,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +36,7 @@ public class FilterPlaceholderDecoratorTest {
     AuthoritativeResourceData authoritativeResourceData;
     @Mock
     AuthoritativeResource authoritativeResource;
-    @Mock
+
     Source source;
 
     @InjectMocks
@@ -47,8 +44,8 @@ public class FilterPlaceholderDecoratorTest {
 
     @Before
     public void setup() {
+        source = Source.slave("TEST-GRS");
         when(sourceContext.getCurrentSource()).thenReturn(source);
-        when(source.getName()).thenReturn(ciString("TEST-GRS"));
         when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
         subject = new FilterPlaceholdersDecorator(sourceContext, authoritativeResourceData);
     }

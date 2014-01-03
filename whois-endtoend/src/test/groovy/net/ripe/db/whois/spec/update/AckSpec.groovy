@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.Message
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.Message
 
-class AckSpec extends BaseSpec {
+class AckSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
@@ -16,7 +16,7 @@ class AckSpec extends BaseSpec {
             auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
             mnt-by:      DEL-MNT
             referral-by: DEL-MNT
-            changed:     dbtest@ripe.net
+            changed:     dbtest@ripe.net 20120202
             source:      TEST
             """
     ]}
@@ -55,6 +55,7 @@ class AckSpec extends BaseSpec {
     // Check the ack message summary structure
     def "ack msg summary structure"() {
       given:
+
         def toDelete = dbfixture(getTransient("DEL-MNT"))
 
       when:

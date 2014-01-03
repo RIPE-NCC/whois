@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.BlockEvents;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
-import net.ripe.db.whois.scheduler.DailyScheduler;
+import net.ripe.db.whois.common.scheduler.DailyScheduler;
 import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;

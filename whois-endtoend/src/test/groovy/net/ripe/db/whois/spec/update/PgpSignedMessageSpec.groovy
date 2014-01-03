@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.Message
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
 
-class PgpSignedMessageSpec extends BaseSpec{
+class PgpSignedMessageSpec extends BaseQueryUpdateSpec{
     @Override
     Map<String, String> getTransients() {
         [
@@ -196,7 +196,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 referral-by:  TST-MNT
                 changed:      dbtest@ripe.net 20130110
                 source:       TEST
-                override:     override1
+                override:     denis,override1
 
 
                 -----BEGIN PGP SIGNATURE-----
@@ -324,7 +324,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 referral-by:  TST-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:     override1
+                override:     denis,override1
 
                 -----BEGIN PGP SIGNATURE-----
                 Version: GnuPG v1.2.2 (GNU/Linux)
@@ -371,7 +371,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 referral-by:  TST-MNT2
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:     override1
+                override:     denis,override1
 
 
                 -----BEGIN PGP SIGNATURE-----
@@ -422,7 +422,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 notify:              dbtest@ripe.net
                 changed:             dbtest@ripe.net
                 source:              TEST
-                override:            override1
+                override:            denis,override1
                 """.stripIndent()
         )
 
@@ -465,7 +465,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 changed:      dbtest@ripe.net 20030101
                 changed:      dbtest@ripe.net 20030201
                 source:       TEST
-                override:     override1
+                override:     denis,override1
                 """.stripIndent()
         )
 

@@ -1,8 +1,8 @@
 package net.ripe.db.whois.query.integration;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
 import java.util.Set;
@@ -36,7 +35,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     private static final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
 
     @Autowired IpTreeUpdater ipTreeUpdater;
-    @Autowired DateTimeProvider dateTimeProvider;
+    @Autowired TestDateTimeProvider dateTimeProvider;
 
     // TODO: [AH] most tests don't taint the DB; have a 'tainted' flag in DBHelper, reinit only if needed
     @Before
@@ -102,6 +101,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         client.sendLine("-k");
 
         client.waitForResponseEndsWith(END_OF_HEADER);
+        client.clearBuffer();
 
         client.sendLine("-rBGxTinetnum 81.80.117.237 - 81.80.117.237");
         client.waitForResponseEndsWith(END_OF_HEADER);
@@ -128,7 +128,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "\n\n\n");
 
         assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -141,7 +141,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "help\nhelp");
 
         assertThat(response, containsString("RIPE Database Reference Manual"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -149,7 +149,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-q version");
 
         assertThat(response, containsString("% whois-server-"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -157,7 +157,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "--version");
 
         assertThat(response, containsString("% whois-server-"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -165,7 +165,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-r -T inetnum RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -173,7 +173,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-r -T mntner RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -181,7 +181,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "--no-referenced --select-types mntner RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -189,7 +189,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-r -T organisation");
 
         assertThat(response, containsString("no search key specified"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -197,7 +197,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-r -T as-block AS2 - AS1");
 
         assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -206,7 +206,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-rT domain 9.4.e164.arpa.");
 
         assertThat(response, not(containsString("trailing dot in domain query")));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -214,7 +214,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "80-28.79.198.195.in-addr.arpa");
 
         assertThat(response, containsString("no entries found"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -311,7 +311,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-rT person");
 
         assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -319,7 +319,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-rT as-block AS2-AS1");
 
         assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
         assertThat(response, not(containsString(QueryMessages.outputFilterNotice().toString())));
     }
 
@@ -810,4 +810,130 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         assertThat(response, containsString("81.80.117.0/24"));
     }
 
+    @Test
+    public void validSyntax_missing_attribute() {
+        databaseHelper.addObject("" +
+                "mntner:      DEL-MNT\n" +
+                "descr:       MNTNER for test\n" +
+                "descr:       object not identical to one above\n" +
+                "admin-c:     ADM-TEST\n" +
+                "upd-to:      dbtest@ripe.net\n" +
+                "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
+                "referral-by: DEL-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST");
+
+        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+
+        assertThat(result, containsString("% 'DEL-MNT' invalid syntax"));
+    }
+
+    @Test
+    public void validSyntax_incorrect_attribute() {
+        databaseHelper.addObject("" +
+                "mntner:      DEL-MNT\n" +
+                "descr:       MNTNER for test\n" +
+                "descr:       object not identical to one above\n" +
+                "admin-c:     ADM-TEST\n" +
+                "upd-to:      dbtest_at_ripe.net\n" +
+                "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
+                "referral-by: DEL-MNT\n" +
+                "mnt-by:      DEL-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST");
+
+        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+
+        assertThat(result, containsString("% 'DEL-MNT' invalid syntax"));
+    }
+
+    @Test
+    public void validSyntax_correct_syntax() {
+        databaseHelper.addObject("" +
+                "mntner:      DEL-MNT\n" +
+                "descr:       MNTNER for test\n" +
+                "descr:       object not identical to one above\n" +
+                "admin-c:     ADM-TEST\n" +
+                "upd-to:      dbtest@ripe.net\n" +
+                "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
+                "referral-by: DEL-MNT\n" +
+                "mnt-by:      DEL-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST");
+
+        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+
+        assertThat(result, not(containsString("% 'DEL-MNT' invalid syntax")));
+    }
+
+    @Test
+    public void validSyntax_wrong_queryflag_combination() {
+        final String wrongFlagShowVersion = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --show-version 1 ADM-TEST");
+        assertThat(wrongFlagShowVersion, containsString("The flags \"--valid-syntax\" and \"--show-version\" cannot be used together."));
+
+        final String wrongFlagListVersions = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --list-versions 1 ADM-TEST");
+        assertThat(wrongFlagListVersions, containsString("The flags \"--valid-syntax\" and \"--list-versions\" cannot be used together."));
+
+        final String wrongFlagDiffVersions = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --diff-versions 1 ADM-TEST");
+        assertThat(wrongFlagDiffVersions, containsString("The flags \"--valid-syntax\" and \"--diff-versions\" cannot be used together."));
+
+        final String wrongFlagValidNovalid = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --no-valid-syntax 1 ADM-TEST");
+        assertThat(wrongFlagValidNovalid, containsString("The flags \"--valid-syntax\" and \"--no-valid-syntax\" cannot be used together."));
+    }
+
+    @Test
+    public void novalidSyntax_incorrect_syntax() {
+        databaseHelper.addObject("" +
+                "mntner:      DEL-MNT\n" +
+                "descr:       MNTNER for test\n" +
+                "descr:       object not identical to one above\n" +
+                "admin-c:     ADM-TEST\n" +
+                "upd-to:      dbtest_at_ripe.net\n" +
+                "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
+                "referral-by: DEL-MNT\n" +
+                "mnt-by:      DEL-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST");
+
+        final String result = DummyWhoisClient.query(QueryServer.port, "--no-valid-syntax DEL-MNT");
+        assertThat(result, containsString("MD5-PW # Filtered"));
+        assertThat(result, containsString("+312342343"));
+    }
+
+    @Test
+    public void novalidSyntax_correct_syntax() {
+        databaseHelper.addObject("" +
+                "mntner:      DEL-MNT\n" +
+                "descr:       MNTNER for test\n" +
+                "descr:       object not identical to one above\n" +
+                "admin-c:     ADM-TEST\n" +
+                "upd-to:      dbtest@ripe.net\n" +
+                "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
+                "referral-by: DEL-MNT\n" +
+                "mnt-by:      DEL-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST");
+
+        final String result = DummyWhoisClient.query(QueryServer.port, "--no-valid-syntax DEL-MNT");
+
+        assertThat(result, containsString("% 'DEL-MNT' has valid syntax"));
+        assertThat(result, not(containsString("MD5-PW # Filtered")));
+    }
+
+    @Test
+    public void route6_correct_rebuild() {
+        databaseHelper.addObject("mntner: TEST-MNT\nupd-to: TEST-MNT");
+        databaseHelper.addObject("" +
+                "route6:          2aaa:6fff::/48\n" +
+                "descr:           test\n" +
+                "origin:          AS222\n" +
+                "mnt-by:          TEST-MNT\n" +
+                "changed:         test@test.net 20120428\n" +
+                "source:          TEST");
+
+        ipTreeUpdater.rebuild();
+        final String query = DummyWhoisClient.query(QueryServer.port, "2aaa:6fff::/48");
+
+        assertThat(query, containsString("route6:         2aaa:6fff::/48"));
+    }
 }

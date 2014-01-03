@@ -4,20 +4,20 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.*;
+import net.ripe.db.whois.api.rest.InternalJob;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
-import net.ripe.db.whois.common.domain.attrs.AttributeParseException;
-import net.ripe.db.whois.common.domain.attrs.OrgType;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.scheduler.DailyScheduledTask;
-import net.ripe.db.whois.scheduler.MaintenanceJob;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.SingleUpdateHandler;
 import net.ripe.db.whois.update.handler.UpdateFailedException;
@@ -49,7 +49,6 @@ Algorithm:
  */
 
 // TODO: [AH] hard to follow code, should be refactored
-// TODO: [AH] does not handle circles of unreferenced objects (e.g. person referenced from key-cert, key-cert referenced from mntner, mntner referenced from person), need a different approach to support this
 @Component
 public class UnrefCleanup implements DailyScheduledTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnrefCleanup.class);
@@ -118,9 +117,9 @@ public class UnrefCleanup implements DailyScheduledTask {
                 Joiner.on(',').join(REFERENCE_ATTRIBUTETYPES));
     }
 
-    Map<ObjectKey, DeleteCandidate> deleteCandidates;
-    Map<ObjectKey, UnreferencedObject> unreferencedObjects;
-    final ReentrantLock unrefCleanupLock = new ReentrantLock();
+    private Map<ObjectKey, DeleteCandidate> deleteCandidates;
+    private Map<ObjectKey, UnreferencedObject> unreferencedObjects;
+    private final ReentrantLock unrefCleanupLock = new ReentrantLock();
 
     @Override
     public void run() {
@@ -140,7 +139,7 @@ public class UnrefCleanup implements DailyScheduledTask {
             deleteCandidates = unrefCleanupDao.getDeleteCandidates(CLEANUP_OBJECTS);
             unreferencedObjects = Maps.newHashMap();
 
-            filterReferencedObjects(deleteCandidates, unreferencedObjects);
+            filterReferencedObjects(deleteCandidates);
 
             LOGGER.info("Tagging {} unreferenced objects", unreferencedObjects.size());
             tagsDao.rebuild(CIString.ciString("unref"), Lists.newArrayList(Iterables.transform(unreferencedObjects.values(), new Function<UnreferencedObject, Tag>() {
@@ -172,7 +171,7 @@ public class UnrefCleanup implements DailyScheduledTask {
         }
     }
 
-    private void filterReferencedObjects(final Map<ObjectKey, DeleteCandidate> deleteCandidates, final Map<ObjectKey, UnreferencedObject> nrDaysUnrefByObjectKey) {
+    private void filterReferencedObjects(final Map<ObjectKey, DeleteCandidate> deleteCandidates) {
         final UnrefCleanupDao.DeleteCandidatesFilter deleteCandidatesFilter = new UnrefCleanupDao.DeleteCandidatesFilter() {
             private int nrErrors = 0;
 
@@ -197,7 +196,7 @@ public class UnrefCleanup implements DailyScheduledTask {
                         }
 
                         if (nrErrors++ > MAX_ERRORS) {
-                            throw new IllegalStateException("Too many errors occured removing delete candidates, aborting unref cleanup");
+                            throw new IllegalStateException("Too many errors occurred removing delete candidates, aborting unref cleanup");
                         }
                     }
                 }
@@ -246,7 +245,7 @@ public class UnrefCleanup implements DailyScheduledTask {
     }
 
     private void performCleanup(final Map<ObjectKey, DeleteCandidate> deleteCandidates) {
-        final Origin origin = new MaintenanceJob(REASON);
+        final Origin origin = new InternalJob(REASON);
         final UpdateContext updateContext = new UpdateContext(loggerContext);
 
         int remainingDeletes = MAX_DELETE_OBJECTS;

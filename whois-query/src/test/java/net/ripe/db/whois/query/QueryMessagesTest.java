@@ -50,7 +50,7 @@ public class QueryMessagesTest {
 
     @Test
     public void internalErrorMessageShouldContainErrorCode() {
-        assertThat(QueryMessages.internalErrorOccured().toString(), containsString("%ERROR:100:"));
+        assertThat(QueryMessages.internalErroroccurred().toString(), containsString("%ERROR:100:"));
     }
 
     @Test

@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.dao.jdbc;
 
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
@@ -10,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Collections;
@@ -22,6 +24,7 @@ import static org.junit.Assert.assertThat;
 
 public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
     @Autowired RpslObjectDao subject;
+    @Value("${whois.source}") protected String source;
 
     @Before
     public void setup() {
@@ -360,5 +363,24 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
 
         final List<RpslObject> byKeys = subject.getByKeys(ObjectType.ROLE, ciSet("TEST-PN"));
         assertThat(byKeys, hasSize(0));
+    }
+
+    @Test
+    public void mntner_auth_password_sso_filled() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "mntner:        NINJA-MNT\n" +
+                "auth:          MD5-PW $1$YmPozTxJ$s3eGZRVrKVGdSDTeEZJu\n" +
+                "auth:          SSO ninja@realultimatepower.net\n" +
+                "source:        RIPE\n");
+
+        databaseHelper.addObject(rpslObject);
+
+        final List<RpslObjectInfo> byMd5 = subject.findByAttribute(AttributeType.AUTH, "MD5-PW $1$YmPozTxJ$s3eGZRVrKVGdSDTeEZJu");
+        assertThat(byMd5, hasSize(1));
+        assertThat(byMd5.get(0).getKey().toString(), is(rpslObject.getKey().toString()));
+
+        final List<RpslObjectInfo> bySso = subject.findByAttribute(AttributeType.AUTH, "SSO ninja@realultimatepower.net");
+        assertThat(bySso, hasSize(1));
+        assertThat(bySso.get(0).getKey().toString(), is(rpslObject.getKey().toString()));
     }
 }

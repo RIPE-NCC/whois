@@ -13,22 +13,28 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
+import net.ripe.db.whois.query.executor.decorators.ResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.Fixture;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
@@ -39,6 +45,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
 
+// TODO: [AH] this should have been an integration test
+
 @RunWith(MockitoJUnitRunner.class)
 public class RpslResponseDecoratorTest {
 
@@ -47,41 +55,34 @@ public class RpslResponseDecoratorTest {
     @Mock RpslObjectDao rpslObjectDaoMock;
     @Mock PrimaryObjectDecorator decorator;
     @Mock AbuseCFinder abuseCFinder;
-    @Mock DummifyFunction dummifyFunction;
+    @Mock DummifyDecorator dummifyDecorator;
     @Mock FilterTagsDecorator filterTagsDecorator;
     @Mock FilterPlaceholdersDecorator filterPlaceholdersDecorator;
-    final String source = "RIPE";
+    @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
 
     RpslResponseDecorator subject;
 
     @Before
     public void setup() {
-        subject = new RpslResponseDecorator(rpslObjectDaoMock, filterPersonalDecorator, sourceContext, abuseCFinder, dummifyFunction, filterTagsDecorator, filterPlaceholdersDecorator, source, decorator);
+        subject = new RpslResponseDecorator(rpslObjectDaoMock, filterPersonalDecorator, dummifyDecorator, sourceContext, abuseCFinder, filterTagsDecorator, filterPlaceholdersDecorator, abuseCInfoDecorator, decorator);
         when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);
+        when(sourceContext.isMain()).thenReturn(true);
         Fixture.mockRpslObjectDaoLoadingBehavior(rpslObjectDaoMock);
 
-        when(filterPersonalDecorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return invocationOnMock.getArguments()[1];
-            }
-        });
+        decoratorPassthrough(filterPersonalDecorator, filterPlaceholdersDecorator, filterTagsDecorator, dummifyDecorator);
+    }
 
-        when(filterTagsDecorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return invocationOnMock.getArguments()[1];
-            }
-        });
-
-        when(filterPlaceholdersDecorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return invocationOnMock.getArguments()[1];
-            }
-        });
+    private static void decoratorPassthrough(ResponseDecorator... responseDecorator) {
+        for (ResponseDecorator decorator : responseDecorator) {
+            when(decorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
+                @Override
+                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                    return invocationOnMock.getArguments()[1];
+                }
+            });
+        }
     }
 
     @Test
@@ -93,6 +94,7 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void shouldAddGroupingHeader() {
+        when(sourceContext.isMain()).thenReturn(false);
         final String response = execute("-r -B -T mntner FOO-MNT", RpslObject.parse(1, "mntner: FOO-MNT\n"));
         assertThat(response, is("" +
                 QueryMessages.relatedTo("FOO-MNT") + "\n" +
@@ -101,6 +103,7 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void shouldSuppressGroupingHeader_shorthand() {
+        when(sourceContext.isMain()).thenReturn(false);
         final String response = execute("-r -F -G -B -T mntner FOO-MNT", RpslObject.parse(1, "mntner: FOO-MNT\n"));
         assertEquals("*mt: FOO-MNT\n\n", response);
     }
@@ -122,6 +125,7 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void keys() {
+        when(sourceContext.isMain()).thenReturn(false);
         final String response = execute("-K 193.0.0.0/21", RpslObject.parse(1, "" +
                 "route:          193.0.0.0/21\n" +
                 "descr:          RIPE-NCC\n" +
@@ -139,12 +143,14 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void shouldSuppressGroupingHeader() {
+        when(sourceContext.isMain()).thenReturn(false);
         final String response = execute("-r -G -B -T mntner FOO-MNT", RpslObject.parse(1, "mntner: FOO-MNT\n"));
         assertThat(response, is("mntner:         FOO-MNT\n\n"));
     }
 
     @Test
     public void shouldAddFilterNoticeOnce() {
+        when(sourceContext.isMain()).thenReturn(false);
         final String response = execute("-r -G -T organisation FOO-ORG",
                 RpslObject.parse(1, "organisation: FOO-ORG\nsource: RIPE\n"),
                 RpslObject.parse(1, "organisation: BAR-ORG\nsource: RIPE\n"));
@@ -163,6 +169,7 @@ public class RpslResponseDecoratorTest {
     @Test
     public void shouldNotFilterWhenNoAclUsed() {
         when(sourceContext.isAcl()).thenReturn(false);
+        when(sourceContext.isMain()).thenReturn(false);
 
         final String response = execute("-r -G -T organisation FOO-MNT",
                 RpslObject.parse(1, "organisation: FOO-ORG\nsource: RIPE\n"),
@@ -181,6 +188,7 @@ public class RpslResponseDecoratorTest {
     public void shouldNotFilterForGrsSources() {
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("APNIC-GRS"));
         when(sourceContext.isAcl()).thenReturn(false);
+        when(sourceContext.isMain()).thenReturn(false);
 
         final String response = execute("-r -G -T organisation FOO-MNT",
                 RpslObject.parse(1, "organisation: FOO-ORG\nsource: APNIC-GRS\n"),
@@ -218,7 +226,7 @@ public class RpslResponseDecoratorTest {
     public void non_grouping_and_recursive_no_rpsl_objects() {
         String result = execute("-G -B -T inetnum 10.0.0.0", RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.0"));
 
-        assertThat(result, is("inetnum:        10.0.0.0 - 10.0.0.0\n\n"));
+        assertThat(result, is("% No abuse contact registered for 10.0.0.0 - 10.0.0.0\n\ninetnum:        10.0.0.0 - 10.0.0.0\n\n"));
     }
 
     @Test
@@ -268,7 +276,7 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void non_grouping_and_recursive_with_recursive_objects() {
-        RpslObject rpslObject = RpslObject.parse(1, "inetnum: 10.0.0.0\ntech-c:NICHDL\norg:ORG1-TEST\nstatus:OTHER");
+        RpslObject rpslObject = RpslObject.parse("inetnum: 10.0.0.0\ntech-c:NICHDL\norg:ORG1-TEST\nstatus:OTHER");
         final HashMap<CIString, CIString> map = Maps.newHashMap();
         map.put(CIString.ciString("10.0.0.0"), CIString.ciString("abuse@ripe.net"));
         when(decorator.appliesToQuery(any(Query.class))).thenReturn(true);
@@ -336,7 +344,6 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void grouping_and_recursive_with_recursive_objects_sorts() {
-
         final RpslObject object1 = RpslObject.parse(1, "inetnum: 10.0.0.1\ntech-c:NICHDL\nadmin-c:NICHDL\norg: ORG1-TEST\nstatus:OTHER");
         final RpslObject object2 = RpslObject.parse(1, "inetnum: 10.0.0.2\ntech-c:NICHDL\nadmin-c:NICHDL\norg: ORG1-TEST\nstatus:OTHER");
 
@@ -414,46 +421,28 @@ public class RpslResponseDecoratorTest {
     public void dummify_response() {
         when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("GRS1", "GRS2"));
         when(sourceContext.isDummificationRequired()).thenReturn(true);
-        when(dummifyFunction.apply(any(ResponseObject.class))).thenReturn(DummifierLegacy.PLACEHOLDER_PERSON_OBJECT);
+        when(sourceContext.isMain()).thenReturn(false);
+        when(dummifyDecorator.decorate(any(Query.class), any(Iterable.class))).thenReturn(Collections.EMPTY_LIST);
 
         final String response = execute("-s TEST-GRS -T person test", RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST"));
         assertThat(response, is("" +
                 "% Note: this output has been filtered.\n" +
-                "%       To receive output for a database update, use the \"-B\" flag.\n" +
-                "\n" +
-                "% Information related to 'DUMY-RIPE'\n" +
-                "\n" +
-                "person:         Placeholder Person Object\n" +
-                "address:        RIPE Network Coordination Centre\n" +
-                "address:        P.O. Box 10096\n" +
-                "address:        1001 EB Amsterdam\n" +
-                "address:        The Netherlands\n" +
-                "phone:          +31 20 535 4444\n" +
-                "nic-hdl:        DUMY-RIPE\n" +
-                "mnt-by:         RIPE-DBM-MNT\n" +
-                "remarks:        **********************************************************\n" +
-                "remarks:        * This is a placeholder object to protect personal data.\n" +
-                "remarks:        * To view the original object, please query the RIPE\n" +
-                "remarks:        * Database at:\n" +
-                "remarks:        * http://www.ripe.net/whois\n" +
-                "remarks:        **********************************************************\n" +
-                "source:         RIPE # Filtered\n" +
-                "\n"));
+                "%       To receive output for a database update, use the \"-B\" flag.\n\n"));
 
-        verify(dummifyFunction, atLeastOnce()).apply(any(ResponseObject.class));
+        verify(dummifyDecorator, atLeastOnce()).decorate(any(Query.class), any(Iterable.class));
     }
 
     @Test
     public void dummify_filter() {
         when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("GRS1", "GRS2"));
         when(sourceContext.isDummificationRequired()).thenReturn(true);
-        when(dummifyFunction.apply(any(ResponseObject.class))).thenReturn(null);
+        when(dummifyDecorator.decorate(any(Query.class), any(Iterable.class))).thenReturn(Collections.EMPTY_LIST);
 
         final RpslObject inetnum = RpslObject.parse(1, "inetnum: 10.0.0.0\norg:ORG1-TEST");
 
         final String response = execute("-G -B -T inetnum 10.0.0.0", inetnum);
         assertThat(response, is(""));
 
-        verify(dummifyFunction, atLeastOnce()).apply(any(ResponseObject.class));
+        verify(dummifyDecorator, atLeastOnce()).decorate(any(Query.class), any(Iterable.class));
     }
 }

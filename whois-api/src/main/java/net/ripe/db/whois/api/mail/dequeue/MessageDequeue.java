@@ -4,6 +4,7 @@ import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationService;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.update.domain.*;
@@ -44,6 +45,7 @@ public class MessageDequeue implements ApplicationService {
     private final UpdatesParser updatesParser;
     private final UpdateRequestHandler messageHandler;
     private final LoggerContext loggerContext;
+    private final DateTimeProvider dateTimeProvider;
 
     private final AtomicInteger freeThreads = new AtomicInteger();
 
@@ -72,7 +74,8 @@ public class MessageDequeue implements ApplicationService {
                           final MessageParser messageParser,
                           final UpdatesParser updatesParser,
                           final UpdateRequestHandler messageHandler,
-                          final LoggerContext loggerContext) {
+                          final LoggerContext loggerContext,
+                          final DateTimeProvider dateTimeProvider) {
         this.maintenanceMode = maintenanceMode;
         this.mailGateway = mailGateway;
         this.mailMessageDao = mailMessageDao;
@@ -81,6 +84,7 @@ public class MessageDequeue implements ApplicationService {
         this.updatesParser = updatesParser;
         this.messageHandler = messageHandler;
         this.loggerContext = loggerContext;
+        this.dateTimeProvider = dateTimeProvider;
     }
 
     @Override
@@ -217,7 +221,7 @@ public class MessageDequeue implements ApplicationService {
             LOGGER.debug("Unable to parse Message-Id: {}", headers[0]);
         }
 
-        return "No-Message-Id." + System.nanoTime();
+        return "No-Message-Id." + dateTimeProvider.getNanoTime();
     }
 
     private void handleMessageInContext(final String messageId, final MimeMessage message) throws MessagingException, IOException {

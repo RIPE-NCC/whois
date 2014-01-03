@@ -5,12 +5,12 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.69.1-SNAPSHOT</version>
+        <version>1.72-SNAPSHOT</version>
     </parent>
 
     <groupId>net.ripe.db</groupId>
     <artifactId>whois-oneshot</artifactId>
-    <version>1.69.1-SNAPSHOT</version>
+    <version>1.72-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -29,6 +29,18 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-query</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-update</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-client</artifactId>
+        </dependency>
+        <dependency> <!-- Make sure this is not shaded -->
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-internal</artifactId>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -66,7 +78,7 @@
         <profile>
             <id>release</id>
             <properties>
-                <whois.main>net.ripe.db.conversion.RestoreRemovedAbuseCAttributes</whois.main>
+                <whois.main>net.ripe.db.rcdummifier.RcDatabaseDummifier</whois.main>
             </properties>
             <build>
                 <plugins>
@@ -80,14 +92,29 @@
                                     <goal>shade</goal>
                                 </goals>
                                 <configuration>
+
+                                    <createDependencyReducedPom>false</createDependencyReducedPom>
                                     <!-- exclude Manifest signature files (bouncy castle) -->
+
+                                    <finalName>${project.artifactId}-${project.version}</finalName>
+                                    <transformers>
+                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                            <mainClass>${whois.main}</mainClass>
+                                        </transformer>
+                                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                            <resource>META-INF/spring.handlers</resource>
+                                        </transformer>
+                                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                            <resource>META-INF/spring.schemas</resource>
+                                        </transformer>
+                                    </transformers>
+
                                     <filters>
                                         <filter>
-                                            <artifact>*:*</artifact>
+                                            <artifact>*</artifact>
                                             <excludes>
                                                 <exclude>META-INF/*.SF</exclude>
                                                 <exclude>META-INF/*.DSA</exclude>
-                                                <exclude>META-INF/*.RSA</exclude>
                                             </excludes>
                                         </filter>
                                     </filters>

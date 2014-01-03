@@ -1,7 +1,6 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
 import net.ripe.db.whois.common.jmx.JmxBase;
-import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +20,12 @@ public class BootstrapJmx extends JmxBase {
     private final Bootstrap bootstrap;
 
     @Autowired
-    public BootstrapJmx(final Bootstrap bootstrap, SourceContext sourceContext) {
+    public BootstrapJmx(final Bootstrap bootstrap) {
         super(LOGGER);
         this.bootstrap = bootstrap;
     }
 
-    @ManagedOperation(description = "Load text dump into main database (non-destructive, only adds new objects")
+    @ManagedOperation(description = "Load text dump into main database (non-destructive, only adds new objects) (DOES NOT use global update lock!)")
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation"),
             @ManagedOperationParameter(name = "filenames", description = "Comma separated list of paths to the dump files")
@@ -40,7 +39,7 @@ public class BootstrapJmx extends JmxBase {
         });
     }
 
-    @ManagedOperation(description = "Run nightly bootstrap (destructive, deletes database)")
+    @ManagedOperation(description = "Run nightly bootstrap (destructive, deletes database before load)  (DOES NOT use global update lock!)")
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation")
     })

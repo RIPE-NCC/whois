@@ -8,6 +8,9 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 @Component
 public class MessageFilter {
     private final LoggerContext loggerContext;
@@ -24,8 +27,14 @@ public class MessageFilter {
             return false;
         }
 
-        EmailValidator emailValidator = EmailValidator.getInstance();
-        if (!emailValidator.isValid(replyToEmail)) {
+        try {
+            new InternetAddress(replyToEmail, true);
+        } catch (final AddressException e) {
+            loggerContext.log(new Message(Messages.Type.INFO, "Not processing message, reply address invalid: %s", replyToEmail));
+            return false;
+        }
+
+        if (!EmailValidator.getInstance().isValid(replyToEmail)) {
             loggerContext.log(new Message(Messages.Type.INFO, "Not processing message, reply address invalid: %s", replyToEmail));
             return false;
         }

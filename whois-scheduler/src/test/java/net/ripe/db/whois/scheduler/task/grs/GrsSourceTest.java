@@ -3,7 +3,7 @@ package net.ripe.db.whois.scheduler.task.grs;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.io.Downloader;
+import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -35,7 +36,7 @@ public class GrsSourceTest {
     public void setUp() throws Exception {
         subject = new GrsSource("SOME-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader) {
             @Override
-            void acquireDump(File file) throws IOException {
+            void acquireDump(Path path) throws IOException {
             }
 
             @Override

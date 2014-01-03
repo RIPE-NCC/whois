@@ -1,10 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.Message
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
+import net.ripe.db.whois.spec.domain.SyncUpdate
 
-class NotificationSpec extends BaseSpec {
+class NotificationSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
@@ -1180,7 +1181,7 @@ class NotificationSpec extends BaseSpec {
 
     def "modify inetnum, add remarks:"() {
         given:
-        syncUpdate(getTransient("ASSPI") + "override: override1")
+        syncUpdate(getTransient("ASSPI") + "override: denis,override1")
 
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1239,7 +1240,7 @@ class NotificationSpec extends BaseSpec {
 
     def "modify inetnum, add remarks: with syntax error, no notifs sent"() {
         given:
-        syncUpdate(getTransient("ASSPI") + "override: override1")
+        syncUpdate(getTransient("ASSPI") + "override: denis,override1")
 
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1269,12 +1270,13 @@ class NotificationSpec extends BaseSpec {
         then:
         def ack = ackFor message
 
-        ack.summary.nrFound == 1
+        ack.summary.nrFound == 0
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.garbageContains("inetnum:      192.168.200.0 - 192.168.200.255");
+        ack.garbageContains("remarks      just added")
 
         noMoreMessages()
 
@@ -1343,7 +1345,7 @@ class NotificationSpec extends BaseSpec {
 
     def "delete inetnum"() {
         given:
-        syncUpdate(getTransient("ASSPI") + "override: override1")
+        syncUpdate(getTransient("ASSPI") + "override: denis,override1")
 
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1461,7 +1463,7 @@ class NotificationSpec extends BaseSpec {
 
     def "modify inetnum notif message structure"() {
         given:
-        syncUpdate(getTransient("ASSPI") + "override: override1")
+        syncUpdate(getTransient("ASSPI") + "override: denis,override1")
 
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1522,7 +1524,7 @@ class NotificationSpec extends BaseSpec {
 
     def "delete inetnum notif message structure"() {
         given:
-        syncUpdate(getTransient("ASSPI") + "override: override1")
+        syncUpdate(getTransient("ASSPI") + "override: denis,override1")
 
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1581,7 +1583,7 @@ class NotificationSpec extends BaseSpec {
 
     def "modify inetnum with auth error notif message structure"() {
         given:
-        syncUpdate(getTransient("ASSPI") + "override: override1")
+        syncUpdate(getTransient("ASSPI") + "override: denis,override1")
 
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1652,7 +1654,7 @@ class NotificationSpec extends BaseSpec {
         queryNothing("-rBGT mntner CREATE-MNT")
 
         when:
-        def message = syncUpdate("""\
+        def message = syncUpdate(new SyncUpdate(data: """
                 mntner:      CREATE-MNT
                 descr:       to be created
                 admin-c:     TP1-TEST
@@ -1666,7 +1668,7 @@ class NotificationSpec extends BaseSpec {
                 source:      TEST
                 password: null
 
-                """.stripIndent()
+                """.stripIndent(), redirect: false)
         )
 
         then:

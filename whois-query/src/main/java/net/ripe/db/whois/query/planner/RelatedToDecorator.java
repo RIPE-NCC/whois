@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.query.QueryFlag;
+import net.ripe.db.whois.query.QueryFlag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +37,7 @@ class RelatedToDecorator implements PrimaryObjectDecorator {
                 ? NO_PERSONAL_EXCLUDES
                 : Collections.<ObjectType>emptySet();
 
+        // TODO: [AH] we know exactly what object types each related-to lookup refers to, so we should just have an adjusted relatedto field lookup set, not object type exclusion
         return rpslObjectDao.relatedTo(rpslObject, excludeObjectTypes);
     }
 }

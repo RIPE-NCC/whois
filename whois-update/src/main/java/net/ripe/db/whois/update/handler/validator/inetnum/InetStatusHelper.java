@@ -1,9 +1,9 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.attrs.Inet6numStatus;
-import net.ripe.db.whois.common.domain.attrs.InetStatus;
-import net.ripe.db.whois.common.domain.attrs.InetnumStatus;
+import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
+import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
+import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -11,7 +11,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 
 import javax.annotation.CheckForNull;
 
-class InetStatusHelper {
+final class InetStatusHelper {
     private InetStatusHelper() {
     }
 

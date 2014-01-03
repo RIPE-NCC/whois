@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.domain.iptree.route;
 
-import net.ripe.db.whois.common.domain.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.autokey.dao;
 
-import net.ripe.db.whois.update.dao.AbstractDaoTest;
+import net.ripe.db.whois.update.dao.AbstractUpdateDaoTest;
 import net.ripe.db.whois.update.domain.NicHandle;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 @Transactional
-public class NicHandleRepositoryJdbcTest extends AbstractDaoTest {
+public class NicHandleRepositoryJdbcTest extends AbstractUpdateDaoTest {
     @Autowired NicHandleRepository subject;
 
     @Test

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.domain.CIString.ciImmutableSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
@@ -28,22 +30,13 @@ public class Maintainers {
             @Value("${whois.maintainers.enum}") final String[] enumMaintainers,
             @Value("${whois.maintainers.dbm}") final String[] dbmMaintainers) {
 
-        this.powerMaintainers = createMaintainerSet(powerMaintainers);
-        this.enduserMaintainers = createMaintainerSet(enduserMaintainers);
-        this.allocMaintainers = createMaintainerSet(allocMaintainers);
-        this.enumMaintainers = createMaintainerSet(enumMaintainers);
-        this.dbmMaintainers = createMaintainerSet(dbmMaintainers);
+        this.powerMaintainers = ciImmutableSet(powerMaintainers);
+        this.enduserMaintainers = ciImmutableSet(enduserMaintainers);
+        this.allocMaintainers = ciImmutableSet(allocMaintainers);
+        this.enumMaintainers = ciImmutableSet(enumMaintainers);
+        this.dbmMaintainers = ciImmutableSet(dbmMaintainers);
 
-        this.rsMaintainers = Sets.newLinkedHashSet(Iterables.concat(this.powerMaintainers, this.enduserMaintainers, this.allocMaintainers));
-    }
-
-    private static Set<CIString> createMaintainerSet(final String[] maintainers) {
-        final Set<CIString> maintainerSet = Sets.newLinkedHashSetWithExpectedSize(maintainers.length);
-        for (final String maintainer : maintainers) {
-            maintainerSet.add(ciString(maintainer));
-        }
-
-        return Collections.unmodifiableSet(maintainerSet);
+        this.rsMaintainers = ImmutableSet.copyOf(Iterables.concat(this.powerMaintainers, this.enduserMaintainers, this.allocMaintainers));
     }
 
     public Set<CIString> getPowerMaintainers() {

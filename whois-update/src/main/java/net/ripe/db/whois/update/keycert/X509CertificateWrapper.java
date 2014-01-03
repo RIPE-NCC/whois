@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.keycert;
 
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
@@ -14,8 +15,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
-public class X509CertificateWrapper implements KeyWrapper {
+public final class X509CertificateWrapper implements KeyWrapper {
     private static final String X509_HEADER = "-----BEGIN CERTIFICATE-----";
     private static final String X509_FOOTER = "-----END CERTIFICATE-----";
 
@@ -33,7 +35,7 @@ public class X509CertificateWrapper implements KeyWrapper {
         }
 
         try {
-            final byte[] bytes = new RpslObjectFilter(rpslObject).getCertificateFromKeyCert().getBytes(Charsets.ISO_8859_1);
+            final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(Charsets.ISO_8859_1);
 
             X509CertParser parser = new X509CertParser();
             parser.engineInit(new ByteArrayInputStream(bytes));
@@ -51,7 +53,7 @@ public class X509CertificateWrapper implements KeyWrapper {
     }
 
     static boolean looksLikeX509Key(final RpslObject rpslObject) {
-        final String pgpKey = new RpslObjectFilter(rpslObject).getCertificateFromKeyCert();
+        final String pgpKey = RpslObjectFilter.getCertificateFromKeyCert(rpslObject);
         return pgpKey.indexOf(X509_HEADER) != -1 && pgpKey.indexOf(X509_FOOTER) != -1;
     }
 
@@ -100,8 +102,8 @@ public class X509CertificateWrapper implements KeyWrapper {
     }
 
     @Override
-    public String getOwner() {
-        return convertFromRfc2253ToCompatFormat(certificate.getSubjectDN().getName());
+    public List<String> getOwners() {
+        return Lists.newArrayList(convertFromRfc2253ToCompatFormat(certificate.getSubjectDN().getName()));
     }
 
     @Override

@@ -8,7 +8,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import java.util.List;
 import java.util.Set;
 
-public interface AuthenticationStrategy {
+public interface AuthenticationStrategy extends Comparable<AuthenticationStrategy> {
     /**
      * Check if this authentication strategy should be used for the passed in update.
      *

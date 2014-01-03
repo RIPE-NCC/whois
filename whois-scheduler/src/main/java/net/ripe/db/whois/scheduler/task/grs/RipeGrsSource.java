@@ -3,7 +3,7 @@ package net.ripe.db.whois.scheduler.task.grs;
 import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.io.Downloader;
+import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -33,8 +34,8 @@ public class RipeGrsSource extends GrsSource {
     }
 
     @Override
-    void acquireDump(final File file) throws IOException {
-        downloader.downloadToFile(logger, new URL(download), file);
+    void acquireDump(final Path path) throws IOException {
+        downloader.downloadTo(logger, new URL(download), path);
     }
 
     @Override

@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.Message
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
 import spock.lang.Ignore
 
-class InetnumSpec extends BaseSpec {
+class InetnumSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getFixtures() {
@@ -429,7 +429,7 @@ class InetnumSpec extends BaseSpec {
                 mnt-routes:   owner-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )
@@ -1173,7 +1173,7 @@ class InetnumSpec extends BaseSpec {
                 mnt-by:       END-USER-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )
@@ -1391,7 +1391,7 @@ class InetnumSpec extends BaseSpec {
                 mnt-by:       LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 password: hm
                 password: lir
@@ -4589,7 +4589,7 @@ class InetnumSpec extends BaseSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
@@ -4601,7 +4601,7 @@ class InetnumSpec extends BaseSpec {
                 mnt-by:       END-USER-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      RIPE-NET1
@@ -4614,7 +4614,7 @@ class InetnumSpec extends BaseSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )
@@ -4801,7 +4801,7 @@ class InetnumSpec extends BaseSpec {
 
     def "delete allocation, override"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override:  override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override:  denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
 
       when:
@@ -4819,7 +4819,7 @@ class InetnumSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  test override
-                override:  override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -5008,47 +5008,6 @@ class InetnumSpec extends BaseSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-DBM-MNT")
     }
 
-    def "delete assignment, using prefix notation"() {
-      given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASS") + "password: lir\npassword: end")
-        queryObject("-GBr -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.168.200/24
-                netname:      RIPE-NET1
-                descr:        /24 assigned
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PA
-                mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                delete:  using prefix
-
-                password: end
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 1, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-        ack.infoSuccessMessagesFor("Delete", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
-                "Value 192.168.200/24 converted to 192.168.200.0 - 192.168.200.255"]
-
-        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-    }
-
     def "Remove mnt-routes, inverse lookup"() {
       when:
         def message = syncUpdate("""\
@@ -5109,7 +5068,7 @@ class InetnumSpec extends BaseSpec {
 
     def "modify EARLY-REGISTRATION, mnt-by RS and user, change mnt-lower"() {
       given:
-        syncUpdate(getTransient("EARLY-USER") + "override: override1")
+        syncUpdate(getTransient("EARLY-USER") + "override: denis,override1")
 
       expect:
         query_object_not_matches("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
@@ -5151,7 +5110,7 @@ class InetnumSpec extends BaseSpec {
 
     def "modify EARLY-REGISTRATION, mnt-by user only, change mnt-lower"() {
       given:
-        syncUpdate(getTransient("EARLY-USER-ONLY") + "override: override1")
+        syncUpdate(getTransient("EARLY-USER-ONLY") + "override: denis,override1")
 
       expect:
         query_object_not_matches("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")

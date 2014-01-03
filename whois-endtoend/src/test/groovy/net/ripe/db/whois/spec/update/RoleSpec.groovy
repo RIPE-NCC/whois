@@ -1,14 +1,14 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.Message
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.Message
 
-class RoleSpec extends BaseSpec {
+class RoleSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
         [
-            "RL": """\
+                "RL": """\
                 role:    First Role
                 address: St James Street
                 address: Burnley
@@ -21,7 +21,7 @@ class RoleSpec extends BaseSpec {
                 changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
-            "NO-MB-RL": """\
+                "NO-MB-RL": """\
                 role:    First Role
                 address: St James Street
                 address: Burnley
@@ -33,7 +33,7 @@ class RoleSpec extends BaseSpec {
                 changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
-            "RL-NO-MB-PN": """\
+                "RL-NO-MB-PN": """\
                 role:    First Role
                 address: St James Street
                 address: Burnley
@@ -46,7 +46,7 @@ class RoleSpec extends BaseSpec {
                 changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
-            "NO-MB-PN": """\
+                "NO-MB-PN": """\
                 person:  No MB Person
                 address: St James Street
                 address: Burnley
@@ -56,7 +56,7 @@ class RoleSpec extends BaseSpec {
                 changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
-            "NO-MB-PN-MNT": """\
+                "NO-MB-PN-MNT": """\
                 mntner:      NO-MB-PN-MNT
                 descr:       used to maintain other MNTNERs
                 admin-c:     NMP1-TEST
@@ -69,7 +69,7 @@ class RoleSpec extends BaseSpec {
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
-            "RL2": """\
+                "RL2": """\
                 role:    First Role
                 address: St James Street
                 address: Burnley
@@ -82,13 +82,14 @@ class RoleSpec extends BaseSpec {
                 changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """
-    ]}
+        ]
+    }
 
     def "delete non-existent role"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "FR1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -109,7 +110,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.failed
 
@@ -126,20 +127,20 @@ class RoleSpec extends BaseSpec {
     }
 
     def "delete role"() {
-      given:
+        given:
         def toDelete = getTransient("RL")
         syncUpdate(toDelete + "password: owner")
 
-      expect:
+        expect:
         queryObject("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: toDelete + "delete: testing role delete\npassword: owner"
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -154,13 +155,13 @@ class RoleSpec extends BaseSpec {
     }
 
     def "modify role no date"() {
-      given:
+        given:
         syncUpdate(getTransient("RL") + "password: owner")
 
-      expect:
+        expect:
         queryObject("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -180,7 +181,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -195,13 +196,13 @@ class RoleSpec extends BaseSpec {
     }
 
     def "modify role add missing mnt-by"() {
-      given:
+        given:
         dbfixture(getTransient("NO-MB-RL"))
 
-      expect:
+        expect:
         query_object_not_matches("-r -T role FR1-TEST", "role", "First Role", "mnt-by:")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -221,7 +222,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -236,13 +237,13 @@ class RoleSpec extends BaseSpec {
     }
 
     def "modify role to change name"() {
-      given:
+        given:
         syncUpdate(getTransient("RL") + "password: owner")
 
-      expect:
+        expect:
         queryObject("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -262,7 +263,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.failed
@@ -283,13 +284,13 @@ class RoleSpec extends BaseSpec {
     }
 
     def "modify role to change name and object type to PERSON"() {
-      given:
+        given:
         syncUpdate(getTransient("RL") + "password: owner")
 
-      expect:
+        expect:
         queryObject("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -308,7 +309,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.failed
@@ -325,15 +326,15 @@ class RoleSpec extends BaseSpec {
     }
 
     def "create role using previously deleted nic-hdl"() {
-      given:
+        given:
         syncUpdate(getTransient("RL") + "password: owner")
         queryObject("-r -T role FR1-TEST", "role", "First Role")
         syncUpdate(getTransient("RL") + "delete: testing\npassword: owner")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -353,7 +354,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.failed
@@ -371,17 +372,17 @@ class RoleSpec extends BaseSpec {
 
     // Modify a ROLE that references a PERSON with no mnt-by:
     def "modify role ref no mnt-by person"() {
-      given:
+        given:
         dbfixture(getTransient("NO-MB-PN"))
         dbfixture(getTransient("NO-MB-PN-MNT"))
         syncUpdate(getTransient("RL") + "password: owner")
 
-      expect:
+        expect:
         queryObject("-r -T person NMP1-TEST", "person", "No MB Person")
         queryObject("-r -T role FR1-TEST", "role", "First Role")
         queryObject("-r -T mntner NO-MB-PN-MNT", "mntner", "NO-MB-PN-MNT")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -401,7 +402,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -411,24 +412,25 @@ class RoleSpec extends BaseSpec {
 
         ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   First Role" }
-        ack.warningSuccessMessagesFor("Modify", "[role] FR1-TEST   First Role").sort() == [
+        ack.warningSuccessMessagesFor("Modify", "[role] FR1-TEST   First Role") == [
                 "Referenced person object NMP1-TEST from mntner: NO-MB-PN-MNT is missing mandatory attribute \"mnt-by:\"",
-                "Referenced person object NMP1-TEST is missing mandatory attribute \"mnt-by:\""].sort()
+                "Referenced person object NMP1-TEST is missing mandatory attribute \"mnt-by:\""
+        ]
 
         query_object_matches("-rBT role FR1-TEST", "role", "First Role", "admin-c:\\s*NMP1-TEST")
     }
 
     // Create a ROLE that references a PERSON with no mnt-by:
     def "create role ref no mnt-by person"() {
-      given:
+        given:
         dbfixture(getTransient("NO-MB-PN"))
         dbfixture(getTransient("NO-MB-PN-MNT"))
 
-      expect:
+        expect:
         query_object_not_matches("-r -T person NMP1-TEST", "person", "No MB Person", "mnt-by:")
         queryObject("-r -T mntner NO-MB-PN-MNT", "mntner", "NO-MB-PN-MNT")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -448,7 +450,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -458,18 +460,19 @@ class RoleSpec extends BaseSpec {
 
         ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
-        ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   First Role").sort() == [
+        ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   First Role") == [
                 "Referenced person object NMP1-TEST from mntner: NO-MB-PN-MNT is missing mandatory attribute \"mnt-by:\"",
-                "Referenced person object NMP1-TEST is missing mandatory attribute \"mnt-by:\""].sort()
+                "Referenced person object NMP1-TEST is missing mandatory attribute \"mnt-by:\""
+        ]
 
         query_object_matches("-rBT role FR1-TEST", "role", "First Role", "admin-c:\\s*NMP1-TEST")
     }
 
     def "create role"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -489,7 +492,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -504,10 +507,10 @@ class RoleSpec extends BaseSpec {
     }
 
     def "create role with all optional and multiple and duplicate attrs"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -552,7 +555,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -569,10 +572,10 @@ class RoleSpec extends BaseSpec {
     }
 
     def "create self referencing role"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -592,7 +595,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -603,23 +606,23 @@ class RoleSpec extends BaseSpec {
         ack.errors.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
         ack.errorMessagesFor("Create", "[role] FR1-TEST   First Role") ==
                 ["Self reference is not allowed for attribute type \"admin-c\"",
-                 "Self reference is not allowed for attribute type \"tech-c\""]
+                        "Self reference is not allowed for attribute type \"tech-c\""]
 
         queryObjectNotFound("-rBT role FR1-TEST", "role", "First Role")
     }
 
     def "create circular referencing roles"() {
-      given:
+        given:
         def role1 = getTransient("RL")
         syncUpdate(role1 + "password: owner")
         def role2 = getTransient("RL2")
         syncUpdate(role2 + "password: owner")
 
-      expect:
+        expect:
         queryObject("-r -T role FR1-TEST", "role", "First Role")
         queryObject("-rBT role FR2-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -639,7 +642,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -655,10 +658,10 @@ class RoleSpec extends BaseSpec {
     }
 
     def "create role referencing non exist persons"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -678,7 +681,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.failed
@@ -696,12 +699,12 @@ class RoleSpec extends BaseSpec {
     }
 
     def "create role with no admin-c, tech-c"() {
-      given:
+        given:
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -719,7 +722,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1

@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -31,6 +32,7 @@ public class UpdateContext {
     private final Map<CIString, GeneratedKey> generatedKeys = Maps.newHashMap();
     private final Map<Update, Context> contexts = Maps.newLinkedHashMap();
     private final Map<DnsCheckRequest, DnsCheckResponse> dnsCheckResponses = Maps.newHashMap();
+    private final Map<String, String> ssoTranslation = Maps.newHashMap();
     private final LoggerContext loggerContext;
 
     private int nrSinceRestart;
@@ -59,6 +61,30 @@ public class UpdateContext {
         if (previous != null) {
             throw new IllegalStateException("Existing response for request: " + request);
         }
+    }
+
+    public void addSsoTranslationResult(String username, String uuid) {
+        String duplicateUuid = ssoTranslation.put(username, uuid);
+        String duplicateUsername = ssoTranslation.put(uuid, username);
+
+        if (duplicateUuid != null) {
+            throw new IllegalStateException("Duplicate UUID '" + duplicateUuid + "' in SSO translation! (" + username + "=" + uuid + ")");
+        }
+        if (duplicateUsername != null) {
+            throw new IllegalStateException("Duplicate username '" + duplicateUsername + "' in SSO translation! (" + username + "=" + uuid + ")");
+        }
+    }
+
+    public String getSsoTranslationResult(String usernameOrUuid) {
+        return ssoTranslation.get(usernameOrUuid);
+    }
+
+    public void addPendingUpdate(final UpdateContainer updateContainer, final PendingUpdate pendingUpdate) {
+        getOrCreateContext(updateContainer).pendingUpdate = pendingUpdate;
+    }
+
+    public PendingUpdate getPendingUpdate(final UpdateContainer updateContainer) {
+        return getOrCreateContext(updateContainer).pendingUpdate;
     }
 
     @CheckForNull
@@ -246,7 +272,7 @@ public class UpdateContext {
             updatedObject = update.getSubmittedObject();
         }
 
-        return new UpdateResult(update, originalObject, updatedObject, context.action, context.status, context.objectMessages, context.retryCount, dryRun);
+        return new UpdateResult(originalObject, updatedObject, context.action, context.status, context.objectMessages, context.retryCount, dryRun);
     }
 
     public void prepareForReattempt(final UpdateContainer update) {
@@ -275,5 +301,6 @@ public class UpdateContext {
         private int retryCount;
         private RpslObjectUpdateInfo updateInfo;
         private int versionId = -1;
+        private PendingUpdate pendingUpdate;
     }
 }

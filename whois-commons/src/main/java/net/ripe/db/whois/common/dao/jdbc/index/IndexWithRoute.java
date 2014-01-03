@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -51,7 +51,7 @@ class IndexWithRoute extends IndexStrategyWithSingleLookupTable {
                 routeKey.origin);
     }
 
-    private static class RouteKey {
+    private static final class RouteKey {
         private static final Pattern ROUTE_PATTERN = Pattern.compile("(?i)(.*)(AS(?:\\d+))");
 
         private final Ipv4Resource ipRange;

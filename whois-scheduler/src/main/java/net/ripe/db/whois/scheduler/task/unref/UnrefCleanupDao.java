@@ -79,8 +79,7 @@ class UnrefCleanupDao {
         executeStreaming(jdbcTemplate,
                 "SELECT object_id, object " +
                         "FROM last " +
-                        "WHERE sequence_id != 0 " +
-                        "AND object_type != 100 ",
+                        "WHERE sequence_id != 0 ",
                 new RowCallbackHandler() {
                     @Override
                     public void processRow(ResultSet rs) throws SQLException {
@@ -94,8 +93,7 @@ class UnrefCleanupDao {
                 "SELECT h.object_id, h.object, l.timestamp " +
                         "FROM history h " +
                         "LEFT JOIN last l on l.object_id = h.object_id " +
-                        "WHERE l.timestamp > ? " +
-                        "AND l.object_type != 100 ",
+                        "WHERE l.timestamp > ? ",
                 new PreparedStatementSetter() {
                     @Override
                     public void setValues(final PreparedStatement ps) throws SQLException {

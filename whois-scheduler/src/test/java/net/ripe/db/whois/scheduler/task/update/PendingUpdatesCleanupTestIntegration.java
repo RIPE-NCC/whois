@@ -91,6 +91,6 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
     }
 
     private int getPendingUpdateCount() {
-        return databaseHelper.getPendingUpdatesTemplate().queryForInt("SELECT count(*) FROM pending_updates");
+        return databaseHelper.getInternalsTemplate().queryForInt("SELECT count(*) FROM pending_updates");
     }
 }

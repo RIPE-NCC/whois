@@ -53,7 +53,7 @@ public class ExceptionHandlerTest {
     public void handle_unknown_exceptions() throws Exception {
         subject.exceptionCaught(channelHandlerContextMock, exceptionEventMock);
 
-        verify(channelMock, times(1)).write(QueryMessages.internalErrorOccured());
+        verify(channelMock, times(1)).write(QueryMessages.internalErroroccurred());
     }
 
     @Test
