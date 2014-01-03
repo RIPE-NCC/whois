@@ -270,7 +270,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
       when:
         def deleteRoute = new SyncUpdate(data: """\
-                    route: 195.0/24
+                    route: 195.0.0.0/24
                     descr: Test route
                     origin: AS12726
                     mnt-by: TEST-MNT
@@ -1541,7 +1541,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
       when:
         def deleteInetnum = syncUpdate(new SyncUpdate(data: """\
-                            inetnum: 197.0/24
+                            inetnum: 197.0.0.0 - 197.0.0.255
                             netname: RIPE-NCC
                             descr: description
                             country: NL

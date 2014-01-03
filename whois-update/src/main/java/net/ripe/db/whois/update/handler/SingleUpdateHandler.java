@@ -186,7 +186,6 @@ public class SingleUpdateHandler {
             updateContext.addMessage(update, UpdateMessages.unrecognizedSource(objectSource));
         }
 
-        updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
         if (Operation.DELETE.equals(update.getOperation())) {
             if (Keyword.NEW.equals(keyword)) {
                 updateContext.addMessage(update, UpdateMessages.operationNotAllowedForKeyword(keyword, update.getOperation()));
@@ -196,6 +195,7 @@ public class SingleUpdateHandler {
                 updateContext.addMessage(update, UpdateMessages.multipleReasonsSpecified(update.getOperation()));
             }
         } else {
+            updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
             updatedObject = ssoTranslator.translateAuthToUuid(updateContext, updatedObject);
             updatedObject = attributeGenerator.generateAttributes(updatedObject, update, updateContext);
 
