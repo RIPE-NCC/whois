@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest.domain;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import java.util.Collections;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.*;
@@ -50,7 +51,7 @@ public class TemplateAttribute {
         return keys;
     }
 
-    public TemplateAttribute setKey(Set<Key> keys) {
+    public TemplateAttribute setKeys(Set<Key> keys) {
         this.keys = keys;
         return this;
     }

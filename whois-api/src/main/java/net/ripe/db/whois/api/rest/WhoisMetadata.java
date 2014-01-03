@@ -65,7 +65,7 @@ public class WhoisMetadata {
                         .setName(attributeTemplate.getAttributeType().getName())
                         .setCardinality(attributeTemplate.getCardinality())
                         .setRequirement(attributeTemplate.getRequirement())
-                        .setKey(attributeTemplate.getKeys()));
+                        .setKeys(attributeTemplate.getKeys()));
 
             }
 
