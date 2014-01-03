@@ -432,6 +432,7 @@ public class WhoisRestService {
         queryBuilder.addCommaList(QueryFlag.INVERSE, inverseAttributes);
         queryBuilder.addCommaList(QueryFlag.FILTER_TAG_INCLUDE, includeTags);
         queryBuilder.addCommaList(QueryFlag.FILTER_TAG_EXCLUDE, excludeTags);
+
         for (QueryFlag separateFlag : separateFlags) {
             queryBuilder.addFlag(separateFlag);
         }
