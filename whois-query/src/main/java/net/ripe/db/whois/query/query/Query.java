@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
+//TODO [TP] This class has way too many responsibilities, needs to be refactored.
 public class Query {
     public static final Pattern FLAG_PATTERN = Pattern.compile("(--?)([^-].*)");
 
@@ -143,6 +144,7 @@ public class Query {
 
     private final Set<String> sources;
     private final Set<ObjectType> objectTypeFilter;
+    private final Set<ObjectType> suppliedObjectTypes;
     private final Set<AttributeType> attributeTypeFilter;
     private final MatchOperation matchOperation;
     private final SearchKey searchKey;
@@ -161,7 +163,8 @@ public class Query {
         searchKey = new SearchKey(SPACE_JOINER.join(options.nonOptionArguments()).trim());
 
         sources = parseSources();
-        objectTypeFilter = parseObjectTypes();
+        suppliedObjectTypes = parseSuppliedObjectTypes();
+        objectTypeFilter = generateAndFilterObjectTypes();
         attributeTypeFilter = parseAttributeTypes();
         matchOperation = parseMatchOperations();
     }
@@ -396,6 +399,10 @@ public class Query {
         return searchKey.getValue();
     }
 
+    public Set<ObjectType> getSuppliedObjectTypes(){
+        return suppliedObjectTypes;
+    }
+
     public IpInterval<?> getIpKeyOrNull() {
         final IpInterval<?> ipKey = searchKey.getIpKeyOrNull();
         if (ipKey != null) {
@@ -498,24 +505,33 @@ public class Query {
         return sources;
     }
 
-    private Set<ObjectType> parseObjectTypes() {
-        final Set<String> objectTypes = getOptionValues(QueryFlag.SELECT_TYPES);
+    private Set<ObjectType> parseSuppliedObjectTypes() {
+        final Set<String> objectTypesOptions = getOptionValues(QueryFlag.SELECT_TYPES);
+        final Set<ObjectType> objectTypes = Sets.newHashSet();
+
+        if (!objectTypesOptions.isEmpty()) {
+            for (final String objectType : objectTypesOptions) {
+                try {
+                    objectTypes.add(ObjectType.getByName(objectType));
+                } catch (IllegalArgumentException e) {
+                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidObjectType(objectType));
+                }
+            }
+        }
+       return Collections.unmodifiableSet(objectTypes);
+    }
+
+    private Set<ObjectType> generateAndFilterObjectTypes() {
         final Set<ObjectType> response = Sets.newTreeSet(ObjectType.COMPARATOR);    // whois query results returned in correct order depends on this comparator
 
-        if (objectTypes.isEmpty()) {
+        if (suppliedObjectTypes.isEmpty()) {
             if (isLookupInBothDirections()) {
                 response.addAll(DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS);
             } else {
                 response.addAll(DEFAULT_TYPES_ALL);
             }
         } else {
-            for (final String objectType : objectTypes) {
-                try {
-                    response.add(ObjectType.getByName(objectType));
-                } catch (IllegalArgumentException e) {
-                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidObjectType(objectType));
-                }
-            }
+            response.addAll(suppliedObjectTypes);
         }
 
         if (hasOption(QueryFlag.NO_PERSONAL)) {
