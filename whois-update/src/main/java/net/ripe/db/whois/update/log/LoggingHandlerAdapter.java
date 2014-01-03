@@ -6,7 +6,9 @@ import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/** Used to allow LoggingDriver from whois-commons to access LoggerContext from whois-update */
+/**
+ * Used to allow LoggingDriver from whois-commons to access LoggerContext from whois-update
+ */
 @Component
 public class LoggingHandlerAdapter implements LoggingHandler {
     private LoggerContext loggerContext;
@@ -17,14 +19,7 @@ public class LoggingHandlerAdapter implements LoggingHandler {
     }
 
     @Override
-    public boolean canLog() {
-        return loggerContext != null && loggerContext.canLog();
-    }
-
-    @Override
     public void log(final StatementInfo statementInfo, final ResultInfo resultInfo) {
-        if (loggerContext != null) {
-            loggerContext.logQuery(statementInfo, resultInfo);
-        }
+        loggerContext.logQuery(statementInfo, resultInfo);
     }
 }

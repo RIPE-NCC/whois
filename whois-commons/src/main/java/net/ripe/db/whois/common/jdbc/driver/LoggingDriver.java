@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.jdbc.driver;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,16 +22,17 @@ import java.util.logging.Logger;
 
 @Component
 public class LoggingDriver implements Driver {
+    private final static org.slf4j.Logger LOGGER = LoggerFactory.getLogger(LoggingDriver.class);
+
     private static final String URL_PREFIX = "jdbc:log:";
     private static final String PARAM_DRIVER = "driver";
-    private static final String PARAM_LOGGER = "logger";
     private static final String URL_DELIMITERS = ":/;=&?";
 
     private static final Map<String, Target> targets = Maps.newHashMap();
-    private final LoggingHandler loggingHandler;
+    private LoggingHandler loggingHandler;
 
-    @Autowired
-    public LoggingDriver(LoggingHandler loggingHandler) {
+    @Autowired(required = false)
+    public void setLoggingHandler(final LoggingHandler loggingHandler) {
         this.loggingHandler = loggingHandler;
     }
 
@@ -38,8 +40,9 @@ public class LoggingDriver implements Driver {
     public void init() {
         // there should be only one LoggingDriver initialized per JVM (or we won't know which applicationContext's logger to log to)
         try {
-            DriverManager.getDriver(URL_PREFIX);
-            throw new IllegalStateException("LoggingDriver already installed");
+            Driver driver = DriverManager.getDriver(URL_PREFIX);
+            LOGGER.error("LoggingDriver already installed; removing");
+            DriverManager.deregisterDriver(driver);
         } catch (SQLException expected) {
         }
 
@@ -55,7 +58,7 @@ public class LoggingDriver implements Driver {
         try {
             DriverManager.deregisterDriver(this);
         } catch (SQLException e) {
-            throw new IllegalStateException("Unable to de-register logging JDBC driver", e);
+            LOGGER.error("Unable to de-register logging JDBC driver", e);
         }
     }
 
@@ -81,7 +84,6 @@ public class LoggingDriver implements Driver {
         final StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("jdbc:");
 
-        String targetLogger = null;
         String targetDriver = null;
         final String urlWithoutPrefix = url.substring(URL_PREFIX.length());
         final StringTokenizer urlTokenizer = new StringTokenizer(urlWithoutPrefix, URL_DELIMITERS, true);
@@ -89,8 +91,6 @@ public class LoggingDriver implements Driver {
             final String s = urlTokenizer.nextToken();
             if (PARAM_DRIVER.equals(s)) {
                 targetDriver = getParameter(urlTokenizer);
-            } else if (PARAM_LOGGER.equals(s)) {
-                targetLogger = getParameter(urlTokenizer);
             } else {
                 urlBuilder.append(s);
             }

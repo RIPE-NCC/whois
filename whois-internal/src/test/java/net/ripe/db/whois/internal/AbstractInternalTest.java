@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -32,7 +31,6 @@ import javax.sql.DataSource;
 public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTests {
     protected static final String apiKey = "DB-WHOIS-testapikey";
 
-    @Autowired protected ApplicationContext applicationContext;
     @Autowired protected DateTimeProvider dateTimeProvider;
 
     @Autowired @Qualifier("aclDataSource") protected DataSource aclDataSource;

@@ -25,7 +25,6 @@ import java.util.Properties;
 @ActiveProfiles(WhoisProfile.TEST)
 @TestExecutionListeners(listeners = {TransactionalTestExecutionListener.class})
 public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringContextTests {
-    @Autowired protected ApplicationContext applicationContext;
     @Autowired protected DateTimeProvider dateTimeProvider;
     @Autowired protected List<Stub> stubs;
 

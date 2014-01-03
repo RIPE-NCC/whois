@@ -1,4 +1,5 @@
 ## next
+[deploy] remove logger=... from whois.properties/master datasource definition
 
 ## 1.71
 [api] #97 REST calls should return error messages
