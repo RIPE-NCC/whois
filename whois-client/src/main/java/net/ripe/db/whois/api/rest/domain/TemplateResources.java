@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import javax.xml.bind.annotation.*;
+import java.util.Collections;
 import java.util.List;
 
 @XmlRootElement(name = "template-resources")
@@ -32,7 +33,7 @@ public class TemplateResources {
     }
 
     public List<Template> getTemplates() {
-        return templates != null ? templates.templates : null;
+        return templates != null ? templates.getTemplates() : Collections.<Template>emptyList();
     }
 
     public TemplateResources setTemplates(List<Template> templates) {

@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("UnusedDeclaration")
@@ -66,7 +67,7 @@ public class WhoisResources {
     }
 
     public List<ErrorMessage> getErrorMessages() {
-        return errorMessages != null ? errorMessages.errorMessages : null;
+        return errorMessages != null ? errorMessages.getErrorMessages() : Collections.<ErrorMessage>emptyList();
     }
 
     public Parameters getParameters() {
@@ -88,7 +89,7 @@ public class WhoisResources {
     }
 
     public List<Source> getSources() {
-        return sources != null ? sources.sources : null;
+        return sources != null ? sources.getSources() : Collections.<Source>emptyList();
     }
 
     public WhoisResources setSources(List<Source> sources) {
@@ -97,7 +98,7 @@ public class WhoisResources {
     }
 
     public List<GrsSource> getGrsSources() {
-        return grsSources != null ? grsSources.sources : null;
+        return grsSources != null ? grsSources.getSources() : Collections.<GrsSource>emptyList();
     }
 
     public WhoisResources setGrsSources(List<GrsSource> grsSources) {
@@ -106,7 +107,7 @@ public class WhoisResources {
     }
 
     public List<WhoisObject> getWhoisObjects() {
-        return objects != null ? objects.whoisObjects : null;
+        return objects != null ? objects.getWhoisObjects() : Collections.<WhoisObject>emptyList();
     }
 
     public WhoisResources setWhoisObjects(List<WhoisObject> value) {
