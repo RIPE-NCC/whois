@@ -9,30 +9,30 @@ if [[ $(find $GENERATED_PATH -name '*.java' 2>/dev/null | wc -l) -gt 5 ]]; then
 	exit 0
 fi
 
-YACC=src/main/parser/byaccj-p2/yacc
+case $OSTYPE in
+    darwin*)
+    	YACC='src/main/parser/bin/yacc.macosx'
+    	;;
+	linux*)
+        YACC='src/main/parser/bin/yacc.linux'
+        ;;
+    *)
+        YACC='src/main/parser/bin/yacc'
+        ;;
+esac
 
-if [[ -x $YACC ]]; then
+echo "testing if ${YACC} binary is executable..."
+
+if ( ${YACC} 2>&1 | grep -q usage  );
+then
     echo 'using compiled yacc binary'
 else
-	case $OSTYPE in
-		darwin*)
-			echo 'using precompiled byaccj for OSX'
-			YACC='src/main/parser/bin/yacc.macosx'
-			;;
-
-		linux*)
-			echo 'using precompiled byaccj for Linux'
-			YACC='src/main/parser/bin/yacc.linux'
-			;;
-
-		*)
-			echo "ERROR: unknown OS '$OSTYPE', will compile the byaccj-p2 tool"
-			pushd src/main/parser/byaccj-p2/src
-    		make
-    		popd
-    		echo "done building byaccj-p2"
-			;;
-	esac
+    echo "WARNING: suitable yacc binary not found - will compile the byaccj-p2 tool"
+	pushd src/main/parser/byaccj-p2/src
+    make
+    popd
+    cp src/main/parser/byaccj-p2/src/yacc ${YACC}
+    echo "done building byaccj-p2"
 fi;
 
 echo 'AggrBndryParser src/main/parser/byacc/aggr_bndry.y
