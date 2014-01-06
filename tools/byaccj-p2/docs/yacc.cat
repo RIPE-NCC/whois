@@ -1,0 +1,132 @@
+
+
+
+YACC(1)                  USER COMMANDS                    YACC(1)
+
+
+
+NAME
+     Yacc - an LALR(1) parser generator
+
+SYNOPSIS
+     yacc [ -dlrtv ] [ -b _p_r_e_f_i_x ] _f_i_l_e_n_a_m_e
+
+DESCRIPTION
+     _Y_a_c_c reads the grammar specification in  the  file  _f_i_l_e_n_a_m_e
+     and  generates  an LR(1) parser for it.  The parsers consist
+     of a set of LALR(1) parsing  tables  and  a  driver  routine
+     written in the C programming language.  _Y_a_c_c normally writes
+     the parse tables and the driver routine to the file _y._t_a_b._c.
+
+     The following options are available:
+
+          -b _p_r_e_f_i_x
+               The -b option changes the prefix prepended to  the
+               output file names to the string denoted by _p_r_e_f_i_x.
+               The default prefix is the character _y.
+
+          -d   The -d option causes the header file _y._t_a_b._h to be
+               written.
+
+          -l   If the -l  option  is  not  specified,  _y_a_c_c  will
+               insert  #line  directives  in  the generated code.
+               The #line directives let  the  C  compiler  relate
+               errors  in the generated code to the user's origi-
+               nal code.  If the -l  option  is  specified,  _y_a_c_c
+               will  not  insert  the  #line  directives.   #line
+               directives specified by the user will be retained.
+
+          -r   The -r option  causes  _y_a_c_c  to  produce  separate
+               files for code and tables.  The code file is named
+               _y._c_o_d_e._c, and the tables file is named _y._t_a_b._c.
+
+          -t   The -t option changes the preprocessor  directives
+               generated  by  _y_a_c_c  so  that debugging statements
+               will be incorporated in the compiled code.
+
+          -v   The -v option causes a human-readable  description
+               of  the generated parser to be written to the file
+               _y._o_u_t_p_u_t.
+
+     If the  environment  variable  TMPDIR  is  set,  the  string
+     denoted  by TMPDIR will be used as the name of the directory
+     where the temporary files are created.
+
+FILES
+     _y._c_o_d_e._c
+     _y._t_a_b._c
+     _y._t_a_b._h
+     _y._o_u_t_p_u_t
+
+
+
+Sun Release 4.1    Last change: July 15, 1990                   1
+
+
+
+
+
+
+YACC(1)                  USER COMMANDS                    YACC(1)
+
+
+
+     /_t_m_p/_y_a_c_c._a_X_X_X_X_X_X
+     /_t_m_p/_y_a_c_c._t_X_X_X_X_X_X
+     /_t_m_p/_y_a_c_c._u_X_X_X_X_X_X
+
+DIAGNOSTICS
+     If there are rules that are never  reduced,  the  number  of
+     such  rules is reported on standard error.  If there are any
+     LALR(1) conflicts, the number of conflicts  is  reported  on
+     standard error.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sun Release 4.1    Last change: July 15, 1990                   2
+
+
+
