@@ -3,7 +3,11 @@ package net.ripe.db.whois.scheduler.task.loader;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
+import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.update.autokey.NicHandleFactory;
 import net.ripe.db.whois.update.autokey.dao.OrganisationIdRepository;
 import net.ripe.db.whois.update.autokey.dao.X509Repository;
@@ -15,7 +19,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,10 +52,6 @@ public class ObjectLoader {
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void processObject(String fullObject, Result result, int pass) {
-        if (fullObject.trim().length() == 0) {
-            return;
-        }
-
         RpslObject rpslObject;
         try {
             rpslObject = RpslObject.parse(fullObject);

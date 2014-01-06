@@ -40,15 +40,21 @@ import java.util.Set;
 
 @Component
 public class RestClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
+
     private Client client;
     private String restApiUrl;
     private String sourceName;
     private WhoisObjectClientMapper whoisObjectClientMapper;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
-
     public RestClient() {
         this.client = createClient();
+    }
+
+    public RestClient(String restApiUrl, String sourceName) {
+        this();
+        setRestApiUrl(restApiUrl);
+        setSource(sourceName);
     }
 
     @Value("${api.rest.baseurl}")

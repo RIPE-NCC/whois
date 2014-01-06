@@ -11,7 +11,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryFlag;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -26,22 +25,15 @@ public class Inet6numAssignmentOverlap {
 
     private static final String ARG_DUMPFILE = "dump-file";
 
-    private static final RestClient restClient = new RestClient();
+    private static final RestClient restClient = new RestClient("http://rest.db.ripe.net", "RIPE");
 
     public static void main(final String[] argv) throws Exception {
         setupLogging();
-
-        restClient.setRestApiUrl("http://rest.db.ripe.net");
-        restClient.setSource("RIPE");
 
         final OptionSet options = setupOptionParser().parse(argv);
         String fileName = options.valueOf(ARG_DUMPFILE).toString();
 
         for (String object : new RpslObjectFileReader(fileName)) {
-            if (StringUtils.isBlank(object)) {
-                continue;
-            }
-
             RpslObject rpslObject;
             try {
                 rpslObject = RpslObject.parse(object);
