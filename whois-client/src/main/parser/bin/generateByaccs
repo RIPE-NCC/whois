@@ -12,7 +12,7 @@ fi
 YACC=src/main/parser/byaccj-p2/yacc
 
 if [[ -x $YACC ]]; then
-    echo 'using compiled yacc binary'
+	echo 'using compiled yacc binary'
 else
 	case $OSTYPE in
 		darwin*)
@@ -28,9 +28,9 @@ else
 		*)
 			echo "ERROR: unknown OS '$OSTYPE', will compile the byaccj-p2 tool"
 			pushd src/main/parser/byaccj-p2/src
-    		make
-    		popd
-    		echo "done building byaccj-p2"
+			make
+			popd
+			echo "done building byaccj-p2"
 			;;
 	esac
 fi;
