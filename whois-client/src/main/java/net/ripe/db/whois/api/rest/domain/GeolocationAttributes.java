@@ -3,7 +3,12 @@ package net.ripe.db.whois.api.rest.domain;
 import com.google.common.collect.Lists;
 
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import java.util.Collections;
 import java.util.List;
 
 @Immutable
@@ -21,7 +26,7 @@ public class GeolocationAttributes {
 
     public GeolocationAttributes(final Location location, final List<Language> languages) {
         this.locations.add(location);
-        this.languages.addAll(languages);
+        this.languages.addAll(languages == null ? Collections.EMPTY_LIST : languages);
     }
 
     public GeolocationAttributes() {
