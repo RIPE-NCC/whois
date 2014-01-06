@@ -1,6 +1,11 @@
 package net.ripe.db.whois.api.rest.domain;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
 import java.util.List;
 
 @XmlRootElement(name = "template")
@@ -8,11 +13,11 @@ import java.util.List;
 public class Template {
 
     @XmlAttribute
-    protected String type;
+    private String type;
     @XmlElement
-    protected Source source;
+    private Source source;
     @XmlElement
-    protected TemplateAttributes attributes;
+    private TemplateAttributes attributes;
 
     public String getType() {
         return type;
@@ -33,7 +38,7 @@ public class Template {
     }
 
     public List<TemplateAttribute> getAttributes() {
-        return attributes != null ? attributes.attributes : null;
+        return attributes != null ? attributes.getAttributes() : Collections.<TemplateAttribute>emptyList();
     }
 
     public Template setAttributes(List<TemplateAttribute> attributes) {

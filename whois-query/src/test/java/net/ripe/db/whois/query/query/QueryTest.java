@@ -12,8 +12,20 @@ import org.junit.Test;
 
 import java.util.Set;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class QueryTest {
     private Query subject;
@@ -218,6 +230,14 @@ public class QueryTest {
     public void single_type() {
         parse("-T aut-num AS1");
         assertTrue(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertThat(subject.getSuppliedObjectTypes(), contains(ObjectType.AUT_NUM));
+    }
+
+    @Test
+    public void empty_types() {
+        parse("TEST-DBM-MNT");
+        assertThat(subject.getSuppliedObjectTypes(), hasSize(0));
+        assertThat(subject.getObjectTypes(), not(hasSize(0)));
     }
 
     @Test
@@ -226,6 +246,7 @@ public class QueryTest {
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INET6NUM));
         assertFalse(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertThat(subject.getSuppliedObjectTypes(), containsInAnyOrder(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM));
     }
 
     @Test
@@ -233,10 +254,12 @@ public class QueryTest {
         parse("-T aut-num,,iNETnUm foo");
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
         assertFalse(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertThat(subject.getSuppliedObjectTypes(), containsInAnyOrder(ObjectType.AUT_NUM, ObjectType.INETNUM));
 
         parse("-T aut-num,,iNETnUm as112");
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
         assertTrue(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertThat(subject.getSuppliedObjectTypes(), containsInAnyOrder(ObjectType.AUT_NUM, ObjectType.INETNUM));
     }
 
     @Test
@@ -245,6 +268,7 @@ public class QueryTest {
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
         assertFalse(subject.hasObjectTypeFilter(ObjectType.ROUTE));
         assertFalse(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertThat(subject.getSuppliedObjectTypes(), containsInAnyOrder(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.ROUTE));
     }
 
     @Test
@@ -262,6 +286,7 @@ public class QueryTest {
         parse("-Tinetnum dont_care");
 
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
+        assertThat(subject.getSuppliedObjectTypes(), contains(ObjectType.INETNUM));
     }
 
     @Test
@@ -269,6 +294,7 @@ public class QueryTest {
         parse("-T  inetnum dont_care");
 
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
+        assertThat(subject.getSuppliedObjectTypes(), contains(ObjectType.INETNUM));
     }
 
     @Test
@@ -277,6 +303,7 @@ public class QueryTest {
 
         assertFalse(subject.isReturningReferencedObjects());
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
+        assertThat(subject.getSuppliedObjectTypes(), contains(ObjectType.INETNUM));
     }
 
     @Test
@@ -285,6 +312,7 @@ public class QueryTest {
 
         assertFalse(subject.isReturningReferencedObjects());
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
+        assertThat(subject.getSuppliedObjectTypes(), contains(ObjectType.INETNUM));
     }
 
     @Test

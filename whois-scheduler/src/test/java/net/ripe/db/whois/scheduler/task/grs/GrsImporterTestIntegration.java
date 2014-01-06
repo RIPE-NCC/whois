@@ -4,16 +4,19 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+@DirtiesContext
 @Category(IntegrationTest.class)
 public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest {
     @Autowired
@@ -22,6 +25,11 @@ public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest
     @BeforeClass
     public static void setup_database() {
         DatabaseHelper.addGrsDatabases("RIPE-GRS");
+    }
+
+    @AfterClass
+    public static void reset_property() {
+        System.clearProperty("grs.sources");
     }
 
     @Before

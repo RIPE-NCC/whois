@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Lists;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -19,17 +20,18 @@ import java.util.List;
 public class Source {
 
     @XmlElement(name = "grs-mirror")
-    protected List<GrsMirror> grsMirror;
+    private List<GrsMirror> grsMirror = Lists.newArrayList();
     @XmlAttribute(required = true)
-    protected String name;
+    private String name;
     @XmlAttribute(required = true)
-    protected String id;
+    private String id;
 
     public Source(final String id) {
         this.id = id;
     }
 
     public Source() {
+        // default no-arg constructor
     }
 
     public String getId() {

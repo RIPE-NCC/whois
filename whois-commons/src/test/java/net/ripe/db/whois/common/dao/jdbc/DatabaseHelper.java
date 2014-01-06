@@ -69,7 +69,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
 
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String LOGGING_HANDLER = "net.ripe.db.whois.common.jdbc.driver.DelegatingLoggingHandler";
 
     private DataSource mailupdatesDataSource;
     private DataSource dnsCheckDataSource;
@@ -146,13 +145,13 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
 
-        final String masterUrl = String.format("jdbc:log:mysql://localhost/%s_WHOIS;driver=%s;logger=%s", dbBaseName, JDBC_DRIVER, LOGGING_HANDLER);
-        System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
+        final String masterUrl = String.format("jdbc:log:mysql://localhost/%s_WHOIS;driver=%s", dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
+        System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
 
         final String slaveUrl = String.format("jdbc:mysql://localhost/%s_WHOIS", dbBaseName);
-        System.setProperty("whois.db.driver", JDBC_DRIVER);
         System.setProperty("whois.db.slave.url", slaveUrl);
+        System.setProperty("whois.db.driver", JDBC_DRIVER);
 
         final String grsSlaveUrl = String.format("jdbc:mysql://localhost/%s", dbBaseName);
         System.setProperty("whois.db.grs.slave.baseurl", grsSlaveUrl);

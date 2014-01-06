@@ -12,13 +12,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class GrsSource {
 
     @XmlAttribute(required = true)
-    protected String name;
+    private String name;
 
     @XmlAttribute(required = true)
-    protected String id;
+    private String id;
 
     @XmlAttribute(name = "grs-id", required = true)
-    protected String grsId;
+    private String grsId;
 
     public GrsSource(final String name, final String id, final String grsId) {
         this.name = name;

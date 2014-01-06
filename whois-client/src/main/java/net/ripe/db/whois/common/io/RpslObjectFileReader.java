@@ -61,7 +61,7 @@ public class RpslObjectFileReader implements Iterable<String> {
                     if (StringUtils.isBlank(line)) {
                         return partialObject.toString();
                     } else {
-                        if (line.charAt(0) != '#') {
+                        if (line.charAt(0) != '#' && line.charAt(0) != '%') {
                             partialObject.append(line).append('\n');
                         }
                     }

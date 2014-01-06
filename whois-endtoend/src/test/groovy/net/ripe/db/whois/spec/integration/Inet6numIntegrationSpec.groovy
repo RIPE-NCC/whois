@@ -1012,44 +1012,4 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
         insert =~ /Modify SUCCEEDED: \[inet6num\] a000:11:fe::\/64/
         insert =~ /Value A000:0011:fE:00::012c\/64 converted to a000:11:fe::\/64/
     }
-
-    def "fdf8:f53b:82e4:1000::/50 sanitized to fdf8:f53b:82e4::/50 can be found by unsanitized key"() {
-      when:
-        def insert = syncUpdate(new SyncUpdate(data: """\
-                inet6num:   fdf8:f53b:82e4:1000::/50
-                netname:    dens_test
-                descr:      testing inet6num operations
-                country:    EU #Country is really world wide
-                admin-c:    TEST-PN
-                tech-c:     TEST-PN
-                status:     ASSIGNED
-                mnt-by:     TEST-MNT
-                changed:    denis@ripe.net 20121024
-                source:     TEST
-                password:   update
-                password:   emptypassword
-                """.stripIndent()))
-
-      then:
-        insert.contains("Create SUCCEEDED: [inet6num] fdf8:f53b:82e4::/50")
-
-      when:
-        def delete = syncUpdate(new SyncUpdate(data: """\
-                inet6num:   fdf8:f53b:82e4::/50
-                netname:    dens_test
-                descr:      testing inet6num operations
-                country:    EU #Country is really world wide
-                admin-c:    TEST-PN
-                tech-c:     TEST-PN
-                status:     ASSIGNED
-                mnt-by:     TEST-MNT
-                changed:    denis@ripe.net 20121024
-                source:     TEST
-                password:   update
-                password:   emptypassword
-                delete:     reason
-                """.stripIndent()))
-      then:
-        delete.contains("Delete SUCCEEDED: [inet6num] fdf8:f53b:82e4::/50")
-    }
 }

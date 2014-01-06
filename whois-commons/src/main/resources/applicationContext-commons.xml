@@ -56,7 +56,7 @@
         <property name="password" value="${internals.database.password}"/>
     </bean>
 
-    <bean id="whoisMasterDataSource" parent="abstractDataSource">
+    <bean id="whoisMasterDataSource" parent="abstractDataSource" depends-on="loggingDriver">
         <property name="driverClass" value="${whois.db.master.driver}"/>
         <property name="jdbcUrl" value="${whois.db.master.url}"/>
         <property name="user" value="${whois.db.master.username}"/>

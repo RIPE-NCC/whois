@@ -8,7 +8,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -25,7 +24,6 @@ import java.util.Properties;
 @ActiveProfiles(WhoisProfile.TEST)
 @TestExecutionListeners(listeners = {TransactionalTestExecutionListener.class})
 public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringContextTests {
-    @Autowired protected ApplicationContext applicationContext;
     @Autowired protected DateTimeProvider dateTimeProvider;
     @Autowired protected List<Stub> stubs;
 

@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -25,25 +26,25 @@ import java.util.List;
 public class WhoisObject {
 
     @XmlElement
-    protected Link link;
+    private Link link;
 
     @XmlElement
-    protected Source source;
+    private Source source;
 
     @XmlElement(name = "primary-key")
-    protected PrimaryKey primaryKey;
+    private PrimaryKey primaryKey;
 
     @XmlElement(name = "attributes", required = true)
-    protected Attributes attributes;
+    private Attributes attributes;
 
     @XmlElement(name = "tags")
-    protected WhoisTags tags;
+    private WhoisTags tags;
 
     @XmlAttribute(required = true)
-    protected String type;
+    private String type;
 
     @XmlAttribute(name = "version")
-    protected Integer version;
+    private Integer version;
 
     public Link getLink() {
         return link;
@@ -62,7 +63,7 @@ public class WhoisObject {
     }
 
     public List<Attribute> getPrimaryKey() {
-        return primaryKey != null ? primaryKey.attributes : null;
+        return primaryKey != null ? primaryKey.getAttributes() : Collections.<Attribute>emptyList();
     }
 
     public void setPrimaryKey(List<Attribute> value) {
@@ -70,7 +71,7 @@ public class WhoisObject {
     }
 
     public List<Attribute> getAttributes() {
-        return attributes != null ? attributes.attributes : null;
+        return attributes != null ? attributes.getAttributes() : Collections.<Attribute>emptyList();
     }
 
     public void setAttributes(List<Attribute> value) {
@@ -94,7 +95,7 @@ public class WhoisObject {
     }
 
     public List<WhoisTag> getTags() {
-        return tags != null ? tags.tags : null;
+        return tags != null ? tags.getTags() : Collections.<WhoisTag>emptyList();
     }
 
     public void setTags(List<WhoisTag> tags) {

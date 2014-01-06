@@ -36,7 +36,7 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                 remarks:        within this block in the RIPE Database where a
                 remarks:        routing policy is published in the RIPE Database
                 mnt-by:         RIPE-DBM-MNT
-                changed:        snigdha.girdhar@gmail.com 20131211
+                changed:        snigdha.girdhar@gmail.com 20120505
                 mnt-lower:      RIPE-DBM-MNT
                 source:         TEST
                 """,

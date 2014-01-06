@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import com.google.common.collect.Lists;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -11,14 +13,14 @@ import java.util.List;
 public class WhoisTags {
 
     @XmlElement(name = "tag")
-    protected List<WhoisTag> tags;
+    private List<WhoisTag> tags;
 
     public WhoisTags(final List<WhoisTag> tags) {
         this.tags = tags;
     }
 
     public WhoisTags() {
-        // required no-arg constructor
+        this.tags = Lists.newArrayList();
     }
 
     public List<WhoisTag> getTags() {

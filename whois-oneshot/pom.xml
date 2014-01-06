@@ -78,7 +78,7 @@
         <profile>
             <id>release</id>
             <properties>
-                <whois.main>net.ripe.db.rcdummifier.RcDatabaseDummifier</whois.main>
+                <whois.main>net.ripe.db.inet6numassignmentoverlap.Inet6numAssignmentOverlap</whois.main>
             </properties>
             <build>
                 <plugins>
