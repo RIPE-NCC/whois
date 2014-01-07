@@ -147,15 +147,25 @@ public class RcDatabaseDummifier {
         }
 
         static final RpslObject replaceWithMntnerNamePassword(RpslObject rpslObject) {
+            boolean foundPassword = false;
             RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
             for (int i = 0; i < builder.size(); i++) {
                 RpslAttribute attribute = builder.getAttribute(i);
                 if (AttributeType.AUTH.equals(attribute.getType()) && (attribute.getCleanValue().toLowerCase().startsWith("md5-pw"))) {
-                    builder.setAttribute(i, new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toString())));
-                    return builder.get();
+                    if (foundPassword) {
+                        builder.removeAttribute(i);
+                    } else {
+                        builder.setAttribute(i, new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toString())));
+                        foundPassword = true;
+                    }
                 }
             }
-            throw new IllegalStateException("No 'auth: md5-pw' found after dummifying " + rpslObject.getFormattedKey());
+
+            if (!foundPassword) {
+                throw new IllegalStateException("No 'auth: md5-pw' found after dummifying " + rpslObject.getFormattedKey());
+            }
+
+            return builder.get();
         }
 
         static final boolean hasPassword(RpslObject rpslObject) {
