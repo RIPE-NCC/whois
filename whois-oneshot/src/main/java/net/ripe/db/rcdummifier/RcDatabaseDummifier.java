@@ -181,7 +181,7 @@ public class RcDatabaseDummifier {
     private static void setupLogging() {
         LogManager.getRootLogger().setLevel(Level.INFO);
         final ConsoleAppender console = new ConsoleAppender();
-        console.setLayout(new PatternLayout("%d [%c|%C{1}] %m%n"));
+        console.setLayout(new PatternLayout("%d [%C{1}] %m%n"));
         console.setThreshold(Level.INFO);
         console.activateOptions();
         LogManager.getRootLogger().addAppender(console);
