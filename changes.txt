@@ -1,7 +1,16 @@
-## next
+## 1.71
+[all] byacc, flex and generator files are not part of deployable whois.jar
+[update] No attribute sanitation of object on delete
+[api] All RestClient lookups are unfiltered
+[oneshot] Dummification for database on RC environment
+[update] propagate error messages from dnscheck properly
+[api] allow for delete reason in rest client
+[all] allow for multiple owner attributes in keycert object
+[api] #110 SQL statements and results are not logged in audit log
+[api] #109 A mntner object is returned filtered in look up, if the password for the mnt_by mntners is supplied
+[api] #108 RestClient does not return comments in the attributes of an rpsl object
 [deploy] remove logger=... from whois.properties/master datasource definition
 
-## 1.71
 [api] #97 REST calls should return error messages
 [api] #95 REST /search should not accept query flags in 'query-string'
 [api] #92 Uniform use to flag names in error messages
