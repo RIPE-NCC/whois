@@ -51,7 +51,7 @@ public class JdbcSerialDaoTest extends AbstractDaoTest {
     @Test
     public void getSerialCreateDelete() {
         final RpslObject object = databaseHelper.addObject("aut-num: AS1");
-        databaseHelper.removeObject(object);
+        databaseHelper.deleteObject(object);
         databaseHelper.addObject("aut-num: AS1");
 
         subject.getById(1);

@@ -1104,7 +1104,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
-        databaseHelper.removeObject(autnum);
+        databaseHelper.deleteObject(autnum);
         databaseHelper.addObject(autnum);
         databaseHelper.updateObject("" +
                 "aut-num:        AS102\n" +
@@ -1151,7 +1151,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
-        databaseHelper.removeObject(autnum);
+        databaseHelper.deleteObject(autnum);
         databaseHelper.addObject(autnum);
         databaseHelper.updateObject("" +
                 "aut-num:        AS102\n" +
@@ -1198,7 +1198,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
-        databaseHelper.removeObject(autnum);
+        databaseHelper.deleteObject(autnum);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
                 .request(MediaType.APPLICATION_XML)
@@ -1338,7 +1338,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
-        databaseHelper.removeObject(autnum);
+        databaseHelper.deleteObject(autnum);
 
         try {
             RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")

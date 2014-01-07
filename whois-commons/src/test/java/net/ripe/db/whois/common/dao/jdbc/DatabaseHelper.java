@@ -346,8 +346,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     public RpslObjectUpdateInfo removeObject(final int id, final String rpslString) {
         return removeObject(RpslObject.parse(id, rpslString.getBytes()));
     }
-
-    public RpslObjectUpdateInfo removeObject(final RpslObject rpslObject) {
+    public RpslObjectUpdateInfo deleteObject(final RpslObject rpslObject) {
         final RpslObjectInfo objectInfo = rpslObjectDao.findByKey(rpslObject.getType(), rpslObject.getKey().toString());
         return rpslObjectUpdateDao.deleteObject(objectInfo.getObjectId(), objectInfo.getKey());
     }
