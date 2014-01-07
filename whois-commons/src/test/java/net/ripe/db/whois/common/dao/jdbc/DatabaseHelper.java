@@ -285,7 +285,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return addObject(RpslObject.parse(rpslString));
     }
 
-    // TODO: [AH] this is not sanitizing - dangerous, we never do that!
+    // TODO: [AH] we should sanitize when setting up test DB, like we do in production.
+    // TODO: [AH] use AttributeSanitizer here when the SQL DB is fully cleaned up
     public RpslObject addObject(final RpslObject rpslObject) {
         final RpslObjectUpdateInfo objectUpdateInfo = rpslObjectUpdateDao.createObject(rpslObject);
         claimId(rpslObject);
