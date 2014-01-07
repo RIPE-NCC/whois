@@ -51,6 +51,16 @@ public class RpslObject implements Identifiable, ResponseObject {
         this.objectId = objectId;
     }
 
+    public RpslObject(final Integer objectId, final RpslObject rpslObject) {
+        this.objectId = objectId;
+        this.attributes = rpslObject.attributes;
+        this.type = rpslObject.type;
+        this.typeAttribute = rpslObject.typeAttribute;
+        this.key = rpslObject.key;
+        this.typeCache = rpslObject.typeCache;
+        this.hash = rpslObject.hash;
+    }
+
     public RpslObject(final List<RpslAttribute> attributes) {
         Validate.notEmpty(attributes);
 

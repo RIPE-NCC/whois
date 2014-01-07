@@ -29,8 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.EmbeddedValueResolverAware;
-import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -47,6 +47,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -73,7 +74,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private JdbcTemplate mailupdatesTemplate;
     private JdbcTemplate internalsTemplate;
 
-    @Autowired Environment environment;
+    @Autowired ApplicationContext applicationContext;
     @Autowired DateTimeProvider dateTimeProvider;
     @Autowired AttributeSanitizer attributeSanitizer;
     @Autowired RpslObjectDao rpslObjectDao;
@@ -284,9 +285,12 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return addObject(RpslObject.parse(rpslString));
     }
 
+    // TODO: [AH] we should sanitize when setting up test DB, like we do in production.
+    // TODO: [AH] use AttributeSanitizer here when the SQL DB is fully cleaned up
     public RpslObject addObject(final RpslObject rpslObject) {
         final RpslObjectUpdateInfo objectUpdateInfo = rpslObjectUpdateDao.createObject(rpslObject);
-        return RpslObject.parse(objectUpdateInfo.getObjectId(), rpslObject.toByteArray());
+        claimId(rpslObject);
+        return new RpslObject(objectUpdateInfo.getObjectId(), rpslObject);
     }
 
     public RpslObject addObjectToSource(final String source, final String rpslString) {
@@ -302,17 +306,23 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         }
     }
 
-    // TODO: [AH] this is very similar to loader, should merge (also, claiming of IDs is missing from here)
+    public Map<RpslObject, RpslObjectUpdateInfo> addObjects(final RpslObject... rpslObjects) {
+        return addObjects(Arrays.asList(rpslObjects));
+    }
+
     public Map<RpslObject, RpslObjectUpdateInfo> addObjects(final Collection<RpslObject> rpslObjects) {
         final Map<RpslObject, RpslObjectUpdateInfo> transformedInfoMap = Maps.newHashMap();
         final Map<RpslObject, RpslObjectUpdateInfo> updateInfoMap = Maps.newHashMap();
 
         for (final RpslObject rpslObject : rpslObjects) {
             // create object with key attribute(s) only - without reference to other objects
-            RpslObject transformedObject = attributeSanitizer.sanitize(rpslObject, new ObjectMessages());
-            final RpslObjectUpdateInfo updateInfo = addObjectWithoutReferences(transformedObject, rpslObjectUpdateDao);
+            RpslObject sanitizedObject = attributeSanitizer.sanitize(rpslObject, new ObjectMessages());
+            RpslObject keysOnlyObject = keepKeyAttributesOnly(new RpslObjectBuilder(sanitizedObject)).get();
+            final RpslObjectUpdateInfo updateInfo = rpslObjectUpdateDao.createObject(keysOnlyObject);
+            claimId(sanitizedObject);
+
             updateInfoMap.put(rpslObject, updateInfo);
-            transformedInfoMap.put(transformedObject, updateInfo);
+            transformedInfoMap.put(sanitizedObject, updateInfo);
         }
 
         for (RpslObject transformedObject : transformedInfoMap.keySet()) {
@@ -322,8 +332,13 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return updateInfoMap;
     }
 
-    private RpslObjectUpdateInfo addObjectWithoutReferences(final RpslObject rpslObject, final RpslObjectUpdateDao rpslObjectUpdateDao) {
-        return rpslObjectUpdateDao.createObject(keepKeyAttributesOnly(new RpslObjectBuilder(rpslObject)).get());
+    private void claimId(RpslObject rpslObject) {
+        // claim IDs. ugly, but ObjectLoader is in whois-update
+        try {
+            Object bean = applicationContext.getBean("objectLoader");
+            bean.getClass().getMethod("claimIds", RpslObject.class).invoke(bean, rpslObject);
+            LOGGER.info("Claimed IDs for " + rpslObject.getFormattedKey());
+        } catch (Exception ignored) {}
     }
 
     public RpslObject updateObject(final String rpslString) {
@@ -337,17 +352,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return RpslObject.parse(objectInfo.getObjectId(), rpslObject.toByteArray());
     }
 
-    public void updateObjects(final Collection<RpslObject> rpslObjects) {
-        for (final RpslObject rpslObject : rpslObjects) {
-            this.updateObject(rpslObject);
-        }
-    }
-
-    public RpslObjectUpdateInfo removeObject(final int id, final String rpslString) {
-        return removeObject(RpslObject.parse(id, rpslString.getBytes()));
-    }
-
-    public RpslObjectUpdateInfo removeObject(final RpslObject rpslObject) {
+    public RpslObjectUpdateInfo deleteObject(final RpslObject rpslObject) {
         final RpslObjectInfo objectInfo = rpslObjectDao.findByKey(rpslObject.getType(), rpslObject.getKey().toString());
         return rpslObjectUpdateDao.deleteObject(objectInfo.getObjectId(), objectInfo.getKey());
     }

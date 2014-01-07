@@ -111,12 +111,12 @@ public class RpslObjectBuilder {
         return newAttributes;
     }
 
-    public RpslAttribute getAttribute(int index) {
-        return attributes.get(index);
-    }
-
     public int size() {
         return attributes.size();
+    }
+
+    public RpslAttribute getAttribute(int index) {
+        return attributes.get(index);
     }
 
     public RpslObjectBuilder setAttribute(int index, RpslAttribute attribute) {
@@ -131,6 +131,11 @@ public class RpslObjectBuilder {
 
     public RpslObjectBuilder addAttributes(final Collection<RpslAttribute> newAttributes) {
         attributes.addAll(newAttributes);
+        return this;
+    }
+
+    public RpslObjectBuilder removeAttribute(int index) {
+        attributes.remove(index);
         return this;
     }
 

@@ -97,7 +97,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Test
     public void delete_maintainer_from_nrtm() throws Exception {
-        databaseHelper.removeObject(MNTNER);
+        databaseHelper.deleteObject(MNTNER);
 
         objectExists(ObjectType.MNTNER, "OWNER-MNT", false);
     }

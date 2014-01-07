@@ -50,7 +50,6 @@ public class ObjectLoader {
         this.x509Repository = x509Repository;
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void processObject(String fullObject, Result result, int pass) {
         RpslObject rpslObject;
         try {
@@ -61,6 +60,11 @@ public class ObjectLoader {
             return;
         }
 
+        addObject(rpslObject, result, pass);
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
+    public void addObject(RpslObject rpslObject, Result result, int pass) {
         try {
             if (pass == 1) {
                 rpslObject = RpslObjectFilter.keepKeyAttributesOnly(new RpslObjectBuilder(rpslObject)).get();
@@ -71,13 +75,12 @@ public class ObjectLoader {
                 claimIds(rpslObject);
                 result.addSuccess();
             }
-
         } catch (Exception e) {
             result.addFail(String.format("Error in pass %d in '%s': %s\n", pass, rpslObject.getFormattedKey(), e.getMessage()));
         }
     }
 
-    private void claimIds(RpslObject rpslObject) throws Exception {
+    public void claimIds(RpslObject rpslObject) throws Exception {
         final String key = rpslObject.getKey().toString();
 
         switch (rpslObject.getType()) {
