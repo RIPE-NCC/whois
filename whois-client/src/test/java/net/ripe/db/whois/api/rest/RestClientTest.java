@@ -29,9 +29,12 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static junit.framework.Assert.fail;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -123,6 +126,32 @@ public class RestClientTest {
         assertThat(url, is("http://localhost/RIPE/mntner?override=override1"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
         assertThat(result.getType(), is(ObjectType.MNTNER));
+    }
+
+    @Test
+    public void create_with_notifier() {
+        final ErrorMessage infoMessage = new ErrorMessage("Info", null, "test message", new ArrayList<Arg>());
+        class NotifierCallbackImpl implements NotifierCallback{
+            List<ErrorMessage> errorMessages = Lists.newArrayList();
+            @Override
+            public void notify(ErrorMessage message) {
+                errorMessages.add(message);
+            }
+            @Override
+            public void notify(List<ErrorMessage> messages) {
+                errorMessages.addAll(messages);
+            }
+        }
+        final NotifierCallbackImpl notifier = new NotifierCallbackImpl();
+
+        mockWithResponse(whoisResourcesMock);
+        when(whoisResourcesMock.getErrorMessages()).thenReturn(Lists.newArrayList(infoMessage));
+
+        final RpslObject result = subject.create(MNTNER_OBJECT, notifier, "password1");
+
+        assertThat(notifier.errorMessages, contains(infoMessage));
+        assertThat(url, is("http://localhost/RIPE/mntner?password=password1"));
+        assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
     }
 
     @Test
