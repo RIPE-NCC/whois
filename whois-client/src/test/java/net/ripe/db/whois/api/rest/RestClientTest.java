@@ -34,13 +34,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import static junit.framework.Assert.fail;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -130,28 +130,14 @@ public class RestClientTest {
 
     @Test
     public void create_with_notifier() {
-        final ErrorMessage infoMessage = new ErrorMessage("Info", null, "test message", new ArrayList<Arg>());
-        class NotifierCallbackImpl implements NotifierCallback{
-            List<ErrorMessage> errorMessages = Lists.newArrayList();
-            @Override
-            public void notify(ErrorMessage message) {
-                errorMessages.add(message);
-            }
-            @Override
-            public void notify(List<ErrorMessage> messages) {
-                errorMessages.addAll(messages);
-            }
-        }
-        final NotifierCallbackImpl notifier = new NotifierCallbackImpl();
-
+        final NotifierCallback notifier = mock(NotifierCallback.class);
         mockWithResponse(whoisResourcesMock);
-        when(whoisResourcesMock.getErrorMessages()).thenReturn(Lists.newArrayList(infoMessage));
+        final List<ErrorMessage> messages = Lists.newArrayList(new ErrorMessage("Info", null, "test message", new ArrayList<Arg>()));
+        when(whoisResourcesMock.getErrorMessages()).thenReturn(messages);
 
-        final RpslObject result = subject.create(MNTNER_OBJECT, notifier, "password1");
+        subject.create(MNTNER_OBJECT, notifier, "password1");
 
-        assertThat(notifier.errorMessages, contains(infoMessage));
-        assertThat(url, is("http://localhost/RIPE/mntner?password=password1"));
-        assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
+        verify(notifier).notify(messages);
     }
 
     @Test
