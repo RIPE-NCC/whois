@@ -5,15 +5,15 @@ set -e
 GENERATED_PATH=target/generated-sources/jflex/net/ripe/db/whois/common/generated
 
 if [[ $(find $GENERATED_PATH -name '*.java' 2>/dev/null | wc -l) -gt 5 ]]; then
-	echo 'Skipping generation of *Parser classes, run clean to regenerate'
-	exit 0
+    echo 'Skipping generation of *Parser classes, run clean to regenerate'
+    exit 0
 fi
 
 case $OSTYPE in
     darwin*)
-    	YACC='src/main/parser/bin/yacc.macosx'
-    	;;
-	linux*)
+        YACC='src/main/parser/bin/yacc.macosx'
+        ;;
+    linux*)
         YACC='src/main/parser/bin/yacc.linux'
         ;;
     *)
@@ -21,19 +21,19 @@ case $OSTYPE in
         ;;
 esac
 
-echo "testing if ${YACC} binary is executable..."
+echo "testing if $YACC binary is executable..."
 
-if ( ${YACC} 2>&1 | grep -q usage  );
+if ( $YACC 2>&1 | grep -q usage  );
 then
     echo 'using compiled yacc binary'
 else
     echo "WARNING: suitable yacc binary not found - will compile the byaccj-p2 tool"
-	pushd src/main/parser/byaccj-p2/src
+    pushd src/main/parser/byaccj-p2/src
     make
     popd
-    cp src/main/parser/byaccj-p2/src/yacc ${YACC}
+    cp src/main/parser/byaccj-p2/src/yacc $YACC
     echo "done building byaccj-p2"
-fi;
+fi
 
 echo 'AggrBndryParser src/main/parser/byacc/aggr_bndry.y
 AggrMtdParser src/main/parser/byacc/aggr_mtd.y
@@ -59,8 +59,8 @@ NameParser src/main/parser/byacc/name.y
 PeerParser src/main/parser/byacc/peer.y
 PeeringParser src/main/parser/byacc/peering.y
 V6FilterParser src/main/parser/byacc/v6_filter.y' | while read GENERATED YACCDEF; do
-	echo ${GENERATED}
-	$YACC -Jclass=${GENERATED} -Jnoconstruct -Jimplements='AttributeParser<Void>' -Jpackage='net.ripe.db.whois.common.generated' -J $YACCDEF
+    echo ${GENERATED}
+    $YACC -Jclass=${GENERATED} -Jnoconstruct -Jimplements='AttributeParser<Void>' -Jpackage='net.ripe.db.whois.common.generated' -J $YACCDEF
 done
 
 mkdir -p $GENERATED_PATH
