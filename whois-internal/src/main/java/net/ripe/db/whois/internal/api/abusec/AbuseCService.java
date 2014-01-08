@@ -68,8 +68,6 @@ public class AbuseCService {
             final RpslObject role = createAbuseCRole(organisation, email);
             final RpslObject createdRole = restClient.createOverride(role, String.format("%s,%s", override, ABUSEC_SERVICE));
 
-//            System.err.println(orgkey + ": " + createdRole.getKey());
-
             final RpslObject updatedOrganisation = createOrganisationWithAbuseCAttribute(organisation, createdRole.getKey().toString());
             restClient.updateOverride(updatedOrganisation, String.format("%s,%s", override, ABUSEC_SERVICE));
 
