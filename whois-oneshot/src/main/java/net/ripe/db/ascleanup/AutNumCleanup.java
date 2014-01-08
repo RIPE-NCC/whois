@@ -7,15 +7,16 @@ import com.google.common.collect.Sets;
 import com.mysql.jdbc.Driver;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import net.ripe.db.LogUtil;
 import net.ripe.db.whois.common.ClockDateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceLoader;
-import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -26,10 +27,6 @@ import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailMessageLogCallback;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -101,7 +98,7 @@ public class AutNumCleanup {
 
     // Usage example: --skip 100 --send 500 --passwd <dbpassword>   skips the first 100 mntners and sends 500 emails
     public static void main(final String[] argv) throws Exception {
-        setupLogging();
+        LogUtil.initLogger();
 
         final OptionSet options = setupOptionParser().parse(argv);
         Validate.isTrue(options.hasArgument(ARG_SKIP));
@@ -164,15 +161,6 @@ public class AutNumCleanup {
                 } catch (IOException e) {}
             }
         }
-    }
-
-    private static void setupLogging() {
-        LogManager.getRootLogger().setLevel(Level.INFO);
-        ConsoleAppender console = new ConsoleAppender();
-        console.setLayout(new PatternLayout("%d [%c|%C{1}] %m%n"));
-        console.setThreshold(Level.INFO);
-        console.activateOptions();
-        LogManager.getRootLogger().addAppender(console);
     }
 
     private static OptionParser setupOptionParser() {

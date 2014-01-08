@@ -2,6 +2,7 @@ package net.ripe.db.rcdummifier;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import net.ripe.db.LogUtil;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.jdbc.SimpleDataSourceFactory;
@@ -12,10 +13,6 @@ import net.ripe.db.whois.common.rpsl.PasswordHelper;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -52,7 +49,7 @@ public class RcDatabaseDummifier {
     private static final AtomicInteger jobsDone = new AtomicInteger();
 
     public static void main(final String[] argv) throws Exception {
-        setupLogging();
+        LogUtil.initLogger();
 
         final OptionSet options = setupOptionParser().parse(argv);
         final String jdbcUrl = options.valueOf(ARG_JDBCURL).toString();
@@ -176,15 +173,6 @@ public class RcDatabaseDummifier {
             }
             return false;
         }
-    }
-
-    private static void setupLogging() {
-        LogManager.getRootLogger().setLevel(Level.INFO);
-        final ConsoleAppender console = new ConsoleAppender();
-        console.setLayout(new PatternLayout("%d [%C{1}] %m%n"));
-        console.setThreshold(Level.INFO);
-        console.activateOptions();
-        LogManager.getRootLogger().addAppender(console);
     }
 
     private static OptionParser setupOptionParser() {
