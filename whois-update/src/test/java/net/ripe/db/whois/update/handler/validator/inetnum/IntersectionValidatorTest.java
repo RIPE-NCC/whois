@@ -20,11 +20,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collections;
+
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IntersectionValidatorTest {
@@ -123,6 +128,17 @@ public class IntersectionValidatorTest {
 
         verify(updateContext).addMessage(update, UpdateMessages.intersectingRange(Ipv4Resource.parse("193.0.0.10 - 193.0.0.12")));
 
+        verifyNoMoreInteractions(updateContext);
+    }
+
+    @Test
+    public void validate_invalid_parent_interval() throws Exception {
+        when(ipv6Tree.findFirstLessSpecific(any(Ipv6Resource.class))).thenReturn(Collections.<Ipv6Entry>emptyList());
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("inet6num: fe80::/32"));
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, UpdateMessages.invalidParentEntryForInterval(Ipv6Resource.parse("fe80::/32")));
         verifyNoMoreInteractions(updateContext);
     }
 }
