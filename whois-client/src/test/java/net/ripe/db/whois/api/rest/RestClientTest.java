@@ -30,6 +30,7 @@ import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -132,7 +133,7 @@ public class RestClientTest {
     public void create_with_notifier() {
         final NotifierCallback notifier = mock(NotifierCallback.class);
         mockWithResponse(whoisResourcesMock);
-        final List<ErrorMessage> messages = Lists.newArrayList(new ErrorMessage("Info", null, "test message", new ArrayList<Arg>()));
+        final List<ErrorMessage> messages = Collections.singletonList(new ErrorMessage("Info", null, "test message", new ArrayList<Arg>()));
         when(whoisResourcesMock.getErrorMessages()).thenReturn(messages);
 
         subject.create(MNTNER_OBJECT, notifier, "password1");
