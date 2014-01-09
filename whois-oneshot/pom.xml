@@ -83,7 +83,7 @@
         <profile>
             <id>release</id>
             <properties>
-                <whois.main>net.ripe.db.rcdummifier.RcDatabaseDummifier</whois.main>
+                <whois.main>net.ripe.db.abusec.ListOrgsWithNoAbuseC</whois.main>
             </properties>
             <build>
                 <plugins>
