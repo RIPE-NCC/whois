@@ -87,11 +87,11 @@ public final class RpslAttribute {
         final Set<CIString> values = getCleanValues();
         switch (values.size()) {
             case 0:
-                throw new IllegalStateException("No value found");
+                throw new IllegalStateException("No " + type + ": value found");
             case 1:
                 return values.iterator().next();
             default:
-                throw new IllegalStateException("Multiple clean values found: " + values);
+                throw new IllegalStateException("Multiple " + type + ": values found");
         }
     }
 

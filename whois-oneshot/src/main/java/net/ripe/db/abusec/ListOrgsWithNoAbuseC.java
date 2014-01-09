@@ -7,9 +7,10 @@ import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
+import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import org.postgresql.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ListOrgsWithNoAbuseC {
     private static final Logger LOGGER = LoggerFactory.getLogger(ListOrgsWithNoAbuseC.class);
@@ -35,12 +37,18 @@ public class ListOrgsWithNoAbuseC {
             "/ncc/ftp/ripe/dbase/split/ripe.db.aut-num.gz");
 
 
-    static void checkOrg(String orgId) {
-
+    static void checkOrg(RpslObject rpslObject) {
+        final String orgId = rpslObject.getValueForAttribute(AttributeType.ORG).toString();
+        final RpslObject orgObject = restClient.lookup(ObjectType.ORGANISATION, orgId.toString());
+        final String abuseC = orgObject.getValueForAttribute(AttributeType.ABUSE_C).toString();
+        final RpslObject roleObject = restClient.lookup(ObjectType.ROLE, abuseC);
+        roleObject.getValueForAttribute(AttributeType.ABUSE_MAILBOX);
     }
 
     public static void main(final String[] argv) throws Exception {
         LogUtil.initLogger();
+
+        final AtomicInteger count = new AtomicInteger();
 
         for (String splitFile : splitFiles) {
             for (String nextObject : new RpslObjectFileReader(splitFile)) {
@@ -51,26 +59,32 @@ public class ListOrgsWithNoAbuseC {
                     continue;
                 }
 
+                if ((count.incrementAndGet() & 0xffff) == 0) {
+                    LOGGER.info("Processed: " + count.get());
+                }
 
-                List<RpslAttribute> org = rpslObject.findAttributes(AttributeType.ORG);
-
-                switch (rpslObject.getType()) {
-                    case INET6NUM:
-                        try {
+                try {
+                    switch (rpslObject.getType()) {
+                        case INET6NUM:
                             if (Inet6numStatus.getStatusFor(rpslObject.getValueForAttribute(AttributeType.STATUS)) == Inet6numStatus.ASSIGNED_PI) {
-
+                                checkOrg(rpslObject);
                             }
-                        } catch (RuntimeException e) {
-
-                        }
-                        break;
-                    case INETNUM:
-                        break;
-                    case AUT_NUM:
-                        break;
-                    default:
-                        LOGGER.error("Ignoring object " + rpslObject.getFormattedKey());
-                        continue;
+                            break;
+                        case INETNUM:
+                            final InetnumStatus status = InetnumStatus.getStatusFor(rpslObject.getValueForAttribute(AttributeType.STATUS));
+                            if (status == InetnumStatus.ASSIGNED_PI || status == InetnumStatus.ALLOCATED_PI || status == InetnumStatus.LIR_PARTITIONED_PI) {
+                                checkOrg(rpslObject);
+                            }
+                            break;
+                        case AUT_NUM:
+                            checkOrg(rpslObject);
+                            break;
+                        default:
+                            LOGGER.error("Ignoring object " + rpslObject.getFormattedKey());
+                            continue;
+                    }
+                } catch (RuntimeException e) {
+                    System.out.println(rpslObject.getFormattedKey() + ": " + e.getMessage());
                 }
             }
         }
