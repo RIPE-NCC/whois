@@ -47,7 +47,7 @@ public class Inet6numAssignmentOverlap {
                     throw new RuntimeException(objectMessages.toString());
                 }
 
-                if (status.getCleanValue().toLowerCase().equals("assigned")) {
+                if (status.getCleanValue().equals("assigned")) {
                     Iterable<RpslObject> rpslObjects = restClient.search(rpslObject.getKey().toString(),
                             Collections.EMPTY_SET,
                             Collections.EMPTY_SET,
