@@ -2,16 +2,15 @@ package net.ripe.db.abusec;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.mysql.jdbc.Driver;
 import net.ripe.db.LogUtil;
 import net.ripe.db.whois.api.rest.RestClient;
-import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
+import org.postgresql.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -52,6 +51,7 @@ public class ListOrgsWithNoAbuseC {
                     continue;
                 }
 
+
                 List<RpslAttribute> org = rpslObject.findAttributes(AttributeType.ORG);
 
                 switch (rpslObject.getType()) {
@@ -72,8 +72,6 @@ public class ListOrgsWithNoAbuseC {
                         LOGGER.error("Ignoring object " + rpslObject.getFormattedKey());
                         continue;
                 }
-
-
             }
         }
     }
@@ -86,28 +84,28 @@ public class ListOrgsWithNoAbuseC {
     private Map<String, String> getSponsoringLirEmailPerOrganisationId(final JdbcTemplate jdbcTemplate) {
         final Map<String, String> emailPerSponsoredOrganisation = Maps.newHashMap();
 
-        JdbcStreamingHelper.executeStreaming(jdbcTemplate,
+        jdbcTemplate.query(
                 "SELECT min(cm.contact_medium_value), a.oid\n" +
                         "FROM contactmedium cm INNER JOIN contactdetails cd ON cd.id = cm.contactdetails_id\n" +
                         "INNER JOIN organisation o ON cd.contact_organisation_id = o.id\n" +
                         "INNER JOIN membership m ON m.id = o.membership_id\n" +
-                        "inner join\n" +
+                        "INNER JOIN\n" +
                         "(\n" +
-                        " select asn.organisation_id as oid, asn.membership_id as mid\n" +
-                        " from resourcedb.asnresource asn\n" +
+                        " SELECT asn.organisation_id AS oid, asn.membership_id AS mid\n" +
+                        " FROM resourcedb.asnresource asn\n" +
                         " union\t\n" +
-                        " select ipv4.organisation_id as oid, ipv4.membership_id as mid\n" +
-                        " from resourcedb.ipv4assignmentresource ipv4\n" +
-                        " union\n" +
-                        " select ipv6.organisation_id as oid, ipv6.membership_id as mid\n" +
-                        " from resourcedb.ipv6assignmentresource ipv6\n" +
-                        ") a on m.id = a.mid\n" +
+                        " SELECT ipv4.organisation_id AS oid, ipv4.membership_id AS mid\n" +
+                        " FROM resourcedb.ipv4assignmentresource ipv4\n" +
+                        " UNION\n" +
+                        " SELECT ipv6.organisation_id AS oid, ipv6.membership_id AS mid\n" +
+                        " FROM resourcedb.ipv6assignmentresource ipv6\n" +
+                        ") a ON m.id = a.mid\n" +
                         "\n" +
-                        "where cm.contact_medium_type = 'EMAIL'\n" +
-                        "and a.oid is not null\n" +
-                        "and a.oid <> ''\n" +
-                        "group by a.oid\n" +
-                        "order by 2;",
+                        "WHERE cm.contact_medium_type = 'EMAIL'\n" +
+                        "AND a.oid IS NOT null\n" +
+                        "AND a.oid <> ''\n" +
+                        "GROUP BY a.oid\n" +
+                        "ORDER BY 2;",
                 new RowCallbackHandler() {
                     @Override
                     public void processRow(final ResultSet rs) throws SQLException {
