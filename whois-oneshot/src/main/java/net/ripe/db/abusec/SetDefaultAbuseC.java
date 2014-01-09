@@ -1,4 +1,4 @@
-package net.ripe.db.defaultabusec;
+package net.ripe.db.abusec;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -12,7 +12,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.internal.api.abusec.AbuseCService;
 
-public class DefaultAbuseC {
+public class SetDefaultAbuseC {
     private static final String ARG_BATCHSIZE = "batch-size";
     private static final String ARG_ORGFILE = "org-file";
     private static final String ARG_OVERRIDE = "override";
