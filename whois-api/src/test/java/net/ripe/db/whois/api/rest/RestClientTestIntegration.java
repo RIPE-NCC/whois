@@ -12,16 +12,21 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.query.QueryFlag;
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Collections;
 import java.util.Iterator;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -85,6 +90,9 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     private IpTreeUpdater ipTreeUpdater;
 
     private RestClient restClient;
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Before
     public void setup() throws Exception {
@@ -234,5 +242,30 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         final RpslObject created = restClient.create(person, "test");
 
         assertThat(created, is(person));
+    }
+
+    @Test
+    @Ignore
+    public void create_faulty_inetnum_returns_correct_exception() {
+        //TODO: [TP] created failing test to fix teh problem
+        final RpslObject object = RpslObject.parse("" +
+                "inetnum:       193.0.0.0 - 193.0.0.255\n" +
+                "netname:       RIPE-NCC\n" +
+                "descr:         some description\n" +
+                "org:           ORG-RN1-TEST\n" +
+                "country:       NL\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "status:        SUB-ALLOCATED PA\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       org@ripe.net 20120505\n" +
+                "source:        TEST");
+
+        try {
+            restClient.create(object, "test");
+        } catch (RestClientException e) {
+            assertThat(e.getErrorMessages().iterator().next().getText(), not(containsString("Unexpected error occurred")));
+            assertThat(e.getErrorMessages().iterator().next().getText(), containsString("must have exactly one parent"));
+        }
     }
 }
