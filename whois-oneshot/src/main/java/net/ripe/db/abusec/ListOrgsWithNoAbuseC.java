@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import net.ripe.db.LogUtil;
 import net.ripe.db.whois.api.rest.RestClient;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -25,10 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
+
 public class ListOrgsWithNoAbuseC {
     private static final Logger LOGGER = LoggerFactory.getLogger(ListOrgsWithNoAbuseC.class);
 
-    private static final RestClient restClient = new RestClient("https://rest.db.ripe.net", "RIPE");
+    private static final CIString RIPE_NCC_END_MNT = ciString("RIPE-NCC-END-MNT");
+
+    private static final RestClient restClient = new RestClient("http://rest.db.ripe.net", "RIPE");
     private static final Downloader downloader = new Downloader();
 
     private static final List<String> splitFiles = ImmutableList.of(
@@ -36,8 +41,7 @@ public class ListOrgsWithNoAbuseC {
             "/ncc/ftp/ripe/dbase/split/ripe.db.inet6num.gz",
             "/ncc/ftp/ripe/dbase/split/ripe.db.aut-num.gz");
 
-
-    static void checkOrg(RpslObject rpslObject) {
+    static void checkOrgFor(RpslObject rpslObject) {
         final String orgId = rpslObject.getValueForAttribute(AttributeType.ORG).toString();
         final RpslObject orgObject = restClient.lookup(ObjectType.ORGANISATION, orgId.toString());
         final String abuseC = orgObject.getValueForAttribute(AttributeType.ABUSE_C).toString();
@@ -64,20 +68,24 @@ public class ListOrgsWithNoAbuseC {
                 }
 
                 try {
+                    if (!rpslObject.getValuesForAttribute(AttributeType.MNT_BY).contains(RIPE_NCC_END_MNT)) {
+                        continue;
+                    }
+
                     switch (rpslObject.getType()) {
                         case INET6NUM:
                             if (Inet6numStatus.getStatusFor(rpslObject.getValueForAttribute(AttributeType.STATUS)) == Inet6numStatus.ASSIGNED_PI) {
-                                checkOrg(rpslObject);
+                                checkOrgFor(rpslObject);
                             }
                             break;
                         case INETNUM:
                             final InetnumStatus status = InetnumStatus.getStatusFor(rpslObject.getValueForAttribute(AttributeType.STATUS));
-                            if (status == InetnumStatus.ASSIGNED_PI || status == InetnumStatus.ALLOCATED_PI || status == InetnumStatus.LIR_PARTITIONED_PI) {
-                                checkOrg(rpslObject);
+                            if (status == InetnumStatus.ASSIGNED_PI) {
+                                checkOrgFor(rpslObject);
                             }
                             break;
                         case AUT_NUM:
-                            checkOrg(rpslObject);
+                            checkOrgFor(rpslObject);
                             break;
                         default:
                             LOGGER.error("Ignoring object " + rpslObject.getFormattedKey());
