@@ -45,7 +45,7 @@ public class DefaultAbuseC {
                     throw new IllegalArgumentException("Found non-organisation object: " + nextObject);
                 }
 
-                if (!dumpOrg.getValueForAttribute(AttributeType.ORG_TYPE).toLowerCase().equals("lir")) {
+                if (!dumpOrg.getValueForAttribute(AttributeType.ORG_TYPE).equals("lir")) {
                     continue;
                 }
 

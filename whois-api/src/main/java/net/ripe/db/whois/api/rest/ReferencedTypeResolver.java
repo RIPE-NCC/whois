@@ -51,12 +51,12 @@ public class ReferencedTypeResolver {
 
             case 1:
                 if (AttributeType.AUTH.equals(attributeType)) {
-                    if (value.toLowerCase().startsWith("md5-pw")) {
+                    if (value.startsWith("md5-pw")) {
                         return null;
                     }
                 }
                 if (AttributeType.MBRS_BY_REF.equals(attributeType)) {
-                    if (value.toLowerCase().equals("any")) {
+                    if (value.equals("any")) {
                         return null;
                     }
                 }

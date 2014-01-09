@@ -2,9 +2,13 @@ package net.ripe.db.whois.common.domain;
 
 import org.junit.Test;
 
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -15,10 +19,18 @@ public class CIStringTest {
     }
 
     @Test
-    public void equals_ci() {
+    public void equals() {
         assertThat(ciString("ABC"), is(ciString("ABC")));
         assertThat(ciString("ABC"), is(ciString("abc")));
         assertThat(ciString("ABC"), is(ciString("aBc")));
+
+        final CIString ripe = CIString.ciString("RIPE");
+        assertFalse(ripe.equals(null));
+        assertTrue(ripe.equals(ripe));
+        assertTrue(ripe.equals(CIString.ciString("RIPE")));
+
+        assertTrue(ripe.equals("ripe"));
+        assertTrue(ripe.equals("RIPE"));
     }
 
     @Test
@@ -71,10 +83,39 @@ public class CIStringTest {
     public void startsWith() {
         assertThat(ciString("").startsWith(ciString("")), is(true));
         assertThat(ciString("ab").startsWith(ciString("AB")), is(true));
+        assertThat(ciString("ab").startsWith(ciString("ab")), is(true));
         assertThat(ciString("abcdef").startsWith(ciString("AB")), is(true));
         assertThat(ciString("ABCDEF").startsWith(ciString("aB")), is(true));
-
         assertThat(ciString("ABCDEF").startsWith(ciString("def")), is(false));
+
+        assertThat(ciString("").startsWith(""), is(true));
+        assertThat(ciString("ab").startsWith("AB"), is(true));
+        assertThat(ciString("ab").startsWith("ab"), is(true));
+        assertThat(ciString("abcdef").startsWith("AB"), is(true));
+        assertThat(ciString("ABCDEF").startsWith("aB"), is(true));
+        assertThat(ciString("ABCDEF").startsWith("def"), is(false));
+    }
+
+    @Test
+    public void contains() {
+        assertThat(ciString("ABCDEF").contains(ciString("abcdef")), is(true));
+        assertThat(ciString("ABCDEF").contains(ciString("cd")), is(true));
+        assertThat(ciString("ABCDEF").contains(ciString("CD")), is(true));
+
+        assertThat(ciString("ABCDEF").contains("abcdef"), is(true));
+        assertThat(ciString("ABCDEF").contains("cd"), is(true));
+        assertThat(ciString("ABCDEF").contains("CD"), is(true));
+    }
+
+    @Test
+    public void endsWith() {
+        assertThat(ciString("ABCDEF").endsWith(ciString("def")), is(true));
+        assertThat(ciString("ABCDEF").endsWith(ciString("DEF")), is(true));
+        assertThat(ciString("ABCDEF").endsWith(ciString("ABC")), is(false));
+
+        assertThat(ciString("ABCDEF").endsWith("def"), is(true));
+        assertThat(ciString("ABCDEF").endsWith("DEF"), is(true));
+        assertThat(ciString("ABCDEF").endsWith("ABC"), is(false));
     }
 
     @Test
