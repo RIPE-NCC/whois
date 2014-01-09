@@ -2,6 +2,9 @@ package net.ripe.db.abusec;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import net.ripe.db.LogUtil;
 import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.common.domain.CIString;
@@ -12,6 +15,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
+import org.apache.commons.lang.StringUtils;
 import org.postgresql.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +26,10 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -35,26 +41,51 @@ public class ListOrgsWithNoAbuseC {
 
     private static final RestClient restClient = new RestClient("http://rest.db.ripe.net", "RIPE");
     private static final Downloader downloader = new Downloader();
+    private static final String ARG_PASSWD = "passwd";
 
     private static final List<String> splitFiles = ImmutableList.of(
             "/ncc/ftp/ripe/dbase/split/ripe.db.inetnum.gz",
             "/ncc/ftp/ripe/dbase/split/ripe.db.inet6num.gz",
             "/ncc/ftp/ripe/dbase/split/ripe.db.aut-num.gz");
 
-    static void checkOrgFor(RpslObject rpslObject) {
-        final String orgId = rpslObject.getValueForAttribute(AttributeType.ORG).toString();
-        final RpslObject orgObject = restClient.lookup(ObjectType.ORGANISATION, orgId.toString());
-        final String abuseC = orgObject.getValueForAttribute(AttributeType.ABUSE_C).toString();
-        final RpslObject roleObject = restClient.lookup(ObjectType.ROLE, abuseC);
-        roleObject.getValueForAttribute(AttributeType.ABUSE_MAILBOX);
-    }
+    private final Map<String, String> emailByOrgIdMap;
+
 
     public static void main(final String[] argv) throws Exception {
         LogUtil.initLogger();
 
-        final AtomicInteger count = new AtomicInteger();
+        final OptionSet options = setupOptionParser().parse(argv);
+        final Set<RpslObject> organisations = new ListOrgsWithNoAbuseC(options.valueOf(ARG_PASSWD).toString()).getOrgsWithoutAbuseC();
 
-        for (String splitFile : splitFiles) {
+        //yes, what to do with this, print out?
+        for (final RpslObject organisation : organisations) {
+            System.out.println(String.format("%s|%s|%s\n",
+                    organisation.getKey(),
+                    organisation.findAttributes(AttributeType.E_MAIL).get(0).getCleanValues().iterator().next(),
+                    ""));
+//            TODO: ENABLE WHEN CUSTDB ACCESSRIGHTS WORK
+//                emailByOrgIdMap.get(organisation.getKey()) == null ? "" : emailByOrgIdMap.get(organisation.getKey()));
+        }
+
+    }
+
+    private static OptionParser setupOptionParser() {
+        final OptionParser parser = new OptionParser();
+        parser.accepts(ARG_PASSWD).withRequiredArg();
+        return parser;
+    }
+
+    public ListOrgsWithNoAbuseC(final String password) throws SQLException {
+        final JdbcTemplate template = setupRSNGTemplate(password);
+        //emailByOrgIdMap = getSponsoringLirEmailPerOrganisationId(template);
+        emailByOrgIdMap = new HashMap<>();
+    }
+
+    public Set<RpslObject> getOrgsWithoutAbuseC() throws SQLException {
+        final AtomicInteger count = new AtomicInteger();
+        final Set<RpslObject> orgsWithoutAbuseC = Sets.newHashSet();
+
+        for (final String splitFile : splitFiles) {
             for (String nextObject : new RpslObjectFileReader(splitFile)) {
                 RpslObject rpslObject;
                 try {
@@ -67,34 +98,52 @@ public class ListOrgsWithNoAbuseC {
                     LOGGER.info("Processed: " + count.get());
                 }
 
-                try {
-                    if (!rpslObject.getValuesForAttribute(AttributeType.MNT_BY).contains(RIPE_NCC_END_MNT)) {
-                        continue;
-                    }
+                if (!rpslObject.getValuesForAttribute(AttributeType.MNT_BY).contains(RIPE_NCC_END_MNT)) {
+                    continue;
+                }
 
-                    switch (rpslObject.getType()) {
-                        case INET6NUM:
-                            if (Inet6numStatus.getStatusFor(rpslObject.getValueForAttribute(AttributeType.STATUS)) == Inet6numStatus.ASSIGNED_PI) {
-                                checkOrgFor(rpslObject);
-                            }
-                            break;
-                        case INETNUM:
-                            final InetnumStatus status = InetnumStatus.getStatusFor(rpslObject.getValueForAttribute(AttributeType.STATUS));
-                            if (status == InetnumStatus.ASSIGNED_PI) {
-                                checkOrgFor(rpslObject);
-                            }
-                            break;
-                        case AUT_NUM:
-                            checkOrgFor(rpslObject);
-                            break;
-                        default:
-                            LOGGER.error("Ignoring object " + rpslObject.getFormattedKey());
-                            continue;
-                    }
-                } catch (RuntimeException e) {
-                    System.out.println(rpslObject.getFormattedKey() + ": " + e.getMessage());
+                switch (rpslObject.getType()) {
+                    case INET6NUM:
+                        if (Inet6numStatus.getStatusFor(rpslObject.getValueForAttribute(AttributeType.STATUS)) == Inet6numStatus.ASSIGNED_PI) {
+                            collectOrgIfNoAbuseC(rpslObject, orgsWithoutAbuseC);
+                        }
+                        break;
+                    case INETNUM:
+                        final InetnumStatus status = InetnumStatus.getStatusFor(rpslObject.getValueForAttribute(AttributeType.STATUS));
+                        if (status == InetnumStatus.ASSIGNED_PI) {
+                            collectOrgIfNoAbuseC(rpslObject, orgsWithoutAbuseC);
+                        }
+                        break;
+                    case AUT_NUM:
+                            collectOrgIfNoAbuseC(rpslObject, orgsWithoutAbuseC);
+                        break;
+                    default:
+                        LOGGER.error("Ignoring object " + rpslObject.getFormattedKey());
                 }
             }
+        }
+
+        return orgsWithoutAbuseC;
+    }
+
+    private boolean hasAbuseContact(final RpslObject orgObject) {
+        try {
+            final String abuseC = orgObject.getValueForAttribute(AttributeType.ABUSE_C).toString();
+            return StringUtils.isNotBlank(abuseC);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    private void collectOrgIfNoAbuseC(final RpslObject rpslObject, final Set<RpslObject> withoutAbuseC) {
+        try {
+            final String orgId = rpslObject.getValueForAttribute(AttributeType.ORG).toString();
+            final RpslObject orgObject = restClient.lookup(ObjectType.ORGANISATION, orgId);
+            if (!hasAbuseContact(orgObject)) {
+                withoutAbuseC.add(orgObject);
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println(String.format("%s has no org attribute, it's probably legacy, or not yet handled", rpslObject.getKey()));
         }
     }
 
