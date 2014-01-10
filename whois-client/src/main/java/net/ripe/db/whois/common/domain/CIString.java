@@ -54,8 +54,20 @@ public final class CIString implements Comparable<CIString>, CharSequence {
     }
 
     @Override
-    public boolean equals(Object o) {
-        return this == o || !(o == null || getClass() != o.getClass()) && lcValue.equals(((CIString) o).lcValue);
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null) {
+            return false;
+        }
+
+        if (o instanceof String) {
+            return lcValue.equals(((String) o).toLowerCase());
+        }
+
+        return !(getClass() != o.getClass()) && lcValue.equals(((CIString) o).lcValue);
     }
 
     @Override
@@ -91,12 +103,12 @@ public final class CIString implements Comparable<CIString>, CharSequence {
     }
 
     @Override
-    public char charAt(int index) {
+    public char charAt(final int index) {
         return value.charAt(index);
     }
 
     @Override
-    public CharSequence subSequence(int start, int end) {
+    public CharSequence subSequence(final int start, final int end) {
         return value.subSequence(start, end);
     }
 
@@ -104,12 +116,24 @@ public final class CIString implements Comparable<CIString>, CharSequence {
         return lcValue.startsWith(value.lcValue);
     }
 
+    public boolean startsWith(final String value) {
+        return lcValue.startsWith(value.toLowerCase());
+    }
+
     public boolean contains(final CIString value) {
         return lcValue.contains(value.lcValue);
     }
 
+    public boolean contains(final String value) {
+        return lcValue.contains(value.toLowerCase());
+    }
+
     public boolean endsWith(final CIString value) {
         return lcValue.endsWith(value.lcValue);
+    }
+
+    public boolean endsWith(final String value) {
+        return lcValue.endsWith(value.toLowerCase());
     }
 
     public CIString append(final CIString other) {

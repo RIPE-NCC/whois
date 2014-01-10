@@ -8,11 +8,14 @@ import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.domain.IpRanges;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.ContentWithCredentials;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateRequest;
+import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -22,7 +25,15 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Encoded;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -262,7 +273,7 @@ public class SyncUpdatesService {
     }
 
     private boolean sourceMatchesContext(final String source) {
-        return (source != null) && sourceContext.getCurrentSource().getName().equals(CIString.ciString(source));
+        return (source != null) && sourceContext.getCurrentSource().getName().equals(source);
     }
 
     class SyncUpdateLogCallback implements LogCallback {
