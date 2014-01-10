@@ -3,7 +3,7 @@
 [update] No attribute sanitation of object on delete
 [api] All RestClient lookups are unfiltered
 [oneshot] Dummification for database on RC environment
-[update] propagate error messages from dnscheck properly
+[update] Call Dnschecker once for all objects before beginning the per-object update cycle
 [api] allow for delete reason in rest client
 [all] allow for multiple owner attributes in keycert object
 [api] #112 - return a user friendly message when creating an inetnum with invalid parent.
