@@ -10,6 +10,7 @@ import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -26,7 +27,6 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,24 +49,15 @@ public class ListOrgsWithNoAbuseC {
             "/ncc/ftp/ripe/dbase/split/ripe.db.aut-num.gz");
 
     private final Map<String, String> emailByOrgIdMap;
+    private final JdbcTemplate jdbcTemplate;
 
 
     public static void main(final String[] argv) throws Exception {
         LogUtil.initLogger();
 
         final OptionSet options = setupOptionParser().parse(argv);
-        final Set<RpslObject> organisations = new ListOrgsWithNoAbuseC(options.valueOf(ARG_PASSWD).toString()).getOrgsWithoutAbuseC();
-
-        //yes, what to do with this, print out?
-        for (final RpslObject organisation : organisations) {
-            System.out.println(String.format("%s|%s|%s\n",
-                    organisation.getKey(),
-                    organisation.findAttributes(AttributeType.E_MAIL).get(0).getCleanValues().iterator().next(),
-                    ""));
-//            TODO: ENABLE WHEN CUSTDB ACCESSRIGHTS WORK
-//                emailByOrgIdMap.get(organisation.getKey()) == null ? "" : emailByOrgIdMap.get(organisation.getKey()));
-        }
-
+        final ListOrgsWithNoAbuseC listOrgsWithNoAbuseC = new ListOrgsWithNoAbuseC(options.valueOf(ARG_PASSWD).toString());
+        listOrgsWithNoAbuseC.printContactDetails(listOrgsWithNoAbuseC.getOrgsWithoutAbuseC());
     }
 
     private static OptionParser setupOptionParser() {
@@ -76,14 +67,23 @@ public class ListOrgsWithNoAbuseC {
     }
 
     public ListOrgsWithNoAbuseC(final String password) throws SQLException {
-        final JdbcTemplate template = setupRSNGTemplate(password);
-        //emailByOrgIdMap = getSponsoringLirEmailPerOrganisationId(template);
-        emailByOrgIdMap = new HashMap<>();
+        jdbcTemplate = setupRSNGTemplate(password);
+        emailByOrgIdMap = getSponsoringLirEmailPerOrganisationId(jdbcTemplate);
+    }
+
+    public void printContactDetails(final Set<RpslObject> organisations) {
+        for (final RpslObject organisation : organisations) {
+            // if not souting, what do we do with this?
+            System.out.println(String.format("%s|%s|%s\n",
+                    organisation.getKey(),
+                    organisation.findAttributes(AttributeType.E_MAIL).get(0).getCleanValues().iterator().next(),
+                    emailByOrgIdMap.get(organisation.getKey()) == null ? "" : emailByOrgIdMap.get(organisation.getKey())));
+        }
     }
 
     public Set<RpslObject> getOrgsWithoutAbuseC() throws SQLException {
         final AtomicInteger count = new AtomicInteger();
-        final Set<RpslObject> orgsWithoutAbuseC = Sets.newHashSet();
+        final Map<RpslObject, Set<CIString>> orgsWithoutAbuseC = Maps.newHashMap();
 
         for (final String splitFile : splitFiles) {
             for (String nextObject : new RpslObjectFileReader(splitFile)) {
@@ -115,7 +115,7 @@ public class ListOrgsWithNoAbuseC {
                         }
                         break;
                     case AUT_NUM:
-                            collectOrgIfNoAbuseC(rpslObject, orgsWithoutAbuseC);
+                        collectOrgIfNoAbuseC(rpslObject, orgsWithoutAbuseC);
                         break;
                     default:
                         LOGGER.error("Ignoring object " + rpslObject.getFormattedKey());
@@ -123,7 +123,37 @@ public class ListOrgsWithNoAbuseC {
             }
         }
 
-        return orgsWithoutAbuseC;
+        final Set<RpslObject> mailableOrgsWithoutAbuseC = Sets.newHashSet();
+        final Set<RpslObject> keys = orgsWithoutAbuseC.keySet();
+        for (final RpslObject organisation : keys) {
+            // look this up among the isMailable resources in RSNG to see if it's a keeper
+            if (isMailable(organisation, orgsWithoutAbuseC.get(organisation))) {
+                mailableOrgsWithoutAbuseC.add(organisation);
+            }
+        }
+
+        return mailableOrgsWithoutAbuseC;
+    }
+
+    private boolean isMailable(final RpslObject organisation, final Set<CIString> resources) {
+        for (final CIString resource : resources) {
+            int found;
+            if (resource.startsWith(CIString.ciString("AS"))) {
+                found = jdbcTemplate.queryForInt("SELECT count(*) FROM (resourcedb.asnresource WHERE as_number = ? OR resourcedb.organisation_id = ?) AND resource_status='ASSIGNED' AND ir_status='ENDUSER_APPROVEDDOCS' AND legacy = 'f'",
+                        resource.subSequence(2, resource.length()), organisation.getKey());
+            } else if (resource.contains(CIString.ciString(":"))) {
+                found = jdbcTemplate.queryForInt("SELECT count(*) FROM resourcedb.ipv6assignmentresource WHERE (ip6_to_slash(resource_start, resource_end) = ? OR resourcedb.organisation_id = ?) AND resource_status='ASSIGNED' AND ir_status='ENDUSER_APPROVEDDOCS'",
+                        resource.toString(), organisation.getKey());
+            } else {
+                found = jdbcTemplate.queryForInt("SELECT count(*) FROM resourcedb.ipv4assignmentresource WHERE (ip4_to_slash(resource_start, resource_end) = ? OR resourcedb.organisation_id = ?) AND resource_status='ASSIGNED' AND ir_status='ENDUSER_APPROVEDDOCS' AND legacy = 'f'",
+                        Ipv4Resource.parse(resource).toString(), organisation.getKey());
+            }
+
+            if (found > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean hasAbuseContact(final RpslObject orgObject) {
@@ -135,15 +165,21 @@ public class ListOrgsWithNoAbuseC {
         }
     }
 
-    private void collectOrgIfNoAbuseC(final RpslObject rpslObject, final Set<RpslObject> withoutAbuseC) {
+    private void collectOrgIfNoAbuseC(final RpslObject rpslObject, final Map<RpslObject, Set<CIString>> withoutAbuseC) {
         try {
             final String orgId = rpslObject.getValueForAttribute(AttributeType.ORG).toString();
             final RpslObject orgObject = restClient.lookup(ObjectType.ORGANISATION, orgId);
             if (!hasAbuseContact(orgObject)) {
-                withoutAbuseC.add(orgObject);
+                final Set<CIString> resources = withoutAbuseC.get(orgObject);
+                if (resources == null) {
+                    withoutAbuseC.put(orgObject, Sets.newHashSet(rpslObject.getKey()));
+                } else {
+                    resources.add(rpslObject.getKey());
+                    withoutAbuseC.put(orgObject, resources);
+                }
             }
         } catch (IllegalArgumentException e) {
-            System.out.println(String.format("%s has no org attribute, it's probably legacy, or not yet handled", rpslObject.getKey()));
+//            System.out.println(String.format("%s has no org attribute, it's probably legacy, or not yet handled", rpslObject.getKey()));
         }
     }
 
@@ -164,7 +200,7 @@ public class ListOrgsWithNoAbuseC {
                         "(\n" +
                         " SELECT asn.organisation_id AS oid, asn.membership_id AS mid\n" +
                         " FROM resourcedb.asnresource asn\n" +
-                        " union\t\n" +
+                        " UNION\n" +
                         " SELECT ipv4.organisation_id AS oid, ipv4.membership_id AS mid\n" +
                         " FROM resourcedb.ipv4assignmentresource ipv4\n" +
                         " UNION\n" +
