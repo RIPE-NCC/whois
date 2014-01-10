@@ -336,7 +336,7 @@ public final class UpdateMessages {
     }
 
     public static Message invalidParentEntryForInterval(final IpInterval s) {
-        return new Message(Type.ERROR, "Interval %s must have exactly one parent.", s);
+        return new Message(Type.ERROR, "Interval %s must have exactly one parent", s);
     }
 
     public static Message invalidPrefixLength(final IpInterval ipInterval, final int assignmentSize) {
