@@ -370,6 +370,17 @@ public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
         assertThat(logFileIndex.searchByUpdateId(".*20130102.*"), hasSize(2));
     }
 
+    @Test
+    public void ticket_number_is_found() throws Exception {
+        addToIndex(LogFileHelper.createLogFile(logDirectory, "100102", "100102", "random", "mntner: UPD-MNT\nsource: TEST\noverride:agoston,blabla,NCC#201005666"));
+        addToIndex(LogFileHelper.createLogFile(logDirectory, "100102", "100102", "random", "mntner: OTHER-MNT"));
+
+        final String response = getUpdates("NCC#201005666");
+
+        assertThat(response, containsString("UPD-MNT"));
+        assertThat(response, not(containsString("OTHER-MNT")));
+    }
+
     protected void addToIndex(final File file) throws IOException {
         if (file.isDirectory()) {
             newLogFormatProcessor.incrementalUpdate();
