@@ -139,7 +139,7 @@ public class ListOrgsWithNoAbuseC {
             }
 
             if (resultOrgCounter % 100 == 0) {
-                System.out.println("Resulting orgs:" + resultOrgCounter);
+                LOGGER.debug("Resulting orgs:" + resultOrgCounter);
             }
         }
 
