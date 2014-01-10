@@ -335,6 +335,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "More specific objects exist that do not match assignment-size");
     }
 
+    public static Message invalidParentEntryForInterval(final IpInterval s) {
+        return new Message(Type.ERROR, "Interval %s must have exactly one parent.", s);
+    }
+
     public static Message invalidPrefixLength(final IpInterval ipInterval, final int assignmentSize) {
         return new Message(Type.ERROR, "Prefix length for %s must be %s", ipInterval, assignmentSize);
     }

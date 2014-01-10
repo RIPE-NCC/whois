@@ -98,11 +98,14 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
             updateContext.addMessage(update, UpdateMessages.statusRequiresAuthorization(NOT_SET.toString()));
         } else {
             final InetStatus currentStatus = InetStatusHelper.getStatus(update);
-            final IpEntry parent = (IpEntry) ipTree.findFirstLessSpecific(ipInterval).get(0);
-
+            final List<IpEntry> parents = ipTree.findFirstLessSpecific(ipInterval);
+            if (parents.size() != 1) {
+                updateContext.addMessage(update, UpdateMessages.invalidParentEntryForInterval(ipInterval));
+                return;
+            }
             checkAuthorisationForStatus(update, updateContext, updatedObject, currentStatus);
 
-            final RpslObject parentObject = objectDao.getById(parent.getObjectId());
+            final RpslObject parentObject = objectDao.getById(parents.get(0).getObjectId());
             final List<RpslAttribute> parentStatuses = parentObject.findAttributes(AttributeType.STATUS);
             if (parentStatuses.isEmpty()) {
                 updateContext.addMessage(update, UpdateMessages.objectLacksStatus("Parent", parentObject.getKey()));

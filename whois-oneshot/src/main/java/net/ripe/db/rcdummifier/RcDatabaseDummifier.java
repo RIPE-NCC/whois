@@ -148,7 +148,7 @@ public class RcDatabaseDummifier {
             RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
             for (int i = 0; i < builder.size(); i++) {
                 RpslAttribute attribute = builder.getAttribute(i);
-                if (AttributeType.AUTH.equals(attribute.getType()) && (attribute.getCleanValue().toLowerCase().startsWith("md5-pw"))) {
+                if (AttributeType.AUTH.equals(attribute.getType()) && (attribute.getCleanValue().startsWith("md5-pw"))) {
                     if (foundPassword) {
                         builder.removeAttribute(i);
                     } else {
@@ -167,7 +167,7 @@ public class RcDatabaseDummifier {
 
         static final boolean hasPassword(RpslObject rpslObject) {
             for (CIString auth : rpslObject.getValuesForAttribute(AttributeType.AUTH)) {
-                if (auth.toLowerCase().startsWith("md5-pw")) {
+                if (auth.startsWith("md5-pw")) {
                     return true;
                 }
             }

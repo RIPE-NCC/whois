@@ -244,13 +244,15 @@ public interface AttributeSyntax extends Documented {
             "announce <filter>\n");
 
     AttributeSyntax EXPORT_VIA_SYNTAX = new AttributeSyntaxParser(new ExportViaParser(), "" +
-            "[protocol <protocol-1>] [into <protocol-1>]\n" +
+            "[protocol <protocol-1>] [into <protocol-2>]   \n" +
             "afi <afi-list>\n" +
-            "<peering-0> to <peering-1> [action <action-1>]\n" +
+            "<peering-1>\n" +
+            "to <peering-2> [action <action-1>; <action-2>; ... <action-N>;]\n" +
             "    .\n" +
             "    .\n" +
             "    .\n" +
-            "<peering-N> to <peering-N> [action <action-N>]\n" +
+            "<peering-3>\n" +
+            "to <peering-M> [action <action-1>; <action-2>; ... <action-N>;]\n" +
             "announce <filter>\n");
 
     AttributeSyntax MP_FILTER_SYNTAX = new AttributeSyntaxParser(new MpFilterParser(), "" +
@@ -270,13 +272,15 @@ public interface AttributeSyntax extends Documented {
             "        <filter> refine <importexpression>)\n");
 
     AttributeSyntax IMPORT_VIA_SYNTAX = new AttributeSyntaxParser(new ImportViaParser(), "" +
-            "[protocol <protocol-1>] [into <protocol-1>]\n" +
+            "[protocol <protocol-1>] [into <protocol-2>]\n" +
             "afi <afi-list>\n" +
-            "<peering-0> from <peering-1> [action <action-1>]\n" +
+            "<peering-1>\n" +
+            "from <peering-2> [action <action-1>; <action-2>; ... <action-N>;]\n" +
             "    .\n" +
             "    .\n" +
             "    .\n" +
-            "<peering-N> from <peering-N> [action <action-N>]\n" +
+            "<peering-3>\n" +
+            "from <peering-M> [action <action-1>; <action-2>; ... <action-N>;]\n" +
             "accept (<filter>|<filter> except <importexpression>|\n" +
             "        <filter> refine <importexpression>)\n");
 

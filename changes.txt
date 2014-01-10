@@ -6,11 +6,10 @@
 [update] propagate error messages from dnscheck properly
 [api] allow for delete reason in rest client
 [all] allow for multiple owner attributes in keycert object
+[api] #112 - return a user friendly message when creating an inetnum with invalid parent.
 [api] #110 SQL statements and results are not logged in audit log
 [api] #109 A mntner object is returned filtered in look up, if the password for the mnt_by mntners is supplied
 [api] #108 RestClient does not return comments in the attributes of an rpsl object
-[deploy] remove logger=... from whois.properties/master datasource definition
-
 [api] #97 REST calls should return error messages
 [api] #95 REST /search should not accept query flags in 'query-string'
 [api] #92 Uniform use to flag names in error messages
@@ -22,6 +21,9 @@
 [api] Added authentication support for REST lookups
 [api] log HTTP headers in update audit log
 [update] Allow import-via/export-via rpsl attributes - Job Snijders <job@atrato.com>
+[commons] Fixed logging of daily scheduled jobs
+[oneshot] Added Default Abuse Contact script
+[deploy] remove logger=... from whois.properties/master datasource definition
 
 ## 1.70.1 (deployed on 2013-11-21)
 [all] Fixed MySQL replication issue

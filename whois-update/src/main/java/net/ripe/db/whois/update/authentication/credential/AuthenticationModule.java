@@ -70,19 +70,19 @@ public class AuthenticationModule {
     }
 
     private Credential getCredential(final CIString auth) {
-        if (auth.startsWith(CIString.ciString("md5-pw"))) {
+        if (auth.startsWith("md5-pw")) {
             return new PasswordCredential(auth.toString());
         }
 
-        if (auth.startsWith(CIString.ciString("pgpkey"))) {
+        if (auth.startsWith("pgpkey")) {
             return PgpCredential.createKnownCredential(auth.toString());
         }
 
-        if (auth.startsWith(CIString.ciString("x509"))) {
+        if (auth.startsWith("x509")) {
             return X509Credential.createKnownCredential(auth.toString());
         }
 
-        if (auth.startsWith(CIString.ciString("sso"))) {
+        if (auth.startsWith("sso")) {
             return new SSOCredential(auth.toString());
         }
 

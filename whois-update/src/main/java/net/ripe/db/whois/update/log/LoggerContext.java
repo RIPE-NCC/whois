@@ -270,6 +270,7 @@ public class LoggerContext {
             this.baseDir = baseDir;
             this.fileNumber = fileNumber;
             this.auditLogger = auditLogger;
+            LOGGER.info("baseDir= {} ", baseDir.getAbsolutePath());
         }
 
         public int nextFileNumber() {
