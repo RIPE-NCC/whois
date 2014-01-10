@@ -175,7 +175,6 @@ public class ListOrgsWithNoAbuseC {
                     withoutAbuseC.put(orgObject, Sets.newHashSet(rpslObject.getKey()));
                 } else {
                     resources.add(rpslObject.getKey());
-                    withoutAbuseC.put(orgObject, resources);
                 }
             }
         } catch (IllegalArgumentException e) {
