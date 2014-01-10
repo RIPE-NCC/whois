@@ -6,6 +6,7 @@
 [update] propagate error messages from dnscheck properly
 [api] allow for delete reason in rest client
 [all] allow for multiple owner attributes in keycert object
+[api] #112 - return a user friendly message when creating an inetnum with invalid parent.
 [api] #110 SQL statements and results are not logged in audit log
 [api] #109 A mntner object is returned filtered in look up, if the password for the mnt_by mntners is supplied
 [api] #108 RestClient does not return comments in the attributes of an rpsl object
