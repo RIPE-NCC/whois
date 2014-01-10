@@ -8,7 +8,6 @@ import joptsimple.OptionSet;
 import net.ripe.db.LogUtil;
 import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -40,7 +39,6 @@ public class ListOrgsWithNoAbuseC {
     private static final CIString RIPE_NCC_END_MNT = ciString("RIPE-NCC-END-MNT");
 
     private static final RestClient restClient = new RestClient("http://rest.db.ripe.net", "RIPE");
-    private static final Downloader downloader = new Downloader();
     private static final String ARG_PASSWD = "passwd";
 
     private static final List<String> splitFiles = ImmutableList.of(
@@ -48,9 +46,14 @@ public class ListOrgsWithNoAbuseC {
             "/ncc/ftp/ripe/dbase/split/ripe.db.inet6num.gz",
             "/ncc/ftp/ripe/dbase/split/ripe.db.aut-num.gz");
 
-    private final Map<String, String> emailByOrgIdMap;
+    private final Map<CIString, String> emailByOrgIdMap;
     private final JdbcTemplate jdbcTemplate;
 
+
+    private final Set<String> RSNG_ASNUMBER = Sets.newHashSet();
+    private final Set<String> RSNG_IPV4 = Sets.newHashSet();
+    private final Set<String> RSNG_IPV6 = Sets.newHashSet();
+    private final Set<String> RSNG_ORGANISATION = Sets.newHashSet();
 
     public static void main(final String[] argv) throws Exception {
         LogUtil.initLogger();
@@ -69,12 +72,14 @@ public class ListOrgsWithNoAbuseC {
     public ListOrgsWithNoAbuseC(final String password) throws SQLException {
         jdbcTemplate = setupRSNGTemplate(password);
         emailByOrgIdMap = getSponsoringLirEmailPerOrganisationId(jdbcTemplate);
+        setupRsngData();
     }
 
     public void printContactDetails(final Set<RpslObject> organisations) {
         for (final RpslObject organisation : organisations) {
             // if not souting, what do we do with this?
-            System.out.println(String.format("%s|%s|%s\n",
+
+            System.out.println(String.format("%s|%s|%s",
                     organisation.getKey(),
                     organisation.findAttributes(AttributeType.E_MAIL).get(0).getCleanValues().iterator().next(),
                     StringUtils.defaultIfBlank(emailByOrgIdMap.get(organisation.getKey()), "")));
@@ -95,7 +100,7 @@ public class ListOrgsWithNoAbuseC {
                 }
 
                 if ((count.incrementAndGet() & 0xffff) == 0) {
-                    LOGGER.info("Processed: " + count.get());
+                    LOGGER.debug("Processed: " + count.get());
                 }
 
                 if (!rpslObject.getValuesForAttribute(AttributeType.MNT_BY).contains(RIPE_NCC_END_MNT)) {
@@ -125,10 +130,16 @@ public class ListOrgsWithNoAbuseC {
 
         final Set<RpslObject> mailableOrgsWithoutAbuseC = Sets.newHashSet();
         final Set<RpslObject> keys = orgsWithoutAbuseC.keySet();
+        int resultOrgCounter = 0;
         for (final RpslObject organisation : keys) {
-            // look this up among the isMailable resources in RSNG to see if it's a keeper
+            // look this up among the resources in RSNG to see if it's a keeper
             if (isMailable(organisation, orgsWithoutAbuseC.get(organisation))) {
+                resultOrgCounter++;
                 mailableOrgsWithoutAbuseC.add(organisation);
+            }
+
+            if (resultOrgCounter % 100 == 0) {
+                System.out.println("Resulting orgs:" + resultOrgCounter);
             }
         }
 
@@ -136,24 +147,22 @@ public class ListOrgsWithNoAbuseC {
     }
 
     private boolean isMailable(final RpslObject organisation, final Set<CIString> resources) {
+        boolean mailable = false;
+        final String orgKey = organisation.getKey().toUpperCase();
         for (final CIString resource : resources) {
-            int found;
             if (resource.startsWith(CIString.ciString("AS"))) {
-                found = jdbcTemplate.queryForInt("SELECT count(*) FROM (resourcedb.asnresource WHERE as_number = ? OR resourcedb.organisation_id = ?) AND resource_status='ASSIGNED' AND ir_status='ENDUSER_APPROVEDDOCS' AND legacy = 'f'",
-                        resource.subSequence(2, resource.length()), organisation.getKey());
+                mailable = RSNG_ASNUMBER.contains(resource.toUpperCase()) || RSNG_ORGANISATION.contains(orgKey);
             } else if (resource.contains(CIString.ciString(":"))) {
-                found = jdbcTemplate.queryForInt("SELECT count(*) FROM resourcedb.ipv6assignmentresource WHERE (ip6_to_slash(resource_start, resource_end) = ? OR resourcedb.organisation_id = ?) AND resource_status='ASSIGNED' AND ir_status='ENDUSER_APPROVEDDOCS'",
-                        resource.toString(), organisation.getKey());
+                mailable = RSNG_IPV6.contains(resource.toString()) || RSNG_ORGANISATION.contains(orgKey);
             } else {
-                found = jdbcTemplate.queryForInt("SELECT count(*) FROM resourcedb.ipv4assignmentresource WHERE (ip4_to_slash(resource_start, resource_end) = ? OR resourcedb.organisation_id = ?) AND resource_status='ASSIGNED' AND ir_status='ENDUSER_APPROVEDDOCS' AND legacy = 'f'",
-                        Ipv4Resource.parse(resource).toString(), organisation.getKey());
+                mailable = RSNG_IPV4.contains(Ipv4Resource.parse(resource).toString()) || RSNG_ORGANISATION.contains(orgKey);
             }
 
-            if (found > 0) {
+            if (mailable) {
                 return true;
             }
         }
-        return false;
+        return mailable;
     }
 
     private boolean hasAbuseContact(final RpslObject orgObject) {
@@ -178,7 +187,7 @@ public class ListOrgsWithNoAbuseC {
                 }
             }
         } catch (IllegalArgumentException e) {
-//            System.out.println(String.format("%s has no org attribute, it's probably legacy, or not yet handled", rpslObject.getKey()));
+            LOGGER.debug(String.format("%s has no org attribute, it's probably legacy, or not yet handled", rpslObject.getKey()));
         }
     }
 
@@ -187,8 +196,8 @@ public class ListOrgsWithNoAbuseC {
         return new JdbcTemplate(dataSource);
     }
 
-    private Map<String, String> getSponsoringLirEmailPerOrganisationId(final JdbcTemplate jdbcTemplate) {
-        final Map<String, String> emailPerSponsoredOrganisation = Maps.newHashMap();
+    private Map<CIString, String> getSponsoringLirEmailPerOrganisationId(final JdbcTemplate jdbcTemplate) {
+        final Map<CIString, String> emailPerSponsoredOrganisation = Maps.newHashMap();
 
         jdbcTemplate.query(
                 "SELECT min(cm.contact_medium_value), a.oid\n" +
@@ -215,9 +224,39 @@ public class ListOrgsWithNoAbuseC {
                 new RowCallbackHandler() {
                     @Override
                     public void processRow(final ResultSet rs) throws SQLException {
-                        emailPerSponsoredOrganisation.put(rs.getString(1), rs.getString(2));
+                        emailPerSponsoredOrganisation.put(CIString.ciString(rs.getString(2)), rs.getString(1));
                     }
                 });
         return emailPerSponsoredOrganisation;
+    }
+
+    private void setupRsngData() {
+        jdbcTemplate.query("SELECT as_number, organisation_id FROM resourcedb.asnresource WHERE resource_status='ASSIGNED' AND ir_status='ENDUSER_APPROVEDDOCS' AND legacy = 'f'",
+                new RowCallbackHandler() {
+                    @Override
+                    public void processRow(ResultSet rs) throws SQLException {
+                        RSNG_ASNUMBER.add("AS" + rs.getInt(1));
+                        RSNG_ORGANISATION.add(rs.getString(2));
+                    }
+                });
+
+        jdbcTemplate.query("SELECT ip6_to_slash(resource_start, resource_end), organisation_id FROM resourcedb.ipv6assignmentresource WHERE resource_status='ASSIGNED' AND ir_status='ENDUSER_APPROVEDDOCS'",
+                new RowCallbackHandler() {
+                    @Override
+                    public void processRow(ResultSet rs) throws SQLException {
+                        RSNG_IPV6.add(rs.getString(1));
+                        RSNG_ORGANISATION.add(rs.getString(2));
+                    }
+                });
+
+
+        jdbcTemplate.query("SELECT ip4_to_slash(resource_start, resource_end), organisation_id FROM resourcedb.ipv4assignmentresource WHERE resource_status='ASSIGNED' AND ir_status='ENDUSER_APPROVEDDOCS' AND legacy = 'f'",
+                new RowCallbackHandler() {
+                    @Override
+                    public void processRow(ResultSet rs) throws SQLException {
+                        RSNG_IPV4.add(rs.getString(1));
+                        RSNG_ORGANISATION.add(rs.getString(2));
+                    }
+                });
     }
 }
