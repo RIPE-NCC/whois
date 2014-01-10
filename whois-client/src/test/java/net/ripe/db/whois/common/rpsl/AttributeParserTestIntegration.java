@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.rpsl;
 
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -78,6 +79,7 @@ public class AttributeParserTestIntegration {
         );
     }
 
+    @Ignore("TODO very slow")
     @Test
     public void parseFilterSetAttributes() throws Exception {
         parseAttributes("/export/opt/ripe.db.filter-set.gz",
@@ -126,6 +128,7 @@ public class AttributeParserTestIntegration {
         );
     }
 
+    @Ignore("TODO very slow")
     @Test
     public void parseInetnumAttributes() throws Exception {
         parseAttributes("/export/opt/ripe.db.inetnum.gz",
