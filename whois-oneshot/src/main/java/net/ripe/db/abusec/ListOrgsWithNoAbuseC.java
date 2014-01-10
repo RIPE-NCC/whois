@@ -77,7 +77,7 @@ public class ListOrgsWithNoAbuseC {
             System.out.println(String.format("%s|%s|%s\n",
                     organisation.getKey(),
                     organisation.findAttributes(AttributeType.E_MAIL).get(0).getCleanValues().iterator().next(),
-                    emailByOrgIdMap.get(organisation.getKey()) == null ? "" : emailByOrgIdMap.get(organisation.getKey())));
+                    StringUtils.defaultIfBlank(emailByOrgIdMap.get(organisation.getKey()), "")));
         }
     }
 
