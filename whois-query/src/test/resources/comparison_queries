@@ -583,4 +583,5 @@ e164.arpa
 AS3333
 AS1157
 
-
+# show mp-members for --primary-keys <routeset>
+--primary-keys RS-KROOT-V6
