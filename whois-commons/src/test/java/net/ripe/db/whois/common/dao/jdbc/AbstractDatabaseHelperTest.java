@@ -8,7 +8,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -29,7 +28,6 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
     @Autowired protected List<Stub> stubs;
 
     protected JdbcTemplate whoisTemplate;
-    protected JdbcTemplate mailUpdatesTemplate;
     protected DatabaseHelper databaseHelper;
 
     private static byte[] propertyStore = null;
@@ -76,6 +74,5 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
     public void setDatabaseHelper(final DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
         this.whoisTemplate = databaseHelper.getWhoisTemplate();
-        this.mailUpdatesTemplate = new JdbcTemplate(databaseHelper.getMailupdatesDataSource());
     }
 }

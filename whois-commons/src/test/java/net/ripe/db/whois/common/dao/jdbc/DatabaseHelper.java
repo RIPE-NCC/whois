@@ -261,6 +261,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return mailupdatesDataSource;
     }
 
+    public JdbcTemplate getMailupdatesTemplate() {
+        return mailupdatesTemplate;
+    }
+
     public DataSource getDnsCheckDataSource() {
         return dnsCheckDataSource;
     }
