@@ -42,7 +42,7 @@ public class MessageDequeueTestIntegration extends AbstractIntegrationTest {
 
     @BeforeClass
     public static void setNumberOfThreads() {
-        System.setProperty("mail.dequeue.threads", String.valueOf(CLIENTS));
+        System.setProperty("mail.update.threads", String.valueOf(CLIENTS));
     }
 
     @Test
