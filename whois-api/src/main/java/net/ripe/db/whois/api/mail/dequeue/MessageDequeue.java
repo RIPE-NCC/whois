@@ -58,7 +58,7 @@ public class MessageDequeue implements ApplicationService {
 
     private int nrThreads;
 
-    @Value("${mail.dequeue.threads}")
+    @Value("${mail.update.threads}")
     void setNrThreads(final int nrThreads) {
         this.nrThreads = nrThreads;
     }
