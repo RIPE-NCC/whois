@@ -30,7 +30,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.LoggerFactory;
@@ -1367,28 +1366,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (NotFoundException ignored) {
             // expected
         }
-    }
-
-    // schema
-
-    @Test
-    @Ignore
-    public void schema_int() throws Exception {
-        final String response = RestTest.target(getPort(), "api-doc/whois-resources.xsd")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
-
-        assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
-    }
-
-    @Test
-    @Ignore
-    public void schema_ext() throws Exception {
-        final String response = RestTest.target(getPort(), "api-doc/whois-resources.xsd")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
-
-        assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
     }
 
     // response format
