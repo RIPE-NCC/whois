@@ -376,8 +376,8 @@ public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
     @Ignore("TODO disabled for release, re-enable afterwards")
     @Test
     public void ticket_number_is_found() throws Exception {
-        addToIndex(LogFileHelper.createLogFile(logDirectory, "100102", "100102", "random", "mntner: UPD-MNT\nsource: TEST\noverride:agoston,blabla,NCC#201005666"));
-        addToIndex(LogFileHelper.createLogFile(logDirectory, "100102", "100102", "random", "mntner: OTHER-MNT"));
+        addToIndex(LogFileHelper.createLogFile(logDirectory, "mntner: UPD-MNT\nsource: TEST\noverride:agoston,blabla,NCC#201005666"));
+        addToIndex(LogFileHelper.createLogFile(logDirectory, "mntner: OTHER-MNT"));
 
         final String response = getUpdates("NCC#201005666");
 
