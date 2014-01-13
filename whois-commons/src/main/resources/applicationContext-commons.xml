@@ -9,6 +9,7 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <!-- TODO: this is loaded many many times on context init, which slows down startup process -->
     <tx:annotation-driven mode="aspectj"/>
 
     <context:spring-configured/>
