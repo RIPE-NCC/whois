@@ -56,6 +56,7 @@ public class MessageDequeueTest {
     @Before
     public void setUp() throws Exception {
         subject.setNrThreads(1);
+        subject.setIntervalMs(1);
         when(maintenanceMode.allowUpdate()).thenReturn(true);
     }
 
