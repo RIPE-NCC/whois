@@ -2,8 +2,6 @@ package net.ripe.db.whois.update.handler;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.dns.DnsChecker;
 import net.ripe.db.whois.update.domain.Ack;
@@ -26,7 +24,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collections;
 import java.util.List;
 
 @Component
