@@ -143,7 +143,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         final RpslObject object = restClient.lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
 
         assertThat(object.findAttribute(AttributeType.AUTH).getValue(), is("MD5-PW"));
-        assertThat(object.findAttribute(AttributeType.AUTH).getFirstComment(), is("Filtered"));
+        assertThat(object.findAttribute(AttributeType.AUTH).getComment(), is("Filtered"));
     }
 
     @Test
@@ -151,9 +151,9 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         final RpslObject object = restClient.lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
 
         assertThat(object.getValueForAttribute(AttributeType.SOURCE).toString(), is("TEST"));
-        assertThat(object.findAttribute(AttributeType.SOURCE).getFirstComment(), is("Filtered"));
+        assertThat(object.findAttribute(AttributeType.SOURCE).getComment(), is("Filtered"));
         assertThat(object.getValueForAttribute(AttributeType.AUTH).toString(), is("MD5-PW"));
-        assertThat(object.findAttribute(AttributeType.AUTH).getFirstComment(), is("Filtered"));
+        assertThat(object.findAttribute(AttributeType.AUTH).getComment(), is("Filtered"));
     }
 
     @Test
