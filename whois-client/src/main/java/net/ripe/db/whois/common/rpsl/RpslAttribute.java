@@ -145,7 +145,7 @@ public final class RpslAttribute {
         boolean comment = false;
         boolean space = false;
         boolean newline = false;
-        boolean written = false;
+        boolean written = false, commentwritten = false;
 
         for (final char c : value.toCharArray()) {
             if (c == '\n') {
@@ -173,8 +173,13 @@ public final class RpslAttribute {
             }
 
             if (comment) {
-                if (space) {
-                    commentValue.append(' ');
+                if (commentwritten) {
+                    if (space) {
+                        commentValue.append(' ');
+                        space = false;
+                    }
+                } else {
+                    commentwritten = true;
                     space = false;
                 }
                 commentValue.append(c);
@@ -194,7 +199,7 @@ public final class RpslAttribute {
             cleanedValue.append(c);
         }
 
-        this.comment = commentValue.toString().trim();
+        this.comment = commentwritten ? commentValue.toString() : null;
 
         if (type == null) {
             cleanValues = Collections.singleton(ciString(cleanedValue.toString()));
