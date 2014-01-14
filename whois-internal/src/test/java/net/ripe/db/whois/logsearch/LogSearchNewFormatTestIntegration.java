@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.logsearch.LogFileIndex;
 import net.ripe.db.whois.internal.logsearch.NewLogFormatProcessor;
 import org.joda.time.LocalDate;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -205,6 +204,16 @@ public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
     }
 
     @Test
+    public void search_request_from_inetnum() throws IOException {
+        addToIndex(LogFileHelper.createLogFile(logDirectory, "REQUEST FROM:193.0.1.204\nPARAMS:"));
+
+        final String response = getUpdates("REQUEST FROM 193.0.1.204", LogFileHelper.getDate());
+
+        assertThat(response, containsString("REQUEST FROM:193.0.1.204"));
+    }
+
+
+    @Test
     public void search_inetnum_and_date() throws IOException {
         addToIndex(LogFileHelper.createLogFile(logDirectory, "REQUEST FROM:193.0.1.204\nPARAMS:"));
 
@@ -373,7 +382,6 @@ public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
         assertThat(logFileIndex.searchByUpdateId(".*20130102.*"), hasSize(2));
     }
 
-    @Ignore("TODO disabled for release, re-enable afterwards")
     @Test
     public void ticket_number_is_found() throws Exception {
         addToIndex(LogFileHelper.createLogFile(logDirectory, "mntner: UPD-MNT\nsource: TEST\noverride:agoston,blabla,NCC#201005666"));
