@@ -203,7 +203,7 @@ public class FreeTextIndex extends RebuildableIndex {
             LOGGER.warn("Index serial ({}) higher than database serial ({}), rebuilding", last, end);
             rebuild(indexWriter, taxonomyWriter);
         } else if (last < end) {
-            LOGGER.debug("Updating index {} to {}", indexDir, end);
+            LOGGER.debug("Updating index {} from {} to {}", indexDir, last, end);
 
             final Stopwatch stopwatch = new Stopwatch().start();
             for (int serial = last + 1; serial <= end; serial++) {
