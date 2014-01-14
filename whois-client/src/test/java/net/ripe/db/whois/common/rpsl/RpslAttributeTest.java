@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
@@ -16,7 +17,7 @@ public class RpslAttributeTest {
     public void remove_comments_single_line() throws Exception {
         subject = new RpslAttribute("source", "    RIPE #");
         assertThat(subject.getCleanValue().toString(), is("RIPE"));
-        assertThat(subject.getComment(), is(""));
+        assertThat(subject.getComment(), equalTo(null));
     }
 
     @Test
@@ -30,7 +31,7 @@ public class RpslAttributeTest {
     public void remove_comments_multiple_lines() throws Exception {
         subject = new RpslAttribute("source", "    RIPE #\n RIPE");
         assertThat(subject.getCleanValue().toString(), is("RIPE RIPE"));
-        assertThat(subject.getComment(), is(""));
+        assertThat(subject.getComment(), equalTo(null));
     }
 
     @Test
