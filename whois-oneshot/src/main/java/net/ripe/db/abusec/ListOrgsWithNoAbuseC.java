@@ -7,6 +7,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.LogUtil;
 import net.ripe.db.whois.api.rest.RestClient;
+import net.ripe.db.whois.api.rest.RestClientException;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
@@ -15,6 +16,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.postgresql.Driver;
 import org.slf4j.Logger;
@@ -24,6 +26,9 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import javax.sql.DataSource;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -46,7 +51,6 @@ public class ListOrgsWithNoAbuseC {
             "/ncc/ftp/ripe/dbase/split/ripe.db.inet6num.gz",
             "/ncc/ftp/ripe/dbase/split/ripe.db.aut-num.gz");
 
-    private final Map<CIString, String> emailByOrgIdMap;
     private final JdbcTemplate jdbcTemplate;
 
 
@@ -71,7 +75,7 @@ public class ListOrgsWithNoAbuseC {
 
     public ListOrgsWithNoAbuseC(final String password) throws SQLException {
         jdbcTemplate = setupRSNGTemplate(password);
-        emailByOrgIdMap = getSponsoringLirEmailPerOrganisationId(jdbcTemplate);
+        writeSponsoringLirFile(getSponsoringLirEmailPerOrganisationId(jdbcTemplate));
         setupRsngData();
     }
 
@@ -79,10 +83,9 @@ public class ListOrgsWithNoAbuseC {
         for (final RpslObject organisation : organisations) {
             // if not souting, what do we do with this?
 
-            System.out.println(String.format("%s|%s|%s",
+            System.out.println(String.format("%s|%s",
                     organisation.getKey(),
-                    organisation.findAttributes(AttributeType.E_MAIL).get(0).getCleanValues().iterator().next(),
-                    StringUtils.defaultIfBlank(emailByOrgIdMap.get(organisation.getKey()), "")));
+                    organisation.findAttributes(AttributeType.E_MAIL).get(0).getCleanValues().iterator().next()));
         }
     }
 
@@ -175,8 +178,9 @@ public class ListOrgsWithNoAbuseC {
     }
 
     private void collectOrgIfNoAbuseC(final RpslObject rpslObject, final Map<RpslObject, Set<CIString>> withoutAbuseC) {
+        String orgId = "";
         try {
-            final String orgId = rpslObject.getValueForAttribute(AttributeType.ORG).toString();
+            orgId = rpslObject.getValueForAttribute(AttributeType.ORG).toString();
             final RpslObject orgObject = restClient.lookup(ObjectType.ORGANISATION, orgId);
             if (!hasAbuseContact(orgObject)) {
                 final Set<CIString> resources = withoutAbuseC.get(orgObject);
@@ -188,6 +192,8 @@ public class ListOrgsWithNoAbuseC {
             }
         } catch (IllegalArgumentException e) {
             LOGGER.debug(String.format("%s has no org attribute, it's probably legacy, or not yet handled", rpslObject.getKey()));
+        } catch (RestClientException e) {
+            LOGGER.debug("it's peculiar, but object {} is referencing non-existing organisation {}", rpslObject.getKey(), orgId);
         }
     }
 
@@ -196,11 +202,11 @@ public class ListOrgsWithNoAbuseC {
         return new JdbcTemplate(dataSource);
     }
 
-    private Map<CIString, String> getSponsoringLirEmailPerOrganisationId(final JdbcTemplate jdbcTemplate) {
-        final Map<CIString, String> emailPerSponsoredOrganisation = Maps.newHashMap();
+    private Set<String> getSponsoringLirEmailPerOrganisationId(final JdbcTemplate jdbcTemplate) {
+        final Set<String> sponsoringLirEmails = Sets.newHashSet();
 
         jdbcTemplate.query(
-                "SELECT min(cm.contact_medium_value), a.oid\n" +
+                "SELECT DISTINCT min(cm.contact_medium_value)\n" +
                         "FROM contactmedium cm INNER JOIN contactdetails cd ON cd.id = cm.contactdetails_id\n" +
                         "INNER JOIN organisation o ON cd.contact_organisation_id = o.id\n" +
                         "INNER JOIN membership m ON m.id = o.membership_id\n" +
@@ -219,16 +225,33 @@ public class ListOrgsWithNoAbuseC {
                         "WHERE cm.contact_medium_type = 'EMAIL'\n" +
                         "AND a.oid IS NOT null\n" +
                         "AND a.oid <> ''\n" +
-                        "GROUP BY a.oid\n" +
-                        "ORDER BY 2;",
+                        "GROUP BY a.oid",
                 new RowCallbackHandler() {
                     @Override
                     public void processRow(final ResultSet rs) throws SQLException {
-                        emailPerSponsoredOrganisation.put(CIString.ciString(rs.getString(2)), rs.getString(1));
+                        sponsoringLirEmails.add(rs.getString(1).trim());
                     }
                 });
-        return emailPerSponsoredOrganisation;
+        return sponsoringLirEmails;
     }
+
+    private void writeSponsoringLirFile(final Set<String> sponsoringLirEmails) {
+        OutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream("sponsoringlirs");
+            IOUtils.writeLines(sponsoringLirEmails, "\n", outputStream);
+        } catch (IOException e) {
+            LOGGER.info("couldn't write sponsoringlirs");
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+    }
+
 
     private void setupRsngData() {
         jdbcTemplate.query("SELECT as_number, organisation_id FROM resourcedb.asnresource WHERE resource_status='ASSIGNED' AND ir_status='ENDUSER_APPROVEDDOCS' AND legacy = 'f'",
