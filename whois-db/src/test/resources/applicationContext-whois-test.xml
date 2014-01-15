@@ -13,4 +13,6 @@
             system-properties-mode="OVERRIDE"/>
 
     <import resource="applicationContext-whois-base.xml"/>
+    <context:component-scan base-package="net.ripe.db.whois.db"/>
+
 </beans>
