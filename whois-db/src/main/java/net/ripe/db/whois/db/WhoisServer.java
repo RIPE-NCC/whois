@@ -1,4 +1,4 @@
-package net.ripe.db.whois;
+package net.ripe.db.whois.db;
 
 import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.ApplicationService;

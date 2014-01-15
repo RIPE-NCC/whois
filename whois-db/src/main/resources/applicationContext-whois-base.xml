@@ -12,4 +12,5 @@
 
     <import resource="applicationContext-nrtm.xml"/>
     <import resource="applicationContext-scheduler.xml"/>
+    <context:component-scan base-package="net.ripe.db.whois.db"/>
 </beans>
