@@ -44,6 +44,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 // TODO: instead of relying on scattered 'if (StringUtils.isBlank(indexDir) {...}', we should use profiles/...
 @Component
@@ -147,6 +151,12 @@ public class FreeTextIndex extends RebuildableIndex {
         indexWriter.deleteAll();
         final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
 
+        // sadly Executors don't offer a bounded/blocking submit() implementation
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
+        final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
+                0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+
         JdbcStreamingHelper.executeStreaming(jdbcTemplate, "" +
                 "SELECT object_id, object " +
                 "FROM last " +
@@ -159,24 +169,10 @@ public class FreeTextIndex extends RebuildableIndex {
                         int nrIndexed = 0;
 
                         while (rs.next()) {
-                            final int objectId = rs.getInt(1);
+                            executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getBytes(2), indexWriter, taxonomyWriter));
 
-                            final RpslObject object;
-                            try {
-                                object = RpslObject.parse(objectId, rs.getBytes(2));
-                            } catch (RuntimeException e) {
-                                LOGGER.warn("Unable to parse object with id: {}", objectId, e);
-                                continue;
-                            }
-
-                            try {
-                                addEntry(indexWriter, taxonomyWriter, object);
-
-                                if (++nrIndexed % LOG_EVERY == 0) {
-                                    LOGGER.info("Indexed {} objects", nrIndexed);
-                                }
-                            } catch (IOException e) {
-                                throw new IllegalStateException("Indexing", e);
+                            if (++nrIndexed % LOG_EVERY == 0) {
+                                LOGGER.info("Indexed {} objects", nrIndexed);
                             }
                         }
 
@@ -184,6 +180,13 @@ public class FreeTextIndex extends RebuildableIndex {
                         return null;
                     }
                 });
+
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(1, TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            LOGGER.error("shutdown", e);
+        }
 
         updateMetadata(indexWriter, source, maxSerial);
     }
@@ -203,7 +206,7 @@ public class FreeTextIndex extends RebuildableIndex {
             LOGGER.warn("Index serial ({}) higher than database serial ({}), rebuilding", last, end);
             rebuild(indexWriter, taxonomyWriter);
         } else if (last < end) {
-            LOGGER.debug("Updating index {} to {}", indexDir, end);
+            LOGGER.debug("Updating index {} from {} to {}", indexDir, last, end);
 
             final Stopwatch stopwatch = new Stopwatch().start();
             for (int serial = last + 1; serial <= end; serial++) {
@@ -238,7 +241,7 @@ public class FreeTextIndex extends RebuildableIndex {
         indexWriter.setCommitData(metadata);
     }
 
-    private void addEntry(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter, final RpslObject rpslObject) throws IOException {
+    final private void addEntry(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter, final RpslObject rpslObject) throws IOException {
         final Document document = new Document();
         document.add(new Field(PRIMARY_KEY_FIELD_NAME, Integer.toString(rpslObject.getObjectId()), INDEXED_NOT_TOKENIZED));
         document.add(new Field(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName(), INDEXED_AND_TOKENIZED));
@@ -259,5 +262,36 @@ public class FreeTextIndex extends RebuildableIndex {
 
     private void deleteEntry(final IndexWriter indexWriter, final RpslObject rpslObject) throws IOException {
         indexWriter.deleteDocuments(new Term(PRIMARY_KEY_FIELD_NAME, Integer.toString(rpslObject.getObjectId())));
+    }
+
+    final class DatabaseObjectProcessor implements Runnable {
+        final int objectId;
+        final byte[] object;
+        final IndexWriter indexWriter;
+        final TaxonomyWriter taxonomyWriter;
+
+        private DatabaseObjectProcessor(int objectId, byte[] object, IndexWriter indexWriter, TaxonomyWriter taxanomyWriter) {
+            this.objectId = objectId;
+            this.object = object;
+            this.indexWriter = indexWriter;
+            this.taxonomyWriter = taxanomyWriter;
+        }
+
+        @Override
+        public void run() {
+            final RpslObject rpslObject;
+            try {
+                rpslObject = RpslObject.parse(objectId, object);
+            } catch (RuntimeException e) {
+                LOGGER.warn("Unable to parse object with id: {}", objectId, e);
+                return;
+            }
+
+            try {
+                addEntry(indexWriter, taxonomyWriter, rpslObject);
+            } catch (IOException e) {
+                throw new IllegalStateException("Indexing", e);
+            }
+        }
     }
 }

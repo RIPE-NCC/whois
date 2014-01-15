@@ -40,15 +40,21 @@ import java.util.Set;
 
 @Component
 public class RestClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
+
     private Client client;
     private String restApiUrl;
     private String sourceName;
     private WhoisObjectClientMapper whoisObjectClientMapper;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
-
     public RestClient() {
         this.client = createClient();
+    }
+
+    public RestClient(String restApiUrl, String sourceName) {
+        this();
+        setRestApiUrl(restApiUrl);
+        setSource(sourceName);
     }
 
     @Value("${api.rest.baseurl}")
@@ -66,8 +72,13 @@ public class RestClient {
         this.client = client;
     }
 
+
     public RpslObject create(final RpslObject rpslObject, final String... passwords) {
-        try {
+        return create(rpslObject, null, passwords);
+    }
+
+    public RpslObject create(final RpslObject rpslObject, final NotifierCallback notifier, final String... passwords) {
+            try {
             final WhoisResources whoisResources = client.target(String.format("%s/%s/%s%s",
                     restApiUrl,
                     sourceName,
@@ -77,6 +88,10 @@ public class RestClient {
                     Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
                     WhoisResources.class
             );
+
+            if (notifier!=null){
+                notifier.notify(whoisResources.getErrorMessages());
+            }
             return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
         } catch (ClientErrorException e) {
             throw createException(e);
@@ -84,6 +99,10 @@ public class RestClient {
     }
 
     public RpslObject createOverride(final RpslObject rpslObject, final String override) {
+        return createOverride(rpslObject, null, override);
+    }
+
+    public RpslObject createOverride(final RpslObject rpslObject, final NotifierCallback notifier, final String override) {
         try {
             final WhoisResources whoisResources = client.target(String.format("%s/%s/%s%s",
                     restApiUrl,
@@ -94,6 +113,10 @@ public class RestClient {
                     Entity.entity(whoisObjectClientMapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML),
                     WhoisResources.class
             );
+
+            if (notifier!=null){
+                notifier.notify(whoisResources.getErrorMessages());
+            }
             return whoisObjectClientMapper.map(whoisResources.getWhoisObjects().get(0));
         } catch (ClientErrorException e) {
             throw createException(e);

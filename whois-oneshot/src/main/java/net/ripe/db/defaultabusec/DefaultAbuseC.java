@@ -2,6 +2,7 @@ package net.ripe.db.defaultabusec;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import net.ripe.db.LogUtil;
 import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -10,10 +11,6 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.internal.api.abusec.AbuseCService;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.PatternLayout;
 
 public class DefaultAbuseC {
     private static final String ARG_BATCHSIZE = "batch-size";
@@ -24,7 +21,7 @@ public class DefaultAbuseC {
     private static final AbuseCService abuseCService = new AbuseCService(restClient, "RIPE");
 
     public static void main(final String[] argv) throws Exception {
-        setupLogging();
+        LogUtil.initLogger();
 
         final OptionSet options = setupOptionParser().parse(argv);
         int batchSize = Integer.parseInt(options.valueOf(ARG_BATCHSIZE).toString());
@@ -48,7 +45,7 @@ public class DefaultAbuseC {
                     throw new IllegalArgumentException("Found non-organisation object: " + nextObject);
                 }
 
-                if (!dumpOrg.getValueForAttribute(AttributeType.ORG_TYPE).toLowerCase().equals("lir")) {
+                if (!dumpOrg.getValueForAttribute(AttributeType.ORG_TYPE).equals("lir")) {
                     continue;
                 }
 
@@ -76,15 +73,6 @@ public class DefaultAbuseC {
                 e.printStackTrace(System.err);
             }
         }
-    }
-
-    private static void setupLogging() {
-        LogManager.getRootLogger().setLevel(Level.INFO);
-        ConsoleAppender console = new ConsoleAppender();
-        console.setLayout(new PatternLayout("%d [%c|%C{1}] %m%n"));
-        console.setThreshold(Level.INFO);
-        console.activateOptions();
-        LogManager.getRootLogger().addAppender(console);
     }
 
     private static OptionParser setupOptionParser() {

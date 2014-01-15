@@ -3,6 +3,7 @@ package net.ripe.db.inet6numassignmentoverlap;
 import com.google.common.collect.ImmutableSet;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import net.ripe.db.LogUtil;
 import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -11,11 +12,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryFlag;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,22 +22,15 @@ public class Inet6numAssignmentOverlap {
 
     private static final String ARG_DUMPFILE = "dump-file";
 
-    private static final RestClient restClient = new RestClient();
+    private static final RestClient restClient = new RestClient("http://rest.db.ripe.net", "RIPE");
 
     public static void main(final String[] argv) throws Exception {
-        setupLogging();
-
-        restClient.setRestApiUrl("http://rest.db.ripe.net");
-        restClient.setSource("RIPE");
+        LogUtil.initLogger();
 
         final OptionSet options = setupOptionParser().parse(argv);
         String fileName = options.valueOf(ARG_DUMPFILE).toString();
 
         for (String object : new RpslObjectFileReader(fileName)) {
-            if (StringUtils.isBlank(object)) {
-                continue;
-            }
-
             RpslObject rpslObject;
             try {
                 rpslObject = RpslObject.parse(object);
@@ -58,7 +47,7 @@ public class Inet6numAssignmentOverlap {
                     throw new RuntimeException(objectMessages.toString());
                 }
 
-                if (status.getCleanValue().toLowerCase().equals("assigned")) {
+                if (status.getCleanValue().equals("assigned")) {
                     Iterable<RpslObject> rpslObjects = restClient.search(rpslObject.getKey().toString(),
                             Collections.EMPTY_SET,
                             Collections.EMPTY_SET,
@@ -77,15 +66,6 @@ public class Inet6numAssignmentOverlap {
                 LOGGER.error(rpslObject.getFormattedKey() + ": " + e.getMessage());
             }
         }
-    }
-
-    private static void setupLogging() {
-        LogManager.getRootLogger().setLevel(Level.INFO);
-        final ConsoleAppender console = new ConsoleAppender();
-        console.setLayout(new PatternLayout("%d [%c{1}] %m%n"));
-        console.setThreshold(Level.INFO);
-        console.activateOptions();
-        LogManager.getRootLogger().addAppender(console);
     }
 
     private static OptionParser setupOptionParser() {

@@ -388,7 +388,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
 
         assertThat(query("q=JM1-RIPE"), containsString("numFound=\"1\""));
 
-        databaseHelper.removeObject(object);
+        databaseHelper.deleteObject(object);
         freeTextIndex.scheduledUpdate();
 
         assertThat(query("q=JM1-RIPE"), containsString("numFound=\"0\""));

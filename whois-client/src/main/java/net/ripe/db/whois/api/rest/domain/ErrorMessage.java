@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -83,4 +84,23 @@ public class ErrorMessage {
     public String toString() {
         return (args.isEmpty()) ? text : String.format(text, args.toArray());
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || (o.getClass() != getClass())) {
+            return false;
+        }
+
+        final ErrorMessage errorMessage = (ErrorMessage)o;
+
+        return (Objects.equals(severity, errorMessage.getSeverity()) &&
+                Objects.equals(attribute, errorMessage.getAttribute()) &&
+                Objects.equals(text, errorMessage.getText()) &&
+                Objects.equals(args, errorMessage.getArgs()));
+    }
+
 }

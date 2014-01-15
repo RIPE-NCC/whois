@@ -1,4 +1,4 @@
-package net.ripe.db.whois;
+package net.ripe.db.whois.db;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;

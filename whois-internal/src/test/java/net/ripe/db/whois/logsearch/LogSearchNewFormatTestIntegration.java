@@ -15,7 +15,9 @@ import java.io.IOException;
 
 import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 
 @Category(IntegrationTest.class)
 public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
@@ -202,6 +204,16 @@ public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
     }
 
     @Test
+    public void search_request_from_inetnum() throws IOException {
+        addToIndex(LogFileHelper.createLogFile(logDirectory, "REQUEST FROM:193.0.1.204\nPARAMS:"));
+
+        final String response = getUpdates("REQUEST FROM 193.0.1.204", LogFileHelper.getDate());
+
+        assertThat(response, containsString("REQUEST FROM:193.0.1.204"));
+    }
+
+
+    @Test
     public void search_inetnum_and_date() throws IOException {
         addToIndex(LogFileHelper.createLogFile(logDirectory, "REQUEST FROM:193.0.1.204\nPARAMS:"));
 
@@ -368,6 +380,17 @@ public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
         addToIndex(LogFileHelper.createTarredLogFile(logDirectory, "20130102", "100102", "random", "mntner: UPD-MNT"));
 
         assertThat(logFileIndex.searchByUpdateId(".*20130102.*"), hasSize(2));
+    }
+
+    @Test
+    public void ticket_number_is_found() throws Exception {
+        addToIndex(LogFileHelper.createLogFile(logDirectory, "mntner: UPD-MNT\nsource: TEST\noverride:agoston,blabla,NCC#201005666"));
+        addToIndex(LogFileHelper.createLogFile(logDirectory, "mntner: OTHER-MNT"));
+
+        final String response = getUpdates("NCC#201005666");
+
+        assertThat(response, containsString("UPD-MNT"));
+        assertThat(response, not(containsString("OTHER-MNT")));
     }
 
     protected void addToIndex(final File file) throws IOException {

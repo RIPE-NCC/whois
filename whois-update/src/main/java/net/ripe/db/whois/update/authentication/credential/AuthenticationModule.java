@@ -5,7 +5,14 @@ import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.update.domain.Credentials;
+import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.update.domain.PgpCredential;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.SSOCredential;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.X509Credential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +21,6 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 public class AuthenticationModule {
@@ -65,19 +70,19 @@ public class AuthenticationModule {
     }
 
     private Credential getCredential(final CIString auth) {
-        if (auth.toLowerCase().startsWith("md5-pw")) {
+        if (auth.startsWith("md5-pw")) {
             return new PasswordCredential(auth.toString());
         }
 
-        if (auth.toLowerCase().startsWith("pgpkey")) {
+        if (auth.startsWith("pgpkey")) {
             return PgpCredential.createKnownCredential(auth.toString());
         }
 
-        if (auth.toLowerCase().startsWith("x509")) {
+        if (auth.startsWith("x509")) {
             return X509Credential.createKnownCredential(auth.toString());
         }
 
-        if (auth.toLowerCase().startsWith("sso")) {
+        if (auth.startsWith("sso")) {
             return new SSOCredential(auth.toString());
         }
 

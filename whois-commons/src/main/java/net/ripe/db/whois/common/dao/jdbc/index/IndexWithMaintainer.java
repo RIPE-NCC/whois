@@ -20,7 +20,7 @@ class IndexWithMaintainer extends IndexWithValue {
 
     @Override
     public List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final String value) {
-        if (ANY.equals(ciString(value))) {
+        if (ANY.equals(value)) {
             return Lists.newArrayList(new RpslObjectInfo(0, ObjectType.MNTNER, ANY));
         }
 

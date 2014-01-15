@@ -1,0 +1,69 @@
+#!/bin/bash
+
+set -e
+
+GENERATED_PATH=target/generated-sources/jflex/net/ripe/db/whois/common/generated
+
+if [[ $(find $GENERATED_PATH -name '*.java' 2>/dev/null | wc -l) -gt 5 ]]; then
+    echo 'Skipping generation of *Parser classes, run clean to regenerate'
+    exit 0
+fi
+
+case $OSTYPE in
+    darwin*)
+        YACC='src/main/parser/bin/yacc.macosx'
+        ;;
+    linux*)
+        YACC='src/main/parser/bin/yacc.linux'
+        ;;
+    *)
+        YACC='src/main/parser/bin/yacc'
+        ;;
+esac
+
+echo "testing if $YACC binary is executable..."
+
+if ( $YACC 2>&1 | grep -q usage  );
+then
+    echo 'using compiled yacc binary'
+else
+    echo "WARNING: suitable yacc binary not found - will compile the byaccj-p2 tool"
+    pushd src/main/parser/byaccj-p2/src
+    make
+    popd
+    cp src/main/parser/byaccj-p2/src/yacc $YACC
+    echo "done building byaccj-p2"
+fi
+
+echo 'AggrBndryParser src/main/parser/byacc/aggr_bndry.y
+AggrMtdParser src/main/parser/byacc/aggr_mtd.y
+ComponentsParser src/main/parser/byacc/components.y
+ComponentsR6Parser src/main/parser/byacc/components_r6.y
+DefaultParser src/main/parser/byacc/default.y
+ExportParser src/main/parser/byacc/export.y
+FilterParser src/main/parser/byacc/filter.y
+IfaddrParser src/main/parser/byacc/ifaddr.y
+ImportParser src/main/parser/byacc/import.y
+InjectParser src/main/parser/byacc/inject.y
+InjectR6Parser src/main/parser/byacc/inject_r6.y
+InterfaceParser src/main/parser/byacc/interface.y
+MpDefaultParser src/main/parser/byacc/mp_default.y
+MpExportParser src/main/parser/byacc/mp_export.y
+ExportViaParser src/main/parser/byacc/export_via.y
+MpFilterParser src/main/parser/byacc/mp_filter.y
+MpImportParser src/main/parser/byacc/mp_import.y
+ImportViaParser src/main/parser/byacc/import_via.y
+MpPeerParser src/main/parser/byacc/mp_peer.y
+MpPeeringParser src/main/parser/byacc/mp_peering.y
+NameParser src/main/parser/byacc/name.y
+PeerParser src/main/parser/byacc/peer.y
+PeeringParser src/main/parser/byacc/peering.y
+V6FilterParser src/main/parser/byacc/v6_filter.y' | while read GENERATED YACCDEF; do
+    echo ${GENERATED}
+    $YACC -Jclass=${GENERATED} -Jnoconstruct -Jimplements='AttributeParser<Void>' -Jpackage='net.ripe.db.whois.common.generated' -J $YACCDEF
+done
+
+mkdir -p $GENERATED_PATH
+mv *.java $GENERATED_PATH
+
+echo "BYACC generation done, copied to $GENERATED_PATH"
