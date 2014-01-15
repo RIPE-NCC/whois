@@ -76,7 +76,7 @@
         <profile>
             <id>release</id>
             <properties>
-                <whois.main>net.ripe.db.whois.WhoisServer</whois.main>
+                <whois.main>net.ripe.db.whois.db.WhoisServer</whois.main>
             </properties>
             <build>
                 <plugins>

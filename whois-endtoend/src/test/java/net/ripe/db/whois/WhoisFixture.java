@@ -25,6 +25,7 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
+import net.ripe.db.whois.db.WhoisServer;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.task.unref.UnrefCleanup;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
