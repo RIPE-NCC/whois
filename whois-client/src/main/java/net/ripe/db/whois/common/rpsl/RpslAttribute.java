@@ -63,7 +63,6 @@ public final class RpslAttribute {
         this.comment = comment;
     }
 
-
     public String getKey() {
         return key;
     }
@@ -73,7 +72,7 @@ public final class RpslAttribute {
     }
 
     public String getComment() {
-        if (comment == null) {
+        if (comment == null && cleanValues == null) {
             extractCleanValueAndComment(value);
         }
         return comment;
@@ -199,7 +198,9 @@ public final class RpslAttribute {
             cleanedValue.append(c);
         }
 
-        this.comment = commentwritten ? commentValue.toString() : null;
+        if (this.comment == null) {
+            this.comment = commentwritten ? commentValue.toString() : null;
+        }
 
         if (type == null) {
             cleanValues = Collections.singleton(ciString(cleanedValue.toString()));
