@@ -143,7 +143,7 @@ public class JdbcTagsDaoTest extends AbstractDaoTest {
 
         subject.createTag(new Tag(CIString.ciString("unref"), person.getObjectId()));
         assertThat(databaseHelper.getWhoisTemplate().queryForInt("SELECT count(*) FROM tags"), is(1));
-        databaseHelper.removeObject(person);
+        databaseHelper.deleteObject(person);
 
         subject.deleteOrphanedTags();
         assertThat(databaseHelper.getWhoisTemplate().queryForInt("SELECT count(*) FROM tags"), is(0));

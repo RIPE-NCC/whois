@@ -52,7 +52,7 @@ public class ReferencedTypeResolver {
 
             case 1:
                 if (AttributeType.AUTH.equals(attributeType)) {
-                    String authType = SPACE_SPLITTER.split(value).iterator().next().toUpperCase();
+                    final String authType = SPACE_SPLITTER.split(value).iterator().next().toUpperCase();
                     if (authType.endsWith("-PW") || authType.equals("SSO")) {
                         return null;
                     }

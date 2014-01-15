@@ -116,7 +116,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <executable>src/main/resources/bin/generateByaccs</executable>
+                    <executable>src/main/parser/bin/generateByaccs</executable>
                 </configuration>
             </plugin>
             <plugin>
@@ -130,7 +130,7 @@
                         </goals>
                         <configuration>
                             <lexDefinitions>
-                                <lexDefinition>src/main/resources/jflex</lexDefinition>
+                                <lexDefinition>src/main/parser/jflex</lexDefinition>
                             </lexDefinitions>
                         </configuration>
                     </execution>

@@ -73,7 +73,7 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
     }
 
     def removeObject(String string) {
-        getDatabaseHelper().removeObject(RpslObject.parse(string))
+        getDatabaseHelper().deleteObject(RpslObject.parse(string))
     }
 
     def pendingUpdates(ObjectType objectType, String pkey) {

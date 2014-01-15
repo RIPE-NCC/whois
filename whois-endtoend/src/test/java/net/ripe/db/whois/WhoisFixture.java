@@ -27,6 +27,7 @@ import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
+import net.ripe.db.whois.db.WhoisServer;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.task.unref.UnrefCleanup;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
@@ -80,7 +81,7 @@ public class WhoisFixture {
         Slf4JLogConfiguration.init();
 
         System.setProperty("application.version", "0.1-ENDTOEND");
-        System.setProperty("mail.dequeue.threads", "2");
+        System.setProperty("mail.update.threads", "2");
         System.setProperty("mail.dequeue.interval", "10");
         System.setProperty("whois.maintainers.power", "RIPE-NCC-HM-MNT");
         System.setProperty("whois.maintainers.enduser", "RIPE-NCC-END-MNT");

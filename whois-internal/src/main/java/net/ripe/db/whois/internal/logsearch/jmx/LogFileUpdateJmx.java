@@ -29,7 +29,9 @@ public class LogFileUpdateJmx extends JmxBase {
     private final NewLogFormatProcessor newLogFormatProcessor;
 
     @Autowired
-    public LogFileUpdateJmx(final LogFileIndex logFileIndex, final LegacyLogFormatProcessor legacyLogFormatProcessor, final NewLogFormatProcessor newLogFormatProcessor) {
+    public LogFileUpdateJmx(final LogFileIndex logFileIndex,
+                            final LegacyLogFormatProcessor legacyLogFormatProcessor,
+                            final NewLogFormatProcessor newLogFormatProcessor) {
         super(LOGGER);
         this.logFileIndex = logFileIndex;
         this.legacyLogFormatProcessor = legacyLogFormatProcessor;

@@ -2,14 +2,17 @@ package net.ripe.db.rcdummifier;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import net.ripe.db.LogUtil;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.jdbc.SimpleDataSourceFactory;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.PasswordHelper;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.PatternLayout;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -46,7 +49,7 @@ public class RcDatabaseDummifier {
     private static final AtomicInteger jobsDone = new AtomicInteger();
 
     public static void main(final String[] argv) throws Exception {
-        setupLogging();
+        LogUtil.initLogger();
 
         final OptionSet options = setupOptionParser().parse(argv);
         final String jdbcUrl = options.valueOf(ARG_JDBCURL).toString();
@@ -63,7 +66,7 @@ public class RcDatabaseDummifier {
 
         // sadly Executors don't offer a bounded/blocking submit() implementation
         int numThreads = Runtime.getRuntime().availableProcessors();
-        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads*64);
+        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
         final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
                 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
 
@@ -101,7 +104,7 @@ public class RcDatabaseDummifier {
         LOGGER.info("Jobs size:" + jobsAdded);
     }
 
-    private static final class DatabaseObjectProcessor implements Runnable {
+    static final class DatabaseObjectProcessor implements Runnable {
         final int objectId;
         final int sequenceId;
         final String table;
@@ -121,7 +124,12 @@ public class RcDatabaseDummifier {
                 public Object doInTransaction(TransactionStatus status) {
                     try {
                         final RpslObject rpslObject = RpslObject.parse(object);
-                        final RpslObject dummyObject = dummifier.dummify(3, rpslObject);
+                        RpslObject dummyObject = dummifier.dummify(3, rpslObject);
+
+                        if (ObjectType.MNTNER.equals(rpslObject.getType()) && hasPassword(rpslObject)) {
+                            dummyObject = replaceWithMntnerNamePassword(dummyObject);
+                        }
+
                         jdbcTemplate.update("UPDATE " + table + " SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject.toByteArray(), objectId, sequenceId);
                     } catch (RuntimeException e) {
                         LOGGER.error(table + ": " + objectId + "," + sequenceId + " failed\n" + new String(object), e);
@@ -134,15 +142,37 @@ public class RcDatabaseDummifier {
                 }
             });
         }
-    }
 
-    private static void setupLogging() {
-        LogManager.getRootLogger().setLevel(Level.INFO);
-        final ConsoleAppender console = new ConsoleAppender();
-        console.setLayout(new PatternLayout("%d [%c|%C{1}] %m%n"));
-        console.setThreshold(Level.INFO);
-        console.activateOptions();
-        LogManager.getRootLogger().addAppender(console);
+        static final RpslObject replaceWithMntnerNamePassword(RpslObject rpslObject) {
+            boolean foundPassword = false;
+            RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
+            for (int i = 0; i < builder.size(); i++) {
+                RpslAttribute attribute = builder.getAttribute(i);
+                if (AttributeType.AUTH.equals(attribute.getType()) && (attribute.getCleanValue().startsWith("md5-pw"))) {
+                    if (foundPassword) {
+                        builder.removeAttribute(i);
+                    } else {
+                        builder.setAttribute(i, new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toString())));
+                        foundPassword = true;
+                    }
+                }
+            }
+
+            if (!foundPassword) {
+                throw new IllegalStateException("No 'auth: md5-pw' found after dummifying " + rpslObject.getFormattedKey());
+            }
+
+            return builder.get();
+        }
+
+        static final boolean hasPassword(RpslObject rpslObject) {
+            for (CIString auth : rpslObject.getValuesForAttribute(AttributeType.AUTH)) {
+                if (auth.startsWith("md5-pw")) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     private static OptionParser setupOptionParser() {

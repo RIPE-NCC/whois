@@ -1,0 +1,40 @@
+RIPE Whois Server intergration notes:
+=====================================
+
+The following command was used to clone the existing repo on github into
+this code repository:
+
+$ git subtree pull --prefix tools/byaccj-p2 https://github.com/job/byaccj-p2.git master --squash
+
+Original README:
+
+Building
+========
+
+Ramon Nogueira made some changes to the original BYACC/J Makefile to
+allow it to compile on post 1999 Linux and MacOSX systems. You may need
+to customize it to your system. 
+
+Try:
+
+$ cd src
+$ make 
+
+Which should produce an executable inside the src/ directory called
+`yacc'.
+
+License
+=======
+
+Licensing details for the original BYACC/J source code can be found on their
+website [http://byaccj.sourceforge.net] and/or in applicable source files.
+
+Ramon Nogueira changes are placed in the public domain and of course,
+Ramon Nogueira make no representations that this code will work as
+intended or at all. Indeed, it may even cause your computer to explode
+and collapse the economy of a small south asian state.
+
+To the extent possible under law, Job Snijders has waived all copyright and
+related or neighboring rights to the the changes to byacc/java or the patches
+from Ramon Nogueira. This changes were published from: The Netherlands.
+

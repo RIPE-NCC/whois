@@ -12,8 +12,10 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.query.QueryFlag;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -100,6 +102,9 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     private RestClient restClient;
 
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
     @Before
     public void setup() throws Exception {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
@@ -152,7 +157,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         final RpslObject object = restClient.lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
 
         assertThat(object.findAttribute(AttributeType.AUTH).getValue(), is("MD5-PW"));
-        assertThat(object.findAttribute(AttributeType.AUTH).getFirstComment(), is("Filtered"));
+        assertThat(object.findAttribute(AttributeType.AUTH).getComment(), is("Filtered"));
     }
 
     @Test
@@ -160,9 +165,9 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         final RpslObject object = restClient.lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
 
         assertThat(object.getValueForAttribute(AttributeType.SOURCE).toString(), is("TEST"));
-        assertThat(object.findAttribute(AttributeType.SOURCE).getFirstComment(), is("Filtered"));
+        assertThat(object.findAttribute(AttributeType.SOURCE).getComment(), is("Filtered"));
         assertThat(object.getValueForAttribute(AttributeType.AUTH).toString(), is("MD5-PW"));
-        assertThat(object.findAttribute(AttributeType.AUTH).getFirstComment(), is("Filtered"));
+        assertThat(object.findAttribute(AttributeType.AUTH).getComment(), is("Filtered"));
     }
 
     @Test

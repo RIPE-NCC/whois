@@ -30,7 +30,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.LoggerFactory;
@@ -514,6 +513,26 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "SSO", "Filtered", null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST", "Filtered", null, null)));
+    }
+
+    @Test
+    public void lookup_mntner_without_password_unfiltered() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?unfiltered").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("upd-to", "noreply@ripe.net", null, null, null),
+                new Attribute("auth", "MD5-PW", "Filtered", null, null),
+                new Attribute("auth", "SSO", "Filtered", null, null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("changed", "dbtest@ripe.net 20120101", null, null, null),
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
@@ -1166,7 +1185,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
-        databaseHelper.removeObject(autnum);
+        databaseHelper.deleteObject(autnum);
         databaseHelper.addObject(autnum);
         databaseHelper.updateObject("" +
                 "aut-num:        AS102\n" +
@@ -1213,7 +1232,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
-        databaseHelper.removeObject(autnum);
+        databaseHelper.deleteObject(autnum);
         databaseHelper.addObject(autnum);
         databaseHelper.updateObject("" +
                 "aut-num:        AS102\n" +
@@ -1260,7 +1279,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
-        databaseHelper.removeObject(autnum);
+        databaseHelper.deleteObject(autnum);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
                 .request(MediaType.APPLICATION_XML)
@@ -1400,7 +1419,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
-        databaseHelper.removeObject(autnum);
+        databaseHelper.deleteObject(autnum);
 
         try {
             RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
@@ -1410,28 +1429,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (NotFoundException ignored) {
             // expected
         }
-    }
-
-    // schema
-
-    @Test
-    @Ignore
-    public void schema_int() throws Exception {
-        final String response = RestTest.target(getPort(), "api-doc/whois-resources.xsd")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
-
-        assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
-    }
-
-    @Test
-    @Ignore
-    public void schema_ext() throws Exception {
-        final String response = RestTest.target(getPort(), "api-doc/whois-resources.xsd")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
-
-        assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
     }
 
     // response format
@@ -1873,6 +1870,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             assertOnlyErrorMessage(e, "Error", "Invalid source '%s'", "INVALID");
+            assertThat(e.getResponse().getHeaders().get("Content-Type"), contains((Object) "application/xml"));
         }
     }
 
@@ -2218,23 +2216,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML_TYPE).get(String.class);
         assertThat(whoisResources, not(containsString("xsi:type")));
         assertThat(whoisResources, not(containsString("xmlns:xsi")));
-    }
-
-    // TODO: [ES] don't set the content-type on an error response
-    @Ignore
-    @Test
-    public void search_dont_set_content_type_on_error() {
-        try {
-            RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=INVALID")
-                    .request()
-                    .get(String.class);
-            fail();
-        } catch (BadRequestException e) {
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, containsString("Invalid source 'INVALID'"));
-            assertThat(response, not(containsString("Caused by:")));
-            assertThat(e.getResponse().getHeaders().get("Content-Type"), not(contains((Object) "application/xml")));
-        }
     }
 
     @Test

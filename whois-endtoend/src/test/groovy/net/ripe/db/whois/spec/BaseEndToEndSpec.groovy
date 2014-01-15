@@ -67,7 +67,7 @@ ${result}
 
         List<RpslAttribute> attributes = object.findAttributes(AttributeType.getByName(attribute));
         for (RpslAttribute attr : attributes) {
-            if (Objects.equals(attr.getValue(), value) && Objects.equals(attr.getFirstComment(), comment)){
+            if (Objects.equals(attr.getValue(), value) && Objects.equals(attr.getComment(), comment)){
                 return true;
             }
         }

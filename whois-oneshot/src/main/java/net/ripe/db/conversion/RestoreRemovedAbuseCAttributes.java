@@ -14,15 +14,19 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import javax.sql.DataSource;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 public class RestoreRemovedAbuseCAttributes {
 
@@ -54,7 +58,7 @@ public class RestoreRemovedAbuseCAttributes {
             final RpslObject rpslObject = RpslObject.parse(orgObject);
 
             // check for org-type
-            if (!rpslObject.getValueForAttribute(AttributeType.ORG_TYPE).equals(ciString("lir"))) {
+            if (!rpslObject.getValueForAttribute(AttributeType.ORG_TYPE).equals("lir")) {
                 System.err.println("Not LIR: ["+rpslObject.getValueForAttribute(AttributeType.ORG_TYPE)+"]");
                 continue;
             }

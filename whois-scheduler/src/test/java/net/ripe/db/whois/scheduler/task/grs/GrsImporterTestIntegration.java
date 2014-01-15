@@ -64,7 +64,7 @@ public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest
         databaseHelper.addObject(maintainer);
         awaitAll(grsImporter.grsImport("RIPE-GRS", false));
 
-        databaseHelper.removeObject(maintainer);
+        databaseHelper.deleteObject(maintainer);
         awaitAll(grsImporter.grsImport("RIPE-GRS", false));
     }
 

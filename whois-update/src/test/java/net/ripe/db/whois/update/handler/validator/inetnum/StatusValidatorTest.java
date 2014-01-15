@@ -29,6 +29,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collections;
+
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -521,6 +523,20 @@ public class StatusValidatorTest {
 
         subject.validate(update, updateContext);
         verify(updateContext).addMessage(update, UpdateMessages.statusChange());
+    }
+
+    @Test
+    public void validate_invalid_parent_interval() throws Exception {
+        when(update.getAction()).thenReturn(Action.CREATE);
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+                "inetnum: 192.0/24\n" +
+                "status: ASSIGNED PA"));
+        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Collections.<Ipv4Entry>emptyList());
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, UpdateMessages.invalidParentEntryForInterval(Ipv4Resource.parse("192.0/24")));
+        verifyNoMoreInteractions(updateContext);
     }
 
 }

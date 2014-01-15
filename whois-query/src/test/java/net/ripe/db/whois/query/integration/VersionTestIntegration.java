@@ -178,7 +178,7 @@ public class VersionTestIntegration extends AbstractWhoisIntegrationTest {
     @Test
     public void showVersion_lastVersionDeleted() {
         databaseHelper.addObject(RpslObject.parse("mntner: TEST-DBM"));
-        databaseHelper.removeObject(RpslObject.parse("mntner: TEST-DBM"));
+        databaseHelper.deleteObject(RpslObject.parse("mntner: TEST-DBM"));
 
         final String response = stripHeader(DummyWhoisClient.query(QueryServer.port, "--show-version 1 TEST-DBM"));
 

@@ -29,7 +29,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.containsString;
@@ -38,6 +40,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -123,6 +126,18 @@ public class RestClientTest {
         assertThat(url, is("http://localhost/RIPE/mntner?override=override1"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
         assertThat(result.getType(), is(ObjectType.MNTNER));
+    }
+
+    @Test
+    public void create_with_notifier() {
+        final NotifierCallback notifier = mock(NotifierCallback.class);
+        mockWithResponse(whoisResourcesMock);
+        final List<ErrorMessage> messages = Collections.singletonList(new ErrorMessage("Info", null, "test message", Collections.<Arg>emptyList()));
+        when(whoisResourcesMock.getErrorMessages()).thenReturn(messages);
+
+        subject.create(MNTNER_OBJECT, notifier, "password1");
+
+        verify(notifier).notify(messages);
     }
 
     @Test
