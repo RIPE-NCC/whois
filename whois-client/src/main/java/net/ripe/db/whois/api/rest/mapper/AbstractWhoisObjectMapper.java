@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Iterator;
 import java.util.List;
@@ -26,8 +27,21 @@ public abstract class AbstractWhoisObjectMapper {
 
     public RpslObject map(final WhoisObject whoisObject) {
         final List<RpslAttribute> rpslAttributes = Lists.newArrayList();
+
         for (final Attribute attribute : whoisObject.getAttributes()) {
-            rpslAttributes.add(new RpslAttribute(attribute.getName(), attribute.getValue(), attribute.getComment()));
+            String rpslValue;
+
+            final String value = attribute.getValue();
+            final String comment = attribute.getComment();
+            if (StringUtils.isBlank(comment)) {
+                rpslValue = value;
+            } else {
+                if (value.indexOf('#') >= 0) {
+                    throw new IllegalArgumentException("Value cannot have a comment in " + attribute);
+                }
+                rpslValue = value + " # " + comment;
+            }
+            rpslAttributes.add(new RpslAttribute(attribute.getName(), rpslValue));
         }
 
         return new RpslObject(rpslAttributes);
