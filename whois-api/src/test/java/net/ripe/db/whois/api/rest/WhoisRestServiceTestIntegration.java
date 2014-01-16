@@ -411,7 +411,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_does_not_have_referenced_type_in_SSO() throws Exception {
+    public void lookup_mntner_does_not_have_referenced_type_in_sso() throws Exception {
         databaseHelper.addObject(""+
                 "mntner:         MNT-TEST" +"\n" +
                 "descr:          test\n" +
@@ -671,21 +671,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, containsString("<attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\" />"));
 
-    }
-
-    @Test
-    public void sso_auth_filtered_on_search() {
-        databaseHelper.addObject("" +
-                "mntner: TEST-MNT\n" +
-                "mnt-by:TEST-MNT\n" +
-                "auth: SSO test@ripe.net\n" +
-                "source: TEST");
-
-        final String response = RestTest.target(getPort(), "whois/search?query-string=TEST-MNT&source=TEST")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
-
-        assertThat(response, containsString("<attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\" />"));
     }
 
     // create
@@ -2211,6 +2196,23 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_sso_auth_filtered() {
+        databaseHelper.addObject("" +
+                "mntner: TEST-MNT\n" +
+                "mnt-by:TEST-MNT\n" +
+                "auth: SSO test@ripe.net\n" +
+                "source: TEST");
+
+        final String response = RestTest.target(getPort(), "whois/search?query-string=TEST-MNT&source=TEST")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        assertThat(response, containsString("<attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\" />"));
+    }
+
+    // response format
+
+    @Test
     public void xsi_attributes_not_in_root_level_link() {
         final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST")
                 .request(MediaType.APPLICATION_XML_TYPE).get(String.class);
@@ -2292,7 +2294,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void error_message_not_included_in_success() throws Exception {
+    public void error_message_not_included_in_successful_lookup() throws Exception {
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML))
@@ -2302,7 +2304,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void error_message_not_included_in_search() throws Exception {
+    public void error_message_not_included_in_successful_search() throws Exception {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
