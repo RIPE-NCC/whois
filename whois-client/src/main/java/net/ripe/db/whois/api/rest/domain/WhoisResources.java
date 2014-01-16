@@ -1,8 +1,6 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import net.ripe.db.whois.common.Messages;
-import org.springframework.util.CollectionUtils;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -10,7 +8,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 @SuppressWarnings("UnusedDeclaration")
@@ -62,18 +59,11 @@ public class WhoisResources {
         return this;
     }
 
-    public void setErrorMessages(List<ErrorMessage> errorMessages) {
-        if (!CollectionUtils.isEmpty(errorMessages)) {
-            Collections.sort(errorMessages, new Comparator<ErrorMessage>() {
-                @Override
-                public int compare(final ErrorMessage o1, final ErrorMessage o2) {
-                    final Messages.Type type1 = Messages.Type.valueOf(o1.getSeverity().toUpperCase());
-                    final Messages.Type type2 = Messages.Type.valueOf(o2.getSeverity().toUpperCase());
-                    return Integer.valueOf(type1.ordinal()).compareTo(type2.ordinal());
-                }
-            });
-            this.errorMessages = new ErrorMessages(errorMessages);
+    public void setErrorMessages(final List<ErrorMessage> errorMessages) {
+        if (errorMessages.size() > 1) {
+            Collections.sort(errorMessages);
         }
+        this.errorMessages = new ErrorMessages(errorMessages);
     }
 
     public List<ErrorMessage> getErrorMessages() {

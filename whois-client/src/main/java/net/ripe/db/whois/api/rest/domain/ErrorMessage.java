@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest.domain;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -18,7 +19,7 @@ import java.util.regex.Pattern;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "errormessage")
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class ErrorMessage {
+public class ErrorMessage implements Comparable<ErrorMessage> {
     private static final Pattern BEGINNING_OF_QUERY_ERROR_MESSAGES = Pattern.compile("^(%+)(?:ERROR|WARNING):");
     private static final Pattern BEGINNING_OF_LINE_PERCENT_SIGNS = Pattern.compile("(?m)^%+ *");
 
@@ -103,4 +104,10 @@ public class ErrorMessage {
                 Objects.equals(args, errorMessage.getArgs()));
     }
 
+    @Override
+    public int compareTo(final ErrorMessage errorMessage) {
+        final Messages.Type thisType = Messages.Type.valueOf(severity.toUpperCase());
+        final Messages.Type otherType = Messages.Type.valueOf(errorMessage.getSeverity().toUpperCase());
+        return thisType.compareTo(otherType);
+    }
 }
