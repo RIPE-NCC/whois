@@ -52,7 +52,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -180,9 +182,13 @@ public class WhoisRestService {
             @PathParam("key") final String key,
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
+            @QueryParam("sso") final String sso,
+            @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
         checkForMainSource(request, source);
+
+        chooseSsoParam(sso, crowdTokenKey);
 
         Origin origin = updatePerformer.createOrigin(request);
         UpdateContext updateContext = updatePerformer.initContext(origin);
@@ -214,9 +220,13 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
+            @QueryParam("sso") final String sso,
+            @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
         checkForMainSource(request, source);
+
+        chooseSsoParam(sso, crowdTokenKey);
 
         // TODO: [AH] getSubmittedObject() can throw exceptions on mapping
         final RpslObject submittedObject = getSubmittedObject(request, resource);
@@ -242,9 +252,13 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,               // TODO: [ES] validate object type (REST paradigm suggests specifying resource type on creation)
             @QueryParam("password") final List<String> passwords,
+            @QueryParam("sso") final String sso,
+            @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
         checkForMainSource(request, source);
+
+        chooseSsoParam(sso, crowdTokenKey);
 
         // TODO: [AH] getSubmittedObject() can throw exceptions on mapping
         final RpslObject submittedObject = getSubmittedObject(request, resource);
@@ -271,7 +285,11 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
-            @QueryParam("password") final List<String> passwords) {
+            @QueryParam("password") final List<String> passwords,
+            @QueryParam("sso") final String sso,
+            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+
+        chooseSsoParam(sso, crowdTokenKey);
 
         if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.invalidSource(source))).build());
@@ -583,6 +601,17 @@ public class WhoisRestService {
                 }
             }
         }
+    }
+
+    @Nullable
+    private String chooseSsoParam(final String sso, final String crowdTokenKey) {
+        if ((sso != null) && (crowdTokenKey != null)) {
+            if (!sso.equals(crowdTokenKey)) {
+                throw new BadRequestException("sso query parameter and crowd.token_key cookie values are different.");
+            }
+        }
+
+        return (sso != null) ? sso : crowdTokenKey;
     }
 
     private Response handleQueryAndStreamResponse(final Query query,
