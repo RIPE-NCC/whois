@@ -43,6 +43,7 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -656,7 +657,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
-
     @Test
     public void lookup_sso_auth_filtered() {
         databaseHelper.addObject("" +
@@ -670,7 +670,32 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, containsString("<attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\" />"));
+    }
 
+    // TODO: [ES] add tests for [create, lookup, update, delete] with [sso query param, crowd cookie]
+
+    @Test
+    public void lookup_multiple_sso_query_parameters() {
+        // if multiple sso query parameters are added, JAX-RS will choose the first one
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?sso=1&sso=2")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
+    }
+
+    @Test
+    public void lookup_sso_query_parameter_and_crowd_cookie() {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?sso=5f4dcc3b5aa765d61d8327deb882cf99")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .cookie(new Cookie("crowd.token_key", "5f4dcc3b5aa765d61d8327deb882cf99", "/", ".ripe.net"))
+                .get(String.class);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void lookup_different_sso_query_parameter_and_crowd_cookie() {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?sso=5f4dcc3b5aa765d61d8327deb882cf99")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .cookie(new Cookie("crowd.token_key", "5f4dcc3b5aa765d61d8327deb882cf66", "/", ".ripe.net"))
+                .get(String.class);
     }
 
     // create
