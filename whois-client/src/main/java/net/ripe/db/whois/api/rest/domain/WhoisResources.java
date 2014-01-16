@@ -54,7 +54,7 @@ public class WhoisResources {
         return link;
     }
 
-    public WhoisResources setLink(Link value) {
+    public WhoisResources setLink(final Link value) {
         this.link = value;
         return this;
     }
@@ -74,7 +74,7 @@ public class WhoisResources {
         return parameters;
     }
 
-    public WhoisResources setParameters(Parameters value) {
+    public WhoisResources setParameters(final Parameters value) {
         this.parameters = value;
         return this;
     }
@@ -83,7 +83,7 @@ public class WhoisResources {
         return service;
     }
 
-    public WhoisResources setService(Service value) {
+    public WhoisResources setService(final Service value) {
         this.service = value;
         return this;
     }
@@ -92,7 +92,7 @@ public class WhoisResources {
         return sources != null ? sources.getSources() : Collections.<Source>emptyList();
     }
 
-    public WhoisResources setSources(List<Source> sources) {
+    public WhoisResources setSources(final List<Source> sources) {
         this.sources = new Sources(sources);
         return this;
     }
@@ -101,7 +101,7 @@ public class WhoisResources {
         return grsSources != null ? grsSources.getSources() : Collections.<GrsSource>emptyList();
     }
 
-    public WhoisResources setGrsSources(List<GrsSource> grsSources) {
+    public WhoisResources setGrsSources(final List<GrsSource> grsSources) {
         this.grsSources = new GrsSources(grsSources);
         return this;
     }
@@ -110,12 +110,12 @@ public class WhoisResources {
         return objects != null ? objects.getWhoisObjects() : Collections.<WhoisObject>emptyList();
     }
 
-    public WhoisResources setWhoisObjects(List<WhoisObject> value) {
+    public WhoisResources setWhoisObjects(final List<WhoisObject> value) {
         this.objects = new WhoisObjects(value);
         return this;
     }
 
-    public WhoisResources setGeolocationAttributes(GeolocationAttributes geolocationAttributes) {
+    public WhoisResources setGeolocationAttributes(final GeolocationAttributes geolocationAttributes) {
         this.geolocationAttributes = geolocationAttributes;
         return this;
     }
@@ -124,7 +124,7 @@ public class WhoisResources {
         return versions;
     }
 
-    public WhoisResources setVersions(WhoisVersions versions) {
+    public WhoisResources setVersions(final WhoisVersions versions) {
         this.versions = versions;
         return this;
     }
