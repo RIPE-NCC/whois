@@ -142,8 +142,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void lookup_without_password() throws Exception {
         final RpslObject object = restClient.lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
 
-        assertThat(object.findAttribute(AttributeType.AUTH).getValue(), is("MD5-PW"));
-        assertThat(object.findAttribute(AttributeType.AUTH).getFirstComment(), is("Filtered"));
+        assertThat(object.findAttribute(AttributeType.AUTH).getValue(), is("MD5-PW # Filtered"));
+        assertThat(object.findAttribute(AttributeType.AUTH).getCleanComment(), is("Filtered"));
     }
 
     @Test
@@ -151,16 +151,17 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         final RpslObject object = restClient.lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
 
         assertThat(object.getValueForAttribute(AttributeType.SOURCE).toString(), is("TEST"));
-        assertThat(object.findAttribute(AttributeType.SOURCE).getFirstComment(), is("Filtered"));
+        assertThat(object.findAttribute(AttributeType.SOURCE).getCleanComment(), is("Filtered"));
         assertThat(object.getValueForAttribute(AttributeType.AUTH).toString(), is("MD5-PW"));
-        assertThat(object.findAttribute(AttributeType.AUTH).getFirstComment(), is("Filtered"));
+        assertThat(object.findAttribute(AttributeType.AUTH).getCleanComment(), is("Filtered"));
     }
 
     @Test
     public void lookup_with_password() throws Exception {
         final RpslObject object = restClient.lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString(), "test");
 
-        assertThat(object.findAttribute(AttributeType.AUTH).getValue(), is("MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/"));
+        assertThat(object.findAttribute(AttributeType.AUTH).getValue(), is("MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ # test"));
+        assertThat(object.findAttribute(AttributeType.AUTH).getCleanComment(), is("test"));
     }
 
     @Test

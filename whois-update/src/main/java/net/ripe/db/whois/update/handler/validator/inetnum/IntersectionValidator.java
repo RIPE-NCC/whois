@@ -53,7 +53,7 @@ public class IntersectionValidator implements BusinessRuleValidator {
     private void validateIntersections(final PreparedUpdate update, final UpdateContext updateContext, final IpInterval ipInterval, final IpTree ipTree) {
         final List<IpEntry> parent = ipTree.findFirstLessSpecific(ipInterval);
 
-        if (parent.size() != 1){
+        if (parent.size() != 1) {
             updateContext.addMessage(update, UpdateMessages.invalidParentEntryForInterval(ipInterval));
             return;
         }
