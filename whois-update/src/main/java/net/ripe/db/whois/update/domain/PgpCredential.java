@@ -35,7 +35,7 @@ public class PgpCredential implements Credential {
 
     @Nullable
     public String getKeyId() {
-        return keyId;
+        return message != null ? message.getKeyId() : keyId;
     }
 
     public String getContent() {
