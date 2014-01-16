@@ -36,7 +36,7 @@ public class TarredLogFile extends LogSource {
         this.path = tarFile.getAbsolutePath();
     }
 
-    public void processLoggedFiles(final LoggedUpdateProcessor loggedUpdateProcessor) {
+    public void processLoggedFiles(final LoggedUpdateProcessor<TarredLogEntry> loggedUpdateProcessor) {
         try (final TarArchiveInputStream tarInput = new TarArchiveInputStream(new BufferedInputStream(new FileInputStream(path)))) {
 
             for (TarArchiveEntry tarEntry = tarInput.getNextTarEntry(); tarEntry != null; tarEntry = tarInput.getNextTarEntry()) {
@@ -48,7 +48,7 @@ public class TarredLogFile extends LogSource {
                 try {
                     if (tarEntry.isFile()) {
                         try {
-                            final LoggedUpdate loggedUpdate = new TarredLogEntry(path, date, tarEntryName);
+                            final TarredLogEntry loggedUpdate = new TarredLogEntry(path, date, tarEntryName);
                             if (loggedUpdateProcessor.accept(loggedUpdate)) {
                                 loggedUpdateProcessor.process(loggedUpdate, getGzippedContent(tarInput, tarEntry.getSize()));
                             }
