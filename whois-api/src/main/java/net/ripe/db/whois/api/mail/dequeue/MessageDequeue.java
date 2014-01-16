@@ -7,7 +7,11 @@ import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.DequeueStatus;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateRequest;
+import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.mail.MailGateway;
@@ -18,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -26,6 +29,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -50,11 +54,11 @@ public class MessageDequeue implements ApplicationService {
     private final AtomicInteger freeThreads = new AtomicInteger();
 
     private ExecutorService handlerExecutor;
-    private ExecutorService pollerExecutor;
+    private ScheduledExecutorService pollerExecutor;
 
     private int nrThreads;
 
-    @Value("${mail.dequeue.threads}")
+    @Value("${mail.update.threads}")
     void setNrThreads(final int nrThreads) {
         this.nrThreads = nrThreads;
     }
@@ -96,22 +100,33 @@ public class MessageDequeue implements ApplicationService {
         freeThreads.set(nrThreads);
 
         handlerExecutor = Executors.newFixedThreadPool(nrThreads);
-        pollerExecutor = Executors.newSingleThreadExecutor();
-        pollerExecutor.submit(new MessagePoller());
+
+        pollerExecutor = Executors.newSingleThreadScheduledExecutor();
+        pollerExecutor.scheduleWithFixedDelay(new MessagePoller(), intervalMs, intervalMs, TimeUnit.MILLISECONDS);
 
         LOGGER.info("Message dequeue started");
     }
 
-    @PreDestroy
-    public void forceStopNow() {
-        stop(true);
+    @Override
+    public void stop(final boolean force) {
+        LOGGER.info("Message dequeue stopping");
+
+        if (stopExecutor(pollerExecutor)) {
+            pollerExecutor = null;
+        }
+
+        if (stopExecutor(handlerExecutor)) {
+            handlerExecutor = null;
+        }
+
+        LOGGER.info("Message dequeue stopped");
     }
 
     private boolean stopExecutor(ExecutorService executorService) {
         if (executorService == null) {
             return true;
         }
-        executorService.shutdownNow();
+        executorService.shutdown();
         try {
             executorService.awaitTermination(2, TimeUnit.HOURS);
         } catch (Exception e) {
@@ -121,55 +136,33 @@ public class MessageDequeue implements ApplicationService {
         return true;
     }
 
-    @Override
-    public void stop(final boolean force) {
-        LOGGER.info("Message dequeue stopping (force: {})", force);
-
-        if (force) {
-            if (stopExecutor(pollerExecutor)) {
-                pollerExecutor = null;
-            }
-
-            if (stopExecutor(handlerExecutor)) {
-                handlerExecutor = null;
-            }
-
-            LOGGER.info("Message dequeue stopped (force: {})", force);
-        } else {
-            if (pollerExecutor != null) pollerExecutor.shutdown();
-            if (handlerExecutor != null) handlerExecutor.shutdown();
-        }
-    }
-
     class MessagePoller implements Runnable {
         @Override
         public void run() {
-            for (;;) {
-                try {
-                    String messageId = null;
-                    if (maintenanceMode.allowUpdate()) {
-                        messageId = mailMessageDao.claimMessage();
+            try {
+                for (; ; ) {
+                    if (!maintenanceMode.allowUpdate()) {
+                        return;
                     }
+
+                    while (freeThreads.get() == 0) {
+                        LOGGER.debug("Postpone message claiming until free thread is available");
+                        return;
+                    }
+
+                    final String messageId = mailMessageDao.claimMessage();
 
                     if (messageId == null) {
                         LOGGER.debug("No more messages");
-                        Thread.sleep(intervalMs);
-                        continue;
+                        return;
                     }
 
                     LOGGER.debug("Queue {}", messageId);
                     freeThreads.decrementAndGet();
                     handlerExecutor.submit(new MessageHandler(messageId));
-
-                    while (freeThreads.get() == 0) {
-                        LOGGER.debug("Postpone message claiming until free thread is available");
-                        Thread.sleep(intervalMs);
-                    }
-                } catch (InterruptedException e) {
-                    break;
-                } catch (RuntimeException e) {
-                    LOGGER.error("Unexpected", e);
                 }
+            } catch (RuntimeException e) {
+                LOGGER.error("Unexpected", e);
             }
         }
     }

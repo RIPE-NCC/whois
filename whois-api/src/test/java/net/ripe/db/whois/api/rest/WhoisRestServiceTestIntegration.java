@@ -30,7 +30,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.LoggerFactory;
@@ -1369,28 +1368,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    // schema
-
-    @Test
-    @Ignore
-    public void schema_int() throws Exception {
-        final String response = RestTest.target(getPort(), "api-doc/whois-resources.xsd")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
-
-        assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
-    }
-
-    @Test
-    @Ignore
-    public void schema_ext() throws Exception {
-        final String response = RestTest.target(getPort(), "api-doc/whois-resources.xsd")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
-
-        assertThat(response, containsString("<xs:element name=\"whois-resources\">"));
-    }
-
     // response format
 
     @Test
@@ -1830,6 +1807,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             assertOnlyErrorMessage(e, "Error", "Invalid source '%s'", "INVALID");
+            assertThat(e.getResponse().getHeaders().get("Content-Type"), contains((Object) "application/xml"));
         }
     }
 
@@ -2174,23 +2152,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML_TYPE).get(String.class);
         assertThat(whoisResources, not(containsString("xsi:type")));
         assertThat(whoisResources, not(containsString("xmlns:xsi")));
-    }
-
-    // TODO: [ES] don't set the content-type on an error response
-    @Ignore
-    @Test
-    public void search_dont_set_content_type_on_error() {
-        try {
-            RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=INVALID")
-                    .request()
-                    .get(String.class);
-            fail();
-        } catch (BadRequestException e) {
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, containsString("Invalid source 'INVALID'"));
-            assertThat(response, not(containsString("Caused by:")));
-            assertThat(e.getResponse().getHeaders().get("Content-Type"), not(contains((Object) "application/xml")));
-        }
     }
 
     @Test

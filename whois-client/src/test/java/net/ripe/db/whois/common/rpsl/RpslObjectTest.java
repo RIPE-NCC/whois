@@ -69,12 +69,12 @@ public class RpslObjectTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void attributeKeyCannotBeNull() {
-        new RpslAttribute(null, new byte[]{});
+        new RpslAttribute((String)null, "");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void attributeValueCannotBeNull() {
-        new RpslAttribute(new byte[]{}, null);
+        new RpslAttribute("", (String)null);
     }
 
     @Test(expected = IllegalArgumentException.class)

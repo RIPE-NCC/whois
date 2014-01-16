@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
 
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -29,5 +30,18 @@ public class Arg {
     @Override
     public String toString() {
         return value;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || (o.getClass() != getClass())) {
+            return false;
+        }
+
+        return Objects.equals(value, ((Arg)o).getValue());
     }
 }

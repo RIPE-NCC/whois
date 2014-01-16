@@ -3,9 +3,14 @@
 [update] No attribute sanitation of object on delete
 [api] All RestClient lookups are unfiltered
 [oneshot] Dummification for database on RC environment
-[update] propagate error messages from dnscheck properly
+[update] Call Dnschecker once for all objects before beginning the per-object update cycle
 [api] allow for delete reason in rest client
 [all] allow for multiple owner attributes in keycert object
+[web] #102 webupdates permanent link
+[web] #99 webupdates new organisation startup existing maintainer
+[web] #98 webupdates create page error formatting
+[web] #93 webupdates doesn't display non-ASCII characters correctly
+[web] #16 webupdates mixes up extracting errors from acknowledgement message
 [api] #112 - return a user friendly message when creating an inetnum with invalid parent.
 [api] #110 SQL statements and results are not logged in audit log
 [api] #109 A mntner object is returned filtered in look up, if the password for the mnt_by mntners is supplied

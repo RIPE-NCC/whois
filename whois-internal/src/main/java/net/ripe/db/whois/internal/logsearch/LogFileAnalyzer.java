@@ -4,9 +4,9 @@ import net.ripe.db.whois.api.freetext.PatternFilter;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
-import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
 import org.apache.lucene.analysis.util.CharArraySet;
+import org.apache.lucene.analysis.util.CharTokenizer;
 import org.apache.lucene.util.Version;
 
 import java.io.Reader;
@@ -23,7 +23,7 @@ class LogFileAnalyzer extends Analyzer {
 
     @Override
     protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
-        final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer(matchVersion, reader);
+        final WhitespaceAndCommaTokenizer tokenizer = new WhitespaceAndCommaTokenizer(matchVersion, reader);
 
         TokenStream tok = new LowerCaseFilter(matchVersion, new WordDelimiterFilter(
                 tokenizer,
@@ -41,7 +41,7 @@ class LogFileAnalyzer extends Analyzer {
      */
     private class LogFilePatternFilter extends PatternFilter {
 
-        private final Pattern requestFromPattern = Pattern.compile("(?i)^(FROM)[:](.*)$");
+        private final Pattern requestFromPattern = Pattern.compile("(?i)^FROM:(.*)$");
 
         protected LogFilePatternFilter(final TokenStream input) {
             super(input);
@@ -52,9 +52,25 @@ class LogFileAnalyzer extends Analyzer {
             final Matcher matcher = requestFromPattern.matcher(input);
             if (matcher.matches()) {
                 super.tokens.add(matcher.group(1));
-                super.tokens.add(matcher.group(2));
                 return;
             }
         }
     }
+
+    /** Slightly adjusted version of the base lucene WhitespaceTokenizer */
+    public final class WhitespaceAndCommaTokenizer extends CharTokenizer {
+        public WhitespaceAndCommaTokenizer(Version matchVersion, Reader in) {
+            super(matchVersion, in);
+        }
+
+        public WhitespaceAndCommaTokenizer(Version matchVersion, AttributeFactory factory, Reader in) {
+            super(matchVersion, factory, in);
+        }
+
+        @Override
+        protected boolean isTokenChar(int c) {
+            return !(Character.isWhitespace(c) || c == ',');
+        }
+    }
+
 }

@@ -17,6 +17,6 @@ public class WhoisObjectClientMapper extends AbstractWhoisObjectMapper {
 
     @Override
     Attribute buildAttribute(RpslAttribute attribute, final CIString value, final String source) {
-        return createAttribute(attribute.getKey(), value.toString(), attribute.getFirstComment(), null, null);
+        return createAttribute(attribute.getKey(), value.toString(), attribute.getCleanComment(), null, null);
     }
 }

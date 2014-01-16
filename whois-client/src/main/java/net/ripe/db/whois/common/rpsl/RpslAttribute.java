@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
@@ -14,8 +13,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciImmutableSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -24,52 +21,30 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 public final class RpslAttribute {
     private static final int LEADING_CHARS = 16;
     private static final int LEADING_CHARS_SHORTHAND = 5;
-    private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)^[^#]*[#](.*)$");
 
     private final AttributeType type;
     private final String key;
     private final String value;     // non-clean, contains EOL comments too
-    private String comment;
+    private String cleanComment;
 
     private int hash;
     private Set<CIString> cleanValues;
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
-        // Constructor is only used by RpslObject, which behaves, so no need to copy arrays
-    RpslAttribute(final byte[] key, final byte[] value) {
-        Validate.notNull(key);
-        Validate.notNull(value);
-
-        String strValue = new String(value, Charsets.ISO_8859_1);
-
-        this.key = new String(key, Charsets.ISO_8859_1).toLowerCase();
-        this.value = strValue;
-        this.type = AttributeType.getByNameOrNull(this.key);
-        this.comment = extractFirstCommentFromValue(strValue);
-    }
-
     public RpslAttribute(final AttributeType attributeType, final String value) {
-        this(attributeType.getName(), value);
-    }
-
-    public RpslAttribute(final AttributeType attributeType, final String value, final String comment) {
-        this(attributeType.getName(), value, comment);
+        Validate.notNull(attributeType);
+        Validate.notNull(value);
+        this.key = attributeType.getName();
+        this.value = value;
+        this.type = attributeType;
     }
 
     public RpslAttribute(final String key, final String value) {
-        this(key, value, null);
-        this.comment = extractFirstCommentFromValue(value);
-    }
-
-    public RpslAttribute(final String key, final String value, final String comment) {
         Validate.notNull(key);
         Validate.notNull(value);
         this.key = key.toLowerCase();
         this.value = value;
         this.type = AttributeType.getByNameOrNull(this.key);
-        this.comment = comment;
     }
-
 
     public String getKey() {
         return key;
@@ -79,8 +54,11 @@ public final class RpslAttribute {
         return value;
     }
 
-    public String getFirstComment() {
-        return comment;
+    public String getCleanComment() {
+        if (cleanValues == null) {
+            extractCleanValueAndComment(value);
+        }
+        return cleanComment;
     }
 
     public CIString getCleanValue() {
@@ -97,13 +75,7 @@ public final class RpslAttribute {
 
     public Set<CIString> getCleanValues() {
         if (cleanValues == null) {
-            final String cleanedValue = determineCleanValue(value);
-
-            if (type == null) {
-                cleanValues = Collections.singleton(ciString(cleanedValue));
-            } else {
-                cleanValues = ciImmutableSet(type.splitValue(cleanedValue));
-            }
+            extractCleanValueAndComment(value);
         }
 
         return cleanValues;
@@ -148,23 +120,15 @@ public final class RpslAttribute {
         }
     }
 
-    // Using final and private together is redundant. Both keywords are used
-    // for emphasis because the method is used in the constructor.
-    final private String extractFirstCommentFromValue(final String value) {
-        Matcher m = COMMENT_PATTERN.matcher(value);
-        if (m.find()) {
-            return m.group(1).trim();
-        }
-        return null;
-    }
-
-    private static String determineCleanValue(final String value) {
-        final StringBuilder result = new StringBuilder(value.length());
+    private void extractCleanValueAndComment(final String value) {
+        final StringBuilder cleanedValue = new StringBuilder(value.length());
+        final StringBuilder commentValue = new StringBuilder(value.length());
 
         boolean comment = false;
         boolean space = false;
         boolean newline = false;
-        boolean written = false;
+        boolean valueWritten = false;
+        boolean commentWritten = false;
 
         for (final char c : value.toCharArray()) {
             if (c == '\n') {
@@ -183,9 +147,6 @@ public final class RpslAttribute {
 
             if (c == '#') {
                 comment = true;
-            }
-
-            if (comment) {
                 continue;
             }
 
@@ -194,20 +155,40 @@ public final class RpslAttribute {
                 continue;
             }
 
-            if (written) {
+            if (comment) {
+                if (commentWritten) {
+                    if (space) {
+                        commentValue.append(' ');
+                        space = false;
+                    }
+                } else {
+                    commentWritten = true;
+                    space = false;
+                }
+                commentValue.append(c);
+                continue;
+            }
+
+            if (valueWritten) {
                 if (space) {
-                    result.append(' ');
+                    cleanedValue.append(' ');
                     space = false;
                 }
             } else {
-                written = true;
+                valueWritten = true;
                 space = false;
             }
 
-            result.append(c);
+            cleanedValue.append(c);
         }
 
-        return result.toString();
+        this.cleanComment = commentWritten ? commentValue.toString() : null;
+
+        if (type == null) {
+            cleanValues = Collections.singleton(ciString(cleanedValue.toString()));
+        } else {
+            cleanValues = ciImmutableSet(type.splitValue(cleanedValue.toString()));
+        }
     }
 
     public void validateSyntax(final ObjectType objectType, final ObjectMessages objectMessages) {
