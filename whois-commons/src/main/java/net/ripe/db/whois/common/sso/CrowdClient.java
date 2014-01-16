@@ -23,8 +23,7 @@ import java.util.List;
 public class CrowdClient {
     private String restUrl;
     private final Client client;
-    private final Unmarshaller uuidUnmarshaller;
-    private final Unmarshaller usernameUnmarshaller;
+    private final Unmarshaller unmarshaller;
 
     @Autowired
     public CrowdClient(@Value("${rest.crowd.url}") final String translatorUrl,
@@ -34,8 +33,7 @@ public class CrowdClient {
         client = ClientBuilder.newBuilder().register(new HttpBasicAuthFilter(crowdAuthUser, crowdAuthPassword)).build();
 
         try {
-            uuidUnmarshaller = JAXBContext.newInstance(CrowdResponse.class).createUnmarshaller();
-            usernameUnmarshaller = JAXBContext.newInstance(CrowdUser.class).createUnmarshaller();
+            unmarshaller = JAXBContext.newInstance(CrowdResponse.class, CrowdUser.class, CrowdSession.class, CrowdError.class).createUnmarshaller();
         } catch (JAXBException e) {
             throw new IllegalStateException(e);
         }
@@ -58,7 +56,7 @@ public class CrowdClient {
             throw new IllegalArgumentException("Unknown RIPE Access user: " + username);
         }
 
-        return extractUUID(response);
+        return ((CrowdResponse)extractResponse(response)).getUUID();
     }
 
     public String getUsername(final String uuid) {
@@ -74,25 +72,7 @@ public class CrowdClient {
             throw new IllegalArgumentException("Unknown RIPE Access uuid: " + uuid);
         }
 
-        return extractUsername(response);
-    }
-
-    private String extractUUID(final String response) {
-        try {
-            final CrowdResponse crowdResponse = (CrowdResponse)uuidUnmarshaller.unmarshal(new ByteArrayInputStream(response.getBytes()));
-            return crowdResponse.getUUID();
-        } catch (JAXBException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private String extractUsername(final String response) {
-        try {
-            final CrowdUser crowdUser = (CrowdUser)usernameUnmarshaller.unmarshal(new ByteArrayInputStream(response.getBytes()));
-            return crowdUser.getName();
-        } catch (JAXBException e) {
-            throw new IllegalStateException(e);
-        }
+        return ((CrowdUser)extractResponse(response)).getName();
     }
 
     public CrowdUser getUser(final String token) {
@@ -108,13 +88,18 @@ public class CrowdClient {
             throw new IllegalArgumentException("Unknown RIPE Access token: " + token);
         }
 
-        return extractCrowdUser(response);
+        final Object object = extractResponse(response);
+        if (object instanceof CrowdSession) {
+            return ((CrowdSession) object).getUser();
+        }
+        else {
+            throw new IllegalStateException(((CrowdError) object).getMessage());
+        }
     }
 
-    private CrowdUser extractCrowdUser(final String response) {
+    private Object extractResponse(final String response) {
         try {
-            final CrowdSession crowdSession = (CrowdSession)uuidUnmarshaller.unmarshal(new ByteArrayInputStream(response.getBytes()));
-            return crowdSession.getUser();
+            return unmarshaller.unmarshal(new ByteArrayInputStream(response.getBytes()));
         } catch (JAXBException e) {
             throw new IllegalStateException(e);
         }
@@ -188,11 +173,28 @@ public class CrowdClient {
 
     @XmlRootElement(name = "session")
     private static class CrowdSession {
-        @XmlAttribute(name="name")
+        @XmlElement(name="user")
         private CrowdUser user;
 
         public CrowdUser getUser() {
             return user;
+        }
+    }
+
+    @XmlRootElement(name = "error")
+    private static class CrowdError {
+        @XmlElement(name="reason")
+        private String reason;
+
+        @XmlElement(name="message")
+        private String message;
+
+        public String getReason() {
+            return reason;
+        }
+
+        public String getMessage() {
+            return message;
         }
     }
 }

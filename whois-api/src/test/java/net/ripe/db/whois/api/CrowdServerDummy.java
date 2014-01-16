@@ -60,6 +60,12 @@ public class CrowdServerDummy {
                     response.getWriter().println(getUsername(username));
                 }
             }
+            else if (request.getRequestURI().contains("session")) {
+                //TODO only happy path for now.
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().print("" +
+                        "<session expand=\"user\"><user name=\"db-test@ripe.net\"><active>true</active></user></session>");
+            }
             else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
