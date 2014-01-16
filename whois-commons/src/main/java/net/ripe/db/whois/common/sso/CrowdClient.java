@@ -95,6 +95,32 @@ public class CrowdClient {
         }
     }
 
+    public CrowdUser getUser(final String token) {
+        final String url = String.format(
+                "%s/rest/usermanagement/latest/session/%s",
+                restUrl,
+                token);
+
+        String response;
+        try {
+            response = client.target(url).request().get(String.class);
+        } catch (NotFoundException e) {
+            throw new IllegalArgumentException("Unknown RIPE Access token: " + token);
+        }
+
+        return extractCrowdUser(response);
+    }
+
+    private CrowdUser extractCrowdUser(final String response) {
+        try {
+            final CrowdSession crowdSession = (CrowdSession)uuidUnmarshaller.unmarshal(new ByteArrayInputStream(response.getBytes()));
+            return crowdSession.getUser();
+        } catch (JAXBException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+
     @XmlRootElement(name = "attributes")
     private static class CrowdResponse {
         @XmlElement(name = "attribute")
@@ -144,12 +170,29 @@ public class CrowdClient {
     }
 
     @XmlRootElement(name = "user")
-    private static class CrowdUser {
+    public static class CrowdUser {
         @XmlAttribute(name="name")
         private String name;
 
+        @XmlElement(name="active")
+        private Boolean active;
+
+        public Boolean getActive() {
+            return active;
+        }
+
         public String getName() {
             return name;
+        }
+    }
+
+    @XmlRootElement(name = "session")
+    private static class CrowdSession {
+        @XmlAttribute(name="name")
+        private CrowdUser user;
+
+        public CrowdUser getUser() {
+            return user;
         }
     }
 }
