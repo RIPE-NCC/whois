@@ -188,7 +188,7 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        chooseSsoParam(sso, crowdTokenKey);
+        String ssoToken = chooseSsoParam(sso, crowdTokenKey);
 
         Origin origin = updatePerformer.createOrigin(request);
         UpdateContext updateContext = updatePerformer.initContext(origin);
@@ -203,7 +203,8 @@ public class WhoisRestService {
                     updatePerformer.createUpdate(originalObject, passwords, reason, override),
                     updatePerformer.createContent(originalObject, passwords, reason, override),
                     Keyword.NONE,
-                    request);
+                    request,
+                    ssoToken);
         } finally {
             updatePerformer.closeContext();
         }
@@ -226,7 +227,7 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        chooseSsoParam(sso, crowdTokenKey);
+        final String ssoToken = chooseSsoParam(sso, crowdTokenKey);
 
         // TODO: [AH] getSubmittedObject() can throw exceptions on mapping
         final RpslObject submittedObject = getSubmittedObject(request, resource);
@@ -237,7 +238,8 @@ public class WhoisRestService {
                 updatePerformer.createUpdate(submittedObject, passwords, null, override),
                 updatePerformer.createContent(submittedObject, passwords, null, override),
                 Keyword.NONE,
-                request);
+                request,
+                ssoToken);
 
     }
 
@@ -258,7 +260,7 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        chooseSsoParam(sso, crowdTokenKey);
+        String ssoToken = chooseSsoParam(sso, crowdTokenKey);
 
         // TODO: [AH] getSubmittedObject() can throw exceptions on mapping
         final RpslObject submittedObject = getSubmittedObject(request, resource);
@@ -268,7 +270,8 @@ public class WhoisRestService {
                 updatePerformer.createUpdate(submittedObject, passwords, null, override),
                 updatePerformer.createContent(submittedObject, passwords, null, override),
                 Keyword.NEW,
-                request);
+                request,
+                ssoToken);
     }
 
     private void checkForMainSource(HttpServletRequest request, String source) {

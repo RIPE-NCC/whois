@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthTranslator;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.SsoHelper;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -60,4 +61,11 @@ public class SsoTranslator {
             }
         });
     }
+
+    public UserSession translateSsoToken(String ssoToken){
+        UserSession userSession = crowdClient.getUserSession(ssoToken);
+        userSession.setUuid(crowdClient.getUuid(userSession.getUsername()));
+        return userSession;
+    }
+
 }

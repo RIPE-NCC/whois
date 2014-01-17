@@ -237,6 +237,7 @@ public class Authenticator {
         if (isPending(update, updateContext, pendingAuthentications.keySet())) {
             final PendingUpdate pendingUpdate = findAndStorePendingUpdate(updateContext, update);
             if (pendingUpdate != null) {
+                //TODO: [TP] Replace magic string
                 if (failedAuthentications.remove("MntByAuthentication")) {
                     passedAuthentications.add("MntByAuthentication");
                 }
