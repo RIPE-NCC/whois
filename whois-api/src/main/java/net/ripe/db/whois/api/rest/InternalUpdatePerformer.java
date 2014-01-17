@@ -26,6 +26,7 @@ import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
+import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,16 +44,19 @@ public class InternalUpdatePerformer {
     private final DateTimeProvider dateTimeProvider;
     private final WhoisObjectServerMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
+    private final SsoTranslator ssoTranslator;
 
     @Autowired
     public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler,
                                    final DateTimeProvider dateTimeProvider,
                                    final WhoisObjectServerMapper whoisObjectMapper,
-                                   final LoggerContext loggerContext) {
+                                   final LoggerContext loggerContext,
+                                   final SsoTranslator ssoTranslator) {
         this.updateRequestHandler = updateRequestHandler;
         this.dateTimeProvider = dateTimeProvider;
         this.whoisObjectMapper = whoisObjectMapper;
         this.loggerContext = loggerContext;
+        this.ssoTranslator = ssoTranslator;
     }
 
     public UpdateContext initContext(Origin origin) {
@@ -65,8 +69,13 @@ public class InternalUpdatePerformer {
     }
 
     public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
-                                  final String content, final Keyword keyword, final HttpServletRequest request) {
+                                  final String content, final Keyword keyword, final HttpServletRequest request, final String ssoToken) {
 
+        try {
+            updateContext.setUserSession(ssoTranslator.translateSsoToken(ssoToken));
+        } catch (IllegalStateException e) {
+            updateContext.addGlobalMessage(new Message(Messages.Type.ERROR, e.getMessage()));
+        }
         logHttpHeaders(loggerContext, request);
 
         final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
@@ -93,10 +102,16 @@ public class InternalUpdatePerformer {
         return responseBuilder.build();
     }
 
-    public Response performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword, final HttpServletRequest request) {
+    public Response performUpdate(
+            final Origin origin,
+            final Update update,
+            final String content,
+            final Keyword keyword,
+            final HttpServletRequest request,
+            final String ssoToken) {
         final UpdateContext updateContext = initContext(origin);
         try {
-            return performUpdate(updateContext, origin, update, content, keyword, request);
+            return performUpdate(updateContext, origin, update, content, keyword, request, ssoToken);
         } finally {
             closeContext();
         }
@@ -146,6 +161,7 @@ public class InternalUpdatePerformer {
         for (String password : passwords) {
             credentials.add(new PasswordCredential(password));
         }
+
         if (override != null) {
             credentials.add(OverrideCredential.parse(override));
         }

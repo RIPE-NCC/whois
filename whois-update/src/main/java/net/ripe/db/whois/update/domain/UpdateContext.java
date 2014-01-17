@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
@@ -37,6 +38,7 @@ public class UpdateContext {
 
     private int nrSinceRestart;
     private boolean dryRun;
+    private UserSession userSession;
 
     public UpdateContext(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
@@ -294,6 +296,14 @@ public class UpdateContext {
         }
 
         return context;
+    }
+
+    public void setUserSession(final UserSession userSession) {
+        this.userSession = userSession;
+    }
+
+    public UserSession getUserSession() {
+        return userSession;
     }
 
     private static class Context {

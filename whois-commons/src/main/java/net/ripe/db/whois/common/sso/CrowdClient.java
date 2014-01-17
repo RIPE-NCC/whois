@@ -75,7 +75,7 @@ public class CrowdClient {
         return ((CrowdUser)extractResponse(response)).getName();
     }
 
-    public CrowdUser getUser(final String token) {
+    public UserSession getUserSession(final String token) {
         final String url = String.format(
                 "%s/rest/usermanagement/latest/session/%s",
                 restUrl,
@@ -90,7 +90,8 @@ public class CrowdClient {
 
         final Object object = extractResponse(response);
         if (object instanceof CrowdSession) {
-            return ((CrowdSession) object).getUser();
+            CrowdUser user = ((CrowdSession) object).getUser();
+            return new UserSession(user.getName(), user.getActive());
         }
         else {
             throw new IllegalStateException(((CrowdError) object).getMessage());
@@ -155,7 +156,7 @@ public class CrowdClient {
     }
 
     @XmlRootElement(name = "user")
-    public static class CrowdUser {
+    private static class CrowdUser {
         @XmlAttribute(name="name")
         private String name;
 

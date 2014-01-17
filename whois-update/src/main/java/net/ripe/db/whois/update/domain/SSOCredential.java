@@ -1,28 +1,32 @@
 package net.ripe.db.whois.update.domain;
 
-//TODO [AS] This is a placeholder. Expand when requirements arrive.
-public class SSOCredential implements Credential {
+import com.google.common.base.Splitter;
+import net.ripe.db.whois.common.sso.UserSession;
 
-    private final String token;
+public class SsoCredential implements Credential {
+    private static final Splitter SPACE_SPLITTER = Splitter.on(' ');
 
-    public SSOCredential(final String token) {
-        this.token = token;
+    private final String knownUuid;
+    private final UserSession offeredUserSession;
+
+    private SsoCredential(String knownUuid, UserSession offeredUserSession) {
+        this.knownUuid = knownUuid;
+        this.offeredUserSession = offeredUserSession;
     }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        final SSOCredential that = (SSOCredential) o;
-
-        if (!token.equals(that.token)) return false;
-
-        return true;
+    public static SsoCredential createKnownCredential(final String auth) {
+        return new SsoCredential(SPACE_SPLITTER.split(auth).iterator().next(), null);
     }
 
-    @Override
-    public int hashCode() {
-        return token.hashCode();
+    public static Credential createOfferedCredential(UserSession offeredUserSession) {
+        return new SsoCredential(null, offeredUserSession);
+    }
+
+    public String getKnownUuid() {
+        return knownUuid;
+    }
+
+    public UserSession getOfferedUserSession() {
+        return offeredUserSession;
     }
 }

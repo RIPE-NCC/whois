@@ -10,7 +10,7 @@ import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.SSOCredential;
+import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.X509Credential;
 import org.slf4j.Logger;
@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +41,10 @@ public class AuthenticationModule {
 
     public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext, final Collection<RpslObject> candidates) {
         final Credentials offered = update.getCredentials();
+
+        if (updateContext.getUserSession() !=null){
+            offered.add(Collections.singleton(SsoCredential.createOfferedCredential(updateContext.getUserSession())));
+        }
 
         final List<RpslObject> authenticatedCandidates = Lists.newArrayList();
         for (final RpslObject candidate : candidates) {
@@ -83,7 +88,7 @@ public class AuthenticationModule {
         }
 
         if (auth.startsWith("sso")) {
-            return new SSOCredential(auth.toString());
+            return SsoCredential.createKnownCredential(auth.toString());
         }
 
         return null;
