@@ -4,7 +4,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
-import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +14,7 @@ public class SsoCredentialValidator implements CredentialValidator<SsoCredential
     private final LoggerContext loggerContext;
 
     @Autowired
-    public SsoCredentialValidator(LoggerContext loggerContext, SsoTranslator ssoTranslator) {
+    public SsoCredentialValidator(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
     }
 
