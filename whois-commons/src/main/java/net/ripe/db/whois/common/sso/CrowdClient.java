@@ -22,7 +22,7 @@ import java.util.List;
 @Component
 public class CrowdClient {
     private String restUrl;
-    private final Client client;
+    private Client client;
     private final Unmarshaller unmarshaller;
 
     @Autowired
@@ -41,6 +41,10 @@ public class CrowdClient {
 
     public void setRestUrl(final String url) {
         this.restUrl = url;
+    }
+
+    void setClient(final Client client) {
+        this.client = client;
     }
 
     public String getUuid(final String username) {
