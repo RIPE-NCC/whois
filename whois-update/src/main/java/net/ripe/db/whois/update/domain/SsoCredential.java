@@ -9,7 +9,7 @@ public class SsoCredential implements Credential {
     private final String knownUuid;
     private final UserSession offeredUserSession;
 
-    private SsoCredential(String knownUuid, UserSession offeredUserSession) {
+    private SsoCredential(final String knownUuid, final UserSession offeredUserSession) {
         this.knownUuid = knownUuid;
         this.offeredUserSession = offeredUserSession;
     }
@@ -18,7 +18,7 @@ public class SsoCredential implements Credential {
         return new SsoCredential(SPACE_SPLITTER.split(auth).iterator().next(), null);
     }
 
-    public static Credential createOfferedCredential(UserSession offeredUserSession) {
+    public static Credential createOfferedCredential(final UserSession offeredUserSession) {
         return new SsoCredential(null, offeredUserSession);
     }
 

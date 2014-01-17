@@ -41,7 +41,7 @@ public class SsoTranslator {
         });
     }
 
-    public RpslObject translateAuthToUuid(UpdateContext updateContext, RpslObject rpslObject) {
+    public RpslObject translateAuthToUuid(final UpdateContext updateContext, final RpslObject rpslObject) {
         return translateAuth(updateContext, rpslObject);
     }
 
@@ -62,8 +62,8 @@ public class SsoTranslator {
         });
     }
 
-    public UserSession translateSsoToken(String ssoToken){
-        UserSession userSession = crowdClient.getUserSession(ssoToken);
+    public UserSession translateSsoToken(final String ssoToken){
+        final UserSession userSession = crowdClient.getUserSession(ssoToken);
         userSession.setUuid(crowdClient.getUuid(userSession.getUsername()));
         return userSession;
     }

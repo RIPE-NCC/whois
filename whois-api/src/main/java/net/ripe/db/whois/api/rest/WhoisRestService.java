@@ -25,6 +25,7 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -188,8 +189,6 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        String ssoToken = chooseSsoParam(sso, crowdTokenKey);
-
         Origin origin = updatePerformer.createOrigin(request);
         UpdateContext updateContext = updatePerformer.initContext(origin);
         try {
@@ -204,7 +203,7 @@ public class WhoisRestService {
                     updatePerformer.createContent(originalObject, passwords, reason, override),
                     Keyword.NONE,
                     request,
-                    ssoToken);
+                    chooseSsoParam(sso, crowdTokenKey));
         } finally {
             updatePerformer.closeContext();
         }
@@ -227,8 +226,6 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        final String ssoToken = chooseSsoParam(sso, crowdTokenKey);
-
         // TODO: [AH] getSubmittedObject() can throw exceptions on mapping
         final RpslObject submittedObject = getSubmittedObject(request, resource);
         validateSubmittedObject(request, submittedObject, objectType, key);
@@ -239,7 +236,7 @@ public class WhoisRestService {
                 updatePerformer.createContent(submittedObject, passwords, null, override),
                 Keyword.NONE,
                 request,
-                ssoToken);
+                chooseSsoParam(sso, crowdTokenKey));
 
     }
 
@@ -260,8 +257,6 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        String ssoToken = chooseSsoParam(sso, crowdTokenKey);
-
         // TODO: [AH] getSubmittedObject() can throw exceptions on mapping
         final RpslObject submittedObject = getSubmittedObject(request, resource);
 
@@ -271,7 +266,7 @@ public class WhoisRestService {
                 updatePerformer.createContent(submittedObject, passwords, null, override),
                 Keyword.NEW,
                 request,
-                ssoToken);
+                chooseSsoParam(sso, crowdTokenKey));
     }
 
     private void checkForMainSource(HttpServletRequest request, String source) {
@@ -562,7 +557,7 @@ public class WhoisRestService {
     }
 
     private void validateSubmittedObject(HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
-        if (!object.getKey().equals(key) || !object.getType().getName().equalsIgnoreCase(objectType)) {
+        if (!object.getKey().equals(CIString.ciString(key)) || !object.getType().getName().equalsIgnoreCase(objectType)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.uriMismatch(objectType, key))).build());
         }
     }
