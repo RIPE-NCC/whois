@@ -72,7 +72,9 @@ public class InternalUpdatePerformer {
                                   final String content, final Keyword keyword, final HttpServletRequest request, final String ssoToken) {
 
         try {
-            updateContext.setUserSession(ssoTranslator.translateSsoToken(ssoToken));
+            if(ssoToken != null) {
+                updateContext.setUserSession(ssoTranslator.translateSsoToken(ssoToken));
+            }
         } catch (IllegalStateException e) {
             updateContext.addGlobalMessage(new Message(Messages.Type.ERROR, e.getMessage()));
         }

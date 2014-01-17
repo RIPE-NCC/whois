@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.sso;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import org.junit.Before;
@@ -12,8 +13,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -104,5 +107,50 @@ public class SsoTranslatorTest {
         subject.populate(update, updateContext);
 
         verify(updateContext, times(0)).addSsoTranslationResult(eq("user@test.net"), anyString());
+    }
+
+    @Test
+    public void translateSsoToken_invalid_session() {
+        final String ssotoken = "ssotoken";
+
+        when(crowdClient.getUserSession(ssotoken)).thenThrow(new IllegalArgumentException("not found"));
+
+        try {
+            subject.translateSsoToken(ssotoken);
+            fail();
+        } catch (Exception expected) {
+            verify(crowdClient, never()).getUuid(anyString());
+        }
+    }
+
+    @Test
+    public void translateSsoToken_invalid_username() {
+        final String ssotoken = "ssotoken";
+        final String username = "username";
+
+        when(crowdClient.getUserSession(ssotoken)).thenReturn(new UserSession(username, true));
+        when(crowdClient.getUuid(username)).thenThrow(new IllegalArgumentException("not found"));
+
+        try {
+            subject.translateSsoToken(ssotoken);
+            fail();
+        } catch (Exception expected) {
+        }
+    }
+
+    @Test
+    public void translateSsoToken_happypath() {
+        final String ssotoken = "ssotoken";
+        final String username = "username";
+        final String uuid = "uuid";
+
+        when(crowdClient.getUserSession(ssotoken)).thenReturn(new UserSession(username, true));
+        when(crowdClient.getUuid(username)).thenReturn(uuid);
+
+        final UserSession userSession = subject.translateSsoToken(ssotoken);
+
+        assertThat(userSession.getUsername(), is(username));
+        assertThat(userSession.getUuid(), is(uuid));
+        assertThat(userSession.isActive(), is(true));
     }
 }
