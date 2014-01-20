@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.rpsl.transform;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -13,6 +14,8 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.common.sso.UserSession;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -31,29 +34,36 @@ public class FilterAuthFunction implements FilterFunction {
     public static final Splitter SPACE_SPLITTER = Splitter.on(' ');
     public static final String FILTERED_APPENDIX = " # Filtered";
 
-    List<String> passwords = null;
-    String cookie = null;
-    CrowdClient crowdClient = null;
-    RpslObjectDao rpslObjectDao = null;
+    private List<String> passwords = null;
+    private String token = null;
+    private RpslObjectDao rpslObjectDao = null;
+    private SsoTokenTranslator ssoTokenTranslator;
+    private CrowdClient crowdClient;
 
-    public FilterAuthFunction(List<String> passwords, String cookie, CrowdClient crowdClient, RpslObjectDao rpslObjectDao) {
-        this.cookie = cookie;
-        this.crowdClient = crowdClient;
+    public FilterAuthFunction(final List<String> passwords,
+                              final String token,
+                              final SsoTokenTranslator ssoTokenTranslator,
+                              final CrowdClient crowdClient,
+                              final RpslObjectDao rpslObjectDao) {
+        this.token = token;
         this.passwords = passwords;
+        this.ssoTokenTranslator = ssoTokenTranslator;
+        this.crowdClient = crowdClient;
         this.rpslObjectDao = rpslObjectDao;
+
     }
 
     public FilterAuthFunction() {
     }
 
     @Override
-    public RpslObject apply(RpslObject rpslObject) {
+    public RpslObject apply(final RpslObject rpslObject) {
         if (!rpslObject.containsAttribute(AttributeType.AUTH)) {    // until IRT is phased out then we still have to mask their auth: hashes
             return rpslObject;
         }
 
         Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        boolean authenticated = isMntnerAuthenticated(passwords, cookie, rpslObject, rpslObjectDao);
+        boolean authenticated = isMntnerAuthenticated(passwords, token, rpslObject, rpslObjectDao);
 
         List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
         for (RpslAttribute authAttribute : authAttributes) {
@@ -82,24 +92,24 @@ public class FilterAuthFunction implements FilterFunction {
         }
     }
 
-    private boolean isMntnerAuthenticated(List<String> passwords, String cookie, RpslObject rpslObject, RpslObjectDao rpslObjectDao) {
-        if (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(cookie)){
+    private boolean isMntnerAuthenticated(final List<String> passwords, final String token, final RpslObject rpslObject, final RpslObjectDao rpslObjectDao) {
+        if (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(token)){
             return false;
         }
 
-        List<RpslAttribute> extendedAuthAttributes = Lists.newArrayList();
-        List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
+        final List<RpslAttribute> extendedAuthAttributes = Lists.newArrayList();
+        final List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
 
         extendedAuthAttributes.addAll(authAttributes);
         extendedAuthAttributes.addAll(getMntByAuthAttributes(rpslObject, rpslObjectDao));
 
-        return passwordAuthentication(passwords, extendedAuthAttributes) || ssoAuthentication(cookie, extendedAuthAttributes);
+        return passwordAuthentication(passwords, extendedAuthAttributes) || ssoAuthentication(token, extendedAuthAttributes);
     }
 
-    private Set<RpslAttribute> getMntByAuthAttributes(RpslObject rpslObject, RpslObjectDao rpslObjectDao) {
-        Set<RpslAttribute> auths = Sets.newHashSet();
+    private Set<RpslAttribute> getMntByAuthAttributes(final RpslObject rpslObject, final RpslObjectDao rpslObjectDao) {
+        final Set<RpslAttribute> auths = Sets.newHashSet();
         if (rpslObject.containsAttribute(AttributeType.MNT_BY)){
-            List<RpslObject> mntByMntners = rpslObjectDao.getByKeys(ObjectType.MNTNER, rpslObject.getValuesForAttribute(AttributeType.MNT_BY));
+            final List<RpslObject> mntByMntners = rpslObjectDao.getByKeys(ObjectType.MNTNER, rpslObject.getValuesForAttribute(AttributeType.MNT_BY));
             for (RpslObject mntner : mntByMntners) {
                 auths.addAll(mntner.findAttributes(AttributeType.AUTH));
             }
@@ -107,17 +117,26 @@ public class FilterAuthFunction implements FilterFunction {
         return auths;
     }
 
-    private boolean ssoAuthentication(String cookie, List<RpslAttribute> authAttributes) {
-        if (StringUtils.isBlank(cookie)) {
+    private boolean ssoAuthentication(final String token, final List<RpslAttribute> authAttributes) {
+        if (StringUtils.isBlank(token)) {
             return false;
         }
 
-        // TODO: implement
+        final Splitter ssoSplitter = Splitter.on("SSO ");
+        for (RpslAttribute attribute : authAttributes) {
+            final String attributeValue = attribute.getCleanValue().toString();
+            if (attributeValue.startsWith("SSO")) {
+                final UserSession userSession = ssoTokenTranslator.translateSsoToken(token);
+                if (userSession != null && userSession.isActive() && userSession.getUuid().equals(Iterables.getLast(ssoSplitter.split(attributeValue)))) {
+                    return true;
+                }
+            }
+        }
 
         return false;
     }
 
-    private boolean passwordAuthentication(List<String> passwords, List<RpslAttribute> authAttributes) {
+    private boolean passwordAuthentication(final List<String> passwords, final List<RpslAttribute> authAttributes) {
         if (CollectionUtils.isEmpty(passwords)) {
             return false;
         }

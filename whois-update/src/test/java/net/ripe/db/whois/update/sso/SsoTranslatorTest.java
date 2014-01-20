@@ -2,17 +2,14 @@ package net.ripe.db.whois.update.sso;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClient;
-import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.anyString;
@@ -28,14 +25,13 @@ public class SsoTranslatorTest {
     @Mock UpdateContext updateContext;
     @Mock Update update;
     @Mock CrowdClient crowdClient;
-    @Mock LoggerContext loggerContext;
 
 
     private SsoTranslator subject;
 
     @Before
     public void setup() {
-        subject = new SsoTranslator(crowdClient, loggerContext);
+        subject = new SsoTranslator(crowdClient);
     }
 
     @Test
@@ -108,43 +104,5 @@ public class SsoTranslatorTest {
         subject.populate(update, updateContext);
 
         verify(updateContext, times(0)).addSsoTranslationResult(eq("user@test.net"), anyString());
-    }
-
-    @Test
-    public void translateSsoToken_invalid_session() {
-        final String ssotoken = "ssotoken";
-
-        when(crowdClient.getUserSession(ssotoken)).thenThrow(new IllegalArgumentException("not found"));
-
-        final UserSession userSession = subject.translateSsoToken(ssotoken);
-        assertThat(userSession, is(nullValue()));
-    }
-
-    @Test
-    public void translateSsoToken_invalid_username() {
-        final String ssotoken = "ssotoken";
-        final String username = "username";
-
-        when(crowdClient.getUserSession(ssotoken)).thenReturn(new UserSession(username, true));
-        when(crowdClient.getUuid(username)).thenThrow(new IllegalArgumentException("not found"));
-
-        final UserSession userSession = subject.translateSsoToken(ssotoken);
-        assertThat(userSession, is(nullValue()));
-    }
-
-    @Test
-    public void translateSsoToken_happypath() {
-        final String ssotoken = "ssotoken";
-        final String username = "username";
-        final String uuid = "uuid";
-
-        when(crowdClient.getUserSession(ssotoken)).thenReturn(new UserSession(username, true));
-        when(crowdClient.getUuid(username)).thenReturn(uuid);
-
-        final UserSession userSession = subject.translateSsoToken(ssotoken);
-
-        assertThat(userSession.getUsername(), is(username));
-        assertThat(userSession.getUuid(), is(uuid));
-        assertThat(userSession.isActive(), is(true));
     }
 }

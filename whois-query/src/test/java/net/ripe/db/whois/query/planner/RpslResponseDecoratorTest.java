@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
@@ -62,6 +63,7 @@ public class RpslResponseDecoratorTest {
     @Mock DummifyDecorator dummifyDecorator;
     @Mock FilterTagsDecorator filterTagsDecorator;
     @Mock FilterPlaceholdersDecorator filterPlaceholdersDecorator;
+    @Mock SsoTokenTranslator ssoTokenTranslator;
     @Mock CrowdClient crowdClient;
     @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
 
@@ -77,6 +79,7 @@ public class RpslResponseDecoratorTest {
                 filterTagsDecorator,
                 filterPlaceholdersDecorator,
                 abuseCInfoDecorator,
+                ssoTokenTranslator,
                 crowdClient,
                 decorator);
         when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));

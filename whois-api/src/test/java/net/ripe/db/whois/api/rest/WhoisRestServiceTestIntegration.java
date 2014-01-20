@@ -1,5 +1,8 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
@@ -54,9 +57,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static net.ripe.db.whois.api.RestTest.assertErrorMessage;
-import static net.ripe.db.whois.api.RestTest.assertOnlyErrorMessage;
-import static net.ripe.db.whois.api.RestTest.mapClientException;
+import static junit.framework.Assert.assertEquals;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -2442,5 +2443,70 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void maintenance_mode_none_query() {
         maintenanceMode.set("NONE,NONE");
         RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
+    }
+
+    @Test
+    public void sso_authentication_successful() {
+        final WhoisResources whoisResources =
+                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?sso=validToken")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        final List<Attribute> attributes = whoisResources.getWhoisObjects().get(0).getAttributes();
+
+        final Optional<Attribute> attribute = Iterables.tryFind(attributes, new Predicate<Attribute>() {
+            @Override
+            public boolean apply(final Attribute input) {
+                return input.getName().equals("auth") && input.getValue().equals("SSO person@net.net");
+            }
+        });
+
+        assertThat(attribute.isPresent(), is(true));
+    }
+
+    @Test
+    public void sso_authentication_unsuccessful() {
+        final WhoisResources whoisResources =
+                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?sso=inactive-correctuser-token")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        final List<Attribute> attributes = whoisResources.getWhoisObjects().get(0).getAttributes();
+
+        final Optional<Attribute> attribute = Iterables.tryFind(attributes, new Predicate<Attribute>() {
+            @Override
+            public boolean apply(final Attribute input) {
+                return input.getName().equals("auth") && input.getValue().equals("SSO") && input.getComment().equals("Filtered");
+            }
+        });
+
+        assertThat(attribute.isPresent(), is(true));
+    }
+
+    // helper methods
+
+    private WhoisResources mapClientException(final ClientErrorException e) {
+        return e.getResponse().readEntity(WhoisResources.class);
+    }
+
+    static void assertOnlyErrorMessage(final ClientErrorException e, final String severity, final String text, final String... argument) {
+        WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+        assertErrorCount(whoisResources, 1);
+        assertErrorMessage(whoisResources, 0, severity, text, argument);
+    }
+
+    static void assertErrorMessage(final WhoisResources whoisResources, final int number, final String severity, final String text, final String... argument) {
+        assertEquals(text, whoisResources.getErrorMessages().get(number).getText());
+        assertThat(whoisResources.getErrorMessages().get(number).getSeverity(), is(severity));
+        if (argument.length > 0) {
+            assertThat(whoisResources.getErrorMessages().get(number).getArgs(), hasSize(argument.length));
+            for (int i = 0; i < argument.length; i++) {
+                assertThat(whoisResources.getErrorMessages().get(number).getArgs().get(i).getValue(), is(argument[i]));
+            }
+        }
+    }
+
+    static void assertErrorCount(final WhoisResources whoisResources, final int count) {
+        assertThat(whoisResources.getErrorMessages(), hasSize(count));
     }
 }

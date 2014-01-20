@@ -287,8 +287,6 @@ public class WhoisRestService {
             @QueryParam("sso") final String sso,
             @CookieParam("crowd.token_key") final String crowdTokenKey) {
 
-        chooseSsoParam(sso, crowdTokenKey);
-
         if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.invalidSource(source))).build());
         }
@@ -307,7 +305,7 @@ public class WhoisRestService {
             queryBuilder.addFlag(QueryFlag.NO_FILTERING);
         }
 
-        final Query query = Query.parse(queryBuilder.build(key), passwords);
+        final Query query = Query.parse(queryBuilder.build(key), chooseSsoParam(sso, crowdTokenKey), passwords);
 
         return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
     }
