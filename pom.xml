@@ -641,7 +641,6 @@
                     <threadCount>1</threadCount>
                     <excludedGroups>
                         net.ripe.db.whois.common.IntegrationTest,
-                        net.ripe.db.whois.common.EndToEndTest,
                         net.ripe.db.whois.common.ManualTest
                     </excludedGroups>
                 </configuration>
