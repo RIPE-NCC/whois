@@ -40,10 +40,10 @@ public class AuthenticationModule {
     }
 
     public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext, final Collection<RpslObject> candidates) {
-        final Credentials offered = update.getCredentials();
+        Credentials offered = update.getCredentials();
 
         if (updateContext.getUserSession() != null){
-            offered.add(Collections.singleton(SsoCredential.createOfferedCredential(updateContext.getUserSession())));
+            offered = offered.add(Collections.singleton(SsoCredential.createOfferedCredential(updateContext.getUserSession())));
         }
 
         final List<RpslObject> authenticatedCandidates = Lists.newArrayList();
