@@ -191,11 +191,11 @@ public class RpslObject implements Identifiable, ResponseObject {
         final List<RpslAttribute> foundAttributes = findAttributes(attributeType);
         switch (foundAttributes.size()) {
             case 0:
-                throw new IllegalArgumentException("No attribute of type: " + attributeType);
+                throw new IllegalArgumentException("No " + attributeType + ": found in " + key);
             case 1:
                 return foundAttributes.get(0);
             default:
-                throw new IllegalArgumentException("Multiple attributes of type: " + attributeType);
+                throw new IllegalArgumentException("Multiple " + attributeType + ": found in " + key);
         }
     }
 

@@ -120,7 +120,7 @@ public class LogFileIndex {
         update(new IndexTemplate.WriteCallback() {
             @Override
             public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                indexWriter.deleteDocuments(new PrefixQuery(new Term("date", updateIdPrefix)));
+                indexWriter.deleteDocuments(new PrefixQuery(new Term("updateId", updateIdPrefix)));
             }
         });
     }

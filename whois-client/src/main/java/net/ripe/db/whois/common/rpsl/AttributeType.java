@@ -615,6 +615,8 @@ public enum AttributeType implements Documented {
         return this.name;
     }
 
+    public String toString() {return this.name; }
+
     public String getFlag() {
         return flag;
     }

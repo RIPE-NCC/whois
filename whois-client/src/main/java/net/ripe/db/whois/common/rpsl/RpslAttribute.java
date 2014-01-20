@@ -25,35 +25,25 @@ public final class RpslAttribute {
     private final AttributeType type;
     private final String key;
     private final String value;     // non-clean, contains EOL comments too
-    private String comment;
+    private String cleanComment;
 
     private int hash;
     private Set<CIString> cleanValues;
 
     public RpslAttribute(final AttributeType attributeType, final String value) {
-        this(attributeType, value, null);
-    }
-
-    public RpslAttribute(final AttributeType attributeType, final String value, final String comment) {
         Validate.notNull(attributeType);
         Validate.notNull(value);
         this.key = attributeType.getName();
         this.value = value;
         this.type = attributeType;
-        this.comment = comment;
     }
 
     public RpslAttribute(final String key, final String value) {
-        this(key, value, null);
-    }
-
-    public RpslAttribute(final String key, final String value, final String comment) {
         Validate.notNull(key);
         Validate.notNull(value);
         this.key = key.toLowerCase();
         this.value = value;
         this.type = AttributeType.getByNameOrNull(this.key);
-        this.comment = comment;
     }
 
     public String getKey() {
@@ -64,22 +54,22 @@ public final class RpslAttribute {
         return value;
     }
 
-    public String getComment() {
-        if (comment == null && cleanValues == null) {
+    public String getCleanComment() {
+        if (cleanValues == null) {
             extractCleanValueAndComment(value);
         }
-        return comment;
+        return cleanComment;
     }
 
     public CIString getCleanValue() {
         final Set<CIString> values = getCleanValues();
         switch (values.size()) {
             case 0:
-                throw new IllegalStateException("No value found");
+                throw new IllegalStateException("No " + type + ": value found");
             case 1:
                 return values.iterator().next();
             default:
-                throw new IllegalStateException("Multiple clean values found: " + values);
+                throw new IllegalStateException("Multiple " + type + ": values found");
         }
     }
 
@@ -137,7 +127,8 @@ public final class RpslAttribute {
         boolean comment = false;
         boolean space = false;
         boolean newline = false;
-        boolean written = false, commentwritten = false;
+        boolean valueWritten = false;
+        boolean commentWritten = false;
 
         for (final char c : value.toCharArray()) {
             if (c == '\n') {
@@ -165,35 +156,33 @@ public final class RpslAttribute {
             }
 
             if (comment) {
-                if (commentwritten) {
+                if (commentWritten) {
                     if (space) {
                         commentValue.append(' ');
                         space = false;
                     }
                 } else {
-                    commentwritten = true;
+                    commentWritten = true;
                     space = false;
                 }
                 commentValue.append(c);
                 continue;
             }
 
-            if (written) {
+            if (valueWritten) {
                 if (space) {
                     cleanedValue.append(' ');
                     space = false;
                 }
             } else {
-                written = true;
+                valueWritten = true;
                 space = false;
             }
 
             cleanedValue.append(c);
         }
 
-        if (this.comment == null) {
-            this.comment = commentwritten ? commentValue.toString() : null;
-        }
+        this.cleanComment = commentWritten ? commentValue.toString() : null;
 
         if (type == null) {
             cleanValues = Collections.singleton(ciString(cleanedValue.toString()));
