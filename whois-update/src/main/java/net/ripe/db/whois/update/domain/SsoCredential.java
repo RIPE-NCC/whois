@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterators;
 import net.ripe.db.whois.common.sso.UserSession;
 
 public class SsoCredential implements Credential {
@@ -15,7 +16,7 @@ public class SsoCredential implements Credential {
     }
 
     public static SsoCredential createKnownCredential(final String auth) {
-        return new SsoCredential(SPACE_SPLITTER.split(auth).iterator().next(), null);
+        return new SsoCredential(Iterators.getLast(SPACE_SPLITTER.split(auth).iterator()), null);
     }
 
     public static Credential createOfferedCredential(final UserSession offeredUserSession) {
