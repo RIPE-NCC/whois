@@ -54,6 +54,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static net.ripe.db.whois.api.RestTest.assertErrorMessage;
+import static net.ripe.db.whois.api.RestTest.assertOnlyErrorMessage;
+import static net.ripe.db.whois.api.RestTest.mapClientException;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -65,7 +68,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -2440,32 +2442,5 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void maintenance_mode_none_query() {
         maintenanceMode.set("NONE,NONE");
         RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
-    }
-
-    // helper methods
-
-    private WhoisResources mapClientException(final ClientErrorException e) {
-        return e.getResponse().readEntity(WhoisResources.class);
-    }
-
-    static void assertOnlyErrorMessage(final ClientErrorException e, final String severity, final String text, final String... argument) {
-        WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
-        assertErrorCount(whoisResources, 1);
-        assertErrorMessage(whoisResources, 0, severity, text, argument);
-    }
-
-    static void assertErrorMessage(final WhoisResources whoisResources, final int number, final String severity, final String text, final String... argument) {
-        assertEquals(text, whoisResources.getErrorMessages().get(number).getText());
-        assertThat(whoisResources.getErrorMessages().get(number).getSeverity(), is(severity));
-        if (argument.length > 0) {
-            assertThat(whoisResources.getErrorMessages().get(number).getArgs(), hasSize(argument.length));
-            for (int i = 0; i < argument.length; i++) {
-                assertThat(whoisResources.getErrorMessages().get(number).getArgs().get(i).getValue(), is(argument[i]));
-            }
-        }
-    }
-
-    static void assertErrorCount(final WhoisResources whoisResources, final int count) {
-        assertThat(whoisResources.getErrorMessages(), hasSize(count));
     }
 }

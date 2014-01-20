@@ -47,6 +47,11 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
         <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901.jdbc4</version>
+        </dependency>
+        <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.48</version>
@@ -78,7 +83,7 @@
         <profile>
             <id>release</id>
             <properties>
-                <whois.main>net.ripe.db.rcdummifier.RcDatabaseDummifier</whois.main>
+                <whois.main>net.ripe.db.abusec.ListOrgsWithNoAbuseC</whois.main>
             </properties>
             <build>
                 <plugins>

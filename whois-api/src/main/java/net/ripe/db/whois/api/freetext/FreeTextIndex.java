@@ -133,8 +133,6 @@ public class FreeTextIndex extends RebuildableIndex {
                                 rebuild(indexWriter, taxonomyWriter);
                                 return;
                             }
-
-                            update(indexWriter, taxonomyWriter);
                         }
                     }
                 });

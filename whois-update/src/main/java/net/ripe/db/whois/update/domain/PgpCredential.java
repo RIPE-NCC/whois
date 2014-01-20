@@ -35,14 +35,14 @@ public class PgpCredential implements Credential {
 
     @Nullable
     public String getKeyId() {
-        return keyId;
+        return message != null ? message.getKeyId() : keyId;
     }
 
     public String getContent() {
         return message.getSignedContent();
     }
 
-    public boolean verify(PGPPublicKey publicKey) {
+    public boolean verify(final PGPPublicKey publicKey) {
         return message.verify(publicKey);
     }
 
@@ -51,7 +51,7 @@ public class PgpCredential implements Credential {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }

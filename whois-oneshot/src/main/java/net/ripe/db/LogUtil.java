@@ -13,6 +13,7 @@ public class LogUtil {
         LogManager.getRootLogger().setLevel(Level.INFO);
         final ConsoleAppender console = new ConsoleAppender();
         console.setLayout(new PatternLayout("%d [%C{1}] %m%n"));
+        console.setTarget("System.err");
         console.setThreshold(Level.INFO);
         console.activateOptions();
         LogManager.getRootLogger().addAppender(console);

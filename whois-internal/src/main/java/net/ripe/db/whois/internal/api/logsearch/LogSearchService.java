@@ -44,6 +44,8 @@ public class LogSearchService {
             @DefaultValue("") @QueryParam("todate") final String toDate,
             @DefaultValue("") @QueryParam("fromdate") final String fromDate) throws IOException {
 
+        LOGGER.debug("Executing search: {}, fromdate: {}, todate: {}", search, fromDate, toDate);
+
         final Set<LoggedUpdate> updateIds = getUpdateIds(search, toDate, fromDate);
         return Response.ok(new StreamingOutput() {
             @Override
