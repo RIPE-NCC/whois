@@ -945,6 +945,21 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void delete_with_sso_succeeds() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=validToken").request().delete(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        try {
+            databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST");
+            fail();
+        } catch (EmptyResultDataAccessException ignored) {
+            // expected
+        }
+    }
+
+    @Test
     public void delete_nonexistant() {
         try {
             RestTest.target(getPort(), "whois/test/person/NON-EXISTANT").request().delete(String.class);
@@ -1154,6 +1169,54 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (NotAllowedException ignored) {
             // expected
         }
+    }
+
+    @Test
+    public void update_with_sso_succeeds() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
+
+        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=validToken")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("remarks", "updated")));
+    }
+
+    @Test(expected = NotAuthorizedException.class)
+    public void update_with_invalid_sso_fails() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=invalid-token")
+            .request(MediaType.APPLICATION_XML)
+            .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+        fail();
+    }
+
+    @Test(expected = NotAuthorizedException.class)
+    public void update_with_inactive_sso_fails() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=inactive-correctuser-token")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+        fail();
+    }
+
+    @Test(expected = NotAuthorizedException.class)
+    public void update_with_incorrect_sso_user_fails() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=inactive-incorrectuser-token")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+        fail();
     }
 
     // versions
