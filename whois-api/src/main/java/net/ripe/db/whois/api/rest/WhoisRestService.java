@@ -355,26 +355,6 @@ public class WhoisRestService {
         return Response.ok(whoisResources).build();
     }
 
-    StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
-        final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
-        if (acceptHeader != null) {
-            for (final String accept : Splitter.on(',').split(acceptHeader)) {
-                try {
-                    final MediaType mediaType = MediaType.valueOf(accept);
-                    final String subtype = mediaType.getSubtype().toLowerCase();
-                    if (subtype.equals("json") || subtype.endsWith("+json")) {
-                        return new StreamingMarshalJson();
-                    } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
-                        return new StreamingMarshalXml();
-                    }
-                } catch (IllegalArgumentException ignored) {
-                }
-            }
-        }
-
-        return new StreamingMarshalXml();
-    }
-
     private Iterable<String> getQueryParamNames(final String queryString) {
         if (StringUtils.isBlank(queryString)) {
             return Collections.emptyList();
@@ -581,9 +561,7 @@ public class WhoisRestService {
                                                   @Nullable final Parameters parameters,
                                                   @Nullable final Service service) {
 
-        final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
-
-        return Response.ok(new RpslObjectStreamer(request, query, remoteAddress, parameters, service, streamingMarshal)).build();
+        return Response.ok(new RpslObjectStreamer(request, query, remoteAddress, parameters, service)).build();
     }
 
     private class RpslObjectStreamer implements StreamingOutput {
@@ -592,21 +570,42 @@ public class WhoisRestService {
         private final InetAddress remoteAddress;
         private final Parameters parameters;
         private final Service service;
-        private final StreamingMarshal streamingMarshal;
+        private StreamingMarshal streamingMarshal;
 
-        public RpslObjectStreamer(HttpServletRequest request, Query query, InetAddress remoteAddress, Parameters parameters, Service service, StreamingMarshal streamingMarshal) {
+        public RpslObjectStreamer(HttpServletRequest request, Query query, InetAddress remoteAddress, Parameters parameters, Service service) {
             this.request = request;
             this.query = query;
             this.remoteAddress = remoteAddress;
             this.parameters = parameters;
             this.service = service;
-            this.streamingMarshal = streamingMarshal;
+        }
+
+        StreamingMarshal getStreamingMarshal(final HttpServletRequest request, final OutputStream outputStream) {
+            final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
+            if (acceptHeader != null) {
+                for (final String accept : Splitter.on(',').split(acceptHeader)) {
+                    try {
+                        final MediaType mediaType = MediaType.valueOf(accept);
+                        final String subtype = mediaType.getSubtype().toLowerCase();
+                        if (subtype.equals("json") || subtype.endsWith("+json")) {
+                            return new StreamingMarshalJson(outputStream);
+                        } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
+                            return new StreamingMarshalXml(outputStream, "whois-resources");
+                        }
+                    } catch (IllegalArgumentException ignored) {
+                    }
+                }
+            }
+
+            return new StreamingMarshalXml(outputStream, "whois-resources");
         }
 
         @Override
         public void write(final OutputStream output) throws IOException, WebApplicationException {
+            streamingMarshal = getStreamingMarshal(request, output);
+
             try {
-                SearchResponseHandler responseHandler = new SearchResponseHandler(output);
+                SearchResponseHandler responseHandler = new SearchResponseHandler();
                 try {
                     final int contextId = System.identityHashCode(Thread.currentThread());
                     queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
@@ -640,18 +639,12 @@ public class WhoisRestService {
         }
 
         private class SearchResponseHandler extends ApiResponseHandler {
-            private final OutputStream output;
-
             private boolean rpslObjectFound;
 
             // tags come separately
             private final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
             private final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
             private final List<Message> errors = Lists.newArrayList();
-
-            public SearchResponseHandler(OutputStream output) {
-                this.output = output;
-            }
 
             // TODO: [AH] replace this 'if instanceof' mess with an OO approach
             @Override
@@ -671,14 +664,14 @@ public class WhoisRestService {
             private void streamRpslObject(final RpslObject rpslObject) {
                 if (!rpslObjectFound) {
                     rpslObjectFound = true;
-                    startStreaming(output);
+                    startStreaming();
                 }
                 streamObject(rpslObjectQueue.poll(), tagResponseObjects);
                 rpslObjectQueue.add(rpslObject);
             }
 
-            private void startStreaming(final OutputStream output) {
-                streamingMarshal.open(output, "whois-resources");
+            private void startStreaming() {
+                streamingMarshal.open();
 
                 if (service != null) {
                     streamingMarshal.write("service", service);

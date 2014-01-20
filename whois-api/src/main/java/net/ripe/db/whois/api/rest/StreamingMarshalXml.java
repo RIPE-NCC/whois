@@ -26,14 +26,31 @@ class StreamingMarshalXml implements StreamingMarshal {
         }
     }
 
-    private XMLStreamWriter xmlOut;
+    private final XMLStreamWriter xmlOut;
+    private final Marshaller marshaller;
+    private final String root;
+
+    StreamingMarshalXml(final OutputStream outputStream, String root) {
+        try {
+            this.root = root;
+
+            xmlOut = xmlOutputFactory.createXMLStreamWriter(outputStream);
+
+            marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        } catch (XMLStreamException | JAXBException e) {
+            throw new StreamingException(e);
+        }
+    }
 
     @Override
-    public void open(final OutputStream outputStream, String root) {
+    public void open() {
         try {
-            xmlOut = xmlOutputFactory.createXMLStreamWriter(outputStream);
             xmlOut.writeStartDocument();
             xmlOut.writeStartElement(root);
+
             // TODO: this is ugly, should come from package info instead (which is the case with no streaming)
             xmlOut.writeNamespace("xlink", Link.XLINK_URI);
         } catch (XMLStreamException e) {
@@ -65,8 +82,6 @@ class StreamingMarshalXml implements StreamingMarshal {
         JAXBElement<T> element = new JAXBElement<>(QName.valueOf(name), (Class<T>) t.getClass(), t);
 
         try {
-            final Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
             marshaller.marshal(element, xmlOut);
         } catch (JAXBException e) {
             throw new StreamingException(e);
