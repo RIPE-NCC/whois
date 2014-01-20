@@ -25,15 +25,26 @@ public class SsoCredentialValidator implements CredentialValidator<SsoCredential
 
     @Override
     public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<SsoCredential> offeredCredentials, final SsoCredential knownCredential) {
+
         for (SsoCredential offered : offeredCredentials) {
-            if (offered.getOfferedUserSession().isActive() && offered.getOfferedUserSession().getUuid().equals(knownCredential.getKnownUuid())){
-                loggerContext.logString(
-                        update.getUpdate(),
-                        getClass().getCanonicalName(),
-                        String.format("Validated %s with SSO Ripe Access for user: %s", update.getFormattedKey(), offered.getOfferedUserSession().getUsername()));
-                return true;
+            if (offered.getOfferedUserSession().getUuid().equals(knownCredential.getKnownUuid())){
+                if (offered.getOfferedUserSession().isActive()){
+                    log(update, String.format("Validated %s with SSO Ripe Access for user: %s.",
+                            update.getFormattedKey(), offered.getOfferedUserSession().getUsername()));
+                    return true;
+                } else {
+                    log(update, String.format("SSO session for user %s is expired.",
+                            offered.getOfferedUserSession().getUsername()));
+                }
+            } else {
+                log(update, String.format("Validation for %s with SSO Ripe Access for user: %s failed.",
+                        update.getFormattedKey(), offered.getOfferedUserSession().getUsername()));
             }
         }
         return false;
+    }
+
+    private void log(final PreparedUpdate update, final String message) {
+        loggerContext.logString(update.getUpdate(), getClass().getCanonicalName(), message);
     }
 }

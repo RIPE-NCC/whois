@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
@@ -48,13 +49,13 @@ public class CrowdClientTest {
     public void getUserSession_failure() {
         when(client.target(anyString())).thenReturn(webTarget);
         when(webTarget.request()).thenReturn(builder);
-        when(builder.get(String.class)).thenReturn("<error><reason>REASON</reason><message>Wordy error message</message></error>");
+        when(builder.get(String.class)).thenThrow(new BadRequestException ("Not valid sso"));
 
         try {
             subject.getUserSession("token");
             fail();
-        } catch (Exception expected) {
-            assertThat(expected.getMessage(), is("Wordy error message"));
+        } catch (IllegalArgumentException expected) {
+            assertThat(expected.getMessage(), is("Unknown RIPE Access token: token"));
         }
     }
 

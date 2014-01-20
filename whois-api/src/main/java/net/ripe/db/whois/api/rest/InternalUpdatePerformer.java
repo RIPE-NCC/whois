@@ -71,13 +71,8 @@ public class InternalUpdatePerformer {
     public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
                                   final String content, final Keyword keyword, final HttpServletRequest request, final String ssoToken) {
 
-        try {
-            if(ssoToken != null) {
-                updateContext.setUserSession(ssoTranslator.translateSsoToken(ssoToken));
-            }
-        } catch (IllegalStateException e) {
-            updateContext.addGlobalMessage(new Message(Messages.Type.ERROR, e.getMessage()));
-        }
+        setSsoSessionToContext(updateContext, update, ssoToken);
+
         logHttpHeaders(loggerContext, request);
 
         final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
@@ -217,6 +212,18 @@ public class InternalUpdatePerformer {
             final Enumeration<String> values = request.getHeaders(name);
             while (values.hasMoreElements()) {
                 loggerContext.log(new Message(Messages.Type.INFO, String.format("%s=%s", name, values.nextElement())));
+            }
+        }
+    }
+
+    public void setSsoSessionToContext(final UpdateContext updateContext, final Update update, final String ssoToken){
+        if(ssoToken != null) {
+            try {
+                updateContext.setUserSession(ssoTranslator.translateSsoToken(ssoToken));
+            } catch (IllegalStateException e) {
+                //We want to log the full exception but continue with the update with other authentication methods.
+                updateContext.addGlobalMessage(new Message(Messages.Type.ERROR, e.getMessage()));
+                loggerContext.logException(update, e);
             }
         }
     }

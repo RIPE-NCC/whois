@@ -42,8 +42,9 @@ public class CrowdServerDummy {
         {
             crowdSessionMap = Maps.newHashMap();
             crowdSessionMap.put("validToken", new UserSession("person@net.net", true));
-            crowdSessionMap.put("inactiveKnownToken", new UserSession("person@net.net", false));
-            crowdSessionMap.put("unknownToken", new UserSession("unknown@net.net", true));
+            crowdSessionMap.put("inactive-correctuser-token", new UserSession("person@net.net", false));
+            crowdSessionMap.put("inactive-incorrectuser-token", new UserSession("random@ripe.net", false));
+            crowdSessionMap.put("invalid-token", null);
         }
 
         @Override
@@ -74,16 +75,20 @@ public class CrowdServerDummy {
             else if (request.getRequestURI().contains("session")) {
                 Splitter SPACE_SPLITTER = Splitter.on('/');
                 String ssoToken= Iterables.getLast(SPACE_SPLITTER.split(request.getRequestURI()));
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().print(getUserSessionResponse(ssoToken));
+                final UserSession userSession = crowdSessionMap.get(ssoToken);
+                if (userSession == null){
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                } else {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.getWriter().print(getUserSessionResponse(userSession));
+                }
             }
             else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
         }
 
-        private String getUserSessionResponse(final String ssoToken){
-            final UserSession userSession = crowdSessionMap.get(ssoToken);
+        private String getUserSessionResponse(final UserSession userSession){
             return String.format(
                     "<session expand=\"user\">" +
                         "<user name=\"%s\">" +

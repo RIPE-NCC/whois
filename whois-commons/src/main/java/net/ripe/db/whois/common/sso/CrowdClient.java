@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -88,17 +89,12 @@ public class CrowdClient {
         String response;
         try {
             response = client.target(url).request().get(String.class);
-        } catch (NotFoundException e) {
-            throw new IllegalArgumentException("Unknown RIPE Access token: " + token);
-        }
-
-        final Object object = extractResponse(response);
-        if (object instanceof CrowdSession) {
+            final Object object = extractResponse(response);
             CrowdUser user = ((CrowdSession) object).getUser();
             return new UserSession(user.getName(), user.getActive());
-        }
-        else {
-            throw new IllegalStateException(((CrowdError) object).getMessage());
+
+        } catch (BadRequestException e) {
+            throw new IllegalArgumentException("Unknown RIPE Access token: " + token);
         }
     }
 

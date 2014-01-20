@@ -5,18 +5,18 @@ import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -27,14 +27,15 @@ public class SsoTranslatorTest {
 
     @Mock UpdateContext updateContext;
     @Mock Update update;
-    @Mock
-    CrowdClient crowdClient;
+    @Mock CrowdClient crowdClient;
+    @Mock LoggerContext loggerContext;
+
 
     private SsoTranslator subject;
 
     @Before
     public void setup() {
-        subject = new SsoTranslator(crowdClient);
+        subject = new SsoTranslator(crowdClient, loggerContext);
     }
 
     @Test
@@ -115,12 +116,8 @@ public class SsoTranslatorTest {
 
         when(crowdClient.getUserSession(ssotoken)).thenThrow(new IllegalArgumentException("not found"));
 
-        try {
-            subject.translateSsoToken(ssotoken);
-            fail();
-        } catch (Exception expected) {
-            verify(crowdClient, never()).getUuid(anyString());
-        }
+        final UserSession userSession = subject.translateSsoToken(ssotoken);
+        assertThat(userSession, is(nullValue()));
     }
 
     @Test
@@ -131,11 +128,8 @@ public class SsoTranslatorTest {
         when(crowdClient.getUserSession(ssotoken)).thenReturn(new UserSession(username, true));
         when(crowdClient.getUuid(username)).thenThrow(new IllegalArgumentException("not found"));
 
-        try {
-            subject.translateSsoToken(ssotoken);
-            fail();
-        } catch (Exception expected) {
-        }
+        final UserSession userSession = subject.translateSsoToken(ssotoken);
+        assertThat(userSession, is(nullValue()));
     }
 
     @Test
