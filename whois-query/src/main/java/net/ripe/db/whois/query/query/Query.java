@@ -7,9 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import joptsimple.OptionException;
-import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import joptsimple.OptionSpecBuilder;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
@@ -31,15 +29,11 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 //TODO [TP] This class has way too many responsibilities, needs to be refactored.
 public class Query {
-    public static final Pattern FLAG_PATTERN = Pattern.compile("(--?)([^-].*)");
-
     public static final int MAX_QUERY_ELEMENTS = 60;
 
     public static final EnumSet<ObjectType> ABUSE_CONTACT_OBJECT_TYPES = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
@@ -88,50 +82,11 @@ public class Query {
     }
 
     public static enum Origin {
-        PORT43, REST;
+        PORT43, REST
     }
 
-    private static final OptionParser PARSER = new OptionParser() {
-        {
-            for (final QueryFlag queryFlag : QueryFlag.values()) {
-                for (final String flag : queryFlag.getFlags()) {
-                    final OptionSpecBuilder optionSpecBuilder = accepts(flag);
-                    if (queryFlag.getRequiredArgument() != null) {
-                        optionSpecBuilder.withRequiredArg().ofType(queryFlag.getRequiredArgument());
-                    }
-                }
-            }
-        }
+    private static final QueryFlagParser PARSER = new QueryFlagParser();
 
-        @Override
-        public OptionSet parse(final String... arguments) {
-            for (final String argument : arguments) {
-                final Matcher matcher = FLAG_PATTERN.matcher(argument);
-                if (matcher.matches() && !isValidOption(matcher)) {
-                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("Invalid option: " + argument));
-                }
-            }
-
-            try {
-                return super.parse(arguments);
-            } catch (OptionException e) {
-                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
-            }
-        }
-
-        private boolean isValidOption(final Matcher matcher) {
-            final boolean shortOptionSupplied = matcher.group(1).length() == 1;
-            final String suppliedFlag = matcher.group(2);
-
-            for (final String flag : QueryFlag.getValidLongFlags()) {
-                if (flag.equalsIgnoreCase(suppliedFlag)) {
-                    return !shortOptionSupplied;
-                }
-            }
-
-            return shortOptionSupplied;
-        }
-    };
 
     private static final Joiner SPACE_JOINER = Joiner.on(' ');
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings();
@@ -150,6 +105,7 @@ public class Query {
     private final SearchKey searchKey;
 
     private List<String> passwords;
+    private String ssoToken;
     private Origin origin;
 
     private Query(final String query) {
@@ -192,14 +148,19 @@ public class Query {
         }
     }
 
-    public static Query parse(final String args, final List<String> passwords) {
+    public static Query parse(final String args, final String ssoToken, final List<String> passwords) {
         Query query = parse(args, Origin.REST);
+        query.ssoToken = ssoToken;
         query.passwords = passwords;
         return query;
     }
 
     public List<String> getPasswords() {
         return passwords;
+    }
+
+    public String getSsoToken() {
+        return ssoToken;
     }
 
     public boolean via(Origin origin) {

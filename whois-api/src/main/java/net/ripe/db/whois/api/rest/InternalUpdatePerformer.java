@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -26,7 +27,6 @@ import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
-import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,19 +44,19 @@ public class InternalUpdatePerformer {
     private final DateTimeProvider dateTimeProvider;
     private final WhoisObjectServerMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
-    private final SsoTranslator ssoTranslator;
+    private final SsoTokenTranslator ssoTokenTranslator;
 
     @Autowired
     public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler,
                                    final DateTimeProvider dateTimeProvider,
                                    final WhoisObjectServerMapper whoisObjectMapper,
                                    final LoggerContext loggerContext,
-                                   final SsoTranslator ssoTranslator) {
+                                   final SsoTokenTranslator ssoTokenTranslator) {
         this.updateRequestHandler = updateRequestHandler;
         this.dateTimeProvider = dateTimeProvider;
         this.whoisObjectMapper = whoisObjectMapper;
         this.loggerContext = loggerContext;
-        this.ssoTranslator = ssoTranslator;
+        this.ssoTokenTranslator = ssoTokenTranslator;
     }
 
     public UpdateContext initContext(Origin origin) {
@@ -219,7 +219,7 @@ public class InternalUpdatePerformer {
     public void setSsoSessionToContext(final UpdateContext updateContext, final Update update, final String ssoToken){
         if(ssoToken != null) {
             try {
-                updateContext.setUserSession(ssoTranslator.translateSsoToken(ssoToken));
+                updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
             } catch (IllegalStateException e) {
                 //We want to log the full exception but continue with the update with other authentication methods.
                 updateContext.addGlobalMessage(new Message(Messages.Type.ERROR, e.getMessage()));
