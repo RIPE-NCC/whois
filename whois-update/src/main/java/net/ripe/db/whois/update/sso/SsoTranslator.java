@@ -1,5 +1,7 @@
 package net.ripe.db.whois.update.sso;
 
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthTranslator;
@@ -9,16 +11,19 @@ import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SsoTranslator {
     private final CrowdClient crowdClient;
+    private final LoggerContext loggerContext;
 
     @Autowired
-    public SsoTranslator(final CrowdClient crowdClient) {
+    public SsoTranslator(final CrowdClient crowdClient, LoggerContext loggerContext) {
         this.crowdClient = crowdClient;
+        this.loggerContext = loggerContext;
     }
 
     public void populate(final Update update, final UpdateContext updateContext) {
@@ -63,9 +68,13 @@ public class SsoTranslator {
     }
 
     public UserSession translateSsoToken(final String ssoToken){
-        final UserSession userSession = crowdClient.getUserSession(ssoToken);
-        userSession.setUuid(crowdClient.getUuid(userSession.getUsername()));
-        return userSession;
+        try {
+            final UserSession userSession = crowdClient.getUserSession(ssoToken);
+            userSession.setUuid(crowdClient.getUuid(userSession.getUsername()));
+            return userSession;
+        } catch (IllegalArgumentException e) {
+            loggerContext.log(new Message(Messages.Type.ERROR, e.getMessage()));
+            return null;
+        }
     }
-
 }
