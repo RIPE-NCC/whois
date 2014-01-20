@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.support;
 
+import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class DummyWhoisClient {
 
     public static String query(final int port, final String query, final int timeout) {
         try {
-            return new DummyWhoisClient("127.0.0.1", port).sendQuery(query, Charset.forName("ISO-8859-1"), timeout);
+            return new DummyWhoisClient("127.0.0.1", port).sendQuery(query, Charsets.ISO_8859_1, timeout);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to execute query");
         }
@@ -52,7 +53,7 @@ public class DummyWhoisClient {
     }
 
     public String sendQuery(String query) throws IOException {
-        return sendQuery(query, Charset.forName("ISO-8859-1"));
+        return sendQuery(query, Charsets.ISO_8859_1);
     }
 
     public String sendQuery(String query, Charset charset) throws IOException {
