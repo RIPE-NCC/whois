@@ -1,9 +1,12 @@
 package net.ripe.db.whois.api;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.TestingProfile;
+import net.ripe.db.whois.common.sso.UserSession;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -35,6 +38,14 @@ public class CrowdServerDummy {
             usermap.put("906635c2-0405-429a-800b-0602bd716124", "person@net.net");
         }
 
+        final Map<String, UserSession> crowdSessionMap;
+        {
+            crowdSessionMap = Maps.newHashMap();
+            crowdSessionMap.put("validToken", new UserSession("person@net.net", true));
+            crowdSessionMap.put("inactiveKnownToken", new UserSession("person@net.net", false));
+            crowdSessionMap.put("unknownToken", new UserSession("unknown@net.net", true));
+        }
+
         @Override
         public void handle(final String target, final Request baseRequest,
                            final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
@@ -61,14 +72,24 @@ public class CrowdServerDummy {
                 }
             }
             else if (request.getRequestURI().contains("session")) {
-                //TODO only happy path for now.
+                Splitter SPACE_SPLITTER = Splitter.on('/');
+                String ssoToken= Iterables.getLast(SPACE_SPLITTER.split(request.getRequestURI()));
                 response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().print("" +
-                        "<session expand=\"user\"><user name=\"db-test@ripe.net\"><active>true</active></user></session>");
+                response.getWriter().print(getUserSessionResponse(ssoToken));
             }
             else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
+        }
+
+        private String getUserSessionResponse(final String ssoToken){
+            final UserSession userSession = crowdSessionMap.get(ssoToken);
+            return String.format(
+                    "<session expand=\"user\">" +
+                        "<user name=\"%s\">" +
+                            "<active>%s</active>" +
+                        "</user>" +
+                    "</session>", userSession.getUsername(), userSession.isActive());
         }
 
         private String getUuid(final String username) {
