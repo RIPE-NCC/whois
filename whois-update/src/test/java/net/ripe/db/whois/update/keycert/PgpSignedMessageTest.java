@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.keycert;
 
+import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.hamcrest.Matchers;
@@ -109,13 +110,13 @@ public class PgpSignedMessageTest {
 
     @Test
     public void keyId() {
-        PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(message);
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(message);
         assertThat(pgpSignedMessage.getKeyId(), is("5763950D"));
     }
 
     @Test
     public void verify_success() {
-        PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(message);
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(message);
 
         final boolean result = pgpSignedMessage.verify(getPublicKey_5763950D());
 
@@ -162,7 +163,7 @@ public class PgpSignedMessageTest {
 
     @Test
     public void verify_failure() {
-        PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(message.replace("Admin Person", "Some Text"));
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(message.replace("Admin Person", "Some Text"));
         assertThat(pgpSignedMessage.getKeyId(), is("5763950D"));
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(false));
     }
@@ -302,6 +303,69 @@ public class PgpSignedMessageTest {
         PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature);
         assertThat(subject.verify(getPublicKey_28F6CD6C()), Matchers.is(true));
     }
+
+    // TODO: latin1 extended characters are not encoded into bytes properly, unless the original charset is specified.
+    @Test
+    public void verify_latin1_encoded_message_with_umlaut_character() {
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA1\n" +
+                "\n" +
+                "person:     Test Person\n" +
+                "address:    München, Germany\n" +
+                "phone:      +49 282 411141\n" +
+                "fax-no:     +49 282 411140\n" +
+                "nic-hdl:    TP1-TEST\n" +
+                "changed:    dbtest@ripe.net 20120101\n" +
+                "mnt-by:     UPD-MNT\n" +
+                "source:     TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Version: GnuPG v1\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iQEcBAEBAgAGBQJS3RwBAAoJELvMuy1XY5UNzIwIAJDu1B9+k+829CwQru7iQcp8\n" +
+                "JW+aoewM8tfMi3TWtK+ty3klSotbq5PebedC2eXLu5PrCV3hx9JCqM9tJjjxkj2+\n" +
+                "0nxWrW/JBX6qXbnrB7EUy2WDlg00KSpurPE2LTPeHKQlkGPLeFNilgfB9RuUbGZU\n" +
+                "EYRF06pvD6jsovAC2LFvaljtsSsDBBoSwAFSVpFH49r9KnKXfTi5wzUlWxcatEZm\n" +
+                "aEO7zmVohKZmMRRXY3AL8gy3cTELGJPZlvrLIRUPL843WPhrv0NQR+eYHd+m3cKa\n" +
+                "QgwxRf/ue33pGlzJ4yJnaa8sSUXjp+2Z25WdWI2hHlWoxpEk5DmsRizG5pcF9yw=\n" +
+                "=NuGZ\n" +
+                "-----END PGP SIGNATURE-----", Charsets.ISO_8859_1);
+
+        assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
+    }
+
+    @Test
+    public void verify_utf8_encoded_message_with_umlaut_character() {
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA1\n" +
+                "\n" +
+                "person:     Test Person\n" +
+                "address:    München, Germany\n" +
+                "phone:      +49 282 411141\n" +
+                "fax-no:     +49 282 411140\n" +
+                "nic-hdl:    TP1-TEST\n" +
+                "changed:    dbtest@ripe.net 20120101\n" +
+                "mnt-by:     UPD-MNT\n" +
+                "source:     TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Version: GnuPG v1\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iQEcBAEBAgAGBQJS3SUjAAoJELvMuy1XY5UNEbkH/1diLp+NnsO+6P5ayRUb/V0v\n" +
+                "VzCybvoicvNLNcCfrQZ4Dls2Fmga0lsLj2fFIH9Dc1no6OWOgytRBob7sR7mwsR7\n" +
+                "5b0H5plpQ9ExwpjkRBUASoT/3W3j8azthiwBabQZV8o5nncPd6ZO66nnTcWPjK1x\n" +
+                "WKgY+UxLaNwsX23uTCagwn30tdoa1VvQMkaUflGG0zKpa8VtVrcpdkTjE6srgoMw\n" +
+                "1HhK30519VbgNE9LNxCDYM9W+R6x7jJ0NxF5+Ptw9Qzov9qOpMSqfovBe5yB77s6\n" +
+                "8qQjytv2LE8VHEC3WqQAJMLrFrsgBgcWsm1L0TL3iWsmgwXGF6Q02kWgUzei/ao=\n" +
+                "=KFEI\n" +
+                "-----END PGP SIGNATURE-----");
+
+        assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
+    }
+
+    // helper methods
 
     private PGPPublicKey getPublicKey_28F6CD6C() {
         PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
