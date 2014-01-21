@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +58,15 @@ public class AuthenticationModule {
     }
 
     private boolean hasValidCredentialForCandidate(final PreparedUpdate update, final UpdateContext updateContext, final Credentials offered, final RpslObject authenticationCandidate) {
-        for (final CIString auth : authenticationCandidate.getValuesForAttribute(AttributeType.AUTH)) {
+        final List<CIString> authAttributes = Lists.newArrayList(authenticationCandidate.getValuesForAttribute(AttributeType.AUTH));
+        Collections.sort(authAttributes, new Comparator<CIString>() {
+            @Override
+            public int compare(final CIString o1, final CIString o2) {
+                return o1.startsWith(CIString.ciString("SSO")) ? -1 : o2.startsWith(CIString.ciString("SSO")) ? 2 : 0;
+            }
+        });
+
+        for (final CIString auth : authAttributes) {
             final Credential credential = getCredential(auth);
             if (credential == null) {
                 LOGGER.warn("Skipping unknown credential: {}", auth);
@@ -67,6 +76,7 @@ public class AuthenticationModule {
             final Class<? extends Credential> credentialClass = credential.getClass();
             final CredentialValidator credentialValidator = credentialValidatorMap.get(credentialClass);
             if (credentialValidator != null && credentialValidator.hasValidCredential(update, updateContext, offered.ofType(credentialClass), credential)) {
+                LOGGER.info("authenticating {} with credential {}", update.getKey(), credentialValidator.getClass().getSimpleName());
                 return true;
             }
         }
