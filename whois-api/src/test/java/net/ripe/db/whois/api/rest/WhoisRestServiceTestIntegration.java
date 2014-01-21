@@ -1,8 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
@@ -950,7 +947,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void delete_with_sso_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
-        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=validToken").request().delete(WhoisResources.class);
+        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=valid-token").request().delete(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -1180,7 +1177,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
-        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=validToken")
+        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=valid-token")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -2448,20 +2445,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void sso_authentication_successful() {
         final WhoisResources whoisResources =
-                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?sso=validToken")
+                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?sso=valid-token")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        final List<Attribute> attributes = whoisResources.getWhoisObjects().get(0).getAttributes();
-
-        final Optional<Attribute> attribute = Iterables.tryFind(attributes, new Predicate<Attribute>() {
-            @Override
-            public boolean apply(final Attribute input) {
-                return input.getName().equals("auth") && input.getValue().equals("SSO person@net.net");
-            }
-        });
-
-        assertThat(attribute.isPresent(), is(true));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(),
+                hasItem(new Attribute(AttributeType.AUTH.getName(), "SSO person@net.net")));
     }
 
     @Test
@@ -2471,16 +2460,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        final List<Attribute> attributes = whoisResources.getWhoisObjects().get(0).getAttributes();
-
-        final Optional<Attribute> attribute = Iterables.tryFind(attributes, new Predicate<Attribute>() {
-            @Override
-            public boolean apply(final Attribute input) {
-                return input.getName().equals("auth") && input.getValue().equals("SSO") && input.getComment().equals("Filtered");
-            }
-        });
-
-        assertThat(attribute.isPresent(), is(true));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(),
+                hasItem(new Attribute(AttributeType.AUTH.getName(), "SSO", "Filtered", null, null)));
     }
 
     // helper methods
