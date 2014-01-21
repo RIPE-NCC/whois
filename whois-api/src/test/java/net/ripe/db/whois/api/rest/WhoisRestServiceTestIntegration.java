@@ -30,6 +30,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.LoggerFactory;
@@ -1920,6 +1921,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)
         ));
+    }
+
+    @Ignore("TODO: error on parsing query is not handled -> response is plaintext error, not xml")
+    @Test
+    public void search_invalid_query_flags() {
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=denis+walker&flags=resource")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(String.class);
+        } catch (BadRequestException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(response.getErrorMessages(), hasSize(1));
+        }
     }
 
     @Test
