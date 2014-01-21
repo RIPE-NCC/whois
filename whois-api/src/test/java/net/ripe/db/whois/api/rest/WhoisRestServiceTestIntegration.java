@@ -2108,6 +2108,42 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_multiple_objects_json_format() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String response = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
+
+        assertThat(response, stringMatchesRegexp("^.*\"objects\"\\:\\{\"object\"\\:\\[\\{\"type\".*$"));
+    }
+
+    @Test
+    public void search_multiple_objects_xml_format() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String response = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        assertThat(response, stringMatchesRegexp("^.*<objects><object.*</object><object.*</object></objects>.*$"));
+    }
+
+    @Test
     public void search_returns_object_locator() {
         databaseHelper.addObject("" +
                 "person:    Lo Person\n" +
