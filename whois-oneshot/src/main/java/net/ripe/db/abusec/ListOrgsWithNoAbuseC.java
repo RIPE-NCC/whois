@@ -208,12 +208,15 @@ public class ListOrgsWithNoAbuseC {
                         "(\n" +
                         " SELECT asn.organisation_id AS oid, asn.membership_id AS mid\n" +
                         " FROM resourcedb.asnresource asn\n" +
+                        " WHERE resource_status='ASSIGNED' AND ir_status='ENDUSER_APPROVEDDOCS' AND legacy = 'f'\n" +
                         " UNION\n" +
                         " SELECT ipv4.organisation_id AS oid, ipv4.membership_id AS mid\n" +
                         " FROM resourcedb.ipv4assignmentresource ipv4\n" +
+                        " WHERE resource_status='ASSIGNED' AND ir_status='ENDUSER_APPROVEDDOCS' AND legacy = 'f'\n" +
                         " UNION\n" +
                         " SELECT ipv6.organisation_id AS oid, ipv6.membership_id AS mid\n" +
                         " FROM resourcedb.ipv6assignmentresource ipv6\n" +
+                        " WHERE resource_status='ASSIGNED' AND ir_status='ENDUSER_APPROVEDDOCS'\n" +
                         ") a ON m.id = a.mid\n" +
                         "\n" +
                         "WHERE cm.contact_medium_type = 'EMAIL'\n" +
