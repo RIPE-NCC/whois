@@ -2464,6 +2464,15 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 hasItem(new Attribute(AttributeType.AUTH.getName(), "SSO", "Filtered", null, null)));
     }
 
+    @Test
+    public void sso_authentication_validate_using_sso_credential_before_password() {
+        RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test&sso=valid-token?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(OWNER_MNT)), MediaType.APPLICATION_XML))
+                .readEntity(String.class);
+        //TODO assert that log shows: [AuthenticationModule] authenticating OWNER-MNT with credential SsoCredentialValidator
+    }
+
     // helper methods
 
     private WhoisResources mapClientException(final ClientErrorException e) {
