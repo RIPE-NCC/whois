@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.sso;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.glassfish.jersey.client.filter.HttpBasicAuthFilter;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,33 +11,25 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.io.ByteArrayInputStream;
 import java.util.List;
 
 @Component
 public class CrowdClient {
     private String restUrl;
     private Client client;
-    private final Unmarshaller unmarshaller;
 
     @Autowired
     public CrowdClient(@Value("${rest.crowd.url}") final String translatorUrl,
                        @Value("${rest.crowd.user}") final String crowdAuthUser,
                        @Value("${rest.crowd.password}") final String crowdAuthPassword) {
         this.restUrl = translatorUrl;
-        client = ClientBuilder.newBuilder().register(new HttpBasicAuthFilter(crowdAuthUser, crowdAuthPassword)).build();
 
-        try {
-            unmarshaller = JAXBContext.newInstance(CrowdResponse.class, CrowdUser.class, CrowdSession.class, CrowdError.class).createUnmarshaller();
-        } catch (JAXBException e) {
-            throw new IllegalStateException(e);
-        }
+        client = ClientBuilder.newBuilder()
+                .register(HttpAuthenticationFeature.basic(crowdAuthUser, crowdAuthPassword))
+                .build();
     }
 
     public void setRestUrl(final String url) {
@@ -49,68 +41,57 @@ public class CrowdClient {
     }
 
     public String getUuid(final String username) {
-        final String url = String.format(
-                "%s/rest/usermanagement/latest/user/attribute?username=%s",
-                restUrl,
-                username);
-
-        String response;
         try {
-            response = client.target(url).request().get(String.class);
+            return client.target(restUrl)
+                    .path(restUrl)
+                    .path("rest/usermanagement/latest/user/attribute")
+                    .queryParam("username", username)
+                    .request()
+                    .get(CrowdResponse.class)
+                    .getUUID();
         } catch (NotFoundException e) {
             throw new IllegalArgumentException("Unknown RIPE Access user: " + username);
         }
-
-        return ((CrowdResponse)extractResponse(response)).getUUID();
     }
 
     public String getUsername(final String uuid) {
-        final String url = String.format(
-                "%s/rest/sso/latest/uuid-search?uuid=%s",
-                restUrl,
-                uuid);
-
-        String response;
         try {
-            response = client.target(url).request().get(String.class);
+            return client.target(restUrl)
+                    .path(restUrl)
+                    .path("rest/sso/latest/uuid-search")
+                    .queryParam("uuid", uuid)
+                    .request()
+                    .get(CrowdUser.class)
+                    .getName();
         } catch (NotFoundException e) {
             throw new IllegalArgumentException("Unknown RIPE Access uuid: " + uuid);
         }
-
-        return ((CrowdUser)extractResponse(response)).getName();
     }
 
     public UserSession getUserSession(final String token) {
-        final String url = String.format(
-                "%s/rest/usermanagement/latest/session/%s",
-                restUrl,
-                token);
-
-        String response;
         try {
-            response = client.target(url).request().get(String.class);
-            final Object object = extractResponse(response);
-            CrowdUser user = ((CrowdSession) object).getUser();
+            CrowdUser user = client.target(restUrl)
+                    .path("rest/usermanagement/latest/session")
+                    .path(token)
+                    .request()
+                    .get(CrowdSession.class)
+                    .getUser();
             return new UserSession(user.getName(), user.getActive());
-
         } catch (BadRequestException e) {
             throw new IllegalArgumentException("Unknown RIPE Access token: " + token);
         }
     }
 
-    private Object extractResponse(final String response) {
-        try {
-            return unmarshaller.unmarshal(new ByteArrayInputStream(response.getBytes()));
-        } catch (JAXBException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-
     @XmlRootElement(name = "attributes")
-    private static class CrowdResponse {
+    static class CrowdResponse {
         @XmlElement(name = "attribute")
         private List<CrowdAttribute> attributes;
+
+        public CrowdResponse() {}
+
+        public CrowdResponse(List<CrowdAttribute> attributes) {
+            this.attributes = attributes;
+        }
 
         public List<CrowdAttribute> getAttributes() {
             return attributes;
@@ -129,12 +110,18 @@ public class CrowdClient {
     }
 
     @XmlRootElement
-    private static class CrowdAttribute {
+    static class CrowdAttribute {
         @XmlElement
         private List<CrowdValue> values;
-
         @XmlAttribute(name="name")
         private String name;
+
+        public CrowdAttribute() {}
+
+        public CrowdAttribute(List<CrowdValue> values, String name) {
+            this.values = values;
+            this.name = name;
+        }
 
         public List<CrowdValue> getValues() {
             return values;
@@ -146,9 +133,15 @@ public class CrowdClient {
     }
 
     @XmlRootElement
-    private static class CrowdValue {
+    static class CrowdValue {
         @XmlElement(name="value")
         private String value;
+
+        public CrowdValue() {}
+
+        public CrowdValue(String value) {
+            this.value = value;
+        }
 
         public String getValue() {
             return value;
@@ -156,12 +149,18 @@ public class CrowdClient {
     }
 
     @XmlRootElement(name = "user")
-    private static class CrowdUser {
+    static class CrowdUser {
         @XmlAttribute(name="name")
         private String name;
-
         @XmlElement(name="active")
         private Boolean active;
+
+        public CrowdUser() {}
+
+        public CrowdUser(String name, Boolean active) {
+            this.name = name;
+            this.active = active;
+        }
 
         public Boolean getActive() {
             return active;
@@ -173,9 +172,15 @@ public class CrowdClient {
     }
 
     @XmlRootElement(name = "session")
-    private static class CrowdSession {
+    static class CrowdSession {
         @XmlElement(name="user")
         private CrowdUser user;
+
+        public CrowdSession() {}
+
+        public CrowdSession(CrowdUser user) {
+            this.user = user;
+        }
 
         public CrowdUser getUser() {
             return user;
@@ -183,12 +188,18 @@ public class CrowdClient {
     }
 
     @XmlRootElement(name = "error")
-    private static class CrowdError {
+    static class CrowdError {
         @XmlElement(name="reason")
         private String reason;
-
         @XmlElement(name="message")
         private String message;
+
+        public CrowdError() {}
+
+        public CrowdError(String reason, String message) {
+            this.reason = reason;
+            this.message = message;
+        }
 
         public String getReason() {
             return reason;

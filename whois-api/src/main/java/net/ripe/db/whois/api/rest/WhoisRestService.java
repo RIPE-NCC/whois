@@ -733,6 +733,7 @@ public class WhoisRestService {
 
                 final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, tagResponseObjects);
 
+                // TODO: [AH] add method 'writeAsArray' or 'writeObject' to StreamingMarshal interface to get rid of this uglyness
                 if (streamingMarshal instanceof StreamingMarshalJson) {
                     streamingMarshal.write("object", Collections.singletonList(whoisObject));
                 } else {
