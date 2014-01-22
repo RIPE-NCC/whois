@@ -675,26 +675,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     // TODO: [ES] add tests for [create, lookup, update, delete] with [sso query param, crowd cookie]
 
     @Test
-    public void lookup_multiple_sso_query_parameters() {
-        // if multiple sso query parameters are added, JAX-RS will choose the first one
-        RestTest.target(getPort(), "whois/test/person/TP1-TEST?sso=1&sso=2")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
-    }
-
-    @Test
-    public void lookup_sso_query_parameter_and_crowd_cookie() {
-        RestTest.target(getPort(), "whois/test/person/TP1-TEST?sso=5f4dcc3b5aa765d61d8327deb882cf99")
+    public void lookup_with_crowd_cookie() {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .cookie(new Cookie("crowd.token_key", "5f4dcc3b5aa765d61d8327deb882cf99", "/", ".ripe.net"))
-                .get(String.class);
-    }
-
-    @Test(expected = BadRequestException.class)
-    public void lookup_different_sso_query_parameter_and_crowd_cookie() {
-        RestTest.target(getPort(), "whois/test/person/TP1-TEST?sso=5f4dcc3b5aa765d61d8327deb882cf99")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .cookie(new Cookie("crowd.token_key", "5f4dcc3b5aa765d61d8327deb882cf66", "/", ".ripe.net"))
                 .get(String.class);
     }
 
@@ -945,9 +929,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void delete_with_sso_succeeds() {
+    public void delete_with_crowd_token_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
-        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=valid-token").request().delete(WhoisResources.class);
+        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .delete(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -1172,13 +1159,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_with_sso_succeeds() {
+    public void update_with_crowd_token_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
-        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=valid-token")
+        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "valid-token")
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -1187,34 +1175,37 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test(expected = NotAuthorizedException.class)
-    public void update_with_invalid_sso_fails() {
+    public void update_with_invalid_crowd_token_fails() {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=invalid-token")
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
             .request(MediaType.APPLICATION_XML)
+            .cookie("crowd.token_key", "invalid-token")
             .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
         fail();
     }
 
     @Test(expected = NotAuthorizedException.class)
-    public void update_with_inactive_sso_fails() {
+    public void update_with_inactive_crowd_token_fails() {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=inactive-correctuser-token")
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "inactive-correctuser-token")
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
         fail();
     }
 
     @Test(expected = NotAuthorizedException.class)
-    public void update_with_incorrect_sso_user_fails() {
+    public void update_with_incorrect_crowd_token_user_fails() {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST?sso=inactive-incorrectuser-token")
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "inactive-incorrectuser-token")
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
         fail();
     }
@@ -2443,10 +2434,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void sso_authentication_successful() {
+    public void lookup_mainainer_with_crowd_token_authentication_successful() {
         final WhoisResources whoisResources =
-                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?sso=valid-token")
+                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
                 .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "valid-token")
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(),
@@ -2454,10 +2446,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void sso_authentication_unsuccessful() {
+    public void lookup_maintainer_with_crowd_token_authentication_unsuccessful() {
         final WhoisResources whoisResources =
-                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?sso=inactive-correctuser-token")
+                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
                 .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "inactive-correctuser-token")
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(),
@@ -2465,9 +2458,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void sso_authentication_validate_using_sso_credential_before_password() {
-        RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test&sso=valid-token?password=test")
+    public void lookup_maintainer_authenticate_using_sso_credential_before_password() {
+        RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test")
                 .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "valid-token")
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(OWNER_MNT)), MediaType.APPLICATION_XML))
                 .readEntity(String.class);
         //TODO assert that log shows: [AuthenticationModule] authenticating OWNER-MNT with credential SsoCredentialValidator
