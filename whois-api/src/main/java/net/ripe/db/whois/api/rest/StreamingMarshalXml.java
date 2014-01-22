@@ -65,6 +65,7 @@ class StreamingMarshalXml implements StreamingMarshal {
         JAXBElement<T> element = new JAXBElement<>(QName.valueOf(name), (Class<T>) t.getClass(), t);
 
         try {
+            // TODO: [AH] move this line to contructor
             final Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
             marshaller.marshal(element, xmlOut);
