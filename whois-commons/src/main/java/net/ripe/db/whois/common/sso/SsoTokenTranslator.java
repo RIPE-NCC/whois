@@ -19,13 +19,17 @@ public class SsoTokenTranslator {
     }
 
     @Nullable
-    public UserSession translateSsoToken(final String ssoToken){
+    public UserSession translateSsoToken(final String ssoToken) {
         try {
             final UserSession userSession = crowdClient.getUserSession(ssoToken);
+            if (!userSession.isActive()) {
+                LOGGER.info("SSO token deactivated: " + ssoToken);
+                return null;
+            }
             userSession.setUuid(crowdClient.getUuid(userSession.getUsername()));
             return userSession;
         } catch (IllegalArgumentException e) {
-            LOGGER.error("can't translate sso token", e);
+            LOGGER.info("can't translate sso token", e);
             return null;
         }
     }

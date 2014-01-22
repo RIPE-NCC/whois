@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.rpsl.transform;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -122,12 +121,11 @@ public class FilterAuthFunction implements FilterFunction {
             return false;
         }
 
-        final Splitter ssoSplitter = Splitter.on("SSO ");
         for (RpslAttribute attribute : authAttributes) {
             final String attributeValue = attribute.getCleanValue().toString();
             if (attributeValue.startsWith("SSO")) {
                 final UserSession userSession = ssoTokenTranslator.translateSsoToken(token);
-                if (userSession != null && userSession.isActive() && userSession.getUuid().equals(Iterables.getLast(ssoSplitter.split(attributeValue)))) {
+                if (userSession != null && userSession.getUuid().equals(attributeValue.substring(4))) {
                     return true;
                 }
             }

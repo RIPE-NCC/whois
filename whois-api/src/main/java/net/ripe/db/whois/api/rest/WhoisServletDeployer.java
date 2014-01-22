@@ -47,6 +47,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     @Override
     public void deploy(WebAppContext context) {
         context.addFilter(new FilterHolder(maintenanceModeFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
+
         final ResourceConfig resourceConfig = new ResourceConfig();
         resourceConfig.register(MultiPartFeature.class);
         resourceConfig.register(whoisRestService);
@@ -55,9 +56,11 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(geolocationService);
         resourceConfig.register(abuseContactService);
         resourceConfig.register(defaultExceptionMapper);
+
         final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
         jaxbJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
         jaxbJsonProvider.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+
         resourceConfig.register(jaxbJsonProvider);
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");
     }

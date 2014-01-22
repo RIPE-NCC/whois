@@ -27,6 +27,7 @@ import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -217,7 +218,7 @@ public class InternalUpdatePerformer {
     }
 
     public void setSsoSessionToContext(final UpdateContext updateContext, final Update update, final String ssoToken){
-        if(ssoToken != null) {
+        if (!StringUtils.isBlank(ssoToken)) {
             try {
                 updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
             } catch (IllegalStateException e) {
