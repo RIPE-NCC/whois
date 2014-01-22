@@ -43,7 +43,6 @@ public class CrowdClient {
     public String getUuid(final String username) {
         try {
             return client.target(restUrl)
-                    .path(restUrl)
                     .path("rest/usermanagement/latest/user/attribute")
                     .queryParam("username", username)
                     .request()
@@ -57,7 +56,6 @@ public class CrowdClient {
     public String getUsername(final String uuid) {
         try {
             return client.target(restUrl)
-                    .path(restUrl)
                     .path("rest/sso/latest/uuid-search")
                     .queryParam("uuid", uuid)
                     .request()
