@@ -53,7 +53,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
@@ -183,7 +182,6 @@ public class WhoisRestService {
             @PathParam("key") final String key,
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam("sso") final String sso,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
@@ -203,7 +201,7 @@ public class WhoisRestService {
                     updatePerformer.createContent(originalObject, passwords, reason, override),
                     Keyword.NONE,
                     request,
-                    chooseSsoParam(sso, crowdTokenKey));
+                    crowdTokenKey);
         } finally {
             updatePerformer.closeContext();
         }
@@ -220,7 +218,6 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam("sso") final String sso,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
@@ -236,7 +233,7 @@ public class WhoisRestService {
                 updatePerformer.createContent(submittedObject, passwords, null, override),
                 Keyword.NONE,
                 request,
-                chooseSsoParam(sso, crowdTokenKey));
+                crowdTokenKey);
 
     }
 
@@ -251,7 +248,6 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,               // TODO: [ES] validate object type (REST paradigm suggests specifying resource type on creation)
             @QueryParam("password") final List<String> passwords,
-            @QueryParam("sso") final String sso,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
@@ -266,7 +262,7 @@ public class WhoisRestService {
                 updatePerformer.createContent(submittedObject, passwords, null, override),
                 Keyword.NEW,
                 request,
-                chooseSsoParam(sso, crowdTokenKey));
+                crowdTokenKey);
     }
 
     private void checkForMainSource(HttpServletRequest request, String source) {
@@ -284,7 +280,6 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam("sso") final String sso,
             @CookieParam("crowd.token_key") final String crowdTokenKey) {
 
         if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
@@ -305,7 +300,7 @@ public class WhoisRestService {
             queryBuilder.addFlag(QueryFlag.NO_FILTERING);
         }
 
-        final Query query = Query.parse(queryBuilder.build(key), chooseSsoParam(sso, crowdTokenKey), passwords);
+        final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords);
 
         return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
     }
@@ -597,17 +592,6 @@ public class WhoisRestService {
                 }
             }
         }
-    }
-
-    @Nullable
-    private String chooseSsoParam(final String sso, final String crowdTokenKey) {
-        if (!StringUtils.isBlank(sso) && !StringUtils.isBlank(crowdTokenKey)) {
-            if (!sso.equals(crowdTokenKey)) {
-                throw new BadRequestException("sso query parameter and crowd.token_key cookie values are different.");
-            }
-        }
-
-        return StringUtils.isBlank(sso) ? crowdTokenKey : sso;
     }
 
     private Response handleQueryAndStreamResponse(final Query query,
