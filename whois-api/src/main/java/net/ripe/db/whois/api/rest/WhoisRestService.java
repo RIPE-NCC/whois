@@ -192,7 +192,7 @@ public class WhoisRestService {
         Origin origin = updatePerformer.createOrigin(request);
         UpdateContext updateContext = updatePerformer.initContext(origin);
         try {
-            // TODO: [AH] add delete by primary key to DAO layer, so there is no race condition from here to SingleUpdateHandler
+            // TODO: [AH] add delete by primary key to DAO layer, so there is no race condition from here to SingleUpdateHandler's global lock
             RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
             originalObject = ssoTranslator.translateAuthToUsername(updateContext, originalObject);
 
@@ -601,13 +601,13 @@ public class WhoisRestService {
 
     @Nullable
     private String chooseSsoParam(final String sso, final String crowdTokenKey) {
-        if ((sso != null) && (crowdTokenKey != null)) {
+        if (!StringUtils.isBlank(sso) && !StringUtils.isBlank(crowdTokenKey)) {
             if (!sso.equals(crowdTokenKey)) {
                 throw new BadRequestException("sso query parameter and crowd.token_key cookie values are different.");
             }
         }
 
-        return (sso != null) ? sso : crowdTokenKey;
+        return StringUtils.isBlank(sso) ? crowdTokenKey : sso;
     }
 
     private Response handleQueryAndStreamResponse(final Query query,

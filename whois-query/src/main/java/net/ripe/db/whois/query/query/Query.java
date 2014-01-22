@@ -87,7 +87,6 @@ public class Query {
 
     private static final QueryFlagParser PARSER = new QueryFlagParser();
 
-
     private static final Joiner SPACE_JOINER = Joiner.on(' ');
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings();
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings();
