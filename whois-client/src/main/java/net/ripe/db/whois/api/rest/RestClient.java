@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
@@ -34,7 +33,6 @@ import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
@@ -242,29 +240,20 @@ public class RestClient {
                     joinQueryParams(
                             createQueryParams("query-string", RestClientUtils.encode(searchKey)),
                             createQueryParams("source", sources),
-                            createQueryParams("inverse-attribute", Collections2.transform(inverseAttributes,
-                                    new Function<AttributeType, String>() {
-                                        @Nullable
-                                        @Override
-                                        public String apply(@Nullable AttributeType input) {
-                                            return input.getName();
-                                        }
-                                    })),
+                            createQueryParams("inverse-attribute", Iterables.transform(inverseAttributes, new Function<AttributeType, String>() {
+                                public String apply(final AttributeType input) {
+                                    return input.getName();
+                                }
+                            })),
                             createQueryParams("include-tag", includeTags),
                             createQueryParams("exclude-tag", excludeTags),
-                            createQueryParams("type-filter", Collections2.transform(types,
-                                    new Function<ObjectType, String>() {
-                                        @Nullable
-                                        @Override
-                                        public String apply(@Nullable ObjectType input) {
+                            createQueryParams("type-filter", Iterables.transform(types, new Function<ObjectType, String>() {
+                                        public String apply(final ObjectType input) {
                                             return input.getName();
                                         }
                                     })),
-                            createQueryParams("flags", Collections2.transform(flags,
-                                    new Function<QueryFlag, String>() {
-                                        @Nullable
-                                        @Override
-                                        public String apply(@Nullable QueryFlag input) {
+                            createQueryParams("flags", Iterables.transform(flags, new Function<QueryFlag, String>() {
+                                        public String apply(final QueryFlag input) {
                                             return input.getName();
                                         }
                                     }))
@@ -305,7 +294,7 @@ public class RestClient {
         return createQueryParams(key, Arrays.asList(values));
     }
 
-    private static String createQueryParams(final String key, final Collection<String> values) {
+    private static String createQueryParams(final String key, final Iterable<String> values) {
         final StringBuilder result = new StringBuilder();
         for (String value : values) {
             if (result.length() > 0) {
