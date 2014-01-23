@@ -1210,6 +1210,28 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         fail();
     }
 
+    @Test
+    public void update_comment_is_noop_and_returns_old_object() {
+        assertThat(TEST_PERSON.findAttributes(AttributeType.REMARKS), hasSize(0));
+        RpslObjectBuilder builder = new RpslObjectBuilder(TEST_PERSON);
+
+        RpslAttribute remarks = new RpslAttribute(AttributeType.REMARKS, "updated # comment");
+        builder.addAttribute(remarks);
+
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(builder.sort().get())), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        builder.replaceAttribute(remarks, new RpslAttribute(AttributeType.REMARKS, "updated # new comment"));
+
+        String whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(builder.sort().get())), MediaType.APPLICATION_XML), String.class);
+
+        assertThat(whoisResources, containsString("updated # comment"));
+        assertThat(whoisResources, not(containsString("updated # new comment")));
+    }
+
     // versions
 
     @Test
