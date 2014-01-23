@@ -52,6 +52,7 @@ public final class Notification {
     @Immutable
     public static class Update {
         private static final Map<Action, String> RESULT_MAP = Maps.newEnumMap(Action.class);
+        private static final FilterAuthFunction filterAuthFunction = new FilterAuthFunction();
 
         static {
             RESULT_MAP.put(Action.CREATE, "CREATED");
@@ -69,8 +70,8 @@ public final class Notification {
         private final int versionId;
 
         public Update(final PreparedUpdate update, UpdateContext updateContext) {
-            this.referenceObject = new FilterAuthFunction().apply(update.getReferenceObject());
-            this.updatedObject = new FilterAuthFunction().apply(update.getUpdatedObject());
+            this.referenceObject = filterAuthFunction.apply(update.getReferenceObject());
+            this.updatedObject = filterAuthFunction.apply(update.getUpdatedObject());
             this.action = update.getAction().name();
             this.result = RESULT_MAP.get(update.getAction());
             this.update = update;
