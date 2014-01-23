@@ -72,9 +72,9 @@ public class InternalUpdatePerformer {
     public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
                                   final String content, final Keyword keyword, final HttpServletRequest request, final String ssoToken) {
 
-        setSsoSessionToContext(updateContext, update, ssoToken);
-
         logHttpHeaders(loggerContext, request);
+
+        setSsoSessionToContext(updateContext, ssoToken);
 
         final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
         updateRequestHandler.handle(updateRequest, updateContext);
@@ -82,18 +82,16 @@ public class InternalUpdatePerformer {
 
         Response.ResponseBuilder responseBuilder;
         UpdateStatus status = updateContext.getStatus(update);
-        if (status == UpdateStatus.FAILED_AUTHENTICATION) {
+        if (status == UpdateStatus.SUCCESS) {
+            responseBuilder = Response.status(Response.Status.OK);
+        } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
             responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
         } else if (status == UpdateStatus.EXCEPTION) {
             responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
-        } else if (status != UpdateStatus.SUCCESS) {
-            if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
-                responseBuilder = Response.status(Response.Status.CONFLICT);
-            } else {
-                responseBuilder = Response.status(Response.Status.BAD_REQUEST);
-            }
+        } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
+            responseBuilder = Response.status(Response.Status.CONFLICT);
         } else {
-            responseBuilder = Response.status(Response.Status.OK);
+            responseBuilder = Response.status(Response.Status.BAD_REQUEST);
         }
 
         responseBuilder.entity(createResponse(request, updateContext, update, responseObject));
@@ -217,14 +215,12 @@ public class InternalUpdatePerformer {
         }
     }
 
-    public void setSsoSessionToContext(final UpdateContext updateContext, final Update update, final String ssoToken){
+    public void setSsoSessionToContext(final UpdateContext updateContext, final String ssoToken) {
         if (!StringUtils.isBlank(ssoToken)) {
             try {
                 updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
-            } catch (IllegalStateException e) {
-                //We want to log the full exception but continue with the update with other authentication methods.
-                updateContext.addGlobalMessage(new Message(Messages.Type.ERROR, e.getMessage()));
-                loggerContext.logException(update, e);
+            } catch (IllegalArgumentException e) {
+                updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored(e.getMessage()));
             }
         }
     }

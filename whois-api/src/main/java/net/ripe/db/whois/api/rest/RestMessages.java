@@ -32,4 +32,8 @@ public class RestMessages {
     public static Message flagsNotAllowedInQueryString() {
         return new Message(Messages.Type.ERROR, "Flags are not allowed in 'query-string'");
     }
+
+    public static Message ssoAuthIgnored(final CharSequence reason) {
+        return new Message(Messages.Type.INFO, "SSO token ignored (%s)", reason);
+    }
 }

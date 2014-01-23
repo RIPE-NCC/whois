@@ -49,15 +49,15 @@ public class FilterAuthFunction implements FilterFunction {
         this.ssoTokenTranslator = ssoTokenTranslator;
         this.crowdClient = crowdClient;
         this.rpslObjectDao = rpslObjectDao;
-
     }
 
     public FilterAuthFunction() {
     }
 
+    /** @throws RuntimeException if SSO server is down and SSO lookup is needed */
     @Override
     public RpslObject apply(final RpslObject rpslObject) {
-        if (!rpslObject.containsAttribute(AttributeType.AUTH)) {    // until IRT is phased out then we still have to mask their auth: hashes
+        if (!rpslObject.containsAttribute(AttributeType.AUTH)) {    // IRT also has auth:
             return rpslObject;
         }
 
@@ -72,11 +72,11 @@ public class FilterAuthFunction implements FilterFunction {
             if (authenticated) {
                 if (passwordType.equals("SSO")) {
                     final String username = crowdClient.getUsername(authIterator.next());
-                    replace.put(authAttribute, new RpslAttribute(authAttribute.getKey(), "SSO " + username));
+                    replace.put(authAttribute, new RpslAttribute(AttributeType.AUTH, "SSO " + username));
                 }
             } else {
                 if (passwordType.endsWith("-PW") || passwordType.equals("SSO")) {     // history table has CRYPT-PW, dummify that too!
-                    replace.put(authAttribute, new RpslAttribute(authAttribute.getKey(), passwordType + FILTERED_APPENDIX));
+                    replace.put(authAttribute, new RpslAttribute(AttributeType.AUTH, passwordType + FILTERED_APPENDIX));
                 }
             }
         }
@@ -92,7 +92,7 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean isMntnerAuthenticated(final List<String> passwords, final String token, final RpslObject rpslObject, final RpslObjectDao rpslObjectDao) {
-        if (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(token)){
+        if (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(token)) {
             return false;
         }
 
@@ -107,7 +107,7 @@ public class FilterAuthFunction implements FilterFunction {
 
     private Set<RpslAttribute> getMntByAuthAttributes(final RpslObject rpslObject, final RpslObjectDao rpslObjectDao) {
         final Set<RpslAttribute> auths = Sets.newHashSet();
-        if (rpslObject.containsAttribute(AttributeType.MNT_BY)){
+        if (rpslObject.containsAttribute(AttributeType.MNT_BY)) {
             final List<RpslObject> mntByMntners = rpslObjectDao.getByKeys(ObjectType.MNTNER, rpslObject.getValuesForAttribute(AttributeType.MNT_BY));
             for (RpslObject mntner : mntByMntners) {
                 auths.addAll(mntner.findAttributes(AttributeType.AUTH));
