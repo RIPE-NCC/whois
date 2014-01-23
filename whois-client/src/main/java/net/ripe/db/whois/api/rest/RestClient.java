@@ -168,7 +168,7 @@ public class RestClient {
         }
     }
 
-    private String encode(final String value) {
+    private static String encode(final String value) {
         try {
             return value != null ? URLEncoder.encode(value, Charsets.ISO_8859_1.name()) : "";
         } catch (UnsupportedEncodingException ignored) {
@@ -291,10 +291,12 @@ public class RestClient {
     private static String createQueryParams(final String key, final Iterable<String> values) {
         final StringBuilder result = new StringBuilder();
         for (String value : values) {
-            if (result.length() > 0) {
-                result.append('&');
+            if (!StringUtils.isBlank(value)) {
+                if (result.length() > 0) {
+                    result.append('&');
+                }
+                result.append(key).append('=').append(encode(value));
             }
-            result.append(key).append('=').append(value);
         }
         return result.toString();
     }
