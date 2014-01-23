@@ -72,9 +72,9 @@ public class InternalUpdatePerformer {
     public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
                                   final String content, final Keyword keyword, final HttpServletRequest request, final String ssoToken) {
 
-        logHttpHeaders(loggerContext, request);
+        setSsoSessionToContext(updateContext, update, ssoToken);
 
-        setSsoSessionToContext(updateContext, ssoToken);
+        logHttpHeaders(loggerContext, request);
 
         final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
         updateRequestHandler.handle(updateRequest, updateContext);
@@ -82,16 +82,18 @@ public class InternalUpdatePerformer {
 
         Response.ResponseBuilder responseBuilder;
         UpdateStatus status = updateContext.getStatus(update);
-        if (status == UpdateStatus.SUCCESS) {
-            responseBuilder = Response.status(Response.Status.OK);
-        } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
+        if (status == UpdateStatus.FAILED_AUTHENTICATION) {
             responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
         } else if (status == UpdateStatus.EXCEPTION) {
             responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
-        } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
-            responseBuilder = Response.status(Response.Status.CONFLICT);
+        } else if (status != UpdateStatus.SUCCESS) {
+            if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
+                responseBuilder = Response.status(Response.Status.CONFLICT);
+            } else {
+                responseBuilder = Response.status(Response.Status.BAD_REQUEST);
+            }
         } else {
-            responseBuilder = Response.status(Response.Status.BAD_REQUEST);
+            responseBuilder = Response.status(Response.Status.OK);
         }
 
         responseBuilder.entity(createResponse(request, updateContext, update, responseObject));
