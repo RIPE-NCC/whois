@@ -1,6 +1,5 @@
 package net.ripe.db.whois.internal.api.sso;
 
-import net.ripe.db.whois.api.CrowdServerDummy;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
@@ -10,7 +9,6 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.After;
 import org.junit.Before;
@@ -35,7 +33,6 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
 
     private ClassPathXmlApplicationContext applicationContextRest;
     private DatabaseHelper databaseHelperRest;
-    private CrowdServerDummy crowdServerDummy;
 
     @Before
     public void setUp() throws Exception {
@@ -46,17 +43,10 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
         databaseHelperRest = applicationContextRest.getBean(DatabaseHelper.class);
         databaseHelperRest.setup();
         databaseHelperRest.insertApiKey(apiKey, "/api/user", "testing authservice");
-
-        crowdServerDummy = new CrowdServerDummy();
-        crowdServerDummy.start();
-
-        applicationContextRest.getBean(CrowdClient.class).setRestUrl(String.format("http://localhost:%s/crowd", crowdServerDummy.getPort()));
     }
 
     @After
     public void tearDown() throws Exception {
-        crowdServerDummy.stop();
-
         applicationContextRest.close();
     }
 

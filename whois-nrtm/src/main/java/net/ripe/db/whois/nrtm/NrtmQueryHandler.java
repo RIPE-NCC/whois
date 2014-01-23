@@ -1,19 +1,28 @@
 package net.ripe.db.whois.nrtm;
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import joptsimple.OptionException;
-import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelException;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelLocal;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
@@ -152,7 +161,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         for (int serial = query.getSerialBegin(); serial <= query.getSerialEnd(); ) {
             serial = writeSerials(serial, query.getSerialEnd(), query.getVersion(), channel);
             if (serial <= query.getSerialEnd()) {
-                ServerHelper.sleep(1000);
+                Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
             }
         }
 

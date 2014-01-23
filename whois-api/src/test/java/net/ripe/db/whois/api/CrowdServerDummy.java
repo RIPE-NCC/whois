@@ -3,7 +3,6 @@ package net.ripe.db.whois.api;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.TestingProfile;
 import net.ripe.db.whois.common.sso.UserSession;
@@ -21,7 +20,7 @@ import java.util.Map;
 public class CrowdServerDummy {
     private Server server;
 
-    private int port = -1;
+    private int port = 0;
 
     private class CrowdTestHandler extends AbstractHandler {
         final Map<String, String> usermap;
@@ -106,20 +105,16 @@ public class CrowdServerDummy {
         }
     }
 
-    public void start() {
-        try {
-            start(ServerHelper.getActualPort(port));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @RetryFor(attempts = 5, value = Exception.class)
-    void start(final int port) throws Exception {
-        this.port = port;
-        server = new Server(port);
+    public void start() {
+        server = new Server(0);
         server.setHandler(new CrowdTestHandler());
-        server.start();
+        try {
+            server.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        this.port = server.getConnectors()[0].getLocalPort();
     }
 
     public void stop() throws Exception {

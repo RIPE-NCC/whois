@@ -6,9 +6,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -22,18 +22,17 @@ public class SsoTokenTranslatorTest {
         subject = new SsoTokenTranslator(crowdClient);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void translateSsoToken_invalid_session() {
         final String ssotoken = "ssotoken";
 
         when(crowdClient.getUserSession(ssotoken)).thenThrow(new IllegalArgumentException("not found"));
 
-        final UserSession userSession = subject.translateSsoToken(ssotoken);
-
-        assertThat(userSession, is(nullValue()));
+        subject.translateSsoToken(ssotoken);
+        fail();
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void translateSsoToken_invalid_username() {
         final String ssotoken = "ssotoken";
         final String username = "username";
@@ -41,9 +40,8 @@ public class SsoTokenTranslatorTest {
         when(crowdClient.getUserSession(ssotoken)).thenReturn(new UserSession(username, true));
         when(crowdClient.getUuid(username)).thenThrow(new IllegalArgumentException("not found"));
 
-        final UserSession userSession = subject.translateSsoToken(ssotoken);
-
-        assertThat(userSession, is(nullValue()));
+        subject.translateSsoToken(ssotoken);
+        fail();
     }
 
     @Test

@@ -1,8 +1,8 @@
 package net.ripe.db.whois.query;
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.MaintenanceMode;
-import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.query.pipeline.QueryChannelsRegistry;
 import net.ripe.db.whois.query.pipeline.WhoisServerPipelineFactory;
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -17,8 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
-
-import static net.ripe.db.whois.common.ServerHelper.getActualPort;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public final class QueryServer implements ApplicationService {
@@ -34,7 +33,6 @@ public final class QueryServer implements ApplicationService {
 
     private final WhoisServerPipelineFactory whoisServerPipelineFactory;
     private final QueryChannelsRegistry queryChannelsRegistry;
-    private final ChannelFactory channelFactory;
     private final MaintenanceMode maintenanceMode;
 
     @Autowired
@@ -44,27 +42,27 @@ public final class QueryServer implements ApplicationService {
         this.whoisServerPipelineFactory = whoisServerPipelineFactory;
         this.queryChannelsRegistry = queryChannelsRegistry;
         this.maintenanceMode = maintenanceMode;
-        this.channelFactory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
     }
 
     @Override
     public void start() {
-        port = getActualPort(queryPort);
-
+        final ChannelFactory channelFactory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
         final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
+
         bootstrap.setPipelineFactory(whoisServerPipelineFactory);
         bootstrap.setOption("backlog", 200);
         bootstrap.setOption("child.keepAlive", true);
 
-        serverChannel = bootstrap.bind(new InetSocketAddress(port));
-        LOGGER.info("Query server listening on {}", port);
+        serverChannel = bootstrap.bind(new InetSocketAddress(queryPort));
+        port = ((InetSocketAddress)serverChannel.getLocalAddress()).getPort();
+        LOGGER.info("Query server listening on {}", queryPort);
     }
 
     @Override
     public void stop(final boolean force) {
         if (serverChannel != null) {
             if (force) {
-                ServerHelper.sleep(markNodeFailedTimeout - maintenanceMode.shutdownInitiated());
+                Uninterruptibles.sleepUninterruptibly(markNodeFailedTimeout - maintenanceMode.shutdownInitiated(), TimeUnit.MILLISECONDS);
                 serverChannel.close();
                 serverChannel = null;
 
