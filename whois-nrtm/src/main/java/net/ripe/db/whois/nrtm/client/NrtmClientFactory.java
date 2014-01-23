@@ -1,8 +1,8 @@
 package net.ripe.db.whois.nrtm.client;
 
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.MaintenanceMode;
-import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -161,7 +162,7 @@ class NrtmClientFactory {
                     final RpslObject object = readObject();
                     update(operationSerial.getOperation(), operationSerial.getSerial(), object);
                 } else {
-                    ServerHelper.sleep(1000);
+                    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
                 }
             }
         }

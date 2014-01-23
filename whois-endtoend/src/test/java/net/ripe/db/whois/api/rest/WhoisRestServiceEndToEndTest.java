@@ -3,11 +3,8 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.ImmutableMap;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
-import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
@@ -19,9 +16,6 @@ import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
-
-import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
 
 public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
@@ -162,8 +156,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     @Test
 //    @Ignore
     public void DELETE_THIS_EXAMPLE_TEST() {
-        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
-
         final RpslObject updatedObject = new RpslObjectBuilder(baseFixtures.get("PP1-TEST")).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
         String whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
@@ -196,14 +188,12 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
     @Test
     public void Create_assignment() {
-        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
-
         final RpslObject updatedObject = fixtures.get("ASS-PA");
 
         String whoisResources = null;
         try {
             whoisResources = RestTest.target(getPort(), "whois/test/inetnum")
-                    .request(MediaType.APPLICATION_XML)
+                    .request(MediaType.APPLICATION_XML).cookie("crowd.token_key", token)
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), String.class);
         } catch (ClientErrorException e) {
             System.err.println(e.getResponse().getStatus());
