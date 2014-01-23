@@ -38,22 +38,32 @@
         <sonar.jdbc.password />
     </properties>
 
+    <repositories>
+        <repository>
+            <id>ripe-releases</id>
+            <url>http://nexus.ripe.net/nexus/content/repositories/releases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>ripe-snapshots</id>
+            <url>http://nexus.ripe.net/nexus/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/RIPE-NCC/whois.git</developerConnection>
     </scm>
-
-    <distributionManagement>
-        <repository>
-            <id>artifactory-libs-release</id>
-            <name>libs-release</name>
-            <url>http://tools.db.ripe.net/artifactory/libs-release-local</url>
-        </repository>
-        <snapshotRepository>
-            <id>artifactory-libs-snapshot</id>
-            <name>libs-snapshot</name>
-            <url>http://tools.db.ripe.net/artifactory/libs-snapshot-local</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <modules>
         <module>whois-client</module>
