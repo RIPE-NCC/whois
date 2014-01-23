@@ -168,18 +168,12 @@ public class RestClient {
         }
     }
 
-    private String encode(final String str) {
-        String encoded;
-        if (str == null) {
+    private String encode(final String value) {
+        try {
+            return value != null ? URLEncoder.encode(value, Charsets.ISO_8859_1.name()) : "";
+        } catch (UnsupportedEncodingException ignored) {
             return "";
         }
-
-        try {
-            encoded = URLEncoder.encode(str, Charsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            encoded = "";
-        }
-        return encoded;
     }
 
     public void deleteOverride(final RpslObject rpslObject, final String override) {
