@@ -193,7 +193,8 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         String whoisResources = null;
         try {
             whoisResources = RestTest.target(getPort(), "whois/test/inetnum")
-                    .request(MediaType.APPLICATION_XML).cookie("crowd.token_key", token)
+                    .request(MediaType.APPLICATION_XML)
+                    // .cookie("crowd.token_key", token)    // TODO: [ES] token
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), String.class);
         } catch (ClientErrorException e) {
             System.err.println(e.getResponse().getStatus());

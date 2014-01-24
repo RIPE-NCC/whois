@@ -192,7 +192,9 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST"));
 
-        final RpslObject object = restClient.lookup(ObjectType.MNTNER, "SSO-MNT", "test");
+        final RpslObject object = restClient.request()
+                .addParam("password", "test")
+                .lookup(ObjectType.MNTNER, "SSO-MNT");
 
         assertThat(object.findAttributes(AttributeType.AUTH),
                 hasItems(new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/"),
@@ -203,7 +205,9 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void lookup_mntner_with_mntby_password() throws Exception {
         databaseHelper.addObject(SECOND_MNT);
 
-        RpslObject obj = restClient.lookup(SECOND_MNT.getType(), SECOND_MNT.getKey().toString(), "test");
+        RpslObject obj = restClient.request()
+                .addParam("password", "test")
+                .lookup(SECOND_MNT.getType(), SECOND_MNT.getKey().toString());
 
         assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), startsWith("MD5-PW"));
         assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), not(is("MD5-PW")));
@@ -226,7 +230,9 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(SECOND_MNT);
         databaseHelper.addObject(THIRD_MNT);
 
-        RpslObject obj = restClient.lookup(THIRD_MNT.getType(), THIRD_MNT.getKey().toString(), "secondmnt");
+        RpslObject obj = restClient.request()
+                .addParam("password", "secondmnt")
+                .lookup(THIRD_MNT.getType(), THIRD_MNT.getKey().toString());
 
         assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), startsWith("MD5-PW"));
         assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), not(is("MD5-PW")));
