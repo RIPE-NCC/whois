@@ -11,20 +11,23 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
+// NB: we can't use the atlassian crowd-rest-client as uuid is a ripe-specific crowd plug-in
 @Component
 public class CrowdClient {
     private String restUrl;
     private Client client;
 
     @Autowired
-    public CrowdClient(@Value("${rest.crowd.url}") final String translatorUrl,
-                       @Value("${rest.crowd.user}") final String crowdAuthUser,
-                       @Value("${rest.crowd.password}") final String crowdAuthPassword) {
+    public CrowdClient(@Value("${crowd.rest.url}") final String translatorUrl,
+                       @Value("${crowd.rest.user}") final String crowdAuthUser,
+                       @Value("${crowd.rest.password}") final String crowdAuthPassword) {
         this.restUrl = translatorUrl;
 
         client = ClientBuilder.newBuilder()
@@ -40,10 +43,39 @@ public class CrowdClient {
         this.client = client;
     }
 
+    public String login(String username, String password) {
+        CrowdAuthenticationContext crowdAuth = new CrowdAuthenticationContext(username, password);
+
+        final CrowdSession session = client.target(restUrl)
+                .path("rest/usermanagement/2/session")
+                .request()
+                .post(Entity.entity(crowdAuth, MediaType.APPLICATION_XML), CrowdSession.class);
+
+        return session.getToken();
+    }
+
+    public void logout(String username) {
+        client.target(restUrl)
+                .path("rest/usermanagement/2/session")
+                .queryParam("username", username)
+                .request()
+                .delete();
+    }
+
+    public void invalidateToken(String token) {
+        client.target(restUrl)
+                .path("rest/usermanagement/2/session")
+                .path(token)
+                .request()
+                .delete();
+    }
+
+
+
     public String getUuid(final String username) {
         try {
             return client.target(restUrl)
-                    .path("rest/usermanagement/latest/user/attribute")
+                    .path("rest/usermanagement/2/user/attribute")
                     .queryParam("username", username)
                     .request()
                     .get(CrowdResponse.class)
@@ -56,7 +88,7 @@ public class CrowdClient {
     public String getUsername(final String uuid) {
         try {
             return client.target(restUrl)
-                    .path("rest/sso/latest/uuid-search")
+                    .path("rest/sso/2/uuid-search")
                     .queryParam("uuid", uuid)
                     .request()
                     .get(CrowdUser.class)
@@ -69,7 +101,7 @@ public class CrowdClient {
     public UserSession getUserSession(final String token) {
         try {
             CrowdUser user = client.target(restUrl)
-                    .path("rest/usermanagement/latest/session")
+                    .path("rest/usermanagement/2/session")
                     .path(token)
                     .request()
                     .get(CrowdSession.class)
@@ -85,7 +117,8 @@ public class CrowdClient {
         @XmlElement(name = "attribute")
         private List<CrowdAttribute> attributes;
 
-        public CrowdResponse() {}
+        public CrowdResponse() {
+        }
 
         public CrowdResponse(List<CrowdAttribute> attributes) {
             this.attributes = attributes;
@@ -111,10 +144,11 @@ public class CrowdClient {
     static class CrowdAttribute {
         @XmlElement
         private List<CrowdValue> values;
-        @XmlAttribute(name="name")
+        @XmlAttribute(name = "name")
         private String name;
 
-        public CrowdAttribute() {}
+        public CrowdAttribute() {
+        }
 
         public CrowdAttribute(List<CrowdValue> values, String name) {
             this.values = values;
@@ -132,10 +166,11 @@ public class CrowdClient {
 
     @XmlRootElement
     static class CrowdValue {
-        @XmlElement(name="value")
+        @XmlElement(name = "value")
         private String value;
 
-        public CrowdValue() {}
+        public CrowdValue() {
+        }
 
         public CrowdValue(String value) {
             this.value = value;
@@ -148,12 +183,13 @@ public class CrowdClient {
 
     @XmlRootElement(name = "user")
     static class CrowdUser {
-        @XmlAttribute(name="name")
+        @XmlAttribute(name = "name")
         private String name;
-        @XmlElement(name="active")
+        @XmlElement(name = "active")
         private Boolean active;
 
-        public CrowdUser() {}
+        public CrowdUser() {
+        }
 
         public CrowdUser(String name, Boolean active) {
             this.name = name;
@@ -171,28 +207,61 @@ public class CrowdClient {
 
     @XmlRootElement(name = "session")
     static class CrowdSession {
-        @XmlElement(name="user")
+        @XmlElement(name = "user")
         private CrowdUser user;
+        @XmlElement(name = "token")
+        private String token;
 
-        public CrowdSession() {}
+        public CrowdSession() {
+        }
 
-        public CrowdSession(CrowdUser user) {
+        public CrowdSession(CrowdUser user, String token) {
             this.user = user;
+            this.token = token;
         }
 
         public CrowdUser getUser() {
             return user;
         }
+
+        public String getToken() {
+            return token;
+        }
+    }
+
+    @XmlRootElement(name = "authentication-context")
+    static class CrowdAuthenticationContext {
+        @XmlElement(name = "username")
+        private String username;
+        @XmlElement(name = "password")
+        private String password;
+
+        CrowdAuthenticationContext() {
+        }
+
+        CrowdAuthenticationContext(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
     }
 
     @XmlRootElement(name = "error")
     static class CrowdError {
-        @XmlElement(name="reason")
+        @XmlElement(name = "reason")
         private String reason;
-        @XmlElement(name="message")
+        @XmlElement(name = "message")
         private String message;
 
-        public CrowdError() {}
+        public CrowdError() {
+        }
 
         public CrowdError(String reason, String message) {
             this.reason = reason;
