@@ -2,17 +2,16 @@ package net.ripe.db.whois.internal.api.abusec;
 
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
+import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.User;
-import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.AbstractInternalTest;
-import net.ripe.db.whois.api.rest.RestClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +29,11 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collection;
 
-import static net.ripe.db.whois.common.rpsl.AttributeType.*;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_REF;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 import static org.hamcrest.Matchers.containsString;
@@ -51,7 +54,6 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Before
     public void startRestServer() {
-        WhoisProfile.setEndtoend();
         applicationContextRest = new ClassPathXmlApplicationContext("applicationContext-api-test.xml");
         databaseHelperRest = applicationContextRest.getBean(DatabaseHelper.class);
         applicationServicesRest = applicationContextRest.getBeansOfType(ApplicationService.class).values();

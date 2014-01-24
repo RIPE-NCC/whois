@@ -37,7 +37,6 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
     @Before
     public void setUp() throws Exception {
         databaseHelper.insertApiKey(apiKey, "/api/user", apiKey);
-        WhoisProfile.setEndtoend();
 
         applicationContextRest = new ClassPathXmlApplicationContext("applicationContext-api-test.xml");
         databaseHelperRest = applicationContextRest.getBean(DatabaseHelper.class);

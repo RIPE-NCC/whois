@@ -6,7 +6,8 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.profiles.TestingProfile;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -16,7 +17,7 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
-@TestingProfile
+@Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
 @Component
 public class DnsGatewayStub implements DnsGateway, Stub {
     private final Set<DnsCheckRequest> dnsCheckRequests = Sets.newLinkedHashSet();

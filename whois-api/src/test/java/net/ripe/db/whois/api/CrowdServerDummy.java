@@ -3,22 +3,29 @@ package net.ripe.db.whois.api;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
-import net.ripe.db.whois.common.profiles.TestingProfile;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
+import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.UserSession;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-@TestingProfile
-public class CrowdServerDummy {
-    private Server server;
+@Profile({WhoisProfile.TEST})
 
     private int port = 0;
 

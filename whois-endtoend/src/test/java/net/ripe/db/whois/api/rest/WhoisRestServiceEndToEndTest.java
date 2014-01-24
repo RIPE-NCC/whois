@@ -4,19 +4,23 @@ import com.google.common.collect.ImmutableMap;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.sso.CrowdClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
 
+@ActiveProfiles(profiles = WhoisProfile.ENDTOEND, inheritProfiles = false)
 public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
     private static ImmutableMap<String, RpslObject> baseFixtures = ImmutableMap.<String, RpslObject>builder()
@@ -146,7 +150,9 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
 
     @Autowired
-    private WhoisObjectServerMapper whoisObjectMapper;
+    WhoisObjectServerMapper whoisObjectMapper;
+    @Autowired
+    CrowdClient crowdClient;
 
     @Before
     public void setup() {
@@ -190,18 +196,25 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     public void Create_assignment() {
         final RpslObject updatedObject = fixtures.get("ASS-PA");
 
-        String whoisResources = null;
+        final String token = crowdClient.login("tpolychnia@ripe.net", "TPolycnia13");
         try {
-            whoisResources = RestTest.target(getPort(), "whois/test/inetnum")
-                    .request(MediaType.APPLICATION_XML)
-                    // .cookie("crowd.token_key", token)    // TODO: [ES] token
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), String.class);
-        } catch (ClientErrorException e) {
-            System.err.println(e.getResponse().getStatus());
-            System.err.println(e.getResponse().readEntity(String.class));
+            String whoisResources = null;
+
+            try {
+                whoisResources = RestTest.target(getPort(), "whois/test/inetnum")
+                        .request(MediaType.APPLICATION_XML)
+                        .cookie("crowd.token_key", token)
+                        .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), String.class);
+            } catch (ClientErrorException e) {
+                System.err.println(e.getResponse().getStatus());
+                System.err.println(e.getResponse().readEntity(String.class));
+            }
+
+            System.err.println(whoisResources);
+        } finally {
+            crowdClient.logout("tpolychnia@ripe.net");
         }
 
-        System.err.println(whoisResources);
 
 //        WhoisResources whoisResource = RestTest.target(getPort(), "whois/test/inetnum?password=lir")
 //                .request(MediaType.APPLICATION_XML)
