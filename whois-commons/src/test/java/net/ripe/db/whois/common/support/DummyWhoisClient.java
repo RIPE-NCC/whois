@@ -33,9 +33,9 @@ public class DummyWhoisClient {
         throw new IllegalStateException("Unable to execute query");
     }
 
-    public static String query(final int port, final String query, final int timeout) {
+    public static String query(final int port, final String query, final int timeoutMs) {
         try {
-            return new DummyWhoisClient("127.0.0.1", port).sendQuery(query, Charsets.ISO_8859_1, timeout);
+            return new DummyWhoisClient("127.0.0.1", port).sendQuery(query, Charsets.ISO_8859_1, timeoutMs);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to execute query");
         }
@@ -61,10 +61,10 @@ public class DummyWhoisClient {
     }
 
     @RetryFor(IOException.class)
-    public String sendQuery(final String query, final Charset charset, final int timeout) throws IOException {
+    public String sendQuery(final String query, final Charset charset, final int timeoutMs) throws IOException {
         final Socket socket = new Socket(host, port);
-        if (timeout > 0) {
-            socket.setSoTimeout(timeout);
+        if (timeoutMs > 0) {
+            socket.setSoTimeout(timeoutMs);
         }
 
         PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);
