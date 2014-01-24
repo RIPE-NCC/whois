@@ -26,8 +26,19 @@ import java.io.IOException;
 import java.util.Map;
 
 @Profile({WhoisProfile.TEST})
+@Component
+public class CrowdServerDummy implements Stub {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CrowdServerDummy.class);
 
+    private Server server;
     private int port = 0;
+
+    private final CrowdClient crowdClient;
+
+    @Autowired
+    public CrowdServerDummy(CrowdClient crowdClient) {
+        this.crowdClient = crowdClient;
+    }
 
     private class CrowdTestHandler extends AbstractHandler {
         final Map<String, String> usermap;
@@ -112,6 +123,7 @@ import java.util.Map;
         }
     }
 
+    @PostConstruct
     @RetryFor(attempts = 5, value = Exception.class)
     public void start() {
         server = new Server(0);
@@ -121,14 +133,24 @@ import java.util.Map;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
         this.port = server.getConnectors()[0].getLocalPort();
+
+        final String restUrl = String.format("http://localhost:%s/crowd", getPort());
+        LOGGER.info("Crowd dummy server restUrl: "+restUrl);
+        crowdClient.setRestUrl(restUrl);
     }
 
+    @PreDestroy
     public void stop() throws Exception {
         server.stop();
     }
 
     public int getPort() {
         return port;
+    }
+
+    @Override
+    public void reset() {
     }
 }
