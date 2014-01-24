@@ -177,7 +177,7 @@ public class ListOrgsWithNoAbuseC {
     private void collectOrgIfNoAbuseC(final RpslObject rpslObject, final Map<RpslObject, Set<CIString>> withoutAbuseC) {
         try {
             final String orgId = rpslObject.getValueForAttribute(AttributeType.ORG).toString();
-            final RpslObject orgObject = restClient.lookup(ObjectType.ORGANISATION, orgId);
+            final RpslObject orgObject = restClient.request().lookup(ObjectType.ORGANISATION, orgId);
             if (!hasAbuseContact(orgObject)) {
                 final Set<CIString> resources = withoutAbuseC.get(orgObject);
                 if (resources == null) {

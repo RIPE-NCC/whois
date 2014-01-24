@@ -1,6 +1,5 @@
 package net.ripe.db.inet6numassignmentoverlap;
 
-import com.google.common.collect.ImmutableSet;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.LogUtil;
@@ -15,7 +14,7 @@ import net.ripe.db.whois.query.QueryFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
+import java.util.Collection;
 
 public class Inet6numAssignmentOverlap {
     private static final Logger LOGGER = LoggerFactory.getLogger(Inet6numAssignmentOverlap.class);
@@ -48,13 +47,11 @@ public class Inet6numAssignmentOverlap {
                 }
 
                 if (status.getCleanValue().equals("assigned")) {
-                    Iterable<RpslObject> rpslObjects = restClient.search(rpslObject.getKey().toString(),
-                            Collections.EMPTY_SET,
-                            Collections.EMPTY_SET,
-                            Collections.EMPTY_SET,
-                            Collections.EMPTY_SET,
-                            Collections.singleton(ObjectType.INET6NUM),
-                            ImmutableSet.of(QueryFlag.ONE_LESS, QueryFlag.NO_REFERENCED));
+                    final Collection<RpslObject> rpslObjects = restClient.request()
+                            .addParam("query-string", rpslObject.getKey().toString())
+                            .addParams("type-filter", ObjectType.INET6NUM.getName())
+                            .addParams("flags", QueryFlag.ONE_LESS.getName(), QueryFlag.NO_REFERENCED.getName())
+                            .search();
 
                     for (RpslObject parent : rpslObjects) {
                         if (parent.getValueForAttribute(AttributeType.STATUS).toLowerCase().equals("assigned")) {
