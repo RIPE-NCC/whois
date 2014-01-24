@@ -50,7 +50,7 @@ public class AbuseCService {
 
         RpslObject organisation;
         try {
-            organisation = restClient.lookup(ObjectType.ORGANISATION, orgkey);
+            organisation = restClient.request().lookup(ObjectType.ORGANISATION, orgkey);
         } catch (Exception e) {
             // TODO: check for specific exception
             LOGGER.error("exception", e);
@@ -66,10 +66,14 @@ public class AbuseCService {
 
         try {
             final RpslObject role = createAbuseCRole(organisation, email);
-            final RpslObject createdRole = restClient.createOverride(role, String.format("%s,%s", override, ABUSEC_SERVICE));
+            final RpslObject createdRole = restClient.request()
+                    .addParam("override", String.format("%s,%s", override, ABUSEC_SERVICE))
+                    .create(role);
 
             final RpslObject updatedOrganisation = createOrganisationWithAbuseCAttribute(organisation, createdRole.getKey().toString());
-            restClient.updateOverride(updatedOrganisation, String.format("%s,%s", override, ABUSEC_SERVICE));
+            restClient.request()
+                    .addParam("override", String.format("%s,%s", override, ABUSEC_SERVICE))
+                    .update(updatedOrganisation);
 
             return Response.ok(String.format("http://apps.db.ripe.net/search/lookup.html?source=%s&key=%s&type=ORGANISATION", sourceName, orgkey)).build();
         } catch (Exception e) {
@@ -83,7 +87,7 @@ public class AbuseCService {
     @Produces(MediaType.TEXT_PLAIN)
     public Response lookupAbuseContact(@PathParam("orgkey") final String orgKey) {
         try {
-            final RpslObject organisation = restClient.lookup(ObjectType.ORGANISATION, orgKey);
+            final RpslObject organisation = restClient.request().lookup(ObjectType.ORGANISATION, orgKey);
             try {
                 final CIString abuseMailbox = lookupAbuseMailbox(organisation);
                 return Response.ok(abuseMailbox.toString()).build();
@@ -99,7 +103,7 @@ public class AbuseCService {
 
     private CIString lookupAbuseMailbox(final RpslObject organisation) {
         final String abuseRoleName = organisation.getValueForAttribute(AttributeType.ABUSE_C).toString();
-        final RpslObject abuseRole = restClient.lookup(ObjectType.ROLE, abuseRoleName);
+        final RpslObject abuseRole = restClient.request().lookup(ObjectType.ROLE, abuseRoleName);
         return abuseRole.getValueForAttribute(AttributeType.ABUSE_MAILBOX);
     }
 

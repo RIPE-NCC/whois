@@ -238,7 +238,9 @@ public class WhoisFixture {
     }
 
     public RpslObject restLookup(ObjectType objectType, String pkey, String... passwords) {
-        return restClient.lookup(objectType, pkey, passwords);
+        return restClient.request()
+                .addParams("password", passwords)
+                .lookup(objectType, pkey);
     }
 
     public List<String> queryPersistent(final List<String> queries) throws Exception {
