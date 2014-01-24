@@ -44,7 +44,7 @@ public class CrowdClientTest {
 
     @Test
     public void getUserSession_success() {
-        when(builder.get(CrowdSession.class)).thenReturn(new CrowdSession(new CrowdUser("test@ripe.net", true)));
+        when(builder.get(CrowdSession.class)).thenReturn(new CrowdSession(new CrowdUser("test@ripe.net", true), null));
 
         final UserSession session = subject.getUserSession("token");
 

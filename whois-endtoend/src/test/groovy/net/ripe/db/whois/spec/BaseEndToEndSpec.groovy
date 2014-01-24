@@ -1,7 +1,6 @@
 package net.ripe.db.whois.spec
 import net.ripe.db.whois.WhoisFixture
 import net.ripe.db.whois.common.TestDateTimeProvider
-import net.ripe.db.whois.common.profiles.WhoisProfile
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslAttribute
@@ -19,7 +18,6 @@ class BaseEndToEndSpec extends Specification {
     static WhoisFixture whoisFixture
 
     def setupSpec() {
-        WhoisProfile.setEndtoend();
         whoisFixture = new WhoisFixture()
     }
 

@@ -1,11 +1,12 @@
 package net.ripe.db.whois.common;
 
-import net.ripe.db.whois.common.profiles.TestingProfile;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-@TestingProfile
+@Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
 @Component
 public class TestDateTimeProvider implements DateTimeProvider, Stub {
     private LocalDateTime localDateTime;

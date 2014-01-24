@@ -13,6 +13,7 @@
     <version>1.72-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <!-- TODO: [AH] minimize the amount of dependencies in whois-client -->
     <dependencies>
         <!-- TODO: aspectj error without this, but there shouldn't even be aspectj for whois-client -->
         <dependency>
