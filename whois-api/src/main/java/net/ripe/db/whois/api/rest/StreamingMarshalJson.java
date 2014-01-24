@@ -46,6 +46,15 @@ class StreamingMarshalJson implements StreamingMarshal {
         }
     }
 
+    public void startArray(final String name) {
+        try {
+            generator.writeArrayFieldStart(name);
+        } catch (IOException e) {
+            throw new StreamingException(e);
+        }
+    }
+
+
     @Override
     public void end() {
         try {
@@ -55,10 +64,26 @@ class StreamingMarshalJson implements StreamingMarshal {
         }
     }
 
+    public void endArray() {
+        try {
+            generator.writeEndArray();
+        } catch (IOException e) {
+            throw new StreamingException(e);
+        }
+    }
+
     @Override
     public <T> void write(final String name, final T t) {
         try {
             generator.writeObjectField(name, t);
+        } catch (IOException e) {
+            throw new StreamingException(e);
+        }
+    }
+
+    public <T> void writeArray(final T t) {
+        try {
+            generator.writeObject(t);
         } catch (IOException e) {
             throw new StreamingException(e);
         }

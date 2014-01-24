@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.Arg;
@@ -29,6 +28,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -37,8 +38,10 @@ import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -78,7 +81,9 @@ public class RestClientTest {
     public void create() {
         mockWithResponse(whoisResourcesMock);
 
-        final RpslObject result = subject.create(MNTNER_OBJECT, "password1");
+        final RpslObject result = subject.request()
+                .addParam("password", "password1")
+                .create(MNTNER_OBJECT);
 
         assertThat(url, is("http://localhost/RIPE/mntner?password=password1"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
@@ -89,7 +94,9 @@ public class RestClientTest {
     public void create_with_multiple_passwords() {
         mockWithResponse(whoisResourcesMock);
 
-        final RpslObject result = subject.create(MNTNER_OBJECT, "password1", "password2", "password3");
+        final RpslObject result = subject.request()
+                .addParams("password", "password1", "password2", "password3")
+                .create(MNTNER_OBJECT);
 
         assertThat(url, is("http://localhost/RIPE/mntner?password=password1&password=password2&password=password3"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
@@ -108,7 +115,7 @@ public class RestClientTest {
         mockWithException(exceptionMock);
 
         try {
-            subject.create(MNTNER_OBJECT);
+            subject.request().create(MNTNER_OBJECT);
             fail();
         } catch (RestClientException e) {
             assertThat(url, is("http://localhost/RIPE/mntner"));
@@ -121,7 +128,9 @@ public class RestClientTest {
     public void create_override() {
         mockWithResponse(whoisResourcesMock);
 
-        final RpslObject result = subject.createOverride(MNTNER_OBJECT, "override1");
+        final RpslObject result = subject.request()
+                .addParam("override", "override1")
+                .create(MNTNER_OBJECT);
 
         assertThat(url, is("http://localhost/RIPE/mntner?override=override1"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
@@ -135,25 +144,33 @@ public class RestClientTest {
         final List<ErrorMessage> messages = Collections.singletonList(new ErrorMessage("Info", null, "test message", Collections.<Arg>emptyList()));
         when(whoisResourcesMock.getErrorMessages()).thenReturn(messages);
 
-        subject.create(MNTNER_OBJECT, notifier, "password1");
+        subject.request()
+                .setNotifier(notifier)
+                .addParam("password", "password1")
+                .create(MNTNER_OBJECT);
 
         verify(notifier).notify(messages);
     }
 
     @Test
     public void delete() {
-        mockWithResponse(null);
+        mockWithResponse(whoisResourcesMock);
 
-        subject.delete(MNTNER_OBJECT, "reason1", "password1");
+        subject.request()
+                .addParam("reason", "reason1")
+                .addParam("password", "password1")
+                .delete(MNTNER_OBJECT);
 
-        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?password=password1&reason=reason1"));
+        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?reason=reason1&password=password1"));
     }
 
     @Test
     public void delete_override() {
-        mockWithResponse(null);
+        mockWithResponse(whoisResourcesMock);
 
-        subject.deleteOverride(MNTNER_OBJECT, "override1");
+        subject.request()
+                .addParam("override", "override1")
+                .delete(MNTNER_OBJECT);
 
         assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?override=override1"));
     }
@@ -162,9 +179,11 @@ public class RestClientTest {
     public void lookup() {
         mockWithResponse(whoisResourcesMock);
 
-        final RpslObject result = subject.lookup(ObjectType.MNTNER, "OWNER-MNT");
+        final RpslObject result = subject.request()
+                .addParam("unfiltered", "true")
+                .lookup(ObjectType.MNTNER, "OWNER-MNT");
 
-        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?unfiltered"));
+        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?unfiltered=true"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
         assertThat(result.getType(), is(ObjectType.MNTNER));
     }
@@ -173,9 +192,12 @@ public class RestClientTest {
     public void lookup_with_password() {
         mockWithResponse(whoisResourcesMock);
 
-        final RpslObject result = subject.lookup(ObjectType.MNTNER, "OWNER-MNT", "password1");
+        final RpslObject result = subject.request()
+                .addParam("password", "password1")
+                .addParam("unfiltered", "true")
+                .lookup(ObjectType.MNTNER, "OWNER-MNT");
 
-        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?password=password1&unfiltered"));
+        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?unfiltered=true&password=password1"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
         assertThat(result.getType(), is(ObjectType.MNTNER));
     }
@@ -184,7 +206,7 @@ public class RestClientTest {
     public void lookup_abuse_contact() {
         mockWithResponse(abuseResourcesMock);
 
-        final AbuseContact result = subject.lookupAbuseContact("10.0.0.1");
+        final AbuseContact result = subject.request().lookupAbuseContact("10.0.0.1");
 
         assertThat(url, is("http://localhost/abuse-contact/10.0.0.1"));
         assertThat(result.getEmail(), is("user@host.org"));
@@ -199,7 +221,7 @@ public class RestClientTest {
         mockWithException(exceptionMock);
 
         try {
-            subject.lookupAbuseContact("10.0.0.1");
+            subject.request().lookupAbuseContact("10.0.0.1");
             fail();
         } catch (RestClientException e) {
             assertThat(url, is("http://localhost/abuse-contact/10.0.0.1"));
@@ -212,16 +234,18 @@ public class RestClientTest {
     public void search() {
         mockWithResponse(whoisResourcesMock);
 
-        final Iterator<RpslObject> results = subject.search("OWNER-MNT",
-                Sets.newHashSet("RIPE-GRS", "ARIN-GRS"),
-                Sets.newHashSet(AttributeType.ADMIN_C, AttributeType.TECH_C),
-                Sets.newHashSet("include-tag1", "include-tag2"),
-                Sets.newHashSet("exclude-tag1", "exclude-tag2"),
-                Sets.newHashSet(ObjectType.MNTNER),
-                Sets.newHashSet(QueryFlag.ALL_SOURCES, QueryFlag.BRIEF, QueryFlag.INVERSE)).iterator();
+        final Collection<RpslObject> results = subject.request()
+                .addParam("query-string", "OWNER-MNT")
+                .addParams("source", "RIPE-GRS", "ARIN-GRS")
+                .addParams("inverse-attribute", AttributeType.ADMIN_C.getName(), AttributeType.TECH_C.getName())
+                .addParams("include-tag", "include-tag1", "include-tag2")
+                .addParams("exclude-tag", "exclude-tag1", "exclude-tag2")
+                .addParams("type-filter", ObjectType.MNTNER.getName())
+                .addParams("flags", QueryFlag.ALL_SOURCES.getName(), QueryFlag.BRIEF.getName(), QueryFlag.INVERSE.getName())
+                .search();
 
-        assertThat(results.next(), is(MNTNER_OBJECT));
-        assertThat(results.hasNext(), is(false));
+        assertThat(results, contains(MNTNER_OBJECT));
+        assertThat(results, hasSize(1));
         assertThat(url, containsString("http://localhost/search?"));
         assertThat(url, containsString("query-string=OWNER-MNT"));
         assertThat(url, containsString("source=ARIN-GRS"));
@@ -242,7 +266,9 @@ public class RestClientTest {
     public void update() {
         mockWithResponse(whoisResourcesMock);
 
-        final RpslObject result = subject.update(MNTNER_OBJECT, "password1");
+        final RpslObject result = subject.request()
+                .addParam("password", "password1")
+                .update(MNTNER_OBJECT);
 
         assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?password=password1"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
@@ -253,7 +279,9 @@ public class RestClientTest {
     public void update_override() {
         mockWithResponse(whoisResourcesMock);
 
-       final RpslObject result = subject.updateOverride(MNTNER_OBJECT, "override1");
+       final RpslObject result = subject.request()
+               .addParam("override", "override1")
+               .update(MNTNER_OBJECT);
 
         assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?override=override1"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
@@ -307,6 +335,20 @@ public class RestClientTest {
                     }
                 });
                 when(builder.delete(any(Class.class))).thenReturn(objectMock);
+
+                when(webTarget.queryParam(any(String.class), anyVararg())).thenAnswer(new Answer() {
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        final Iterator iterator = Arrays.asList(invocation.getArguments()).iterator();
+                        final String name = (String)iterator.next();
+                        url = url + (url.contains("?") ? "&" : "?");
+                        while (iterator.hasNext()) {
+                            url = url + name + "=" + iterator.next() + (iterator.hasNext() ? "&" : "");
+                        }
+                        return invocation.getMock();
+                    }
+                });
+
                 when(webTarget.request()).thenReturn(builder);
                 return webTarget;
             }

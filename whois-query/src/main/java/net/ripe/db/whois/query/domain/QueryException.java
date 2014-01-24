@@ -20,7 +20,7 @@ public class QueryException extends RuntimeException {
     }
 
     public QueryException(final QueryCompletionInfo completionInfo, final Collection<Message> messages) {
-        super(messages.size() == 1 ? messages.iterator().next().toString() : "Messages: " + messages.size());
+        super(messages.size() == 1 ? messages.iterator().next().toString() : messages.toString());
 
         this.messages = Sets.newLinkedHashSet(messages);
         this.completionInfo = completionInfo;

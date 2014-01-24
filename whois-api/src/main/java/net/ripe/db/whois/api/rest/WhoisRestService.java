@@ -724,6 +724,9 @@ public class WhoisRestService {
                 }
 
                 streamingMarshal.start("objects");
+                if (streamingMarshal instanceof StreamingMarshalJson) {
+                    ((StreamingMarshalJson)streamingMarshal).startArray("object");
+                }
             }
 
             private void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
@@ -735,7 +738,7 @@ public class WhoisRestService {
 
                 // TODO: [AH] add method 'writeAsArray' or 'writeObject' to StreamingMarshal interface to get rid of this uglyness
                 if (streamingMarshal instanceof StreamingMarshalJson) {
-                    streamingMarshal.write("object", Collections.singletonList(whoisObject));
+                    ((StreamingMarshalJson)streamingMarshal).writeArray(whoisObject);
                 } else {
                     streamingMarshal.write("object", whoisObject);
                 }
@@ -752,6 +755,11 @@ public class WhoisRestService {
                     return errors;
                 }
                 streamObject(rpslObjectQueue.poll(), tagResponseObjects);
+
+                if (streamingMarshal instanceof StreamingMarshalJson) {
+                    ((StreamingMarshalJson)streamingMarshal).endArray();
+                }
+
                 streamingMarshal.end();
                 if (errors.size() > 0) {
                     streamingMarshal.write("errormessages", createErrorMessages(errors));
