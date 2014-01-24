@@ -63,7 +63,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     @Test
     public void queryKeepAliveNoPreExistingObjectsOneNewObject() throws Exception {
         databaseHelper.addObject(RpslObject.parse("mntner:test"));
-        DummyNrtmClient client = new DummyNrtmClient(NrtmServer.port, "-g TEST:3:1-1 -k", (updateInterval + 1));
+        AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.port, "-g TEST:3:1-1 -k", (updateInterval + 1));
 
         client.start();
         databaseHelper.addObject(RpslObject.parse("mntner:keepalive"));
@@ -75,7 +75,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     @Test
     public void queryKeepAliveOnePreExistingObjectsOneNewObject() throws Exception {
         databaseHelper.addObject(RpslObject.parse("mntner:testmntner\nmnt-by:testmntner"));
-        DummyNrtmClient client = new DummyNrtmClient(NrtmServer.port, "-g TEST:3:1-LAST -k", (updateInterval + 1));
+        AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.port, "-g TEST:3:1-LAST -k", (updateInterval + 1));
 
         client.start();
         super.databaseHelper.addObject(RpslObject.parse("mntner:keepalive"));

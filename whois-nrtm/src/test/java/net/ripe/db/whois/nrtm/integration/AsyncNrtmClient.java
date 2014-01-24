@@ -7,11 +7,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
-public class DummyNrtmClient {
+public class AsyncNrtmClient {
 
     private final FutureTask<String> task;
 
-    public DummyNrtmClient(final int port, final String query, final int timeout) {
+    public AsyncNrtmClient(final int port, final String query, final int timeout) {
         task = new FutureTask<>(new Callable<String>() {
             public String call() {
                 String result = DummyWhoisClient.query(port, query, timeout * 1000);
