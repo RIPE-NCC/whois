@@ -21,6 +21,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.Collection;
 import java.util.List;
@@ -34,7 +35,7 @@ public class RestClientTarget {
     private WhoisObjectClientMapper mapper;
     private NotifierCallback notifierCallback;
     private MultivaluedMap<String, String> params = new MultivaluedStringMap();
-    private MultivaluedMap<String, String> headers = new MultivaluedStringMap();
+    private MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
     private List<Cookie> cookies = Lists.newArrayList();
 
     RestClientTarget(final Client client, final String baseUrl, final String source, final WhoisObjectClientMapper mapper) {
@@ -100,6 +101,7 @@ public class RestClientTarget {
             final Invocation.Builder request = webTarget.request();
 
             setCookies(request);
+            setHeaders(request);
 
             final WhoisResources whoisResources = request
                     .post(Entity.entity(mapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
@@ -127,6 +129,7 @@ public class RestClientTarget {
             final Invocation.Builder request = webTarget.request();
 
             setCookies(request);
+            setHeaders(request);
 
             final WhoisResources whoisResources = request
                     .put(Entity.entity(mapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
@@ -150,6 +153,7 @@ public class RestClientTarget {
             final Invocation.Builder request = webTarget.request();
 
             setCookies(request);
+            setHeaders(request);
 
             final WhoisResources whoisResources = request.delete(WhoisResources.class);
 
@@ -172,6 +176,7 @@ public class RestClientTarget {
             final Invocation.Builder request = webTarget.request();
 
             setCookies(request);
+            setHeaders(request);
 
             final WhoisResources whoisResources = request.get(WhoisResources.class);
 
@@ -227,6 +232,11 @@ public class RestClientTarget {
         for (Cookie cookie : cookies) {
             request.cookie(cookie);
         }
+        return request;
+    }
+
+    private Invocation.Builder setHeaders(final Invocation.Builder request) {
+        request.headers(headers);
         return request;
     }
 
