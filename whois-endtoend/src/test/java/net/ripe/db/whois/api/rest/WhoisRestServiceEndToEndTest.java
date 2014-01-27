@@ -195,7 +195,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
     @Ignore("TODO: [ES] fix failing test")
     @Test
-    public void Create_assignment() {
+    public void Create_assignment_mnt_valid_SSO_only_logged_in() {
         final RpslObject updatedObject = fixtures.get("ASS-PA");
 
         final String token = crowdClient.login("tpolychnia@ripe.net", "TPolycnia13");
@@ -240,5 +240,107 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 //        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby_2valid_SSO_only_logged_in_1st() {
 
-}
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby_2valid_SSO_only_logged_in_2nd() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby_2valid_SSO_only_not_logged_in() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby_invalid_SSO_not_logged_in() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby_2valid_SSO_1pw_logged_in() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby_2valid_SSO_1pw_not_logged_in_pw() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby_2valid_SSO_1pw_logged_in_pw() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby_2valid_SSO_1pw_not_logged_in_no_pw() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby_invalid_SSO_1pw_not_logged_in_pw() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby_no_SSO_1pw_logged_in_no_pw() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby1_pw_mntby2_SSO_mntby3_SSO_logged_in_no_pw() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby1_pw_mntby2_SSO_mntby3_SSO_not_logged_in_pw() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby_pw_mnt2_SSO_mnt3_SSO_logged_in_no_pw() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby_pw_mnt2_SSO_mnt3_SSO_not_logged_in_pw() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Create_assignment_mntby1_SSO1_mntby2_SSO2_mntby3_pw_logged_in_SSO2_no_pw() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Modify_assignment_mntby_valid_SSO_1pw_logged_in() {
+
+    }
+
+    @Ignore("")
+    @Test
+    public void Delete_assignment_mntby_valid_SSO_1pw_logged_in() {
+
+    }
+
+
+    }
