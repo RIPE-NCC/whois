@@ -35,7 +35,7 @@ public class RestClientTarget {
     private NotifierCallback notifierCallback;
     private MultivaluedMap<String, String> params = new MultivaluedStringMap();
     private MultivaluedMap<String, String> headers = new MultivaluedStringMap();
-    private Cookie cookie;
+    private List<Cookie> cookies = Lists.newArrayList();
 
     RestClientTarget(final Client client, final String baseUrl, final String source, final WhoisObjectClientMapper mapper) {
         this.client = client;
@@ -46,8 +46,8 @@ public class RestClientTarget {
 
     // builder methods
 
-    public RestClientTarget setCookie(final Cookie cookie) {
-        this.cookie = cookie;
+    public RestClientTarget addCookie(final Cookie cookie) {
+        cookies.add(cookie);
         return this;
     }
 
@@ -98,9 +98,8 @@ public class RestClientTarget {
             webTarget = setParams(webTarget);
 
             final Invocation.Builder request = webTarget.request();
-            if (cookie != null) {
-                request.cookie(cookie);
-            }
+
+            setCookies(request);
 
             final WhoisResources whoisResources = request
                     .post(Entity.entity(mapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
@@ -126,9 +125,8 @@ public class RestClientTarget {
             webTarget = setParams(webTarget);
 
             final Invocation.Builder request = webTarget.request();
-            if (cookie != null) {
-                request.cookie(cookie);
-            }
+
+            setCookies(request);
 
             final WhoisResources whoisResources = request
                     .put(Entity.entity(mapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
@@ -150,9 +148,8 @@ public class RestClientTarget {
             webTarget = setParams(webTarget);
 
             final Invocation.Builder request = webTarget.request();
-            if (cookie != null) {
-                request.cookie(cookie);
-            }
+
+            setCookies(request);
 
             final WhoisResources whoisResources = request.delete(WhoisResources.class);
 
@@ -173,9 +170,8 @@ public class RestClientTarget {
             webTarget = setParams(webTarget);
 
             final Invocation.Builder request = webTarget.request();
-            if (cookie != null) {
-                request.cookie(cookie);
-            }
+
+            setCookies(request);
 
             final WhoisResources whoisResources = request.get(WhoisResources.class);
 
@@ -225,6 +221,13 @@ public class RestClientTarget {
             updatedWebTarget = updatedWebTarget.queryParam(param.getKey(), param.getValue().toArray());
         }
         return updatedWebTarget;
+    }
+
+    private Invocation.Builder setCookies(final Invocation.Builder request) {
+        for (Cookie cookie : cookies) {
+            request.cookie(cookie);
+        }
+        return request;
     }
 
     private static RuntimeException createException(final ClientErrorException e) {
