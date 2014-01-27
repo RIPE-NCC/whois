@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.glassfish.jersey.internal.util.collection.MultivaluedStringMap;
+import org.springframework.util.MultiValueMap;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ProcessingException;
@@ -76,6 +77,11 @@ public class RestClientTarget {
         return this;
     }
 
+    public RestClientTarget addParams(final MultiValueMap map) {
+        params.putAll(map);
+        return this;
+    }
+
     public RestClientTarget setNotifier(final NotifierCallback notifierCallback) {
         this.notifierCallback = notifierCallback;
         return this;
@@ -94,6 +100,11 @@ public class RestClientTarget {
     }
 
     public RestClientTarget addHeaders(final MultivaluedMap map) {
+        headers.putAll(map);
+        return this;
+    }
+
+    public RestClientTarget addHeaders(final MultiValueMap map) {
         headers.putAll(map);
         return this;
     }
