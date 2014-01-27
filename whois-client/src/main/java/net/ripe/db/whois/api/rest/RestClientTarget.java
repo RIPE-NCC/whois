@@ -17,9 +17,11 @@ import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.Collection;
 import java.util.List;
@@ -33,8 +35,8 @@ public class RestClientTarget {
     private WhoisObjectClientMapper mapper;
     private NotifierCallback notifierCallback;
     private MultivaluedMap<String, String> params = new MultivaluedStringMap();
-    private MultivaluedMap<String, String> headers = new MultivaluedStringMap();
-    private Cookie cookie;
+    private MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
+    private List<Cookie> cookies = Lists.newArrayList();
 
     RestClientTarget(final Client client, final String baseUrl, final String source, final WhoisObjectClientMapper mapper) {
         this.client = client;
@@ -45,8 +47,8 @@ public class RestClientTarget {
 
     // builder methods
 
-    public RestClientTarget setCookie(final Cookie cookie) {
-        this.cookie = cookie;
+    public RestClientTarget addCookie(final Cookie cookie) {
+        cookies.add(cookie);
         return this;
     }
 
@@ -90,13 +92,18 @@ public class RestClientTarget {
 
     public RpslObject create(final RpslObject rpslObject) {
         try {
-            WebTarget webTarget = client.target(String.format("%s/%s/%s", baseUrl, source, rpslObject.getType().getName()));
-
+            WebTarget webTarget = client.target(String.format("%s/%s/%s",
+                    baseUrl,
+                    source,
+                    rpslObject.getType().getName()));
             webTarget = setParams(webTarget);
 
-            final WhoisResources whoisResources = webTarget
-                    .request()
-                    .cookie(cookie)
+            final Invocation.Builder request = webTarget.request();
+
+            setCookies(request);
+            setHeaders(request);
+
+            final WhoisResources whoisResources = request
                     .post(Entity.entity(mapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
 
             if (notifierCallback != null){
@@ -117,12 +124,14 @@ public class RestClientTarget {
                     source,
                     rpslObject.getType().getName(),
                     rpslObject.getKey().toString()));
-
             webTarget = setParams(webTarget);
 
-            final WhoisResources whoisResources = webTarget
-                    .request()
-                    .cookie(cookie)
+            final Invocation.Builder request = webTarget.request();
+
+            setCookies(request);
+            setHeaders(request);
+
+            final WhoisResources whoisResources = request
                     .put(Entity.entity(mapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
 
             return mapper.map(whoisResources.getWhoisObjects().get(0));
@@ -139,13 +148,14 @@ public class RestClientTarget {
                     source,
                     rpslObject.getType().getName(),
                     rpslObject.getKey().toString()));
-
             webTarget = setParams(webTarget);
 
-            final WhoisResources whoisResources = webTarget
-                    .request()
-                    .cookie(cookie)
-                    .delete(WhoisResources.class);
+            final Invocation.Builder request = webTarget.request();
+
+            setCookies(request);
+            setHeaders(request);
+
+            final WhoisResources whoisResources = request.delete(WhoisResources.class);
 
             return mapper.map(whoisResources.getWhoisObjects().get(0));
 
@@ -161,13 +171,14 @@ public class RestClientTarget {
                     source,
                     objectType.getName(),
                     pkey));
-
             webTarget = setParams(webTarget);
 
-            final WhoisResources whoisResources = webTarget
-                    .request()
-                    .cookie(cookie)
-                    .get(WhoisResources.class);
+            final Invocation.Builder request = webTarget.request();
+
+            setCookies(request);
+            setHeaders(request);
+
+            final WhoisResources whoisResources = request.get(WhoisResources.class);
 
             return mapper.map(whoisResources.getWhoisObjects().get(0));
 
@@ -194,7 +205,6 @@ public class RestClientTarget {
     public Collection<RpslObject> search() {
         try {
             WebTarget webTarget = client.target(String.format("%s/search", baseUrl));
-
             webTarget = setParams(webTarget);
 
             final WhoisResources whoisResources = webTarget
@@ -216,6 +226,18 @@ public class RestClientTarget {
             updatedWebTarget = updatedWebTarget.queryParam(param.getKey(), param.getValue().toArray());
         }
         return updatedWebTarget;
+    }
+
+    private Invocation.Builder setCookies(final Invocation.Builder request) {
+        for (Cookie cookie : cookies) {
+            request.cookie(cookie);
+        }
+        return request;
+    }
+
+    private Invocation.Builder setHeaders(final Invocation.Builder request) {
+        request.headers(headers);
+        return request;
     }
 
     private static RuntimeException createException(final ClientErrorException e) {
