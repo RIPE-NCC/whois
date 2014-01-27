@@ -156,6 +156,7 @@ public class SyncUpdatesService {
             }
 
             InternalUpdatePerformer.logHttpHeaders(loggerContext, httpServletRequest);
+            InternalUpdatePerformer.logCookies(loggerContext, httpServletRequest);
 
             loggerContext.log("msg-in.txt", new SyncUpdateLogCallback(request.toString()));
 
