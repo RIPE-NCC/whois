@@ -68,7 +68,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     "mnt-nfy:     mntnfy_lir@ripe.net\n" +
                     "notify:      notify_lir@ripe.net\n" +
                     "auth:        MD5-PW $1$epUPWc4g$/6BKqK4lKR/lNqLa7K5qT0  #lir\n" +
-                    "auth:        SSO db-test@ripe.net\n" +
+                    "auth:        SSO tpolychnia@ripe.net\n" +
                     "mnt-by:      LIR-MNT\n" +
                     "referral-by: LIR-MNT\n" +
                     "changed:     dbtest@ripe.net\n" +
