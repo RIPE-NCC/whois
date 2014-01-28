@@ -206,6 +206,16 @@ public class InternalUpdatePerformer {
         return String.format("rest_%s_%s", remoteAddress, dateTimeProvider.getNanoTime());
     }
 
+    public void setSsoSessionToContext(final UpdateContext updateContext, final String ssoToken) {
+        if (!StringUtils.isBlank(ssoToken)) {
+            try {
+                updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
+            } catch (IllegalArgumentException e) {
+                updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored(e.getMessage()));
+            }
+        }
+    }
+
     public static void logHttpHeaders(final LoggerContext loggerContext, final HttpServletRequest request) {
         final Enumeration<String> names = request.getHeaderNames();
         while (names.hasMoreElements()) {
@@ -220,16 +230,6 @@ public class InternalUpdatePerformer {
     public static void logCookies(final LoggerContext loggerContext, final HttpServletRequest request) {
         for (final Cookie cookie : request.getCookies()) {
             loggerContext.log(new Message(Messages.Type.INFO, String.format("Cookie: %s=%s", cookie.getName(), cookie.getValue())));
-        }
-    }
-
-    public void setSsoSessionToContext(final UpdateContext updateContext, final String ssoToken) {
-        if (!StringUtils.isBlank(ssoToken)) {
-            try {
-                updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
-            } catch (IllegalArgumentException e) {
-                updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored(e.getMessage()));
-            }
         }
     }
 }
