@@ -50,7 +50,9 @@ public class AbuseCService {
 
         RpslObject organisation;
         try {
-            organisation = restClient.request().lookup(ObjectType.ORGANISATION, orgkey);
+            organisation = restClient.request()
+                    .addParam("unfiltered", "true")
+                    .lookup(ObjectType.ORGANISATION, orgkey);
         } catch (Exception e) {
             // TODO: check for specific exception
             LOGGER.error("exception", e);
@@ -87,7 +89,9 @@ public class AbuseCService {
     @Produces(MediaType.TEXT_PLAIN)
     public Response lookupAbuseContact(@PathParam("orgkey") final String orgKey) {
         try {
-            final RpslObject organisation = restClient.request().lookup(ObjectType.ORGANISATION, orgKey);
+            final RpslObject organisation = restClient.request()
+                    .addParam("unfiltered", "true")
+                    .lookup(ObjectType.ORGANISATION, orgKey);
             try {
                 final CIString abuseMailbox = lookupAbuseMailbox(organisation);
                 return Response.ok(abuseMailbox.toString()).build();
@@ -103,7 +107,9 @@ public class AbuseCService {
 
     private CIString lookupAbuseMailbox(final RpslObject organisation) {
         final String abuseRoleName = organisation.getValueForAttribute(AttributeType.ABUSE_C).toString();
-        final RpslObject abuseRole = restClient.request().lookup(ObjectType.ROLE, abuseRoleName);
+        final RpslObject abuseRole = restClient.request()
+                .addParam("unfiltered", "true")
+                .lookup(ObjectType.ROLE, abuseRoleName);
         return abuseRole.getValueForAttribute(AttributeType.ABUSE_MAILBOX);
     }
 
