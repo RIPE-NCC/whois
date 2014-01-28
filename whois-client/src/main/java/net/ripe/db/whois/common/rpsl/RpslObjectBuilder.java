@@ -44,11 +44,11 @@ public class RpslObjectBuilder {
     }
 
     // Note: we use ISO_8859_1 encoding everywhere as it is the only one that maps directly from byte to char (as in, it effectively is a '(char)byteValue')
-    static List<RpslAttribute> getAttributes(String input) {
+    public static List<RpslAttribute> getAttributes(String input) {
         return getAttributes(input.getBytes(Charsets.ISO_8859_1));
     }
 
-    static List<RpslAttribute> getAttributes(byte[] buf) {
+    public static List<RpslAttribute> getAttributes(byte[] buf) {
         Validate.notNull(buf, "Object can not be null");
 
         final List<RpslAttribute> newAttributes = new ArrayList<>(32);
