@@ -193,12 +193,11 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 //        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
-    @Ignore("TODO: [ES] fix failing test")
     @Test
     public void Create_assignment_mnt_valid_SSO_only_logged_in() {
         final RpslObject updatedObject = fixtures.get("ASS-PA");
 
-        final String token = crowdClient.login("tpolychnia@ripe.net", "TPolycnia13");
+        final String token = crowdClient.login("tpolychnia@ripe.net", "tpolychnia");
         try {
             String whoisResources = null;
 
