@@ -11,7 +11,6 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.glassfish.jersey.internal.util.collection.MultivaluedStringMap;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ProcessingException;
@@ -34,7 +33,7 @@ public class RestClientTarget {
     private String source;
     private WhoisObjectClientMapper mapper;
     private NotifierCallback notifierCallback;
-    private MultivaluedMap<String, String> params = new MultivaluedStringMap();
+    private MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
     private MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
     private List<Cookie> cookies = Lists.newArrayList();
 
