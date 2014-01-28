@@ -351,7 +351,12 @@ public class SyncUpdatesServiceTest {
 
     @Test
     public void request_to_string() throws Exception {
-        SyncUpdatesService.Request request = subject.new Request("person: name\naddress: Singel 258", "no", null, null, null, "127.0.0.1", "RIPE", null);
+        SyncUpdatesService.Request request = new SyncUpdatesService.Request.RequestBuilder()
+                .setData("person: name\naddress: Singel 258")
+                .setNew("no")
+                .setRemoteAddress("127.0.0.1")
+                .setSource("RIPE")
+                .build();
 
         assertThat(request.toString(), containsString("127.0.0.1"));
         assertThat(request.toString(), containsString("DATA=\n\nperson: name\naddress: Singel 258"));

@@ -25,6 +25,7 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoLastAndUpdateSerials;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoTablesIgnoreMissing;
+import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static net.ripe.db.whois.query.support.PatternCountMatcher.matchesPatternCount;
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.Matchers.*;
@@ -735,7 +736,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "source:         RIPE"));
 
         final String response = DummyWhoisClient.query(QueryServer.port, "-s TEST-GRS AS760-MNT");
-        assertThat(response, containsString("" +
+        assertThat(response, stringMatchesRegexp("(?si)" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
                 "%\n" +
@@ -749,15 +750,15 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "admin-c:        DUMY-RIPE\n" +
                 "auth:           MD5-PW # Filtered\n" +
                 "source:         TEST-GRS # Filtered\n" +
-                "remarks:        ****************************\n" +
-                "remarks:        * THIS OBJECT IS MODIFIED\n" +
-                "remarks:        * Please note that all data that is generally regarded as personal\n" +
-                "remarks:        * data has been removed from this object.\n" +
-                "remarks:        * To view the original object, please query the RIPE Database at:\n" +
-                "remarks:        * http://www.ripe.net/whois\n" +
-                "remarks:        ****************************\n" +
+                "remarks:        \\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\n" +
+                "remarks:        \\* THIS OBJECT IS MODIFIED\n" +
+                "remarks:        \\* Please note that all data that is generally regarded as personal\n" +
+                "remarks:        \\* data has been removed from this object.\n" +
+                "remarks:        \\* To view the original object, please query the RIPE Database at:\n" +
+                "remarks:        \\* http://www.ripe.net/whois\n" +
+                "remarks:        \\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\n" +
                 "\n" +
-                "% This query was served by the RIPE Database Query Service version 0.1-TEST (UNDEFINED)\n" +
+                "% This query was served by the RIPE Database Query Service version 0.1-TEST \\(.*\\)\n" +
                 "\n" +
                 "\n"));
     }
