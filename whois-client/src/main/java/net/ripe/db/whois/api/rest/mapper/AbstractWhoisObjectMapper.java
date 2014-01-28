@@ -14,6 +14,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,6 +54,10 @@ public abstract class AbstractWhoisObjectMapper {
             rpslObjects.add(map(whoisObject));
         }
         return rpslObjects;
+    }
+
+    public WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
+        return mapRpslObjects(Arrays.asList(rpslObjects));
     }
 
     public WhoisResources mapRpslObjects(final Iterable<RpslObject> rpslObjects) {

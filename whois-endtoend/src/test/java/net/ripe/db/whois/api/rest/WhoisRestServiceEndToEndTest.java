@@ -5,7 +5,9 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -16,23 +18,21 @@ import org.springframework.test.context.ActiveProfiles;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-import java.util.Arrays;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 @ActiveProfiles(profiles = WhoisProfile.ENDTOEND, inheritProfiles = false)
 public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
-    private static ImmutableMap<String, RpslObject> baseFixtures = ImmutableMap.<String, RpslObject>builder()
-            .put("PP1-TEST", RpslObject.parse("" +
-                    "person:    Pauleth Palthen\n" +
-                    "address:   Singel 258\n" +
-                    "phone:     +31-1234567890\n" +
-                    "e-mail:    noreply@ripe.net\n" +
-                    "mnt-by:    OWNER-MNT\n" +
-                    "nic-hdl:   PP1-TEST\n" +
-                    "changed:   noreply@ripe.net 20120101\n" +
-                    "remarks:   remark\n" +
-                    "source:    TEST\n"))
+    public static final String USER1 = "db_e2e_1@ripe.net";
+    public static final String PASSWORD1 = "pw_e2e_1";
+    public static final String USER2 = "db_e2e_2@ripe.net";
+    public static final String PASSWORD2 = "pw_e2e_2";
+    public static final String USER3 = "db_e2e_3@ripe.net";
+    public static final String PASSWORD3 = "pw_e2e_3";
 
+    private static ImmutableMap<String, RpslObject> baseFixtures = ImmutableMap.<String, RpslObject>builder()
             .put("OWNER-MNT", RpslObject.parse("" +
                     "mntner:      OWNER-MNT\n" +
                     "descr:       Owner Maintainer\n" +
@@ -54,20 +54,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     "auth:        MD5-PW $1$mV2gSZtj$1oVwjZr0ecFZQHsNbw2Ss.  #hm\n" +
                     "mnt-by:      RIPE-NCC-HM-MNT\n" +
                     "referral-by: RIPE-NCC-HM-MNT\n" +
-                    "changed:     dbtest@ripe.net\n" +
-                    "source:      TEST"))
-
-            .put("LIR-MNT", RpslObject.parse("" +
-                    "mntner:      LIR-MNT\n" +
-                    "descr:       used for lir\n" +
-                    "admin-c:     TP1-TEST\n" +
-                    "upd-to:      updto_lir@ripe.net\n" +
-                    "mnt-nfy:     mntnfy_lir@ripe.net\n" +
-                    "notify:      notify_lir@ripe.net\n" +
-                    "auth:        MD5-PW $1$epUPWc4g$/6BKqK4lKR/lNqLa7K5qT0  #lir\n" +
-                    "auth:        SSO tpolychnia@ripe.net\n" +
-                    "mnt-by:      LIR-MNT\n" +
-                    "referral-by: LIR-MNT\n" +
                     "changed:     dbtest@ripe.net\n" +
                     "source:      TEST"))
 
@@ -109,43 +95,12 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     "address:         RIPE NCC\n" +
                     "e-mail:          dbtest@ripe.net\n" +
                     "ref-nfy:         dbtest-org@ripe.net\n" +
-                    "mnt-ref:         lir-mnt\n" +
-                    "mnt-by:          owner-mnt\n" +
+                    "mnt-ref:         OWNER-MNT\n" +
+                    "mnt-by:          OWNER-MNT\n" +
                     "changed: denis@ripe.net 20121016\n" +
                     "source:  TEST\n"))
 
-            .put("ALLOC-PA", RpslObject.parse("" +
-                    "inetnum:      192.168.0.0 - 192.169.255.255\n" +
-                    "netname:      TEST-NET-NAME\n" +
-                    "descr:        TEST network\n" +
-                    "country:      NL\n" +
-                    "org:          ORG-LIR1-TEST\n" +
-                    "admin-c:      TP1-TEST\n" +
-                    "tech-c:       TP1-TEST\n" +
-                    "status:       ALLOCATED PA\n" +
-                    "mnt-by:       RIPE-NCC-HM-MNT\n" +
-                    "mnt-lower:    LIR-MNT\n" +
-                    "changed:      dbtest@ripe.net 20020101\n" +
-                    "source:    TEST\n"))
-
             .build();
-
-    private static ImmutableMap<String, RpslObject> fixtures = ImmutableMap.<String, RpslObject>builder()
-            .put("ASS-PA", RpslObject.parse("" +
-                    "inetnum:      192.168.200.0 - 192.168.200.255\n" +
-                    "netname:      RIPE-NET1\n" +
-                    "descr:        /24 assigned\n" +
-                    "country:      NL\n" +
-                    "org:          ORG-LIR1-TEST\n" +
-                    "admin-c:      TP1-TEST\n" +
-                    "tech-c:       TP1-TEST\n" +
-                    "status:       ASSIGNED PA\n" +
-                    "mnt-by:       LIR-MNT\n" +
-                    "changed:      dbtest@ripe.net 20020101\n" +
-                    "source:    TEST\n"))
-
-            .build();
-
 
     @Autowired
     WhoisObjectServerMapper whoisObjectMapper;
@@ -157,17 +112,65 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         databaseHelper.addObjects(baseFixtures.values());
     }
 
+    private RpslObject makeMntner(String pkey, String... attributes) {
+        return buildGenericObject(MessageFormat.format("" +
+                "mntner:      {0}-MNT\n" +
+                "descr:       used for lir\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      updto_{0}@ripe.net\n" +
+                "mnt-nfy:     mntnfy_{0}@ripe.net\n" +
+                "notify:      notify_{0}@ripe.net\n" +
+                "mnt-by:      {0}-MNT\n" +
+                "referral-by: {0}-MNT\n" +
+                "changed:     dbtest@ripe.net\n" +
+                "source:      TEST", pkey), attributes);
+    }
+
+    private RpslObject makeInetnum(String pkey, String... attributes) {
+        return buildGenericObject(MessageFormat.format("" +
+                "inetnum:      {0}\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "org:          ORG-LIR1-TEST\n" +
+                "admin-c:      TP1-TEST\n" +
+                "tech-c:       TP1-TEST\n" +
+                "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                "status:       ALLOCATED PA\n" +
+                "changed:      dbtest@ripe.net 20020101\n" +
+                "source:    TEST\n", pkey), attributes);
+    }
+
+    private RpslObject buildGenericObject(String object, String... attributes) {
+        RpslObjectBuilder builder = new RpslObjectBuilder(object);
+
+        List<RpslAttribute> attributeList = new ArrayList<>();
+        for (String attribute : attributes) {
+            attributeList.addAll(RpslObjectBuilder.getAttributes(attribute));
+        }
+        for (RpslAttribute rpslAttribute : attributeList) {
+            builder.removeAttributeType(rpslAttribute.getType());
+        }
+
+        builder.addAttributes(attributeList);
+        return builder.sort().get();
+    }
+
     @Test
     public void Create_assignment_mnt_valid_SSO_only_logged_in() {
-        final RpslObject updatedObject = fixtures.get("ASS-PA");
+        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1);
+        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: LIR-MNT");
+        databaseHelper.addObjects(LIR_MNT, ALLOC);
 
-        final String token = crowdClient.login("tpolychnia@ripe.net", "tpolychnia");
+        RpslObject ASS = makeInetnum("10.0.0.0 - 10.255.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+
+        final String token = crowdClient.login(USER1, PASSWORD1);
         try {
             try {
-                String whoisResources = RestTest.target(getPort(), "whois/test/inetnum")
+                String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=lir")
                         .request(MediaType.APPLICATION_XML)
                         .cookie("crowd.token_key", token)
-                        .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), String.class);
+                        .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
 
                 System.err.println(whoisResources);
             } catch (ClientErrorException e) {
@@ -176,11 +179,10 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
             }
 
         } finally {
-            crowdClient.logout("tpolychnia@ripe.net");
+            crowdClient.logout(USER1);
         }
     }
 
-    @Ignore("")
     @Test
     public void Create_assignment_mntby_2valid_SSO_only_logged_in_1st() {
 
@@ -283,4 +285,4 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
 
-    }
+}
