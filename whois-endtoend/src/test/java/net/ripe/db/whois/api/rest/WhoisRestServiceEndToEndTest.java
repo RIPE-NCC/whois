@@ -5,10 +5,7 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -160,83 +157,27 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         databaseHelper.addObjects(baseFixtures.values());
     }
 
-    @Ignore("TODO: [ES] fix failing test")
-    @Test
-    public void DELETE_THIS_EXAMPLE_TEST() {
-        final RpslObject updatedObject = new RpslObjectBuilder(baseFixtures.get("PP1-TEST")).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
-
-        String whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
-                .request(MediaType.APPLICATION_XML)
-                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), String.class);
-
-        System.err.println(whoisResources);
-
-//        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
-//                .request(MediaType.APPLICATION_XML)
-//                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
-
-//        RestTest.assertErrorMessage(whoisResources, 0, "Info", "Authorisation override used");
-//        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-//        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
-//        assertThat(object.getAttributes(), contains(
-//                new Attribute("person", "Pauleth Palthen"),
-//                new Attribute("address", "Singel 258"),
-//                new Attribute("phone", "+31-1234567890"),
-//                new Attribute("e-mail", "noreply@ripe.net"),
-//                new Attribute("nic-hdl", "PP1-TEST"),
-//                new Attribute("remarks", "remark"),
-//                new Attribute("remarks", "updated"),
-//                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-//                new Attribute("changed", "noreply@ripe.net 20120101"),
-//                new Attribute("source", "TEST")));
-//
-//        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
-    }
-
     @Test
     public void Create_assignment_mnt_valid_SSO_only_logged_in() {
         final RpslObject updatedObject = fixtures.get("ASS-PA");
 
         final String token = crowdClient.login("tpolychnia@ripe.net", "tpolychnia");
         try {
-            String whoisResources = null;
-
             try {
-                whoisResources = RestTest.target(getPort(), "whois/test/inetnum")
+                String whoisResources = RestTest.target(getPort(), "whois/test/inetnum")
                         .request(MediaType.APPLICATION_XML)
                         .cookie("crowd.token_key", token)
                         .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), String.class);
+
+                System.err.println(whoisResources);
             } catch (ClientErrorException e) {
                 System.err.println(e.getResponse().getStatus());
                 System.err.println(e.getResponse().readEntity(String.class));
             }
 
-            System.err.println(whoisResources);
         } finally {
             crowdClient.logout("tpolychnia@ripe.net");
         }
-
-
-//        WhoisResources whoisResource = RestTest.target(getPort(), "whois/test/inetnum?password=lir")
-//                .request(MediaType.APPLICATION_XML)
-//                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
-
-//        RestTest.assertErrorMessage(whoisResources, 0, "Info", "Authorisation override used");
-//        assertThat(whoisResource.getWhoisObjects(), hasSize(1));
-//        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
-//        assertThat(object.getAttributes(), contains(
-//                new Attribute("person", "Pauleth Palthen"),
-//                new Attribute("address", "Singel 258"),
-//                new Attribute("phone", "+31-1234567890"),
-//                new Attribute("e-mail", "noreply@ripe.net"),
-//                new Attribute("nic-hdl", "PP1-TEST"),
-//                new Attribute("remarks", "remark"),
-//                new Attribute("remarks", "updated"),
-//                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-//                new Attribute("changed", "noreply@ripe.net 20120101"),
-//                new Attribute("source", "TEST")));
-//
-//        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
     @Ignore("")
