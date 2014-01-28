@@ -37,10 +37,9 @@ public class DailyScheduler {
     @Scheduled(cron = "0 0 0 * * *")
     public void executeScheduledTasks() {
         final LocalDate date = dateTimeProvider.getCurrentDate();
-        final String hostName = Hosts.getLocalHost().getHostName();
 
         for (final DailyScheduledTask task : scheduledTasks) {
-            if (!dailySchedulerDao.acquireDailyTask(date, task.getClass(), hostName)) {
+            if (!dailySchedulerDao.acquireDailyTask(date, task.getClass(), Hosts.getLocalHostName())) {
                 continue;
             }
 
