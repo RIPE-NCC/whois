@@ -3,6 +3,8 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.ImmutableMap;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -21,6 +23,11 @@ import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @ActiveProfiles(profiles = WhoisProfile.ENDTOEND, inheritProfiles = false)
 public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
@@ -230,16 +237,60 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("")
     @Test
     public void Create_assignment_mntby_2valid_SSO_only_not_logged_in() {
+        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1);
+        RpslObject LIR2_MNT = makeMntner("LIR2", "auth: SSO " + USER2);
+        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
+        databaseHelper.addObjects(LIR_MNT, LIR2_MNT, ALLOC);
 
+        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT");
+
+        try {
+            RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (ClientErrorException e) {
+            assertThat(e.getResponse().getStatus(), is(401));
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            final List<ErrorMessage> errorMessages = whoisResources.getErrorMessages();
+            assertThat(errorMessages.size(), is(1));
+            assertThat(errorMessages.get(0).getText(), endsWith("not authenticated by: %s"));
+            assertThat(errorMessages.get(0).getArgs().size(), is(4));
+            assertThat(errorMessages.get(0).getArgs().get(0).getValue(), is("inetnum"));
+            assertThat(errorMessages.get(0).getArgs().get(1).getValue(), is("10.0.0.0 - 10.0.255.255"));
+            assertThat(errorMessages.get(0).getArgs().get(2).getValue(), is("mnt-by"));
+            assertThat(errorMessages.get(0).getArgs().get(3).getValue(), is("LIR-MNT, LIR2-MNT"));
+        }
     }
 
     @Ignore("")
     @Test
-    public void Create_assignment_mntby_invalid_SSO_not_logged_in() {
+    public void Create_assignment_mntby_inactive_SSO_not_logged_in() {
+        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER3);
+        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
+        databaseHelper.addObjects(LIR_MNT, ALLOC);
 
+        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+
+        try {
+            RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (ClientErrorException e) {
+            assertThat(e.getResponse().getStatus(), is(401));
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            final List<ErrorMessage> errorMessages = whoisResources.getErrorMessages();
+            assertThat(errorMessages.size(), is(1));
+            assertThat(errorMessages.get(0).getText(), endsWith("not authenticated by: %s"));
+            assertThat(errorMessages.get(0).getArgs().size(), is(4));
+            assertThat(errorMessages.get(0).getArgs().get(0).getValue(), is("inetnum"));
+            assertThat(errorMessages.get(0).getArgs().get(1).getValue(), is("10.0.0.0 - 10.0.255.255"));
+            assertThat(errorMessages.get(0).getArgs().get(2).getValue(), is("mnt-by"));
+            assertThat(errorMessages.get(0).getArgs().get(3).getValue(), is("LIR-MNT, LIR2-MNT"));
+        }
     }
 
     @Ignore("")
