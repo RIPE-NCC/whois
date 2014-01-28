@@ -97,9 +97,16 @@ public class SyncUpdatesService {
             @QueryParam(Command.REDIRECT) final String redirect,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
             @CookieParam("crowd.token_key") final String crowdTokenKey) {
-        // Characters in query params in GET requests are not decoded properly, so use @Encoded and decode ourselves
-        final Charset charset = getCharset(contentType);
-        final Request request = new Request(decode(data, charset), nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source, crowdTokenKey);
+        final Request request = new Request.RequestBuilder()
+                .setData(decode(data, getCharset(contentType)))
+                .setNew(nnew)
+                .setHelp(help)
+                .setRedirect(redirect)
+                .setDiff(diff)
+                .setRemoteAddress(httpServletRequest.getRemoteAddr())
+                .setSource(source)
+                .setSsoToken(crowdTokenKey)
+                .build();
         return doSyncUpdate(httpServletRequest, request);
     }
 
@@ -115,7 +122,16 @@ public class SyncUpdatesService {
             @FormParam(Command.DIFF) final String diff,
             @FormParam(Command.REDIRECT) final String redirect,
             @CookieParam("crowd.token_key") final String crowdTokenKey) {
-        final Request request = new Request(data, nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source, crowdTokenKey);
+        final Request request = new Request.RequestBuilder()
+                .setData(data)
+                .setNew(nnew)
+                .setHelp(help)
+                .setRedirect(redirect)
+                .setDiff(diff)
+                .setRemoteAddress(httpServletRequest.getRemoteAddr())
+                .setSource(source)
+                .setSsoToken(crowdTokenKey)
+                .build();
         return doSyncUpdate(httpServletRequest, request);
     }
 
@@ -131,7 +147,16 @@ public class SyncUpdatesService {
             @FormDataParam(Command.DIFF) final String diff,
             @FormDataParam(Command.REDIRECT) final String redirect,
             @CookieParam("crowd.token_key") final String crowdTokenKey) {
-        final Request request = new Request(data, nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source, crowdTokenKey);
+        final Request request = new Request.RequestBuilder()
+                .setData(data)
+                .setNew(nnew)
+                .setHelp(help)
+                .setRedirect(redirect)
+                .setDiff(diff)
+                .setRemoteAddress(httpServletRequest.getRemoteAddr())
+                .setSource(source)
+                .setSsoToken(crowdTokenKey)
+                .build();
         return doSyncUpdate(httpServletRequest, request);
     }
 
@@ -278,6 +303,7 @@ public class SyncUpdatesService {
         return null;
     }
 
+    // Characters in query params in GET requests are not decoded properly, so use @Encoded and decode ourselves
     @Nullable
     private String decode(final String data, final Charset charset) {
         if (data == null) {
@@ -311,22 +337,17 @@ public class SyncUpdatesService {
         }
     }
 
-    class Request {
+    static class Request {
         private final Map<String, String> params;
         private final String remoteAddress;
         private final String source;
         private final String ssoToken;
 
-        public Request(final String data, final String nnew, final String help, final String redirect, final String diff, final String remoteAddress, final String source, final String ssoToken) {
-            this.params = Maps.newHashMap();
-            params.put(Command.DATA, data);
-            params.put(Command.NEW, nnew);
-            params.put(Command.HELP, help);
-            params.put(Command.REDIRECT, redirect);
-            params.put(Command.DIFF, diff);
-            this.remoteAddress = remoteAddress;
-            this.source = source;
-            this.ssoToken = ssoToken;
+        private Request(final RequestBuilder requestBuilder) {
+            this.params = requestBuilder.params;
+            this.remoteAddress = requestBuilder.remoteAddress;
+            this.source = requestBuilder.source;
+            this.ssoToken = requestBuilder.ssoToken;
         }
 
         public String getRemoteAddress() {
@@ -370,7 +391,7 @@ public class SyncUpdatesService {
                 final String key = next.getKey();
                 builder.append(key);
                 builder.append('=');
-                if (key.equalsIgnoreCase("DATA")) {
+                if (key.equalsIgnoreCase(Command.DATA)) {
                     builder.append("\n\n");
                 }
                 builder.append(next.getValue());
@@ -380,6 +401,57 @@ public class SyncUpdatesService {
             }
 
             return builder.toString();
+        }
+
+        static class RequestBuilder {
+            private final Map<String, String> params = Maps.newHashMap();
+            private String remoteAddress;
+            private String source;
+            private String ssoToken;
+
+            public RequestBuilder setData(final String data) {
+                params.put(Command.DATA, data);
+                return this;
+            }
+
+            public RequestBuilder setNew(final String flag) {
+                params.put(Command.NEW, flag);
+                return this;
+            }
+
+            public RequestBuilder setHelp(final String help) {
+                params.put(Command.HELP, help);
+                return this;
+            }
+
+            public RequestBuilder setRedirect(final String redirect) {
+                params.put(Command.REDIRECT, redirect);
+                return this;
+            }
+
+            public RequestBuilder setDiff(final String diff) {
+                params.put(Command.DIFF, diff);
+                return this;
+            }
+
+            public RequestBuilder setRemoteAddress(final String remoteAddress) {
+                this.remoteAddress = remoteAddress;
+                return this;
+            }
+
+            public RequestBuilder setSource(final String source) {
+                this.source = source;
+                return this;
+            }
+
+            public RequestBuilder setSsoToken(final String ssoToken) {
+                this.ssoToken = ssoToken;
+                return this;
+            }
+
+            public Request build() {
+                return new Request(this);
+            }
         }
     }
 
