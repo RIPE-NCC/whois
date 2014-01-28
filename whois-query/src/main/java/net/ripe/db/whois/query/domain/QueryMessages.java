@@ -11,7 +11,6 @@ import net.ripe.db.whois.query.QueryFlag;
 import java.net.InetAddress;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.Messages.Type;
 
@@ -74,7 +73,7 @@ public final class QueryMessages {
     public static Message servedByNotice(final CharSequence version) {
         return new Message(Type.INFO,
                 "%% This query was served by the RIPE Database Query Service version %s (%s)\n",
-                version, Hosts.getLocalHost());
+                version, Hosts.getLocalHostName());
     }
 
     public static Message versionListStart(final CharSequence type, final CharSequence key) {

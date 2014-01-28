@@ -20,7 +20,6 @@ import java.util.UUID;
 @Repository
 class MailMessageDaoJdbc implements MailMessageDao {
     private final JdbcTemplate jdbcTemplate;
-    private final Hosts host;
     private final DateTimeProvider dateTimeProvider;
 
     @Autowired
@@ -29,7 +28,6 @@ class MailMessageDaoJdbc implements MailMessageDao {
             final DateTimeProvider dateTimeProvider) {
         this.dateTimeProvider = dateTimeProvider;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.host = Hosts.getLocalHost();
     }
 
     @Override
@@ -43,7 +41,7 @@ class MailMessageDaoJdbc implements MailMessageDao {
                 "limit 1 ",
                 DequeueStatus.CLAIMED.name(),
                 dateTimeProvider.getCurrentDateTime().toDate().getTime() / 1000,
-                host.name(),
+                Hosts.getLocalHostName(),
                 uuid);
 
         switch (rows) {
