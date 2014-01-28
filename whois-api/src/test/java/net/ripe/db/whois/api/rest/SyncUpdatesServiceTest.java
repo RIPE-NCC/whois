@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
@@ -53,6 +54,7 @@ public class SyncUpdatesServiceTest {
     @Mock UpdatesParser updatesParser;
     @Mock LoggerContext loggerContext;
     @Mock SourceContext sourceContext;
+    @Mock SsoTokenTranslator ssoTokenTranslator;
 
     @InjectMocks SyncUpdatesService subject;
 
@@ -74,8 +76,9 @@ public class SyncUpdatesServiceTest {
         final String redirect = null;
         final String source = "test";
         final String contentType = "UTF-8";
+        final String ssoToken = null;
 
-        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
+        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_BAD_REQUEST));
         assertThat(response.getEntity().toString(), is("Invalid request"));
@@ -90,8 +93,9 @@ public class SyncUpdatesServiceTest {
         final String redirect = null;
         final String source = "test";
         final String contentType = "UTF-8";
+        final String ssoToken = null;
 
-        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
+        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_BAD_REQUEST));
         assertThat(response.getEntity().toString(), is("DATA parameter is missing"));
@@ -106,8 +110,9 @@ public class SyncUpdatesServiceTest {
         final String redirect = null;
         final String source = "test";
         final String contentType = "UTF-8";
+        final String ssoToken = null;
 
-        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
+        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_BAD_REQUEST));
         assertThat(response.getEntity().toString(), is("the DIFF method is not actually supported by the Syncupdates interface"));
@@ -122,8 +127,9 @@ public class SyncUpdatesServiceTest {
         final String redirect = null;
         final String source = "test";
         final String contentType = "UTF-8";
+        final String ssoToken = null;
 
-        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
+        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
         assertThat(response.getEntity().toString(), is("OK"));
@@ -138,9 +144,10 @@ public class SyncUpdatesServiceTest {
         final String redirect = null;
         final String source = "test";
         final String contentType = "UTF-8";
+        final String ssoToken = null;
 
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.FAILED_AUTHENTICATION, "FAILED"));
-        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
+        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_UNAUTHORIZED));
         assertThat(response.getEntity().toString(), is("FAILED"));
@@ -155,8 +162,9 @@ public class SyncUpdatesServiceTest {
         final String redirect = null;
         final String source = "test";
         final String contentType = "UTF-8";
+        final String ssoToken = null;
 
-        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
+        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_BAD_REQUEST));
         assertThat(response.getEntity().toString(), is("the DIFF method is not actually supported by the Syncupdates interface"));
@@ -172,11 +180,12 @@ public class SyncUpdatesServiceTest {
             final String redirect = null;
             final String source = "test";
             final String contentType = "UTF-8";
+            final String ssoToken = null;
 
             doThrow(new IllegalArgumentException("some message")).
                     when(messageHandler).handle(any(UpdateRequest.class), any(UpdateContext.class));
 
-            subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
+            subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
             fail();
         } catch (RuntimeException e) {
             assertThat(e.getMessage(), is("some message"));
@@ -193,11 +202,12 @@ public class SyncUpdatesServiceTest {
             final String redirect = null;
             final String source = "test";
             final String contentType = "UTF-8";
+            final String ssoToken = null;
 
             doThrow(new RuntimeException("some message", new IllegalStateException("some message"))).
                     when(messageHandler).handle(any(UpdateRequest.class), any(UpdateContext.class));
 
-            subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
+            subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
             fail();
         } catch (RuntimeException e) {
             assertThat(e.getMessage(), is("some message"));
@@ -213,8 +223,9 @@ public class SyncUpdatesServiceTest {
         final String redirect = null;
         final String source = "test";
         final String contentType = "text/plain; charset=RGRFE";
+        final String ssoToken = null;
 
-        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
+        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
         assertThat(response.getEntity().toString(), is("OK"));
@@ -229,8 +240,9 @@ public class SyncUpdatesServiceTest {
         final String redirect = null;
         final String source = "test";
         final String contentType = "text/plain; charset=US-ASCII";
+        final String ssoToken = null;
 
-        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
+        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         List<Object> contentLengthResponse = response.getMetadata().get(HttpHeaders.CONTENT_TYPE);
         assertThat(contentLengthResponse.size(), is(1));
@@ -249,8 +261,9 @@ public class SyncUpdatesServiceTest {
         final String redirect = null;
         final String source = "test";
         final String contentType = "invalid";
+        final String ssoToken = null;
 
-        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
+        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
         assertThat(response.getEntity().toString(), is("OK"));
@@ -268,9 +281,10 @@ public class SyncUpdatesServiceTest {
         final String redirect = "YES";
         final String source = "test";
         final String contentType = "UTF-8";
+        final String ssoToken = null;
 
         when(ipRanges.isTrusted(any(Interval.class))).thenReturn(true);
-        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
+        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
         assertThat(response.getEntity().toString(), is("OK"));
@@ -285,13 +299,13 @@ public class SyncUpdatesServiceTest {
         final String redirect = "YES";
         final String source = "test";
         final String contentType = "UTF-8";
+        final String ssoToken = null;
 
-        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType);
+        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_FORBIDDEN));
         assertThat(response.getEntity().toString(), is("Not allowed to disable notifications: 127.0.0.1"));
     }
-
 
     @Test
     public void handle_multipart_post() throws Exception {
@@ -309,8 +323,9 @@ public class SyncUpdatesServiceTest {
         final String diff = null;
         final String redirect = null;
         final String source = "test";
+        final String ssoToken = null;
 
-        subject.doMultipartPost(request, source, data, help, nnew, diff, redirect);
+        subject.doMultipartPost(request, source, data, help, nnew, diff, redirect, ssoToken);
 
         verify(messageHandler).handle(argThat(new ArgumentMatcher<UpdateRequest>() {
             @Override
@@ -322,7 +337,6 @@ public class SyncUpdatesServiceTest {
             }
         }), any(UpdateContext.class));
     }
-
 
     @Test
     public void log_callback() throws Exception {
@@ -337,7 +351,7 @@ public class SyncUpdatesServiceTest {
 
     @Test
     public void request_to_string() throws Exception {
-        SyncUpdatesService.Request request = subject.new Request("person: name\naddress: Singel 258", "no", null, null, null, "127.0.0.1", "RIPE");
+        SyncUpdatesService.Request request = subject.new Request("person: name\naddress: Singel 258", "no", null, null, null, "127.0.0.1", "RIPE", null);
 
         assertThat(request.toString(), containsString("127.0.0.1"));
         assertThat(request.toString(), containsString("DATA=\n\nperson: name\naddress: Singel 258"));

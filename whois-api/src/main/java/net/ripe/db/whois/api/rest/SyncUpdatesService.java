@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -19,6 +20,7 @@ import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.Encoded;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -63,6 +66,7 @@ public class SyncUpdatesService {
     private final LoggerContext loggerContext;
     private final SourceContext sourceContext;
     private final IpRanges ipRanges;
+    private final SsoTokenTranslator ssoTokenTranslator;
 
     @Autowired
     public SyncUpdatesService(final DateTimeProvider dateTimeProvider,
@@ -70,13 +74,15 @@ public class SyncUpdatesService {
                               final UpdatesParser updatesParser,
                               final LoggerContext loggerContext,
                               final SourceContext sourceContext,
-                              final IpRanges ipRanges) {
+                              final IpRanges ipRanges,
+                              final SsoTokenTranslator ssoTokenTranslator) {
         this.dateTimeProvider = dateTimeProvider;
         this.updateRequestHandler = updateRequestHandler;
         this.updatesParser = updatesParser;
         this.loggerContext = loggerContext;
         this.sourceContext = sourceContext;
         this.ipRanges = ipRanges;
+        this.ssoTokenTranslator = ssoTokenTranslator;
     }
 
     @GET
@@ -89,10 +95,11 @@ public class SyncUpdatesService {
             @QueryParam(Command.NEW) final String nnew,
             @QueryParam(Command.DIFF) final String diff,
             @QueryParam(Command.REDIRECT) final String redirect,
-            @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType) {
+            @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
+            @CookieParam("crowd.token_key") final String crowdTokenKey) {
         // Characters in query params in GET requests are not decoded properly, so use @Encoded and decode ourselves
         final Charset charset = getCharset(contentType);
-        final Request request = new Request(decode(data, charset), nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source);
+        final Request request = new Request(decode(data, charset), nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source, crowdTokenKey);
         return doSyncUpdate(httpServletRequest, request);
     }
 
@@ -106,8 +113,9 @@ public class SyncUpdatesService {
             @FormParam(Command.HELP) final String help,
             @FormParam(Command.NEW) final String nnew,
             @FormParam(Command.DIFF) final String diff,
-            @FormParam(Command.REDIRECT) final String redirect) {
-        final Request request = new Request(data, nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source);
+            @FormParam(Command.REDIRECT) final String redirect,
+            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+        final Request request = new Request(data, nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source, crowdTokenKey);
         return doSyncUpdate(httpServletRequest, request);
     }
 
@@ -121,8 +129,9 @@ public class SyncUpdatesService {
             @FormDataParam(Command.HELP) final String help,
             @FormDataParam(Command.NEW) final String nnew,
             @FormDataParam(Command.DIFF) final String diff,
-            @FormDataParam(Command.REDIRECT) final String redirect) {
-        final Request request = new Request(data, nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source);
+            @FormDataParam(Command.REDIRECT) final String redirect,
+            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+        final Request request = new Request(data, nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source, crowdTokenKey);
         return doSyncUpdate(httpServletRequest, request);
     }
 
@@ -162,6 +171,8 @@ public class SyncUpdatesService {
 
             final UpdateContext updateContext = new UpdateContext(loggerContext);
 
+            setSsoSessionToContext(updateContext, request.getSsoToken());
+
             final String content = request.hasParam("DATA") ? request.getParam("DATA") : "";
 
             final UpdateRequest updateRequest = new UpdateRequest(
@@ -177,6 +188,16 @@ public class SyncUpdatesService {
 
         } finally {
             loggerContext.remove();
+        }
+    }
+
+    private void setSsoSessionToContext(final UpdateContext updateContext, final String ssoToken) {
+        if (!StringUtils.isBlank(ssoToken)) {
+            try {
+                updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
+            } catch (IllegalArgumentException e) {
+                updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored(e.getMessage()));
+            }
         }
     }
 
@@ -294,8 +315,9 @@ public class SyncUpdatesService {
         private final Map<String, String> params;
         private final String remoteAddress;
         private final String source;
+        private final String ssoToken;
 
-        public Request(final String data, final String nnew, final String help, final String redirect, final String diff, final String remoteAddress, final String source) {
+        public Request(final String data, final String nnew, final String help, final String redirect, final String diff, final String remoteAddress, final String source, final String ssoToken) {
             this.params = Maps.newHashMap();
             params.put(Command.DATA, data);
             params.put(Command.NEW, nnew);
@@ -304,6 +326,7 @@ public class SyncUpdatesService {
             params.put(Command.DIFF, diff);
             this.remoteAddress = remoteAddress;
             this.source = source;
+            this.ssoToken = ssoToken;
         }
 
         public String getRemoteAddress() {
@@ -312,6 +335,10 @@ public class SyncUpdatesService {
 
         public String getSource() {
             return source;
+        }
+
+        public String getSsoToken() {
+            return ssoToken;
         }
 
         public boolean hasParam(final String key) {
@@ -357,7 +384,6 @@ public class SyncUpdatesService {
     }
 
     private class Command {
-
         private Command(){}
 
         static final String DATA = "DATA";
@@ -366,6 +392,4 @@ public class SyncUpdatesService {
         static final String DIFF = "DIFF";
         static final String REDIRECT = "REDIRECT";
     }
-
-    ;
 }
