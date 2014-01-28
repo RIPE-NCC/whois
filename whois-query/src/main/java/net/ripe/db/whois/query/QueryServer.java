@@ -55,7 +55,7 @@ public final class QueryServer implements ApplicationService {
 
         serverChannel = bootstrap.bind(new InetSocketAddress(queryPort));
         port = ((InetSocketAddress)serverChannel.getLocalAddress()).getPort();
-        LOGGER.info("Query server listening on {}", queryPort);
+        LOGGER.info("Query server listening on {}", port);
     }
 
     @Override
