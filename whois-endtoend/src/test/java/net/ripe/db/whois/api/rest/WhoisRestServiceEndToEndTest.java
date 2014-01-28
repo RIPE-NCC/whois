@@ -159,25 +159,22 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     @Test
     public void Create_assignment_mnt_valid_SSO_only_logged_in() {
         RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1);
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: LIR-MNT");
+        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
         databaseHelper.addObjects(LIR_MNT, ALLOC);
 
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.255.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
 
         final String token = crowdClient.login(USER1, PASSWORD1);
         try {
-            try {
-                String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=lir")
-                        .request(MediaType.APPLICATION_XML)
-                        .cookie("crowd.token_key", token)
-                        .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-
-                System.err.println(whoisResources);
-            } catch (ClientErrorException e) {
-                System.err.println(e.getResponse().getStatus());
-                System.err.println(e.getResponse().readEntity(String.class));
-            }
-
+            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+        } catch (ClientErrorException e) {
+            System.err.println(e.getResponse().getStatus());
+            System.err.println(e.getResponse().readEntity(String.class));
+            throw e;
         } finally {
             crowdClient.logout(USER1);
         }
@@ -185,13 +182,52 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
     @Test
     public void Create_assignment_mntby_2valid_SSO_only_logged_in_1st() {
+        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1);
+        RpslObject LIR2_MNT = makeMntner("LIR2", "auth: SSO " + USER2);
+        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
+        databaseHelper.addObjects(LIR_MNT, LIR2_MNT, ALLOC);
 
+        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT");
+
+        final String token = crowdClient.login(USER1, PASSWORD1);
+        try {
+            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+        } catch (ClientErrorException e) {
+            System.err.println(e.getResponse().getStatus());
+            System.err.println(e.getResponse().readEntity(String.class));
+            throw e;
+        } finally {
+            crowdClient.logout(USER1);
+        }
     }
 
-    @Ignore("")
     @Test
     public void Create_assignment_mntby_2valid_SSO_only_logged_in_2nd() {
+        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1);
+        RpslObject LIR2_MNT = makeMntner("LIR2", "auth: SSO " + USER2);
+        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
+        databaseHelper.addObjects(LIR_MNT, LIR2_MNT, ALLOC);
 
+        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT");
+
+        final String token = crowdClient.login(USER2, PASSWORD2);
+        try {
+            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+        } catch (ClientErrorException e) {
+            System.err.println(e.getResponse().getStatus());
+            System.err.println(e.getResponse().readEntity(String.class));
+            throw e;
+        } finally {
+            crowdClient.logout(USER2);
+        }
     }
 
     @Ignore("")

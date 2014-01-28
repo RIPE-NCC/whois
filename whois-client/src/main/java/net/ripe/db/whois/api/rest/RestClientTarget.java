@@ -76,11 +76,6 @@ public class RestClientTarget {
         return this;
     }
 
-    public RestClientTarget addParams(final MultivaluedMap map) {
-        params.putAll(map);
-        return this;
-    }
-
     public RestClientTarget setNotifier(final NotifierCallback notifierCallback) {
         this.notifierCallback = notifierCallback;
         return this;
@@ -95,11 +90,6 @@ public class RestClientTarget {
         for (String value : values) {
             addHeader(key, value);
         }
-        return this;
-    }
-
-    public RestClientTarget addHeaders(final MultivaluedMap map) {
-        headers.putAll(map);
         return this;
     }
 
