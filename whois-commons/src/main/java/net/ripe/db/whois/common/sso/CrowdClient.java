@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -46,41 +47,54 @@ public class CrowdClient {
     public String login(String username, String password) {
         CrowdAuthenticationContext crowdAuth = new CrowdAuthenticationContext(username, password);
 
-        final CrowdSession session = client.target(restUrl)
-                .path("rest/usermanagement/2/session")
-                .request()
-                .post(Entity.entity(crowdAuth, MediaType.APPLICATION_XML), CrowdSession.class);
-
-        return session.getToken();
+        try {
+            final CrowdSession session = client.target(restUrl)
+                    .path("rest/usermanagement/1/session")
+                    .request()
+                    .post(Entity.entity(crowdAuth, MediaType.APPLICATION_XML), CrowdSession.class);
+            return session.getToken();
+        } catch (ClientErrorException e) {
+            final CrowdError crowdError = e.getResponse().readEntity(CrowdError.class);
+            throw new IllegalStateException(crowdError.getMessage());
+        }
     }
 
     public void logout(String username) {
-        client.target(restUrl)
-                .path("rest/usermanagement/2/session")
-                .queryParam("username", username)
-                .request()
-                .delete();
+        try {
+            client.target(restUrl)
+                    .path("rest/usermanagement/1/session")
+                    .queryParam("username", username)
+                    .request()
+                    .delete();
+        } catch (ClientErrorException e) {
+            final CrowdError crowdError = e.getResponse().readEntity(CrowdError.class);
+            throw new IllegalStateException(crowdError.getMessage());
+        }
     }
 
     public void invalidateToken(String token) {
-        client.target(restUrl)
-                .path("rest/usermanagement/2/session")
-                .path(token)
-                .request()
-                .delete();
+        try {
+            client.target(restUrl)
+                    .path("rest/usermanagement/1/session")
+                    .path(token)
+                    .request()
+                    .delete();
+        } catch (ClientErrorException e) {
+            final CrowdError crowdError = e.getResponse().readEntity(CrowdError.class);
+            throw new IllegalStateException(crowdError.getMessage());
+        }
     }
-
-
 
     public String getUuid(final String username) {
         try {
             return client.target(restUrl)
-                    .path("rest/usermanagement/2/user/attribute")
+                    .path("rest/usermanagement/1/user/attribute")
                     .queryParam("username", username)
                     .request()
                     .get(CrowdResponse.class)
                     .getUUID();
         } catch (NotFoundException e) {
+            e.printStackTrace();
             throw new IllegalArgumentException("Unknown RIPE Access user: " + username);
         }
     }
@@ -88,7 +102,7 @@ public class CrowdClient {
     public String getUsername(final String uuid) {
         try {
             return client.target(restUrl)
-                    .path("rest/sso/2/uuid-search")
+                    .path("rest/sso/1/uuid-search")
                     .queryParam("uuid", uuid)
                     .request()
                     .get(CrowdUser.class)
@@ -101,7 +115,7 @@ public class CrowdClient {
     public UserSession getUserSession(final String token) {
         try {
             CrowdUser user = client.target(restUrl)
-                    .path("rest/usermanagement/2/session")
+                    .path("rest/usermanagement/1/session")
                     .path(token)
                     .request()
                     .get(CrowdSession.class)
