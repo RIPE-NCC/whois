@@ -21,9 +21,6 @@ public class SsoTokenTranslator {
     @Nullable
     public UserSession translateSsoToken(final String ssoToken) {
         final UserSession userSession = crowdClient.getUserSession(ssoToken);
-        if (!userSession.isActive()) {
-            throw new IllegalArgumentException("SSO account '" + userSession.getUsername() + "' is deactivated");
-        }
         userSession.setUuid(crowdClient.getUuid(userSession.getUsername()));
         return userSession;
     }
