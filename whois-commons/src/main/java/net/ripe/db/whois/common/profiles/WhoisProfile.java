@@ -19,8 +19,8 @@ public class WhoisProfile {
         System.setProperty("spring.profiles.active", DEPLOYED);
     }
 
-    public static void setEndtoend() {
+    public static void setTest() {
         WhoisProfile.deployed = false;
-        System.setProperty("spring.profiles.active", ENDTOEND);
+        System.setProperty("spring.profiles.active", TEST);
     }
 }
