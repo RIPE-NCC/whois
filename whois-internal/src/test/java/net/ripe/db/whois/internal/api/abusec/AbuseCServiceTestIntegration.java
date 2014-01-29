@@ -4,10 +4,10 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.common.ApplicationService;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.User;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -15,10 +15,8 @@ import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ForbiddenException;
@@ -41,8 +39,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-@Category(IntegrationTest.class)
-@ContextConfiguration(locations = {"classpath:applicationContext-internal-test.xml"}, inheritLocations = false)
 public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Autowired private AbuseCService abuseCService;
@@ -54,7 +50,7 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Before
     public void startRestServer() {
-        applicationContextRest = new ClassPathXmlApplicationContext("applicationContext-api-test.xml");
+        applicationContextRest = WhoisProfile.initContextWithProfile("applicationContext-api-test.xml", WhoisProfile.TEST);
         databaseHelperRest = applicationContextRest.getBean(DatabaseHelper.class);
         applicationServicesRest = applicationContextRest.getBeansOfType(ApplicationService.class).values();
 
