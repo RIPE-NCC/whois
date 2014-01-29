@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -210,7 +211,7 @@ public class InternalUpdatePerformer {
         if (!StringUtils.isBlank(ssoToken)) {
             try {
                 updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException | ProcessingException e) {
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored(e.getMessage()));
             }
         }
