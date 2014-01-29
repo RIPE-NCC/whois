@@ -92,7 +92,7 @@ public class SyncUpdatesService {
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType) {
         // Characters in query params in GET requests are not decoded properly, so use @Encoded and decode ourselves
         final Charset charset = getCharset(contentType);
-        final Request request = new Request(decode(data, charset), nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source);
+        final Request request = new Request(decode(data, charset), nnew, help, redirect, diff, httpServletRequest.getRemoteAddr(), source);     // TODO: [ES] read source address from X-Forward-For header, if available
         return doSyncUpdate(httpServletRequest, request);
     }
 
