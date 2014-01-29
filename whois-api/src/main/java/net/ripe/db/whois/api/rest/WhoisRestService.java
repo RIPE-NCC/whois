@@ -302,7 +302,7 @@ public class WhoisRestService {
 
         final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords);
 
-        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);  // TODO: [ES] read source address from X-Forward-For header, if available
+        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
     }
 
     @GET
@@ -324,7 +324,7 @@ public class WhoisRestService {
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
-        queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), contextId, versionsResponseHandler);    // TODO: [ES] read source address from X-Forward-For header, if available
+        queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), contextId, versionsResponseHandler);
 
         final List<DeletedVersionResponseObject> deleted = versionsResponseHandler.getDeletedObjects();
         final List<VersionResponseObject> versions = versionsResponseHandler.getVersionObjects();
@@ -365,7 +365,7 @@ public class WhoisRestService {
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
-        queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), contextId, versionsResponseHandler);    // TODO: [ES] read source address from X-Forward-For header, if available
+        queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), contextId, versionsResponseHandler);
 
         final VersionWithRpslResponseObject versionWithRpslResponseObject = versionsResponseHandler.getVersionWithRpslResponseObject();
 
@@ -467,7 +467,7 @@ public class WhoisRestService {
 
         Service service = new Service(SERVICE_SEARCH);
 
-        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service);     // TODO: [ES] read source address from X-Forward-For header, if available
+        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service);
     }
 
     private void validateSearchKey(HttpServletRequest request, String searchKey) {
