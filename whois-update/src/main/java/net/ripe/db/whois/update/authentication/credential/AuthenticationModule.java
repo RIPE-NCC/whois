@@ -76,7 +76,6 @@ public class AuthenticationModule {
             final Class<? extends Credential> credentialClass = credential.getClass();
             final CredentialValidator credentialValidator = credentialValidatorMap.get(credentialClass);
             if (credentialValidator != null && credentialValidator.hasValidCredential(update, updateContext, offered.ofType(credentialClass), credential)) {
-                LOGGER.info("authenticating {} with credential {}", update.getKey(), credentialValidator.getClass().getSimpleName());
                 return true;
             }
         }
