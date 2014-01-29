@@ -662,7 +662,6 @@ public class WhoisRestService {
 
                 return new WebApplicationException(responseBuilder.build());
             } else {
-                LOGGER.info("handleQueryAndStreamResponse", e);
                 Response.ResponseBuilder responseBuilder;
                 responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
 
