@@ -81,11 +81,12 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     @Autowired ApplicationContext applicationContext;
     @Autowired DateTimeProvider dateTimeProvider;
     @Autowired AttributeSanitizer attributeSanitizer;
-    @Autowired RpslObjectDao rpslObjectDao;
-    @Autowired RpslObjectUpdateDao rpslObjectUpdateDao;
     @Autowired SourceAwareDataSource sourceAwareDataSource;
     @Autowired SourceContext sourceContext;
-    @Autowired CrowdClient crowdClient;
+
+    RpslObjectDao rpslObjectDao;
+    RpslObjectUpdateDao rpslObjectUpdateDao;
+    CrowdClient crowdClient;
     private StringValueResolver valueResolver;
 
     @Autowired(required = false)
@@ -115,6 +116,22 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     @Qualifier("internalsDataSource")
     public void setPendingDataSource(DataSource pendingDataSource) {
         internalsTemplate = new JdbcTemplate(pendingDataSource);
+    }
+
+    // TODO: [AH] autowire these fields once whois-internals has proper wiring set up
+    @Autowired
+    public void setCrowdClient(CrowdClient crowdClient) {
+        this.crowdClient = crowdClient;
+    }
+
+    @Autowired
+    public void setRpslObjectDao(RpslObjectDao rpslObjectDao) {
+        this.rpslObjectDao = rpslObjectDao;
+    }
+
+    @Autowired
+    public void setRpslObjectUpdateDao(RpslObjectUpdateDao rpslObjectUpdateDao) {
+        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
     }
 
     @Override
@@ -246,20 +263,33 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         for (final String source : sources) {
             try {
                 final JdbcTemplate jdbcTemplate = sourceContext.getSourceConfiguration(Source.master(source)).getJdbcTemplate();
-                truncateTables(jdbcTemplate);
-                loadScripts(jdbcTemplate, "whois_data.sql");
+                setupWhoisDatabase(jdbcTemplate);
             } catch (IllegalSourceException e) {
                 LOGGER.warn("Source not configured, check test: {}", source);
             }
         }
 
+        setupInternalsDatabase();
+        setupMailupdatesDatabase();
         setupAclDatabase();
-        truncateTables(mailupdatesTemplate, internalsTemplate);
-        loadScripts(internalsTemplate, "internals_data.sql");
+    }
+
+    public void setupWhoisDatabase(JdbcTemplate jdbcTemplate) {
+        truncateTables(jdbcTemplate);
+        loadScripts(jdbcTemplate, "whois_data.sql");
     }
 
     public void setupAclDatabase() {
         truncateTables(aclTemplate);
+    }
+
+    public void setupMailupdatesDatabase() {
+        truncateTables(mailupdatesTemplate);
+    }
+
+    public void setupInternalsDatabase() {
+        truncateTables(internalsTemplate);
+        loadScripts(internalsTemplate, "internals_data.sql");
     }
 
     public DataSource getMailupdatesDataSource() {

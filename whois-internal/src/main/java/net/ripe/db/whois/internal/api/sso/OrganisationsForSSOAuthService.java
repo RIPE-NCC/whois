@@ -28,6 +28,7 @@ public class OrganisationsForSSOAuthService {
     @Autowired
     public OrganisationsForSSOAuthService(final InverseOrgFinder orgFinder) {
         this.orgFinder = orgFinder;
+        // TODO: [AH] autowire
         this.whoisObjectMapper = new WhoisObjectServerMapper(null, "");
     }
 
@@ -35,7 +36,6 @@ public class OrganisationsForSSOAuthService {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/{uuid}/organisations")
     public Response getOrganisationsForAuth(@PathParam("uuid") final String uuid) {
-
         final Set<RpslObject> organisationsForAuth = orgFinder.findOrganisationsForAuth("SSO " + uuid);
         if (organisationsForAuth.isEmpty()) {
             final WhoisResources whoisResources = new WhoisResources();

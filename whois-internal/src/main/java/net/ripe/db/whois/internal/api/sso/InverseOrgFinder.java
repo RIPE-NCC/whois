@@ -26,6 +26,7 @@ public class InverseOrgFinder {
 
     @Autowired
     public InverseOrgFinder(@Qualifier("whoisReadOnlySlaveDataSource") final DataSource dataSource) {
+        // TODO: [AH] autowire
         objectDao = new JdbcRpslObjectDao(dataSource, null);
         updateDao = new JdbcRpslObjectUpdateDao(dataSource, new ClockDateTimeProvider());
     }
@@ -51,7 +52,7 @@ public class InverseOrgFinder {
         return organisations;
     }
 
-    // for testing
+    // for testing TODO: drop this once fields are autowired
     InverseOrgFinder() {}
 
     void setObjectDao(final RpslObjectDao objectDao) {
@@ -60,5 +61,13 @@ public class InverseOrgFinder {
 
     void setUpdateDao(final RpslObjectUpdateDao updateDao) {
         this.updateDao = updateDao;
+    }
+
+    RpslObjectDao getObjectDao() {
+        return objectDao;
+    }
+
+    RpslObjectUpdateDao getUpdateDao() {
+        return updateDao;
     }
 }
