@@ -169,7 +169,7 @@ public class InternalUpdatePerformer {
     }
 
     public Origin createOrigin(final HttpServletRequest request) {
-        return new WhoisRestApi(dateTimeProvider, request.getRemoteAddr());
+        return new WhoisRestApi(dateTimeProvider, request.getRemoteAddr());     // TODO: [ES] read source address from X-Forward-For header, if available
     }
 
     public String createContent(final RpslObject rpslObject, final List<String> passwords, final String deleteReason, String override) {
