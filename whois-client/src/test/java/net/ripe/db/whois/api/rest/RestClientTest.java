@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryFlag;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -180,10 +181,9 @@ public class RestClientTest {
         mockWithResponse(whoisResourcesMock);
 
         final RpslObject result = subject.request()
-                .addParam("unfiltered", "true")
                 .lookup(ObjectType.MNTNER, "OWNER-MNT");
 
-        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?unfiltered=true"));
+        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?unfiltered"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
         assertThat(result.getType(), is(ObjectType.MNTNER));
     }
@@ -194,10 +194,9 @@ public class RestClientTest {
 
         final RpslObject result = subject.request()
                 .addParam("password", "password1")
-                .addParam("unfiltered", "true")
                 .lookup(ObjectType.MNTNER, "OWNER-MNT");
 
-        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?unfiltered=true&password=password1"));
+        assertThat(url, is("http://localhost/RIPE/mntner/OWNER-MNT?unfiltered&password=password1"));
         assertThat(result.getKey(), is(CIString.ciString("OWNER-MNT")));
         assertThat(result.getType(), is(ObjectType.MNTNER));
     }
@@ -343,7 +342,12 @@ public class RestClientTest {
                         final String name = (String)iterator.next();
                         url = url + (url.contains("?") ? "&" : "?");
                         while (iterator.hasNext()) {
-                            url = url + name + "=" + iterator.next() + (iterator.hasNext() ? "&" : "");
+                            url += name;
+                            if (iterator.hasNext()) {
+                                String value = iterator.next().toString();
+                                url += StringUtils.isNotBlank(value) ? "="+ value : "";
+                            }
+                            url += iterator.hasNext() ? "&" : "";
                         }
                         return invocation.getMock();
                     }

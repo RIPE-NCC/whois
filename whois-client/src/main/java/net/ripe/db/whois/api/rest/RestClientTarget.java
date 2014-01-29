@@ -180,6 +180,8 @@ public class RestClientTarget {
                     source,
                     objectType.getName(),
                     pkey));
+
+            webTarget = webTarget.queryParam("unfiltered", "");
             webTarget = setParams(webTarget);
 
             final Invocation.Builder request = webTarget.request();

@@ -23,6 +23,7 @@ import java.util.Iterator;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -169,13 +170,24 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_with_password() throws Exception {
+    public void lookup_with_correct_password() throws Exception {
         final RpslObject object = restClient.request()
                 .addParam("password", "test")
                 .lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
 
         assertThat(object.findAttribute(AttributeType.AUTH).getValue(), is("MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ # test"));
         assertThat(object.findAttribute(AttributeType.AUTH).getCleanComment(), is("test"));
+        assertThat(object.findAttribute(AttributeType.SOURCE).getCleanComment(), not(is("Filtered")));
+        assertThat(object.findAttribute(AttributeType.SOURCE).getCleanComment(), is(nullValue()));
+    }
+
+    @Test
+    public void lookup_person_is_unfiltered() throws Exception {
+        final RpslObject object = restClient.request()
+                .lookup(ObjectType.PERSON, TEST_PERSON.getKey().toString());
+
+        assertThat(object.findAttribute(AttributeType.SOURCE).getCleanComment(), not(is("Filtered")));
+        assertThat(object.findAttribute(AttributeType.SOURCE).getCleanComment(), is(nullValue()));
     }
 
     @Test
