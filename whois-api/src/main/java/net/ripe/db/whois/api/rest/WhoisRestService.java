@@ -642,30 +642,30 @@ public class WhoisRestService {
             }
         }
 
-        private WebApplicationException createWebApplicationException(RuntimeException e, SearchResponseHandler responseHandler){
-            if (e instanceof WebApplicationException) {
-                return (WebApplicationException) e;
-            } else if (e instanceof QueryException) {
-                Response.ResponseBuilder responseBuilder;
-                if (((QueryException) e).getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
+        private WebApplicationException createWebApplicationException(final RuntimeException exception, final SearchResponseHandler responseHandler){
+            if (exception instanceof WebApplicationException) {
+                return (WebApplicationException) exception;
+            } else if (exception instanceof QueryException) {
+                final Response.ResponseBuilder responseBuilder;
+                if (((QueryException) exception).getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
                     responseBuilder = Response.status(STATUS_TOO_MANY_REQUESTS);
                 } else {
                     responseBuilder = Response.status(Response.Status.BAD_REQUEST);
                 }
 
-                List<Message> messages = responseHandler.flushAndGetErrors();
-                messages.addAll(((QueryException) e).getMessages());
+                final List<Message> messages = responseHandler.flushAndGetErrors();
+                messages.addAll(((QueryException) exception).getMessages());
 
                 if (!messages.isEmpty()) {
                     responseBuilder.entity(createErrorEntity(request, messages));
                 }
 
                 return new WebApplicationException(responseBuilder.build());
-            } else {
-                Response.ResponseBuilder responseBuilder;
-                responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
 
-                List<Message> messages = responseHandler.flushAndGetErrors();
+            } else {
+
+                final Response.ResponseBuilder responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+                final List<Message> messages = responseHandler.flushAndGetErrors();
                 messages.add(QueryMessages.internalErroroccurred());
                 responseBuilder.entity(createErrorEntity(request, messages));
 
