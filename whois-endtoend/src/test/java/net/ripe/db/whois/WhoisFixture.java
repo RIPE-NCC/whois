@@ -93,7 +93,7 @@ public class WhoisFixture {
 
 
     public void start() throws Exception {
-        WhoisProfile.setEndtoend();
+        WhoisProfile.setTest();
         applicationContext = new ClassPathXmlApplicationContext("applicationContext-whois-test.xml");
         databaseHelper = applicationContext.getBean(DatabaseHelper.class);
         whoisServer = applicationContext.getBean(WhoisServer.class);
