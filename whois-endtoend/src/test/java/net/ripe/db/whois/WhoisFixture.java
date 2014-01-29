@@ -18,6 +18,7 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
@@ -92,6 +93,7 @@ public class WhoisFixture {
 
 
     public void start() throws Exception {
+        WhoisProfile.setEndtoend();
         applicationContext = new ClassPathXmlApplicationContext("applicationContext-whois-test.xml");
         databaseHelper = applicationContext.getBean(DatabaseHelper.class);
         whoisServer = applicationContext.getBean(WhoisServer.class);
