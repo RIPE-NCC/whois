@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.sso;
+package net.ripe.db.whois.crowd;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;

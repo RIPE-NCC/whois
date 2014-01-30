@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.authentication.credential;
 
-import net.ripe.db.whois.common.sso.UserSession;
+import net.ripe.db.whois.crowd.UserSession;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.UpdateContext;
