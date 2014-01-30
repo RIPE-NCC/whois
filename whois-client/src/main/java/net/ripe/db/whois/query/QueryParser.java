@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.query;
+package net.ripe.db.whois.query;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -8,38 +8,34 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpecBuilder;
+import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.domain.QueryMessages;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
+@Immutable
 public class QueryParser {
     public static final Pattern FLAG_PATTERN = Pattern.compile("(--?)([^-].*)");
     private static final Joiner SPACE_JOINER = Joiner.on(' ');
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings();
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings();
 
-    private final String originalStringQuery;
-
     private static final QueryFlagParser PARSER = new QueryFlagParser();
 
-    private final OptionSet options;
-
+    private final String originalStringQuery;
     private final String searchKey;
+    private final OptionSet options;
 
     public QueryParser(final String query) {
         originalStringQuery = query;
         String[] args = Iterables.toArray(SPACE_SPLITTER.split(query), String.class);
         options = PARSER.parse(args);
         searchKey = SPACE_JOINER.join(options.nonOptionArguments());
-
     }
 
     public String getSearchKey() {
@@ -58,6 +54,22 @@ public class QueryParser {
         }
 
         return false;
+    }
+
+    public String getOptionValue(final QueryFlag queryFlag) {
+        String optionValue = null;
+        for (final String flag : queryFlag.getFlags()) {
+            if (options.has(flag)) {
+                for (final Object optionArgument : options.valuesOf(flag)) {
+                    if (optionValue == null) {
+                        optionValue = optionArgument.toString();
+                    } else {
+                        throw new IllegalArgumentExceptionMessage(QueryMessages.invalidMultipleFlags((flag.length() == 1 ? "-" : "--") + flag));
+                    }
+                }
+            }
+        }
+        return optionValue;
     }
 
     public Set<String> getOptionValues(final QueryFlag queryFlag) {
@@ -111,26 +123,6 @@ public class QueryParser {
         return originalStringQuery.hashCode();
     }
 
-    String getOptionValue(final QueryFlag queryFlag) {
-        String optionValue = null;
-        for (final String flag : queryFlag.getFlags()) {
-            if (options.has(flag)) {
-                try {
-                    for (final Object optionArgument : options.valuesOf(flag)) {
-                        if (optionValue == null) {
-                            optionValue = optionArgument.toString();
-                        } else {
-                            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidMultipleFlags((flag.length() == 1 ? "-" : "--") + flag));
-                        }
-                    }
-                } catch (OptionException e) {
-                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
-                }
-            }
-        }
-        return optionValue;
-    }
-
     public boolean hasOnlyQueryFlag(QueryFlag queryFlag) {
         return options.specs().size() == 1 && queryFlag.getFlags().contains(options.specs().get(0).options().iterator().next());
     }
@@ -156,14 +148,14 @@ public class QueryParser {
             for (final String argument : arguments) {
                 final Matcher matcher = FLAG_PATTERN.matcher(argument);
                 if (matcher.matches() && !isValidOption(matcher)) {
-                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("Invalid option: " + argument));
+                    throw new IllegalArgumentExceptionMessage(QueryMessages.malformedQuery("Invalid option: " + argument));
                 }
             }
 
             try {
                 return super.parse(arguments);
             } catch (OptionException e) {
-                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
+                throw new IllegalArgumentExceptionMessage(QueryMessages.malformedQuery());
             }
         }
 

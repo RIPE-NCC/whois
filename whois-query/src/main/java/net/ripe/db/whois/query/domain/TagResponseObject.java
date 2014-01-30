@@ -2,6 +2,7 @@ package net.ripe.db.whois.query.domain;
 
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.query.QueryMessages;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -1,7 +1,8 @@
 package net.ripe.db.whois.query.domain;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.domain.VersionDateTime;
+import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 
 import java.io.IOException;

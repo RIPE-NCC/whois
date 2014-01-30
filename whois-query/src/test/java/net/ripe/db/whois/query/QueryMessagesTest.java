@@ -2,7 +2,6 @@ package net.ripe.db.whois.query;
 
 import com.google.common.collect.ImmutableMap;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.query.domain.QueryMessages;
 import org.junit.Test;
 
 import java.net.InetAddress;

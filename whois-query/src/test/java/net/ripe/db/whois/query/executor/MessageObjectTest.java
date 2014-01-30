@@ -2,7 +2,7 @@ package net.ripe.db.whois.query.executor;
 
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
