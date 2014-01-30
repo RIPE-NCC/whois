@@ -29,7 +29,7 @@ public class SsoCredentialValidator implements CredentialValidator<SsoCredential
         for (SsoCredential offered : offeredCredentials) {
             if (offered.getOfferedUserSession().getUuid().equals(knownCredential.getKnownUuid())){
                 if (offered.getOfferedUserSession().isActive()){
-                    log(update, String.format("Validated %s with SSO Ripe Access for user: %s.",
+                    log(update, String.format("Validated %s with RIPE NCC Access for user: %s.",
                             update.getFormattedKey(), offered.getOfferedUserSession().getUsername()));
                     return true;
                 } else {
@@ -37,7 +37,7 @@ public class SsoCredentialValidator implements CredentialValidator<SsoCredential
                             offered.getOfferedUserSession().getUsername()));
                 }
             } else {
-                log(update, String.format("Validation for %s with SSO Ripe Access for user: %s failed.",
+                log(update, String.format("Validation for %s with RIPE NCC Access for user: %s failed.",
                         update.getFormattedKey(), offered.getOfferedUserSession().getUsername()));
             }
         }
