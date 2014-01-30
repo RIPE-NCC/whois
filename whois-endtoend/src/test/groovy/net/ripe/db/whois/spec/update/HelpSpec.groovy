@@ -68,23 +68,4 @@ class HelpSpec extends BaseQueryUpdateSpec {
             therefore the body of your message has been ignored.
             """.stripIndent()
     }
-
-//    def "send a HeLp and HowTo message and check the response"() {
-//        when:
-//
-//        def message = send new Message(
-//                subject: "HeLp HowTo",
-//                body: ""
-//        )
-//
-//        then:
-//
-//        def ack = ackFor message
-//
-//        ack.subject == "Failed: HeLp HowTo"
-//        ack.contents =~ """\
-//            Subject: HELP
-//            """.stripIndent()
-//
-//    }
 }
