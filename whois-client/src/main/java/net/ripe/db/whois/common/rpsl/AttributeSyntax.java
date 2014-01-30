@@ -844,14 +844,9 @@ public interface AttributeSyntax extends Documented {
         @Override
         public String getDescription(final ObjectType objectType) {
             return "" +
-                    "A list of at least 2 words separated by white space. The\n" +
-                    "first and the last word cannot end with dot (\".\"). The\n" +
-                    "following words are not allowed: \"Dr\", \"Prof\", \"Mv\", \"Ms\",\n" +
-                    "\"Mr\", no matter whether they end with dot (\".\") or not. A\n" +
-                    "word is made up of letters, digits, the character underscore\n" +
-                    "\"_\", and the character hyphen \"-\"; the first character of a\n" +
-                    "name must be a letter, and the last character of a name must\n" +
-                    "be a letter or a digit.\n";
+                    "Must have at least 2 words beginning with a letter.\n" +
+                    "Each word consists of letters, digits and the following symbols:\n" +
+                    "    .`'_-\n";
 
         }
     }
