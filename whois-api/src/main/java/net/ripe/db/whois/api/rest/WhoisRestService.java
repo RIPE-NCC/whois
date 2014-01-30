@@ -41,6 +41,7 @@ import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
+import net.ripe.db.whois.query.query.QueryParser;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -476,7 +477,7 @@ public class WhoisRestService {
         }
 
         try {
-            if (Query.hasFlags(searchKey)) {
+            if (QueryParser.hasFlags(searchKey)) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString())).build());
             }
         } catch (QueryException e) {

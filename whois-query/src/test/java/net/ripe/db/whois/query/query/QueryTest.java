@@ -58,14 +58,12 @@ public class QueryTest {
         assertTrue(subject.isProxyValid());
         assertTrue(subject.isReturningReferencedObjects());
         assertThat(subject.getSearchValue(), is("foo"));
-        assertThat(subject.queryLength(), is(3));
     }
 
     @Test
     public void query_with_space() {
         parse("foo ");
         assertThat(subject.getSearchValue(), is("foo"));
-        assertThat(subject.queryLength(), is(3));
     }
 
     @Test
@@ -361,25 +359,6 @@ public class QueryTest {
         assertEquals("-r -GBTinetnum dont_care", subject.toString());
     }
 
-    @SuppressWarnings({"EqualsBetweenInconvertibleTypes", "ObjectEqualsNull"})
-    @Test
-    public void equals_hashcode() {
-        parse("-Tperson Truus");
-
-        assertTrue(subject.equals(subject));
-        assertThat(subject.hashCode(), is(subject.hashCode()));
-        assertFalse(subject.equals(null));
-        assertFalse(subject.equals(2L));
-
-        Query differentQuery = parseWithNewline("-Tperson joost");
-        assertFalse(subject.equals(differentQuery));
-        assertThat(subject.hashCode(), not(is(differentQuery.hashCode())));
-
-        Query sameQuery = parseWithNewline("-Tperson Truus");
-        assertTrue(subject.equals(sameQuery));
-        assertThat(subject.hashCode(), is(sameQuery.hashCode()));
-    }
-
     @Test
     public void only_keep_alive_flag_specified() {
         parse("-k\r");
@@ -515,16 +494,6 @@ public class QueryTest {
     @Test(expected = QueryException.class)
     public void multiple_proxies() {
         Query.parse("-V ripews,188.111.4.162   -V 85.25.132.61");
-    }
-
-    @Test
-    public void max_elements_exceeded() {
-        try {
-            Query.parse("a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a ");
-            fail("Expected query exception");
-        } catch (QueryException e) {
-            assertThat(e.getMessage(), is(QueryMessages.malformedQuery().toString()));
-        }
     }
 
     @Test

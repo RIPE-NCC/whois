@@ -32,6 +32,7 @@ import static org.junit.Assert.fail;
 @ActiveProfiles(profiles = WhoisProfile.ENDTOEND, inheritProfiles = false)
 public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
+    // accounts used for testing on serval.testlab
     public static final String USER1 = "db_e2e_1@ripe.net";
     public static final String PASSWORD1 = "pw_e2e_1";
     public static final String USER2 = "db_e2e_2@ripe.net";
