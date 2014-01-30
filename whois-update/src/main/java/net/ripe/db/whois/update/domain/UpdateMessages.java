@@ -543,6 +543,6 @@ public final class UpdateMessages {
     }
 
     public static Message ripeAccessAccountUnavailable(final CharSequence username) {
-        return new Message(Type.ERROR, "No Ripe Access Account found for %s", username);
+        return new Message(Type.ERROR, "No RIPE NCC Access Account found for %s", username);
     }
 }

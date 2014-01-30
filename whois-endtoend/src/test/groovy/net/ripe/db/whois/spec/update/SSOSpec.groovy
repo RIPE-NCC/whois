@@ -514,7 +514,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any {it.operation == "Modify" && it.key == "[mntner] NO-SSO-MNT"}
         ack.errorMessagesFor("Modify", "[mntner] NO-SSO-MNT") ==
-                ["No Ripe Access Account found for unknown@ripe.net"]
+                ["No RIPE NCC Access Account found for unknown@ripe.net"]
 
         hasAttribute(objLU, "auth", "MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.", "sso");
 
@@ -559,7 +559,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any {it.operation == "Modify" && it.key == "[mntner] ONE-SSO-MNT"}
         ack.errorMessagesFor("Modify", "[mntner] ONE-SSO-MNT") ==
-                ["No Ripe Access Account found for unknown@ripe.net"]
+                ["No RIPE NCC Access Account found for unknown@ripe.net"]
 
         hasAttribute(objLU, "auth", "SSO test@ripe.net", null);
         hasAttribute(objLU, "auth", "MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.", "sso");
@@ -604,7 +604,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any {it.operation == "Modify" && it.key == "[mntner] ONE-SSO-MNT"}
         ack.errorMessagesFor("Modify", "[mntner] ONE-SSO-MNT") ==
-                ["No Ripe Access Account found for unknown@ripe.net"]
+                ["No RIPE NCC Access Account found for unknown@ripe.net"]
 
         hasAttribute(objLU, "auth", "SSO test@ripe.net", null);
         hasAttribute(objLU, "auth", "MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.", "sso");
@@ -689,7 +689,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[mntner] NO-SSO-MNT"}
         ack.errorMessagesFor("Create", "[mntner] NO-SSO-MNT") ==
-                ["No Ripe Access Account found for unknown@ripe.net"]
+                ["No RIPE NCC Access Account found for unknown@ripe.net"]
 
         queryObjectNotFound("-r -BG -T mntner NO-SSO-MNT", "mntner", "NO-SSO-MNT")
     }

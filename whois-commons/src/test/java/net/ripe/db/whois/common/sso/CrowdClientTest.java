@@ -60,7 +60,7 @@ public class CrowdClientTest {
             subject.getUserSession("token");
             fail();
         } catch (IllegalArgumentException expected) {
-            assertThat(expected.getMessage(), is("Unknown RIPE Access token: token"));
+            assertThat(expected.getMessage(), is("Unknown RIPE NCC Access token: token"));
         }
     }
 
@@ -72,7 +72,7 @@ public class CrowdClientTest {
             subject.getUsername("madeup-uuid");
             fail();
         } catch (Exception expected) {
-            assertThat(expected.getMessage(), is("Unknown RIPE Access uuid: madeup-uuid"));
+            assertThat(expected.getMessage(), is("Unknown RIPE NCC Access uuid: madeup-uuid"));
         }
     }
 
@@ -84,7 +84,7 @@ public class CrowdClientTest {
             subject.getUuid("test@ripe.net");
             fail();
         } catch (Exception expected) {
-            assertThat(expected.getMessage(), is("Unknown RIPE Access user: test@ripe.net"));
+            assertThat(expected.getMessage(), is("Unknown RIPE NCC Access user: test@ripe.net"));
         }
     }
 }

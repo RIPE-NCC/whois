@@ -101,9 +101,9 @@ public interface AttributeSyntax extends Documented {
             "                                  \"key-cert:\" attribute (X509-nnn).\n" +
             "\n" +
             "SSO           username            The username is the same as one used \n" +
-            "                                  for a RIPE Access account. This must \n" +
+            "                                  for a RIPE NCC Access account. This must \n" +
             "                                  be a valid username and is checked \n" +
-            "                                  against the RIPE Access user list.\n");
+            "                                  against the RIPE NCC Access user list.\n");
 
     AttributeSyntax CERTIF_SYNTAX = new AnySyntax("" +
             "The value of the public key should be supplied either using\n" +
