@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.sso;
+package net.ripe.db.whois.crowd;
 
 public class UserSession {
     final private String username;

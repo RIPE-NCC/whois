@@ -3,7 +3,7 @@ package net.ripe.db.whois.update.sso;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthTranslator;
-import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.crowd.CrowdClient;
 import net.ripe.db.whois.common.sso.SsoHelper;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
