@@ -107,7 +107,7 @@ public class Query {
     private String ssoToken;
     private Origin origin;
 
-    private Query(final String query) {
+    private Query(final String query, final Origin origin) {
         originalStringQuery = query;
         String[] args = Iterables.toArray(SPACE_SPLITTER.split(query), String.class);
         if (args.length > MAX_QUERY_ELEMENTS) {
@@ -122,6 +122,7 @@ public class Query {
         objectTypeFilter = generateAndFilterObjectTypes();
         attributeTypeFilter = parseAttributeTypes();
         matchOperation = parseMatchOperations();
+        this.origin = origin;
     }
 
     public static Query parse(final String args) {
@@ -130,7 +131,7 @@ public class Query {
 
     public static Query parse(final String args, final Origin origin) {
         try {
-            final Query query = new Query(args.trim());
+            final Query query = new Query(args.trim(), origin);
 
             for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
                 queryValidator.validate(query, query.messages);
