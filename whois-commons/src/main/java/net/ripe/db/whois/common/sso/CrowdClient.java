@@ -94,8 +94,7 @@ public class CrowdClient {
                     .get(CrowdResponse.class)
                     .getUUID();
         } catch (NotFoundException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("Unknown RIPE Access user: " + username);
+            throw new IllegalArgumentException("Unknown RIPE NCC Access user: " + username);
         }
     }
 
@@ -108,7 +107,7 @@ public class CrowdClient {
                     .get(CrowdUser.class)
                     .getName();
         } catch (NotFoundException e) {
-            throw new IllegalArgumentException("Unknown RIPE Access uuid: " + uuid);
+            throw new IllegalArgumentException("Unknown RIPE NCC Access uuid: " + uuid);
         }
     }
 
@@ -122,7 +121,7 @@ public class CrowdClient {
                     .getUser();
             return new UserSession(user.getName(), user.getActive());
         } catch (BadRequestException e) {
-            throw new IllegalArgumentException("Unknown RIPE Access token: " + token);
+            throw new IllegalArgumentException("Unknown RIPE NCC Access token: " + token);
         }
     }
 
@@ -132,6 +131,7 @@ public class CrowdClient {
         private List<CrowdAttribute> attributes;
 
         public CrowdResponse() {
+            // required no-arg constructor
         }
 
         public CrowdResponse(List<CrowdAttribute> attributes) {
@@ -162,6 +162,7 @@ public class CrowdClient {
         private String name;
 
         public CrowdAttribute() {
+            // required no-arg constructor
         }
 
         public CrowdAttribute(List<CrowdValue> values, String name) {
@@ -184,6 +185,7 @@ public class CrowdClient {
         private String value;
 
         public CrowdValue() {
+            // required no-arg constructor
         }
 
         public CrowdValue(String value) {
@@ -203,6 +205,7 @@ public class CrowdClient {
         private Boolean active;
 
         public CrowdUser() {
+            // required no-arg constructor
         }
 
         public CrowdUser(String name, Boolean active) {
@@ -227,6 +230,7 @@ public class CrowdClient {
         private String token;
 
         public CrowdSession() {
+            // required no-arg constructor
         }
 
         public CrowdSession(CrowdUser user, String token) {
@@ -251,6 +255,7 @@ public class CrowdClient {
         private String password;
 
         CrowdAuthenticationContext() {
+            // required no-arg constructor
         }
 
         CrowdAuthenticationContext(String username, String password) {
@@ -275,6 +280,7 @@ public class CrowdClient {
         private String message;
 
         public CrowdError() {
+            // required no-arg constructor
         }
 
         public CrowdError(String reason, String message) {

@@ -33,7 +33,7 @@ public class RestMessages {
         return new Message(Messages.Type.ERROR, "Flags are not allowed in 'query-string'");
     }
 
-    public static Message ssoAuthIgnored(final CharSequence reason) {
-        return new Message(Messages.Type.INFO, "SSO token ignored (%s)", reason);
+    public static Message ssoAuthIgnored() {
+        return new Message(Messages.Type.INFO, "RIPE NCC Access token ignored");
     }
 }
