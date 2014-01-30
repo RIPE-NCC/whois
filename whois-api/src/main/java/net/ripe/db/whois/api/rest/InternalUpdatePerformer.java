@@ -29,7 +29,6 @@ import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
@@ -63,7 +62,6 @@ public class InternalUpdatePerformer {
             final boolean notificationsEnabled = true;
 
             logHttpHeaders(loggerContext, request);
-            logCookies(loggerContext, request);
 
             final UpdateRequest updateRequest = new UpdateRequest(
                     origin,
@@ -197,12 +195,6 @@ public class InternalUpdatePerformer {
             while (values.hasMoreElements()) {
                 loggerContext.log(new Message(Messages.Type.INFO, String.format("Header: %s=%s", name, values.nextElement())));
             }
-        }
-    }
-
-    public static void logCookies(final LoggerContext loggerContext, final HttpServletRequest request) {
-        for (final Cookie cookie : request.getCookies()) {
-            loggerContext.log(new Message(Messages.Type.INFO, String.format("Cookie: %s=%s", cookie.getName(), cookie.getValue())));
         }
     }
 }
