@@ -1,9 +1,9 @@
 package net.ripe.db.whois.query;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import javax.annotation.CheckForNull;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -188,7 +188,7 @@ public enum QueryFlag {
         private Class<?> requiredArgument;
 
         private Builder(final String... flags) {
-            this.flags = Lists.newArrayList(flags);
+            this.flags = Arrays.asList(flags);
         }
 
         Builder withSearchKey(final String searchKey) {

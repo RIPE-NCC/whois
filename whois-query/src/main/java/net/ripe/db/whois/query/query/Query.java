@@ -1,13 +1,9 @@
 package net.ripe.db.whois.query.query;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import joptsimple.OptionException;
-import joptsimple.OptionSet;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
@@ -30,12 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static net.ripe.db.whois.common.domain.CIString.ciString;
-
-//TODO [TP] This class has way too many responsibilities, needs to be refactored.
 public class Query {
-    public static final int MAX_QUERY_ELEMENTS = 60;
-
     public static final EnumSet<ObjectType> ABUSE_CONTACT_OBJECT_TYPES = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
     private static final EnumSet<ObjectType> GRS_LIMIT_TYPES = EnumSet.of(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
     private static final EnumSet<ObjectType> DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
@@ -82,19 +73,11 @@ public class Query {
     }
 
     public static enum Origin {
-        PORT43, REST
+        LEGACY, REST
     }
 
-    private static final QueryFlagParser PARSER = new QueryFlagParser();
-
-    private static final Joiner SPACE_JOINER = Joiner.on(' ');
-    private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings();
-    private static final Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings();
-
+    private final QueryParser queryParser;
     private final Messages messages = new Messages();
-    private final OptionSet options;
-
-    private final String originalStringQuery;
 
     private final Set<String> sources;
     private final Set<ObjectType> objectTypeFilter;
@@ -108,14 +91,8 @@ public class Query {
     private Origin origin;
 
     private Query(final String query, final Origin origin) {
-        originalStringQuery = query;
-        String[] args = Iterables.toArray(SPACE_SPLITTER.split(query), String.class);
-        if (args.length > MAX_QUERY_ELEMENTS) {
-            messages.add(QueryMessages.malformedQuery());
-        }
-
-        options = PARSER.parse(args);
-        searchKey = new SearchKey(SPACE_JOINER.join(options.nonOptionArguments()).trim());
+        queryParser = new QueryParser(query);
+        searchKey = new SearchKey(queryParser.getSearchKey());
 
         sources = parseSources();
         suppliedObjectTypes = parseSuppliedObjectTypes();
@@ -126,7 +103,7 @@ public class Query {
     }
 
     public static Query parse(final String args) {
-        return parse(args, Origin.PORT43);
+        return parse(args, Origin.LEGACY);
     }
 
     public static Query parse(final String args, final Origin origin) {
@@ -167,54 +144,36 @@ public class Query {
         return this.origin == origin;
     }
 
-    public static boolean hasFlags(String queryString) {
-        return !PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class)).specs().isEmpty();
-    }
-
     public Collection<Message> getWarnings() {
         return messages.getMessages(Messages.Type.WARNING);
     }
 
-    public boolean hasOptions() {
-        return options.hasOptions();
-    }
-
-    public boolean hasOption(final QueryFlag queryFlag) {
-        for (final String flag : queryFlag.getFlags()) {
-            if (options.has(flag)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public boolean isAllSources() {
-        return hasOption(QueryFlag.ALL_SOURCES);
+        return queryParser.hasOption(QueryFlag.ALL_SOURCES);
     }
 
     public boolean isResource() {
-        return hasOption(QueryFlag.RESOURCE);
+        return queryParser.hasOption(QueryFlag.RESOURCE);
     }
 
     public boolean isLookupInBothDirections() {
-        return hasOption(QueryFlag.REVERSE_DOMAIN);
+        return queryParser.hasOption(QueryFlag.REVERSE_DOMAIN);
     }
 
     public boolean isReturningIrt() {
-        return isBriefAbuseContact() || (!isKeysOnly() && hasOption(QueryFlag.IRT));
+        return isBriefAbuseContact() || (!isKeysOnly() && queryParser.hasOption(QueryFlag.IRT));
     }
 
     public boolean isGrouping() {
-        return (!isKeysOnly() && !hasOption(QueryFlag.NO_GROUPING)) && !isBriefAbuseContact();
+        return (!isKeysOnly() && !queryParser.hasOption(QueryFlag.NO_GROUPING)) && !isBriefAbuseContact();
     }
 
     public boolean isBriefAbuseContact() {
-        return hasOption(QueryFlag.ABUSE_CONTACT);
+        return queryParser.hasOption(QueryFlag.ABUSE_CONTACT);
     }
 
     public boolean isKeysOnly() {
-        return hasOption(QueryFlag.PRIMARY_KEYS);
+        return queryParser.hasOption(QueryFlag.PRIMARY_KEYS);
     }
 
     public boolean isPrimaryObjectsOnly() {
@@ -222,7 +181,7 @@ public class Query {
     }
 
     public boolean isFiltered() {
-        return !(hasOption(QueryFlag.NO_FILTERING) || isKeysOnly() || isHelp() || isTemplate() || isVerbose());
+        return !(queryParser.hasOption(QueryFlag.NO_FILTERING) || isKeysOnly() || isHelp() || isTemplate() || isVerbose());
     }
 
     public boolean isHelp() {
@@ -230,36 +189,39 @@ public class Query {
     }
 
     public boolean isSystemInfo() {
-        return hasOption(QueryFlag.LIST_SOURCES_OR_VERSION) || hasOption(QueryFlag.LIST_SOURCES) || hasOption(QueryFlag.VERSION) || hasOption(QueryFlag.TYPES);
+        return queryParser.hasOption(QueryFlag.LIST_SOURCES_OR_VERSION) ||
+                queryParser.hasOption(QueryFlag.LIST_SOURCES) ||
+                queryParser.hasOption(QueryFlag.VERSION) ||
+                queryParser.hasOption(QueryFlag.TYPES);
     }
 
     public boolean isReturningReferencedObjects() {
-        return !(hasOption(QueryFlag.NO_REFERENCED) || isShortHand() || isKeysOnly() || isResource() || isBriefAbuseContact());
+        return !(queryParser.hasOption(QueryFlag.NO_REFERENCED) || isShortHand() || isKeysOnly() || isResource() || isBriefAbuseContact());
     }
 
     public boolean isInverse() {
-        return hasOption(QueryFlag.INVERSE);
+        return queryParser.hasOption(QueryFlag.INVERSE);
     }
 
     public boolean isTemplate() {
-        return hasOption(QueryFlag.TEMPLATE);
+        return queryParser.hasOption(QueryFlag.TEMPLATE);
     }
 
     public boolean isVersionList() {
-        return hasOption(QueryFlag.LIST_VERSIONS);
+        return queryParser.hasOption(QueryFlag.LIST_VERSIONS);
     }
 
     public boolean isVersionDiff() {
-        return hasOption(QueryFlag.DIFF_VERSIONS);
+        return queryParser.hasOption(QueryFlag.DIFF_VERSIONS);
     }
 
     public boolean isObjectVersion() {
-        return hasOption(QueryFlag.SHOW_VERSION);
+        return queryParser.hasOption(QueryFlag.SHOW_VERSION);
     }
 
     public int getObjectVersion() {
-        if (hasOption(QueryFlag.SHOW_VERSION)) {
-            final int version = Integer.parseInt(getOptionValue(QueryFlag.SHOW_VERSION));
+        if (queryParser.hasOption(QueryFlag.SHOW_VERSION)) {
+            final int version = Integer.parseInt(queryParser.getOptionValue(QueryFlag.SHOW_VERSION));
             if (version < 1) {
                 throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("version flag number must be greater than 0"));
             }
@@ -269,8 +231,8 @@ public class Query {
     }
 
     public int[] getObjectVersions() {
-        if (hasOption(QueryFlag.DIFF_VERSIONS)) {
-            final String[] values = StringUtils.split(getOptionValue(QueryFlag.DIFF_VERSIONS), ':');
+        if (queryParser.hasOption(QueryFlag.DIFF_VERSIONS)) {
+            final String[] values = StringUtils.split(queryParser.getOptionValue(QueryFlag.DIFF_VERSIONS), ':');
             if (values.length != 2) {
                 throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff versions must be in the format a:b"));
             }
@@ -288,24 +250,24 @@ public class Query {
     }
 
     public String getTemplateOption() {
-        return getOptionValue(QueryFlag.TEMPLATE);
+        return queryParser.getOptionValue(QueryFlag.TEMPLATE);
     }
 
     public boolean isVerbose() {
-        return hasOption(QueryFlag.VERBOSE);
+        return queryParser.hasOption(QueryFlag.VERBOSE);
     }
 
     public boolean isValidSyntax() {
-        return hasOption(QueryFlag.VALID_SYNTAX);
+        return queryParser.hasOption(QueryFlag.VALID_SYNTAX);
     }
 
     public boolean isNoValidSyntax() {
-        return hasOption(QueryFlag.NO_VALID_SYNTAX);
+        return queryParser.hasOption(QueryFlag.NO_VALID_SYNTAX);
     }
 
     public SystemInfoOption getSystemInfoOption() {
-        if (hasOption(QueryFlag.LIST_SOURCES_OR_VERSION)) {
-            final String optionValue = getOptionValue(QueryFlag.LIST_SOURCES_OR_VERSION).trim();
+        if (queryParser.hasOption(QueryFlag.LIST_SOURCES_OR_VERSION)) {
+            final String optionValue = queryParser.getOptionValue(QueryFlag.LIST_SOURCES_OR_VERSION).trim();
             try {
                 return SystemInfoOption.valueOf(optionValue.toUpperCase());
             } catch (IllegalArgumentException e) {
@@ -313,15 +275,15 @@ public class Query {
             }
         }
 
-        if (hasOption(QueryFlag.LIST_SOURCES)) {
+        if (queryParser.hasOption(QueryFlag.LIST_SOURCES)) {
             return SystemInfoOption.SOURCES;
         }
 
-        if (hasOption(QueryFlag.VERSION)) {
+        if (queryParser.hasOption(QueryFlag.VERSION)) {
             return SystemInfoOption.VERSION;
         }
 
-        if (hasOption(QueryFlag.TYPES)) {
+        if (queryParser.hasOption(QueryFlag.TYPES)) {
             return SystemInfoOption.TYPES;
         }
 
@@ -329,11 +291,11 @@ public class Query {
     }
 
     public String getVerboseOption() {
-        return getOptionValue(QueryFlag.VERBOSE);
+        return queryParser.getOptionValue(QueryFlag.VERBOSE);
     }
 
     public boolean hasObjectTypesSpecified() {
-        return hasOption(QueryFlag.SELECT_TYPES);
+        return queryParser.hasOption(QueryFlag.SELECT_TYPES);
     }
 
     public Set<ObjectType> getObjectTypes() {
@@ -344,7 +306,7 @@ public class Query {
         return attributeTypeFilter;
     }
 
-    public Query.MatchOperation matchOperation() {
+    public MatchOperation matchOperation() {
         return matchOperation;
     }
 
@@ -360,7 +322,7 @@ public class Query {
         return searchKey.getValue();
     }
 
-    public Set<ObjectType> getSuppliedObjectTypes(){
+    public Set<ObjectType> getSuppliedObjectTypes() {
         return suppliedObjectTypes;
     }
 
@@ -399,11 +361,11 @@ public class Query {
     }
 
     public String getProxy() {
-        return getOptionValue(QueryFlag.CLIENT);
+        return queryParser.getOptionValue(QueryFlag.CLIENT);
     }
 
     public boolean hasProxy() {
-        return hasOption(QueryFlag.CLIENT);
+        return queryParser.hasOption(QueryFlag.CLIENT);
     }
 
     public boolean hasProxyWithIp() {
@@ -411,19 +373,15 @@ public class Query {
     }
 
     public boolean hasKeepAlive() {
-        return hasOption(QueryFlag.PERSISTENT_CONNECTION);
+        return queryParser.hasOption(QueryFlag.PERSISTENT_CONNECTION);
     }
 
     public boolean isShortHand() {
-        return hasOption(QueryFlag.BRIEF);
+        return queryParser.hasOption(QueryFlag.BRIEF);
     }
 
     public boolean hasOnlyKeepAlive() {
-        return hasKeepAlive() && (queryLength() == 2 || originalStringQuery.equals("--persistent-connection"));
-    }
-
-    public int queryLength() {
-        return originalStringQuery.length();
+        return queryParser.hasOnlyQueryFlag(QueryFlag.PERSISTENT_CONNECTION);
     }
 
     public boolean isProxyValid() {
@@ -458,6 +416,24 @@ public class Query {
         return null;
     }
 
+    public boolean hasOptions() {
+        return queryParser.hasOptions();
+    }
+
+    public boolean hasOption(QueryFlag queryFlag) {
+        return queryParser.hasOption(queryFlag);
+    }
+
+    @Deprecated
+    public Set<String> getOptionValues(QueryFlag queryFlag) {
+        return queryParser.getOptionValues(queryFlag);
+    }
+
+    // TODO: [AH] only this CIString version should be used
+    public Set<CIString> getOptionValuesCI(QueryFlag queryFlag) {
+        return queryParser.getOptionValuesCI(queryFlag);
+    }
+
     public boolean hasSources() {
         return !sources.isEmpty();
     }
@@ -467,7 +443,7 @@ public class Query {
     }
 
     private Set<ObjectType> parseSuppliedObjectTypes() {
-        final Set<String> objectTypesOptions = getOptionValues(QueryFlag.SELECT_TYPES);
+        final Set<String> objectTypesOptions = queryParser.getOptionValues(QueryFlag.SELECT_TYPES);
         final Set<ObjectType> objectTypes = Sets.newHashSet();
 
         if (!objectTypesOptions.isEmpty()) {
@@ -495,16 +471,16 @@ public class Query {
             response.addAll(suppliedObjectTypes);
         }
 
-        if (hasOption(QueryFlag.NO_PERSONAL)) {
+        if (queryParser.hasOption(QueryFlag.NO_PERSONAL)) {
             response.remove(ObjectType.PERSON);
             response.remove(ObjectType.ROLE);
         }
 
-        if (hasOption(QueryFlag.RESOURCE)) {
+        if (queryParser.hasOption(QueryFlag.RESOURCE)) {
             response.retainAll(GRS_LIMIT_TYPES);
         }
 
-        if (hasOption(QueryFlag.ABUSE_CONTACT)) {
+        if (queryParser.hasOption(QueryFlag.ABUSE_CONTACT)) {
             response.retainAll(ABUSE_CONTACT_OBJECT_TYPES);
         }
 
@@ -525,7 +501,7 @@ public class Query {
     }
 
     private Set<String> parseSources() {
-        final Set<String> optionValues = getOptionValues(QueryFlag.SOURCES);
+        final Set<String> optionValues = queryParser.getOptionValues(QueryFlag.SOURCES);
         if (optionValues.isEmpty()) {
             return Collections.emptySet();
         }
@@ -543,7 +519,7 @@ public class Query {
             return Collections.emptySet();
         }
 
-        final Set<String> attributeTypes = getOptionValues(QueryFlag.INVERSE);
+        final Set<String> attributeTypes = queryParser.getOptionValues(QueryFlag.INVERSE);
         final Set<AttributeType> ret = Sets.newLinkedHashSet();
         for (final String attributeType : attributeTypes) {
             try {
@@ -561,62 +537,11 @@ public class Query {
         return Collections.unmodifiableSet(ret);
     }
 
-    public Set<String> getOptionValues(final QueryFlag queryFlag) {
-        final Set<String> optionValues = Sets.newLinkedHashSet();
-        for (final String flag : queryFlag.getFlags()) {
-            if (options.has(flag)) {
-                for (final Object optionArgument : options.valuesOf(flag)) {
-                    for (final String splittedArgument : COMMA_SPLITTER.split(optionArgument.toString())) {
-                        optionValues.add(splittedArgument);
-                    }
-                }
-            }
-        }
-
-        return optionValues;
-    }
-
-    // TODO: [AH] only this CIString version should be used
-    public Set<CIString> getOptionValuesCI(final QueryFlag queryFlag) {
-        final Set<CIString> optionValues = Sets.newLinkedHashSet();
-        for (final String flag : queryFlag.getFlags()) {
-            if (options.has(flag)) {
-                for (final Object optionArgument : options.valuesOf(flag)) {
-                    for (final String splittedArgument : COMMA_SPLITTER.split(optionArgument.toString())) {
-                        optionValues.add(ciString(splittedArgument));
-                    }
-                }
-            }
-        }
-
-        return optionValues;
-    }
-
-    String getOptionValue(final QueryFlag queryFlag) {
-        String optionValue = null;
-        for (final String flag : queryFlag.getFlags()) {
-            if (options.has(flag)) {
-                try {
-                    for (final Object optionArgument : options.valuesOf(flag)) {
-                        if (optionValue == null) {
-                            optionValue = optionArgument.toString();
-                        } else {
-                            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidMultipleFlags((flag.length() == 1 ? "-" : "--") + flag));
-                        }
-                    }
-                } catch (OptionException e) {
-                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
-                }
-            }
-        }
-        return optionValue;
-    }
-
     private MatchOperation parseMatchOperations() {
         MatchOperation result = null;
 
-        for (final Query.MatchOperation matchOperation : Query.MatchOperation.values()) {
-            if (matchOperation.hasFlag() && hasOption(matchOperation.getQueryFlag())) {
+        for (final MatchOperation matchOperation : MatchOperation.values()) {
+            if (matchOperation.hasFlag() && queryParser.hasOption(matchOperation.getQueryFlag())) {
                 if (result == null) {
                     result = matchOperation;
                 } else {
@@ -627,34 +552,24 @@ public class Query {
         return result;
     }
 
-
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + options.hashCode();
-        return result;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Query query = (Query) o;
+
+        return queryParser.equals(query.queryParser);
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-
-        Query other = (Query) obj;
-        return options.equals(other.options);
+    public int hashCode() {
+        return queryParser.hashCode();
     }
 
     @Override
     public String toString() {
-        return originalStringQuery;
+        return queryParser.toString();
     }
 
     public boolean matchesObjectTypeAndAttribute(final ObjectType objectType, final AttributeType attributeType) {
