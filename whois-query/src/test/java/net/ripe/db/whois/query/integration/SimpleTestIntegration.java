@@ -11,7 +11,7 @@ import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.query.QueryServer;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
 import org.junit.After;
 import org.junit.Before;

@@ -3,7 +3,7 @@ package net.ripe.db.whois.scheduler.task.export;
 
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 
 import java.io.IOException;
 import java.io.Writer;

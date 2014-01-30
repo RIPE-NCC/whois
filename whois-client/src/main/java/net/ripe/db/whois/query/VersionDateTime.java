@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.domain;
+package net.ripe.db.whois.query;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;

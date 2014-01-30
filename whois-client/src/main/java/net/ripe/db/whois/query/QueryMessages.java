@@ -1,12 +1,11 @@
-package net.ripe.db.whois.query.domain;
+package net.ripe.db.whois.query;
 
 import com.google.common.base.Joiner;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Hosts;
-import net.ripe.db.whois.common.domain.VersionDateTime;
-import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.VersionDateTime;
 
 import java.net.InetAddress;
 import java.util.Map;
@@ -83,14 +82,14 @@ public final class QueryMessages {
                 type, key, QueryFlag.SHOW_VERSION);
     }
 
-    public static Message versionInformation(final int version, final boolean isCurrentVersion, final CIString key, final Operation operation, final VersionDateTime timestamp) {
+    public static Message versionInformation(final int version, final boolean isCurrentVersion, final CIString key, final String operation, final VersionDateTime timestamp) {
         return new Message(Type.INFO, ""
                 + "%% Version %d %sof object \"%s\"\n"
                 + "%% This version was a %s operation on %s\n"
                 + "%% You can use \"%s\" to get a list of versions for an object.\n",
                 version,
                 (isCurrentVersion ? "(current version) " : ""),
-                key, operation == Operation.UPDATE ? "UPDATE" : "DELETE",
+                key, operation,
                 timestamp,
                 QueryFlag.LIST_VERSIONS);
     }

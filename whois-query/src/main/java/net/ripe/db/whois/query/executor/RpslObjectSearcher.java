@@ -18,7 +18,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.dao.Inet6numDao;
 import net.ripe.db.whois.query.dao.InetnumDao;
 import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;

@@ -14,7 +14,7 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;

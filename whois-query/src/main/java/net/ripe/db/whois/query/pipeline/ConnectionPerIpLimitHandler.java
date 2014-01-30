@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.handler.WhoisLog;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;

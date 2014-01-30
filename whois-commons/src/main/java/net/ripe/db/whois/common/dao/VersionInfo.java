@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.dao;
 
 import net.ripe.db.whois.common.domain.Identifiable;
-import net.ripe.db.whois.common.domain.VersionDateTime;
+import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 
 public class VersionInfo implements Identifiable, Comparable<VersionInfo> {

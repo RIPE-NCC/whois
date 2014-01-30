@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.query;
 
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 
 class SearchKeyValidator implements QueryValidator {
     @Override
