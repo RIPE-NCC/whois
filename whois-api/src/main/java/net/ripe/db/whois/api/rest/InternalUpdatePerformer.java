@@ -210,7 +210,7 @@ public class InternalUpdatePerformer {
             try {
                 updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
             } catch (IllegalArgumentException | ProcessingException e) {
-                updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored(e.getMessage()));
+                updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
         }
     }
