@@ -13,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -46,17 +45,6 @@ public class InternalUpdatePerformerTest {
         InternalUpdatePerformer.logHttpHeaders(loggerContextMock, requestMock);
 
         verify(loggerContextMock).log(new Message(Messages.Type.INFO, "Header: name=value"));
-        verifyNoMoreInteractions(loggerContextMock);
-    }
-
-    @Test
-    public void log_cookies() {
-        HttpServletRequest requestMock = mock(HttpServletRequest.class);
-        when(requestMock.getCookies()).thenReturn(new Cookie[]{new Cookie("name", "value")});
-
-        InternalUpdatePerformer.logCookies(loggerContextMock, requestMock);
-
-        verify(loggerContextMock).log(new Message(Messages.Type.INFO, "Cookie: name=value"));
         verifyNoMoreInteractions(loggerContextMock);
     }
 
