@@ -4,7 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.UserDao;
-import net.ripe.db.whois.common.domain.*;
+import net.ripe.db.whois.common.domain.IpRanges;
+import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -12,7 +14,17 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.update.domain.Credentials;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.OverrideCredential;
+import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContainer;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -21,6 +33,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Collection;
@@ -31,8 +44,13 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,6 +65,7 @@ public class AuthenticatorPrincipalTest {
     @Mock Maintainers maintainers;
     @Mock LoggerContext loggerContext;
     @Mock PendingUpdateDao pendingUpdateDao;
+    @Mock Environment environment;
 
     Authenticator subject;
     ArgumentCaptor<Subject> subjectCapture;
@@ -63,8 +82,11 @@ public class AuthenticatorPrincipalTest {
         when(maintainers.getAllocMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT", "AARDVARK-MNT"));
         when(update.getCredentials()).thenReturn(new Credentials());
 
+        when(environment.acceptsProfiles(anyString())).thenReturn(false);
+
         subjectCapture = ArgumentCaptor.forClass(Subject.class);
         subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2}, pendingUpdateDao);
+        subject.setEnvironment(environment);
     }
 
     @Test
