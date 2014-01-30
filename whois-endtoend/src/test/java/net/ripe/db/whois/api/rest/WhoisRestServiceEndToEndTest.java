@@ -537,7 +537,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
     @Test
     public void Modify_assignment_mntby_valid_SSO_1pw_logged_in() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1);
+        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
         RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
         RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
         databaseHelper.addObjects(LIR_MNT, ALLOC, ASS);
@@ -560,7 +560,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
     @Test
     public void Delete_assignment_mntby_valid_SSO_1pw_logged_in() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1);
+        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
         RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
         RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
         databaseHelper.addObjects(LIR_MNT, ALLOC, ASS);
