@@ -320,7 +320,7 @@ public class WhoisRestService {
                 QueryFlag.SELECT_TYPES.getLongFlag(),
                 ObjectType.getByName(objectType).getName(),
                 QueryFlag.LIST_VERSIONS.getLongFlag(),
-                key));
+                key), Query.Origin.REST);
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
@@ -361,7 +361,7 @@ public class WhoisRestService {
                 ObjectType.getByName(objectType).getName(),
                 QueryFlag.SHOW_VERSION.getLongFlag(),
                 version,
-                key));
+                key), Query.Origin.REST);
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
@@ -455,7 +455,7 @@ public class WhoisRestService {
             queryBuilder.addFlag(separateFlag);
         }
 
-        final Query query = Query.parse(queryBuilder.build(searchKey));
+        final Query query = Query.parse(queryBuilder.build(searchKey), Query.Origin.REST);
 
         final Parameters parameters = new Parameters(
                 new InverseAttributes(inverseAttributes),
