@@ -31,7 +31,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.Response;
@@ -75,7 +74,6 @@ public class InternalUpdatePerformer {
                                   final String content, final Keyword keyword, final HttpServletRequest request, final String ssoToken) {
 
         logHttpHeaders(loggerContext, request);
-        logCookies(loggerContext, request);
 
         setSsoSessionToContext(updateContext, ssoToken);
 
@@ -225,12 +223,6 @@ public class InternalUpdatePerformer {
             while (values.hasMoreElements()) {
                 loggerContext.log(new Message(Messages.Type.INFO, String.format("Header: %s=%s", name, values.nextElement())));
             }
-        }
-    }
-
-    public static void logCookies(final LoggerContext loggerContext, final HttpServletRequest request) {
-        for (final Cookie cookie : request.getCookies()) {
-            loggerContext.log(new Message(Messages.Type.INFO, String.format("Cookie: %s=%s", cookie.getName(), cookie.getValue())));
         }
     }
 }
