@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
@@ -120,7 +121,427 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         databaseHelper.addObjects(baseFixtures.values());
     }
 
-    private RpslObject makeMntner(String pkey, String... attributes) {
+    @Test
+    public void create_assignment_mnt_valid_SSO_only_logged_in() {
+        databaseHelper.addObjects(makeMntner("LIR", "auth: SSO " + USER1), makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+        final String token = crowdClient.login(USER1, PASSWORD1);
+
+        try {
+            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        } finally {
+            crowdClient.logout(USER1);
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_2valid_SSO_only_logged_in_1st() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+        final String token = crowdClient.login(USER1, PASSWORD1);
+
+        try {
+            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        } finally {
+            crowdClient.logout(USER1);
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_2valid_SSO_only_logged_in_2nd() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+        final String token = crowdClient.login(USER2, PASSWORD2);
+
+        try {
+            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        } finally {
+            crowdClient.logout(USER2);
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_2valid_SSO_only_not_logged_in() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+
+        try {
+            RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (NotAuthorizedException expected) {
+            assertUnauthorizedErrorMessage(expected, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT");
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_inactive_SSO_not_logged_in() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER3),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+
+        try {
+            RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (NotAuthorizedException expected) {
+            assertUnauthorizedErrorMessage(expected, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT");
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_2valid_SSO_1pw_logged_in() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+
+        final String token = crowdClient.login(USER2, PASSWORD2);
+        try {
+            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        } finally {
+            crowdClient.logout(USER2);
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_2valid_SSO_1pw_not_logged_in_pw() {
+        databaseHelper.addObjects(makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"), makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+
+        try {
+            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_2valid_SSO_1pw_logged_in_pw() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+
+        final String token = crowdClient.login(USER2, PASSWORD2);
+        try {
+            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        } finally {
+            crowdClient.logout(USER2);
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_2valid_SSO_1pw_not_logged_in_no_pw() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+
+        try {
+            RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (NotAuthorizedException expected) {
+            assertUnauthorizedErrorMessage(expected, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT");
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_invalid_SSO_1pw_not_logged_in_pw() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER3, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+
+        try {
+            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_no_SSO_1pw_logged_in_no_pw() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+        final String token = crowdClient.login(USER1, PASSWORD1);
+
+        try {
+          RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (NotAuthorizedException expected) {
+            assertUnauthorizedErrorMessage(expected, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT");
+        } finally {
+            crowdClient.logout(USER1);
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby1_pw_mntby2_SSO_mntby3_SSO_logged_in_no_pw() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeMntner("LIR2", "auth: SSO " + USER1),
+                makeMntner("LIR3", "auth: SSO " + USER2),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
+        final String token = crowdClient.login(USER2, PASSWORD2);
+
+        try {
+            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        } finally {
+            crowdClient.logout(USER2);
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby1_pw_mntby2_SSO_mntby3_SSO_not_logged_in_pw() {
+        databaseHelper.addObjects(makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"), makeMntner("LIR2", "auth: SSO " + USER1), makeMntner("LIR3", "auth: SSO " + USER2), makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
+
+        try {
+            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_pw_mnt2_SSO_mnt3_SSO_logged_in_no_pw() {
+        databaseHelper.addObjects(makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"), makeMntner("LIR2", "auth: SSO " + USER1), makeMntner("LIR3", "auth: SSO " + USER2), makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
+        final String token = crowdClient.login(USER1, PASSWORD1);
+
+        try {
+            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        } finally {
+            crowdClient.logout(USER1);
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_pw_mnt2_SSO_mnt3_SSO_not_logged_in_pw() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeMntner("LIR2", "auth: SSO " + USER1),
+                makeMntner("LIR3", "auth: SSO " + USER2),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
+
+        try {
+            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_pw_mnt2_SSO_mnt3_invalid_SSO_not_logged_in() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeMntner("LIR2", "auth: SSO " + USER1),
+                makeMntner("LIR3", "auth: SSO " + USER3),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
+
+        try {
+            RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (NotAuthorizedException expected) {
+            assertUnauthorizedErrorMessage(expected, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT, LIR2-MNT, LIR3-MNT");
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby1_SSO1_mntby2_SSO2_mntby3_pw_logged_in_SSO2_no_pw() {
+        databaseHelper.addObjects(makeMntner("LIR", "auth: SSO " + USER1), makeMntner("LIR2", "auth: SSO " + USER2), makeMntner("LIR3", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"), makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
+        final String token = crowdClient.login(USER2, PASSWORD2);
+
+        try {
+            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        } finally {
+            crowdClient.logout(USER2);
+        }
+    }
+
+    @Test
+    public void modify_assignment_mntby_valid_SSO_1pw_logged_in() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"),
+                makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT"));
+
+        final RpslObject updatedAssignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "remarks: updated");
+        final String token = crowdClient.login(USER1, PASSWORD1);
+
+        try {
+            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0 - 10.0.255.255")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(updatedAssignment), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        } finally {
+            crowdClient.logout(USER1);
+        }
+    }
+
+    @Test
+    public void delete_assignment_mntby_valid_SSO_1pw_logged_in() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"),
+                makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT"));
+
+        final String token = crowdClient.login(USER1, PASSWORD1);
+
+        try {
+            RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0 - 10.0.255.255")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .delete();
+            // TODO: add assertions
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        } finally {
+            crowdClient.logout(USER1);
+        }
+    }
+
+    @Test
+    public void create_assignment_mntby_invalid_SSO_token_is_ignored() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
+        final String token = "deadbeef";
+
+        try {
+            RestTest.target(getPort(), "whois/test/inetnum")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        } catch (NotAuthorizedException expected) {
+            final WhoisResources whoisResources = expected.getResponse().readEntity(WhoisResources.class);
+            final ErrorMessage errorMessage = Lists.reverse(whoisResources.getErrorMessages()).get(0);
+            assertThat(errorMessage.getText(), is("RIPE NCC Access token ignored"));
+        }
+    }
+
+    // helper methods
+
+    private RpslObject makeMntner(final String pkey, final String ... attributes) {
         return buildGenericObject(MessageFormat.format("" +
                 "mntner:      {0}-MNT\n" +
                 "descr:       used for lir\n" +
@@ -134,7 +555,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                 "source:      TEST", pkey), attributes);
     }
 
-    private RpslObject makeInetnum(String pkey, String... attributes) {
+    private RpslObject makeInetnum(final String pkey, final String ... attributes) {
         return buildGenericObject(MessageFormat.format("" +
                 "inetnum:      {0}\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -149,7 +570,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                 "source:    TEST\n", pkey), attributes);
     }
 
-    private RpslObject buildGenericObject(String object, String... attributes) {
+    private RpslObject buildGenericObject(final String object, final String ... attributes) {
         RpslObjectBuilder builder = new RpslObjectBuilder(object);
 
         List<RpslAttribute> attributeList = new ArrayList<>();
@@ -164,9 +585,8 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         return builder.sort().get();
     }
 
-    private void assertUnauthorizedErrormessage(final ClientErrorException e, String... args) {
-        assertThat(e.getResponse().getStatus(), is(401));
-        final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+    private void assertUnauthorizedErrorMessage(final NotAuthorizedException exception, final String ... args) {
+        final WhoisResources whoisResources = exception.getResponse().readEntity(WhoisResources.class);
         final List<ErrorMessage> errorMessages = whoisResources.getErrorMessages();
         assertThat(errorMessages.size(), is(1));
         assertThat(errorMessages.get(0).getText(), endsWith("\nnot authenticated by: %s"));
@@ -180,427 +600,5 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         System.err.println(e.getResponse().getStatus());
         System.err.println(e.getResponse().readEntity(String.class));
         throw e;
-    }
-
-    @Test
-    public void Create_assignment_mnt_valid_SSO_only_logged_in() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1);
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-
-        final String token = crowdClient.login(USER1, PASSWORD1);
-        try {
-            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        } finally {
-            crowdClient.logout(USER1);
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_2valid_SSO_only_logged_in_1st() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2);
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-
-        final String token = crowdClient.login(USER1, PASSWORD1);
-        try {
-            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        } finally {
-            crowdClient.logout(USER1);
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_2valid_SSO_only_logged_in_2nd() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2);
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-
-        final String token = crowdClient.login(USER2, PASSWORD2);
-        try {
-            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        } finally {
-            crowdClient.logout(USER2);
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_2valid_SSO_only_not_logged_in() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2);
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-
-        try {
-            RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            fail();
-        } catch (ClientErrorException e) {
-            assertUnauthorizedErrormessage(e, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT");
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_inactive_SSO_not_logged_in() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER3);
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-
-        try {
-            RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            fail();
-        } catch (ClientErrorException e) {
-            assertUnauthorizedErrormessage(e, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT");
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_2valid_SSO_1pw_logged_in() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-
-        final String token = crowdClient.login(USER2, PASSWORD2);
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        } finally {
-            crowdClient.logout(USER2);
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_2valid_SSO_1pw_not_logged_in_pw() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_2valid_SSO_1pw_logged_in_pw() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-
-        final String token = crowdClient.login(USER2, PASSWORD2);
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        } finally {
-            crowdClient.logout(USER2);
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_2valid_SSO_1pw_not_logged_in_no_pw() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-
-        try {
-            RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            fail();
-        } catch (ClientErrorException e) {
-            assertUnauthorizedErrormessage(e, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT");
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_invalid_SSO_1pw_not_logged_in_pw() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER3, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_no_SSO_1pw_logged_in_no_pw() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-
-        final String token = crowdClient.login(USER1, PASSWORD1);
-        try {
-            RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            fail();
-        } catch (ClientErrorException e) {
-            assertUnauthorizedErrormessage(e, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT");
-        } finally {
-            crowdClient.logout(USER1);
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby1_pw_mntby2_SSO_mntby3_SSO_logged_in_no_pw() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject LIR2_MNT = makeMntner("LIR2", "auth: SSO " + USER1);
-        RpslObject LIR3_MNT = makeMntner("LIR3", "auth: SSO " + USER2);
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, LIR2_MNT, LIR3_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
-
-        final String token = crowdClient.login(USER2, PASSWORD2);
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        } finally {
-            crowdClient.logout(USER2);
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby1_pw_mntby2_SSO_mntby3_SSO_not_logged_in_pw() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject LIR2_MNT = makeMntner("LIR2", "auth: SSO " + USER1);
-        RpslObject LIR3_MNT = makeMntner("LIR3", "auth: SSO " + USER2);
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, LIR2_MNT, LIR3_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
-
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_pw_mnt2_SSO_mnt3_SSO_logged_in_no_pw() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject LIR2_MNT = makeMntner("LIR2", "auth: SSO " + USER1);
-        RpslObject LIR3_MNT = makeMntner("LIR3", "auth: SSO " + USER2);
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, LIR2_MNT, LIR3_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
-
-        final String token = crowdClient.login(USER1, PASSWORD1);
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        } finally {
-            crowdClient.logout(USER1);
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_pw_mnt2_SSO_mnt3_SSO_not_logged_in_pw() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject LIR2_MNT = makeMntner("LIR2", "auth: SSO " + USER1);
-        RpslObject LIR3_MNT = makeMntner("LIR3", "auth: SSO " + USER2);
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, LIR2_MNT, LIR3_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
-
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_pw_mnt2_SSO_mnt3_invalid_SSO_not_logged_in() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject LIR2_MNT = makeMntner("LIR2", "auth: SSO " + USER1);
-        RpslObject LIR3_MNT = makeMntner("LIR3", "auth: SSO " + USER3);
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, LIR2_MNT, LIR3_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
-
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            fail();
-        } catch (ClientErrorException e) {
-            assertUnauthorizedErrormessage(e, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT, LIR2-MNT, LIR3-MNT");
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby1_SSO1_mntby2_SSO2_mntby3_pw_logged_in_SSO2_no_pw() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1);
-        RpslObject LIR2_MNT = makeMntner("LIR2", "auth: SSO " + USER2);
-        RpslObject LIR3_MNT = makeMntner("LIR3", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, LIR2_MNT, LIR3_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
-
-        final String token = crowdClient.login(USER2, PASSWORD2);
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        } finally {
-            crowdClient.logout(USER2);
-        }
-    }
-
-    @Test
-    public void Modify_assignment_mntby_valid_SSO_1pw_logged_in() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC, ASS);
-
-        RpslObject updatedAss = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "remarks: updated");
-
-        final String token = crowdClient.login(USER1, PASSWORD1);
-        try {
-            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0 - 10.0.255.255")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(updatedAss), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        } finally {
-            crowdClient.logout(USER1);
-        }
-    }
-
-    @Test
-    public void Delete_assignment_mntby_valid_SSO_1pw_logged_in() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir");
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC, ASS);
-
-        final String token = crowdClient.login(USER1, PASSWORD1);
-        try {
-            RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0 - 10.0.255.255")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .delete();
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        } finally {
-            crowdClient.logout(USER1);
-        }
-    }
-
-    @Test
-    public void Create_assignment_mntby_invalid_SSO_token_is_ignored() {
-        RpslObject LIR_MNT = makeMntner("LIR", "auth: SSO " + USER1);
-        RpslObject ALLOC = makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT");
-        databaseHelper.addObjects(LIR_MNT, ALLOC);
-
-        RpslObject ASS = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-
-        final String token = "deadbeef";
-        try {
-            WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(ASS), MediaType.APPLICATION_XML), WhoisResources.class);
-            fail();
-        } catch (ClientErrorException e) {
-            assertThat(e.getResponse().getStatus(), is(401));
-            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
-            final ErrorMessage errorMessage = Lists.reverse(whoisResources.getErrorMessages()).get(0);
-            assertThat(errorMessage.getText(), is("SSO token ignored (%s)"));
-            assertThat(errorMessage.getArgs().size(), is(1));
-            assertThat(errorMessage.getArgs().get(0).getValue(), is("Unknown RIPE Access token: deadbeef"));
-        }
     }
 }
