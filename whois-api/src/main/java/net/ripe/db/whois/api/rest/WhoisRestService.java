@@ -480,7 +480,7 @@ public class WhoisRestService {
             if (QueryParser.hasFlags(searchKey)) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString())).build());
             }
-        } catch (QueryException e) {
+        } catch (IllegalArgumentException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString())).build());
         }
     }
