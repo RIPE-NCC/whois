@@ -115,7 +115,6 @@ public class RpslResponseDecorator {
         return result;
     }
 
-    // TODO: [AH] This is really inefficient, multiple (as high as 3-4!) wrapping in iterables/collections
     private Iterable<? extends ResponseObject> groupRelatedObjects(final Query query, Iterable<? extends ResponseObject> primaryObjects) {
         final GroupFunction groupFunction = getGroupFunction(query);
         if (groupFunction == null) {
