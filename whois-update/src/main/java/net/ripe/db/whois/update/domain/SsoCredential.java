@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.domain;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
-import net.ripe.db.whois.crowd.UserSession;
+import net.ripe.db.whois.common.sso.UserSession;
 
 public class SsoCredential implements Credential {
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ');

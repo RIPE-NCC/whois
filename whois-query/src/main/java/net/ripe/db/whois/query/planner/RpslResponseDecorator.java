@@ -11,7 +11,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.crowd.CrowdClient;
+import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.QueryMessages;

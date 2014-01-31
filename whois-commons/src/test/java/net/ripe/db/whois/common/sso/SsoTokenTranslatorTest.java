@@ -1,7 +1,5 @@
 package net.ripe.db.whois.common.sso;
 
-import net.ripe.db.whois.crowd.CrowdClient;
-import net.ripe.db.whois.crowd.UserSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

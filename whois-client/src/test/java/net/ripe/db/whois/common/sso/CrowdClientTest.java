@@ -1,4 +1,4 @@
-package net.ripe.db.whois.crowd;
+package net.ripe.db.whois.common.sso;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,9 +12,9 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 
-import static net.ripe.db.whois.crowd.CrowdClient.CrowdResponse;
-import static net.ripe.db.whois.crowd.CrowdClient.CrowdSession;
-import static net.ripe.db.whois.crowd.CrowdClient.CrowdUser;
+import static net.ripe.db.whois.common.sso.CrowdClient.CrowdResponse;
+import static net.ripe.db.whois.common.sso.CrowdClient.CrowdSession;
+import static net.ripe.db.whois.common.sso.CrowdClient.CrowdUser;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;

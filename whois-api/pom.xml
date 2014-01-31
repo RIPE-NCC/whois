@@ -24,6 +24,10 @@
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
+            <artifactId>whois-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
             <artifactId>whois-update</artifactId>
         </dependency>
         <dependency>
