@@ -12,9 +12,9 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import net.ripe.db.whois.crowd.CrowdClient;
+import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
-import net.ripe.db.whois.crowd.UserSession;
+import net.ripe.db.whois.common.sso.UserSession;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 
