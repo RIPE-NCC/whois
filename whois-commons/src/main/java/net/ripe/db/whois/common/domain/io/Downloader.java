@@ -36,7 +36,7 @@ public class Downloader {
         final String expectedMd5 = matcher.group(1);
         final String md5 = DigestUtils.md5Hex(resourceDataStream);
         if (!md5.equalsIgnoreCase(expectedMd5)) {
-            throw new IllegalArgumentException(String.format("MD5 has invalid - expected: %s; actual: %s", expectedMd5, md5));
+            throw new IllegalArgumentException(String.format("MD5 hash invalid - expected: %s; actual: %s", expectedMd5, md5));
         }
     }
 
