@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.domain.CIString;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.Collection;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,11 +57,20 @@ public class QueryParser {
         return false;
     }
 
+    // TODO: for Integers, this results in conversion String -> Integer -> String -> Integer
+    private Collection<?> getOptionValue(String flag) {
+        try {
+            return options.valuesOf(flag);
+        } catch (OptionException e) {   // Undocumented; thrown on integer conversion failure
+            throw new IllegalArgumentExceptionMessage(QueryMessages.malformedQuery());
+        }
+    }
+
     public String getOptionValue(final QueryFlag queryFlag) {
         String optionValue = null;
         for (final String flag : queryFlag.getFlags()) {
             if (options.has(flag)) {
-                for (final Object optionArgument : options.valuesOf(flag)) {
+                for (final Object optionArgument : getOptionValue(flag)) {
                     if (optionValue == null) {
                         optionValue = optionArgument.toString();
                     } else {
@@ -76,7 +86,7 @@ public class QueryParser {
         final Set<String> optionValues = Sets.newLinkedHashSet();
         for (final String flag : queryFlag.getFlags()) {
             if (options.has(flag)) {
-                for (final Object optionArgument : options.valuesOf(flag)) {
+                for (final Object optionArgument : getOptionValue(flag)) {
                     for (final String splittedArgument : COMMA_SPLITTER.split(optionArgument.toString())) {
                         optionValues.add(splittedArgument);
                     }
@@ -92,7 +102,7 @@ public class QueryParser {
         final Set<CIString> optionValues = Sets.newLinkedHashSet();
         for (final String flag : queryFlag.getFlags()) {
             if (options.has(flag)) {
-                for (final Object optionArgument : options.valuesOf(flag)) {
+                for (final Object optionArgument : getOptionValue(flag)) {
                     for (final String splittedArgument : COMMA_SPLITTER.split(optionArgument.toString())) {
                         optionValues.add(ciString(splittedArgument));
                     }
