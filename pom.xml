@@ -24,7 +24,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring.version>3.2.0.RELEASE</spring.version>
-        <aspectj.version>1.7.3</aspectj.version>
+        <aspectj.version>1.7.4</aspectj.version>
         <compiler.version>1.7</compiler.version>
         <java.version>1.7</java.version>
         <jersey.version>2.5.1</jersey.version>
@@ -686,7 +686,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.4</version>
+                <version>1.5</version>
                 <configuration>
                     <showWeaveInfo>false</showWeaveInfo>
                     <source>${compiler.version}</source>
