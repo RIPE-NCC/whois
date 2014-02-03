@@ -6,7 +6,6 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -22,21 +21,25 @@ public class RestClient {
     private String sourceName;
     private WhoisObjectClientMapper whoisObjectClientMapper;
 
+    // TODO: [ES] use autowired constructor, drop the setters
+    // NB: this is also used from dbweb, with multiple environments represented by multiple RestClient beans, managed by AppConfig
     public RestClient() {
         this.client = createClient();
     }
 
-    @Autowired
-    public RestClient(@Value("${api.rest.baseurl}") String restApiUrl, @Value("${whois.source}") String sourceName) {
+    public RestClient(String restApiUrl, String sourceName) {
+        this();
         setRestApiUrl(restApiUrl);
         setSource(sourceName);
     }
 
+    @Value("${api.rest.baseurl}")
     public void setRestApiUrl(final String restApiUrl) {
         this.restApiUrl = restApiUrl;
         this.whoisObjectClientMapper = new WhoisObjectClientMapper(restApiUrl);
     }
 
+    @Value("${whois.source}")
     public void setSource(final String sourceName) {
         this.sourceName = sourceName;
     }
