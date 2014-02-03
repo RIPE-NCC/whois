@@ -60,7 +60,7 @@ public class RestClientTarget {
         return this;
     }
 
-    public RestClientTarget addParams(final String key, final String ... values) {
+    public RestClientTarget addParams(final String key, final String... values) {
         for (String value : values) {
             addParam(key, value);
         }
@@ -98,10 +98,9 @@ public class RestClientTarget {
 
     public RpslObject create(final RpslObject rpslObject) {
         try {
-            WebTarget webTarget = client.target(String.format("%s/%s/%s",
-                    baseUrl,
-                    source,
-                    rpslObject.getType().getName()));
+            WebTarget webTarget = client.target(baseUrl)
+                    .path(source)
+                    .path(rpslObject.getType().getName());
             webTarget = setParams(webTarget);
 
             final Invocation.Builder request = webTarget.request();
@@ -112,7 +111,7 @@ public class RestClientTarget {
             final WhoisResources whoisResources = request
                     .post(Entity.entity(mapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
 
-            if (notifierCallback != null){
+            if (notifierCallback != null) {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
 
@@ -125,11 +124,10 @@ public class RestClientTarget {
 
     public RpslObject update(final RpslObject rpslObject) {
         try {
-            WebTarget webTarget = client.target(String.format("%s/%s/%s/%s",
-                    baseUrl,
-                    source,
-                    rpslObject.getType().getName(),
-                    rpslObject.getKey().toString()));
+            WebTarget webTarget = client.target(baseUrl)
+                    .path(source)
+                    .path(rpslObject.getType().getName())
+                    .path(rpslObject.getKey().toString());
             webTarget = setParams(webTarget);
 
             final Invocation.Builder request = webTarget.request();
@@ -149,11 +147,10 @@ public class RestClientTarget {
 
     public RpslObject delete(final RpslObject rpslObject) {
         try {
-            WebTarget webTarget = client.target(String.format("%s/%s/%s/%s",
-                    baseUrl,
-                    source,
-                    rpslObject.getType().getName(),
-                    rpslObject.getKey().toString()));
+            WebTarget webTarget = client.target(baseUrl)
+                    .path(source)
+                    .path(rpslObject.getType().getName())
+                    .path(rpslObject.getKey().toString());
             webTarget = setParams(webTarget);
 
             final Invocation.Builder request = webTarget.request();
@@ -172,12 +169,11 @@ public class RestClientTarget {
 
     public RpslObject lookup(final ObjectType objectType, final String pkey) {
         try {
-            WebTarget webTarget = client.target(String.format("%s/%s/%s/%s",
-                    baseUrl,
-                    source,
-                    objectType.getName(),
-                    pkey));
-
+            WebTarget webTarget = client.target(baseUrl)
+                .path(baseUrl)
+                    .path(source)
+                    .path(objectType.getName())
+                    .path(pkey);
             webTarget = webTarget.queryParam("unfiltered", "");
             webTarget = setParams(webTarget);
 
@@ -197,8 +193,9 @@ public class RestClientTarget {
 
     public AbuseContact lookupAbuseContact(final String resource) {
         try {
-            AbuseResources abuseResources = client.target(String.format("%s/abuse-contact/%s",
-                    baseUrl, resource))
+            AbuseResources abuseResources = client.target(baseUrl)
+                    .path("abuse-contact")
+                    .path(resource)
                     .request()
                     .get(AbuseResources.class);
 
@@ -212,7 +209,8 @@ public class RestClientTarget {
     // TODO: [AH] make this streaming; result can be gigantic
     public Collection<RpslObject> search() {
         try {
-            WebTarget webTarget = client.target(String.format("%s/search", baseUrl));
+            WebTarget webTarget = client.target(baseUrl)
+                    .path("search");
             webTarget = setParams(webTarget);
 
             final WhoisResources whoisResources = webTarget
@@ -230,7 +228,7 @@ public class RestClientTarget {
 
     private WebTarget setParams(final WebTarget webTarget) {
         WebTarget updatedWebTarget = webTarget;
-        for (Map.Entry<String,List<String>> param : params.entrySet()) {
+        for (Map.Entry<String, List<String>> param : params.entrySet()) {
             updatedWebTarget = updatedWebTarget.queryParam(param.getKey(), param.getValue().toArray());
         }
         return updatedWebTarget;
