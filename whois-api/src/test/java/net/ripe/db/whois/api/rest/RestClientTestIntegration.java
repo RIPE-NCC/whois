@@ -111,9 +111,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
 
-        restClient = new RestClient();
-        restClient.setRestApiUrl(String.format("http://localhost:%d/whois", getPort()));
-        restClient.setSource("TEST");
+        restClient = new RestClient(String.format("http://localhost:%d/whois", getPort()), "TEST");
     }
 
     @Test

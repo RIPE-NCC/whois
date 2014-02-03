@@ -72,9 +72,7 @@ public class RestClientTest {
         abuseResourcesMock = mock(AbuseResources.class);
         when(abuseResourcesMock.getAbuseContact()).thenReturn(abuseContactMock);
 
-        subject = new RestClient();
-        subject.setRestApiUrl("http://localhost");
-        subject.setSource("RIPE");
+        subject = new RestClient("http://localhost", "RIPE");
         subject.setClient(clientMock);
     }
 
