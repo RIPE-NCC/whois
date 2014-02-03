@@ -121,10 +121,6 @@ public class WhoisFixture {
         whoisServer.start();
 
         restClient.setRestApiUrl(String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
-        restClient.setSource("test");
-
-        restClient.setRestApiUrl(String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
-        restClient.setSource("test");
 
         initData();
     }
