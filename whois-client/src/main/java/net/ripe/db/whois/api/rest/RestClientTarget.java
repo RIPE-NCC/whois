@@ -4,11 +4,8 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
-import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
-import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
@@ -269,7 +266,6 @@ public class RestClientTarget {
             message = e.getMessage();
         }
 
-        final ErrorMessage errorMessage = new ErrorMessage(new Message(Messages.Type.ERROR, message));
         return new RestClientException(message);
     }
 }
