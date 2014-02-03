@@ -3,6 +3,8 @@ package net.ripe.db.whois.common.sso;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,9 @@ import java.util.List;
 // NB: we can't use the atlassian crowd-rest-client as uuid is a ripe-specific crowd plug-in
 @Component
 public class CrowdClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CrowdClient.class);
+
     private String restUrl;
     private Client client;
 
@@ -121,6 +126,8 @@ public class CrowdClient {
                     .getUser();
             return new UserSession(user.getName(), user.getActive());
         } catch (BadRequestException e) {
+            final String cause = e.getResponse().readEntity(String.class);
+            LOGGER.error("getUserSession failed (%s)", cause);
             throw new IllegalArgumentException("Unknown RIPE NCC Access token: " + token);
         }
     }
