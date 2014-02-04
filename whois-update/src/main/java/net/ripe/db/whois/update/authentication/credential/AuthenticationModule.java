@@ -13,10 +13,12 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.X509Credential;
+import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import sun.reflect.Reflection;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -27,12 +29,16 @@ import java.util.Map;
 @Component
 public class AuthenticationModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationModule.class);
+    private static final AuthComparator AUTH_COMPARATOR = new AuthComparator();
 
     private final Map<Class<? extends Credential>, CredentialValidator> credentialValidatorMap;
-
+    private final LoggerContext loggerContext;
 
     @Autowired
-    public AuthenticationModule(final CredentialValidator<?>... credentialValidators) {
+    public AuthenticationModule(LoggerContext loggerContext,
+                                final CredentialValidator<?>... credentialValidators) {
+
+        this.loggerContext = loggerContext;
         credentialValidatorMap = Maps.newHashMap();
 
         for (final CredentialValidator<?> credentialValidator : credentialValidators) {
@@ -40,31 +46,29 @@ public class AuthenticationModule {
         }
     }
 
-    public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext, final Collection<RpslObject> candidates) {
+    public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext, final Collection<RpslObject> maintainers) {
         Credentials offered = update.getCredentials();
 
-        if (updateContext.getUserSession() != null){
+        loggerContext.logAuthenticationStrategy(update.getUpdate(), Reflection.getCallerClass().getCanonicalName(), maintainers);
+
+        // FIXME: [AH] this is ugly; we should add the SSO credential upon creating the Update object in InternalUpdatePerformer.createUpdate()
+        if (updateContext.getUserSession() != null) {
             offered = offered.add(Collections.singleton(SsoCredential.createOfferedCredential(updateContext.getUserSession())));
         }
 
         final List<RpslObject> authenticatedCandidates = Lists.newArrayList();
-        for (final RpslObject candidate : candidates) {
-            if (hasValidCredentialForCandidate(update, updateContext, offered, candidate)) {
-                authenticatedCandidates.add(candidate);
+        for (final RpslObject maintainer : maintainers) {
+            if (hasValidCredentialForCandidate(update, updateContext, offered, maintainer)) {
+                authenticatedCandidates.add(maintainer);
             }
         }
 
         return authenticatedCandidates;
     }
 
-    private boolean hasValidCredentialForCandidate(final PreparedUpdate update, final UpdateContext updateContext, final Credentials offered, final RpslObject authenticationCandidate) {
-        final List<CIString> authAttributes = Lists.newArrayList(authenticationCandidate.getValuesForAttribute(AttributeType.AUTH));
-        Collections.sort(authAttributes, new Comparator<CIString>() {
-            @Override
-            public int compare(final CIString o1, final CIString o2) {
-                return o1.startsWith(CIString.ciString("SSO")) ? -1 : o2.startsWith(CIString.ciString("SSO")) ? 2 : 0;
-            }
-        });
+    private boolean hasValidCredentialForCandidate(final PreparedUpdate update, final UpdateContext updateContext, final Credentials offered, final RpslObject maintainer) {
+        final List<CIString> authAttributes = Lists.newArrayList(maintainer.getValuesForAttribute(AttributeType.AUTH));
+        Collections.sort(authAttributes, AUTH_COMPARATOR);
 
         for (final CIString auth : authAttributes) {
             final Credential credential = getCredential(auth);
@@ -101,5 +105,24 @@ public class AuthenticationModule {
         }
 
         return null;
+    }
+
+    public static class AuthComparator implements Comparator<CIString> {
+        private static final CIString SSO = CIString.ciString("SSO");
+
+        @Override
+        public int compare(final CIString o1, final CIString o2) {
+            final boolean o1Sso = o1.startsWith(SSO);
+            final boolean o2Sso = o2.startsWith(SSO);
+
+            if (o1Sso == o2Sso) {
+                return 0;
+            } else if (o1Sso) {
+                return -1;
+            } else if (o2Sso) {
+                return 1;
+            }
+            return 0;   // never reached
+        }
     }
 }

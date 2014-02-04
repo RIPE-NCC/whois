@@ -116,6 +116,8 @@ public class Authenticator implements EnvironmentAware {
     public void authenticate(final Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject;
 
+        loggerContext.logCredentials(update.getUpdate());
+
         if (origin.isDefaultOverride()) {
             subject = new Subject(Principal.OVERRIDE_MAINTAINER);
         } else if (update.isOverride()) {
