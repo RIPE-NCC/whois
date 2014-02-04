@@ -72,4 +72,11 @@ public class X509Credential implements Credential {
         result = 31 * result + (keyId != null ? keyId.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "X509Credential{" +
+                "keyId='" + keyId + '\'' +
+                '}';
+    }
 }
