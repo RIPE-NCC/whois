@@ -35,7 +35,7 @@ server timeouts or network hiccups. Jetty could suffer from that, though - AH
  */
 @ThreadSafe
 public class FilterAuthFunction implements FilterFunction {
-    private static final Pattern SSO_PATTERN = Pattern.compile("^SSO (.*)$");
+    private static final Pattern SSO_PATTERN = Pattern.compile("(?i)SSO (.*)");
     public static final Splitter SPACE_SPLITTER = Splitter.on(' ');
     public static final String FILTERED_APPENDIX = " # Filtered";
 
