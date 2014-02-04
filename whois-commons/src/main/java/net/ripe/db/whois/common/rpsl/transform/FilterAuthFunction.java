@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /*
 password and cookie parameters are reserved for rest api, so the port43 netty worker pool is not affected by any SSO
@@ -31,6 +33,7 @@ server timeouts or network hiccups. Jetty could suffer from that, though - AH
  */
 @ThreadSafe
 public class FilterAuthFunction implements FilterFunction {
+    private static final Pattern SSO_PATTERN = Pattern.compile("^SSO (.*)$");
     public static final Splitter SPACE_SPLITTER = Splitter.on(' ');
     public static final String FILTERED_APPENDIX = " # Filtered";
 
@@ -127,11 +130,15 @@ public class FilterAuthFunction implements FilterFunction {
         }
 
         for (RpslAttribute attribute : authAttributes) {
-            final String attributeValue = attribute.getCleanValue().toString();
-            if (attributeValue.startsWith("SSO")) {
-                final UserSession userSession = ssoTokenTranslator.translateSsoToken(token);
-                if (userSession != null && userSession.getUuid().equals(attributeValue.substring(4))) {
-                    return true;
+            final Matcher matcher = SSO_PATTERN.matcher(attribute.getCleanValue().toString());
+            if (matcher.matches()) {
+                try {
+                    final UserSession userSession = ssoTokenTranslator.translateSsoToken(token);
+                    if (userSession != null && userSession.getUuid().equals(matcher.group(1))) {
+                        return true;
+                    }
+                } catch (CrowdClientException e) {
+                    return false;
                 }
             }
         }
