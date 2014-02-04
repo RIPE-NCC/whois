@@ -42,11 +42,13 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+// FIXME: [AH] this should be an integration tests; it's unmaintainable as is
 @RunWith(MockitoJUnitRunner.class)
 public class RestClientTest {
 
@@ -298,6 +300,13 @@ public class RestClientTest {
                 when(builder.get(any(Class.class))).thenThrow(exceptionMock);
                 when(builder.post(any(Entity.class), any(Class.class))).thenThrow(exceptionMock);
                 when(builder.put(any(Entity.class))).thenThrow(exceptionMock);
+                when(webTarget.path(anyString())).thenAnswer(new Answer() {
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        url = url + "/" + invocation.getArguments()[0];
+                        return invocation.getMock();
+                    }
+                });
                 when(webTarget.request()).thenReturn(builder);
                 return webTarget;
             }
@@ -333,6 +342,13 @@ public class RestClientTest {
                 });
                 when(builder.delete(any(Class.class))).thenReturn(objectMock);
 
+                when(webTarget.path(anyString())).thenAnswer(new Answer() {
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        url = url + "/" + invocation.getArguments()[0];
+                        return invocation.getMock();
+                    }
+                });
                 when(webTarget.queryParam(any(String.class), anyVararg())).thenAnswer(new Answer() {
                     @Override
                     public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -350,8 +366,8 @@ public class RestClientTest {
                         return invocation.getMock();
                     }
                 });
-
                 when(webTarget.request()).thenReturn(builder);
+
                 return webTarget;
             }
         });
