@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
@@ -32,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -209,7 +209,8 @@ public class InternalUpdatePerformer {
         if (!StringUtils.isBlank(ssoToken)) {
             try {
                 updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
-            } catch (IllegalArgumentException | ProcessingException e) {
+            } catch (CrowdClientException e) {
+                loggerContext.log(new Message(Messages.Type.ERROR, e.getMessage()));
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
         }

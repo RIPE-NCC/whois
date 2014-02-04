@@ -122,8 +122,10 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mnt_valid_SSO_only_logged_in() {
-        databaseHelper.addObjects(makeMntner("LIR", "auth: SSO " + USER1), makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+    public void create_assignment_mnt_valid_SSO_only_logged_in() throws Exception {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
 
         final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
         final String token = crowdClient.login(USER1, PASSWORD1);
@@ -143,7 +145,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_2valid_SSO_only_logged_in_1st() {
+    public void create_assignment_mntby_2valid_SSO_only_logged_in_1st() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
@@ -166,7 +168,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_2valid_SSO_only_logged_in_2nd() {
+    public void create_assignment_mntby_2valid_SSO_only_logged_in_2nd() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
@@ -225,7 +227,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_2valid_SSO_1pw_logged_in() {
+    public void create_assignment_mntby_2valid_SSO_1pw_logged_in() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
@@ -265,7 +267,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_2valid_SSO_1pw_logged_in_pw() {
+    public void create_assignment_mntby_2valid_SSO_1pw_logged_in_pw() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
@@ -288,7 +290,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_2valid_SSO_1pw_not_logged_in_no_pw() {
+    public void create_assignment_mntby_2valid_SSO_1pw_not_logged_in_no_pw() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
@@ -306,7 +308,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_invalid_SSO_1pw_not_logged_in_pw() {
+    public void create_assignment_mntby_invalid_SSO_1pw_not_logged_in_pw() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER3, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
@@ -325,7 +327,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_no_SSO_1pw_logged_in_no_pw() {
+    public void create_assignment_mntby_no_SSO_1pw_logged_in_no_pw() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
@@ -347,7 +349,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby1_pw_mntby2_SSO_mntby3_SSO_logged_in_no_pw() {
+    public void create_assignment_mntby1_pw_mntby2_SSO_mntby3_SSO_logged_in_no_pw() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeMntner("LIR2", "auth: SSO " + USER1),
@@ -372,7 +374,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby1_pw_mntby2_SSO_mntby3_SSO_not_logged_in_pw() {
+    public void create_assignment_mntby1_pw_mntby2_SSO_mntby3_SSO_not_logged_in_pw() throws Exception {
         databaseHelper.addObjects(makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"), makeMntner("LIR2", "auth: SSO " + USER1), makeMntner("LIR3", "auth: SSO " + USER2), makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
 
         final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
@@ -389,7 +391,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_pw_mnt2_SSO_mnt3_SSO_logged_in_no_pw() {
+    public void create_assignment_mntby_pw_mnt2_SSO_mnt3_SSO_logged_in_no_pw() throws Exception {
         databaseHelper.addObjects(makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"), makeMntner("LIR2", "auth: SSO " + USER1), makeMntner("LIR3", "auth: SSO " + USER2), makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
 
         final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
@@ -410,7 +412,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_pw_mnt2_SSO_mnt3_SSO_not_logged_in_pw() {
+    public void create_assignment_mntby_pw_mnt2_SSO_mnt3_SSO_not_logged_in_pw() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeMntner("LIR2", "auth: SSO " + USER1),
@@ -431,7 +433,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_pw_mnt2_SSO_mnt3_invalid_SSO_not_logged_in() {
+    public void create_assignment_mntby_pw_mnt2_SSO_mnt3_invalid_SSO_not_logged_in() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeMntner("LIR2", "auth: SSO " + USER1),
@@ -451,7 +453,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby1_SSO1_mntby2_SSO2_mntby3_pw_logged_in_SSO2_no_pw() {
+    public void create_assignment_mntby1_SSO1_mntby2_SSO2_mntby3_pw_logged_in_SSO2_no_pw() throws Exception {
         databaseHelper.addObjects(makeMntner("LIR", "auth: SSO " + USER1), makeMntner("LIR2", "auth: SSO " + USER2), makeMntner("LIR3", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"), makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
 
         final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
@@ -472,7 +474,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void modify_assignment_mntby_valid_SSO_1pw_logged_in() {
+    public void modify_assignment_mntby_valid_SSO_1pw_logged_in() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"),
@@ -496,7 +498,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void delete_assignment_mntby_valid_SSO_1pw_logged_in() {
+    public void delete_assignment_mntby_valid_SSO_1pw_logged_in() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"),
@@ -518,7 +520,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_invalid_SSO_token_is_ignored() {
+    public void create_assignment_mntby_invalid_SSO_token_is_ignored() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));

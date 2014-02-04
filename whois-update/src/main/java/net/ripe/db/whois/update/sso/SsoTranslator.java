@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthTranslator;
 import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoHelper;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -30,7 +31,7 @@ public class SsoTranslator {
                         try {
                             final String uuid = crowdClient.getUuid(authToken);
                             updateContext.addSsoTranslationResult(authToken, uuid);
-                        } catch (IllegalArgumentException e) {
+                        } catch (CrowdClientException e) {
                             updateContext.addMessage(update, originalAttribute, UpdateMessages.ripeAccessAccountUnavailable(authToken));
                         }
                     }
@@ -53,7 +54,7 @@ public class SsoTranslator {
             @Override
             public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
-                    String authValue = "SSO " + updateContext.getSsoTranslationResult(authToken);
+                    String authValue = String.format("SSO %s", updateContext.getSsoTranslationResult(authToken));
                     return new RpslAttribute(originalAttribute.getKey(), authValue);
                 }
                 return null;

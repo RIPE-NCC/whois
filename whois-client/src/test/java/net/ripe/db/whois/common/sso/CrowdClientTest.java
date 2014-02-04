@@ -43,7 +43,7 @@ public class CrowdClientTest {
     }
 
     @Test
-    public void getUserSession_success() {
+    public void getUserSession_success() throws Exception {
         when(builder.get(CrowdSession.class)).thenReturn(new CrowdSession(new CrowdUser("test@ripe.net", true), null));
 
         final UserSession session = subject.getUserSession("token");
@@ -59,7 +59,7 @@ public class CrowdClientTest {
         try {
             subject.getUserSession("token");
             fail();
-        } catch (IllegalArgumentException expected) {
+        } catch (CrowdClientException expected) {
             assertThat(expected.getMessage(), is("Unknown RIPE NCC Access token: token"));
         }
     }
