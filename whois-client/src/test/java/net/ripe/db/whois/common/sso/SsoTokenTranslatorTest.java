@@ -24,7 +24,7 @@ public class SsoTokenTranslatorTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void translateSsoToken_invalid_session() {
+    public void translateSsoToken_invalid_session() throws Exception {
         final String ssotoken = "ssotoken";
 
         when(crowdClient.getUserSession(ssotoken)).thenThrow(new IllegalArgumentException("not found"));
@@ -34,7 +34,7 @@ public class SsoTokenTranslatorTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void translateSsoToken_invalid_username() {
+    public void translateSsoToken_invalid_username() throws Exception {
         final String ssotoken = "ssotoken";
         final String username = "username";
 
@@ -46,7 +46,7 @@ public class SsoTokenTranslatorTest {
     }
 
     @Test
-    public void translateSsoToken_happypath() {
+    public void translateSsoToken_happypath() throws Exception {
         final String ssotoken = "ssotoken";
         final String username = "username";
         final String uuid = "uuid";

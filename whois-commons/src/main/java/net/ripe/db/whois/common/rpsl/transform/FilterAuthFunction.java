@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import org.apache.commons.lang.StringUtils;
@@ -54,7 +55,7 @@ public class FilterAuthFunction implements FilterFunction {
     public FilterAuthFunction() {
     }
 
-    /** @throws RuntimeException if SSO server is down and SSO lookup is needed */
+    /** TODO: [ES] @throws RuntimeException if SSO server is down and SSO lookup is needed */
     @Override
     public RpslObject apply(final RpslObject rpslObject) {
         if (!rpslObject.containsAttribute(AttributeType.AUTH)) {    // IRT also has auth:
@@ -71,8 +72,12 @@ public class FilterAuthFunction implements FilterFunction {
 
             if (authenticated) {
                 if (passwordType.equals("SSO")) {
-                    final String username = crowdClient.getUsername(authIterator.next());
-                    replace.put(authAttribute, new RpslAttribute(AttributeType.AUTH, "SSO " + username));
+                    try {
+                        final String username = crowdClient.getUsername(authIterator.next());
+                        replace.put(authAttribute, new RpslAttribute(AttributeType.AUTH, "SSO " + username));
+                    } catch (CrowdClientException e) {
+                        // TODO: [ES] handle exception or re-throw
+                    }
                 }
             } else {
                 if (passwordType.endsWith("-PW") || passwordType.equals("SSO")) {     // history table has CRYPT-PW, dummify that too!

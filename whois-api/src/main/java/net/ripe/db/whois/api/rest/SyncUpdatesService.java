@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -36,7 +37,6 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -220,7 +220,8 @@ public class SyncUpdatesService {
         if (!StringUtils.isBlank(ssoToken)) {
             try {
                 updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
-            } catch (IllegalArgumentException | ProcessingException e) {
+            } catch (CrowdClientException e) {
+                loggerContext.log(new Message(Messages.Type.ERROR, e.getMessage()));
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
         }

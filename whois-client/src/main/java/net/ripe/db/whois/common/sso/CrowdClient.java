@@ -3,15 +3,14 @@ package net.ripe.db.whois.common.sso;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -24,8 +23,6 @@ import java.util.List;
 // NB: we can't use the atlassian crowd-rest-client as uuid is a ripe-specific crowd plug-in
 @Component
 public class CrowdClient {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CrowdClient.class);
 
     private String restUrl;
     private Client client;
@@ -49,8 +46,8 @@ public class CrowdClient {
         this.client = client;
     }
 
-    public String login(String username, String password) {
-        CrowdAuthenticationContext crowdAuth = new CrowdAuthenticationContext(username, password);
+    public String login(String username, String password) throws CrowdClientException {
+        final CrowdAuthenticationContext crowdAuth = new CrowdAuthenticationContext(username, password);
 
         try {
             final CrowdSession session = client.target(restUrl)
@@ -58,39 +55,36 @@ public class CrowdClient {
                     .request()
                     .post(Entity.entity(crowdAuth, MediaType.APPLICATION_XML), CrowdSession.class);
             return session.getToken();
-        } catch (ClientErrorException e) {
-            final CrowdError crowdError = e.getResponse().readEntity(CrowdError.class);
-            throw new IllegalStateException(crowdError.getMessage());
+        } catch (WebApplicationException | ProcessingException e) {
+            throw new CrowdClientException(e);
         }
     }
 
-    public void logout(String username) {
+    public void logout(String username) throws CrowdClientException {
         try {
             client.target(restUrl)
                     .path("rest/usermanagement/1/session")
                     .queryParam("username", username)
                     .request()
                     .delete();
-        } catch (ClientErrorException e) {
-            final CrowdError crowdError = e.getResponse().readEntity(CrowdError.class);
-            throw new IllegalStateException(crowdError.getMessage());
+        } catch (WebApplicationException | ProcessingException e) {
+            throw new CrowdClientException(e);
         }
     }
 
-    public void invalidateToken(String token) {
+    public void invalidateToken(String token) throws CrowdClientException {
         try {
             client.target(restUrl)
                     .path("rest/usermanagement/1/session")
                     .path(token)
                     .request()
                     .delete();
-        } catch (ClientErrorException e) {
-            final CrowdError crowdError = e.getResponse().readEntity(CrowdError.class);
-            throw new IllegalStateException(crowdError.getMessage());
+        } catch (WebApplicationException | ProcessingException e) {
+            throw new CrowdClientException(e);
         }
     }
 
-    public String getUuid(final String username) {
+    public String getUuid(final String username) throws CrowdClientException {
         try {
             return client.target(restUrl)
                     .path("rest/usermanagement/1/user/attribute")
@@ -99,11 +93,13 @@ public class CrowdClient {
                     .get(CrowdResponse.class)
                     .getUUID();
         } catch (NotFoundException e) {
-            throw new IllegalArgumentException("Unknown RIPE NCC Access user: " + username);
+            throw new CrowdClientException("Unknown RIPE NCC Access user: " + username);
+        } catch (WebApplicationException | ProcessingException e) {
+            throw new CrowdClientException(e);
         }
     }
 
-    public String getUsername(final String uuid) {
+    public String getUsername(final String uuid) throws CrowdClientException {
         try {
             return client.target(restUrl)
                     .path("rest/sso/1/uuid-search")
@@ -112,11 +108,13 @@ public class CrowdClient {
                     .get(CrowdUser.class)
                     .getName();
         } catch (NotFoundException e) {
-            throw new IllegalArgumentException("Unknown RIPE NCC Access uuid: " + uuid);
+            throw new CrowdClientException("Unknown RIPE NCC Access uuid: " + uuid);
+        } catch (WebApplicationException | ProcessingException e) {
+            throw new CrowdClientException(e);
         }
     }
 
-    public UserSession getUserSession(final String token) {
+    public UserSession getUserSession(final String token) throws CrowdClientException {
         try {
             CrowdUser user = client.target(restUrl)
                     .path("rest/usermanagement/1/session")
@@ -126,11 +124,13 @@ public class CrowdClient {
                     .getUser();
             return new UserSession(user.getName(), user.getActive());
         } catch (BadRequestException e) {
-            final String cause = e.getResponse().readEntity(String.class);
-            LOGGER.error("getUserSession failed (%s)", cause);
-            throw new IllegalArgumentException("Unknown RIPE NCC Access token: " + token);
+            throw new CrowdClientException("Unknown RIPE NCC Access token: " + token);
+        } catch (WebApplicationException | ProcessingException e) {
+            throw new CrowdClientException(e);
         }
     }
+
+    // domain classes
 
     @XmlRootElement(name = "attributes")
     static class CrowdResponse {
