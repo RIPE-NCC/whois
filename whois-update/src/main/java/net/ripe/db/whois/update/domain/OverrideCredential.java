@@ -54,11 +54,7 @@ public final class OverrideCredential implements Credential {
 
     @Override
     public String toString() {
-        return "OverrideCredential{" +
-                "value='" + value + '\'' +
-                ", possibleCredentials=" + possibleCredentials +
-                ", remarks='" + remarks + '\'' +
-                '}';
+        return value;
     }
 
     public static OverrideCredential parse(final String value) {
