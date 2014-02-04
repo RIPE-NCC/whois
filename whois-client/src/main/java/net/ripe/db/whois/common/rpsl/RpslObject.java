@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -215,13 +216,7 @@ public class RpslObject implements Identifiable, ResponseObject {
     }
 
     public List<RpslAttribute> findAttributes(final AttributeType... attributeTypes) {
-        final List<RpslAttribute> result = Lists.newArrayList();
-
-        for (AttributeType attributeType : attributeTypes) {
-            findCachedAttributes(result, attributeType);
-        }
-
-        return result;
+        return findAttributes(Arrays.asList(attributeTypes));
     }
 
     private void findCachedAttributes(List<RpslAttribute> result, AttributeType attributeType) {
