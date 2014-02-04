@@ -25,4 +25,13 @@ public class UserSession {
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
+
+    @Override
+    public String toString() {
+        return "UserSession{" +
+                "username='" + username + '\'' +
+                ", isActive=" + isActive +
+                ", uuid='" + uuid + '\'' +
+                '}';
+    }
 }

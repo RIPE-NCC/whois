@@ -30,4 +30,12 @@ public class SsoCredential implements Credential {
     public UserSession getOfferedUserSession() {
         return offeredUserSession;
     }
+
+    @Override
+    public String toString() {
+        return "SsoCredential{" +
+                "knownUuid='" + knownUuid + '\'' +
+                ", offeredUserSession=" + offeredUserSession +
+                '}';
+    }
 }
