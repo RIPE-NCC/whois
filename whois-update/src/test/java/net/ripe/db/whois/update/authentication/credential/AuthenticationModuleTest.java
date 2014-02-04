@@ -6,6 +6,7 @@ import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,13 +27,14 @@ public class AuthenticationModuleTest {
     @Mock private UpdateContext updateContext;
     @Mock private PasswordCredentialValidator credentialValidator;
     @Mock private Credentials credentials;
+    @Mock LoggerContext loggerContext;
 
     private AuthenticationModule subject;
 
     @Before
     public void setup() {
         when(credentialValidator.getSupportedCredentials()).thenReturn(PasswordCredential.class);
-        subject = new AuthenticationModule(credentialValidator);
+        subject = new AuthenticationModule(loggerContext, credentialValidator);
     }
 
     @Test
