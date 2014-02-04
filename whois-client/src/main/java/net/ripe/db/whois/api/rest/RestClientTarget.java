@@ -170,7 +170,6 @@ public class RestClientTarget {
     public RpslObject lookup(final ObjectType objectType, final String pkey) {
         try {
             WebTarget webTarget = client.target(baseUrl)
-                .path(baseUrl)
                     .path(source)
                     .path(objectType.getName())
                     .path(pkey);
