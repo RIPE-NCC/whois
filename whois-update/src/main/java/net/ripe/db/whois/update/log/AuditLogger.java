@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateStatus;
@@ -33,6 +34,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -191,6 +193,29 @@ class AuditLogger {
     public void logString(Update update, String element, String auditMessage) {
         final Element updateElement = createOrGetUpdateElement(update);
         updateElement.appendChild(keyValue(element, auditMessage));
+    }
+
+    public void logAuthenticationStrategy(Update update, String authenticationStrategy, Collection<RpslObject> maintainers) {
+        final Element updateElement = createOrGetUpdateElement(update);
+
+        final Element strategyElement = doc.createElement("AuthenticationStrategy");
+        strategyElement.setAttribute("name", authenticationStrategy);
+        updateElement.appendChild(strategyElement);
+
+        for (RpslObject maintainer : maintainers) {
+            strategyElement.appendChild(keyValue("candidate", maintainer.getFormattedKey()));
+        }
+    }
+
+    public void logCredentials(Update update) {
+        final Element updateElement = createOrGetUpdateElement(update);
+
+        final Element credentialsElement = doc.createElement("Credentials");
+        updateElement.appendChild(credentialsElement);
+
+        for (Credential credential : update.getCredentials().all()) {
+            credentialsElement.appendChild(keyValue("credential", credential.toString()));
+        }
     }
 
     public void logAction(final Update update, final Action action) {
