@@ -1205,18 +1205,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test(expected = NotAuthorizedException.class)
-    public void update_with_inactive_crowd_token_fails() {
-        databaseHelper.addObject(PAULETH_PALTHEN);
-
-        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
-                .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", "inactive-correctuser-token")
-                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
-        fail();
-    }
-
-    @Test(expected = NotAuthorizedException.class)
     public void update_with_incorrect_crowd_token_user_fails() {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
