@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 
 @Component
-public class SsoCredentialValidator implements CredentialValidator<SsoCredential>  {
+public class SsoCredentialValidator implements CredentialValidator<SsoCredential> {
     private final LoggerContext loggerContext;
 
     @Autowired
@@ -25,20 +25,10 @@ public class SsoCredentialValidator implements CredentialValidator<SsoCredential
 
     @Override
     public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<SsoCredential> offeredCredentials, final SsoCredential knownCredential) {
-
         for (SsoCredential offered : offeredCredentials) {
-            if (offered.getOfferedUserSession().getUuid().equals(knownCredential.getKnownUuid())){
-                if (offered.getOfferedUserSession().isActive()){
-                    log(update, String.format("Validated %s with RIPE NCC Access for user: %s.",
-                            update.getFormattedKey(), offered.getOfferedUserSession().getUsername()));
-                    return true;
-                } else {
-                    log(update, String.format("SSO session for user %s is expired.",
-                            offered.getOfferedUserSession().getUsername()));
-                }
-            } else {
-                log(update, String.format("Validation for %s with RIPE NCC Access for user: %s failed.",
-                        update.getFormattedKey(), offered.getOfferedUserSession().getUsername()));
+            if (offered.getOfferedUserSession().getUuid().equals(knownCredential.getKnownUuid())) {
+                log(update, String.format("Validated %s with RIPE NCC Access for user: %s.", update.getFormattedKey(), offered.getOfferedUserSession().getUsername()));
+                return true;
             }
         }
         return false;
