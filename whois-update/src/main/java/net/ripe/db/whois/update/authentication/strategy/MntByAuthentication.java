@@ -45,7 +45,11 @@ class MntByAuthentication extends AuthenticationStrategyBase {
     private final Ipv6Tree ipv6Tree;
 
     @Autowired
-    MntByAuthentication(final Maintainers maintainers, final AuthenticationModule authenticationModule, final RpslObjectDao rpslObjectDao, final Ipv4Tree ipv4Tree, final Ipv6Tree ipv6Tree) {
+    MntByAuthentication(final Maintainers maintainers,
+                        final AuthenticationModule authenticationModule,
+                        final RpslObjectDao rpslObjectDao,
+                        final Ipv4Tree ipv4Tree,
+                        final Ipv6Tree ipv6Tree) {
         this.maintainers = maintainers;
         this.authenticationModule = authenticationModule;
         this.rpslObjectDao = rpslObjectDao;
