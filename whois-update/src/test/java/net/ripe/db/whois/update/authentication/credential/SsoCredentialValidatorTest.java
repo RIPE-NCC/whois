@@ -70,7 +70,7 @@ public class SsoCredentialValidatorTest {
     }
 
     @Test
-    public void hasInactiveUser() {
+    public void noCheckForUserInactivity() {
         final UserSession offered = new UserSession("test@ripe.net", false);
         offered.setUuid("testuuid");
 
@@ -83,7 +83,7 @@ public class SsoCredentialValidatorTest {
                 Collections.singletonList(offeredCredential),
                 knownCredential);
 
-        assertThat(hasValidCredential, is(false));
+        assertThat(hasValidCredential, is(true));
     }
 
     @Test
