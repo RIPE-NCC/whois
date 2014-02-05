@@ -21,6 +21,7 @@ import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.OverrideCredential;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -61,9 +62,11 @@ public class InternalUpdatePerformer {
         this.ssoTokenTranslator = ssoTokenTranslator;
     }
 
-    public UpdateContext initContext(Origin origin) {
+    public UpdateContext initContext(Origin origin, String ssoToken) {
         loggerContext.init(getRequestId(origin.getFrom()));
-        return new UpdateContext(loggerContext);
+        final UpdateContext updateContext = new UpdateContext(loggerContext);
+        setSsoSessionToContext(updateContext, ssoToken);
+        return updateContext;
     }
 
     public void closeContext() {
@@ -71,11 +74,9 @@ public class InternalUpdatePerformer {
     }
 
     public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
-                                  final String content, final Keyword keyword, final HttpServletRequest request, final String ssoToken) {
+                                  final String content, final Keyword keyword, final HttpServletRequest request) {
 
         logHttpHeaders(loggerContext, request);
-
-        setSsoSessionToContext(updateContext, ssoToken);
 
         final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
         updateRequestHandler.handle(updateRequest, updateContext);
@@ -97,21 +98,6 @@ public class InternalUpdatePerformer {
 
         responseBuilder.entity(createResponse(request, updateContext, update, responseObject));
         return responseBuilder.build();
-    }
-
-    public Response performUpdate(
-            final Origin origin,
-            final Update update,
-            final String content,
-            final Keyword keyword,
-            final HttpServletRequest request,
-            final String ssoToken) {
-        final UpdateContext updateContext = initContext(origin);
-        try {
-            return performUpdate(updateContext, origin, update, content, keyword, request, ssoToken);
-        } finally {
-            closeContext();
-        }
     }
 
     private WhoisResources createResponse(final HttpServletRequest request, UpdateContext updateContext, Update update, RpslObject responseObject) {
@@ -145,15 +131,15 @@ public class InternalUpdatePerformer {
     }
 
 
-    public Update createUpdate(final RpslObject rpslObject, final List<String> passwords, final String deleteReason, String override) {
+    public Update createUpdate(final UpdateContext updateContext, final RpslObject rpslObject, final List<String> passwords, final String deleteReason, final String override) {
         return new Update(
-                createParagraph(rpslObject, passwords, override),
+                createParagraph(updateContext, rpslObject, passwords, override),
                 deleteReason != null ? Operation.DELETE : Operation.UNSPECIFIED,
                 deleteReason != null ? Lists.newArrayList(deleteReason) : null,
                 rpslObject);
     }
 
-    private Paragraph createParagraph(final RpslObject rpslObject, final List<String> passwords, String override) {
+    private Paragraph createParagraph(final UpdateContext updateContext, final RpslObject rpslObject, final List<String> passwords, final String override) {
         final Set<Credential> credentials = Sets.newHashSet();
         for (String password : passwords) {
             credentials.add(new PasswordCredential(password));
@@ -161,6 +147,10 @@ public class InternalUpdatePerformer {
 
         if (override != null) {
             credentials.add(OverrideCredential.parse(override));
+        }
+
+        if (updateContext.getUserSession() != null) {
+            credentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
         }
 
         return new Paragraph(rpslObject.toString(), new Credentials(credentials));

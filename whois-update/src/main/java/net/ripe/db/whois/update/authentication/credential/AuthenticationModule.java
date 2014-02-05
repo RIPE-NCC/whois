@@ -51,11 +51,6 @@ public class AuthenticationModule {
 
         loggerContext.logAuthenticationStrategy(update.getUpdate(), Reflection.getCallerClass().getCanonicalName(), maintainers);
 
-        // FIXME: [AH] this is ugly; we should add the SSO credential upon creating the Update object in InternalUpdatePerformer.createUpdate()
-        if (updateContext.getUserSession() != null) {
-            offered = offered.add(Collections.singleton(SsoCredential.createOfferedCredential(updateContext.getUserSession())));
-        }
-
         final List<RpslObject> authenticatedCandidates = Lists.newArrayList();
         for (final RpslObject maintainer : maintainers) {
             if (hasValidCredentialForCandidate(update, updateContext, offered, maintainer)) {

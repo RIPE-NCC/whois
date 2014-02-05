@@ -189,7 +189,7 @@ public class WhoisRestService {
         checkForMainSource(request, source);
 
         Origin origin = updatePerformer.createOrigin(request);
-        UpdateContext updateContext = updatePerformer.initContext(origin);
+        UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
         try {
             // TODO: [AH] add delete by primary key to DAO layer, so there is no race condition from here to SingleUpdateHandler's global lock
             RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
@@ -198,11 +198,10 @@ public class WhoisRestService {
             return updatePerformer.performUpdate(
                     updateContext,
                     origin,
-                    updatePerformer.createUpdate(originalObject, passwords, reason, override),
+                    updatePerformer.createUpdate(updateContext, originalObject, passwords, reason, override),
                     updatePerformer.createContent(originalObject, passwords, reason, override),
                     Keyword.NONE,
-                    request,
-                    crowdTokenKey);
+                    request);
         } finally {
             updatePerformer.closeContext();
         }
@@ -228,14 +227,19 @@ public class WhoisRestService {
         final RpslObject submittedObject = getSubmittedObject(request, resource);
         validateSubmittedObject(request, submittedObject, objectType, key);
 
-        return updatePerformer.performUpdate(
-                updatePerformer.createOrigin(request),
-                updatePerformer.createUpdate(submittedObject, passwords, null, override),
-                updatePerformer.createContent(submittedObject, passwords, null, override),
-                Keyword.NONE,
-                request,
-                crowdTokenKey);
-
+        Origin origin = updatePerformer.createOrigin(request);
+        UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+        try {
+            return updatePerformer.performUpdate(
+                    updateContext,
+                    origin,
+                    updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override),
+                    updatePerformer.createContent(submittedObject, passwords, null, override),
+                    Keyword.NONE,
+                    request);
+        } finally {
+            updatePerformer.closeContext();
+        }
     }
 
     // TODO: deprecate mod_proxy for 'POST /ripe' and add check for objectType == submitted object type here
@@ -257,13 +261,19 @@ public class WhoisRestService {
         // TODO: [AH] getSubmittedObject() can throw exceptions on mapping
         final RpslObject submittedObject = getSubmittedObject(request, resource);
 
-        return updatePerformer.performUpdate(
-                updatePerformer.createOrigin(request),
-                updatePerformer.createUpdate(submittedObject, passwords, null, override),
-                updatePerformer.createContent(submittedObject, passwords, null, override),
-                Keyword.NEW,
-                request,
-                crowdTokenKey);
+        Origin origin = updatePerformer.createOrigin(request);
+        UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+        try {
+            return updatePerformer.performUpdate(
+                    updateContext,
+                    origin,
+                    updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override),
+                    updatePerformer.createContent(submittedObject, passwords, null, override),
+                    Keyword.NEW,
+                    request);
+        } finally {
+            updatePerformer.closeContext();
+        }
     }
 
     private void checkForMainSource(HttpServletRequest request, String source) {
