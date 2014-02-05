@@ -12,6 +12,7 @@ import net.ripe.db.whois.update.domain.OverrideCredential;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.PgpCredential;
+import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.keycert.PgpSignedMessage;
@@ -42,6 +43,10 @@ public class UpdatesParser {
 
         final Set<Credential> baseCredentials = getPasswordCredentials(content);
         baseCredentials.addAll(contentWithCredentials.getCredentials());
+
+        if (updateContext.getUserSession() != null) {
+            baseCredentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
+        }
 
         final List<Paragraph> paragraphs = Lists.newArrayList();
 
