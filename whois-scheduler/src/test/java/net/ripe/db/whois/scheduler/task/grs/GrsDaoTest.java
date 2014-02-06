@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -29,7 +28,6 @@ import static org.junit.Assert.assertThat;
 @Category(IntegrationTest.class)
 public class GrsDaoTest extends AbstractSchedulerIntegrationTest {
     @Autowired SourceContext sourceContext;
-    @Autowired DateTimeProvider dateTimeProvider;
 
     Logger logger = LoggerFactory.getLogger(GrsDao.class);
     GrsDao subject;
@@ -41,13 +39,13 @@ public class GrsDaoTest extends AbstractSchedulerIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        subject = new GrsDao(logger, dateTimeProvider, ciString("TEST-GRS"), sourceContext);
+        subject = new GrsDao(logger, testDateTimeProvider, ciString("TEST-GRS"), sourceContext);
         subject.cleanDatabase();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void no_grs_datasource() {
-        subject = new GrsDao(logger, dateTimeProvider, ciString("UNKNOWN"), sourceContext);
+        subject = new GrsDao(logger, testDateTimeProvider, ciString("UNKNOWN"), sourceContext);
         subject.cleanDatabase();
     }
 

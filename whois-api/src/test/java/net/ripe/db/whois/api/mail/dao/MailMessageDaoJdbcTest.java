@@ -25,7 +25,7 @@ public class MailMessageDaoJdbcTest extends AbstractIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        subject = new MailMessageDaoJdbc(databaseHelper.getMailupdatesDataSource(), dateTimeProvider);
+        subject = new MailMessageDaoJdbc(databaseHelper.getMailupdatesDataSource(), testDateTimeProvider);
         messageDequeue.stop(false);
     }
 

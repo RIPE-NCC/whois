@@ -3,13 +3,11 @@ package net.ripe.db.whois.internal.api.acl;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
@@ -27,8 +25,6 @@ import static org.junit.Assert.fail;
 @Category(IntegrationTest.class)
 public class AclBanServiceTestIntegration extends AbstractInternalTest {
     private static final String BANS_PATH = "api/acl/bans";
-
-    @Autowired TestDateTimeProvider dateTimeProvider;
 
     @Before
     public void setUp() throws Exception {
@@ -269,6 +265,6 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
     }
 
     private void plusOneDay() {
-        dateTimeProvider.setTime(dateTimeProvider.getCurrentDateTime().plusDays(1));
+        testDateTimeProvider.setTime(testDateTimeProvider.getCurrentDateTime().plusDays(1));
     }
 }

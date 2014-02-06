@@ -434,7 +434,7 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
                 with("object_id", created.getObjectId()),
                 with("sequence_id", 1),
                 with("pkey", created.getKey()),
-                with("timestamp", lessThan(JdbcRpslObjectOperations.now(dateTimeProvider) + 5)),
+                with("timestamp", lessThan(JdbcRpslObjectOperations.now(testDateTimeProvider) + 5)),
                 with("object_type", objectTypeId),
                 with("object", rpslObject.toByteArray())
         );
