@@ -4,10 +4,12 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.commons.lang.StringUtils;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ProcessingException;
@@ -19,12 +21,15 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLConnection;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class RestClientTarget {
-
     private Client client;
     private String baseUrl;
     private String source;
@@ -192,11 +197,15 @@ public class RestClientTarget {
 
     public AbuseContact lookupAbuseContact(final String resource) {
         try {
-            AbuseResources abuseResources = client.target(baseUrl)
+            final Invocation.Builder request = client.target(baseUrl)
                     .path("abuse-contact")
                     .path(resource)
-                    .request()
-                    .get(AbuseResources.class);
+                    .request();
+
+            setCookies(request);
+            setHeaders(request);
+
+            AbuseResources abuseResources = request.get(AbuseResources.class);
 
             return abuseResources.getAbuseContact();
 
@@ -205,21 +214,42 @@ public class RestClientTarget {
         }
     }
 
-    // TODO: [AH] make this streaming; result can be gigantic
+    /**
+     * beware, this imlementation is not streaming; result can be gigantic
+     */
     public Collection<RpslObject> search() {
         try {
             WebTarget webTarget = client.target(baseUrl)
                     .path("search");
             webTarget = setParams(webTarget);
 
-            final WhoisResources whoisResources = webTarget
-                    .request()
-                    .get(WhoisResources.class);
+            final Invocation.Builder request = webTarget.request();
+
+            setCookies(request);
+            setHeaders(request);
+
+            final WhoisResources whoisResources = request.get(WhoisResources.class);
 
             return mapper.mapWhoisObjects(whoisResources.getWhoisObjects());
 
         } catch (ClientErrorException e) {
             throw createException(e);
+        }
+    }
+
+    public Iterator<WhoisObject> streamingSearch() {
+        try {
+            WebTarget webTarget = client.target(baseUrl).path("search");
+            final URLConnection urlConnection = setParams(webTarget).getUri().toURL().openConnection();
+
+            setHeaders(urlConnection);
+            setCookies(urlConnection);
+
+            final InputStream inputStream = urlConnection.getInputStream();
+
+            return new StreamingRestClient(inputStream);
+        } catch (IOException e) {
+            throw new RestClientException(e.getMessage());
         }
     }
 
@@ -243,6 +273,24 @@ public class RestClientTarget {
     private Invocation.Builder setHeaders(final Invocation.Builder request) {
         request.headers(headers);
         return request;
+    }
+
+    private void setHeaders(URLConnection urlConnection) {
+        for (Map.Entry<String, List<Object>> entry : headers.entrySet()) {
+            urlConnection.setRequestProperty(entry.getKey(), StringUtils.join(entry.getValue(), ','));
+        }
+    }
+
+    private void setCookies(URLConnection urlConnection) {
+        StringBuilder cookieHeader = new StringBuilder();
+        for (Cookie cookie : cookies) {
+            if (cookieHeader.length() > 0) {
+                cookieHeader.append("; ");
+            }
+            cookieHeader.append(cookie.getName()).append('=').append(cookie.getValue());
+        }
+
+        urlConnection.setRequestProperty("Cookie", cookieHeader.toString());
     }
 
     private static RuntimeException createException(final ClientErrorException e) {
