@@ -5,7 +5,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -80,7 +79,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private JdbcTemplate internalsTemplate;
 
     @Autowired ApplicationContext applicationContext;
-    @Autowired DateTimeProvider dateTimeProvider;
     @Autowired AttributeSanitizer attributeSanitizer;
     @Autowired SourceAwareDataSource sourceAwareDataSource;
     @Autowired SourceContext sourceContext;

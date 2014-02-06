@@ -10,12 +10,14 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.query.QueryFlag;
+import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Collection;
@@ -34,6 +36,9 @@ import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class RestClientTestIntegration extends AbstractIntegrationTest {
+
+    @Value("${dir.update.audit.log}")
+    String auditLog;
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:        OWNER-MNT\n" +
@@ -107,6 +112,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     @Before
     public void setup() throws Exception {
+        testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-03T17:00:00"));
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
@@ -336,5 +342,34 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .create(person);
 
         assertThat(created, is(person));
+    }
+
+    @Test
+    public void lookup_passes_x_forwarded_for() {
+
+    }
+
+    @Test
+    public void update_passes_x_forwarded_for() {
+
+    }
+
+    @Test
+    public void delete_passes_x_forwarded_for() {
+
+    }
+
+    @Test
+    public void create_passes_x_forwarded_for() {
+
+    }
+
+    @Test
+    public void search_passes_x_forwarded_for() {
+
+    }
+    @Test
+    public void streaming_search_passes_on_x_forwarded_for() {
+
     }
 }

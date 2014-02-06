@@ -2,7 +2,6 @@ package net.ripe.db.whois.update.dao;
 
 
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -20,18 +19,20 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 
 public class JdbcPendingUpdateDaoTest extends AbstractUpdateDaoTest {
     @Autowired private PendingUpdateDao subject;
-    @Autowired private DateTimeProvider dateTimeProvider;
     @Autowired @Qualifier("internalsDataSource") private DataSource dataSource;
 
     @Test
     public void findByTypeAndPkey_existing_object() throws SQLException {
         final RpslObject object = RpslObject.parse("route6: 2001:1578:0200::/40\nmnt-by: TEST-MNT\norigin: AS12726");
-        subject.store(new PendingUpdate(Sets.newHashSet("RouteAutnumAuthentication"), object, dateTimeProvider.getCurrentDateTime()));
+        subject.store(new PendingUpdate(Sets.newHashSet("RouteAutnumAuthentication"), object, testDateTimeProvider.getCurrentDateTime()));
 
         final List<PendingUpdate> result = subject.findByTypeAndKey(ObjectType.ROUTE6, object.getKey().toString());
         assertThat(result, hasSize(1));
@@ -45,7 +46,7 @@ public class JdbcPendingUpdateDaoTest extends AbstractUpdateDaoTest {
     @Test
     public void findByTypeAndPkey_non_existing_object() {
         final RpslObject object = RpslObject.parse("route: 193.0/8\norigin: AS23423\nsource: TEST");
-        subject.store(new PendingUpdate(Sets.newHashSet("RouteIpAddressAuthentication"), object, dateTimeProvider.getCurrentDateTime()));
+        subject.store(new PendingUpdate(Sets.newHashSet("RouteIpAddressAuthentication"), object, testDateTimeProvider.getCurrentDateTime()));
 
         final List<PendingUpdate> result = subject.findByTypeAndKey(ObjectType.ROUTE6, object.getKey().toString());
         assertThat(result, hasSize(0));
@@ -87,7 +88,7 @@ public class JdbcPendingUpdateDaoTest extends AbstractUpdateDaoTest {
     @Test
     public void remove() {
         final RpslObject object = RpslObject.parse("route6: 5555::4444/48\norigin:AS1234");
-        final PendingUpdate pending = new PendingUpdate(Sets.newHashSet("RouteIpAddressAuthentication"), object, dateTimeProvider.getCurrentDateTime());
+        final PendingUpdate pending = new PendingUpdate(Sets.newHashSet("RouteIpAddressAuthentication"), object, testDateTimeProvider.getCurrentDateTime());
         subject.store(pending);
 
         final int pendingId = new JdbcTemplate(dataSource).queryForInt("select id from pending_updates");

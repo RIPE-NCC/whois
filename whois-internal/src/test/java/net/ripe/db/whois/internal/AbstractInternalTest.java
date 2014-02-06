@@ -1,8 +1,8 @@
 package net.ripe.db.whois.internal;
 
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
+import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.junit.After;
@@ -26,7 +26,7 @@ import javax.sql.DataSource;
 public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTests {
     protected static final String apiKey = "DB-WHOIS-testapikey";
 
-    @Autowired protected DateTimeProvider dateTimeProvider;
+    @Autowired protected TestDateTimeProvider testDateTimeProvider;
 
     @Autowired @Qualifier("aclDataSource") protected DataSource aclDataSource;
 

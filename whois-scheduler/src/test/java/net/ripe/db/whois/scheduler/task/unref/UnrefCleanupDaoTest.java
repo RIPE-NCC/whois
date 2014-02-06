@@ -1,13 +1,11 @@
 package net.ripe.db.whois.scheduler.task.unref;
 
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import net.ripe.db.whois.update.domain.ObjectKey;
 import org.joda.time.LocalDate;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,13 +22,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 public class UnrefCleanupDaoTest extends AbstractSchedulerIntegrationTest {
     final static Set<ObjectType> referenceCheckObjectTypes = Sets.newHashSet(ObjectType.PERSON, ObjectType.ROLE);
 
-    @Autowired TestDateTimeProvider dateTimeProvider;
     @Autowired UnrefCleanupDao subject;
-
-    @Before
-    public void setup() throws Exception {
-        dateTimeProvider.reset();
-    }
 
     @Test
     public void getDeleteCandidates_empty() {

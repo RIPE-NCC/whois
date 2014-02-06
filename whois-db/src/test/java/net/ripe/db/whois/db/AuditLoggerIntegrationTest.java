@@ -4,11 +4,9 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.FileHelper;
 import org.joda.time.LocalDateTime;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -33,9 +31,6 @@ public class AuditLoggerIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     WhoisObjectClientMapper whoisObjectMapper;
-
-    @Autowired
-    TestDateTimeProvider dateTimeProvider;
 
     @Before
     public void setup() {
@@ -62,14 +57,9 @@ public class AuditLoggerIntegrationTest extends AbstractIntegrationTest {
                 "source:    TEST\n"));
     }
 
-    @After
-    public void resetClock() {
-        dateTimeProvider.reset();
-    }
-
     @Test
     public void rest_update_gets_logged() throws Exception {
-        dateTimeProvider.setTime(LocalDateTime.parse("2001-02-03T17:00:00"));
+        testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-03T17:00:00"));
         RpslObject rpslObject = RpslObject.parse("" +
                 "person:    Test Person\n" +
                 "address:   NL\n" +
