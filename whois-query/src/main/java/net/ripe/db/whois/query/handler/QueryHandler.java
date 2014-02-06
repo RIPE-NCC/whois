@@ -6,10 +6,10 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.executor.QueryExecutor;
 import net.ripe.db.whois.query.query.Query;
@@ -28,7 +28,10 @@ public class QueryHandler {
     private final List<QueryExecutor> queryExecutors;
 
     @Autowired
-    public QueryHandler(final WhoisLog whoisLog, final AccessControlListManager accessControlListManager, final SourceContext sourceContext, final QueryExecutor... queryExecutors) {
+    public QueryHandler(final WhoisLog whoisLog,
+                        final AccessControlListManager accessControlListManager,
+                        final SourceContext sourceContext,
+                        final QueryExecutor... queryExecutors) {
         this.whoisLog = whoisLog;
         this.accessControlListManager = accessControlListManager;
         this.sourceContext = sourceContext;
