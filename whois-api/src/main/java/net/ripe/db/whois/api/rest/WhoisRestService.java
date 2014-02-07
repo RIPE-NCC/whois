@@ -1,10 +1,8 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
@@ -71,6 +69,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
@@ -105,7 +104,8 @@ public class WhoisRestService {
 
     public static final String SERVICE_SEARCH = "search";
 
-    private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&');
+    private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&').omitEmptyStrings();
+    private static final Splitter EQUALS_SPLITTER = Splitter.on('=').omitEmptyStrings();
 
     private static final Set<QueryFlag> NOT_ALLOWED_SEARCH_QUERY_FLAGS = ImmutableSet.of(
             // flags for port43 only
@@ -258,7 +258,7 @@ public class WhoisRestService {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.invalidSource(source))).build());
         }
 
-        final boolean unfiltered = Iterables.contains(getQueryParamNames(request.getQueryString()), "unfiltered");
+        final boolean unfiltered = isQueryParamSet(request.getQueryString(), "unfiltered");
 
         QueryBuilder queryBuilder = new QueryBuilder().
                 addFlag(QueryFlag.EXACT).
@@ -375,21 +375,23 @@ public class WhoisRestService {
         return new StreamingMarshalXml();
     }
 
-    private Iterable<String> getQueryParamNames(final String queryString) {
-        if (StringUtils.isBlank(queryString)) {
-            return Collections.emptyList();
+    private boolean isQueryParamSet(final String queryString, final String key) {
+        if (queryString == null) {
+            return false;
         }
 
-        return Iterables.transform(AMPERSAND_SPLITTER.split(queryString), new Function<String, String>() {
-            @Override
-            public String apply(final String input) {
-                String result = input.toLowerCase();
-                if (result.contains("=")) {
-                    return result.substring(0, result.indexOf('='));
+        for (String next : AMPERSAND_SPLITTER.split(queryString)) {
+            final Iterator<String> iterator = EQUALS_SPLITTER.split(next).iterator();
+            if (iterator.hasNext()) {
+                // check if query parameter is present, and has no value, or value is true
+                if (iterator.next().equals(key) &&
+                        (!iterator.hasNext() || iterator.next().equals("true"))) {
+                    return true;
                 }
-                return result;
             }
-        });
+        }
+
+        return false;
     }
 
     /**
