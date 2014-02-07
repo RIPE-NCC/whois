@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "source")
@@ -41,5 +42,27 @@ public class Source {
     public Source setName(String value) {
         this.name = value;
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (name != null ? name.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Source source = (Source)o;
+        return Objects.equals(source.id, id) &&
+                Objects.equals(source.name, name);
     }
 }
