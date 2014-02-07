@@ -242,13 +242,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_not_contains_empty_xmlns() {
+    public void lookup_xml_text_not_contains_empty_xmlns() {
         final String whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(String.class);
         assertThat(whoisResources, not(containsString("xmlns=\"\"")));
     }
 
     @Test
-    public void lookup_not_contains_root_level_locator() {
+    public void lookup_xml_text_not_contains_root_level_locator() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
         assertThat(whoisResources.getLink(), nullValue());
     }
@@ -330,18 +330,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST", "Filtered", null, null)));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
-    }
-
-    @Test
-    public void lookup_correct_object_json() {
-        final String whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
-
-        assertThat(whoisResources, not(containsString("errormessages")));
-        assertThat(whoisResources, containsString("{\"object\":[{\"type\":\"person"));
-        assertThat(whoisResources, containsString("\"tags\":{\"tag\":[]}}]}"));
-        assertThat(whoisResources, containsString("\"terms-and-conditions\":{\"type\":\"locator\",\"href\":\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"}}"));
     }
 
     @Test
@@ -691,6 +679,37 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "\"terms-and-conditions\":{\"type\":\"locator\",\"href\":\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"}" +
                 "}"
         ));
+    }
+
+    @Test
+    public void lookup_person_json_text() {
+        final String result = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
+
+        assertThat(result, is(
+                "{\"objects\":{" +
+                        "\"object\":[{" +
+                        "\"type\":\"person\"," +
+                        "\"link\":{\"type\":\"locator\",\"href\":\"http://rest-test.db.ripe.net/test/person/TP1-TEST\"}," +
+                        "\"source\":{\"id\":\"test\"}," +
+                        "\"primary-key\":{" +
+                        "\"attribute\":[" +
+                        "{\"name\":\"nic-hdl\",\"value\":\"TP1-TEST\"}" +
+                        "]}," +
+                        "\"attributes\":{" +
+                        "\"attribute\":[" +
+                        "{\"name\":\"person\",\"value\":\"Test Person\"}," +
+                        "{\"name\":\"address\",\"value\":\"Singel 258\"}," +
+                        "{\"name\":\"phone\",\"value\":\"+31 6 12345678\"}," +
+                        "{\"name\":\"nic-hdl\",\"value\":\"TP1-TEST\"}," +
+                        "{\"link\":{\"type\":\"locator\",\"href\":\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"},\"name\":\"mnt-by\",\"value\":\"OWNER-MNT\",\"referenced-type\":\"mntner\"}," +
+                        "{\"name\":\"source\",\"value\":\"TEST\",\"comment\":\"Filtered\"}" +
+                        "]}," +
+                        "\"tags\":{\"tag\":[]}" +
+                        "}]}," +
+                        "\"terms-and-conditions\":{\"type\":\"locator\",\"href\":\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"}" +
+                        "}"));
     }
 
     @Test
