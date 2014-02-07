@@ -622,6 +622,173 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
+    @Test
+    public void lookup_mntner_xml_text() {
+        final String result = RestTest.target(getPort(), "whois/test/mntner/owner-mnt.xml")
+                .request()
+                .get(String.class);
+
+        assertThat(result, is(
+                "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
+                "<objects>" +
+                "<object type=\"mntner\">" +
+                "<link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\" />" +
+                "<source id=\"test\" />" +
+                "<primary-key>" +
+                "<attribute name=\"mntner\" value=\"OWNER-MNT\" />" +
+                "</primary-key>" +
+                "<attributes>" +
+                "<attribute name=\"mntner\" value=\"OWNER-MNT\" />" +
+                "<attribute name=\"descr\" value=\"Owner Maintainer\" />" +
+                "<attribute name=\"admin-c\" value=\"TP1-TEST\" referenced-type=\"person\">" +
+                "<link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/TP1-TEST\" />" +
+                "</attribute>" +
+                "<attribute name=\"auth\" value=\"MD5-PW\" comment=\"Filtered\" />" +
+                "<attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">" +
+                "<link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\" />" +
+                "</attribute>" +
+                "<attribute name=\"referral-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">" +
+                "<link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\" />" +
+                "</attribute>" +
+                "<attribute name=\"source\" value=\"TEST\" comment=\"Filtered\" />" +
+                "</attributes>" +
+                "<tags />" +
+                "</object>" +
+                "</objects>" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" />" +
+                "</whois-resources>"));
+    }
+
+    @Test
+    public void lookup_mntner_json_text() {
+        final String result = RestTest.target(getPort(), "whois/test/mntner/owner-mnt.json")
+                .request()
+                .get(String.class);
+
+        assertThat(result, is(
+                "{\"objects\":" +
+                "{\"object\":[{" +
+                "\"type\":\"mntner\"," +
+                "\"link\":{\"type\":\"locator\",\"href\":\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"}," +
+                "\"source\":{\"id\":\"test\"}," +
+                "\"primary-key\":{" +
+                "\"attribute\":[" +
+                "{\"name\":\"mntner\",\"value\":\"OWNER-MNT\"}" +
+                "]}," +
+                "\"attributes\":{" +
+                "\"attribute\":[" +
+                "{\"name\":\"mntner\",\"value\":\"OWNER-MNT\"}," +
+                "{\"name\":\"descr\",\"value\":\"Owner Maintainer\"}," +
+                "{\"link\":{\"type\":\"locator\",\"href\":\"http://rest-test.db.ripe.net/test/person/TP1-TEST\"},\"name\":\"admin-c\",\"value\":\"TP1-TEST\",\"referenced-type\":\"person\"}," +
+                "{\"name\":\"auth\",\"value\":\"MD5-PW\",\"comment\":\"Filtered\"}," +
+                "{\"link\":{\"type\":\"locator\",\"href\":\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"},\"name\":\"mnt-by\",\"value\":\"OWNER-MNT\",\"referenced-type\":\"mntner\"}," +
+                "{\"link\":{\"type\":\"locator\",\"href\":\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"},\"name\":\"referral-by\",\"value\":\"OWNER-MNT\",\"referenced-type\":\"mntner\"}," +
+                "{\"name\":\"source\",\"value\":\"TEST\",\"comment\":\"Filtered\"}" +
+                "]}," +
+                "\"tags\":{\"tag\":[]}" +
+                "}]}," +
+                "\"terms-and-conditions\":{\"type\":\"locator\",\"href\":\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"}" +
+                "}"
+        ));
+    }
+
+    @Test
+    public void grs_lookup_autnum_json_text() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST-GRS\n");
+
+        final String result = RestTest.target(getPort(), "whois/test-grs/aut-num/AS102.json").request().get(String.class);
+
+        assertThat(result, is(
+                "{\"objects\":" +
+                "{\"object\":[{" +
+                "\"type\":\"aut-num\"," +
+                "\"link\":{\"type\":\"locator\",\"href\":\"http://rest-test.db.ripe.net/test-grs/aut-num/AS102\"}," +
+                "\"source\":{\"id\":\"test-grs\"}," +
+                "\"primary-key\":{" +
+                "\"attribute\":[" +
+                "{\"name\":\"aut-num\",\"value\":\"AS102\"}" +
+                "]}," +
+                "\"attributes\":{" +
+                "\"attribute\":[" +
+                "{\"name\":\"aut-num\",\"value\":\"AS102\"}," +
+                "{\"name\":\"as-name\",\"value\":\"End-User-2\"}," +
+                "{\"name\":\"descr\",\"value\":\"description\"}," +
+                "{\"name\":\"admin-c\",\"value\":\"DUMY-RIPE\"}," +
+                "{\"name\":\"tech-c\",\"value\":\"DUMY-RIPE\"}," +
+                "{\"link\":{\"type\":\"locator\",\"href\":\"http://rest-test.db.ripe.net/test-grs/mntner/OWNER-MNT\"},\"name\":\"mnt-by\",\"value\":\"OWNER-MNT\",\"referenced-type\":\"mntner\"}," +
+                "{\"name\":\"source\",\"value\":\"TEST-GRS\"}," +
+                "{\"name\":\"remarks\",\"value\":\"****************************\"}," +
+                "{\"name\":\"remarks\",\"value\":\"* THIS OBJECT IS MODIFIED\"}," +
+                "{\"name\":\"remarks\",\"value\":\"* Please note that all data that is generally regarded as personal\"}," +
+                "{\"name\":\"remarks\",\"value\":\"* data has been removed from this object.\"}," +
+                "{\"name\":\"remarks\",\"value\":\"* To view the original object, please query the RIPE Database at:\"}," +
+                "{\"name\":\"remarks\",\"value\":\"* http://www.ripe.net/whois\"}," +
+                "{\"name\":\"remarks\",\"value\":\"****************************\"}" +
+                "]}," +
+                "\"tags\":{\"tag\":[]}" +
+                "}]}," +
+                "\"terms-and-conditions\":{\"type\":\"locator\",\"href\":\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"}" +
+                "}"
+        ));
+    }
+
+    @Test
+    public void grs_lookup_autnum_xml_text() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST-GRS\n");
+
+        final String result = RestTest.target(getPort(), "whois/test-grs/aut-num/AS102.xml").request().get(String.class);
+
+        assertThat(result, is(
+                "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
+                "<objects>" +
+                "<object type=\"aut-num\">" +
+                "<link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test-grs/aut-num/AS102\" />" +
+                "<source id=\"test-grs\" />" +
+                "<primary-key>" +
+                "<attribute name=\"aut-num\" value=\"AS102\" />" +
+                "</primary-key>" +
+                "<attributes>" +
+                "<attribute name=\"aut-num\" value=\"AS102\" />" +
+                "<attribute name=\"as-name\" value=\"End-User-2\" />" +
+                "<attribute name=\"descr\" value=\"description\" />" +
+                "<attribute name=\"admin-c\" value=\"DUMY-RIPE\" />" +
+                "<attribute name=\"tech-c\" value=\"DUMY-RIPE\" />" +
+                "<attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">" +
+                "<link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test-grs/mntner/OWNER-MNT\" />" +
+                "</attribute>" +
+                "<attribute name=\"source\" value=\"TEST-GRS\" />" +
+                "<attribute name=\"remarks\" value=\"****************************\" />" +
+                "<attribute name=\"remarks\" value=\"* THIS OBJECT IS MODIFIED\" />" +
+                "<attribute name=\"remarks\" value=\"* Please note that all data that is generally regarded as personal\" />" +
+                "<attribute name=\"remarks\" value=\"* data has been removed from this object.\" />" +
+                "<attribute name=\"remarks\" value=\"* To view the original object, please query the RIPE Database at:\" />" +
+                "<attribute name=\"remarks\" value=\"* http://www.ripe.net/whois\" />" +
+                "<attribute name=\"remarks\" value=\"****************************\" />" +
+                "</attributes>" +
+                "<tags />" +
+                "</object>" +
+                "</objects>" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" />" +
+                "</whois-resources>"));
+    }
+
+
     // create
 
     @Test
