@@ -10,6 +10,7 @@ import net.ripe.db.whois.api.rest.domain.InverseAttributes;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.QueryStrings;
+import net.ripe.db.whois.api.rest.domain.Source;
 import net.ripe.db.whois.api.rest.domain.Sources;
 import net.ripe.db.whois.api.rest.domain.TypeFilters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
@@ -431,19 +432,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST-GRS\n");
 
-        final String result = RestTest.target(getPort(), "whois/test-grs/aut-num/AS102").request().get(String.class);
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test-grs/aut-num/AS102").request().get(WhoisResources.class);
 
-        assertThat(result, not(containsString("errormessages")));
-        assertThat(result, containsString("" +
-                "<source id=\"test-grs\" />" +
-                "<primary-key><attribute name=\"aut-num\" value=\"AS102\" /></primary-key>" +
-                "<attributes>" +
-                "<attribute name=\"aut-num\" value=\"AS102\" />" +
-                "<attribute name=\"as-name\" value=\"End-User-2\" />"));
-        assertThat(result, containsString("" +
-                "<attribute name=\"source\" value=\"TEST-GRS\" />" +
-                "<attribute name=\"remarks\" value=\"****************************\" />" +
-                "<attribute name=\"remarks\" value=\"* THIS OBJECT IS MODIFIED\" />"));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey(), contains(new Attribute("aut-num", "AS102")));
+        assertThat(whoisResources.getWhoisObjects().get(0).getSource(), is(new Source("test-grs")));
     }
 
     @Test
