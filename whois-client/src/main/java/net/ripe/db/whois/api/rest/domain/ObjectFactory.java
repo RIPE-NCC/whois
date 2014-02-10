@@ -49,14 +49,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GrsMirror }
-     *
-     */
-    public GrsMirror createGrsMirror() {
-        return new GrsMirror();
-    }
-
-    /**
      * Create an instance of {@link Attribute }
      *
      */
