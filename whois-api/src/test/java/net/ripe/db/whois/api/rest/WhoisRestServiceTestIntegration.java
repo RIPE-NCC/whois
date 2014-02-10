@@ -690,8 +690,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\" />"));
     }
 
-    // TODO: [ES] add tests for [create, lookup, update, delete] with [sso query param, crowd cookie]
-
     @Test
     public void lookup_with_crowd_cookie() {
         RestTest.target(getPort(), "whois/test/person/TP1-TEST")
@@ -915,6 +913,31 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisObject responseObject = whoisResources.getWhoisObjects().get(0);
         assertThat(responseObject.getAttributes().get(1).getValue(), is("test ? and \u00DF characters"));
     }
+
+    @Ignore("TODO: [ES] fix sso auth")
+    @Test
+    public void create_self_referencing_maintainer_sso_auth_only() {
+        final RpslObject maintainer = RpslObject.parse("" +
+                "mntner:         SSO-ONLY-MNT\n" +
+                "descr:          Maintainer\n" +
+                "admin-c:        TP1-TEST\n" +
+                "auth:           SSO person@net.net\n" +
+                "mnt-by:         SSO-ONLY-MNT\n" +
+                "referral-by:    SSO-ONLY-MNT\n" +
+                "source:         TEST");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(maintainer)), MediaType.APPLICATION_XML))
+                .readEntity(WhoisResources.class);
+
+        // TODO: 200 OK response?
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages(), hasSize(0));
+    }
+
 
     // delete
 
@@ -2369,7 +2392,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     // response format
 
     @Test
-    public void xsi_attributes_not_in_root_level_link() {
+    public void lookup_xsi_attributes_not_in_root_level_link() {
         final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST")
                 .request(MediaType.APPLICATION_XML_TYPE).get(String.class);
         assertThat(whoisResources, not(containsString("xsi:type")));
@@ -2421,7 +2444,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void override_update_succeeds() {
+    public void update_with_override_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
         databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
 

@@ -188,8 +188,8 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        Origin origin = updatePerformer.createOrigin(request);
-        UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+        final Origin origin = updatePerformer.createOrigin(request);
+        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
         try {
             // TODO: [AH] add delete by primary key to DAO layer, so there is no race condition from here to SingleUpdateHandler's global lock
             RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
@@ -227,8 +227,8 @@ public class WhoisRestService {
         final RpslObject submittedObject = getSubmittedObject(request, resource);
         validateSubmittedObject(request, submittedObject, objectType, key);
 
-        Origin origin = updatePerformer.createOrigin(request);
-        UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+        final Origin origin = updatePerformer.createOrigin(request);
+        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
         try {
             return updatePerformer.performUpdate(
                     updateContext,
@@ -261,8 +261,8 @@ public class WhoisRestService {
         // TODO: [AH] getSubmittedObject() can throw exceptions on mapping
         final RpslObject submittedObject = getSubmittedObject(request, resource);
 
-        Origin origin = updatePerformer.createOrigin(request);
-        UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+        final Origin origin = updatePerformer.createOrigin(request);
+        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
         try {
             return updatePerformer.performUpdate(
                     updateContext,
