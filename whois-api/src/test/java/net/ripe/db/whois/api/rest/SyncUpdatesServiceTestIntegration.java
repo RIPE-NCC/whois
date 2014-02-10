@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,7 +176,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void only_data_parameter_with_sso_token_create_object() throws Exception {
+    public void only_data_parameter_with_sso_token_create_person() throws Exception {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject("" +
                 "mntner:        SSO-MNT\n" +
@@ -206,20 +207,43 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void only_data_parameter_with_sso_token_update_selfrefencing_maintainer() throws Exception {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                "descr:         description\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          SSO person@net.net\n" +
+                "mnt-by:        SSO-MNT\n" +
+                "referral-by:   SSO-MNT\n" +
+                "changed:       noreply@ripe.net 20130102\n" +
+                "source:        TEST";
+        databaseHelper.addObject(mntner);
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(mntner + "\nremarks: updated"))
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .get(String.class);
+
+        assertThat(response, containsString("Modify SUCCEEDED: [mntner] SSO-MNT"));
+    }
+
+    @Test
     public void only_data_parameter_with_sso_token_create_object_translate_sso_auth_attribute() throws Exception {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject(MNTNER_TEST_MNTNER);
 
         final String mntner =
                 "mntner:        SSO-MNT\n" +
-                        "descr:         description\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "upd-to:        noreply@ripe.net\n" +
-                        "auth:          SSO person@net.net\n" +
-                        "mnt-by:        mntner\n" +
-                        "referral-by:   mntner\n" +
-                        "changed:       noreply@ripe.net 20130102\n" +
-                        "source:        TEST";
+                "descr:         description\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          SSO person@net.net\n" +
+                "mnt-by:        mntner\n" +
+                "referral-by:   mntner\n" +
+                "changed:       noreply@ripe.net 20130102\n" +
+                "source:        TEST";
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(mntner + "\npassword: emptypassword"))
                 .request()
@@ -325,6 +349,30 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
     }
 
+    @Ignore("TODO: [ES] fix sso auth")
+    @Test
+    public void new_and_data_parameters_with_sso_token_create_selfrefencing_maintainer() throws Exception {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                "descr:         description\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          SSO person@net.net\n" +
+                "mnt-by:        SSO-MNT\n" +
+                "referral-by:   SSO-MNT\n" +
+                "changed:       noreply@ripe.net 20130102\n" +
+                "source:        TEST";
+
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(mntner) + "&NEW=yes")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .get(String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [mntner] SSO-MNT"));
+    }
+
     @Test
     public void post_url_encoded_data_with_charset() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
@@ -334,14 +382,14 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity("DATA=" + RestClientUtils.encode(
                         "person:     Test Person\n" +
-                                "address:    Flughafenstraße 109/a\n" +
-                                "phone:      +49 282 411141\n" +
-                                "fax-no:     +49 282 411140\n" +
-                                "nic-hdl:    TP1-TEST\n" +
-                                "changed:    dbtest@ripe.net 20120101\n" +
-                                "mnt-by:     mntner\n" +
-                                "source:     INVALID\n" +
-                                "password: emptypassword", "ISO-8859-1"), MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
+                        "address:    Flughafenstraße 109/a\n" +
+                        "phone:      +49 282 411141\n" +
+                        "fax-no:     +49 282 411140\n" +
+                        "nic-hdl:    TP1-TEST\n" +
+                        "changed:    dbtest@ripe.net 20120101\n" +
+                        "mnt-by:     mntner\n" +
+                        "source:     INVALID\n" +
+                        "password: emptypassword", "ISO-8859-1"), MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
         assertThat(response, containsString("Flughafenstraße 109/a"));
