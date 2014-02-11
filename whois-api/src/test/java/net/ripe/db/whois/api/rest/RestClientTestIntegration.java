@@ -1,15 +1,19 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.support.TestWhoisLog;
+import org.hamcrest.Matchers;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +21,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
+import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
@@ -53,37 +60,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             "mnt-by:        OWNER-MNT\n" +
             "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST\n");
-
-    private static final RpslObject ABUSE_CONTACT_ROLE = RpslObject.parse("" +
-            "role:          Abuse Contact\n" +
-            "nic-hdl:       AC1-TEST\n" +
-            "abuse-mailbox: abuse@test.net\n" +
-            "source:        TEST");
-
-    private static final RpslObject ABUSE_CONTACT_ORGANISATION = RpslObject.parse("" +
-            "organisation:  ORG-RN1-TEST\n" +
-            "org-name:      Ripe NCC\n" +
-            "org-type:      OTHER\n" +
-            "address:       Amsterdam\n" +
-            "abuse-c:       AC1-TEST\n" +
-            "e-mail:        some@email.net\n" +
-            "mnt-ref:       OWNER-MNT\n" +
-            "mnt-by:        OWNER-MNT\n" +
-            "changed:       dbtest@ripe.net 20121016\n" +
-            "source:        TEST");
-
-    private static final RpslObject ABUSE_CONTACT_INETNUM = RpslObject.parse("" +
-            "inetnum:       193.0.0.0 - 193.0.0.255\n" +
-            "netname:       RIPE-NCC\n" +
-            "descr:         some description\n" +
-            "org:           ORG-RN1-TEST\n" +
-            "country:       NL\n" +
-            "admin-c:       TP1-TEST\n" +
-            "tech-c:        TP1-TEST\n" +
-            "status:        SUB-ALLOCATED PA\n" +
-            "mnt-by:        OWNER-MNT\n" +
-            "changed:       org@ripe.net 20120505\n" +
-            "source:        TEST");
 
     private static final RpslObject SECOND_MNT = RpslObject.parse("" +
             "mntner:        SECOND-MNT\n" +
@@ -247,6 +223,38 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_abuse_contact() {
+        final RpslObject ABUSE_CONTACT_ROLE = RpslObject.parse("" +
+                "role:          Abuse Contact\n" +
+                "nic-hdl:       AC1-TEST\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "source:        TEST");
+
+        final RpslObject ABUSE_CONTACT_ORGANISATION = RpslObject.parse("" +
+                "organisation:  ORG-RN1-TEST\n" +
+                "org-name:      Ripe NCC\n" +
+                "org-type:      OTHER\n" +
+                "address:       Amsterdam\n" +
+                "abuse-c:       AC1-TEST\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20121016\n" +
+                "source:        TEST");
+
+        final RpslObject ABUSE_CONTACT_INETNUM = RpslObject.parse("" +
+                "inetnum:       193.0.0.0 - 193.0.0.255\n" +
+                "netname:       RIPE-NCC\n" +
+                "descr:         some description\n" +
+                "org:           ORG-RN1-TEST\n" +
+                "country:       NL\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "status:        SUB-ALLOCATED PA\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       org@ripe.net 20120505\n" +
+                "source:        TEST");
+
+
         databaseHelper.addObjects(ABUSE_CONTACT_ROLE, ABUSE_CONTACT_ORGANISATION, ABUSE_CONTACT_INETNUM);
         resetIpTrees();
 
@@ -339,32 +347,83 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
                 .lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
 
-        assertThat(testWhoisLog.getMessages().size(), is(1));
+        assertThat(testWhoisLog.getMessages(), hasSize(1));
         assertThat(testWhoisLog.getMessage(0), containsString(" PW-API-INFO <0+1+0> "));
         assertThat(testWhoisLog.getMessage(0), containsString(" [10.20.30.40] "));
     }
 
     @Test
     public void update_passes_x_forwarded_for() {
+        final RpslObject updatedPerson = buildGenericObject(TEST_PERSON, "remarks: i will be back");
 
+        restClient.request()
+                .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                .addParam("password", "test")
+                .update(updatedPerson);
+
+        String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/170000.rest_10.20.30.40_0/000.audit.xml.gz"));
+
+        assertThat(audit, Matchers.containsString("<message><![CDATA[Header: X-Forwarded-For=10.20.30.40]]></message>"));
     }
 
     @Test
     public void delete_passes_x_forwarded_for() {
+        databaseHelper.addObject(SECOND_MNT);
+        restClient.request()
+                .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                .addParam("password", "test")
+                .delete(SECOND_MNT);
 
+        String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/170000.rest_10.20.30.40_0/000.audit.xml.gz"));
+
+        assertThat(audit, Matchers.containsString("<message><![CDATA[Header: X-Forwarded-For=10.20.30.40]]></message>"));
     }
 
     @Test
     public void create_passes_x_forwarded_for() {
+        final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
 
+        restClient.request()
+                .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                .addParam("password", "test")
+                .create(secondPerson);
+
+        String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/170000.rest_10.20.30.40_0/000.audit.xml.gz"));
+
+        assertThat(audit, Matchers.containsString("<message><![CDATA[Header: X-Forwarded-For=10.20.30.40]]></message>"));
     }
 
     @Test
     public void search_passes_x_forwarded_for() {
+        final Collection<RpslObject> objects = restClient.request()
+                .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                .addParam("query-string", "OWNER-MNT")
+                .addParam("type-filter", "mntner")
+                .addParam("flags", "B")
+                .search();
 
+        assertThat(objects, hasSize(2));
+
+        assertThat(testWhoisLog.getMessages().size(), is(1));
+        assertThat(testWhoisLog.getMessage(0), containsString(" PW-API-INFO <1+1+0> "));
+        assertThat(testWhoisLog.getMessage(0), containsString(" [10.20.30.40] "));
     }
+
     @Test
     public void streaming_search_passes_on_x_forwarded_for() {
+        final Iterator<WhoisObject> objects = restClient.request()
+                .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                .addParam("query-string", "OWNER-MNT")
+                .addParam("type-filter", "mntner")
+                .addParam("flags", "B")
+                .streamingSearch();
 
+        final List<WhoisObject> whoisObjects = Lists.newArrayList(objects);
+
+        assertThat(whoisObjects, hasSize(2));
+
+        assertThat(testWhoisLog.getMessages().size(), is(1));
+        assertThat(testWhoisLog.getMessage(0), containsString(" PW-API-INFO <1+1+0> "));
+        assertThat(testWhoisLog.getMessage(0), containsString(" [10.20.30.40] "));
     }
 }

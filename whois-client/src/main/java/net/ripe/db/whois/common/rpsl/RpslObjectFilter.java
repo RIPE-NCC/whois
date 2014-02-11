@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,4 +61,29 @@ public class RpslObjectFilter {
         final List<RpslAttribute> attributes = rpslObject.findAttributes(AttributeType.SOURCE);
         return !attributes.isEmpty() && attributes.get(0).getValue().contains(FILTERED);
     }
+
+    /** slow way to build specific objects from object skeletons/templates. Meant for testing only */
+    public static RpslObject buildGenericObject(final RpslObject object, final String ... attributes) {
+        return buildGenericObject(new RpslObjectBuilder(object), attributes);
+    }
+
+    /** slow way to build specific objects from object skeletons/templates. Meant for testing only */
+    public static RpslObject buildGenericObject(final String object, final String ... attributes) {
+        return buildGenericObject(new RpslObjectBuilder(object), attributes);
+    }
+
+    /** slow way to build specific objects from object skeletons/templates. Meant for testing only */
+    public static RpslObject buildGenericObject(final RpslObjectBuilder builder, final String ... attributes) {
+        List<RpslAttribute> attributeList = new ArrayList<>();
+        for (String attribute : attributes) {
+            attributeList.addAll(RpslObjectBuilder.getAttributes(attribute));
+        }
+        for (RpslAttribute rpslAttribute : attributeList) {
+            builder.removeAttributeType(rpslAttribute.getType());
+        }
+
+        builder.addAttributes(attributeList);
+        return builder.sort().get();
+    }
+
 }

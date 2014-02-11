@@ -8,9 +8,7 @@ import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,9 +20,9 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 
+import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -570,21 +568,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                 "status:       ALLOCATED PA\n" +
                 "changed:      dbtest@ripe.net 20020101\n" +
                 "source:    TEST\n", pkey), attributes);
-    }
-
-    private RpslObject buildGenericObject(final String object, final String ... attributes) {
-        RpslObjectBuilder builder = new RpslObjectBuilder(object);
-
-        List<RpslAttribute> attributeList = new ArrayList<>();
-        for (String attribute : attributes) {
-            attributeList.addAll(RpslObjectBuilder.getAttributes(attribute));
-        }
-        for (RpslAttribute rpslAttribute : attributeList) {
-            builder.removeAttributeType(rpslAttribute.getType());
-        }
-
-        builder.addAttributes(attributeList);
-        return builder.sort().get();
     }
 
     private void assertUnauthorizedErrorMessage(final NotAuthorizedException exception, final String ... args) {

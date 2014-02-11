@@ -388,6 +388,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return updateInfoMap;
     }
 
+    // TODO: move claimIds from ObjectLoader to whois-commons
     private void claimId(RpslObject rpslObject) {
         // claim IDs. ugly, but ObjectLoader is in whois-update
         try {
