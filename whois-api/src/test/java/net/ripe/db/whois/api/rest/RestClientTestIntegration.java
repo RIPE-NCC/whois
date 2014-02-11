@@ -1,21 +1,18 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
-import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -23,6 +20,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -34,11 +32,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@Category(IntegrationTest.class)
 public class RestClientTestIntegration extends AbstractIntegrationTest {
-
-    @Value("${dir.update.audit.log}")
-    String auditLog;
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:        OWNER-MNT\n" +
@@ -102,20 +96,17 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST");
 
-    @Autowired
-    private IpTreeUpdater ipTreeUpdater;
+    @Value("${dir.update.audit.log}")
+    String auditLog;
 
-    private RestClient restClient;
+    @Autowired TestWhoisLog testWhoisLog;
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    RestClient restClient;
 
     @Before
     public void setup() throws Exception {
-        testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-03T17:00:00"));
-        databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
-        databaseHelper.addObject(OWNER_MNT);
-        databaseHelper.updateObject(TEST_PERSON);
+        testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
+        databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
 
         restClient = new RestClient(String.format("http://localhost:%d/whois", getPort()), "TEST");
     }
@@ -256,10 +247,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_abuse_contact() {
-        databaseHelper.addObject(ABUSE_CONTACT_ROLE);
-        databaseHelper.addObject(ABUSE_CONTACT_ORGANISATION);
-        databaseHelper.addObject(ABUSE_CONTACT_INETNUM);
-        ipTreeUpdater.rebuild();
+        databaseHelper.addObjects(ABUSE_CONTACT_ROLE, ABUSE_CONTACT_ORGANISATION, ABUSE_CONTACT_INETNUM);
+        resetIpTrees();
 
         final AbuseContact abuseContact = restClient.request().lookupAbuseContact("193.0.0.1");
 
@@ -346,7 +335,13 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_passes_x_forwarded_for() {
+        final RpslObject object = restClient.request()
+                .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                .lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
 
+        assertThat(testWhoisLog.getMessages().size(), is(1));
+        assertThat(testWhoisLog.getMessage(0), containsString(" PW-API-INFO <0+1+0> "));
+        assertThat(testWhoisLog.getMessage(0), containsString(" [10.20.30.40] "));
     }
 
     @Test
