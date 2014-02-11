@@ -1703,7 +1703,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         fail();
     }
 
-    @Ignore("TODO: [ES] updated object is returned with new comment - review")
     @Test
     public void update_comment_is_noop_and_returns_old_object() {
         assertThat(TEST_PERSON.findAttributes(AttributeType.REMARKS), hasSize(0));
@@ -1722,7 +1721,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(builder.sort().get())), MediaType.APPLICATION_XML), String.class);
 
-        assertThat(response, containsString("<attribute name=\"remarks\" value=\"updated\" comment=\"new comment\"/>"));
+        assertThat(response, containsString("<attribute name=\"remarks\" value=\"updated\" comment=\"comment\"/>"));
     }
 
     // versions
