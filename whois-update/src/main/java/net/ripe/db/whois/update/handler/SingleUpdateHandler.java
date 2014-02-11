@@ -99,13 +99,16 @@ public class SingleUpdateHandler {
         }
 
         final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
-        final RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
+        RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
         final RpslObject originalObject = getOriginalObject(updatedObject, update, updateContext, overrideOptions);
         final Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
 
         checkForUnexpectedModification(update);
 
+        if (action == Action.NOOP){
+            updatedObject = originalObject;
+        }
         PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
         updateContext.setPreparedUpdate(preparedUpdate);
 
