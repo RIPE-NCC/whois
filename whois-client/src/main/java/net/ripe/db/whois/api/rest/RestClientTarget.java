@@ -4,7 +4,6 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -25,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -237,7 +235,7 @@ public class RestClientTarget {
         }
     }
 
-    public Iterator<WhoisObject> streamingSearch() {
+    public StreamingRestClient streamingSearch() {
         try {
             WebTarget webTarget = client.target(baseUrl).path("search");
             final URLConnection urlConnection = setParams(webTarget).getUri().toURL().openConnection();

@@ -11,10 +11,11 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
+import java.io.Closeable;
 import java.io.InputStream;
 import java.util.Iterator;
 
-public class StreamingRestClient implements Iterator<WhoisObject> {
+public class StreamingRestClient implements Iterator<WhoisObject>, Closeable {
     private static final JAXBContext jaxbContext;
     private static final Unmarshaller unmarshaller;
     private static final XMLInputFactory xmlInputFactory;
@@ -32,8 +33,10 @@ public class StreamingRestClient implements Iterator<WhoisObject> {
 
     private final XMLEventReader eventReader;
     private final XMLEventReader filteredReader;
+    private final InputStream inputStream;
 
     public StreamingRestClient(final InputStream inputStream) {
+        this.inputStream = inputStream;
         try {
             eventReader = xmlInputFactory.createXMLEventReader(inputStream);
             filteredReader = xmlInputFactory.createFilteredReader(eventReader, whoisObjectFilter);
@@ -65,6 +68,16 @@ public class StreamingRestClient implements Iterator<WhoisObject> {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void close() {
+        try {
+            eventReader.close();
+            filteredReader.close();
+            inputStream.close();
+        } catch (Exception e) {
+            throw new StreamingException(e);
+        }
+    }
 
     private static class WhoisObjectEventFilter implements EventFilter {
         @Override
