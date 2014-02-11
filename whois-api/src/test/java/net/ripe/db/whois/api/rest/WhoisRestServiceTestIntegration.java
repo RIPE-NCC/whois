@@ -1053,10 +1053,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_JSON), String.class);
 
-        assertThat(response, is(
+        assertThat(response, is(String.format(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
                         "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
-                        "<link xlink:type=\"locator\" xlink:href=\"http://localhost:63032/test/person?password=test\"/>" +
+                        "<link xlink:type=\"locator\" xlink:href=\"http://localhost:%d/test/person?password=test\"/>" +
                         "<objects>" +
                         "<object type=\"person\">" +
                         "<link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/PP1-TEST\"/>" +
@@ -1080,7 +1080,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "</object>" +
                         "</objects>" +
                         "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
-                        "</whois-resources>"));
+                        "</whois-resources>",getPort())));
     }
 
     @Test
@@ -1089,11 +1089,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_JSON), String.class);
 
-        assertThat(response, is(
+        assertThat(response, is(String.format(
                 "{\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://localhost:62635/test/person?password=test\"\n" +
+                "    \"href\" : \"http://localhost:%d/test/person?password=test\"\n" +
                 "  },\n" +
                 "  \"objects\" : {\n" +
                 "    \"object\" : [ {\n" +
@@ -1152,7 +1152,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    \"type\" : \"locator\",\n" +
                 "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
                 "  }\n" +
-                "}"));
+                "}",getPort())));
     }
 
     @Test
@@ -1398,11 +1398,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON)
                 .put(Entity.entity(update, MediaType.APPLICATION_JSON), String.class);
 
-        assertThat(response, is(
+        assertThat(response, is(String.format(
                 "{\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://localhost:65485/test/mntner/OWNER-MNT?password=test\"\n" +
+                "    \"href\" : \"http://localhost:%d/test/mntner/OWNER-MNT?password=test\"\n" +
                 "  },\n" +
                 "  \"objects\" : {\n" +
                 "    \"object\" : [ {\n" +
@@ -1471,7 +1471,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    \"type\" : \"locator\",\n" +
                 "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
                 "  }\n" +
-                "}"));
+                "}",getPort())));
     }
 
     @Test
