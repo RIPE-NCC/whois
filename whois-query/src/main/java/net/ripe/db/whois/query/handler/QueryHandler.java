@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class QueryHandler {
@@ -40,7 +41,7 @@ public class QueryHandler {
 
     public void streamResults(final Query query, final InetAddress remoteAddress, final int contextId, final ResponseHandler responseHandler) {
         new Runnable() {
-            private final Stopwatch stopwatch = new Stopwatch().start();
+            private final Stopwatch stopwatch = Stopwatch.createStarted();
 
             private InetAddress accountingAddress;
             private boolean useAcl;
@@ -134,7 +135,7 @@ public class QueryHandler {
             }
 
             private void logQuery(@Nullable final QueryCompletionInfo completionInfo) {
-                whoisLog.logQueryResult(responseHandler.getApi(), accountedObjects, notAccountedObjects, completionInfo, stopwatch.elapsedMillis(), remoteAddress, contextId, query.toString());
+                whoisLog.logQueryResult(responseHandler.getApi(), accountedObjects, notAccountedObjects, completionInfo, stopwatch.elapsed(TimeUnit.MILLISECONDS), remoteAddress, contextId, query.toString());
             }
 
         }.run();

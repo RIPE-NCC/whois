@@ -151,7 +151,7 @@ public class UpdateRequestHandler {
     private List<Update> attemptUpdates(UpdateRequest updateRequest, UpdateContext updateContext, List<Update> updates) {
         final List<Update> reattemptQueue = Lists.newArrayList();
         for (final Update update : updates) {
-            final Stopwatch stopwatch = new Stopwatch().start();
+            final Stopwatch stopwatch = Stopwatch.createStarted();
 
             try {
                 loggerContext.logUpdateStarted(update);

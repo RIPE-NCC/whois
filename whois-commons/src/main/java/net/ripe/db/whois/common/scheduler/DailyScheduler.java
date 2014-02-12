@@ -43,7 +43,7 @@ public class DailyScheduler {
                 continue;
             }
 
-            final Stopwatch stopwatch = new Stopwatch().start();
+            final Stopwatch stopwatch = Stopwatch.createStarted();
             try {
                 LOGGER.info("Starting scheduled task: {}", task);
                 task.run();

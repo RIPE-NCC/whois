@@ -63,7 +63,7 @@ class RpslObjectsExporter {
 
         try {
             LOGGER.info("Database export started");
-            final Stopwatch stopwatch = new Stopwatch().start();
+            final Stopwatch stopwatch = Stopwatch.createStarted();
 
             initDirs();
             exportToFiles();

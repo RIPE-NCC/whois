@@ -44,7 +44,7 @@ public class QueryExecutor {
         final DummyWhoisClient client = new DummyWhoisClient(configuration.getHost(), configuration.getQueryPort());
         final String response;
 
-        final Stopwatch stopWatch = new Stopwatch().start();
+        final Stopwatch stopWatch = Stopwatch.createStarted();
         try {
             response = client.sendQuery(query);
         } finally {

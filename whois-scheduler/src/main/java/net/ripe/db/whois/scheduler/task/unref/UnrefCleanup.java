@@ -134,7 +134,7 @@ public class UnrefCleanup implements DailyScheduledTask {
 
         try {
             LOGGER.info("Starting unreferenced object cleanup");
-            final Stopwatch stopwatch = new Stopwatch().start();
+            final Stopwatch stopwatch = Stopwatch.createStarted();
 
             deleteCandidates = unrefCleanupDao.getDeleteCandidates(CLEANUP_OBJECTS);
             unreferencedObjects = Maps.newHashMap();
@@ -260,7 +260,7 @@ public class UnrefCleanup implements DailyScheduledTask {
                     final String updateMessage = "delete: " + REASON + "\n" + object;
                     final Paragraph paragraph = new Paragraph(updateMessage);
                     final Update update = new Update(paragraph, Operation.DELETE, Lists.newArrayList(REASON), object);
-                    final Stopwatch stopwatch = new Stopwatch().start();
+                    final Stopwatch stopwatch = Stopwatch.createStarted();
 
                     try {
                         singleUpdateHandler.handle(origin, Keyword.NONE, update, updateContext);

@@ -77,7 +77,7 @@ public class JdbcIndexDao implements IndexDao {
     private void rebuildForObjects(final List<Integer> objectIds, final Phase phase) {
         final List<List<Integer>> objectIdBatches = Lists.partition(objectIds, BATCH_SIZE);
 
-        final Stopwatch stopwatch = new Stopwatch().start();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         state.set(true);
 
         int count = 0;
@@ -201,7 +201,7 @@ public class JdbcIndexDao implements IndexDao {
         updateLockDao.setUpdateLock();
 
         try {
-            final Stopwatch stopwatch = new Stopwatch().start();
+            final Stopwatch stopwatch = Stopwatch.createStarted();
             IndexStrategies.get(attributeType).cleanupMissingObjects(jdbcTemplate);
             LOGGER.info("Removed {} indexes for missing objects in {}", attributeType, stopwatch);
         } catch (RuntimeException e) {

@@ -33,7 +33,7 @@ public class WhoisServer {
 
     public static void main(final String[] args) {
         Slf4JLogConfiguration.init();
-        final Stopwatch stopwatch = new Stopwatch().start();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
 
         final ClassPathXmlApplicationContext applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois.xml", WhoisProfile.DEPLOYED);
 
@@ -60,7 +60,7 @@ public class WhoisServer {
     }
 
     public void stop() {
-        final Stopwatch stopwatch = new Stopwatch().start();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
 
         for (final ApplicationService applicationService : applicationServices) {
             stopService(applicationService, false);
@@ -78,7 +78,7 @@ public class WhoisServer {
     }
 
     private void stopService(final ApplicationService applicationService, boolean forced) {
-        final Stopwatch stopwatch = new Stopwatch().start();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         try {
             if (!forced) LOGGER.info("Preparing to shut down {}", applicationService);
             applicationService.stop(forced);

@@ -64,7 +64,7 @@ public class Downloader {
     void downloadToFile(final Logger logger, final InputStream is, final Path file) throws IOException {
         Files.createDirectories(file.getParent());
 
-        final Stopwatch stopwatch = new Stopwatch().start();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
 
         try (ReadableByteChannel rbc = Channels.newChannel(is);
              FileChannel fc = FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);

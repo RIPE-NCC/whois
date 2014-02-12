@@ -76,7 +76,7 @@ class FreeTextSearch {
     }
 
     private void search(final SearchRequest searchRequest, final Writer writer) throws IOException, ParseException {
-        final Stopwatch stopwatch = new Stopwatch().start();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
 
         final QueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_44, FreeTextIndex.FIELD_NAMES, FreeTextIndex.QUERY_ANALYZER);
         queryParser.setDefaultOperator(org.apache.lucene.queryparser.classic.QueryParser.Operator.AND);
@@ -103,7 +103,7 @@ class FreeTextSearch {
 
                 final List<FacetResult> facetResults = facetsCollector.getFacetResults();
                 final List<SearchResponse.Lst> responseLstList = Lists.newArrayList();
-                responseLstList.add(getResponseHeader(searchRequest, stopwatch.elapsedTime(TimeUnit.MILLISECONDS)));
+                responseLstList.add(getResponseHeader(searchRequest, stopwatch.elapsed(TimeUnit.MILLISECONDS)));
 
                 if (searchRequest.isHighlight()) {
                     responseLstList.add(createHighlights(searchRequest, query, documents));
