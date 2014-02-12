@@ -12,6 +12,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 
@@ -57,7 +58,7 @@ public class StreamingRestClient implements Iterator<WhoisObject>, Closeable {
     @Override
     public WhoisObject next() {
         try {
-            return (WhoisObject)unmarshaller.unmarshal(eventReader);
+            return (WhoisObject) unmarshaller.unmarshal(eventReader);
         } catch (JAXBException e) {
             throw new StreamingException(e);
         }
@@ -71,10 +72,8 @@ public class StreamingRestClient implements Iterator<WhoisObject>, Closeable {
     @Override
     public void close() {
         try {
-            eventReader.close();
-            filteredReader.close();
             inputStream.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new StreamingException(e);
         }
     }
