@@ -256,6 +256,29 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_selfreferencing_maintainer_password_with_spaces() throws Exception {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final String mntner =
+                "mntner:        TESTING-MNT\n" +
+                "descr:         description\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$k7nLmORx$v82Me.9cMflk81tcEr6FJ/ # quick brown fox\n" +
+                "mnt-by:        TESTING-MNT\n" +
+                "referral-by:   TESTING-MNT\n" +
+                "changed:       noreply@ripe.net 20130102\n" +
+                "source:        TEST";
+
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(mntner + "\npassword: quick brown fox"))
+                .request()
+                .get(String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [mntner] TESTING-MNT"));
+    }
+
+    @Test
     public void update_selfrefencing_maintainer_only_data_parameter_with_sso_token() throws Exception {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         final String mntner =
