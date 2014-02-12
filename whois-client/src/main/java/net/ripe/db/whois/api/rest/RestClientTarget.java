@@ -4,6 +4,7 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -171,6 +172,10 @@ public class RestClientTarget {
     }
 
     public RpslObject lookup(final ObjectType objectType, final String pkey) {
+        return mapper.map(lookupRaw(objectType, pkey));
+    }
+
+    public WhoisObject lookupRaw(final ObjectType objectType, final String pkey) {
         try {
             WebTarget webTarget = client.target(baseUrl)
                     .path(source)
@@ -186,7 +191,7 @@ public class RestClientTarget {
 
             final WhoisResources whoisResources = request.get(WhoisResources.class);
 
-            return mapper.map(whoisResources.getWhoisObjects().get(0));
+            return whoisResources.getWhoisObjects().get(0);
 
         } catch (ClientErrorException e) {
             throw createException(e);
@@ -235,6 +240,8 @@ public class RestClientTarget {
         }
     }
 
+    /** Returned objects is a Closeable; caller *MUST* close it once finished processing it.
+     * Recommended to use call this method in a try-with-resource. */
     public StreamingRestClient streamingSearch() {
         try {
             WebTarget webTarget = client.target(baseUrl).path("search");
