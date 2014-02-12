@@ -681,9 +681,10 @@ public class WhoisRestService {
                     streamingMarshal.write("parameters", parameters);
                 }
 
-//                streamingMarshal.start("objects");
                 if (streamingMarshal instanceof StreamingMarshalJson) {
                     ((StreamingMarshalJson)streamingMarshal).startArray("objects");
+                } else {
+                    streamingMarshal.start("objects");
                 }
             }
 
@@ -695,7 +696,6 @@ public class WhoisRestService {
                 final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, tagResponseObjects);
 
                 if (streamingMarshal instanceof StreamingMarshalJson) {
-//                    streamingMarshal.write("object", Collections.singletonList(whoisObject));
                     ((StreamingMarshalJson)streamingMarshal).writeArray(whoisObject);
                 } else {
                     streamingMarshal.write("object", whoisObject);
