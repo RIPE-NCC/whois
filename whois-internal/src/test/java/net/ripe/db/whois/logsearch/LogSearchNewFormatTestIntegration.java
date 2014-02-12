@@ -43,6 +43,26 @@ public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
         assertThat(getUpdates("inetnum"), containsString("Found 3 update log(s)"));
     }
 
+    @Test
+    public void msg_in_logfile_is_indexed() throws Exception {
+        addToIndex(LogFileHelper.createLogFile(logDirectory, LogFileHelper.getDate(), LogFileHelper.getTime(), "random", "the quick brown fox", "001.msg-in.txt.gz"));
+
+        assertThat(getUpdates("quick"), containsString("Found 1 update log(s)"));
+    }
+
+    @Test
+    public void msg_out_logfile_is_indexed() throws Exception {
+        addToIndex(LogFileHelper.createLogFile(logDirectory, LogFileHelper.getDate(), LogFileHelper.getTime(), "random", "the quick brown fox", "003.msg-out.txt.gz"));
+
+        assertThat(getUpdates("quick"), containsString("Found 1 update log(s)"));
+    }
+
+    @Test
+    public void ack_logfile_is_indexed() throws Exception {
+        addToIndex(LogFileHelper.createLogFile(logDirectory, LogFileHelper.getDate(), LogFileHelper.getTime(), "random", "the quick brown fox", "002.ack.txt.gz"));
+
+        assertThat(getUpdates("quick"), containsString("Found 1 update log(s)"));
+    }
 
     @Test
     public void no_results() throws Exception {

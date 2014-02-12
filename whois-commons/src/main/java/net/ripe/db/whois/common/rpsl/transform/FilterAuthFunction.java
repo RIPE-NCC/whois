@@ -63,17 +63,17 @@ public class FilterAuthFunction implements FilterFunction {
     //TODO: [ES] @throws RuntimeException if SSO server is down and SSO lookup is needed
     @Override
     public RpslObject apply(final RpslObject rpslObject) {
-        if (!rpslObject.containsAttribute(AttributeType.AUTH)) {    // IRT also has auth:
+        final List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
+        if (authAttributes.isEmpty()) {
             return rpslObject;
         }
 
-        Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        boolean authenticated = isMntnerAuthenticated(passwords, token, rpslObject, rpslObjectDao);
+        final Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
+        final boolean authenticated = isMntnerAuthenticated(passwords, token, rpslObject, rpslObjectDao);
 
-        List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
-        for (RpslAttribute authAttribute : authAttributes) {
-            Iterator<String> authIterator = SPACE_SPLITTER.split(authAttribute.getCleanValue()).iterator();
-            String passwordType = authIterator.next().toUpperCase();
+        for (final RpslAttribute authAttribute : authAttributes) {
+            final Iterator<String> authIterator = SPACE_SPLITTER.split(authAttribute.getCleanValue()).iterator();
+            final String passwordType = authIterator.next().toUpperCase();
 
             if (authenticated) {
                 if (passwordType.equals("SSO")) {

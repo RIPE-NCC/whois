@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 
 @Component
 public class NewLogFormatProcessor implements LogFormatProcessor {
-    public static final Pattern INDEXED_LOG_ENTRIES = Pattern.compile("(?:^|.*/)[0-9]+\\.(?:msg-in|msg-out)\\.txt\\.gz$");
+    public static final Pattern INDEXED_LOG_ENTRIES = Pattern.compile("(?:^|.*/)[0-9]+\\.(?:msg-in|msg-out|ack)\\.txt\\.gz$");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NewLogFormatProcessor.class);
 

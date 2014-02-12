@@ -638,6 +638,40 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_mntner_multiple_auth_attributes() {
+        databaseHelper.addObject(
+                "mntner:      AUTH-MNT\n" +
+                "descr:       Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        MD5-PW $1$5XCg9Q1W$O7g9bgeJPkpea2CkBGnz/0 #test1\n" +
+                "auth:        MD5-PW $1$ZjlXZmWO$VKyuYp146Vx5b1.398zgH/ #test2\n" +
+                "mnt-by:      AUTH-MNT\n" +
+                "referral-by: AUTH-MNT\n" +
+                "changed:     dbtest@ripe.net 20120101\n" +
+                "source:      TEST");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/AUTH-MNT?password=incorrect&password=test&unfiltered").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("mntner", "AUTH-MNT"),
+                new Attribute("descr", "Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest-test.db.ripe.net/test/person/TP1-TEST")),
+                new Attribute("upd-to", "noreply@ripe.net", null, null, null),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
+                new Attribute("auth", "MD5-PW $1$5XCg9Q1W$O7g9bgeJPkpea2CkBGnz/0", "test1", null, null),
+                new Attribute("auth", "MD5-PW $1$ZjlXZmWO$VKyuYp146Vx5b1.398zgH/", "test2", null, null),
+                new Attribute("mnt-by", "AUTH-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/AUTH-MNT")),
+                new Attribute("referral-by", "AUTH-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/AUTH-MNT")),
+                new Attribute("changed", "dbtest@ripe.net 20120101", null, null, null),
+                new Attribute("source", "TEST", null, null, null)));
+    }
+
+    @Test
     public void lookup_mainainer_with_crowd_token_authentication_successful() {
         final WhoisResources whoisResources =
                 RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
@@ -1149,10 +1183,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_JSON), String.class);
 
-        assertThat(response, is(
+        assertThat(response, is(String.format(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
                         "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
-                        "<link xlink:type=\"locator\" xlink:href=\"http://localhost:63032/test/person?password=test\"/>" +
+                        "<link xlink:type=\"locator\" xlink:href=\"http://localhost:%d/test/person?password=test\"/>" +
                         "<objects>" +
                         "<object type=\"person\">" +
                         "<link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/PP1-TEST\"/>" +
@@ -1176,7 +1210,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "</object>" +
                         "</objects>" +
                         "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
-                        "</whois-resources>"));
+                        "</whois-resources>",getPort())));
     }
 
     @Test
@@ -1185,11 +1219,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_JSON), String.class);
 
-        assertThat(response, is(
+        assertThat(response, is(String.format(
                 "{\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://localhost:62635/test/person?password=test\"\n" +
+                "    \"href\" : \"http://localhost:%d/test/person?password=test\"\n" +
                 "  },\n" +
                 "  \"objects\" : {\n" +
                 "    \"object\" : [ {\n" +
@@ -1248,7 +1282,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    \"type\" : \"locator\",\n" +
                 "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
                 "  }\n" +
-                "}"));
+                "}",getPort())));
     }
 
     @Test
@@ -1536,11 +1570,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON)
                 .put(Entity.entity(update, MediaType.APPLICATION_JSON), String.class);
 
-        assertThat(response, is(
+        assertThat(response, is(String.format(
                 "{\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://localhost:65485/test/mntner/OWNER-MNT?password=test\"\n" +
+                "    \"href\" : \"http://localhost:%d/test/mntner/OWNER-MNT?password=test\"\n" +
                 "  },\n" +
                 "  \"objects\" : {\n" +
                 "    \"object\" : [ {\n" +
@@ -1609,7 +1643,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    \"type\" : \"locator\",\n" +
                 "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
                 "  }\n" +
-                "}"));
+                "}",getPort())));
     }
 
     @Test
