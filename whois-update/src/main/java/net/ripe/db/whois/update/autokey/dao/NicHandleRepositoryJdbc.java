@@ -1,7 +1,6 @@
 package net.ripe.db.whois.update.autokey.dao;
 
 import com.google.common.collect.Range;
-import com.google.common.collect.Ranges;
 import net.ripe.db.whois.update.domain.NicHandle;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +62,7 @@ class NicHandleRepositoryJdbc implements NicHandleRepository {
         }
 
         final List<NicHandleRange> nicHandleRanges = getNicHandleRanges(nicHandle.getSpace(), nicHandle.getSuffix());
-        nicHandleRanges.add(new NicHandleRange(Ranges.closed(nicHandle.getIndex(), nicHandle.getIndex())));
+        nicHandleRanges.add(new NicHandleRange(Range.closed(nicHandle.getIndex(), nicHandle.getIndex())));
         saveCompact(nicHandleRanges, nicHandle.getSpace(), nicHandle.getSuffix());
         return true;
     }
@@ -99,7 +98,7 @@ class NicHandleRepositoryJdbc implements NicHandleRepository {
                 new RowMapper<NicHandleRange>() {
                     @Override
                     public NicHandleRange mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-                        return new NicHandleRange(rs.getInt("range_id"), Ranges.closed(rs.getInt("range_start"), rs.getInt("range_end")));
+                        return new NicHandleRange(rs.getInt("range_id"), Range.closed(rs.getInt("range_start"), rs.getInt("range_end")));
                     }
                 }, space, getSuffixForSql(suffix));
     }
@@ -108,7 +107,7 @@ class NicHandleRepositoryJdbc implements NicHandleRepository {
         Collections.sort(nicHandleRanges, NICH_HANDLE_RANGE_COMPARATOR);
 
         if (nicHandleRanges.isEmpty() || nicHandleRanges.get(0).range.lowerEndpoint() > 1) {
-            nicHandleRanges.add(new NicHandleRange(Ranges.closed(1, 1)));
+            nicHandleRanges.add(new NicHandleRange(Range.closed(1, 1)));
             return 1;
         }
 
@@ -124,7 +123,7 @@ class NicHandleRepositoryJdbc implements NicHandleRepository {
         }
 
         final int nextAvailableIndex = previousRange.range.upperEndpoint() + 1;
-        previousRange.range = Ranges.closed(previousRange.range.lowerEndpoint(), nextAvailableIndex);
+        previousRange.range = Range.closed(previousRange.range.lowerEndpoint(), nextAvailableIndex);
         previousRange.action = NicHandleRange.Action.SAVE;
         return nextAvailableIndex;
     }
@@ -135,7 +134,7 @@ class NicHandleRepositoryJdbc implements NicHandleRepository {
         NicHandleRange previousRange = null;
         for (final NicHandleRange currentRange : nicHandleRanges) {
             if (previousRange != null && currentRange.range.lowerEndpoint() == previousRange.range.upperEndpoint() + 1) {
-                previousRange.range = Ranges.closed(previousRange.range.lowerEndpoint(), currentRange.range.upperEndpoint());
+                previousRange.range = Range.closed(previousRange.range.lowerEndpoint(), currentRange.range.upperEndpoint());
                 previousRange.action = NicHandleRange.Action.SAVE;
                 currentRange.action = NicHandleRange.Action.DELETE;
             } else {

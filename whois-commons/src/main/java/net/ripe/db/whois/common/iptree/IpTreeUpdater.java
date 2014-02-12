@@ -94,7 +94,7 @@ public class IpTreeUpdater {
 
     public void rebuild() {
         LOGGER.info("Building IP trees");
-        final Stopwatch stopwatch = new Stopwatch().start();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
 
         invokeAll(sourceConfigurationsForRebuild, new OperationCallback() {
             @Override

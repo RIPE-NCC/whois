@@ -88,7 +88,7 @@ class GrsSourceImporter {
                     throw new RuntimeException("Unable to acquire dump", e);
                 }
 
-                final Stopwatch stopwatch = new Stopwatch().start();
+                final Stopwatch stopwatch = Stopwatch.createStarted();
 
                 if (rebuild) {
                     grsSource.getDao().cleanDatabase();

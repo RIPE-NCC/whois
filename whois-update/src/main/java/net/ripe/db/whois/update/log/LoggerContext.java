@@ -150,7 +150,7 @@ public class LoggerContext {
     public void logUpdateStarted(final Update update) {
         final Context ctx = getContext();
         ctx.auditLogger.logUpdate(update);
-        ctx.stopwatch = new Stopwatch().start();
+        ctx.stopwatch = Stopwatch.createStarted();
         ctx.currentUpdate = update;
     }
 

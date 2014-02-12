@@ -206,7 +206,7 @@ public class FreeTextIndex extends RebuildableIndex {
         } else if (last < end) {
             LOGGER.debug("Updating index {} from {} to {}", indexDir, last, end);
 
-            final Stopwatch stopwatch = new Stopwatch().start();
+            final Stopwatch stopwatch = Stopwatch.createStarted();
             for (int serial = last + 1; serial <= end; serial++) {
                 final SerialEntry serialEntry = JdbcRpslObjectOperations.getById(jdbcTemplate, serial);
                 if (serialEntry == null) {

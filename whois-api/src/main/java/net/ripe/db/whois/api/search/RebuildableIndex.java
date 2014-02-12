@@ -47,7 +47,7 @@ public abstract class RebuildableIndex {
         try {
             updateLock.acquireUninterruptibly();
             logger.info("Rebuilding index {}", indexDir);
-            final Stopwatch stopwatch = new Stopwatch().start();
+            final Stopwatch stopwatch = Stopwatch.createStarted();
             index.write(new IndexTemplate.WriteCallback() {
                 @Override
                 public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
