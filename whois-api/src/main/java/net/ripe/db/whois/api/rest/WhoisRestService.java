@@ -572,7 +572,7 @@ public class WhoisRestService {
         private final Service service;
         private StreamingMarshal streamingMarshal;
 
-        public RpslObjectStreamer(HttpServletRequest request, Query query, InetAddress remoteAddress, Parameters parameters, Service service) {
+        public RpslObjectStreamer(final HttpServletRequest request, final Query query, final InetAddress remoteAddress, final Parameters parameters, final Service service) {
             this.request = request;
             this.query = query;
             this.remoteAddress = remoteAddress;
@@ -624,7 +624,7 @@ public class WhoisRestService {
                         responseBuilder = Response.status(Response.Status.BAD_REQUEST);
                     }
 
-                    List<Message> messages = responseHandler.flushAndGetErrors();
+                    final List<Message> messages = responseHandler.flushAndGetErrors();
                     messages.addAll(e.getMessages());
 
                     if (!messages.isEmpty()) {
@@ -681,7 +681,10 @@ public class WhoisRestService {
                     streamingMarshal.write("parameters", parameters);
                 }
 
-                streamingMarshal.start("objects");
+//                streamingMarshal.start("objects");
+                if (streamingMarshal instanceof StreamingMarshalJson) {
+                    ((StreamingMarshalJson)streamingMarshal).startArray("objects");
+                }
             }
 
             private void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
@@ -692,7 +695,8 @@ public class WhoisRestService {
                 final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, tagResponseObjects);
 
                 if (streamingMarshal instanceof StreamingMarshalJson) {
-                    streamingMarshal.write("object", Collections.singletonList(whoisObject));
+//                    streamingMarshal.write("object", Collections.singletonList(whoisObject));
+                    ((StreamingMarshalJson)streamingMarshal).writeArray(whoisObject);
                 } else {
                     streamingMarshal.write("object", whoisObject);
                 }
@@ -709,12 +713,17 @@ public class WhoisRestService {
                     return errors;
                 }
                 streamObject(rpslObjectQueue.poll(), tagResponseObjects);
+
+                if (streamingMarshal instanceof StreamingMarshalJson) {
+                    ((StreamingMarshalJson)streamingMarshal).endArray();
+                }
+
                 streamingMarshal.end();
                 if (errors.size() > 0) {
                     streamingMarshal.write("errormessages", createErrorMessages(errors));
                     errors.clear();
                 }
-                streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+//                streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
                 streamingMarshal.close();
                 return errors;
             }
@@ -725,17 +734,17 @@ public class WhoisRestService {
         private static final Joiner COMMA_JOINER = Joiner.on(',');
         private final StringBuilder query = new StringBuilder(128);
 
-        public QueryBuilder addFlag(QueryFlag queryFlag) {
+        public QueryBuilder addFlag(final QueryFlag queryFlag) {
             query.append(queryFlag.getLongFlag()).append(' ');
             return this;
         }
 
-        public QueryBuilder addCommaList(QueryFlag queryFlag, String arg) {
+        public QueryBuilder addCommaList(final QueryFlag queryFlag, final String arg) {
             query.append(queryFlag.getLongFlag()).append(' ').append(arg).append(' ');
             return this;
         }
 
-        public QueryBuilder addCommaList(QueryFlag queryFlag, Collection<String> args) {
+        public QueryBuilder addCommaList(final QueryFlag queryFlag, final Collection<String> args) {
             if (args.size() > 0) {
                 query.append(queryFlag.getLongFlag()).append(' ');
                 COMMA_JOINER.appendTo(query, args);
@@ -744,7 +753,7 @@ public class WhoisRestService {
             return this;
         }
 
-        public String build(String searchKey) {
+        public String build(final String searchKey) {
             return query.append(searchKey).toString();
         }
     }
