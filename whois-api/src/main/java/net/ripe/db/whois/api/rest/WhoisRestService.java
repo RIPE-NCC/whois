@@ -511,7 +511,7 @@ public class WhoisRestService {
     }
 
     private void validateSubmittedObject(HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
-        if (!object.getKey().equals(key) || !object.getType().getName().equalsIgnoreCase(objectType)) {
+        if (!object.getKey().toString().equals(key) || !object.getType().getName().equalsIgnoreCase(objectType)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.uriMismatch(objectType, key))).build());
         }
     }
@@ -718,12 +718,13 @@ public class WhoisRestService {
                     ((StreamingMarshalJson)streamingMarshal).endArray();
                 }
 
-                streamingMarshal.end();
                 if (errors.size() > 0) {
                     streamingMarshal.write("errormessages", createErrorMessages(errors));
                     errors.clear();
                 }
-//                streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+                streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+                streamingMarshal.end();
+
                 streamingMarshal.close();
                 return errors;
             }
