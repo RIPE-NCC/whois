@@ -34,9 +34,13 @@ public class LogFileHelper {
     }
 
     public static File createLogFile(final File parent, final String date, final String time, final String random, final String content) throws IOException {
+        return createLogFile(parent, date, time, random, content, "001.msg-in.txt.gz");
+    }
+
+    public static File createLogFile(final File parent, final String date, final String time, final String random, final String content, final String filename) throws IOException {
         final File directory = createLogDirectory(parent, date, time, random);
 
-        final File logFile = new File(directory, "001.msg-in.txt.gz");
+        final File logFile = new File(directory, filename);
         final FileOutputStream fileOutputStream = new FileOutputStream(logFile);
 
         BufferedWriter writer = null;
