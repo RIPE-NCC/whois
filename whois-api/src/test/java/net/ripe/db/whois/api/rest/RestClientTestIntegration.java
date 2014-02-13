@@ -349,7 +349,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
         assertThat(testWhoisLog.getMessages(), hasSize(1));
         assertThat(testWhoisLog.getMessage(0), containsString(" PW-API-INFO <0+1+0> "));
-        assertThat(testWhoisLog.getMessage(0), containsString(" [10.20.30.40] "));
+        assertThat(testWhoisLog.getMessage(0), containsString("ms [10.20.30.40] -- "));
     }
 
     @Test
@@ -406,7 +406,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
         assertThat(testWhoisLog.getMessages().size(), is(1));
         assertThat(testWhoisLog.getMessage(0), containsString(" PW-API-INFO <1+1+0> "));
-        assertThat(testWhoisLog.getMessage(0), containsString(" [10.20.30.40] "));
+        assertThat(testWhoisLog.getMessage(0), containsString("ms [10.20.30.40] -- "));
     }
 
     @Test
@@ -424,7 +424,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
         assertThat(testWhoisLog.getMessages().size(), is(1));
         assertThat(testWhoisLog.getMessage(0), containsString(" PW-API-INFO <1+1+0> "));
-        assertThat(testWhoisLog.getMessage(0), containsString(" [10.20.30.40] "));
+        assertThat(testWhoisLog.getMessage(0), containsString("ms [10.20.30.40] -- "));
     }
 
     @Test
