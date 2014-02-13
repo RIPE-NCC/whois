@@ -786,6 +786,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "<link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/TP1-TEST\" />" +
                 "</attribute>" +
                 "<attribute name=\"auth\" value=\"MD5-PW\" comment=\"Filtered\" />" +
+                "<attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\" />" +
                 "<attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">" +
                 "<link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\" />" +
                 "</attribute>" +
@@ -823,6 +824,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "{\"name\":\"descr\",\"value\":\"Owner Maintainer\"}," +
                 "{\"link\":{\"type\":\"locator\",\"href\":\"http://rest-test.db.ripe.net/test/person/TP1-TEST\"},\"name\":\"admin-c\",\"value\":\"TP1-TEST\",\"referenced-type\":\"person\"}," +
                 "{\"name\":\"auth\",\"value\":\"MD5-PW\",\"comment\":\"Filtered\"}," +
+                "{\"name\":\"auth\",\"value\":\"SSO\",\"comment\":\"Filtered\"}," +
                 "{\"link\":{\"type\":\"locator\",\"href\":\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"},\"name\":\"mnt-by\",\"value\":\"OWNER-MNT\",\"referenced-type\":\"mntner\"}," +
                 "{\"link\":{\"type\":\"locator\",\"href\":\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"},\"name\":\"referral-by\",\"value\":\"OWNER-MNT\",\"referenced-type\":\"mntner\"}," +
                 "{\"name\":\"source\",\"value\":\"TEST\",\"comment\":\"Filtered\"}" +
