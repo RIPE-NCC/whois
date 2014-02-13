@@ -77,6 +77,7 @@ public class InternalUpdatePerformer {
                                   final String content, final Keyword keyword, final HttpServletRequest request) {
 
         logHttpHeaders(loggerContext, request);
+        logHttpUri(loggerContext, request);
 
         final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
         updateRequestHandler.handle(updateRequest, updateContext);
@@ -214,6 +215,14 @@ public class InternalUpdatePerformer {
             while (values.hasMoreElements()) {
                 loggerContext.log(new Message(Messages.Type.INFO, String.format("Header: %s=%s", name, values.nextElement())));
             }
+        }
+    }
+
+    public static void logHttpUri(final LoggerContext loggerContext, final HttpServletRequest request) {
+        if (StringUtils.isEmpty(request.getQueryString())) {
+            loggerContext.log(new Message(Messages.Type.INFO, request.getRequestURI()));
+        } else {
+            loggerContext.log(new Message(Messages.Type.INFO, String.format("%s?%s", request.getRequestURI(), request.getQueryString())));
         }
     }
 }

@@ -191,6 +191,7 @@ public class SyncUpdatesService {
             }
 
             InternalUpdatePerformer.logHttpHeaders(loggerContext, httpServletRequest);
+            InternalUpdatePerformer.logHttpUri(loggerContext, httpServletRequest);
 
             loggerContext.log("msg-in.txt", new SyncUpdateLogCallback(request.toString()));
 
