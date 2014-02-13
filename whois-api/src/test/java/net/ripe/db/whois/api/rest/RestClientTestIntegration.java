@@ -432,8 +432,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         try {
             restClient.request().addParam("query-string", "bla").streamingSearch();
         } catch (RestClientException e){
-            assertThat(e.getErrorMessages().get(0).toString(),
-                    is("ERROR:101: no entries found\n\nNo entries found in source TEST.\n"));
+            assertThat(e.getErrorMessages().get(0).toString(), is("ERROR:101: no entries found\n\nNo entries found in source TEST.\n"));
         }
     }
 
@@ -442,8 +441,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         try {
             restClient.request().addParam("query-ng", "bla").streamingSearch();
         } catch (RestClientException e){
-            assertThat(e.getErrorMessages().get(0).toString(),
-                    is("Query param 'query-string' cannot be empty"));
+            assertThat(e.getErrorMessages().get(0).toString(), is("Query param 'query-string' cannot be empty"));
         }
     }
 }
