@@ -3,7 +3,9 @@ package net.ripe.db.whois.common.rpsl.transform;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.common.sso.UserSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +16,8 @@ import java.util.Collections;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FilterAuthFunctionTest {
@@ -127,7 +131,46 @@ public class FilterAuthFunctionTest {
                 "source: RIPE");
 
         final RpslObject result = subject.apply(rpslObject);
+
         assertThat(result.toString(), is("" +
+                "mntner:         SSO-MNT\n" +
+                "auth:           SSO # Filtered\n" +
+                "source:         RIPE # Filtered\n"));
+    }
+
+    @Test
+    public void crowd_client_exception() throws Exception {
+        final UserSession userSession = new UserSession("user@host.org", true);
+        userSession.setUuid("T2hOz8tlmka5lxoZQxzC1Q00");
+        when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
+        when(crowdClient.getUsername("T2hOz8tlmka5lxoZQxzC1Q00")).thenThrow(CrowdClientException.class);
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
+
+        final RpslObject result = subject.apply(
+                RpslObject.parse(
+                        "mntner: SSO-MNT\n" +
+                        "auth: SSO T2hOz8tlmka5lxoZQxzC1Q00\n" +
+                        "source: RIPE"));
+
+        assertThat(result.toString(), is(
+                "mntner:         SSO-MNT\n" +
+                "auth:           SSO\n" +
+                "source:         RIPE\n"));
+
+    }
+
+    @Test
+    public void sso_token_translator_exception() throws Exception {
+        when(ssoTokenTranslator.translateSsoToken(any(String.class))).thenThrow(CrowdClientException.class);
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
+
+        final RpslObject result = subject.apply(
+                RpslObject.parse(
+                        "mntner: SSO-MNT\n" +
+                        "auth: SSO T2hOz8tlmka5lxoZQxzC1Q00\n" +
+                        "source: RIPE"));
+
+        assertThat(result.toString(), is(
                 "mntner:         SSO-MNT\n" +
                 "auth:           SSO # Filtered\n" +
                 "source:         RIPE # Filtered\n"));
