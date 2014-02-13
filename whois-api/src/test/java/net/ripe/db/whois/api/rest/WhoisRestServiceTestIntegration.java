@@ -811,17 +811,17 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, not(containsString("errormessages")));
         assertThat(response, containsString("" +
-                "      \"primary-key\" : {\n" +
-                "        \"attribute\" : [ {\n" +
-                "          \"name\" : \"nic-hdl\",\n" +
-                "          \"value\" : \"PP1-TEST\"\n" +
-                "        } ]\n" +
-                "      },\n" +
-                "      \"attributes\" : {\n" +
-                "        \"attribute\" : [ {\n" +
-                "          \"name\" : \"person\",\n" +
-                "          \"value\" : \"Pauleth Palthen\"\n" +
-                "        }, {"));
+                "    \"primary-key\" : {\n" +
+                "      \"attribute\" : [ {\n" +
+                "        \"name\" : \"nic-hdl\",\n" +
+                "        \"value\" : \"PP1-TEST\"\n" +
+                "      } ]\n" +
+                "    },\n" +
+                "    \"attributes\" : {\n" +
+                "      \"attribute\" : [ {\n" +
+                "        \"name\" : \"person\",\n" +
+                "        \"value\" : \"Pauleth Palthen\"\n" +
+                "      }, {"));
     }
 
     @Test
