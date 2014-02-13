@@ -18,6 +18,7 @@ class StreamingMarshalJson implements StreamingMarshal {
     static {
         final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        objectMapper.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
 
         objectMapper.setAnnotationIntrospector(new AnnotationIntrospectorPair(
                 new JacksonAnnotationIntrospector(),
