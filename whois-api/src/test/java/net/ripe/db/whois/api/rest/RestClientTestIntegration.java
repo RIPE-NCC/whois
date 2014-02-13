@@ -426,4 +426,24 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         assertThat(testWhoisLog.getMessage(0), containsString(" PW-API-INFO <1+1+0> "));
         assertThat(testWhoisLog.getMessage(0), containsString(" [10.20.30.40] "));
     }
+
+    @Test
+    public void streaming_search_shows_correct_message_in_empty_result() {
+        try {
+            restClient.request().addParam("query-string", "bla").streamingSearch();
+        } catch (RestClientException e){
+            assertThat(e.getErrorMessages().get(0).toString(),
+                    is("ERROR:101: no entries found\n\nNo entries found in source TEST.\n"));
+        }
+    }
+
+    @Test
+    public void streaming_search_shows_correct_message_in_bad_request() {
+        try {
+            restClient.request().addParam("query-ng", "bla").streamingSearch();
+        } catch (RestClientException e){
+            assertThat(e.getErrorMessages().get(0).toString(),
+                    is("Query param 'query-string' cannot be empty"));
+        }
+    }
 }

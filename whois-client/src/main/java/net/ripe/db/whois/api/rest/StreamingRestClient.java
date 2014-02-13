@@ -78,6 +78,14 @@ public class StreamingRestClient implements Iterator<WhoisObject>, Closeable {
         }
     }
 
+    public static WhoisResources unMarshalError(InputStream inputStream) {
+        try {
+            return (WhoisResources)unmarshaller.unmarshal(inputStream);
+        } catch (JAXBException e) {
+            throw new StreamingException(e);
+        }
+    }
+
     private static class WhoisObjectEventFilter implements EventFilter {
         @Override
         public boolean accept(XMLEvent event) {

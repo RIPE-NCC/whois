@@ -10,6 +10,7 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.StringUtils;
+import sun.net.www.protocol.http.HttpURLConnection;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ProcessingException;
@@ -142,6 +143,10 @@ public class RestClientTarget {
             final WhoisResources whoisResources = request
                     .put(Entity.entity(mapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
 
+            if (notifierCallback != null) {
+                notifierCallback.notify(whoisResources.getErrorMessages());
+            }
+
             return mapper.map(whoisResources.getWhoisObjects().get(0));
 
         } catch (ClientErrorException e) {
@@ -163,6 +168,10 @@ public class RestClientTarget {
             setHeaders(request);
 
             final WhoisResources whoisResources = request.delete(WhoisResources.class);
+
+            if (notifierCallback != null) {
+                notifierCallback.notify(whoisResources.getErrorMessages());
+            }
 
             return mapper.map(whoisResources.getWhoisObjects().get(0));
 
@@ -190,6 +199,10 @@ public class RestClientTarget {
             setHeaders(request);
 
             final WhoisResources whoisResources = request.get(WhoisResources.class);
+
+            if (notifierCallback != null) {
+                notifierCallback.notify(whoisResources.getErrorMessages());
+            }
 
             return whoisResources.getWhoisObjects().get(0);
 
@@ -233,6 +246,10 @@ public class RestClientTarget {
 
             final WhoisResources whoisResources = request.get(WhoisResources.class);
 
+            if (notifierCallback != null) {
+                notifierCallback.notify(whoisResources.getErrorMessages());
+            }
+
             return mapper.mapWhoisObjects(whoisResources.getWhoisObjects());
 
         } catch (ClientErrorException e) {
@@ -240,26 +257,32 @@ public class RestClientTarget {
         }
     }
 
-    /** Returned objects is a Closeable; caller *MUST* close it once finished processing it.
-     * Recommended to use call this method in a try-with-resource. */
+    /**
+     * Returned objects is a Closeable; caller *MUST* close it once finished processing it.
+     * Recommended to use call this method in a try-with-resource.
+     */
     public StreamingRestClient streamingSearch() {
+        URLConnection urlConnection = null;
         try {
             WebTarget webTarget = client.target(baseUrl).path("search");
-            final URLConnection urlConnection = setParams(webTarget).getUri().toURL().openConnection();
+            urlConnection = setParams(webTarget).getUri().toURL().openConnection();
 
             setHeaders(urlConnection);
             setCookies(urlConnection);
 
             final InputStream inputStream = urlConnection.getInputStream();
-
             return new StreamingRestClient(inputStream);
         } catch (IOException e) {
-            throw new RestClientException(e.getMessage());
+            try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
+                final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
+                throw new RestClientException(whoisResources.getErrorMessages());
+            } catch (IOException e1) {
+                throw new RestClientException(e1.getMessage());
+            }
         }
     }
 
     // helper methods
-
     private WebTarget setParams(final WebTarget webTarget) {
         WebTarget updatedWebTarget = webTarget;
         for (Map.Entry<String, List<String>> param : params.entrySet()) {
