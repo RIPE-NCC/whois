@@ -28,6 +28,7 @@ import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.db.WhoisServer;
 import net.ripe.db.whois.query.QueryServer;
+import net.ripe.db.whois.query.support.TestWhoisLog;
 import net.ripe.db.whois.scheduler.task.unref.UnrefCleanup;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
@@ -74,6 +75,7 @@ public class WhoisFixture {
     protected IndexDao indexDao;
     protected WhoisServer whoisServer;
     protected RestClient restClient;
+    protected TestWhoisLog testWhoisLog;
 
     static {
         Slf4JLogConfiguration.init();
@@ -116,6 +118,7 @@ public class WhoisFixture {
         unrefCleanup = applicationContext.getBean(UnrefCleanup.class);
         indexDao = applicationContext.getBean(IndexDao.class);
         restClient = applicationContext.getBean(RestClient.class);
+        testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
 
         databaseHelper.setup();
         whoisServer.start();
@@ -295,6 +298,10 @@ public class WhoisFixture {
 
     public DnsGatewayStub getDnsGatewayStub() {
         return dnsGatewayStub;
+    }
+
+    public TestWhoisLog getTestWhoisLog() {
+        return testWhoisLog;
     }
 
     public MailSenderStub getMailSender() {
