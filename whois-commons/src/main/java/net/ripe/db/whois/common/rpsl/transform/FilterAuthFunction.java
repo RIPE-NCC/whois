@@ -81,7 +81,8 @@ public class FilterAuthFunction implements FilterFunction {
                         final String username = crowdClient.getUsername(authIterator.next());
                         replace.put(authAttribute, new RpslAttribute(AttributeType.AUTH, "SSO " + username));
                     } catch (CrowdClientException e) {
-                        // TODO: [ES] handle exception or re-throw
+                        // TODO: [ES] substitute empty SSO value
+                        replace.put(authAttribute, new RpslAttribute(AttributeType.AUTH, "SSO"));
                     }
                 }
             } else {
