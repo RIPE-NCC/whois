@@ -337,9 +337,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(whoisResources, not(containsString("errormessages")));
-        assertThat(whoisResources, containsString("{\"object\":[{\"type\":\"person"));
-        assertThat(whoisResources, containsString("\"tags\":{\"tag\":[]}}]}"));
-        assertThat(whoisResources, containsString("\"terms-and-conditions\":{\"type\":\"locator\",\"href\":\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"}}"));
+        assertThat(whoisResources, containsString("{\"objects\":[ {\n  \"type\" : \"person\","));
+        assertThat(whoisResources, containsString("\"tags\" : { }"));
+        assertThat(whoisResources, containsString("" +
+                "\"terms-and-conditions\" : {\n" +
+                "  \"type\" : \"locator\",\n" +
+                "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "}"));
     }
 
     @Test
@@ -1389,7 +1393,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, containsString("\"objects\""));
-        assertThat(response, containsString("\"object\""));
+        assertThat(response, not(containsString("\"object\"")));
         assertThat(response, containsString("\"type\""));
         assertThat(response, containsString("\"href\""));
     }
@@ -1400,7 +1404,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .get(String.class);
         assertThat(response, containsString("\"objects\""));
-        assertThat(response, containsString("\"object\""));
+        assertThat(response, not(containsString("\"object\"")));
         assertThat(response, containsString("\"type\""));
         assertThat(response, containsString("\"href\""));
     }

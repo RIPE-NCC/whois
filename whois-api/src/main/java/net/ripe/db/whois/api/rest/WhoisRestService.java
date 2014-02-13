@@ -718,12 +718,18 @@ public class WhoisRestService {
                     ((StreamingMarshalJson)streamingMarshal).endArray();
                 }
 
+                // TODO inside or outside the xml object?
                 if (errors.size() > 0) {
                     streamingMarshal.write("errormessages", createErrorMessages(errors));
                     errors.clear();
                 }
-                streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
-                streamingMarshal.end();
+                if (streamingMarshal instanceof StreamingMarshalJson) {
+                    streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+                    streamingMarshal.end();
+                } else {
+                    streamingMarshal.end();
+                    streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+                }
 
                 streamingMarshal.close();
                 return errors;
