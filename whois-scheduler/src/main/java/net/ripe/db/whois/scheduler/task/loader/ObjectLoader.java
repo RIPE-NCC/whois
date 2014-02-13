@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,15 +53,8 @@ public class ObjectLoader {
     }
 
     public void processObject(String fullObject, Result result, int pass) {
-        RpslObject rpslObject;
-        try {
-            rpslObject = RpslObject.parse(fullObject);
-            rpslObject = attributeSanitizer.sanitize(rpslObject, new ObjectMessages());
-        } catch (Exception e) {
-            result.addFail(String.format("Syntax error: %s\nin object: \n%s\n", e.getMessage(), fullObject));
-            return;
-        }
-
+        RpslObject rpslObject = RpslObject.parse(fullObject);
+        rpslObject = attributeSanitizer.sanitize(rpslObject, new ObjectMessages());
         addObject(rpslObject, result, pass);
     }
 
@@ -76,7 +71,9 @@ public class ObjectLoader {
                 result.addSuccess();
             }
         } catch (Exception e) {
-            result.addFail(String.format("Error in pass %d in '%s': %s\n", pass, rpslObject.getFormattedKey(), e.getMessage()));
+            StringWriter stringWriter = new StringWriter();
+            e.printStackTrace(new PrintWriter(stringWriter));
+            result.addFail(String.format("Error in pass %d in '%s': %s\n", pass, rpslObject.getFormattedKey(), stringWriter));
         }
     }
 
