@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Lists;
 
@@ -20,6 +21,7 @@ import java.util.List;
 public class Source {
 
     @XmlElement(name = "grs-mirror")
+    @JsonProperty(value = "grs-mirror")
     private List<GrsMirror> grsMirror = Lists.newArrayList();
     @XmlAttribute(required = true)
     private String name;
