@@ -1,10 +1,12 @@
 package net.ripe.db.whois.spec
+
 import net.ripe.db.whois.WhoisFixture
 import net.ripe.db.whois.common.TestDateTimeProvider
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslAttribute
 import net.ripe.db.whois.common.rpsl.RpslObject
+import net.ripe.db.whois.query.support.TestWhoisLog
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.NotificationResponse
@@ -312,6 +314,10 @@ ${response}
 
     public DnsGatewayStub getDnsGatewayStub() {
         return whoisFixture.getDnsGatewayStub();
+    }
+
+    public TestWhoisLog getTestWhoisLog() {
+        return whoisFixture.getTestWhoisLog();
     }
 
     public TestDateTimeProvider getTestDateTimeProvider() {
