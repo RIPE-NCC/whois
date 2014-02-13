@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.Lists;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -27,10 +26,5 @@ public class WhoisObjects {
 
     public List<WhoisObject> getWhoisObjects() {
         return whoisObjects;
-    }
-
-    @JsonDeserialize(contentAs = WhoisObject.class)
-    public void setWhoisObjects(final List<WhoisObject> whoisObjects) {
-        this.whoisObjects = whoisObjects;
     }
 }
