@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectsJsonDeserializer;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectsJsonSerializer;
 import net.ripe.db.whois.common.Messages;
 import org.springframework.util.CollectionUtils;
 
@@ -42,6 +43,7 @@ public class WhoisResources {
     @XmlElement(name = "objects", required = true)
     @JsonProperty(value = "objects", required = true)
     @JsonDeserialize(using = WhoisObjectsJsonDeserializer.class)
+    @JsonSerialize(using = WhoisObjectsJsonSerializer.class)
     private WhoisObjects objects;
     @XmlElement(name = "sources")
     private Sources sources;

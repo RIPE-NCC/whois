@@ -1,6 +1,9 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import net.ripe.db.whois.api.rest.mapper.AttributesJsonDeserializer;
+import net.ripe.db.whois.api.rest.mapper.AttributesJsonSerializer;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -35,6 +38,8 @@ public class WhoisObject {
     private PrimaryKey primaryKey;
 
     @XmlElement(name = "attributes", required = true)
+    @JsonSerialize(using = AttributesJsonSerializer.class)
+    @JsonDeserialize(using = AttributesJsonDeserializer.class)
     private Attributes attributes;
 
     @XmlElement(name = "tags")
