@@ -167,7 +167,7 @@ public class UpdateLogTestIntegration extends AbstractIntegrationTest {
 
         assertThat(updateLog.getMessages(), hasSize(1));
         assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+TP2-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
-        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - WhoisRestApi(10.20.30.40)"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - SyncUpdate(10.20.30.40)"));
     }
 
     @Test
