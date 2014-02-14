@@ -338,7 +338,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources, not(containsString("errormessages")));
         assertThat(whoisResources, containsString("{\"objects\":[ {\n  \"type\" : \"person\","));
-        assertThat(whoisResources, containsString("\"tags\" : { }"));
+        assertThat(whoisResources, containsString("\"tags\" : [ ]"));
         assertThat(whoisResources, containsString("" +
                 "\"terms-and-conditions\" : {\n" +
                 "  \"type\" : \"locator\",\n" +
@@ -810,13 +810,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_JSON), String.class);
 
         assertThat(response, not(containsString("errormessages")));
+        System.out.println(response);
         assertThat(response, containsString("" +
-                "    \"primary-key\" : {\n" +
-                "      \"attribute\" : [ {\n" +
-                "        \"name\" : \"nic-hdl\",\n" +
-                "        \"value\" : \"PP1-TEST\"\n" +
-                "      } ]\n" +
-                "    },\n" +
+                "    \"primary-key\" : [ {\n" +
+                "      \"name\" : \"nic-hdl\",\n" +
+                "      \"value\" : \"PP1-TEST\"\n" +
+                "    } ],\n" +
                 "    \"attributes\" : [ {\n" +
                 "      \"name\" : \"person\",\n" +
                 "      \"value\" : \"Pauleth Palthen\"\n" +
@@ -1556,6 +1555,23 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final WhoisObject whoisObject1 = whoisResources.getWhoisObjects().get(1);
         assertThat(whoisObject1.getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+
+        final String result = RestTest.target(getPort(), "whois/search?query-string=OWNER-MNT&source=TEST")
+                .request(MediaType.APPLICATION_JSON)
+                .get(String.class);
+
+        assertThat(result, containsString("" +
+                "\"parameters\" : {\n" +
+                "  \"inverse-lookup\" : [ ],\n" +
+                "  \"type-filters\" : [ ],\n" +
+                "  \"flags\" : [ ],\n" +
+                "  \"query-strings\" : [ {\n" +
+                "    \"value\" : \"OWNER-MNT\"\n" +
+                "  } ],\n" +
+                "  \"sources\" : [ {\n" +
+                "    \"id\" : \"TEST\"\n" +
+                "  } ]\n" +
+                "},"));
     }
 
     @Test
@@ -1644,6 +1660,52 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisResources whoisResources = RestTest.target(getPort(),
                 "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
                 .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getTags(), contains(
+                new WhoisTag("foobar", "description"),
+                new WhoisTag("other", "other stuff"),
+                new WhoisTag("unref", "28")));
+    }
+
+    @Test
+    public void search_tags_in_json_response() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
+
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
+        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
+
+        final String result = RestTest.target(getPort(),
+                "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
+                .request(MediaType.APPLICATION_JSON)
+                .get(String.class);
+
+        assertThat(result, containsString("" +
+                "\"tags\" : [ {\n" +
+                "    \"id\" : \"foobar\",\n" +
+                "    \"data\" : \"description\"\n" +
+                "  }, {\n" +
+                "    \"id\" : \"other\",\n" +
+                "    \"data\" : \"other stuff\"\n" +
+                "  }, {\n" +
+                "    \"id\" : \"unref\",\n" +
+                "    \"data\" : \"28\"\n" +
+                "  } ]"));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(),
+                "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
+                .request(MediaType.APPLICATION_JSON)
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -1862,6 +1924,35 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_with_type_filter_json() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String str = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST&type-filter=aut-num&type-filter=as-block")
+                .request(MediaType.APPLICATION_JSON)
+                .get(String.class);
+
+        assertThat(str, containsString("" +
+                "\"type-filters\" : [ {\n" +
+                "    \"id\" : \"aut-num\"\n" +
+                "  }, {\n" +
+                "    \"id\" : \"as-block\"\n" +
+                "  } ],"));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST&type-filter=aut-num&type-filter=as-block")
+                .request(MediaType.APPLICATION_JSON)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getParameters().getTypeFilters().getTypeFilters(), hasSize(2));
+    }
+
+    @Test
     public void search_inverse() {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
@@ -1925,6 +2016,35 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_inverse_json() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String result = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&inverse-attribute=admin-c,tech-c")
+                .request(MediaType.APPLICATION_JSON)
+                .get(String.class);
+
+        assertThat(result, containsString("" +
+                "  \"inverse-lookup\" : [ {\n" +
+                "    \"value\" : \"admin-c,tech-c\"\n" +
+                "  } ],"));
+        System.out.println(result);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&inverse-attribute=admin-c,tech-c")
+                .request(MediaType.APPLICATION_JSON)
+                .get(WhoisResources.class);
+
+        final List<WhoisObject> whoisObjects = whoisResources.getWhoisObjects();
+        assertThat(whoisObjects, hasSize(4));
+    }
+
+    @Test
     public void search_flags() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
                 .request(MediaType.APPLICATION_XML)
@@ -1943,6 +2063,30 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("changed", "dbtest@ripe.net 20120101"),
                 new Attribute("source", "TEST")
         ));
+    }
+
+    @Test
+    public void search_flags_json() {
+        final String str = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
+                .request(MediaType.APPLICATION_JSON)
+                .get(String.class);
+
+        assertThat(str, containsString("" +
+                "  \"flags\" : [ {\n" +
+                "    \"value\" : \"no-filtering\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"no-referenced\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"no-irt\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"exact\"\n" +
+                "  } ],"));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
+                .request(MediaType.APPLICATION_JSON)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getParameters().getFlags().getFlags(), hasSize(4));
     }
 
     @Test
