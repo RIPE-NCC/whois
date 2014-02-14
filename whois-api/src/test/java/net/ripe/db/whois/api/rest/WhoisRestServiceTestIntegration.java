@@ -817,11 +817,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "        \"value\" : \"PP1-TEST\"\n" +
                 "      } ]\n" +
                 "    },\n" +
-                "    \"attributes\" : {\n" +
-                "      \"attribute\" : [ {\n" +
-                "        \"name\" : \"person\",\n" +
-                "        \"value\" : \"Pauleth Palthen\"\n" +
-                "      }, {"));
+                "    \"attributes\" : [ {\n" +
+                "      \"name\" : \"person\",\n" +
+                "      \"value\" : \"Pauleth Palthen\"\n" +
+                "    }, {"));
     }
 
     @Test
@@ -1428,28 +1427,24 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void update_json_request_and_response_content() {
-        final String update =
-                "{\n" +
-                        "  \"objects\" : {\n" +
-                        "      \"object\" : [ {\n" +
-                        "        \"source\" : {\n" +
-                        "          \"id\" : \"test\"\n" +
-                        "        },\n" +
-                        "        \"attributes\" : {\n" +
-                        "          \"attribute\" : [\n" +
-                        "            {\"name\":\"mntner\", \"value\":\"OWNER-MNT\"},\n" +
-                        "            {\"name\":\"descr\", \"value\":\"description\"},\n" +
-                        "            {\"name\":\"admin-c\", \"value\":\"TP1-TEST\"},\n" +
-                        "            {\"name\":\"upd-to\", \"value\":\"noreply@ripe.net\"},\n" +
-                        "            {\"name\":\"auth\", \"value\":\"MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/\"},\n" +
-                        "            {\"name\":\"mnt-by\", \"value\":\"OWNER-MNT\"},\n" +
-                        "            {\"name\":\"referral-by\", \"value\":\"OWNER-MNT\"},\n" +
-                        "            {\"name\":\"changed\", \"value\":\"dbtest@ripe.net 20120101\"},\n" +
-                        "            {\"name\":\"source\", \"value\":\"TEST\"}\n" +
-                        "        ] }\n" +
-                        "     }]\n" +
-                        "   }\n" +
-                        "}";
+        final String update = "" +
+                "{\"objects\" : [ {\n" +
+                "      \"source\" : {\n" +
+                "        \"id\" : \"test\"\n" +
+                "      },\n" +
+                "      \"attributes\" : [\n" +
+                "          {\"name\":\"mntner\", \"value\":\"OWNER-MNT\"},\n" +
+                "          {\"name\":\"descr\", \"value\":\"description\"},\n" +
+                "          {\"name\":\"admin-c\", \"value\":\"TP1-TEST\"},\n" +
+                "          {\"name\":\"upd-to\", \"value\":\"noreply@ripe.net\"},\n" +
+                "          {\"name\":\"auth\", \"value\":\"MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/\"},\n" +
+                "          {\"name\":\"mnt-by\", \"value\":\"OWNER-MNT\"},\n" +
+                "          {\"name\":\"referral-by\", \"value\":\"OWNER-MNT\"},\n" +
+                "          {\"name\":\"changed\", \"value\":\"dbtest@ripe.net 20120101\"},\n" +
+                "          {\"name\":\"source\", \"value\":\"TEST\"}\n" +
+                "      ] \n" +
+                "   }]\n" +
+                "}";
 
         final String response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test")
                 .request(MediaType.APPLICATION_JSON)
@@ -1549,15 +1544,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_json_extension() {
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=TP1-TEST&source=TEST")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=OWNER-MNT&source=TEST")
                 .request()
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
 
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        final WhoisObject whoisObject0 = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject0.getPrimaryKey().get(0).getValue(), is("OWNER-MNT"));
+
+        final WhoisObject whoisObject1 = whoisResources.getWhoisObjects().get(1);
+        assertThat(whoisObject1.getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
     @Test
@@ -2164,19 +2162,22 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void non_ascii_characters_are_preserved() {
         assertThat(RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_JSON)
-                .post(Entity.entity("{ \"objects\": { \"object\": [ {\n" +
-                        "\"source\": { \"id\": \"RIPE\" },\n" +
-                        "\"attributes\": {\n \"attribute\": [\n" +
-                        "{ \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
-                        "{ \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
-                        "{ \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
-                        "{ \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
-                        "{ \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
-                        "{ \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
-                        "{ \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
-                        "{ \"name\": \"remarks\", \"value\": \"created\" },\n" +
-                        "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
-                        "] } } ] } }", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
+                .post(Entity.entity("" +
+                        "{ \"objects\": [ {\n" +
+                        "    \"source\": { \"id\": \"RIPE\" }, \n" +
+                        "    \"attributes\": [\n" +
+                        "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                        "        { \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
+                        "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                        "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                        "        { \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                        "        { \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"remarks\", \"value\": \"created\" },\n" +
+                        "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                        "        ] \n" +
+                        "    }] \n" +
+                        "}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
 
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON)
@@ -2188,20 +2189,22 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                 .request(MediaType.APPLICATION_JSON)
-                .put(Entity.entity(
-                        "{ \"objects\": { \"object\": [ {\n" +
-                                "\"source\": { \"id\": \"RIPE\" },\n" +
-                                "\"attributes\": {\n \"attribute\": [\n" +
-                                "{ \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
-                                "{ \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
-                                "{ \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
-                                "{ \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
-                                "{ \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
-                                "{ \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
-                                "{ \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
-                                "{ \"name\": \"remarks\", \"value\": \"updated\" },\n" +
-                                "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
-                                "] } } ] } }", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
+                .put(Entity.entity("" +
+                                "{ \"objects\": [ {\n" +
+                                "    \"source\": { \"id\": \"RIPE\" }, \n" +
+                                "    \"attributes\": [\n" +
+                                "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                                "        { \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
+                                "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                                "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                                "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                                "        { \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                                "        { \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
+                                "        { \"name\": \"remarks\", \"value\": \"updated\" },\n" +
+                                "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                                "        ] \n" +
+                                "    }] \n" +
+                                "}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
     }
 
     @Test
