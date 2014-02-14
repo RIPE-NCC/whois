@@ -1,9 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.api.rest.domain.GrsSource;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Service;
 import net.ripe.db.whois.api.rest.domain.Source;
@@ -34,22 +32,16 @@ import java.util.Map;
 @Path("/metadata")
 public class WhoisMetadata {
 
-    // we cannot get this from metadata, as we have two separate JVMs running for each source
-    private final List<Source> SOURCES = ImmutableList.of(
-            new Source("ripe").setName("RIPE"),
-            new Source("test").setName("TEST"));
-
-    private final List<GrsSource> GRSSOURCES;
+    private final List<Source> SOURCES = Lists.newArrayList(new Source("ripe"), new Source("test"));
 
     private final Map<String, Template> ATTRIBUTE_TEMPLATES;
 
     @Autowired
     public WhoisMetadata(SourceContext sourceContext) {
 
-        GRSSOURCES = Lists.newArrayList();
         for (CIString source: sourceContext.getGrsSourceNames()) {
             final String id = source.toLowerCase();
-            GRSSOURCES.add(new GrsSource(id.toUpperCase(), id, id));
+            SOURCES.add(new Source(id));
         }
 
         Source ripeSource = new Source("ripe");
@@ -88,8 +80,7 @@ public class WhoisMetadata {
         WhoisResources result = new WhoisResources()
             .setService(new Service("getSupportedDataSources"))
             .setLink(new Link("locator", "http://rest.db.ripe.net/metadata/sources"))
-            .setSources(SOURCES)
-            .setGrsSources(GRSSOURCES);
+            .setSources(SOURCES);
         return Response.ok(result).build();
     }
 

@@ -60,8 +60,8 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
     public void getSourcesXml() throws Exception {
         final String response = doGetRequest("whois/metadata/sources.xml", HttpURLConnection.HTTP_OK);
         assertThat("has service", response, containsString("<service name=\"getSupportedDataSources\"/>"));
-        assertThat("has source", response, containsString("<source name=\"RIPE\" id=\"ripe\"/>"));
-        assertThat("has grs-source", response, containsString("<source name=\"TEST-GRS\" id=\"test-grs\" grs-id=\"test-grs\"/>"));
+        assertThat("has source", response, containsString("<source id=\"ripe\"/>"));
+        assertThat("has grs-source", response, containsString("<source id=\"test-grs\" grs-id=\"test-grs\"/>"));
         assertThat("has sources", response, containsString("<sources>"));
         assertThat("has grs-sources", response, containsString("<grs-sources>"));
     }
