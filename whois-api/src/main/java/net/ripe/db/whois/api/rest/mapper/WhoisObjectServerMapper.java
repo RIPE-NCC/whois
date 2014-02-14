@@ -35,7 +35,7 @@ public class WhoisObjectServerMapper extends AbstractWhoisObjectMapper {
         // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
         final String referencedType = (attribute.getType() != null && referencedTypeResolver != null) ? referencedTypeResolver.getReferencedType(attribute.getType(), value) : null;
         final Link link = (referencedType != null) ? createLink(source, referencedType, value.toString()) : null;
-        return createAttribute(attribute.getKey(), value.toString(), attribute.getCleanComment(), referencedType, link);
+        return new Attribute(attribute.getKey(), value.toString(), attribute.getCleanComment(), referencedType, link);
     }
 
     public List<WhoisVersion> mapVersions(final List<DeletedVersionResponseObject> deleted, final List<VersionResponseObject> versions) {

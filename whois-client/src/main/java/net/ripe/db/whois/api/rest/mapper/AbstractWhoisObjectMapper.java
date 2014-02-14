@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Source;
@@ -14,8 +13,8 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public abstract class AbstractWhoisObjectMapper {
@@ -73,16 +72,16 @@ public abstract class AbstractWhoisObjectMapper {
     public WhoisObject map(final RpslObject rpslObject) {
         final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
         final String type = rpslObject.getType().getName();
-        final RpslAttribute primaryKeyRpslAttribute = getPrimaryKey(rpslObject);
-        final String primaryKeyName = primaryKeyRpslAttribute.getKey();
-        final String primaryKeyValue = primaryKeyRpslAttribute.getCleanValue().toString();
-        final Attribute primaryKeyAttribute = createAttribute(primaryKeyName, primaryKeyValue, null, null, null);
-        final List<Attribute> primaryKeyAttributes = Lists.newArrayList(primaryKeyAttribute);
+
+        final List<Attribute> primaryKeyAttributes = new ArrayList<>();
+        for (RpslAttribute keyAttribute : rpslObject.findAttributes(ObjectTemplate.getTemplate(rpslObject.getType()).getKeyAttributes())) {
+            primaryKeyAttributes.add(new Attribute(keyAttribute.getKey(), keyAttribute.getCleanValue().toString()));
+        }
 
         final List<Attribute> attributes = buildAttributes(rpslObject, source);
 
         return createWhoisObject(
-                createSource(source),
+                new Source(source),
                 type,
                 attributes,
                 primaryKeyAttributes,
@@ -110,27 +109,6 @@ public abstract class AbstractWhoisObjectMapper {
 
     protected Link createLink(final String source, final String type, final String key) {
         return new Link("locator", String.format("%s/%s/%s/%s", baseUrl, source, type, key));
-    }
-
-    protected Source createSource(final String id) {
-        return new Source(id);
-    }
-
-    protected RpslAttribute getPrimaryKey(final RpslObject rpslObject) {
-        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
-        Iterator<AttributeType> iterator = Sets.intersection(objectTemplate.getKeyAttributes(), objectTemplate.getLookupAttributes()).iterator();
-        if (iterator.hasNext()) {
-            AttributeType primaryKey = iterator.next();
-            if (!iterator.hasNext()) {
-                return rpslObject.findAttribute(primaryKey);
-            }
-        }
-
-        throw new IllegalArgumentException("Couldn't find primary key attribute for type: " + rpslObject.getType());
-    }
-
-    protected Attribute createAttribute(final String name, final String value, final String comment, final String referencedType, final Link link) {
-        return new Attribute(name, value, comment, referencedType, link);
     }
 
     protected WhoisObject createWhoisObject(final Source source, final String type, final List<Attribute> attributes, final List<Attribute> primaryKey, final Link link) {
