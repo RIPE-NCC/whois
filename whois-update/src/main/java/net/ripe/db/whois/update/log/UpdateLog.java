@@ -3,17 +3,20 @@ package net.ripe.db.whois.update.log;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Set;
 
 @Component
+@Profile(WhoisProfile.DEPLOYED)
 public class UpdateLog {
     private static final Map<Class<? extends Credential>, String> CREDENTIAL_NAME_MAP = Maps.newHashMap();
 
@@ -35,10 +38,14 @@ public class UpdateLog {
     }
 
     public void logUpdateResult(final UpdateRequest updateRequest, final UpdateContext updateContext, final Update update, final Stopwatch stopwatch) {
+        logger.info(formatMessage(updateRequest, updateContext, update, stopwatch));
+    }
+
+    protected String formatMessage(final UpdateRequest updateRequest, final UpdateContext updateContext, final Update update, final Stopwatch stopwatch) {
         final UpdateResult updateResult = updateContext.createUpdateResult(update);
         final RpslObject updatedObject = updateResult.getUpdatedObject();
 
-        final String logMessage = String.format("[%5d] %-10s %s %-6s %-12s %-30s (%d) %-22s: <E%d,W%d,I%d> AUTH %s - %s",
+        return String.format("[%5d] %-10s %s %-6s %-12s %-30s (%d) %-22s: <E%d,W%d,I%d> AUTH %s - %s",
                 updateContext.getNrSinceRestart(),
                 stopwatch.toString(),
                 updateResult.isDryRun() ? "DRY" : "UPD",
@@ -53,8 +60,6 @@ public class UpdateLog {
                 StringUtils.join(getCredentialTypes(update), ','),
                 updateRequest.getOrigin()
         );
-
-        logger.info(logMessage);
     }
 
     private Set<String> getCredentialTypes(final Update update) {

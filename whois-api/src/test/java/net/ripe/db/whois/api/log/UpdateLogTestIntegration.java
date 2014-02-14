@@ -7,15 +7,19 @@ import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.api.rest.RestClientUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.FileHelper;
+import net.ripe.db.whois.update.support.TestUpdateLog;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
+import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 public class UpdateLogTestIntegration extends AbstractIntegrationTest {
@@ -43,6 +47,9 @@ public class UpdateLogTestIntegration extends AbstractIntegrationTest {
     @Value("${dir.update.audit.log}")       // TODO: use system temporary directory
     private String auditLog;
 
+    @Autowired
+    private TestUpdateLog updateLog;
+
     private RestClient restClient;
 
     @Before
@@ -52,8 +59,6 @@ public class UpdateLogTestIntegration extends AbstractIntegrationTest {
 
         restClient = new RestClient(String.format("http://localhost:%d/whois", getPort()), "TEST");
     }
-
-    // TODO: test updlog is updated
 
     @Test
     public void create_gets_logged() {
@@ -67,13 +72,17 @@ public class UpdateLogTestIntegration extends AbstractIntegrationTest {
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
         assertThat(audit, containsString("<message><![CDATA[Header: X-Forwarded-For=10.20.30.40]]></message>"));
-        assertThat(audit, containsString("<message><![CDATA[/whois/TEST/person/TP1-TEST?password=test]]></message>"));
+        assertThat(audit, containsString("<message><![CDATA[/whois/TEST/person?password=test]]></message>"));
 
         final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/170000.rest_10.20.30.40_0/001.msg-in.txt.gz"));
         assertThat(msgIn, containsString("person:         Test Person"));
 
         final String ack = FileHelper.fetchGzip(new File(auditLog + "/20010204/170000.rest_10.20.30.40_0/002.ack.txt.gz"));
         assertThat(ack, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+
+        assertThat(updateLog.getMessages(), hasSize(1));
+        assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+TP2-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - WhoisRestApi(10.20.30.40)"));
     }
 
     @Test
@@ -95,6 +104,10 @@ public class UpdateLogTestIntegration extends AbstractIntegrationTest {
 
         final String ack = FileHelper.fetchGzip(new File(auditLog + "/20010204/170000.rest_10.20.30.40_0/002.ack.txt.gz"));
         assertThat(ack, containsString("Modify SUCCEEDED: [person] TP1-TEST   Test Person"));
+
+        assertThat(updateLog.getMessages(), hasSize(1));
+        assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD MODIFY person\\s+TP1-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - WhoisRestApi(10.20.30.40)"));
     }
 
     @Test
@@ -117,6 +130,10 @@ public class UpdateLogTestIntegration extends AbstractIntegrationTest {
 
         final String ack = FileHelper.fetchGzip(new File(auditLog + "/20010204/170000.rest_10.20.30.40_0/002.ack.txt.gz"));
         assertThat(ack, containsString("Delete SUCCEEDED: [person] TP2-TEST   Test Person"));
+
+        assertThat(updateLog.getMessages(), hasSize(1));
+        assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD DELETE person\\s+TP2-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - WhoisRestApi(10.20.30.40)"));
     }
     
     @Test
@@ -147,6 +164,10 @@ public class UpdateLogTestIntegration extends AbstractIntegrationTest {
         assertThat(msgOut, containsString("SUMMARY OF UPDATE:"));
         assertThat(msgOut, containsString("DETAILED EXPLANATION:"));
         assertThat(msgOut, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+
+        assertThat(updateLog.getMessages(), hasSize(1));
+        assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+TP2-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - WhoisRestApi(10.20.30.40)"));
     }
 
     @Test
