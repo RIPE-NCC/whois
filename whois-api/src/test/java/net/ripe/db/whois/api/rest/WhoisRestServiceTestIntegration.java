@@ -290,6 +290,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inet6num/2001::/48").request().get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
         assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("inet6num", "2001::/48"),
@@ -304,6 +306,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         ));
     }
 
+    // TODO: add lookup test for route6
     @Test
     public void lookup_route() throws Exception {
         final RpslObject route = RpslObject.parse("" +
@@ -317,11 +320,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         ipTreeUpdater.rebuild();
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/route/193.254.30.0/24AS12726").request().get(WhoisResources.class);
+
         assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
         assertThat(whoisObject.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route/193.254.30.0/24AS12726"));
-        assertThat(whoisObject.getAttributes(), containsInAnyOrder(
+
+        final List<Attribute> primaryKey = whoisObject.getPrimaryKey();
+        assertThat(primaryKey, hasSize(2));
+        assertThat(primaryKey, contains(new Attribute("route", "193.254.30.0/24"),
+                new Attribute("origin", "AS12726")));
+
+        assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("route", "193.254.30.0/24"),
                 new Attribute("descr", "Test route"),
                 new Attribute("origin", "AS12726", null, "aut-num", new Link("locator", "http://rest-test.db.ripe.net/test/aut-num/AS12726")),
@@ -338,6 +349,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
         assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("person", "Test Person"),
