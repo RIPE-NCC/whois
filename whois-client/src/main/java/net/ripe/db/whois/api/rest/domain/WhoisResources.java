@@ -37,8 +37,6 @@ public class WhoisResources {
     private WhoisObjects objects;
     @XmlElement(name = "sources")
     private Sources sources;
-    @XmlElement(name = "grs-sources")
-    private GrsSources grsSources;
     @XmlElement
     private Link link;
     @XmlElement(name = "geolocation-attributes")
@@ -94,15 +92,6 @@ public class WhoisResources {
 
     public WhoisResources setSources(final List<Source> sources) {
         this.sources = new Sources(sources);
-        return this;
-    }
-
-    public List<GrsSource> getGrsSources() {
-        return grsSources != null ? grsSources.getSources() : Collections.<GrsSource>emptyList();
-    }
-
-    public WhoisResources setGrsSources(final List<GrsSource> grsSources) {
-        this.grsSources = new GrsSources(grsSources);
         return this;
     }
 
