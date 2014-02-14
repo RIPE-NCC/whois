@@ -27,13 +27,24 @@ public class IpTreeCacheJmx extends JmxBase {
         this.ipTreeCacheManager = ipTreeCacheManager;
     }
 
-    @ManagedOperation(description = "Initiate reload of in-memory trees")
+    @ManagedOperation(description = "Initiate reload of in-memory trees (WARNING: this keeps the 'old' trees in memory until new trees are built. Make sure you don't run out of JVM heap. Also consider rebuilding per-source)")
     public String reloadTrees() {
         return invokeOperation("Reload in-memory trees", "", new Callable<String>() {
             @Override
             public String call() {
                 ipTreeUpdater.rebuild();
                 return "In-memory trees reloaded";
+            }
+        });
+    }
+
+    @ManagedOperation(description = "Initiate reload of in-memory trees for sources whose name contains given String (e.g. 'ripe' matches 'RIPE' and 'RIPE-GRS')")
+    public String reloadTreesForSource(final String source) {
+        return invokeOperation("Reload in-memory trees for source " + source, "", new Callable<String>() {
+            @Override
+            public String call() {
+                ipTreeUpdater.rebuild(source);
+                return "In-memory trees for " + source + " reloaded";
             }
         });
     }
