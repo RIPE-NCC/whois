@@ -51,7 +51,9 @@ public class DailyLogFolder extends LogSource {
                 try (final DirectoryStream<Path> updateLogEntries = Files.newDirectoryStream(updateLogFolder, new DirectoryStream.Filter<Path>() {
                     @Override
                     public boolean accept(Path entry) throws IOException {
-                        return Files.isRegularFile(entry) && NewLogFormatProcessor.INDEXED_LOG_ENTRIES.matcher(entry.toString()).matches();
+                        return Files.isRegularFile(entry) &&
+                                (NewLogFormatProcessor.INDEXED_MSG_LOG_ENTRIES.matcher(entry.toString()).matches() ||
+                                 NewLogFormatProcessor.INDEXED_ACK_LOG_ENTRIES.matcher(entry.toString()).matches());
                     }
                 })) {
 

@@ -26,48 +26,37 @@ public class FilterAuthFunction implements FilterFunction {
     public static final String FILTERED_APPENDIX = " # Filtered";
 
     private final List<String> passwords;
-    private final String cookie;
 
     public FilterAuthFunction(List<String> passwords) {
         this.passwords = passwords;
-        this.cookie = null;
-    }
-
-    public FilterAuthFunction(String cookie) {
-        this.cookie = cookie;
-        this.passwords = Collections.emptyList();
     }
 
     public FilterAuthFunction() {
         passwords = Collections.emptyList();
-        cookie = null;
     }
 
     @Override
     public RpslObject apply(RpslObject rpslObject) {
-        if (!rpslObject.containsAttribute(AttributeType.AUTH)) {
+        final List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
+        if (authAttributes.isEmpty()) {
             return rpslObject;
         }
 
-        Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
+        final Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
+        final boolean authenticated = authenticate(authAttributes);
+
+        for (RpslAttribute auth : authAttributes) {
+
             CIString authValue = auth.getCleanValue();
             Iterator<String> authIterator = SPACE_SPLITTER.split(authValue).iterator();
             String passwordType = authIterator.next().toUpperCase();
+
             if (passwordType.endsWith("-PW")) {     // history table has CRYPT-PW, has to be able to dummify that too!
-                if (passwords.isEmpty() || !passwordType.startsWith("MD5") || !PasswordHelper.authenticateMd5Passwords(authValue.toString(), passwords)) {
+                if (passwords.isEmpty() || !passwordType.startsWith("MD5") || !authenticated) {
                     replace.put(auth, new RpslAttribute(auth.getKey(), passwordType + FILTERED_APPENDIX));
                 }
             } else if (passwordType.equals("SSO")) {
-                String replacement = FILTERED_APPENDIX;
-                if (cookie != null) {
-                    final String username = checkCookieAgainstUuidAndReturnUsername(cookie, authIterator.next());
-                    if (username != null) {
-                        replacement = username;
-                    }
-                }
-
-                replace.put(auth, new RpslAttribute(auth.getKey(), passwordType + replacement));
+                replace.put(auth, new RpslAttribute(auth.getKey(), passwordType + FILTERED_APPENDIX));
             }
         }
 
@@ -79,8 +68,15 @@ public class FilterAuthFunction implements FilterFunction {
         }
     }
 
-    // TODO: implement/refactor
-    private String checkCookieAgainstUuidAndReturnUsername(String cookie, String uuid) {
-        return "agoston@ripe.net";
+    private boolean authenticate(final List<RpslAttribute> attributes) {
+        for (final String password : passwords) {
+            for (final RpslAttribute attribute : attributes) {
+                if (PasswordHelper.authenticateMd5Passwords(attribute.getCleanValue().toString(), password)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

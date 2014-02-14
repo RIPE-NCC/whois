@@ -17,8 +17,11 @@ import java.util.Set;
 
 import static net.ripe.db.whois.logsearch.LogFileHelper.getAbsolutePath;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 
 @Category(IntegrationTest.class)
 public class LogSearchFSResourcesTestIntegration extends AbstractLogSearchTest {
@@ -81,7 +84,6 @@ public class LogSearchFSResourcesTestIntegration extends AbstractLogSearchTest {
 
         assertThat(loggedUpdates, hasSize(3));
         for (LoggedUpdate loggedUpdate : loggedUpdates) {
-            assertTrue(NewLogFormatProcessor.INDEXED_LOG_ENTRIES.matcher(loggedUpdate.getUpdateId()).matches());
             assertThat(loggedUpdate.getUpdateId(), startsWith(path + "/140319.syncupdate_127.0.0.1_1362488599134839000/"));
             assertThat(loggedUpdate.getDate(), is("20130305"));
         }
@@ -98,7 +100,6 @@ public class LogSearchFSResourcesTestIntegration extends AbstractLogSearchTest {
         for (LoggedUpdate loggedUpdate : result) {
             assertThat(loggedUpdate.getUpdateId(), not(containsString("audit")));
             assertThat(loggedUpdate.getUpdateId(), not(containsString("ack")));
-            assertTrue(NewLogFormatProcessor.INDEXED_LOG_ENTRIES.matcher(loggedUpdate.getUpdateId()).matches());
         }
     }
 

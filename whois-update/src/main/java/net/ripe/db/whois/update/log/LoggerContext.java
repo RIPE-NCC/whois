@@ -8,7 +8,11 @@ import net.ripe.db.whois.common.jdbc.driver.ResultInfo;
 import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContainer;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -20,7 +24,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPOutputStream;
@@ -270,7 +278,6 @@ public class LoggerContext {
             this.baseDir = baseDir;
             this.fileNumber = fileNumber;
             this.auditLogger = auditLogger;
-            LOGGER.info("baseDir= {} ", baseDir.getAbsolutePath());
         }
 
         public int nextFileNumber() {

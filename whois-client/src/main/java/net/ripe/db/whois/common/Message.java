@@ -1,11 +1,9 @@
 package net.ripe.db.whois.common;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.regex.Pattern;
 
 @Immutable
 public final class Message {
-    public static final Pattern BEGINNING_OF_LINE_PERCENT_SIGNS = Pattern.compile("^%+ ");
 
     private final Messages.Type type;
     private final String text;
