@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -99,7 +100,7 @@ public class UpdateResult {
         final boolean showAttributes = !UpdateStatus.SUCCESS.equals(status);
 
         if (!showAttributes && dryRun && Action.MODIFY.equals(action) && originalObject != null) {
-            writer.write(updatedObject.diff(originalObject));
+            writer.write(RpslObjectFilter.diff(originalObject, updatedObject));
             writer.write('\n');
         }
 

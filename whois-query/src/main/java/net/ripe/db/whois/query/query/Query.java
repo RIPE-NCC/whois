@@ -29,7 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-// TODO: [AH] further separate concerns; incorporate fact that queries/lookups also come from REST API (so they are not parsed but generated programatically)
+// TODO: [AH] further separate concerns of query parsing and business logic
+// TODO: [AH] incorporate fact that queries/lookups also come from REST API (so they are not parsed but generated programatically)
 @Immutable
 public class Query {
     public static final EnumSet<ObjectType> ABUSE_CONTACT_OBJECT_TYPES = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);

@@ -1,12 +1,10 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import difflib.DiffUtils;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -30,8 +28,6 @@ import java.util.Set;
 
 @Immutable
 public class RpslObject implements Identifiable, ResponseObject {
-    private static final Splitter LINE_SPLITTER = Splitter.on('\n').trimResults();
-
     private final ObjectType type;
     private final RpslAttribute typeAttribute;
     private final CIString key;
@@ -301,22 +297,5 @@ public class RpslObject implements Identifiable, ResponseObject {
         }
 
         return values;
-    }
-
-    public String diff(final RpslObject rpslObject) {
-        final StringBuilder builder = new StringBuilder();
-
-        final List<String> originalLines = Lists.newArrayList(LINE_SPLITTER.split(rpslObject.toString()));
-        final List<String> revisedLines = Lists.newArrayList(LINE_SPLITTER.split(this.toString()));
-
-        final List<String> diff = DiffUtils.generateUnifiedDiff(null, null, originalLines, DiffUtils.diff(originalLines, revisedLines), 1);
-
-        for (int index = 2; index < diff.size(); index++) {
-            // skip unified diff header lines
-            builder.append(diff.get(index));
-            builder.append('\n');
-        }
-
-        return builder.toString();
     }
 }
