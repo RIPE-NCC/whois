@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -172,7 +173,7 @@ public class VersionQueryExecutor implements QueryExecutor {
 
         return Lists.newArrayList(
                 new MessageObject(QueryMessages.versionDifferenceHeader(versions[0], versions[1], firstObject.getKey())),
-                new MessageObject(secondObject.diff(firstObject)));
+                new MessageObject(RpslObjectFilter.diff(firstObject, secondObject)));
     }
 
     private Collection<ObjectType> getObjectType(final Query query) {

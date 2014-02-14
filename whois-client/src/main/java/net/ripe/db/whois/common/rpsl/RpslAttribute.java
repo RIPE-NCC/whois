@@ -265,7 +265,7 @@ public final class RpslAttribute {
     @Override
     public int hashCode() {
         if (hash == 0) {
-            hash = 31*key.hashCode() + getCleanValues().hashCode();
+            hash = 31 * key.hashCode() + getCleanValues().hashCode();
         }
         return hash;
     }

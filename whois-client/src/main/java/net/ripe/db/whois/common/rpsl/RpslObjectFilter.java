@@ -1,7 +1,9 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import difflib.DiffUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,7 @@ public class RpslObjectFilter {
     static final String FILTERED = " # Filtered";
 
     private static final Splitter LINE_CONTINUATION_SPLITTER = Splitter.on(Pattern.compile("(\\n\\+|\\n[ ]|\\n\\t|\\n)")).trimResults();
+    private static final Splitter LINE_SPLITTER = Splitter.on('\n').trimResults();
 
     private RpslObjectFilter() {
     }
@@ -32,6 +35,24 @@ public class RpslObjectFilter {
 
         return builder.toString();
     }
+
+    public static String diff(final RpslObject original, final RpslObject revised) {
+        final StringBuilder builder = new StringBuilder();
+
+        final List<String> originalLines = Lists.newArrayList(LINE_SPLITTER.split(original.toString()));
+        final List<String> revisedLines = Lists.newArrayList(LINE_SPLITTER.split(revised.toString()));
+
+        final List<String> diff = DiffUtils.generateUnifiedDiff(null, null, originalLines, DiffUtils.diff(originalLines, revisedLines), 1);
+
+        for (int index = 2; index < diff.size(); index++) {
+            // skip unified diff header lines
+            builder.append(diff.get(index));
+            builder.append('\n');
+        }
+
+        return builder.toString();
+    }
+
 
     public static RpslObjectBuilder keepKeyAttributesOnly(RpslObjectBuilder builder) {
         final ObjectTemplate template = ObjectTemplate.getTemplate(ObjectType.getByFirstAttribute(builder.getTypeAttribute()));
