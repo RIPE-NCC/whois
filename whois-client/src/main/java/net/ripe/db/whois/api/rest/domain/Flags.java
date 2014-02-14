@@ -26,6 +26,10 @@ public class Flags {
         }
     }
 
+    public Flags(final List<Flag> flags) {
+        this.flags = flags;
+    }
+
     public Flags() {
         // required no-arg constructor
     }

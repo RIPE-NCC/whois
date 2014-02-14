@@ -25,6 +25,10 @@ public class InverseAttributes {
         }
     }
 
+    public InverseAttributes(final List<InverseAttribute> attributes) {
+        this.attributes = attributes;
+    }
+
     public InverseAttributes() {
         // required no-arg constructor
     }
