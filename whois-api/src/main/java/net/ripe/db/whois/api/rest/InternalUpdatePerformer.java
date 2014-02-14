@@ -28,6 +28,7 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
+import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,8 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -78,6 +81,8 @@ public class InternalUpdatePerformer {
 
         logHttpHeaders(loggerContext, request);
         logHttpUri(loggerContext, request);
+
+        loggerContext.log("msg-in.txt", new UpdateLogCallback(update));
 
         final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
         updateRequestHandler.handle(updateRequest, updateContext);
@@ -225,4 +230,18 @@ public class InternalUpdatePerformer {
             loggerContext.log(new Message(Messages.Type.INFO, String.format("%s?%s", request.getRequestURI(), request.getQueryString())));
         }
     }
+
+    class UpdateLogCallback implements LogCallback {
+        private final Update update;
+
+        public UpdateLogCallback(final Update update) {
+            this.update = update;
+        }
+
+        @Override
+        public void log(final OutputStream outputStream) throws IOException {
+            outputStream.write(update.toString().getBytes());
+        }
+    }
+
 }
