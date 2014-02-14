@@ -46,7 +46,7 @@ public class WhoisObject {
     @XmlElement(name = "tags")
     @JsonSerialize(using = Json.TagsSerializer.class)
     @JsonDeserialize(using = Json.TagsDeserializer.class)
-    private WhoisTags tags;
+    private WhoisTags tags = new WhoisTags();
 
     @XmlAttribute(required = true)
     private String type;

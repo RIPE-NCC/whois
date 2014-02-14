@@ -26,6 +26,7 @@ import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -62,6 +63,7 @@ public class InternalUpdatePerformer {
             final boolean notificationsEnabled = true;
 
             logHttpHeaders(loggerContext, request);
+            logHttpUri(loggerContext, request);
 
             final UpdateRequest updateRequest = new UpdateRequest(
                     origin,
@@ -193,8 +195,16 @@ public class InternalUpdatePerformer {
             final String name = names.nextElement();
             final Enumeration<String> values = request.getHeaders(name);
             while (values.hasMoreElements()) {
-                loggerContext.log(new Message(Messages.Type.INFO, String.format("%s=%s", name, values.nextElement())));
+                loggerContext.log(new Message(Messages.Type.INFO, String.format("Header: %s=%s", name, values.nextElement())));
             }
+        }
+    }
+
+    public static void logHttpUri(final LoggerContext loggerContext, final HttpServletRequest request) {
+        if (StringUtils.isEmpty(request.getQueryString())) {
+            loggerContext.log(new Message(Messages.Type.INFO, request.getRequestURI()));
+        } else {
+            loggerContext.log(new Message(Messages.Type.INFO, String.format("%s?%s", request.getRequestURI(), request.getQueryString())));
         }
     }
 }

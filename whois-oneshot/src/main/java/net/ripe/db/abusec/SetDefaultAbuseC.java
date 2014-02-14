@@ -17,9 +17,6 @@ public class SetDefaultAbuseC {
     private static final String ARG_ORGFILE = "org-file";
     private static final String ARG_OVERRIDE = "override";
 
-    private static final RestClient restClient = new RestClient();
-    private static final AbuseCService abuseCService = new AbuseCService(restClient, "RIPE");
-
     public static void main(final String[] argv) throws Exception {
         LogUtil.initLogger();
 
@@ -28,8 +25,9 @@ public class SetDefaultAbuseC {
         String fileName = options.valueOf(ARG_ORGFILE).toString();
         String override = options.valueOf(ARG_OVERRIDE).toString();
 
-        restClient.setRestApiUrl("https://rest.db.ripe.net");
-        restClient.setSource("RIPE");
+        final RestClient restClient = new RestClient("https://rest.db.ripe.net", "RIPE");
+        final AbuseCService abuseCService = new AbuseCService(restClient, "RIPE");
+
         abuseCService.setOverride(override);
 
         for (String nextObject : new RpslObjectFileReader(fileName)) {
@@ -49,16 +47,19 @@ public class SetDefaultAbuseC {
                     continue;
                 }
 
-                RpslObject currentOrg = restClient.lookup(ObjectType.ORGANISATION, dumpOrg.getKey().toString());
+                RpslObject currentOrg = restClient.request().lookup(ObjectType.ORGANISATION, dumpOrg.getKey().toString());
                 RpslAttribute abusecAttr = currentOrg.findAttribute(AttributeType.ABUSE_C);
-                RpslObject abuseRole = restClient.lookup(ObjectType.ROLE, abusecAttr.getCleanValue().toString());
+                RpslObject abuseRole = restClient.request().lookup(ObjectType.ROLE, abusecAttr.getCleanValue().toString());
 
                 RpslObjectBuilder builder = new RpslObjectBuilder(abuseRole);
                 builder.removeAttribute(new RpslAttribute(AttributeType.MNT_BY, "RIPE-NCC-HM-MNT"));
                 if (builder.size() < abuseRole.size()) {
                     RpslObject withoutRipeMntner = builder.get();
 
-                    restClient.updateOverride(withoutRipeMntner, override);
+                    restClient.request()
+                            .addParam("override", override)
+                            .update(withoutRipeMntner);
+
                     System.out.println(dumpOrg.getFormattedKey());
 
                     if (batchSize-- <= 0) {

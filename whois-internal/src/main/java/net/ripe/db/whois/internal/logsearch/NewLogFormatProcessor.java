@@ -35,7 +35,8 @@ import java.util.regex.Pattern;
 
 @Component
 public class NewLogFormatProcessor implements LogFormatProcessor {
-    public static final Pattern INDEXED_LOG_ENTRIES = Pattern.compile("(?:^|.*/)[0-9]+\\.(?:msg-in|msg-out)\\.txt\\.gz$");
+    public static final Pattern INDEXED_MSG_LOG_ENTRIES = Pattern.compile("(?:^|.*/)[0-9]+\\.(?:msg-in|msg-out)\\.txt\\.gz$");
+    public static final Pattern INDEXED_ACK_LOG_ENTRIES = Pattern.compile("^.*/\\d{6}\\.rest_.*_.*/[0-9]+\\.ack\\.txt\\.gz$");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NewLogFormatProcessor.class);
 
@@ -70,7 +71,8 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                 tarredLogFile.processLoggedFiles(new LoggedUpdateProcessor<TarredLogEntry>() {
                     @Override
                     public boolean accept(final TarredLogEntry tarredLogEntry) {
-                        return INDEXED_LOG_ENTRIES.matcher(tarredLogEntry.getUpdateId()).matches();
+                        return (INDEXED_MSG_LOG_ENTRIES.matcher(tarredLogEntry.getUpdateId()).matches() ||
+                                INDEXED_ACK_LOG_ENTRIES.matcher(tarredLogEntry.getUpdateId()).matches());
                     }
 
                     @Override
@@ -82,6 +84,7 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
         });
     }
 
+    // TODO: [ES] test this method from integration
     public void addDailyLogFolderToIndex(final String path) throws IOException {
         logFileIndex.update(new IndexTemplate.WriteCallback() {
             @Override
@@ -89,7 +92,8 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                 new DailyLogFolder(Paths.get(path)).processLoggedFiles(new LoggedUpdateProcessor<DailyLogEntry>() {
                     @Override
                     public boolean accept(DailyLogEntry dailyLogEntry) {
-                        return INDEXED_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches();
+                        return (INDEXED_MSG_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches() ||
+                                INDEXED_ACK_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches());
                     }
 
                     @Override
@@ -166,7 +170,8 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                                 new DailyLogFolder(dir).processLoggedFiles(new LoggedUpdateProcessor<DailyLogEntry>() {
                                     @Override
                                     public boolean accept(DailyLogEntry dailyLogEntry) {
-                                        return INDEXED_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches() &&
+                                        return ((INDEXED_MSG_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches() ||
+                                                 INDEXED_ACK_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches())) &&
                                                 !todaysIndexedFiles.contains(dailyLogEntry.getUpdateId());
                                     }
 

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.logsearch;
 
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.logsearch.LogFileIndex;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.ForbiddenException;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -43,6 +45,35 @@ public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
         assertThat(getUpdates("inetnum"), containsString("Found 3 update log(s)"));
     }
 
+    @Test
+    public void msg_in_logfile_is_indexed() throws Exception {
+        addToIndex(LogFileHelper.createLogFile(logDirectory, LogFileHelper.getDate(), LogFileHelper.getTime(), "random", "the quick brown fox", "001.msg-in.txt.gz"));
+
+        assertThat(getUpdates("quick"), containsString("Found 1 update log(s)"));
+    }
+
+    @Test
+    public void msg_out_logfile_is_indexed() throws Exception {
+        addToIndex(LogFileHelper.createLogFile(logDirectory, LogFileHelper.getDate(), LogFileHelper.getTime(), "random", "the quick brown fox", "003.msg-out.txt.gz"));
+
+        assertThat(getUpdates("quick"), containsString("Found 1 update log(s)"));
+    }
+
+
+    @Test
+    public void ack_logfile_is_not_indexed() throws Exception {
+        addToIndex(LogFileHelper.createLogFile(logDirectory, LogFileHelper.getDate(), LogFileHelper.getTime(), "random", "the quick brown fox", "002.ack.txt.gz"));
+        addToIndex(LogFileHelper.createLogFile(logDirectory, LogFileHelper.getDate(), LogFileHelper.getTime(), "random", "the quick brown fox", "003.msg-out.txt.gz"));
+
+        assertThat(getUpdates("quick"), containsString("Found 1 update log(s)"));
+    }
+
+    @Test
+    public void ack_logfile_is_indexed_for_rest_only() throws Exception {
+        addToIndex(LogFileHelper.createLogFile(logDirectory, LogFileHelper.getDate(), LogFileHelper.getTime(), "rest_XXX_YYY", "the quick brown fox", "001.ack.txt.gz"));
+
+        assertThat(getUpdates("quick"), containsString("Found 1 update log(s)"));
+    }
 
     @Test
     public void no_results() throws Exception {
@@ -57,6 +88,28 @@ public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
 
         assertThat(response, containsString("Found 1 update log(s)"));
         assertThat(response, containsString("the quick brown fox"));
+    }
+
+    @Test
+    public void tarfile_ack_logfile_is_not_indexed() throws Exception {
+        final Map<String, String> filesWithContents = Maps.newHashMap();
+        filesWithContents.put("002.ack.txt.gz", "the quick brown fox");
+        filesWithContents.put("003.msg-out.txt.gz", "the quick brown fox");
+
+        addToIndex(LogFileHelper.createTarredLogFile(logDirectory, LogFileHelper.getDate(), LogFileHelper.getTime(), "random", filesWithContents));
+
+        assertThat(getUpdates("quick"), containsString("Found 1 update log(s)"));
+    }
+
+    @Test
+    public void tarfile_ack_logfile_is_indexed_for_rest_only() throws Exception {
+        final Map<String, String> filesWithContents = Maps.newHashMap();
+        filesWithContents.put("002.ack.txt.gz", "the quick brown fox");
+        filesWithContents.put("003.msg-out.txt.gz", "the quick brown fox");
+
+        addToIndex(LogFileHelper.createTarredLogFile(logDirectory, LogFileHelper.getDate(), LogFileHelper.getTime(), "rest_10.0.1.2_XYZ", filesWithContents));
+
+        assertThat(getUpdates("quick"), containsString("Found 2 update log(s)"));
     }
 
     @Test

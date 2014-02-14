@@ -4,9 +4,14 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 import org.springframework.util.FileCopyUtils;
 
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,10 +27,16 @@ public class SyncUpdateBuilder {
     private Integer port;
     private String source;
     private String data;
+    private Cookie cookie;
     private boolean help;
     private boolean diff;
     private boolean aNew;
     private boolean redirect;
+
+    public SyncUpdateBuilder setCookie(Cookie cookie) {
+        this.cookie = cookie;
+        return this;
+    }
 
     public SyncUpdateBuilder setUrl(String url) {
         this.url = url;
@@ -74,11 +85,11 @@ public class SyncUpdateBuilder {
 
     public Client build() {
         if (url != null) {
-            return new Client(url, data, help, diff, aNew, redirect);
+            return new Client(url, cookie, data, help, diff, aNew, redirect);
         }
 
         if (host != null && port != null && source != null) {
-            return new Client(host, port, source, data, help, diff, aNew, redirect);
+            return new Client(host, port, source, cookie, data, help, diff, aNew, redirect);
         }
 
         throw new IllegalStateException("Either (host, port, source) or (url) should not be null");
@@ -92,13 +103,15 @@ public class SyncUpdateBuilder {
 
         private final URL url;
         private final String data;
+        private final Cookie cookie;
         private final boolean isHelp;
         private final boolean isDiff;
         private final boolean isNew;
         private final boolean isRedirect;
 
-        public Client(final String host, final int port, final String source, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
+        public Client(final String host, final int port, final String source, final Cookie cookie, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
             this.url = getUrl(host, port, source);
+            this.cookie = cookie;
             this.data = data;
             this.isHelp = isHelp;
             this.isDiff = isDiff;
@@ -106,8 +119,9 @@ public class SyncUpdateBuilder {
             this.isRedirect = isRedirect;
         }
 
-        public Client(final String url, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
+        public Client(final String url, final Cookie cookie, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
             this.url = getUrl(url);
+            this.cookie = cookie;
             this.data = data;
             this.isHelp = isHelp;
             this.isDiff = isDiff;
@@ -122,6 +136,10 @@ public class SyncUpdateBuilder {
                 final String body = getBody();
                 connection.setRequestProperty(HttpHeaders.CONTENT_LENGTH, Integer.toString(body.length()));
                 connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED + "; charset=" + CHARSET);
+
+                if (cookie != null) {
+                    connection.setRequestProperty(HttpHeaders.COOKIE, cookie.toString());
+                }
 
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
