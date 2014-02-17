@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:oxm="http://www.springframework.org/schema/oxm"
        xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                         http://www.springframework.org/schema/beans/spring-beans.xsd
-                        http://www.springframework.org/schema/oxm
-                        http://www.springframework.org/schema/oxm/spring-oxm.xsd
                         http://www.springframework.org/schema/context
                         http://www.springframework.org/schema/context/spring-context.xsd">
 
@@ -14,10 +11,14 @@
     <import resource="applicationContext-update.xml"/>
     <context:component-scan base-package="net.ripe.db.whois.api"/>
 
-    <oxm:jaxb2-marshaller id="marshaller">
-        <oxm:class-to-be-bound name="net.ripe.db.whois.api.freetext.SearchResponse"/>
-        <oxm:class-to-be-bound name="net.ripe.db.whois.api.rest.domain.WhoisResources"/>
-        <oxm:class-to-be-bound name="net.ripe.db.whois.api.rest.domain.AbuseResources"/>
-    </oxm:jaxb2-marshaller>
-
+    <bean class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+        <property name="classesToBeBound">
+            <list>
+                <value>net.ripe.db.whois.api.freetext.SearchResponse</value>
+                <value>net.ripe.db.whois.api.rest.domain.WhoisResources</value>
+                <value>net.ripe.db.whois.api.rest.domain.AbuseResources</value>
+                <value>net.ripe.db.whois.api.rest.domain.TemplateResources</value>
+            </list>
+        </property>
+    </bean>
 </beans>
