@@ -19,7 +19,6 @@ import java.util.List;
         "objects",
         "sources",
         "errorMessages",
-        "grsSources",
         "geolocationAttributes",
         "versions",
         "termsAndConditions"
