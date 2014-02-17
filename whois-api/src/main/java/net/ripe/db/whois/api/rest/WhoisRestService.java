@@ -23,23 +23,22 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.QueryParser;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.QueryParser;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -394,29 +393,10 @@ public class WhoisRestService {
         return Response.ok(whoisResources).build();
     }
 
-    StreamingMarshal getStreamingMarshal(final HttpServletRequest request) {
-        final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
-        if (acceptHeader != null) {
-            for (final String accept : Splitter.on(',').split(acceptHeader)) {
-                try {
-                    final MediaType mediaType = MediaType.valueOf(accept);
-                    final String subtype = mediaType.getSubtype().toLowerCase();
-                    if (subtype.equals("json") || subtype.endsWith("+json")) {
-                        return new StreamingMarshalJson();
-                    } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
-                        return new StreamingMarshalXml();
-                    }
-                } catch (IllegalArgumentException ignored) {
-                }
-            }
-        }
-
-        return new StreamingMarshalXml();
-    }
-
     private boolean isQueryParamSet(final String queryString, final String key) {
         if (queryString == null) {
             return false;
+
         }
 
         for (String next : AMPERSAND_SPLITTER.split(queryString)) {
@@ -563,7 +543,7 @@ public class WhoisRestService {
     }
 
     private void validateSubmittedObject(HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
-        if (!object.getKey().equals(CIString.ciString(key)) || !object.getType().getName().equalsIgnoreCase(objectType)) {
+        if (!object.getKey().equals(key) || !object.getType().getName().equalsIgnoreCase(objectType)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.uriMismatch(objectType, key))).build());
         }
     }
@@ -613,9 +593,7 @@ public class WhoisRestService {
                                                   @Nullable final Parameters parameters,
                                                   @Nullable final Service service) {
 
-        final StreamingMarshal streamingMarshal = getStreamingMarshal(request);
-
-        return Response.ok(new RpslObjectStreamer(request, query, remoteAddress, parameters, service, streamingMarshal)).build();
+        return Response.ok(new RpslObjectStreamer(request, query, remoteAddress, parameters, service)).build();
     }
 
     private class RpslObjectStreamer implements StreamingOutput {
@@ -624,21 +602,42 @@ public class WhoisRestService {
         private final InetAddress remoteAddress;
         private final Parameters parameters;
         private final Service service;
-        private final StreamingMarshal streamingMarshal;
+        private StreamingMarshal streamingMarshal;
 
-        public RpslObjectStreamer(HttpServletRequest request, Query query, InetAddress remoteAddress, Parameters parameters, Service service, StreamingMarshal streamingMarshal) {
+        public RpslObjectStreamer(final HttpServletRequest request, final Query query, final InetAddress remoteAddress, final Parameters parameters, final Service service) {
             this.request = request;
             this.query = query;
             this.remoteAddress = remoteAddress;
             this.parameters = parameters;
             this.service = service;
-            this.streamingMarshal = streamingMarshal;
+        }
+
+        StreamingMarshal getStreamingMarshal(final HttpServletRequest request, final OutputStream outputStream) {
+            final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
+            if (acceptHeader != null) {
+                for (final String accept : Splitter.on(',').split(acceptHeader)) {
+                    try {
+                        final MediaType mediaType = MediaType.valueOf(accept);
+                        final String subtype = mediaType.getSubtype().toLowerCase();
+                        if (subtype.equals("json") || subtype.endsWith("+json")) {
+                            return new StreamingMarshalJson(outputStream);
+                        } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
+                            return new StreamingMarshalXml(outputStream, "whois-resources");
+                        }
+                    } catch (IllegalArgumentException ignored) {
+                    }
+                }
+            }
+
+            return new StreamingMarshalXml(outputStream, "whois-resources");
         }
 
         @Override
         public void write(final OutputStream output) throws IOException, WebApplicationException {
+            streamingMarshal = getStreamingMarshal(request, output);
+
             try {
-                SearchResponseHandler responseHandler = new SearchResponseHandler(output);
+                SearchResponseHandler responseHandler = new SearchResponseHandler();
                 try {
                     final int contextId = System.identityHashCode(Thread.currentThread());
                     queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
@@ -687,18 +686,12 @@ public class WhoisRestService {
         }
 
         private class SearchResponseHandler extends ApiResponseHandler {
-            private final OutputStream output;
-
             private boolean rpslObjectFound;
 
             // tags come separately
             private final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
             private final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
             private final List<Message> errors = Lists.newArrayList();
-
-            public SearchResponseHandler(OutputStream output) {
-                this.output = output;
-            }
 
             // TODO: [AH] replace this 'if instanceof' mess with an OO approach
             @Override
@@ -718,14 +711,14 @@ public class WhoisRestService {
             private void streamRpslObject(final RpslObject rpslObject) {
                 if (!rpslObjectFound) {
                     rpslObjectFound = true;
-                    startStreaming(output);
+                    startStreaming();
                 }
                 streamObject(rpslObjectQueue.poll(), tagResponseObjects);
                 rpslObjectQueue.add(rpslObject);
             }
 
-            private void startStreaming(final OutputStream output) {
-                streamingMarshal.open(output, "whois-resources");
+            private void startStreaming() {
+                streamingMarshal.open();
 
                 if (service != null) {
                     streamingMarshal.write("service", service);
@@ -735,9 +728,10 @@ public class WhoisRestService {
                     streamingMarshal.write("parameters", parameters);
                 }
 
-                streamingMarshal.start("objects");
                 if (streamingMarshal instanceof StreamingMarshalJson) {
-                    ((StreamingMarshalJson)streamingMarshal).startArray("object");
+                    ((StreamingMarshalJson)streamingMarshal).startArray("objects");
+                } else {
+                    streamingMarshal.start("objects");
                 }
             }
 
@@ -772,12 +766,21 @@ public class WhoisRestService {
                     ((StreamingMarshalJson)streamingMarshal).endArray();
                 }
 
-                streamingMarshal.end();
+                // TODO inside or outside the xml object?
                 if (errors.size() > 0) {
                     streamingMarshal.write("errormessages", createErrorMessages(errors));
                     errors.clear();
                 }
-                streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+
+                // TODO: [AH] ugly; do we need this?
+                if (streamingMarshal instanceof StreamingMarshalJson) {
+                    streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+                    streamingMarshal.end();
+                } else {
+                    streamingMarshal.end();
+                    streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+                }
+
                 streamingMarshal.close();
                 return errors;
             }
@@ -788,17 +791,17 @@ public class WhoisRestService {
         private static final Joiner COMMA_JOINER = Joiner.on(',');
         private final StringBuilder query = new StringBuilder(128);
 
-        public QueryBuilder addFlag(QueryFlag queryFlag) {
+        public QueryBuilder addFlag(final QueryFlag queryFlag) {
             query.append(queryFlag.getLongFlag()).append(' ');
             return this;
         }
 
-        public QueryBuilder addCommaList(QueryFlag queryFlag, String arg) {
+        public QueryBuilder addCommaList(final QueryFlag queryFlag, final String arg) {
             query.append(queryFlag.getLongFlag()).append(' ').append(arg).append(' ');
             return this;
         }
 
-        public QueryBuilder addCommaList(QueryFlag queryFlag, Collection<String> args) {
+        public QueryBuilder addCommaList(final QueryFlag queryFlag, final Collection<String> args) {
             if (args.size() > 0) {
                 query.append(queryFlag.getLongFlag()).append(' ');
                 COMMA_JOINER.appendTo(query, args);
@@ -807,7 +810,7 @@ public class WhoisRestService {
             return this;
         }
 
-        public String build(String searchKey) {
+        public String build(final String searchKey) {
             return query.append(searchKey).toString();
         }
     }

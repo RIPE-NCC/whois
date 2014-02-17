@@ -8,6 +8,7 @@ import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -323,7 +324,7 @@ public class SyncUpdatesService {
     }
 
     private boolean sourceMatchesContext(final String source) {
-        return (source != null) && sourceContext.getCurrentSource().getName().equals(source);
+        return (source != null) && sourceContext.getCurrentSource().getName().equals(CIString.ciString(source));
     }
 
     class SyncUpdateLogCallback implements LogCallback {

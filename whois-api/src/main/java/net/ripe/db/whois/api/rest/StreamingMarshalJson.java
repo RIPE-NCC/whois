@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -16,6 +17,8 @@ class StreamingMarshalJson implements StreamingMarshal {
 
     static {
         final ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        objectMapper.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
 
         objectMapper.setAnnotationIntrospector(new AnnotationIntrospectorPair(
                 new JacksonAnnotationIntrospector(),
@@ -24,14 +27,20 @@ class StreamingMarshalJson implements StreamingMarshal {
         jsonFactory = objectMapper.getFactory();
     }
 
-    private JsonGenerator generator;
+    private final JsonGenerator generator;
 
-    @Override
-    public void open(final OutputStream outputStream, String ignore) {
+    StreamingMarshalJson(OutputStream outputStream) {
         try {
             generator = jsonFactory.createGenerator(outputStream);
+        } catch (IOException e) {
+            throw new StreamingException(e);
+        }
+    }
+
+    @Override
+    public void open() {
+        try {
             generator.writeStartObject();
-            // json document has a natural root, ignore arg
         } catch (IOException e) {
             throw new StreamingException(e);
         }
@@ -48,7 +57,8 @@ class StreamingMarshalJson implements StreamingMarshal {
 
     public void startArray(final String name) {
         try {
-            generator.writeArrayFieldStart(name);
+            generator.writeFieldName(name);
+            generator.writeStartArray();
         } catch (IOException e) {
             throw new StreamingException(e);
         }
