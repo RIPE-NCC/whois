@@ -396,6 +396,13 @@
                 <version>2.3.1</version>
             </dependency>
 
+            <!-- StaxUtils for the IndentingXMLStreamWriter -->
+            <dependency>
+                <groupId>net.java.dev.stax-utils</groupId>
+                <artifactId>stax-utils</artifactId>
+                <version>20070216</version>
+            </dependency>
+
             <!-- lucene for fulltext search -->
             <dependency>
                 <groupId>org.apache.lucene</groupId>
