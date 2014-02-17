@@ -612,26 +612,6 @@ public class WhoisRestService {
             this.service = service;
         }
 
-        StreamingMarshal getStreamingMarshal(final HttpServletRequest request, final OutputStream outputStream) {
-            final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
-            if (acceptHeader != null) {
-                for (final String accept : Splitter.on(',').split(acceptHeader)) {
-                    try {
-                        final MediaType mediaType = MediaType.valueOf(accept);
-                        final String subtype = mediaType.getSubtype().toLowerCase();
-                        if (subtype.equals("json") || subtype.endsWith("+json")) {
-                            return new StreamingMarshalJson(outputStream);
-                        } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
-                            return new StreamingMarshalXml(outputStream, "whois-resources");
-                        }
-                    } catch (IllegalArgumentException ignored) {
-                    }
-                }
-            }
-
-            return new StreamingMarshalXml(outputStream, "whois-resources");
-        }
-
         @Override
         public void write(final OutputStream output) throws IOException, WebApplicationException {
             streamingMarshal = getStreamingMarshal(request, output);
@@ -654,7 +634,7 @@ public class WhoisRestService {
             }
         }
 
-        private WebApplicationException createWebApplicationException(final RuntimeException exception, final SearchResponseHandler responseHandler){
+        private WebApplicationException createWebApplicationException(final RuntimeException exception, final SearchResponseHandler responseHandler) {
             if (exception instanceof WebApplicationException) {
                 return (WebApplicationException) exception;
             } else if (exception instanceof QueryException) {
@@ -729,7 +709,7 @@ public class WhoisRestService {
                 }
 
                 if (streamingMarshal instanceof StreamingMarshalJson) {
-                    ((StreamingMarshalJson)streamingMarshal).startArray("objects");
+                    ((StreamingMarshalJson) streamingMarshal).startArray("objects");
                 } else {
                     streamingMarshal.start("objects");
                 }
@@ -744,7 +724,7 @@ public class WhoisRestService {
 
                 // TODO: [AH] add method 'writeAsArray' or 'writeObject' to StreamingMarshal interface to get rid of this uglyness
                 if (streamingMarshal instanceof StreamingMarshalJson) {
-                    ((StreamingMarshalJson)streamingMarshal).writeArray(whoisObject);
+                    ((StreamingMarshalJson) streamingMarshal).writeArray(whoisObject);
                 } else {
                     streamingMarshal.write("object", whoisObject);
                 }
@@ -763,7 +743,7 @@ public class WhoisRestService {
                 streamObject(rpslObjectQueue.poll(), tagResponseObjects);
 
                 if (streamingMarshal instanceof StreamingMarshalJson) {
-                    ((StreamingMarshalJson)streamingMarshal).endArray();
+                    ((StreamingMarshalJson) streamingMarshal).endArray();
                 }
 
                 // TODO inside or outside the xml object?
@@ -814,4 +794,26 @@ public class WhoisRestService {
             return query.append(searchKey).toString();
         }
     }
+
+    public static final StreamingMarshal getStreamingMarshal(final HttpServletRequest request, final OutputStream outputStream) {
+        final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
+        if (acceptHeader != null) {
+            for (final String accept : Splitter.on(',').split(acceptHeader)) {
+                try {
+                    final MediaType mediaType = MediaType.valueOf(accept);
+                    final String subtype = mediaType.getSubtype().toLowerCase();
+                    if (subtype.equals("json") || subtype.endsWith("+json")) {
+                        return new StreamingMarshalJson(outputStream);
+                    } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
+                        return new StreamingMarshalXml(outputStream, "whois-resources");
+                    }
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+        }
+
+        return new StreamingMarshalXml(outputStream, "whois-resources");
+    }
+
+
 }
