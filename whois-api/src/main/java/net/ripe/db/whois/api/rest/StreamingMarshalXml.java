@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 
@@ -7,7 +8,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -27,14 +27,30 @@ class StreamingMarshalXml implements StreamingMarshal {
         }
     }
 
-    private XMLStreamWriter xmlOut;
+    private final XMLStreamWriter xmlOut;
+    private final Marshaller marshaller;
+    private final String root;
+
+    StreamingMarshalXml(final OutputStream outputStream, String root) {
+        try {
+            this.root = root;
+
+            xmlOut = new IndentingXMLStreamWriter(xmlOutputFactory.createXMLStreamWriter(outputStream));
+
+            marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+
+        } catch (XMLStreamException | JAXBException e) {
+            throw new StreamingException(e);
+        }
+    }
 
     @Override
-    public void open(final OutputStream outputStream, String root) {
+    public void open() {
         try {
-            xmlOut = xmlOutputFactory.createXMLStreamWriter(outputStream);
             xmlOut.writeStartDocument();
             xmlOut.writeStartElement(root);
+
             // TODO: this is ugly, should come from package info instead (which is the case with no streaming)
             xmlOut.writeNamespace("xlink", Link.XLINK_URI);
         } catch (XMLStreamException e) {
@@ -66,9 +82,6 @@ class StreamingMarshalXml implements StreamingMarshal {
         JAXBElement<T> element = new JAXBElement<>(QName.valueOf(name), (Class<T>) t.getClass(), t);
 
         try {
-            // TODO: [AH] move this line to contructor
-            final Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
             marshaller.marshal(element, xmlOut);
         } catch (JAXBException e) {
             throw new StreamingException(e);

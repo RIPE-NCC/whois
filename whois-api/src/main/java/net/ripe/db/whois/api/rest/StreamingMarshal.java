@@ -1,9 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
-import java.io.OutputStream;
-
 interface StreamingMarshal {
-    void open(OutputStream outputStream, String root);
+    void open();
 
     void start(String name);
 
