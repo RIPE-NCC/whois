@@ -1,0 +1,23 @@
+# Input file for REST lookup/search comparison
+
+# lookup
+
+# whois/test/mntner/owner-mnt
+# whois/test/person/TP1-RIPE
+# whois/test/inet6num/2001:2002:2003::
+
+whois/ripe/mntner/RIPE-DBM-STARTUP-MNT
+whois/ripe/person/dw-ripe
+whois/ripe/inet6num/2001:2002:2003::
+
+
+# search
+
+# whois/search?query-string=AS102&source=TEST
+# whois/search?query-string=TP1-TEST&source=TEST
+# whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB
+
+
+whois/search?query-string=AS102&source=RIPE
+whois/search?query-string=dw-ripe&source=RIPE
+whois/search?query-string=dw-ripe&source=RIPE&flags=no-filtering&flags=rB
