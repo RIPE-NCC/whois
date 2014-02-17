@@ -1,7 +1,9 @@
 package net.ripe.db.whois.api.rest;
 
 import javanet.staxutils.IndentingXMLStreamWriter;
+import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.Link;
+import net.ripe.db.whois.api.rest.domain.TemplateResources;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 
 import javax.xml.bind.JAXBContext;
@@ -20,7 +22,7 @@ class StreamingMarshalXml implements StreamingMarshal {
 
     static {
         try {
-            context = JAXBContext.newInstance(WhoisResources.class.getPackage().getName());
+            context = JAXBContext.newInstance(WhoisResources.class, TemplateResources.class, AbuseResources.class);
             xmlOutputFactory = XMLOutputFactory.newFactory();
         } catch (JAXBException e) {
             throw new IllegalStateException(e);

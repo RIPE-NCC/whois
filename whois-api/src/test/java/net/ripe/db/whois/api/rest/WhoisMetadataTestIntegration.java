@@ -20,31 +20,30 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
         final String response = request("whois/metadata/templates/peering-set.xml", HttpURLConnection.HTTP_OK);
 
         assertThat(response, is(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                "<template-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
-                "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/metadata/templates/peering-set\"/>" +
-                "<service name=\"getObjectTemplate\"/>" +
-                "<templates>" +
-                "<template type=\"peering-set\">" +
-                "<source id=\"ripe\"/>" +
-                "<attributes>" +
-                "<attribute name=\"peering-set\" requirement=\"MANDATORY\" cardinality=\"SINGLE\" keys=\"PRIMARY_KEY LOOKUP_KEY\"/>" +
-                "<attribute name=\"descr\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"\"/>" +
-                "<attribute name=\"peering\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>" +
-                "<attribute name=\"mp-peering\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>" +
-                "<attribute name=\"remarks\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>" +
-                "<attribute name=\"org\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>" +
-                "<attribute name=\"tech-c\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>" +
-                "<attribute name=\"admin-c\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>" +
-                "<attribute name=\"notify\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>" +
-                "<attribute name=\"mnt-by\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>" +
-                "<attribute name=\"mnt-lower\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>" +
-                "<attribute name=\"changed\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"\"/>" +
-                "<attribute name=\"source\" requirement=\"MANDATORY\" cardinality=\"SINGLE\" keys=\"\"/>" +
-                "</attributes>" +
-                "</template>" +
-                "</templates>" +
-                "</template-resources>"));
+                "<template-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                        "  <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/metadata/templates/peering-set\" />\n" +
+                        "  <service name=\"getObjectTemplate\" />\n" +
+                        "  <templates>\n" +
+                        "    <template type=\"peering-set\">\n" +
+                        "      <source id=\"ripe\" />\n" +
+                        "      <attributes>\n" +
+                        "        <attribute name=\"peering-set\" requirement=\"MANDATORY\" cardinality=\"SINGLE\" keys=\"PRIMARY_KEY LOOKUP_KEY\" />\n" +
+                        "        <attribute name=\"descr\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"\" />\n" +
+                        "        <attribute name=\"peering\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\" />\n" +
+                        "        <attribute name=\"mp-peering\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\" />\n" +
+                        "        <attribute name=\"remarks\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\" />\n" +
+                        "        <attribute name=\"org\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\" />\n" +
+                        "        <attribute name=\"tech-c\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\" />\n" +
+                        "        <attribute name=\"admin-c\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\" />\n" +
+                        "        <attribute name=\"notify\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\" />\n" +
+                        "        <attribute name=\"mnt-by\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\" />\n" +
+                        "        <attribute name=\"mnt-lower\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\" />\n" +
+                        "        <attribute name=\"changed\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"\" />\n" +
+                        "        <attribute name=\"source\" requirement=\"MANDATORY\" cardinality=\"SINGLE\" keys=\"\" />\n" +
+                        "      </attributes>\n" +
+                        "    </template>\n" +
+                        "  </templates>\n" +
+                        "</template-resources>"));
     }
 
     @Test
@@ -74,23 +73,19 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
                 "        }, {\n" +
                 "          \"name\" : \"descr\",\n" +
                 "          \"requirement\" : \"MANDATORY\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\",\n" +
-                "          \"keys\" : [ ]\n" +
+                "          \"cardinality\" : \"MULTIPLE\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"peering\",\n" +
                 "          \"requirement\" : \"OPTIONAL\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\",\n" +
-                "          \"keys\" : [ ]\n" +
+                "          \"cardinality\" : \"MULTIPLE\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"mp-peering\",\n" +
                 "          \"requirement\" : \"OPTIONAL\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\",\n" +
-                "          \"keys\" : [ ]\n" +
+                "          \"cardinality\" : \"MULTIPLE\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"remarks\",\n" +
                 "          \"requirement\" : \"OPTIONAL\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\",\n" +
-                "          \"keys\" : [ ]\n" +
+                "          \"cardinality\" : \"MULTIPLE\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"org\",\n" +
                 "          \"requirement\" : \"OPTIONAL\",\n" +
@@ -124,13 +119,11 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
                 "        }, {\n" +
                 "          \"name\" : \"changed\",\n" +
                 "          \"requirement\" : \"MANDATORY\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\",\n" +
-                "          \"keys\" : [ ]\n" +
+                "          \"cardinality\" : \"MULTIPLE\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"source\",\n" +
                 "          \"requirement\" : \"MANDATORY\",\n" +
-                "          \"cardinality\" : \"SINGLE\",\n" +
-                "          \"keys\" : [ ]\n" +
+                "          \"cardinality\" : \"SINGLE\"\n" +
                 "        } ]\n" +
                 "      }\n" +
                 "    } ]\n" +

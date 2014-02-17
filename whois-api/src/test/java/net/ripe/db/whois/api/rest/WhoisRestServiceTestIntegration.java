@@ -838,7 +838,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "      <tags />\n" +
                         "    </object>\n" +
                         "  </objects>\n" +
-                        "  <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" /></whois-resources>"));
+                        "  <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" />\n" +
+                        "</whois-resources>"));
     }
 
     @Test
@@ -1098,7 +1099,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "      <tags />\n" +
                         "    </object>\n" +
                         "  </objects>\n" +
-                        "  <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" /></whois-resources>"));
+                        "  <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" />\n" +
+                        "</whois-resources>"));
     }
 
     @Test
@@ -3272,7 +3274,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "      <tags />\n" +
                         "    </object>\n" +
                         "  </objects>\n" +
-                        "  <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" /></whois-resources>"));
+                        "  <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" />\n" +
+                        "</whois-resources>"));
     }
 
     @Test
