@@ -1772,6 +1772,35 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<attribute name=\"remarks\" value=\"updated\" comment=\"comment\"/>"));
     }
 
+    @Test
+    public void update_with_override_succeeds() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
+
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
+
+        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertErrorMessage(whoisResources, 0, "Info", "Authorisation override used");
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), contains(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("remarks", "remark"),
+                new Attribute("remarks", "updated"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("source", "TEST")));
+
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
     // versions
 
     @Test
@@ -2947,35 +2976,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                                 "{ \"name\": \"remarks\", \"value\": \"updated\" },\n" +
                                 "{ \"name\": \"source\", \"value\": \"TEST\" }\n" +
                                 "] } } ] } }", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
-    }
-
-    @Test
-    public void update_with_override_succeeds() {
-        databaseHelper.addObject(PAULETH_PALTHEN);
-        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
-
-        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
-
-        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
-                .request(MediaType.APPLICATION_XML)
-                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
-
-        assertErrorMessage(whoisResources, 0, "Info", "Authorisation override used");
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
-        assertThat(object.getAttributes(), contains(
-                new Attribute("person", "Pauleth Palthen"),
-                new Attribute("address", "Singel 258"),
-                new Attribute("phone", "+31-1234567890"),
-                new Attribute("e-mail", "noreply@ripe.net"),
-                new Attribute("nic-hdl", "PP1-TEST"),
-                new Attribute("remarks", "remark"),
-                new Attribute("remarks", "updated"),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("changed", "noreply@ripe.net 20120101"),
-                new Attribute("source", "TEST")));
-
-        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
     @Test
