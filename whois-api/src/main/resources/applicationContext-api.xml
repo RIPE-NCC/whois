@@ -15,9 +15,6 @@
         <property name="classesToBeBound">
             <list>
                 <value>net.ripe.db.whois.api.freetext.SearchResponse</value>
-                <value>net.ripe.db.whois.api.rest.domain.WhoisResources</value>
-                <value>net.ripe.db.whois.api.rest.domain.AbuseResources</value>
-                <value>net.ripe.db.whois.api.rest.domain.TemplateResources</value>
             </list>
         </property>
     </bean>

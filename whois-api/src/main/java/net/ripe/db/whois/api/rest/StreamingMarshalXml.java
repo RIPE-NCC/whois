@@ -97,4 +97,13 @@ class StreamingMarshalXml implements StreamingMarshal {
             throw new StreamingException(e);
         }
     }
+
+    @Override
+    public <T> void singleton(T t) {
+        try {
+            marshaller.marshal(t, xmlOut);
+        } catch (JAXBException e) {
+            throw new StreamingException(e);
+        }
+    }
 }
