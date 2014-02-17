@@ -10,6 +10,7 @@ import javax.ws.rs.ClientErrorException;
 import java.net.HttpURLConnection;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
@@ -59,21 +60,28 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
     @Test
     public void getSourcesXml() throws Exception {
         final String response = doGetRequest("whois/metadata/sources.xml", HttpURLConnection.HTTP_OK);
-        assertThat("has service", response, containsString("<service name=\"getSupportedDataSources\"/>"));
-        assertThat("has source", response, containsString("<source id=\"ripe\"/>"));
-        assertThat("has grs-source", response, containsString("<source id=\"test-grs\" grs-id=\"test-grs\"/>"));
-        assertThat("has sources", response, containsString("<sources>"));
-        assertThat("has grs-sources", response, containsString("<grs-sources>"));
+        assertThat(response, endsWith("<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\"><link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/metadata/sources\"/><service name=\"getSupportedDataSources\"/><sources><source id=\"test\"/><source id=\"test-grs\"/></sources></whois-resources>"));
     }
 
     @Test
     public void getSourcesJson() throws Exception {
         final String response = doGetRequest("whois/metadata/sources.json", HttpURLConnection.HTTP_OK);
-        assertThat(response, containsString("\"name\" : \"getSupportedDataSources\""));
-        assertThat(response, containsString("\"name\" : \"RIPE\""));
-        assertThat(response, containsString("\"name\" : \"TEST\""));
-        assertThat(response, containsString("\"name\" : \"TEST-GRS\""));
-        assertThat(response, not(containsString("whois-resources")));
+        assertThat(response, is("{\n" +
+                "  \"link\" : {\n" +
+                "    \"type\" : \"locator\",\n" +
+                "    \"href\" : \"http://rest.db.ripe.net/metadata/sources\"\n" +
+                "  },\n" +
+                "  \"service\" : {\n" +
+                "    \"name\" : \"getSupportedDataSources\"\n" +
+                "  },\n" +
+                "  \"sources\" : {\n" +
+                "    \"source\" : [ {\n" +
+                "      \"id\" : \"test\"\n" +
+                "    }, {\n" +
+                "      \"id\" : \"test-grs\"\n" +
+                "    } ]\n" +
+                "  }\n" +
+                "}"));
     }
 
     private String doGetRequest(final String url, final int httpStatus) {
