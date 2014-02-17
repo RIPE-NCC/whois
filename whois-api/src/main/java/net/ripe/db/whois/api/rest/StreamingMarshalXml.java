@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
-import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
+import javanet.staxutils.IndentingXMLStreamWriter;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 
