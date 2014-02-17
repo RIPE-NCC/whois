@@ -158,15 +158,14 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
         final String response = request("whois/metadata/sources.xml", HttpURLConnection.HTTP_OK);
 
         assertThat(response, is(
-                "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" standalone=\\\"yes\\\"?>\n" +
-                        "<whois-resources xmlns:xlink=\\\"http://www.w3.org/1999/xlink\\\">\n" +
-                        "    <link xlink:type=\\\"locator\\\" xlink:href=\\\"http://rest.db.ripe.net/metadata/sources\\\"/>\n" +
-                        "    <service name=\\\"getSupportedDataSources\\\"/>\n" +
-                        "    <sources>\n" +
-                        "        <source id=\\\"test\\\"/>\n" +
-                        "        <source id=\\\"test-grs\\\"/>\n" +
-                        "    </sources>\n" +
-                        "</whois-resources>\n"));
+                "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                        "  <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/metadata/sources\" />\n" +
+                        "  <service name=\"getSupportedDataSources\" />\n" +
+                        "  <sources>\n" +
+                        "    <source id=\"test\" />\n" +
+                        "    <source id=\"test-grs\" />\n" +
+                        "  </sources>\n" +
+                        "</whois-resources>"));
     }
 
     @Test

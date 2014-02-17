@@ -21,6 +21,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 @Component
@@ -37,7 +40,7 @@ public class AbuseContactService {
     @GET
     @Path("/{key:.*}")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public AbuseResources lookup(
+    public Response lookup(
             @Context final HttpServletRequest request,
             @PathParam("key") final String key) {
 
@@ -71,6 +74,13 @@ public class AbuseContactService {
             throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("No abuse contact found for " + key).build());
         }
 
-        return result;
+        return Response.ok(new StreamingOutput() {
+            @Override
+            public void write(OutputStream output) throws IOException, WebApplicationException {
+                final StreamingMarshal streamingMarshal = WhoisRestService.getStreamingMarshal(request, output);
+                streamingMarshal.singleton(result);
+                streamingMarshal.close();
+            }
+        }).build();
     }
 }

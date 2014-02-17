@@ -107,4 +107,13 @@ class StreamingMarshalJson implements StreamingMarshal {
             throw new StreamingException(e);
         }
     }
+
+    @Override
+    public <T> void singleton(T t) {
+        try {
+            generator.writeObject(t);
+        } catch (IOException e) {
+            throw new StreamingException(e);
+        }
+    }
 }

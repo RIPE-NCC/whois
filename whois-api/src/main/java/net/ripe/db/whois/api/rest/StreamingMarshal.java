@@ -10,4 +10,6 @@ interface StreamingMarshal {
     <T> void write(String name, T t);
 
     void close();
+
+    <T> void singleton(T t);
 }
