@@ -24,6 +24,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -32,16 +33,15 @@ import java.util.Map;
 @Path("/metadata")
 public class WhoisMetadata {
 
-    private final List<Source> SOURCES = Lists.newArrayList(new Source("ripe"), new Source("test"));
+    private final List<Source> SOURCES;
 
     private final Map<String, Template> ATTRIBUTE_TEMPLATES;
 
     @Autowired
     public WhoisMetadata(SourceContext sourceContext) {
-
-        for (CIString source: sourceContext.getGrsSourceNames()) {
-            final String id = source.toLowerCase();
-            SOURCES.add(new Source(id));
+        SOURCES = new ArrayList<>();
+        for (CIString source: sourceContext.getAllSourceNames()) {
+            SOURCES.add(new Source(source.toLowerCase()));
         }
 
         Source ripeSource = new Source("ripe");
