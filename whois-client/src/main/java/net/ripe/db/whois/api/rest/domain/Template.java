@@ -1,5 +1,9 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import net.ripe.db.whois.api.rest.mapper.Json;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -17,6 +21,8 @@ public class Template {
     @XmlElement
     private Source source;
     @XmlElement
+    @JsonDeserialize(using = Json.TemplateAttributesDeserializer.class)
+    @JsonSerialize(using = Json.TemplateAttributesSerializer.class)
     private TemplateAttributes attributes;
 
     public String getType() {

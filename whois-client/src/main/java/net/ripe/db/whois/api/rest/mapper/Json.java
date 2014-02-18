@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Attributes;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.ErrorMessages;
 import net.ripe.db.whois.api.rest.domain.Flag;
 import net.ripe.db.whois.api.rest.domain.Flags;
 import net.ripe.db.whois.api.rest.domain.InverseAttribute;
@@ -19,6 +21,10 @@ import net.ripe.db.whois.api.rest.domain.QueryString;
 import net.ripe.db.whois.api.rest.domain.QueryStrings;
 import net.ripe.db.whois.api.rest.domain.Source;
 import net.ripe.db.whois.api.rest.domain.Sources;
+import net.ripe.db.whois.api.rest.domain.Template;
+import net.ripe.db.whois.api.rest.domain.TemplateAttribute;
+import net.ripe.db.whois.api.rest.domain.TemplateAttributes;
+import net.ripe.db.whois.api.rest.domain.Templates;
 import net.ripe.db.whois.api.rest.domain.TypeFilter;
 import net.ripe.db.whois.api.rest.domain.TypeFilters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
@@ -53,11 +59,43 @@ public class Json {
 
     public static class AttributesSerializer extends JsonSerializer<Attributes> {
         @Override
-        public void serialize(final Attributes value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        public void serialize(final Attributes value, final JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeStartArray();
 
             for (Attribute attribute : value.getAttributes()) {
                 jgen.writeObject(attribute);
+            }
+
+            jgen.writeEndArray();
+        }
+    }
+
+    public static class ErrorMessagesDeserializer extends JsonDeserializer<ErrorMessages> {
+        @Override
+        public ErrorMessages deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
+            jp.nextToken();
+            if (jp.getCurrentToken() == JsonToken.END_ARRAY) {
+                return new ErrorMessages();
+            }
+
+            final Iterator<ErrorMessage> iterator = jp.readValuesAs(ErrorMessage.class);
+
+            final List<ErrorMessage> errors = Lists.newArrayList();
+            while (iterator.hasNext()) {
+                errors.add(iterator.next());
+            }
+
+            return new ErrorMessages(errors);
+        }
+    }
+
+    public static class ErrorMessagesSerializer extends JsonSerializer<ErrorMessages> {
+        @Override
+        public void serialize(final ErrorMessages value, final JsonGenerator jgen, final SerializerProvider provider) throws IOException {
+            jgen.writeStartArray();
+
+            for (ErrorMessage error : value.getErrorMessages()) {
+                jgen.writeObject(error);
             }
 
             jgen.writeEndArray();
@@ -85,7 +123,7 @@ public class Json {
 
     public static class FlagsSerializer extends JsonSerializer<Flags> {
         @Override
-        public void serialize(final Flags value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        public void serialize(final Flags value, final JsonGenerator jgen, final SerializerProvider provider) throws IOException {
             jgen.writeStartArray();
 
             for (Flag flag : value.getFlags()) {
@@ -117,7 +155,7 @@ public class Json {
 
     public static class InverseAttributesSerializer extends JsonSerializer<InverseAttributes> {
         @Override
-        public void serialize(final InverseAttributes value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        public void serialize(final InverseAttributes value, final JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeStartArray();
 
             for (InverseAttribute inverseAttribute : value.getInverseAttributes()) {
@@ -213,7 +251,7 @@ public class Json {
 
     public static class PrimaryKeySerializer extends JsonSerializer<PrimaryKey> {
         @Override
-        public void serialize(final PrimaryKey value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        public void serialize(final PrimaryKey value, final JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeStartArray();
 
             for (Attribute attribute : value.getAttributes()) {
@@ -283,6 +321,70 @@ public class Json {
 
             for (WhoisTag tag : value.getTags()) {
                 jgen.writeObject(tag);
+            }
+
+            jgen.writeEndArray();
+        }
+    }
+
+    public static class TemplatesDeserializer extends JsonDeserializer<Templates> {
+        @Override
+        public Templates deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
+            jp.nextToken();
+            if (jp.getCurrentToken() == JsonToken.END_ARRAY) {
+                return new Templates();
+            }
+
+            final Iterator<Template> iterator = jp.readValuesAs(Template.class);
+
+            final List<Template> templatesList = Lists.newArrayList();
+            while (iterator.hasNext()) {
+                templatesList.add(iterator.next());
+            }
+
+            return new Templates(templatesList);
+        }
+    }
+
+    public static class TemplatesSerializer extends JsonSerializer<Templates> {
+        @Override
+        public void serialize(final Templates value, final JsonGenerator jgen, final SerializerProvider provider) throws IOException {
+            jgen.writeStartArray();
+
+            for (Template template : value.getTemplates()) {
+                jgen.writeObject(template);
+            }
+
+            jgen.writeEndArray();
+        }
+    }
+
+    public static class TemplateAttributesDeserializer extends JsonDeserializer<TemplateAttributes> {
+        @Override
+        public TemplateAttributes deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
+            jp.nextToken();
+            if (jp.getCurrentToken() == JsonToken.END_ARRAY) {
+                return new TemplateAttributes();
+            }
+
+            final Iterator<TemplateAttribute> iterator = jp.readValuesAs(TemplateAttribute.class);
+
+            final List<TemplateAttribute> attributesList = Lists.newArrayList();
+            while (iterator.hasNext()) {
+                attributesList.add(iterator.next());
+            }
+
+            return new TemplateAttributes(attributesList);
+        }
+    }
+
+    public static class TemplateAttributesSerializer extends JsonSerializer<TemplateAttributes> {
+        @Override
+        public void serialize(final TemplateAttributes value, final JsonGenerator jgen, final SerializerProvider provider) throws IOException {
+            jgen.writeStartArray();
+
+            for (TemplateAttribute attribute : value.getAttributes()) {
+                jgen.writeObject(attribute);
             }
 
             jgen.writeEndArray();
