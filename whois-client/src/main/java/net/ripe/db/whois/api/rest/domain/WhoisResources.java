@@ -40,14 +40,18 @@ public class WhoisResources {
     @JsonDeserialize(using = Json.WhoisObjectsDeserializer.class)
     @JsonSerialize(using = Json.WhoisObjectsSerializer.class)
     private WhoisObjects objects;
+    @JsonDeserialize(using = Json.SourcesDeserializer.class)
+    @JsonSerialize(using = Json.SourcesSerializer.class)
     @XmlElement(name = "sources")
-    private Sources sources;
+    private Sources sources = new Sources();
     @XmlElement
     private Link link;
     @XmlElement(name = "geolocation-attributes")
     private GeolocationAttributes geolocationAttributes;
+    @JsonDeserialize(using = Json.ErrorMessagesDeserializer.class)
+    @JsonSerialize(using = Json.ErrorMessagesSerializer.class)
     @XmlElement(name = "errormessages")
-    private ErrorMessages errorMessages;
+    private ErrorMessages errorMessages = new ErrorMessages();
     @XmlElement(name = "versions")
     private WhoisVersions versions;
     @XmlElement(name = "terms-and-conditions")

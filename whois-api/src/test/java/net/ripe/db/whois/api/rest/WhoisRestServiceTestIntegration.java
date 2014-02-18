@@ -1344,6 +1344,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "<tags/>" +
                 "</object>" +
                 "</objects>" +
+                "<sources/>" +
+                "<errormessages/>" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
                 "</whois-resources>",getPort())));
     }
@@ -1354,7 +1356,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_JSON), String.class);
 
-        assertThat(response, not(containsString("errormessages")));
+        assertThat(response, not(containsString("\"errormessage\"")));
         assertThat(response, is(String.format(
                 "{\n" +
                 "  \"link\" : {\n" +
@@ -1409,11 +1411,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    } ],\n" +
                 "    \"tags\" : [ ]\n" +
                 "  } ],\n" +
+                "  \"sources\" : [ ],\n" +
+                "  \"errormessages\" : [ ],\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
                 "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
                 "  }\n" +
-                "}",getPort())));
+                "}", getPort())));
     }
 
     @Test
@@ -1735,7 +1739,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
         assertThat(response, containsString("<attribute name=\"remarks\" value=\"updated\"/>"));
-        assertThat(response, not(containsString("errormessages")));
+        assertThat(response, containsString("<errormessages/>"));
     }
 
     @Test
@@ -1763,7 +1767,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON)
                 .put(Entity.entity(update, MediaType.APPLICATION_JSON), String.class);
 
-        System.out.println(response);
         assertThat(response, is(String.format(
                 "{\n" +
                 "  \"link\" : {\n" +
@@ -1828,11 +1831,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    } ],\n" +
                 "    \"tags\" : [ ]\n" +
                 "  } ],\n" +
+                "  \"sources\" : [ ],\n" +
+                "  \"errormessages\" : [ ],\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
                 "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
                 "  }\n" +
-                "}",getPort())));
+                "}", getPort())));
     }
 
     @Test
@@ -3465,7 +3470,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML))
                 .readEntity(String.class);
 
-        assertThat(response, not(containsString("errormessage")));
+        assertThat(response, containsString("<errormessages/>"));
     }
 
     @Test

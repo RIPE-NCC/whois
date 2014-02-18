@@ -1,5 +1,9 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import net.ripe.db.whois.api.rest.mapper.Json;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -15,6 +19,8 @@ public class TemplateResources {
     @XmlElement
     private Service service;
     @XmlElement
+    @JsonDeserialize(using = Json.TemplatesDeserializer.class)
+    @JsonSerialize(using = Json.TemplatesSerializer.class)
     private Templates templates;
 
     public Link getLink() {

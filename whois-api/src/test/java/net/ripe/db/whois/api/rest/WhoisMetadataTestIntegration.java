@@ -49,7 +49,6 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
     @Test
     public void template_json() throws Exception {
         final String response = request("whois/metadata/templates/peering-set.json", HttpURLConnection.HTTP_OK);
-
         assertThat(response, is("{\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
@@ -58,76 +57,72 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
                 "  \"service\" : {\n" +
                 "    \"name\" : \"getObjectTemplate\"\n" +
                 "  },\n" +
-                "  \"templates\" : {\n" +
-                "    \"template\" : [ {\n" +
-                "      \"type\" : \"peering-set\",\n" +
-                "      \"source\" : {\n" +
-                "        \"id\" : \"ripe\"\n" +
-                "      },\n" +
-                "      \"attributes\" : {\n" +
-                "        \"attribute\" : [ {\n" +
-                "          \"name\" : \"peering-set\",\n" +
-                "          \"requirement\" : \"MANDATORY\",\n" +
-                "          \"cardinality\" : \"SINGLE\",\n" +
-                "          \"keys\" : [ \"PRIMARY_KEY\", \"LOOKUP_KEY\" ]\n" +
-                "        }, {\n" +
-                "          \"name\" : \"descr\",\n" +
-                "          \"requirement\" : \"MANDATORY\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\"\n" +
-                "        }, {\n" +
-                "          \"name\" : \"peering\",\n" +
-                "          \"requirement\" : \"OPTIONAL\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\"\n" +
-                "        }, {\n" +
-                "          \"name\" : \"mp-peering\",\n" +
-                "          \"requirement\" : \"OPTIONAL\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\"\n" +
-                "        }, {\n" +
-                "          \"name\" : \"remarks\",\n" +
-                "          \"requirement\" : \"OPTIONAL\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\"\n" +
-                "        }, {\n" +
-                "          \"name\" : \"org\",\n" +
-                "          \"requirement\" : \"OPTIONAL\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\",\n" +
-                "          \"keys\" : [ \"INVERSE_KEY\" ]\n" +
-                "        }, {\n" +
-                "          \"name\" : \"tech-c\",\n" +
-                "          \"requirement\" : \"MANDATORY\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\",\n" +
-                "          \"keys\" : [ \"INVERSE_KEY\" ]\n" +
-                "        }, {\n" +
-                "          \"name\" : \"admin-c\",\n" +
-                "          \"requirement\" : \"MANDATORY\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\",\n" +
-                "          \"keys\" : [ \"INVERSE_KEY\" ]\n" +
-                "        }, {\n" +
-                "          \"name\" : \"notify\",\n" +
-                "          \"requirement\" : \"OPTIONAL\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\",\n" +
-                "          \"keys\" : [ \"INVERSE_KEY\" ]\n" +
-                "        }, {\n" +
-                "          \"name\" : \"mnt-by\",\n" +
-                "          \"requirement\" : \"MANDATORY\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\",\n" +
-                "          \"keys\" : [ \"INVERSE_KEY\" ]\n" +
-                "        }, {\n" +
-                "          \"name\" : \"mnt-lower\",\n" +
-                "          \"requirement\" : \"OPTIONAL\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\",\n" +
-                "          \"keys\" : [ \"INVERSE_KEY\" ]\n" +
-                "        }, {\n" +
-                "          \"name\" : \"changed\",\n" +
-                "          \"requirement\" : \"MANDATORY\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\"\n" +
-                "        }, {\n" +
-                "          \"name\" : \"source\",\n" +
-                "          \"requirement\" : \"MANDATORY\",\n" +
-                "          \"cardinality\" : \"SINGLE\"\n" +
-                "        } ]\n" +
-                "      }\n" +
+                "  \"templates\" : [ {\n" +
+                "    \"type\" : \"peering-set\",\n" +
+                "    \"source\" : {\n" +
+                "      \"id\" : \"ripe\"\n" +
+                "    },\n" +
+                "    \"attributes\" : [ {\n" +
+                "      \"name\" : \"peering-set\",\n" +
+                "      \"requirement\" : \"MANDATORY\",\n" +
+                "      \"cardinality\" : \"SINGLE\",\n" +
+                "      \"keys\" : [ \"PRIMARY_KEY\", \"LOOKUP_KEY\" ]\n" +
+                "    }, {\n" +
+                "      \"name\" : \"descr\",\n" +
+                "      \"requirement\" : \"MANDATORY\",\n" +
+                "      \"cardinality\" : \"MULTIPLE\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"peering\",\n" +
+                "      \"requirement\" : \"OPTIONAL\",\n" +
+                "      \"cardinality\" : \"MULTIPLE\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"mp-peering\",\n" +
+                "      \"requirement\" : \"OPTIONAL\",\n" +
+                "      \"cardinality\" : \"MULTIPLE\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"remarks\",\n" +
+                "      \"requirement\" : \"OPTIONAL\",\n" +
+                "      \"cardinality\" : \"MULTIPLE\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"org\",\n" +
+                "      \"requirement\" : \"OPTIONAL\",\n" +
+                "      \"cardinality\" : \"MULTIPLE\",\n" +
+                "      \"keys\" : [ \"INVERSE_KEY\" ]\n" +
+                "    }, {\n" +
+                "      \"name\" : \"tech-c\",\n" +
+                "      \"requirement\" : \"MANDATORY\",\n" +
+                "      \"cardinality\" : \"MULTIPLE\",\n" +
+                "      \"keys\" : [ \"INVERSE_KEY\" ]\n" +
+                "    }, {\n" +
+                "      \"name\" : \"admin-c\",\n" +
+                "      \"requirement\" : \"MANDATORY\",\n" +
+                "      \"cardinality\" : \"MULTIPLE\",\n" +
+                "      \"keys\" : [ \"INVERSE_KEY\" ]\n" +
+                "    }, {\n" +
+                "      \"name\" : \"notify\",\n" +
+                "      \"requirement\" : \"OPTIONAL\",\n" +
+                "      \"cardinality\" : \"MULTIPLE\",\n" +
+                "      \"keys\" : [ \"INVERSE_KEY\" ]\n" +
+                "    }, {\n" +
+                "      \"name\" : \"mnt-by\",\n" +
+                "      \"requirement\" : \"MANDATORY\",\n" +
+                "      \"cardinality\" : \"MULTIPLE\",\n" +
+                "      \"keys\" : [ \"INVERSE_KEY\" ]\n" +
+                "    }, {\n" +
+                "      \"name\" : \"mnt-lower\",\n" +
+                "      \"requirement\" : \"OPTIONAL\",\n" +
+                "      \"cardinality\" : \"MULTIPLE\",\n" +
+                "      \"keys\" : [ \"INVERSE_KEY\" ]\n" +
+                "    }, {\n" +
+                "      \"name\" : \"changed\",\n" +
+                "      \"requirement\" : \"MANDATORY\",\n" +
+                "      \"cardinality\" : \"MULTIPLE\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"source\",\n" +
+                "      \"requirement\" : \"MANDATORY\",\n" +
+                "      \"cardinality\" : \"SINGLE\"\n" +
                 "    } ]\n" +
-                "  }\n" +
+                "  } ]\n" +
                 "}"));
     }
 
@@ -149,39 +144,37 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
     @Test
     public void sources_xml() throws Exception {
         final String response = request("whois/metadata/sources.xml", HttpURLConnection.HTTP_OK);
-
-        assertThat(response, is(
+        assertThat(response, is("" +
                 "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
-                        "  <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/metadata/sources\" />\n" +
-                        "  <service name=\"getSupportedDataSources\" />\n" +
-                        "  <sources>\n" +
-                        "    <source id=\"test\" />\n" +
-                        "    <source id=\"test-grs\" />\n" +
-                        "  </sources>\n" +
-                        "</whois-resources>"));
+                "  <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/metadata/sources\" />\n" +
+                "  <service name=\"getSupportedDataSources\" />\n" +
+                "  <sources>\n" +
+                "    <source id=\"test\" />\n" +
+                "    <source id=\"test-grs\" />\n" +
+                "  </sources>\n" +
+                "  <errormessages />\n" +
+                "</whois-resources>"));
     }
 
     @Test
     public void sources_json() throws Exception {
         final String response = request("whois/metadata/sources.json", HttpURLConnection.HTTP_OK);
-
-        assertThat(response, is(
+        assertThat(response, is("" +
                 "{\n" +
-                        "  \"link\" : {\n" +
-                        "    \"type\" : \"locator\",\n" +
-                        "    \"href\" : \"http://rest.db.ripe.net/metadata/sources\"\n" +
-                        "  },\n" +
-                        "  \"service\" : {\n" +
-                        "    \"name\" : \"getSupportedDataSources\"\n" +
-                        "  },\n" +
-                        "  \"sources\" : {\n" +
-                        "    \"source\" : [ {\n" +
-                        "      \"id\" : \"test\"\n" +
-                        "    }, {\n" +
-                        "      \"id\" : \"test-grs\"\n" +
-                        "    } ]\n" +
-                        "  }\n" +
-                        "}"));
+                "  \"link\" : {\n" +
+                "    \"type\" : \"locator\",\n" +
+                "    \"href\" : \"http://rest.db.ripe.net/metadata/sources\"\n" +
+                "  },\n" +
+                "  \"service\" : {\n" +
+                "    \"name\" : \"getSupportedDataSources\"\n" +
+                "  },\n" +
+                "  \"sources\" : [ {\n" +
+                "    \"id\" : \"test\"\n" +
+                "  }, {\n" +
+                "    \"id\" : \"test-grs\"\n" +
+                "  } ],\n" +
+                "  \"errormessages\" : [ ]\n" +
+                "}"));
     }
 
     // helper methods
