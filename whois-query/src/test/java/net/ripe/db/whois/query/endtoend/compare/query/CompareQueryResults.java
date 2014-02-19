@@ -1,23 +1,20 @@
-package net.ripe.db.whois.query.endtoend;
+package net.ripe.db.whois.query.endtoend.compare.query;
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import difflib.Chunk;
 import difflib.Delta;
 import difflib.DiffUtils;
 import difflib.Patch;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
+import net.ripe.db.whois.query.endtoend.compare.CompareResults;
+import net.ripe.db.whois.query.endtoend.compare.ComparisonExecutor;
+import net.ripe.db.whois.query.endtoend.compare.QueryReader;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -28,9 +25,13 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static net.ripe.db.whois.query.endtoend.compare.ComparisonPrinter.writeDifferences;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
-public class CompareQueryResults {
+public class CompareQueryResults implements CompareResults {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompareQueryResults.class);
     private static final Pattern VERSION_PATTERN = Pattern.compile("(?m)^% whois-server-(.*)$");
     private static final Pattern SERIAL_PATTERN = Pattern.compile("(?m)^\\w+:\\d+:X:\\d+-(\\d+)$");
@@ -44,8 +45,6 @@ public class CompareQueryResults {
     private final File targetDir;
     private final int logEntries;
 
-    private static int filenameSuffix = 1;
-
     public CompareQueryResults(final QueryExecutorConfiguration config1, final QueryExecutorConfiguration config2, final QueryReader queryReader, final File targetDir, final int logEntries) throws UnknownHostException {
         this.config1 = config1;
         this.config2 = config2;
@@ -57,6 +56,7 @@ public class CompareQueryResults {
         this.logEntries = logEntries;
     }
 
+    @Override
     public void runCompareTest() throws Exception {
         LOGGER.info("Diffs saved in: {}", targetDir.getAbsolutePath());
         assertFalse("Dir should not exist: " + targetDir.getAbsolutePath(), targetDir.exists());
@@ -89,14 +89,10 @@ public class CompareQueryResults {
             final List<ResponseObject> queryExecutor1Result = queryExecutor1Future.get();
             final List<ResponseObject> queryExecutor2Result = queryExecutor2Future.get();
 
-            final KnownDifferencesPredicate knownDifferencesPredicate = new KnownDifferencesPredicate();
-            final List<ResponseObject> responseObjects1 = Lists.newArrayList(Iterables.filter(queryExecutor1Result, knownDifferencesPredicate));
-            final List<ResponseObject> responseObjects2 = Lists.newArrayList(Iterables.filter(queryExecutor2Result, knownDifferencesPredicate));
-
-            final Patch patch = DiffUtils.diff(responseObjects1, responseObjects2);
+            final Patch patch = DiffUtils.diff(queryExecutor1Result, queryExecutor2Result);
             final List<Delta> deltas = patch.getDeltas();
             if (!deltas.isEmpty()) {
-                writeDifferences(queryString, queryExecutor1Result, queryExecutor2Result, deltas);
+                writeDifferences(targetDir, queryString, queryExecutor1Result, queryExecutor2Result, deltas);
                 failedQueries++;
                 LOGGER.error("Query '{}' has differences", queryString);
             }
@@ -105,72 +101,14 @@ public class CompareQueryResults {
         assertThat("Number of failed queries", failedQueries, Matchers.is(0));
     }
 
-    private Future<List<ResponseObject>> executeQuery(final QueryExecutor queryExecutor, final String queryString) {
+    @Override
+    public Future<List<ResponseObject>> executeQuery(final ComparisonExecutor queryExecutor, final String queryString) {
         return executorService.submit(new Callable<List<ResponseObject>>() {
             @Override
             public List<ResponseObject> call() throws Exception {
-                return queryExecutor.getWhoisResponse(queryString);
+                return queryExecutor.getResponse(queryString);
             }
         });
-    }
-
-    private void writeDifferences(final String query, final List<ResponseObject> responseObjects1, final List<ResponseObject> responseObjects2, final List<Delta> deltas) throws IOException {
-        final String filenameBase = String.format("%d_%%s.txt", filenameSuffix++);
-
-        writeObjects(query, new File(targetDir, String.format(filenameBase, "1")), responseObjects1);
-        writeObjects(query, new File(targetDir, String.format(filenameBase, "2")), responseObjects2);
-        writeDeltas(query, new File(targetDir, String.format(filenameBase, "DELTA")), deltas);
-    }
-
-    private void writeObjects(final String query, final File file, final List<ResponseObject> result) throws IOException {
-        BufferedOutputStream os = null;
-
-        try {
-            os = new BufferedOutputStream(new FileOutputStream(file));
-            os.write(query.getBytes(Charsets.UTF_8));
-            os.write("\n\n".getBytes(Charsets.UTF_8));
-
-            for (final ResponseObject responseObject : result) {
-                responseObject.writeTo(os);
-                os.write("\n".getBytes(Charsets.UTF_8));
-            }
-        } finally {
-            if (os != null) {
-                os.close();
-            }
-        }
-    }
-
-    private void writeDeltas(final String query, final File file, final List<Delta> deltas) throws IOException {
-        LOGGER.info("Creating {}", file.getAbsolutePath());
-
-        BufferedOutputStream os = null;
-
-        try {
-            os = new BufferedOutputStream(new FileOutputStream(file));
-            os.write(query.getBytes(Charsets.UTF_8));
-            os.write("\n\n".getBytes(Charsets.UTF_8));
-
-            for (final Delta delta : deltas) {
-                final Chunk original = delta.getOriginal();
-                final Chunk revised = delta.getRevised();
-
-                os.write(String.format("\n\n" +
-                        "---------- 1 (position %d, size %d) ----------\n\n%s\n\n" +
-                        "---------- 2 (position %d, size %d) ----------\n\n%s\n\n",
-                        original.getPosition(),
-                        original.size(),
-                        original.getLines(),
-                        revised.getPosition(),
-                        revised.size(),
-                        revised.getLines()
-                ).getBytes(Charsets.UTF_8));
-            }
-        } finally {
-            if (os != null) {
-                os.close();
-            }
-        }
     }
 
     private void logVersion(final QueryExecutorConfiguration configuration) throws IOException {

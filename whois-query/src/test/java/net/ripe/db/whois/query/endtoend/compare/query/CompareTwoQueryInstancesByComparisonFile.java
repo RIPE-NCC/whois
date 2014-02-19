@@ -1,7 +1,8 @@
-package net.ripe.db.whois.query.endtoend;
+package net.ripe.db.whois.query.endtoend.compare.query;
 
 import net.ripe.db.whois.common.ManualTest;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
+import net.ripe.db.whois.query.endtoend.compare.QueryReader;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.core.io.ClassPathResource;
@@ -18,7 +19,7 @@ public class CompareTwoQueryInstancesByComparisonFile {
                 QueryExecutorConfiguration.PRE2,
                 new QueryReader(new ClassPathResource("comparison_queries")) {
                     @Override
-                    String getQuery(final String line) {
+                    protected String getQuery(final String line) {
                         return line;
                     }
                 },

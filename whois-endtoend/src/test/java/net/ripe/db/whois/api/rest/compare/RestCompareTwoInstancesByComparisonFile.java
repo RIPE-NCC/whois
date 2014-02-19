@@ -1,6 +1,7 @@
-package net.ripe.db.whois.query.endtoend;
+package net.ripe.db.whois.api.rest.compare;
 
 import net.ripe.db.whois.common.ManualTest;
+import net.ripe.db.whois.query.endtoend.compare.QueryReader;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.core.io.ClassPathResource;
@@ -17,7 +18,7 @@ public class RestCompareTwoInstancesByComparisonFile {
                 RestExecutorConfiguration.PRE2,
                 new QueryReader(new ClassPathResource("comparison_rest")) {
                     @Override
-                    String getQuery(final String line) {
+                    protected String getQuery(final String line) {
                         return line;
                     }
                 },

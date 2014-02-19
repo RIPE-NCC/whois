@@ -1,8 +1,9 @@
-package net.ripe.db.whois.query.endtoend;
+package net.ripe.db.whois.query.endtoend.compare.query;
 
 import net.ripe.db.whois.common.ManualTest;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 import net.ripe.db.whois.common.support.QueryLogEntry;
+import net.ripe.db.whois.query.endtoend.compare.QueryReader;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -21,7 +22,7 @@ public class CompareTwoQueryInstancesByQueryLog {
                 QueryExecutorConfiguration.PRE2,
                 new QueryReader(new FileSystemResource("/export/opt/qrylog")) {
                     @Override
-                    String getQuery(final String line) {
+                    protected String getQuery(final String line) {
                         return QueryLogEntry.parse(line).getQueryString();
                     }
                 },

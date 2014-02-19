@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.endtoend;
+package net.ripe.db.whois.query.endtoend.compare;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 
-abstract class QueryReader {
+public abstract class QueryReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryReader.class);
 
     private final Resource queryResource;
@@ -71,5 +71,5 @@ abstract class QueryReader {
         }
     }
 
-    abstract String getQuery(String line);
+    protected abstract String getQuery(String line);
 }
