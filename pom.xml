@@ -765,6 +765,7 @@
                 <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>**/*CompareTwoQueryInstances*</test.files.integration>
+                <test.files.integration>**/*RestCompareTwoInstancesByComparisonFile*</test.files.integration>
             </properties>
         </profile>
         <profile>
