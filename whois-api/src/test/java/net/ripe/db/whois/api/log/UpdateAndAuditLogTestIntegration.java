@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
-public class UpdateLogTestIntegration extends AbstractIntegrationTest {
+public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:        OWNER-MNT\n" +
