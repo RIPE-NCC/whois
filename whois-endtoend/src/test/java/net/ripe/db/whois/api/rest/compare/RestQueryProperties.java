@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.endtoend;
+package net.ripe.db.whois.api.rest.compare;
 
 import javax.ws.rs.core.MediaType;
 

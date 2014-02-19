@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.endtoend;
+package net.ripe.db.whois.query.endtoend.compare.query;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.support.ByteArrayContains;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 import net.ripe.db.whois.query.domain.MessageObject;
+import net.ripe.db.whois.query.endtoend.compare.ComparisonExecutor;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class QueryExecutor {
+public class QueryExecutor implements ComparisonExecutor {
     private static final byte[] DOUBLE_NEWLINE = new byte[]{'\n', '\n'};
     private static final byte[] STUPID_NEWLINE = new byte[]{'\r'};
 
@@ -28,7 +29,8 @@ public class QueryExecutor {
         this.configuration = configuration;
     }
 
-    public List<ResponseObject> getWhoisResponse(final String query) throws IOException {
+    @Override
+    public List<ResponseObject> getResponse(final String query) throws IOException {
         final DummyWhoisClient client = new DummyWhoisClient(configuration.getHost(), configuration.getQueryPort());
         final String response;
 
