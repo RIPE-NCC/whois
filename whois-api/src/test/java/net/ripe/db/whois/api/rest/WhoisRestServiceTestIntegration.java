@@ -1219,14 +1219,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test(expected = BadRequestException.class)
-    public void create_bad_imput_empty_objects_element() {
+    public void create_bad_input_empty_objects_element() {
             RestTest.target(getPort(), "whois/test/person?password=test")
                     .request()
                     .post(Entity.entity("<whois-resources>\n<objects/>\n</whois-resources>", MediaType.APPLICATION_XML), String.class);
     }
 
     @Test(expected = BadRequestException.class)
-    public void create_bad_imput_no_objects_element() {
+    public void create_bad_input_no_objects_element() {
             RestTest.target(getPort(), "whois/test/person?password=test")
                     .request()
                     .post(Entity.entity("<whois-resources/>", MediaType.APPLICATION_XML), String.class);
@@ -1506,6 +1506,23 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (ClientErrorException e) {
             // expected
+        }
+    }
+
+    @Ignore("TODO: ok response on error")
+    @Test
+    public void create_self_referencing_maintainer_password_auth_only_with_invalid_sso_username() {
+        final RpslObject updatedObject = new RpslObjectBuilder(PASSWORD_ONLY_MNT)
+                .addAttribute(new RpslAttribute(AttributeType.AUTH, "SSO in@valid.net")).get();
+
+        try {
+            RestTest.target(getPort(), "whois/test/mntner?password=test")
+                    .request()
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML))
+                    .readEntity(WhoisResources.class);
+            fail();
+        } catch (ClientErrorException e) {
+            assertOnlyErrorMessage(e, "Error", "No RIPE NCC Access Account found for %s", "in@valid.net");
         }
     }
 
