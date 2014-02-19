@@ -73,11 +73,54 @@
 #-q version 0/0
 
 # Help query
--t person HELP
+help
 
-# Template and verbose queries
+# template per object type
+-t as-block
+-t as-set
+-t aut-num
+-t domain
+-t filter-set
+-t inet6num
 -t inetnum
+-t inet-rtr
+-t irt
+-t key-cert
+-t mntner
+-t organisation
+-t peering-set
+-t person
+-t poem
+-t poetic-form
+-t role
+-t route
+-t route6
+-t route-set
+-t rtr-set
+
+# verbose template per object type
+-v as-block
+-v as-set
+-v aut-num
+-v domain
+-v filter-set
 -v inet6num
+-v inetnum
+-v inet-rtr
+-v irt
+-v key-cert
+-v mntner
+-v organisation
+-v peering-set
+-v person
+-v poem
+-v poetic-form
+-v role
+-v route
+-v route6
+-v route-set
+-v rtr-set
+
 -t person,role
 -t person, role
  -t person dw-ripe
