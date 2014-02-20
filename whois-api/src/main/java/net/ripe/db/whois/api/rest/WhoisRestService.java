@@ -293,8 +293,6 @@ public class WhoisRestService {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.invalidSource(source))).build());
         }
 
-        final boolean unfiltered = isQueryParamSet(request.getQueryString(), "unfiltered");
-
         QueryBuilder queryBuilder = new QueryBuilder().
                 addFlag(QueryFlag.EXACT).
                 addFlag(QueryFlag.NO_GROUPING).
@@ -303,7 +301,7 @@ public class WhoisRestService {
                 addCommaList(QueryFlag.SOURCES, source).
                 addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName());
 
-        if (unfiltered) {
+        if (isQueryParamSet(request.getQueryString(), "unfiltered")) {
             queryBuilder.addFlag(QueryFlag.NO_FILTERING);
         }
 
