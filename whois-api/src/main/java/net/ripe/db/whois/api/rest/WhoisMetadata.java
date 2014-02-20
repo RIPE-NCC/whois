@@ -44,18 +44,18 @@ public class WhoisMetadata {
     private final Map<String, Template> ATTRIBUTE_TEMPLATES;
 
     @Autowired
-    public WhoisMetadata(SourceContext sourceContext) {
+    public WhoisMetadata(final SourceContext sourceContext) {
         SOURCES = new ArrayList<>();
         for (CIString source: sourceContext.getAllSourceNames()) {
             SOURCES.add(new Source(source.toLowerCase()));
         }
 
-        Source ripeSource = new Source("ripe");
+        final Source ripeSource = new Source("ripe");
 
         ATTRIBUTE_TEMPLATES = Maps.newHashMap();
         for (ObjectType objectType : ObjectType.values()) {
-            ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
-            List<TemplateAttribute> templateAttributes = Lists.newArrayList();
+            final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
+            final List<TemplateAttribute> templateAttributes = Lists.newArrayList();
 
             for (AttributeTemplate attributeTemplate : objectTemplate.getAttributeTemplates()) {
 
@@ -67,7 +67,7 @@ public class WhoisMetadata {
 
             }
 
-            Template template = new Template()
+            final Template template = new Template()
                     .setSource(ripeSource)
                     .setType(objectType.getName())
                     .setAttributes(templateAttributes);
@@ -76,7 +76,6 @@ public class WhoisMetadata {
         }
     }
 
-    // TODO: [AH] is not formatted
     /**
      * @return Returns all available sources.
      */
