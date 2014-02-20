@@ -264,14 +264,13 @@ public class RestClientTarget {
     public StreamingRestClient streamingSearch() {
         URLConnection urlConnection = null;
         try {
-            WebTarget webTarget = client.target(baseUrl).path("search");
+            final WebTarget webTarget = client.target(baseUrl).path("search");
             urlConnection = setParams(webTarget).getUri().toURL().openConnection();
 
             setHeaders(urlConnection);
             setCookies(urlConnection);
 
-            final InputStream inputStream = urlConnection.getInputStream();
-            return new StreamingRestClient(inputStream);
+            return new StreamingRestClient(urlConnection.getInputStream());
         } catch (IOException e) {
             try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
                 final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);

@@ -45,8 +45,6 @@ import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -109,8 +107,6 @@ import static net.ripe.db.whois.query.QueryFlag.VERSION;
 @Component
 @Path("/")
 public class WhoisRestService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRestService.class);
-
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
 
     public static final String SERVICE_SEARCH = "search";
@@ -437,7 +433,7 @@ public class WhoisRestService {
         final Set<QueryFlag> separateFlags = splitInputFlags(request, flags);
         checkForInvalidFlags(request, separateFlags);
 
-        QueryBuilder queryBuilder = new QueryBuilder();
+        final QueryBuilder queryBuilder = new QueryBuilder();
         queryBuilder.addFlag(QueryFlag.SHOW_TAG_INFO);
         queryBuilder.addCommaList(QueryFlag.SOURCES, sources);
         queryBuilder.addCommaList(QueryFlag.SELECT_TYPES, types);
@@ -459,7 +455,7 @@ public class WhoisRestService {
                 new Sources(sources),
                 null);
 
-        Service service = new Service(SERVICE_SEARCH);
+        final Service service = new Service(SERVICE_SEARCH);
 
         return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service);
     }
