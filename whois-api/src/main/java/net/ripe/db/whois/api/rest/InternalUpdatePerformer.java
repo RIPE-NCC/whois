@@ -88,7 +88,7 @@ public class InternalUpdatePerformer {
         updateRequestHandler.handle(updateRequest, updateContext);
         final RpslObject responseObject = updateContext.getPreparedUpdate(update).getUpdatedObject();
 
-        Response.ResponseBuilder responseBuilder;
+        final Response.ResponseBuilder responseBuilder;
         UpdateStatus status = updateContext.getStatus(update);
         if (status == UpdateStatus.SUCCESS) {
             responseBuilder = Response.status(Response.Status.OK);
