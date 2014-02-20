@@ -63,6 +63,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -567,7 +568,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_unfiltered() throws Exception {
+    public void lookup_unfiltered_param() throws Exception {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
         final String unfiltered = RestTest.target(getPort(), "whois/test/person/PP1-TEST?unfiltered").request().get(String.class);
@@ -590,7 +591,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_without_password_unfiltered() {
+    public void lookup_mntner_without_password_and_unfiltered_param_is_filtered() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?unfiltered").request().get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -610,7 +611,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_correct_password() {
+    public void lookup_mntner_correct_password_and_unfiltered_param_is_unfiltered() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test&unfiltered").request().get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -630,7 +631,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_correct_password_filtered() {
+    public void lookup_mntner_correct_password_without_unfiltered_param_is_filtered() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test").request().get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -648,7 +649,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_incorrect_password() {
+    public void lookup_mntner_incorrect_password_without_unfiltered_param_is_filtered() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=incorrect").request().get(WhoisResources.class);
 
         //TODO [TP] there should be an error message in the response for the incorrect password
@@ -667,7 +668,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_multiple_passwords() {
+    public void lookup_mntner_multiple_passwords_and_unfiltered_param_is_unfiltered() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=incorrect&password=test&unfiltered").request().get(WhoisResources.class);
 
         //TODO [TP] there should be an error message in the response for the incorrect password
@@ -688,7 +689,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_multiple_auth_attributes() {
+    public void lookup_mntner_multiple_auth_attributes_and_unfiltered_param_is_unfiltered() {
         databaseHelper.addObject(
                 "mntner:      AUTH-MNT\n" +
                 "descr:       Maintainer\n" +
@@ -722,43 +723,79 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mainainer_with_crowd_token_authentication_successful() {
+    public void lookup_mntner_with_valid_crowd_token_without_unfiltered_param_is_filtered() {
         final WhoisResources whoisResources =
                 RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
                 .request(MediaType.APPLICATION_XML)
                 .cookie("crowd.token_key", "valid-token")
                 .get(WhoisResources.class);
 
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(),
-                hasItem(new Attribute(AttributeType.AUTH.getName(), "SSO person@net.net")));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), hasItems(
+                new Attribute("auth", "MD5-PW", "Filtered", null, null),
+                new Attribute("auth", "SSO", "Filtered", null, null),
+                new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
-    @Ignore("TODO: [ES] Internal Server Error on SSO account deactivated")
     @Test
-    public void lookup_maintainer_with_crowd_token_authentication_unsuccessful() {
+    public void lookup_mntner_with_valid_crowd_token_and_unfiltered_param_is_unfiltered() {
+        final WhoisResources whoisResources =
+                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?unfiltered")
+                .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "valid-token")
+                .get(WhoisResources.class);
+
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), hasItems(
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
+                new Attribute("auth", "SSO person@net.net"),
+                new Attribute("source", "TEST")));
+    }
+
+    @Test
+    public void lookup_mntner_with_inactive_crowd_token_without_unfiltered_param_is_filtered() {
         final WhoisResources whoisResources =
                 RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
                 .request(MediaType.APPLICATION_XML)
                 .cookie("crowd.token_key", "inactive-correctuser-token")
                 .get(WhoisResources.class);
 
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(),
-                hasItem(new Attribute(AttributeType.AUTH.getName(), "SSO", "Filtered", null, null)));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), hasItems(
+                new Attribute("auth", "MD5-PW", "Filtered", null, null),
+                new Attribute("auth", "SSO", "Filtered", null, null),
+                new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
-    @Ignore("TODO")
+    @Ignore("TODO: [ES] inactive sso token can be used for authentication")
     @Test
-    public void lookup_maintainer_authenticate_using_sso_credential_before_password() {
+    public void lookup_mntner_with_inactive_crowd_token_and_unfiltered_param_is_filtered() {
+        final WhoisResources whoisResources =
+                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?unfiltered")
+                .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "inactive-correctuser-token")
+                .get(WhoisResources.class);
+
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), hasItems(
+                new Attribute("auth", "MD5-PW", "Filtered", null, null),
+                new Attribute("auth", "SSO", "Filtered", null, null),
+                new Attribute("source", "TEST", "Filtered", null, null)));
+    }
+
+//    @Ignore("TODO")
+//    @Test
+//    public void lookup_mntner_authenticate_using_sso_credential_before_password() {
 //        RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test")
 //                .request(MediaType.APPLICATION_XML)
 //                .cookie("crowd.token_key", "valid-token")
 //                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(OWNER_MNT)), MediaType.APPLICATION_XML))        // TODO: update, not lookup
 //                .readEntity(String.class);
-        //TODO assert that log shows: [AuthenticationModule] authenticating OWNER-MNT with credential SsoCredentialValidator
-    }
+//        //TODO assert that log shows: [AuthenticationModule] authenticating OWNER-MNT with credential SsoCredentialValidator
+//    }
 
     @Test
-    public void lookup_irt_correct_password() {
+    public void lookup_irt_correct_password_and_unfiltered_param_is_unfiltered() {
         databaseHelper.addObject(TEST_IRT);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/irt/irt-test?password=test&unfiltered").request().get(WhoisResources.class);
@@ -780,7 +817,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_irt_incorrect_password() {
+    public void lookup_irt_incorrect_password_and_unfiltered_param_is_filtered() {
         databaseHelper.addObject(TEST_IRT);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/irt/irt-test?password=incorrect").request().get(WhoisResources.class);
@@ -797,21 +834,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW", "Filtered", null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)));
-    }
-
-    @Test
-    public void lookup_sso_auth_filtered() {
-        databaseHelper.addObject("" +
-                "mntner: TEST-MNT\n" +
-                "mnt-by:TEST-MNT\n" +
-                "auth: SSO test@ripe.net\n" +
-                "source: TEST");
-
-        final String response = RestTest.target(getPort(), "whois/test/mntner/TEST-MNT")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
-
-        assertThat(response, containsString("<attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\" />"));
     }
 
     @Test
