@@ -2,20 +2,19 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:oxm="http://www.springframework.org/schema/oxm"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                         http://www.springframework.org/schema/beans/spring-beans.xsd
                         http://www.springframework.org/schema/context
-                        http://www.springframework.org/schema/context/spring-context.xsd">
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/oxm
+                        http://www.springframework.org/schema/oxm/spring-oxm.xsd">
 
     <import resource="applicationContext-query.xml"/>
     <import resource="applicationContext-update.xml"/>
     <context:component-scan base-package="net.ripe.db.whois.api"/>
 
-    <bean class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
-        <property name="classesToBeBound">
-            <list>
-                <value>net.ripe.db.whois.api.freetext.SearchResponse</value>
-            </list>
-        </property>
-    </bean>
+    <oxm:jaxb2-marshaller id="marshaller">
+        <oxm:class-to-be-bound name="net.ripe.db.whois.api.freetext.SearchResponse"/>
+    </oxm:jaxb2-marshaller>
 </beans>
