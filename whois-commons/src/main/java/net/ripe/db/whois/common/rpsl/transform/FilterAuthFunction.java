@@ -60,7 +60,6 @@ public class FilterAuthFunction implements FilterFunction {
     public FilterAuthFunction() {
     }
 
-    //TODO: [ES] @throws RuntimeException if SSO server is down and SSO lookup is needed
     @Override
     public RpslObject apply(final RpslObject rpslObject) {
         final List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
