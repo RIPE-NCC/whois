@@ -23,6 +23,7 @@ import java.util.List;
 // NB: we can't use the atlassian crowd-rest-client as uuid is a ripe-specific crowd plug-in
 @Component
 public class CrowdClient {
+    private static final String CROWD_SESSION_PATH = "rest/usermanagement/1/session";
 
     private String restUrl;
     private Client client;
@@ -46,12 +47,12 @@ public class CrowdClient {
         this.client = client;
     }
 
-    public String login(String username, String password) throws CrowdClientException {
+    public String login(final String username, final String password) throws CrowdClientException {
         final CrowdAuthenticationContext crowdAuth = new CrowdAuthenticationContext(username, password);
 
         try {
             final CrowdSession session = client.target(restUrl)
-                    .path("rest/usermanagement/1/session")
+                    .path(CROWD_SESSION_PATH)
                     .request()
                     .post(Entity.entity(crowdAuth, MediaType.APPLICATION_XML), CrowdSession.class);
             return session.getToken();
@@ -60,10 +61,10 @@ public class CrowdClient {
         }
     }
 
-    public void logout(String username) throws CrowdClientException {
+    public void logout(final String username) throws CrowdClientException {
         try {
             client.target(restUrl)
-                    .path("rest/usermanagement/1/session")
+                    .path(CROWD_SESSION_PATH)
                     .queryParam("username", username)
                     .request()
                     .delete();
@@ -72,10 +73,10 @@ public class CrowdClient {
         }
     }
 
-    public void invalidateToken(String token) throws CrowdClientException {
+    public void invalidateToken(final String token) throws CrowdClientException {
         try {
             client.target(restUrl)
-                    .path("rest/usermanagement/1/session")
+                    .path(CROWD_SESSION_PATH)
                     .path(token)
                     .request()
                     .delete();
@@ -117,7 +118,7 @@ public class CrowdClient {
     public UserSession getUserSession(final String token) throws CrowdClientException {
         try {
             CrowdUser user = client.target(restUrl)
-                    .path("rest/usermanagement/1/session")
+                    .path(CROWD_SESSION_PATH)
                     .path(token)
                     .request()
                     .get(CrowdSession.class)
@@ -141,7 +142,7 @@ public class CrowdClient {
             // required no-arg constructor
         }
 
-        public CrowdResponse(List<CrowdAttribute> attributes) {
+        public CrowdResponse(final List<CrowdAttribute> attributes) {
             this.attributes = attributes;
         }
 
@@ -172,7 +173,7 @@ public class CrowdClient {
             // required no-arg constructor
         }
 
-        public CrowdAttribute(List<CrowdValue> values, String name) {
+        public CrowdAttribute(final List<CrowdValue> values, final String name) {
             this.values = values;
             this.name = name;
         }
@@ -195,7 +196,7 @@ public class CrowdClient {
             // required no-arg constructor
         }
 
-        public CrowdValue(String value) {
+        public CrowdValue(final String value) {
             this.value = value;
         }
 
@@ -215,7 +216,7 @@ public class CrowdClient {
             // required no-arg constructor
         }
 
-        public CrowdUser(String name, Boolean active) {
+        public CrowdUser(final String name, final Boolean active) {
             this.name = name;
             this.active = active;
         }
@@ -240,7 +241,7 @@ public class CrowdClient {
             // required no-arg constructor
         }
 
-        public CrowdSession(CrowdUser user, String token) {
+        public CrowdSession(final CrowdUser user, final String token) {
             this.user = user;
             this.token = token;
         }
@@ -265,7 +266,7 @@ public class CrowdClient {
             // required no-arg constructor
         }
 
-        CrowdAuthenticationContext(String username, String password) {
+        CrowdAuthenticationContext(final String username, final String password) {
             this.username = username;
             this.password = password;
         }
@@ -290,7 +291,7 @@ public class CrowdClient {
             // required no-arg constructor
         }
 
-        public CrowdError(String reason, String message) {
+        public CrowdError(final String reason, final String message) {
             this.reason = reason;
             this.message = message;
         }

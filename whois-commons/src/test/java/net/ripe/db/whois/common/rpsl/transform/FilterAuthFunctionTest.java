@@ -160,6 +160,27 @@ public class FilterAuthFunctionTest {
     }
 
     @Test
+    public void crowd_client_exception_server_down() throws Exception {
+        final UserSession userSession = new UserSession("user@host.org", true);
+        userSession.setUuid("T2hOz8tlmka5lxoZQxzC1Q00");
+        when(ssoTokenTranslator.translateSsoToken("token")).thenThrow(CrowdClientException.class);
+        when(crowdClient.getUsername("T2hOz8tlmka5lxoZQxzC1Q00")).thenThrow(CrowdClientException.class);
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
+
+        final RpslObject result = subject.apply(
+                RpslObject.parse("" +
+                        "mntner: SSO-MNT\n" +
+                        "auth: SSO T2hOz8tlmka5lxoZQxzC1Q00\n" +
+                        "source: RIPE"));
+
+        assertThat(result.toString(), is(
+                "mntner:         SSO-MNT\n" +
+                "auth:           SSO # Filtered\n" +
+                "source:         RIPE # Filtered\n"));
+
+    }
+
+    @Test
     public void sso_token_translator_exception() throws Exception {
         when(ssoTokenTranslator.translateSsoToken(any(String.class))).thenThrow(CrowdClientException.class);
         subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
