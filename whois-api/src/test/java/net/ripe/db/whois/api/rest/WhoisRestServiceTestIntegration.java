@@ -391,12 +391,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(whoisResources, not(containsString("errormessages")));
-        assertThat(whoisResources, containsString("{\"objects\":[ {\n  \"type\" : \"person\","));
-        assertThat(whoisResources, containsString("\"tags\" : [ ]"));
+        assertThat(whoisResources, containsString("{\"objects\":{\"object\":[ {\n  \"type\" : \"person\","));
+        assertThat(whoisResources, containsString("\"tags\" : { }"));
         assertThat(whoisResources, containsString("" +
                 "\"terms-and-conditions\" : {\n" +
-                "  \"type\" : \"locator\",\n" +
-                "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "\"type\" : \"locator\",\n" +
+                "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
                 "}"));
     }
 
@@ -860,71 +860,75 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .get(String.class);
 
-        System.out.println(result);
         assertThat(result, is(
-                "{\"objects\":[ {\n" +
-                "  \"type\" : \"mntner\",\n" +
-                "  \"link\" : {\n" +
-                "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "  },\n" +
-                "  \"source\" : {\n" +
-                "    \"id\" : \"test\"\n" +
-                "  },\n" +
-                "  \"primary-key\" : [ {\n" +
-                "    \"name\" : \"mntner\",\n" +
-                "    \"value\" : \"OWNER-MNT\"\n" +
-                "  } ],\n" +
-                "  \"attributes\" : [ {\n" +
-                "    \"name\" : \"mntner\",\n" +
-                "    \"value\" : \"OWNER-MNT\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"descr\",\n" +
-                "    \"value\" : \"Owner Maintainer\"\n" +
-                "  }, {\n" +
-                "    \"link\" : {\n" +
-                "      \"type\" : \"locator\",\n" +
-                "      \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
-                "    },\n" +
-                "    \"name\" : \"admin-c\",\n" +
-                "    \"value\" : \"TP1-TEST\",\n" +
-                "    \"referenced-type\" : \"person\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"auth\",\n" +
-                "    \"value\" : \"MD5-PW\",\n" +
-                "    \"comment\" : \"Filtered\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"auth\",\n" +
-                "    \"value\" : \"SSO\",\n" +
-                "    \"comment\" : \"Filtered\"\n" +
-                "  }, {\n" +
-                "    \"link\" : {\n" +
-                "      \"type\" : \"locator\",\n" +
-                "      \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "    },\n" +
-                "    \"name\" : \"mnt-by\",\n" +
-                "    \"value\" : \"OWNER-MNT\",\n" +
-                "    \"referenced-type\" : \"mntner\"\n" +
-                "  }, {\n" +
-                "    \"link\" : {\n" +
-                "      \"type\" : \"locator\",\n" +
-                "      \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "    },\n" +
-                "    \"name\" : \"referral-by\",\n" +
-                "    \"value\" : \"OWNER-MNT\",\n" +
-                "    \"referenced-type\" : \"mntner\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"source\",\n" +
-                "    \"value\" : \"TEST\",\n" +
-                "    \"comment\" : \"Filtered\"\n" +
-                "  } ],\n" +
-                "  \"tags\" : [ ]\n" +
-                "} ],\n" +
-                "\"terms-and-conditions\" : {\n" +
-                "  \"type\" : \"locator\",\n" +
-                "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
-                "}\n" +
-                "}"
+                "{\"objects\":{\"object\":[ {\n" +
+                        "  \"type\" : \"mntner\",\n" +
+                        "  \"link\" : {\n" +
+                        "    \"type\" : \"locator\",\n" +
+                        "    \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "  },\n" +
+                        "  \"source\" : {\n" +
+                        "    \"id\" : \"test\"\n" +
+                        "  },\n" +
+                        "  \"primary-key\" : {\n" +
+                        "    \"attribute\" : [ {\n" +
+                        "      \"name\" : \"mntner\",\n" +
+                        "      \"value\" : \"OWNER-MNT\"\n" +
+                        "    } ]\n" +
+                        "  },\n" +
+                        "  \"attributes\" : {\n" +
+                        "    \"attribute\" : [ {\n" +
+                        "      \"name\" : \"mntner\",\n" +
+                        "      \"value\" : \"OWNER-MNT\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"descr\",\n" +
+                        "      \"value\" : \"Owner Maintainer\"\n" +
+                        "    }, {\n" +
+                        "      \"link\" : {\n" +
+                        "        \"type\" : \"locator\",\n" +
+                        "        \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
+                        "      },\n" +
+                        "      \"name\" : \"admin-c\",\n" +
+                        "      \"value\" : \"TP1-TEST\",\n" +
+                        "      \"referenced-type\" : \"person\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"auth\",\n" +
+                        "      \"value\" : \"MD5-PW\",\n" +
+                        "      \"comment\" : \"Filtered\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"auth\",\n" +
+                        "      \"value\" : \"SSO\",\n" +
+                        "      \"comment\" : \"Filtered\"\n" +
+                        "    }, {\n" +
+                        "      \"link\" : {\n" +
+                        "        \"type\" : \"locator\",\n" +
+                        "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "      },\n" +
+                        "      \"name\" : \"mnt-by\",\n" +
+                        "      \"value\" : \"OWNER-MNT\",\n" +
+                        "      \"referenced-type\" : \"mntner\"\n" +
+                        "    }, {\n" +
+                        "      \"link\" : {\n" +
+                        "        \"type\" : \"locator\",\n" +
+                        "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "      },\n" +
+                        "      \"name\" : \"referral-by\",\n" +
+                        "      \"value\" : \"OWNER-MNT\",\n" +
+                        "      \"referenced-type\" : \"mntner\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"source\",\n" +
+                        "      \"value\" : \"TEST\",\n" +
+                        "      \"comment\" : \"Filtered\"\n" +
+                        "    } ]\n" +
+                        "  },\n" +
+                        "  \"tags\" : { }\n" +
+                        "} ]\n" +
+                        "},\n" +
+                        "\"terms-and-conditions\" : {\n" +
+                        "\"type\" : \"locator\",\n" +
+                        "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                        "}\n" +
+                        "}"
         ));
     }
 
@@ -933,53 +937,57 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final String result = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
-        System.out.println(result);
         assertThat(result, is(
-                "{\"objects\":[ {\n" +
-                "  \"type\" : \"person\",\n" +
-                "  \"link\" : {\n" +
-                "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
-                "  },\n" +
-                "  \"source\" : {\n" +
-                "    \"id\" : \"test\"\n" +
-                "  },\n" +
-                "  \"primary-key\" : [ {\n" +
-                "    \"name\" : \"nic-hdl\",\n" +
-                "    \"value\" : \"TP1-TEST\"\n" +
-                "  } ],\n" +
-                "  \"attributes\" : [ {\n" +
-                "    \"name\" : \"person\",\n" +
-                "    \"value\" : \"Test Person\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"address\",\n" +
-                "    \"value\" : \"Singel 258\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"phone\",\n" +
-                "    \"value\" : \"+31 6 12345678\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"nic-hdl\",\n" +
-                "    \"value\" : \"TP1-TEST\"\n" +
-                "  }, {\n" +
-                "    \"link\" : {\n" +
-                "      \"type\" : \"locator\",\n" +
-                "      \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "    },\n" +
-                "    \"name\" : \"mnt-by\",\n" +
-                "    \"value\" : \"OWNER-MNT\",\n" +
-                "    \"referenced-type\" : \"mntner\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"source\",\n" +
-                "    \"value\" : \"TEST\",\n" +
-                "    \"comment\" : \"Filtered\"\n" +
-                "  } ],\n" +
-                "  \"tags\" : [ ]\n" +
-                "} ],\n" +
-                "\"terms-and-conditions\" : {\n" +
-                "  \"type\" : \"locator\",\n" +
-                "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
-                "}\n" +
-                "}"));
+                "{\"objects\":{\"object\":[ {\n" +
+                        "  \"type\" : \"person\",\n" +
+                        "  \"link\" : {\n" +
+                        "    \"type\" : \"locator\",\n" +
+                        "    \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
+                        "  },\n" +
+                        "  \"source\" : {\n" +
+                        "    \"id\" : \"test\"\n" +
+                        "  },\n" +
+                        "  \"primary-key\" : {\n" +
+                        "    \"attribute\" : [ {\n" +
+                        "      \"name\" : \"nic-hdl\",\n" +
+                        "      \"value\" : \"TP1-TEST\"\n" +
+                        "    } ]\n" +
+                        "  },\n" +
+                        "  \"attributes\" : {\n" +
+                        "    \"attribute\" : [ {\n" +
+                        "      \"name\" : \"person\",\n" +
+                        "      \"value\" : \"Test Person\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"address\",\n" +
+                        "      \"value\" : \"Singel 258\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"phone\",\n" +
+                        "      \"value\" : \"+31 6 12345678\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"nic-hdl\",\n" +
+                        "      \"value\" : \"TP1-TEST\"\n" +
+                        "    }, {\n" +
+                        "      \"link\" : {\n" +
+                        "        \"type\" : \"locator\",\n" +
+                        "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "      },\n" +
+                        "      \"name\" : \"mnt-by\",\n" +
+                        "      \"value\" : \"OWNER-MNT\",\n" +
+                        "      \"referenced-type\" : \"mntner\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"source\",\n" +
+                        "      \"value\" : \"TEST\",\n" +
+                        "      \"comment\" : \"Filtered\"\n" +
+                        "    } ]\n" +
+                        "  },\n" +
+                        "  \"tags\" : { }\n" +
+                        "} ]\n" +
+                        "},\n" +
+                        "\"terms-and-conditions\" : {\n" +
+                        "\"type\" : \"locator\",\n" +
+                        "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                        "}\n" +
+                        "}"));
     }
 
     @Test
@@ -996,74 +1004,79 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final String result = RestTest.target(getPort(), "whois/test-grs/aut-num/AS102.json").request().get(String.class);
 
         assertThat(result, is(
-                "{\"objects\":[ {\n" +
-                "  \"type\" : \"aut-num\",\n" +
-                "  \"link\" : {\n" +
-                "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://rest-test.db.ripe.net/test-grs/aut-num/AS102\"\n" +
-                "  },\n" +
-                "  \"source\" : {\n" +
-                "    \"id\" : \"test-grs\"\n" +
-                "  },\n" +
-                "  \"primary-key\" : [ {\n" +
-                "    \"name\" : \"aut-num\",\n" +
-                "    \"value\" : \"AS102\"\n" +
-                "  } ],\n" +
-                "  \"attributes\" : [ {\n" +
-                "    \"name\" : \"aut-num\",\n" +
-                "    \"value\" : \"AS102\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"as-name\",\n" +
-                "    \"value\" : \"End-User-2\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"descr\",\n" +
-                "    \"value\" : \"description\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"admin-c\",\n" +
-                "    \"value\" : \"DUMY-RIPE\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"tech-c\",\n" +
-                "    \"value\" : \"DUMY-RIPE\"\n" +
-                "  }, {\n" +
-                "    \"link\" : {\n" +
-                "      \"type\" : \"locator\",\n" +
-                "      \"href\" : \"http://rest-test.db.ripe.net/test-grs/mntner/OWNER-MNT\"\n" +
-                "    },\n" +
-                "    \"name\" : \"mnt-by\",\n" +
-                "    \"value\" : \"OWNER-MNT\",\n" +
-                "    \"referenced-type\" : \"mntner\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"source\",\n" +
-                "    \"value\" : \"TEST-GRS\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"remarks\",\n" +
-                "    \"value\" : \"****************************\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"remarks\",\n" +
-                "    \"value\" : \"* THIS OBJECT IS MODIFIED\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"remarks\",\n" +
-                "    \"value\" : \"* Please note that all data that is generally regarded as personal\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"remarks\",\n" +
-                "    \"value\" : \"* data has been removed from this object.\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"remarks\",\n" +
-                "    \"value\" : \"* To view the original object, please query the RIPE Database at:\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"remarks\",\n" +
-                "    \"value\" : \"* http://www.ripe.net/whois\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"remarks\",\n" +
-                "    \"value\" : \"****************************\"\n" +
-                "  } ],\n" +
-                "  \"tags\" : [ ]\n" +
-                "} ],\n" +
-                "\"terms-and-conditions\" : {\n" +
-                "  \"type\" : \"locator\",\n" +
-                "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
-                "}\n" +
-                "}"
+                "{\"objects\":{\"object\":[ {\n" +
+                        "  \"type\" : \"aut-num\",\n" +
+                        "  \"link\" : {\n" +
+                        "    \"type\" : \"locator\",\n" +
+                        "    \"href\" : \"http://rest-test.db.ripe.net/test-grs/aut-num/AS102\"\n" +
+                        "  },\n" +
+                        "  \"source\" : {\n" +
+                        "    \"id\" : \"test-grs\"\n" +
+                        "  },\n" +
+                        "  \"primary-key\" : {\n" +
+                        "    \"attribute\" : [ {\n" +
+                        "      \"name\" : \"aut-num\",\n" +
+                        "      \"value\" : \"AS102\"\n" +
+                        "    } ]\n" +
+                        "  },\n" +
+                        "  \"attributes\" : {\n" +
+                        "    \"attribute\" : [ {\n" +
+                        "      \"name\" : \"aut-num\",\n" +
+                        "      \"value\" : \"AS102\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"as-name\",\n" +
+                        "      \"value\" : \"End-User-2\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"descr\",\n" +
+                        "      \"value\" : \"description\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"admin-c\",\n" +
+                        "      \"value\" : \"DUMY-RIPE\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"tech-c\",\n" +
+                        "      \"value\" : \"DUMY-RIPE\"\n" +
+                        "    }, {\n" +
+                        "      \"link\" : {\n" +
+                        "        \"type\" : \"locator\",\n" +
+                        "        \"href\" : \"http://rest-test.db.ripe.net/test-grs/mntner/OWNER-MNT\"\n" +
+                        "      },\n" +
+                        "      \"name\" : \"mnt-by\",\n" +
+                        "      \"value\" : \"OWNER-MNT\",\n" +
+                        "      \"referenced-type\" : \"mntner\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"source\",\n" +
+                        "      \"value\" : \"TEST-GRS\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"remarks\",\n" +
+                        "      \"value\" : \"****************************\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"remarks\",\n" +
+                        "      \"value\" : \"* THIS OBJECT IS MODIFIED\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"remarks\",\n" +
+                        "      \"value\" : \"* Please note that all data that is generally regarded as personal\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"remarks\",\n" +
+                        "      \"value\" : \"* data has been removed from this object.\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"remarks\",\n" +
+                        "      \"value\" : \"* To view the original object, please query the RIPE Database at:\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"remarks\",\n" +
+                        "      \"value\" : \"* http://www.ripe.net/whois\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"remarks\",\n" +
+                        "      \"value\" : \"****************************\"\n" +
+                        "    } ]\n" +
+                        "  },\n" +
+                        "  \"tags\" : { }\n" +
+                        "} ]\n" +
+                        "},\n" +
+                        "\"terms-and-conditions\" : {\n" +
+                        "\"type\" : \"locator\",\n" +
+                        "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                        "}\n" +
+                        "}"
         ));
     }
 
@@ -1316,7 +1329,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_JSON), String.class);
 
-        System.out.println(response);
         assertThat(response, is(String.format(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
                 "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
@@ -1344,8 +1356,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "<tags/>" +
                 "</object>" +
                 "</objects>" +
-                "<sources/>" +
-                "<errormessages/>" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
                 "</whois-resources>",getPort())));
     }
@@ -1356,68 +1366,74 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_JSON), String.class);
 
-        assertThat(response, not(containsString("\"errormessage\"")));
-        assertThat(response, is(String.format(
-                "{\n" +
-                "  \"link\" : {\n" +
-                "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://localhost:%s/test/person?password=test\"\n" +
-                "  },\n" +
-                "  \"objects\" : [ {\n" +
-                "    \"type\" : \"person\",\n" +
-                "    \"link\" : {\n" +
-                "      \"type\" : \"locator\",\n" +
-                "      \"href\" : \"http://rest-test.db.ripe.net/test/person/PP1-TEST\"\n" +
-                "    },\n" +
-                "    \"source\" : {\n" +
-                "      \"id\" : \"test\"\n" +
-                "    },\n" +
-                "    \"primary-key\" : [ {\n" +
-                "      \"name\" : \"nic-hdl\",\n" +
-                "      \"value\" : \"PP1-TEST\"\n" +
-                "    } ],\n" +
-                "    \"attributes\" : [ {\n" +
-                "      \"name\" : \"person\",\n" +
-                "      \"value\" : \"Pauleth Palthen\"\n" +
-                "    }, {\n" +
-                "      \"name\" : \"address\",\n" +
-                "      \"value\" : \"Singel 258\"\n" +
-                "    }, {\n" +
-                "      \"name\" : \"phone\",\n" +
-                "      \"value\" : \"+31-1234567890\"\n" +
-                "    }, {\n" +
-                "      \"name\" : \"e-mail\",\n" +
-                "      \"value\" : \"noreply@ripe.net\"\n" +
-                "    }, {\n" +
-                "      \"link\" : {\n" +
-                "        \"type\" : \"locator\",\n" +
-                "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "      },\n" +
-                "      \"name\" : \"mnt-by\",\n" +
-                "      \"value\" : \"OWNER-MNT\",\n" +
-                "      \"referenced-type\" : \"mntner\"\n" +
-                "    }, {\n" +
-                "      \"name\" : \"nic-hdl\",\n" +
-                "      \"value\" : \"PP1-TEST\"\n" +
-                "    }, {\n" +
-                "      \"name\" : \"changed\",\n" +
-                "      \"value\" : \"noreply@ripe.net 20120101\"\n" +
-                "    }, {\n" +
-                "      \"name\" : \"remarks\",\n" +
-                "      \"value\" : \"remark\"\n" +
-                "    }, {\n" +
-                "      \"name\" : \"source\",\n" +
-                "      \"value\" : \"TEST\"\n" +
-                "    } ],\n" +
-                "    \"tags\" : [ ]\n" +
-                "  } ],\n" +
-                "  \"sources\" : [ ],\n" +
-                "  \"errormessages\" : [ ],\n" +
-                "  \"terms-and-conditions\" : {\n" +
-                "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
-                "  }\n" +
-                "}", getPort())));
+        assertThat(response, not(containsString("\"errormessages\"")));
+        assertThat(response, is(String.format("" +
+                        "{\n" +
+                        "  \"link\" : {\n" +
+                        "    \"type\" : \"locator\",\n" +
+                        "    \"href\" : \"http://localhost:%s/test/person?password=test\"\n" +
+                        "  },\n" +
+                        "  \"objects\" : {\n" +
+                        "    \"object\" : [ {\n" +
+                        "      \"type\" : \"person\",\n" +
+                        "      \"link\" : {\n" +
+                        "        \"type\" : \"locator\",\n" +
+                        "        \"href\" : \"http://rest-test.db.ripe.net/test/person/PP1-TEST\"\n" +
+                        "      },\n" +
+                        "      \"source\" : {\n" +
+                        "        \"id\" : \"test\"\n" +
+                        "      },\n" +
+                        "      \"primary-key\" : {\n" +
+                        "        \"attribute\" : [ {\n" +
+                        "          \"name\" : \"nic-hdl\",\n" +
+                        "          \"value\" : \"PP1-TEST\"\n" +
+                        "        } ]\n" +
+                        "      },\n" +
+                        "      \"attributes\" : {\n" +
+                        "        \"attribute\" : [ {\n" +
+                        "          \"name\" : \"person\",\n" +
+                        "          \"value\" : \"Pauleth Palthen\"\n" +
+                        "        }, {\n" +
+                        "          \"name\" : \"address\",\n" +
+                        "          \"value\" : \"Singel 258\"\n" +
+                        "        }, {\n" +
+                        "          \"name\" : \"phone\",\n" +
+                        "          \"value\" : \"+31-1234567890\"\n" +
+                        "        }, {\n" +
+                        "          \"name\" : \"e-mail\",\n" +
+                        "          \"value\" : \"noreply@ripe.net\"\n" +
+                        "        }, {\n" +
+                        "          \"link\" : {\n" +
+                        "            \"type\" : \"locator\",\n" +
+                        "            \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "          },\n" +
+                        "          \"name\" : \"mnt-by\",\n" +
+                        "          \"value\" : \"OWNER-MNT\",\n" +
+                        "          \"referenced-type\" : \"mntner\"\n" +
+                        "        }, {\n" +
+                        "          \"name\" : \"nic-hdl\",\n" +
+                        "          \"value\" : \"PP1-TEST\"\n" +
+                        "        }, {\n" +
+                        "          \"name\" : \"changed\",\n" +
+                        "          \"value\" : \"noreply@ripe.net 20120101\"\n" +
+                        "        }, {\n" +
+                        "          \"name\" : \"remarks\",\n" +
+                        "          \"value\" : \"remark\"\n" +
+                        "        }, {\n" +
+                        "          \"name\" : \"source\",\n" +
+                        "          \"value\" : \"TEST\"\n" +
+                        "        } ]\n" +
+                        "      },\n" +
+                        "      \"tags\" : {\n" +
+                        "        \"tag\" : [ ]\n" +
+                        "      }\n" +
+                        "    } ]\n" +
+                        "  },\n" +
+                        "  \"terms-and-conditions\" : {\n" +
+                        "    \"type\" : \"locator\",\n" +
+                        "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                        "  }\n" +
+                        "}", getPort())));
     }
 
     @Test
@@ -1756,28 +1772,62 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
         assertThat(response, containsString("<attribute name=\"remarks\" value=\"updated\"/>"));
-        assertThat(response, containsString("<errormessages/>"));
+        assertThat(response, not(containsString("errormessages")));
     }
 
     @Test
     public void update_json_request_and_response_content() {
         final String update = "" +
-                "{\"objects\" : [ {\n" +
-                "      \"source\" : {\n" +
-                "        \"id\" : \"test\"\n" +
-                "      },\n" +
-                "      \"attributes\" : [\n" +
-                "          {\"name\":\"mntner\", \"value\":\"OWNER-MNT\"},\n" +
-                "          {\"name\":\"descr\", \"value\":\"description\"},\n" +
-                "          {\"name\":\"admin-c\", \"value\":\"TP1-TEST\"},\n" +
-                "          {\"name\":\"upd-to\", \"value\":\"noreply@ripe.net\"},\n" +
-                "          {\"name\":\"auth\", \"value\":\"MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/\"},\n" +
-                "          {\"name\":\"mnt-by\", \"value\":\"OWNER-MNT\"},\n" +
-                "          {\"name\":\"referral-by\", \"value\":\"OWNER-MNT\"},\n" +
-                "          {\"name\":\"changed\", \"value\":\"dbtest@ripe.net 20120101\"},\n" +
-                "          {\"name\":\"source\", \"value\":\"TEST\"}\n" +
-                "      ] \n" +
-                "   }]\n" +
+                "{\n" +
+                "  \"objects\": {\n" +
+                "    \"object\": [\n" +
+                "      {\n" +
+                "        \"source\": {\n" +
+                "          \"id\": \"test\"\n" +
+                "        },\n" +
+                "        \"attributes\": {\n" +
+                "          \"attribute\": [\n" +
+                "            {\n" +
+                "              \"name\": \"mntner\",\n" +
+                "              \"value\": \"OWNER-MNT\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"name\": \"descr\",\n" +
+                "              \"value\": \"description\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"name\": \"admin-c\",\n" +
+                "              \"value\": \"TP1-TEST\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"name\": \"upd-to\",\n" +
+                "              \"value\": \"noreply@ripe.net\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"name\": \"auth\",\n" +
+                "              \"value\": \"MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n\\/cqk\\/\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"name\": \"mnt-by\",\n" +
+                "              \"value\": \"OWNER-MNT\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"name\": \"referral-by\",\n" +
+                "              \"value\": \"OWNER-MNT\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"name\": \"changed\",\n" +
+                "              \"value\": \"dbtest@ripe.net 20120101\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"name\": \"source\",\n" +
+                "              \"value\": \"TEST\"\n" +
+                "            }\n" +
+                "          ]\n" +
+                "        }\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
                 "}";
 
         final String response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test")
@@ -1786,75 +1836,81 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, is(String.format(
                 "{\n" +
-                "  \"link\" : {\n" +
-                "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://localhost:%s/test/mntner/OWNER-MNT?password=test\"\n" +
-                "  },\n" +
-                "  \"objects\" : [ {\n" +
-                "    \"type\" : \"mntner\",\n" +
-                "    \"link\" : {\n" +
-                "      \"type\" : \"locator\",\n" +
-                "      \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "    },\n" +
-                "    \"source\" : {\n" +
-                "      \"id\" : \"test\"\n" +
-                "    },\n" +
-                "    \"primary-key\" : [ {\n" +
-                "      \"name\" : \"mntner\",\n" +
-                "      \"value\" : \"OWNER-MNT\"\n" +
-                "    } ],\n" +
-                "    \"attributes\" : [ {\n" +
-                "      \"name\" : \"mntner\",\n" +
-                "      \"value\" : \"OWNER-MNT\"\n" +
-                "    }, {\n" +
-                "      \"name\" : \"descr\",\n" +
-                "      \"value\" : \"description\"\n" +
-                "    }, {\n" +
-                "      \"link\" : {\n" +
-                "        \"type\" : \"locator\",\n" +
-                "        \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
-                "      },\n" +
-                "      \"name\" : \"admin-c\",\n" +
-                "      \"value\" : \"TP1-TEST\",\n" +
-                "      \"referenced-type\" : \"person\"\n" +
-                "    }, {\n" +
-                "      \"name\" : \"upd-to\",\n" +
-                "      \"value\" : \"noreply@ripe.net\"\n" +
-                "    }, {\n" +
-                "      \"name\" : \"auth\",\n" +
-                "      \"value\" : \"MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/\"\n" +
-                "    }, {\n" +
-                "      \"link\" : {\n" +
-                "        \"type\" : \"locator\",\n" +
-                "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "      },\n" +
-                "      \"name\" : \"mnt-by\",\n" +
-                "      \"value\" : \"OWNER-MNT\",\n" +
-                "      \"referenced-type\" : \"mntner\"\n" +
-                "    }, {\n" +
-                "      \"link\" : {\n" +
-                "        \"type\" : \"locator\",\n" +
-                "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "      },\n" +
-                "      \"name\" : \"referral-by\",\n" +
-                "      \"value\" : \"OWNER-MNT\",\n" +
-                "      \"referenced-type\" : \"mntner\"\n" +
-                "    }, {\n" +
-                "      \"name\" : \"changed\",\n" +
-                "      \"value\" : \"dbtest@ripe.net 20120101\"\n" +
-                "    }, {\n" +
-                "      \"name\" : \"source\",\n" +
-                "      \"value\" : \"TEST\"\n" +
-                "    } ],\n" +
-                "    \"tags\" : [ ]\n" +
-                "  } ],\n" +
-                "  \"sources\" : [ ],\n" +
-                "  \"errormessages\" : [ ],\n" +
-                "  \"terms-and-conditions\" : {\n" +
-                "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
-                "  }\n" +
-                "}", getPort())));
+                        "  \"link\" : {\n" +
+                        "    \"type\" : \"locator\",\n" +
+                        "    \"href\" : \"http://localhost:%s/test/mntner/OWNER-MNT?password=test\"\n" +
+                        "  },\n" +
+                        "  \"objects\" : {\n" +
+                        "    \"object\" : [ {\n" +
+                        "      \"type\" : \"mntner\",\n" +
+                        "      \"link\" : {\n" +
+                        "        \"type\" : \"locator\",\n" +
+                        "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "      },\n" +
+                        "      \"source\" : {\n" +
+                        "        \"id\" : \"test\"\n" +
+                        "      },\n" +
+                        "      \"primary-key\" : {\n" +
+                        "        \"attribute\" : [ {\n" +
+                        "          \"name\" : \"mntner\",\n" +
+                        "          \"value\" : \"OWNER-MNT\"\n" +
+                        "        } ]\n" +
+                        "      },\n" +
+                        "      \"attributes\" : {\n" +
+                        "        \"attribute\" : [ {\n" +
+                        "          \"name\" : \"mntner\",\n" +
+                        "          \"value\" : \"OWNER-MNT\"\n" +
+                        "        }, {\n" +
+                        "          \"name\" : \"descr\",\n" +
+                        "          \"value\" : \"description\"\n" +
+                        "        }, {\n" +
+                        "          \"link\" : {\n" +
+                        "            \"type\" : \"locator\",\n" +
+                        "            \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
+                        "          },\n" +
+                        "          \"name\" : \"admin-c\",\n" +
+                        "          \"value\" : \"TP1-TEST\",\n" +
+                        "          \"referenced-type\" : \"person\"\n" +
+                        "        }, {\n" +
+                        "          \"name\" : \"upd-to\",\n" +
+                        "          \"value\" : \"noreply@ripe.net\"\n" +
+                        "        }, {\n" +
+                        "          \"name\" : \"auth\",\n" +
+                        "          \"value\" : \"MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/\"\n" +
+                        "        }, {\n" +
+                        "          \"link\" : {\n" +
+                        "            \"type\" : \"locator\",\n" +
+                        "            \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "          },\n" +
+                        "          \"name\" : \"mnt-by\",\n" +
+                        "          \"value\" : \"OWNER-MNT\",\n" +
+                        "          \"referenced-type\" : \"mntner\"\n" +
+                        "        }, {\n" +
+                        "          \"link\" : {\n" +
+                        "            \"type\" : \"locator\",\n" +
+                        "            \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "          },\n" +
+                        "          \"name\" : \"referral-by\",\n" +
+                        "          \"value\" : \"OWNER-MNT\",\n" +
+                        "          \"referenced-type\" : \"mntner\"\n" +
+                        "        }, {\n" +
+                        "          \"name\" : \"changed\",\n" +
+                        "          \"value\" : \"dbtest@ripe.net 20120101\"\n" +
+                        "        }, {\n" +
+                        "          \"name\" : \"source\",\n" +
+                        "          \"value\" : \"TEST\"\n" +
+                        "        } ]\n" +
+                        "      },\n" +
+                        "      \"tags\" : {\n" +
+                        "        \"tag\" : [ ]\n" +
+                        "      }\n" +
+                        "    } ]\n" +
+                        "  },\n" +
+                        "  \"terms-and-conditions\" : {\n" +
+                        "    \"type\" : \"locator\",\n" +
+                        "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                        "  }\n" +
+                        "}", getPort())));
     }
 
     @Test
@@ -2353,7 +2409,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, containsString("\"objects\""));
-        assertThat(response, not(containsString("\"object\"")));
+        assertThat(response, containsString("\"object\""));
         assertThat(response, containsString("\"type\""));
         assertThat(response, containsString("\"href\""));
     }
@@ -2364,7 +2420,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .get(String.class);
         assertThat(response, containsString("\"objects\""));
-        assertThat(response, not(containsString("\"object\"")));
+        assertThat(response, containsString("\"object\""));
         assertThat(response, containsString("\"type\""));
         assertThat(response, containsString("\"href\""));
     }
@@ -2472,15 +2528,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(result, containsString("" +
                 "\"parameters\" : {\n" +
-                "  \"inverse-lookup\" : [ ],\n" +
-                "  \"type-filters\" : [ ],\n" +
-                "  \"flags\" : [ ],\n" +
-                "  \"query-strings\" : [ {\n" +
-                "    \"value\" : \"OWNER-MNT\"\n" +
-                "  } ],\n" +
-                "  \"sources\" : [ {\n" +
-                "    \"id\" : \"TEST\"\n" +
-                "  } ]\n" +
+                "  \"inverse-lookup\" : { },\n" +
+                "  \"type-filters\" : { },\n" +
+                "  \"flags\" : { },\n" +
+                "  \"query-strings\" : {\n" +
+                "    \"query-string\" : [ {\n" +
+                "      \"value\" : \"OWNER-MNT\"\n" +
+                "    } ]\n" +
+                "  },\n" +
+                "  \"sources\" : {\n" +
+                "    \"source\" : [ {\n" +
+                "      \"id\" : \"TEST\"\n" +
+                "    } ]\n" +
+                "  }\n" +
                 "},"));
     }
 
@@ -2602,16 +2662,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(result, containsString("" +
-                "\"tags\" : [ {\n" +
-                "    \"id\" : \"foobar\",\n" +
-                "    \"data\" : \"description\"\n" +
-                "  }, {\n" +
-                "    \"id\" : \"other\",\n" +
-                "    \"data\" : \"other stuff\"\n" +
-                "  }, {\n" +
-                "    \"id\" : \"unref\",\n" +
-                "    \"data\" : \"28\"\n" +
-                "  } ]"));
+                "\"tags\" : {\n" +
+                "    \"tag\" : [ {\n" +
+                "      \"id\" : \"foobar\",\n" +
+                "      \"data\" : \"description\"\n" +
+                "    }, {\n" +
+                "      \"id\" : \"other\",\n" +
+                "      \"data\" : \"other stuff\"\n" +
+                "    }, {\n" +
+                "      \"id\" : \"unref\",\n" +
+                "      \"data\" : \"28\"\n" +
+                "    } ]\n" +
+                "  }"));
 
         final WhoisResources whoisResources = RestTest.target(getPort(),
                 "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
@@ -2849,11 +2911,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(str, containsString("" +
-                "\"type-filters\" : [ {\n" +
-                "    \"id\" : \"aut-num\"\n" +
-                "  }, {\n" +
-                "    \"id\" : \"as-block\"\n" +
-                "  } ],"));
+                "\"type-filters\" : {\n" +
+                "    \"type-filter\" : [ {\n" +
+                "      \"id\" : \"aut-num\"\n" +
+                "    }, {\n" +
+                "      \"id\" : \"as-block\"\n" +
+                "    } ]\n" +
+                "  },"));
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST&type-filter=aut-num&type-filter=as-block")
                 .request(MediaType.APPLICATION_JSON)
@@ -2955,10 +3019,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(result, containsString("" +
-                "  \"inverse-lookup\" : [ {\n" +
-                "    \"value\" : \"admin-c,tech-c\"\n" +
-                "  } ],"));
-        System.out.println(result);
+                "\"inverse-lookup\" : {\n" +
+                "    \"inverse-attribute\" : [ {\n" +
+                "      \"value\" : \"admin-c,tech-c\"\n" +
+                "    } ]\n" +
+                "  },"));
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&inverse-attribute=admin-c,tech-c")
                 .request(MediaType.APPLICATION_JSON)
@@ -2994,17 +3059,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final String str = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
-
         assertThat(str, containsString("" +
-                "  \"flags\" : [ {\n" +
-                "    \"value\" : \"no-filtering\"\n" +
-                "  }, {\n" +
-                "    \"value\" : \"no-referenced\"\n" +
-                "  }, {\n" +
-                "    \"value\" : \"no-irt\"\n" +
-                "  }, {\n" +
-                "    \"value\" : \"exact\"\n" +
-                "  } ],"));
+                "\"flags\" : {\n" +
+                "    \"flag\" : [ {\n" +
+                "      \"value\" : \"no-filtering\"\n" +
+                "    }, {\n" +
+                "      \"value\" : \"no-referenced\"\n" +
+                "    }, {\n" +
+                "      \"value\" : \"no-irt\"\n" +
+                "    }, {\n" +
+                "      \"value\" : \"exact\"\n" +
+                "    } ]\n" +
+                "  },"));
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
                 .request(MediaType.APPLICATION_JSON)
@@ -3194,118 +3260,131 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
 
-        System.out.println(response);
         assertThat(response, is(
                 "{\"service\" : {\n" +
-                "  \"name\" : \"search\"\n" +
-                "},\n" +
-                "\"parameters\" : {\n" +
-                "  \"inverse-lookup\" : [ ],\n" +
-                "  \"type-filters\" : [ ],\n" +
-                "  \"flags\" : [ ],\n" +
-                "  \"query-strings\" : [ {\n" +
-                "    \"value\" : \"AS102\"\n" +
-                "  } ],\n" +
-                "  \"sources\" : [ {\n" +
-                "    \"id\" : \"TEST\"\n" +
-                "  } ]\n" +
-                "},\n" +
-                "\"objects\" : [ {\n" +
-                "  \"type\" : \"aut-num\",\n" +
-                "  \"link\" : {\n" +
-                "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://rest-test.db.ripe.net/test/aut-num/AS102\"\n" +
-                "  },\n" +
-                "  \"source\" : {\n" +
-                "    \"id\" : \"test\"\n" +
-                "  },\n" +
-                "  \"primary-key\" : [ {\n" +
-                "    \"name\" : \"aut-num\",\n" +
-                "    \"value\" : \"AS102\"\n" +
-                "  } ],\n" +
-                "  \"attributes\" : [ {\n" +
-                "    \"name\" : \"aut-num\",\n" +
-                "    \"value\" : \"AS102\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"as-name\",\n" +
-                "    \"value\" : \"End-User-2\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"descr\",\n" +
-                "    \"value\" : \"description\"\n" +
-                "  }, {\n" +
-                "    \"link\" : {\n" +
-                "      \"type\" : \"locator\",\n" +
-                "      \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
-                "    },\n" +
-                "    \"name\" : \"admin-c\",\n" +
-                "    \"value\" : \"TP1-TEST\",\n" +
-                "    \"referenced-type\" : \"person\"\n" +
-                "  }, {\n" +
-                "    \"link\" : {\n" +
-                "      \"type\" : \"locator\",\n" +
-                "      \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
-                "    },\n" +
-                "    \"name\" : \"tech-c\",\n" +
-                "    \"value\" : \"TP1-TEST\",\n" +
-                "    \"referenced-type\" : \"person\"\n" +
-                "  }, {\n" +
-                "    \"link\" : {\n" +
-                "      \"type\" : \"locator\",\n" +
-                "      \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "    },\n" +
-                "    \"name\" : \"mnt-by\",\n" +
-                "    \"value\" : \"OWNER-MNT\",\n" +
-                "    \"referenced-type\" : \"mntner\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"source\",\n" +
-                "    \"value\" : \"TEST\"\n" +
-                "  } ],\n" +
-                "  \"tags\" : [ ]\n" +
-                "}, {\n" +
-                "  \"type\" : \"person\",\n" +
-                "  \"link\" : {\n" +
-                "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
-                "  },\n" +
-                "  \"source\" : {\n" +
-                "    \"id\" : \"test\"\n" +
-                "  },\n" +
-                "  \"primary-key\" : [ {\n" +
-                "    \"name\" : \"nic-hdl\",\n" +
-                "    \"value\" : \"TP1-TEST\"\n" +
-                "  } ],\n" +
-                "  \"attributes\" : [ {\n" +
-                "    \"name\" : \"person\",\n" +
-                "    \"value\" : \"Test Person\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"address\",\n" +
-                "    \"value\" : \"Singel 258\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"phone\",\n" +
-                "    \"value\" : \"+31 6 12345678\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"nic-hdl\",\n" +
-                "    \"value\" : \"TP1-TEST\"\n" +
-                "  }, {\n" +
-                "    \"link\" : {\n" +
-                "      \"type\" : \"locator\",\n" +
-                "      \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "    },\n" +
-                "    \"name\" : \"mnt-by\",\n" +
-                "    \"value\" : \"OWNER-MNT\",\n" +
-                "    \"referenced-type\" : \"mntner\"\n" +
-                "  }, {\n" +
-                "    \"name\" : \"source\",\n" +
-                "    \"value\" : \"TEST\",\n" +
-                "    \"comment\" : \"Filtered\"\n" +
-                "  } ],\n" +
-                "  \"tags\" : [ ]\n" +
-                "} ],\n" +
-                "\"terms-and-conditions\" : {\n" +
-                "  \"type\" : \"locator\",\n" +
-                "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
-                "}\n" +
-                "}"));
+                        "  \"name\" : \"search\"\n" +
+                        "},\n" +
+                        "\"parameters\" : {\n" +
+                        "  \"inverse-lookup\" : { },\n" +
+                        "  \"type-filters\" : { },\n" +
+                        "  \"flags\" : { },\n" +
+                        "  \"query-strings\" : {\n" +
+                        "    \"query-string\" : [ {\n" +
+                        "      \"value\" : \"AS102\"\n" +
+                        "    } ]\n" +
+                        "  },\n" +
+                        "  \"sources\" : {\n" +
+                        "    \"source\" : [ {\n" +
+                        "      \"id\" : \"TEST\"\n" +
+                        "    } ]\n" +
+                        "  }\n" +
+                        "},\n" +
+                        "\"objects\" : {\n" +
+                        "  \"object\" : [ {\n" +
+                        "    \"type\" : \"aut-num\",\n" +
+                        "    \"link\" : {\n" +
+                        "      \"type\" : \"locator\",\n" +
+                        "      \"href\" : \"http://rest-test.db.ripe.net/test/aut-num/AS102\"\n" +
+                        "    },\n" +
+                        "    \"source\" : {\n" +
+                        "      \"id\" : \"test\"\n" +
+                        "    },\n" +
+                        "    \"primary-key\" : {\n" +
+                        "      \"attribute\" : [ {\n" +
+                        "        \"name\" : \"aut-num\",\n" +
+                        "        \"value\" : \"AS102\"\n" +
+                        "      } ]\n" +
+                        "    },\n" +
+                        "    \"attributes\" : {\n" +
+                        "      \"attribute\" : [ {\n" +
+                        "        \"name\" : \"aut-num\",\n" +
+                        "        \"value\" : \"AS102\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"as-name\",\n" +
+                        "        \"value\" : \"End-User-2\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"descr\",\n" +
+                        "        \"value\" : \"description\"\n" +
+                        "      }, {\n" +
+                        "        \"link\" : {\n" +
+                        "          \"type\" : \"locator\",\n" +
+                        "          \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
+                        "        },\n" +
+                        "        \"name\" : \"admin-c\",\n" +
+                        "        \"value\" : \"TP1-TEST\",\n" +
+                        "        \"referenced-type\" : \"person\"\n" +
+                        "      }, {\n" +
+                        "        \"link\" : {\n" +
+                        "          \"type\" : \"locator\",\n" +
+                        "          \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
+                        "        },\n" +
+                        "        \"name\" : \"tech-c\",\n" +
+                        "        \"value\" : \"TP1-TEST\",\n" +
+                        "        \"referenced-type\" : \"person\"\n" +
+                        "      }, {\n" +
+                        "        \"link\" : {\n" +
+                        "          \"type\" : \"locator\",\n" +
+                        "          \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "        },\n" +
+                        "        \"name\" : \"mnt-by\",\n" +
+                        "        \"value\" : \"OWNER-MNT\",\n" +
+                        "        \"referenced-type\" : \"mntner\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"source\",\n" +
+                        "        \"value\" : \"TEST\"\n" +
+                        "      } ]\n" +
+                        "    },\n" +
+                        "    \"tags\" : { }\n" +
+                        "  }, {\n" +
+                        "    \"type\" : \"person\",\n" +
+                        "    \"link\" : {\n" +
+                        "      \"type\" : \"locator\",\n" +
+                        "      \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
+                        "    },\n" +
+                        "    \"source\" : {\n" +
+                        "      \"id\" : \"test\"\n" +
+                        "    },\n" +
+                        "    \"primary-key\" : {\n" +
+                        "      \"attribute\" : [ {\n" +
+                        "        \"name\" : \"nic-hdl\",\n" +
+                        "        \"value\" : \"TP1-TEST\"\n" +
+                        "      } ]\n" +
+                        "    },\n" +
+                        "    \"attributes\" : {\n" +
+                        "      \"attribute\" : [ {\n" +
+                        "        \"name\" : \"person\",\n" +
+                        "        \"value\" : \"Test Person\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"address\",\n" +
+                        "        \"value\" : \"Singel 258\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"phone\",\n" +
+                        "        \"value\" : \"+31 6 12345678\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"nic-hdl\",\n" +
+                        "        \"value\" : \"TP1-TEST\"\n" +
+                        "      }, {\n" +
+                        "        \"link\" : {\n" +
+                        "          \"type\" : \"locator\",\n" +
+                        "          \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "        },\n" +
+                        "        \"name\" : \"mnt-by\",\n" +
+                        "        \"value\" : \"OWNER-MNT\",\n" +
+                        "        \"referenced-type\" : \"mntner\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"source\",\n" +
+                        "        \"value\" : \"TEST\",\n" +
+                        "        \"comment\" : \"Filtered\"\n" +
+                        "      } ]\n" +
+                        "    },\n" +
+                        "    \"tags\" : { }\n" +
+                        "  } ]\n" +
+                        "},\n" +
+                        "\"terms-and-conditions\" : {\n" +
+                        "  \"type\" : \"locator\",\n" +
+                        "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                        "}\n" +
+                        "}"));
     }
 
     @Test
@@ -3436,9 +3515,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity("" +
-                        "{ \"objects\": [ {\n" +
+                        "{ \"objects\": {\n" +
+                        "   \"object\": [ {\n" +
                         "    \"source\": { \"id\": \"RIPE\" }, \n" +
-                        "    \"attributes\": [\n" +
+                        "    \"attributes\": {\n" +
+                        "       \"attribute\": [\n" +
                         "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
                         "        { \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
                         "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
@@ -3448,9 +3529,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        { \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
                         "        { \"name\": \"remarks\", \"value\": \"created\" },\n" +
                         "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
-                        "        ] \n" +
+                        "        ] }\n" +
                         "    }] \n" +
-                        "}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
+                        "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
 
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON)
@@ -3463,21 +3544,23 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                 .request(MediaType.APPLICATION_JSON)
                 .put(Entity.entity("" +
-                                "{ \"objects\": [ {\n" +
-                                "    \"source\": { \"id\": \"RIPE\" }, \n" +
-                                "    \"attributes\": [\n" +
-                                "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
-                                "        { \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
-                                "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
-                                "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
-                                "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
-                                "        { \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
-                                "        { \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
-                                "        { \"name\": \"remarks\", \"value\": \"updated\" },\n" +
-                                "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
-                                "        ] \n" +
-                                "    }] \n" +
-                                "}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
+                        "{ \"objects\": {\n" +
+                        "   \"object\": [ {\n" +
+                        "    \"source\": { \"id\": \"RIPE\" }, \n" +
+                        "    \"attributes\": {\n" +
+                        "       \"attribute\": [\n" +
+                        "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                        "        { \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
+                        "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                        "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                        "        { \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                        "        { \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"remarks\", \"value\": \"created\" },\n" +
+                        "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                        "        ] }\n" +
+                        "    }] \n" +
+                        "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
     }
 
     @Test
@@ -3487,7 +3570,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML))
                 .readEntity(String.class);
 
-        assertThat(response, containsString("<errormessages/>"));
+        assertThat(response, not(containsString("errormessages")));
     }
 
     @Test

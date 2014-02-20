@@ -1,9 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import net.ripe.db.whois.api.rest.mapper.Json;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -37,21 +35,15 @@ public class WhoisResources {
     private Service service;
     @XmlElement(name = "objects", required = true)
     @JsonProperty(value = "objects", required = true)
-    @JsonDeserialize(using = Json.WhoisObjectsDeserializer.class)
-    @JsonSerialize(using = Json.WhoisObjectsSerializer.class)
     private WhoisObjects objects;
-    @JsonDeserialize(using = Json.SourcesDeserializer.class)
-    @JsonSerialize(using = Json.SourcesSerializer.class)
     @XmlElement(name = "sources")
-    private Sources sources = new Sources();
+    private Sources sources;
     @XmlElement
     private Link link;
     @XmlElement(name = "geolocation-attributes")
     private GeolocationAttributes geolocationAttributes;
-    @JsonDeserialize(using = Json.ErrorMessagesDeserializer.class)
-    @JsonSerialize(using = Json.ErrorMessagesSerializer.class)
     @XmlElement(name = "errormessages")
-    private ErrorMessages errorMessages = new ErrorMessages();
+    private ErrorMessages errorMessages;
     @XmlElement(name = "versions")
     private WhoisVersions versions;
     @XmlElement(name = "terms-and-conditions")
