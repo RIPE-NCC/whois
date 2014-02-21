@@ -1,9 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
@@ -13,6 +11,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.support.FileHelper;
@@ -22,9 +21,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.annotation.Nullable;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.client.Entity;
@@ -36,8 +35,12 @@ import java.util.List;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -49,7 +52,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     public static final String PASSWORD1 = "pw_e2e_1";
     public static final String USER2 = "db_e2e_2@ripe.net";
     public static final String PASSWORD2 = "pw_e2e_2";
-    public static final String USER3 = "db_e2e_3@ripe.net";     // INACTIVE USER
+    public static final String INACTIVE_USER = "db_e2e_3@ripe.net";
     public static final String PASSWORD3 = "pw_e2e_3";
 
     private static ImmutableMap<String, RpslObject> baseFixtures = ImmutableMap.<String, RpslObject>builder()
@@ -144,12 +147,14 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         final String token = crowdClient.login(USER1, PASSWORD1);
 
         try {
-            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
                     .request(MediaType.APPLICATION_XML)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-            // TODO: add assertions
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+
+            assertThat(whoisResources.getErrorMessages(), emptyIterable());
+            assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+            assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         } finally {
@@ -167,12 +172,14 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         final String token = crowdClient.login(USER1, PASSWORD1);
 
         try {
-            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
                     .request(MediaType.APPLICATION_XML)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-            // TODO: add assertions
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+
+            assertThat(whoisResources.getErrorMessages(), emptyIterable());
+            assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+            assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         } finally {
@@ -190,12 +197,14 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         final String token = crowdClient.login(USER2, PASSWORD2);
 
         try {
-            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
                     .request(MediaType.APPLICATION_XML)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-            // TODO: add assertions
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+
+            assertThat(whoisResources.getErrorMessages(), emptyIterable());
+            assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+            assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         } finally {
@@ -224,7 +233,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     @Test
     public void create_assignment_mntby_inactive_SSO_not_logged_in() {
         databaseHelper.addObjects(
-                makeMntner("LIR", "auth: SSO " + USER3),
+                makeMntner("LIR", "auth: SSO " + INACTIVE_USER),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
 
         final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
@@ -240,7 +249,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_2valid_SSO_1pw_logged_in() throws Exception {
+    public void create_object_with_SSO_and_passwd_maintainer_auth_by_SSO_and_passwd() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
@@ -249,12 +258,14 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         final String token = crowdClient.login(USER2, PASSWORD2);
         try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
                     .request(MediaType.APPLICATION_XML)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-            // TODO: add assertions
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+
+            assertThat(whoisResources.getErrorMessages(), emptyIterable());
+            assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+            assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         } finally {
@@ -263,24 +274,28 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_2valid_SSO_1pw_not_logged_in_pw() {
-        databaseHelper.addObjects(makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"), makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+    public void create_object_with_SSO_and_passwd_maintainer_auth_by_passwd_only() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
 
         final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
 
         try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
                     .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-            // TODO: add assertions
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+
+            assertThat(whoisResources.getErrorMessages(), emptyIterable());
+            assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+            assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         }
     }
 
     @Test
-    public void create_assignment_mntby_2valid_SSO_1pw_logged_in_pw() throws Exception {
+    public void create_auth_with_logged_in_SSO_and_correct_passwds() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
@@ -289,12 +304,14 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         final String token = crowdClient.login(USER2, PASSWORD2);
         try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
                     .request(MediaType.APPLICATION_XML)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-            // TODO: add assertions
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+
+            assertThat(whoisResources.getErrorMessages(), emptyIterable());
+            assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+            assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         } finally {
@@ -303,7 +320,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_2valid_SSO_1pw_not_logged_in_no_pw() throws Exception {
+    public void create_not_logged_in_SSO_does_not_auth_with_incorrect_passwd() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1, "auth: SSO " + USER2, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
@@ -321,26 +338,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby_invalid_SSO_1pw_not_logged_in_pw() throws Exception {
-        databaseHelper.addObjects(
-                makeMntner("LIR", "auth: SSO " + USER3, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
-                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
-
-        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT");
-
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-            // TODO: add assertions
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        }
-    }
-
-    @Test
-    public void create_assignment_mntby_no_SSO_1pw_logged_in_no_pw() throws Exception {
+    public void create_logged_in_SSO_does_not_auth_when_object_has_no_SSO_maintainer() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
@@ -362,70 +360,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby1_pw_mntby2_SSO_mntby3_SSO_logged_in_no_pw() throws Exception {
-        databaseHelper.addObjects(
-                makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
-                makeMntner("LIR2", "auth: SSO " + USER1),
-                makeMntner("LIR3", "auth: SSO " + USER2),
-                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
-
-        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
-        final String token = crowdClient.login(USER2, PASSWORD2);
-
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-            // TODO: add assertions
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        } finally {
-            crowdClient.logout(USER2);
-        }
-    }
-
-    @Test
-    public void create_assignment_mntby1_pw_mntby2_SSO_mntby3_SSO_not_logged_in_pw() throws Exception {
-        databaseHelper.addObjects(makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"), makeMntner("LIR2", "auth: SSO " + USER1), makeMntner("LIR3", "auth: SSO " + USER2), makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
-
-        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
-
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-            // TODO: add assertions
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        }
-    }
-
-    @Test
-    public void create_assignment_mntby_pw_mnt2_SSO_mnt3_SSO_logged_in_no_pw() throws Exception {
-        databaseHelper.addObjects(makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"), makeMntner("LIR2", "auth: SSO " + USER1), makeMntner("LIR3", "auth: SSO " + USER2), makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
-
-        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
-        final String token = crowdClient.login(USER1, PASSWORD1);
-
-        try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-            // TODO: add assertions
-        } catch (ClientErrorException e) {
-            reportAndThrowUnknownError(e);
-        } finally {
-            crowdClient.logout(USER1);
-        }
-    }
-
-    @Test
-    public void create_assignment_mntby_pw_mnt2_SSO_mnt3_SSO_not_logged_in_pw() throws Exception {
+    public void create_object_with_SSO_and_passwd_maintainers_auth_by_passwd_only() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeMntner("LIR2", "auth: SSO " + USER1),
@@ -435,22 +370,24 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
 
         try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test&password=lir")
                     .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-            // TODO: add assertions
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+
+            assertThat(whoisResources.getErrorMessages(), emptyIterable());
+            assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+            assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         }
     }
 
     @Test
-    public void create_assignment_mntby_pw_mnt2_SSO_mnt3_invalid_SSO_not_logged_in() throws Exception {
+    public void create_object_with_SSO_and_passwd_maintainers_not_auth_by_SSO() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeMntner("LIR2", "auth: SSO " + USER1),
-                makeMntner("LIR3", "auth: SSO " + USER3),
+                makeMntner("LIR3", "auth: SSO " + INACTIVE_USER),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
 
         final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
@@ -466,19 +403,25 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_assignment_mntby1_SSO1_mntby2_SSO2_mntby3_pw_logged_in_SSO2_no_pw() throws Exception {
-        databaseHelper.addObjects(makeMntner("LIR", "auth: SSO " + USER1), makeMntner("LIR2", "auth: SSO " + USER2), makeMntner("LIR3", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"), makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+    public void create_object_with_SSO_and_passwd_maintainers_auth_by_SSO_and_passwd() throws Exception {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1),
+                makeMntner("LIR2", "auth: SSO " + USER2),
+                makeMntner("LIR3", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
 
         final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
         final String token = crowdClient.login(USER2, PASSWORD2);
 
         try {
-            final String whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=test")
                     .request(MediaType.APPLICATION_XML)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-            // TODO: add assertions
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+
+            assertThat(whoisResources.getErrorMessages(), emptyIterable());
+            assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+            assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         } finally {
@@ -487,7 +430,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void modify_assignment_mntby_valid_SSO_1pw_logged_in() throws Exception {
+    public void modify_using_SSO_auth_only() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"),
@@ -497,12 +440,14 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         final String token = crowdClient.login(USER1, PASSWORD1);
 
         try {
-            String whoisResources = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0 - 10.0.255.255")
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0 - 10.0.255.255")
                     .request(MediaType.APPLICATION_XML)
                     .cookie("crowd.token_key", token)
-                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(updatedAssignment), MediaType.APPLICATION_XML), String.class);
-            System.err.println(whoisResources);
-            // TODO: add assertions
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(updatedAssignment), MediaType.APPLICATION_XML), WhoisResources.class);
+
+            assertThat(whoisResources.getErrorMessages(), emptyIterable());
+            assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+            assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         } finally {
@@ -511,11 +456,14 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void delete_assignment_mntby_valid_SSO_1pw_logged_in() throws Exception {
+    public void delete_using_SSO_auth_only() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"),
                 makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT"));
+
+        final RpslObject toBeDeleted = databaseHelper.lookupObject(ObjectType.INETNUM, "10.0.0.0 - 10.0.255.255");
+        assertThat(toBeDeleted, is(not(nullValue())));
 
         final String token = crowdClient.login(USER1, PASSWORD1);
 
@@ -524,16 +472,21 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     .request(MediaType.APPLICATION_XML)
                     .cookie("crowd.token_key", token)
                     .delete();
-            // TODO: add assertions
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         } finally {
             crowdClient.logout(USER1);
         }
+
+        try {
+            databaseHelper.lookupObject(ObjectType.INETNUM, "10.0.0.0 - 10.0.255.255");
+            fail();
+        } catch (EmptyResultDataAccessException expected) {
+        }
     }
 
     @Test
-    public void create_assignment_mntby_invalid_SSO_token_is_ignored() throws Exception {
+    public void invalid_SSO_token_does_not_authenticate() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1),
                 makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
