@@ -766,33 +766,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
-    @Ignore("TODO: [ES] inactive sso token can be used for authentication")
-    @Test
-    public void lookup_mntner_with_inactive_crowd_token_and_unfiltered_param_is_filtered() {
-        final WhoisResources whoisResources =
-                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?unfiltered")
-                .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", "inactive-correctuser-token")
-                .get(WhoisResources.class);
-
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getAttributes(), hasItems(
-                new Attribute("auth", "MD5-PW", "Filtered", null, null),
-                new Attribute("auth", "SSO", "Filtered", null, null),
-                new Attribute("source", "TEST", "Filtered", null, null)));
-    }
-
-//    @Ignore("TODO")
-//    @Test
-//    public void lookup_mntner_authenticate_using_sso_credential_before_password() {
-//        RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test")
-//                .request(MediaType.APPLICATION_XML)
-//                .cookie("crowd.token_key", "valid-token")
-//                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(OWNER_MNT)), MediaType.APPLICATION_XML))        // TODO: update, not lookup
-//                .readEntity(String.class);
-//        //TODO assert that log shows: [AuthenticationModule] authenticating OWNER-MNT with credential SsoCredentialValidator
-//    }
-
     @Test
     public void lookup_irt_correct_password_and_unfiltered_param_is_unfiltered() {
         databaseHelper.addObject(TEST_IRT);
