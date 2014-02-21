@@ -6,6 +6,7 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.api.rest.RestClientUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.support.TestUpdateLog;
 import org.joda.time.LocalDateTime;
@@ -44,11 +45,11 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
             "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST");
 
-    @Value("${dir.update.audit.log}")       // TODO: use system temporary directory
-    private String auditLog;
+    @Value("${dir.update.audit.log}")
+    String auditLog;
 
-    @Autowired
-    private TestUpdateLog updateLog;
+    @Autowired TestUpdateLog updateLog;
+    @Autowired CrowdClient crowdClient;
 
     private RestClient restClient;
 
@@ -174,4 +175,5 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     public void mailupdate_gets_logged() throws Exception {
         // TODO: test mailupdate gets logged
     }
+
 }

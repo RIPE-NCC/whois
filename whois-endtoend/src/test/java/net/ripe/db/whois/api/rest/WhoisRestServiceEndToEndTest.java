@@ -1,28 +1,41 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.support.FileHelper;
+import net.ripe.db.whois.update.support.TestUpdateLog;
+import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ActiveProfiles;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import java.io.File;
 import java.text.MessageFormat;
+import java.util.Deque;
 import java.util.List;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -109,14 +122,16 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
             .build();
 
-    @Autowired
-    WhoisObjectServerMapper whoisObjectMapper;
-    @Autowired
-    CrowdClient crowdClient;
+    @Autowired WhoisObjectServerMapper whoisObjectMapper;
+    @Autowired CrowdClient crowdClient;
+
+    @Autowired TestUpdateLog updateLog;
+    @Value("${dir.update.audit.log}") String auditLog;
 
     @Before
     public void setup() {
         databaseHelper.addObjects(baseFixtures.values());
+        testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-06T17:00:00"));
     }
 
     @Test
@@ -334,7 +349,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         final String token = crowdClient.login(USER1, PASSWORD1);
 
         try {
-          RestTest.target(getPort(), "whois/test/inetnum?password=test")
+            RestTest.target(getPort(), "whois/test/inetnum?password=test")
                     .request(MediaType.APPLICATION_XML)
                     .cookie("crowd.token_key", token)
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
@@ -539,9 +554,46 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         }
     }
 
+    @Test
+    public void sso_authentication_takes_precedence_over_password() throws Exception {
+        RpslObject person = buildGenericObject(baseFixtures.get("TP1-TEST"), "nic-hdl: TP2-TEST", "mnt-by: LIR-MNT");
+        databaseHelper.addObjects(person,
+                makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"));
+
+        RpslObject updatedPerson = buildGenericObject(person, "remarks: look at me, all updated");
+
+        final String token = crowdClient.login(USER1, PASSWORD1);
+
+        try {
+            String whoisResources = RestTest.target(getPort(), "whois/test/person/TP2-TEST?password=lir")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", token)
+                    .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(updatedPerson), MediaType.APPLICATION_XML), String.class);
+            System.err.println(whoisResources);
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        } finally {
+            crowdClient.logout(USER1);
+        }
+
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010206/170000.rest_10.20.30.40_0/000.audit.xml.gz"));
+        final Iterable<String> linesContainingPassword = new IterableTransformer<String>(Splitter.on('\n').split(audit)) {
+            @Override
+            public void apply(String input, Deque<String> result) {
+                if (input.toLowerCase().contains("password")) {
+                    result.add(input.trim());
+                }
+            }
+        };
+
+        assertThat(linesContainingPassword, contains("<message><![CDATA[/whois/test/person/TP2-TEST?password=lir]]></message>",
+                "<credential>PasswordCredential{password = 'lir'}</credential>"));
+    }
+
     // helper methods
 
-    private RpslObject makeMntner(final String pkey, final String ... attributes) {
+    private RpslObject makeMntner(final String pkey, final String... attributes) {
         return buildGenericObject(MessageFormat.format("" +
                 "mntner:      {0}-MNT\n" +
                 "descr:       used for lir\n" +
@@ -555,7 +607,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                 "source:      TEST", pkey), attributes);
     }
 
-    private RpslObject makeInetnum(final String pkey, final String ... attributes) {
+    private RpslObject makeInetnum(final String pkey, final String... attributes) {
         return buildGenericObject(MessageFormat.format("" +
                 "inetnum:      {0}\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -570,7 +622,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                 "source:    TEST\n", pkey), attributes);
     }
 
-    private void assertUnauthorizedErrorMessage(final NotAuthorizedException exception, final String ... args) {
+    private void assertUnauthorizedErrorMessage(final NotAuthorizedException exception, final String... args) {
         final WhoisResources whoisResources = exception.getResponse().readEntity(WhoisResources.class);
         final List<ErrorMessage> errorMessages = whoisResources.getErrorMessages();
         assertThat(errorMessages.size(), is(1));
