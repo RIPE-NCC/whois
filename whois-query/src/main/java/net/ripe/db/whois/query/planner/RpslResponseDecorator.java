@@ -13,9 +13,8 @@ import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
-import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
@@ -147,8 +146,8 @@ public class RpslResponseDecorator {
         final String ssoToken = query.getSsoToken();
 
         final FilterAuthFunction filterAuthFunction =
-                (!query.hasOption(QueryFlag.NO_FILTERING) || (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken))) ?
-                    FILTER_AUTH_FUNCTION :
+                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken)) ?
+                        FILTER_AUTH_FUNCTION :
                         new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, crowdClient, rpslObjectDao);
 
         return Iterables.transform(objects, new Function<ResponseObject, ResponseObject>() {

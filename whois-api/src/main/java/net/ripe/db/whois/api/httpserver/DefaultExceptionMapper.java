@@ -47,6 +47,6 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
         }
 
         LOGGER.error("Unexpected", exception);
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
     }
 }

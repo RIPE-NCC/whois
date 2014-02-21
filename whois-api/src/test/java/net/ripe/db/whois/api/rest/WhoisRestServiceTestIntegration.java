@@ -151,10 +151,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "changed:      dbtest@ripe.net 20120101\n" +
             "source:       TEST\n");
 
-    @Autowired
-    private WhoisObjectServerMapper whoisObjectMapper;
-    @Autowired
-    private MaintenanceMode maintenanceMode;
+    @Autowired private WhoisObjectServerMapper whoisObjectMapper;
+    @Autowired private MaintenanceMode maintenanceMode;
 
     @Before
     public void setup() {
@@ -590,7 +588,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_without_password_and_unfiltered_param_is_filtered() {
+    public void lookup_mntner_without_password_and_unfiltered_param_is_partially_filtered() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?unfiltered").request().get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -610,7 +608,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_correct_password_and_unfiltered_param_is_unfiltered() {
+    public void lookup_mntner_correct_password_and_unfiltered_param_is_fully_unfiltered() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test&unfiltered").request().get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -630,7 +628,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_correct_password_without_unfiltered_param_is_filtered() {
+    public void lookup_mntner_correct_password_without_unfiltered_param_is_partially_filtered() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test").request().get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -648,10 +646,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_incorrect_password_without_unfiltered_param_is_filtered() {
+    public void lookup_mntner_incorrect_password_without_unfiltered_param_is_fully_filtered() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=incorrect").request().get(WhoisResources.class);
 
-        //TODO [TP] there should be an error message in the response for the incorrect password
+        //TODO [TP] there should be an error message in the response for the lookup with incorrect password
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
@@ -670,7 +668,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void lookup_mntner_multiple_passwords_and_unfiltered_param_is_unfiltered() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=incorrect&password=test&unfiltered").request().get(WhoisResources.class);
 
-        //TODO [TP] there should be an error message in the response for the incorrect password
+        //TODO [TP] there should be an error message in the response for the lookup with incorrect password
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
@@ -731,8 +729,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
         assertThat(whoisObject.getAttributes(), hasItems(
-                new Attribute("auth", "MD5-PW", "Filtered", null, null),
-                new Attribute("auth", "SSO", "Filtered", null, null),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
+                new Attribute("auth", "SSO person@net.net", null, null, null),
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
@@ -749,21 +747,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
                 new Attribute("auth", "SSO person@net.net"),
                 new Attribute("source", "TEST")));
-    }
-
-    @Test
-    public void lookup_mntner_with_inactive_crowd_token_without_unfiltered_param_is_filtered() {
-        final WhoisResources whoisResources =
-                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
-                .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", "inactive-correctuser-token")
-                .get(WhoisResources.class);
-
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getAttributes(), hasItems(
-                new Attribute("auth", "MD5-PW", "Filtered", null, null),
-                new Attribute("auth", "SSO", "Filtered", null, null),
-                new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
     @Test
