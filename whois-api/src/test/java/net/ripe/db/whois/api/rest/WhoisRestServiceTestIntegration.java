@@ -55,7 +55,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -496,7 +495,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.target(getPort(), "whois/pez/person/PP1-TEST").request().get(String.class);
             fail();
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "Invalid source '%s'", "pez");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Invalid source '%s'", "pez");
         }
     }
 
@@ -1217,7 +1216,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(rpslObject)), MediaType.APPLICATION_XML), String.class);
             fail("expected request to fail");
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "Unrecognized source: %s", "NONE");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Unrecognized source: %s", "NONE");
         }
     }
 
@@ -1246,10 +1245,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                             "</whois-resources>", MediaType.APPLICATION_XML), String.class);
             fail();
         } catch (BadRequestException e) {
-            final WhoisResources whoisResources = mapClientException(e);
-            assertErrorCount(whoisResources, 2);
-            assertErrorMessage(whoisResources, 0, "Error", "Unrecognized source: %s", "RIPE");
-            assertErrorMessage(whoisResources, 1, "Error", "\"%s\" is not valid for this object type", "admin-c");
+            final WhoisResources whoisResources = RestTest.mapClientException(e);
+            RestTest.assertErrorCount(whoisResources, 2);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "Unrecognized source: %s", "RIPE");
+            RestTest.assertErrorMessage(whoisResources, 1, "Error", "\"%s\" is not valid for this object type", "admin-c");
         }
     }
 
@@ -1292,7 +1291,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
             fail();
         } catch (NotAuthorizedException e) {
-            assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
 
@@ -1304,7 +1303,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
             fail();
         } catch (NotAuthorizedException e) {
-            assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
 
@@ -1317,7 +1316,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (ClientErrorException e1) {
             assertThat(e1.getResponse().getStatus(), is(Response.Status.CONFLICT.getStatusCode()));
-            assertOnlyErrorMessage(e1, "Error", "Enforced new keyword specified, but the object already exists in the database");
+            RestTest.assertOnlyErrorMessage(e1, "Error", "Enforced new keyword specified, but the object already exists in the database");
         }
     }
 
@@ -1523,9 +1522,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            final WhoisResources whoisResources = mapClientException(e);
-            assertErrorCount(whoisResources, 1);
-            assertErrorMessage(whoisResources, 0, "Error", "No RIPE NCC Access Account found for %s", "in@valid.net");
+            final WhoisResources whoisResources = RestTest.mapClientException(e);
+            RestTest.assertErrorCount(whoisResources, 1);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "No RIPE NCC Access Account found for %s", "in@valid.net");
         }
     }
 
@@ -1538,10 +1537,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(SSO_ONLY_MNT)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException e) {
-            final WhoisResources whoisResources = mapClientException(e);
-            assertErrorCount(whoisResources, 2);
-            assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "mntner", "SSO-ONLY-MNT", "mnt-by", "SSO-ONLY-MNT");
-            assertErrorMessage(whoisResources, 1, "Info", "RIPE NCC Access token ignored");
+            final WhoisResources whoisResources = RestTest.mapClientException(e);
+            RestTest.assertErrorCount(whoisResources, 2);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "mntner", "SSO-ONLY-MNT", "mnt-by", "SSO-ONLY-MNT");
+            RestTest.assertErrorMessage(whoisResources, 1, "Info", "RIPE NCC Access token ignored");
         }
     }
 
@@ -1555,7 +1554,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "No RIPE NCC Access Account found for %s", "in@valid.net");
+            RestTest.assertOnlyErrorMessage(e, "Error", "No RIPE NCC Access Account found for %s", "in@valid.net");
         }
     }
 
@@ -1646,7 +1645,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test").request().delete(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "Object [%s] %s is referenced from other objects", "person", "TP1-TEST");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Object [%s] %s is referenced from other objects", "person", "TP1-TEST");
         }
     }
 
@@ -1657,7 +1656,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=invalid").request().delete(String.class);
             fail();
         } catch (NotAuthorizedException e) {
-            assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
 
@@ -1668,7 +1667,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().delete(String.class);
             fail();
         } catch (NotAuthorizedException e) {
-            assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
 
@@ -1709,8 +1708,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertErrorCount(whoisResources, 1);
-        assertErrorMessage(whoisResources, 0, "Warning", "Submitted object identical to database object");
+        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Submitted object identical to database object");
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
@@ -1737,9 +1736,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertErrorCount(whoisResources, 2);
-        assertErrorMessage(whoisResources, 0, "Warning", "Submitted object identical to database object");
-        assertErrorMessage(whoisResources, 1, "Info", "Authorisation override used");
+        RestTest.assertErrorCount(whoisResources, 2);
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Submitted object identical to database object");
+        RestTest.assertErrorMessage(whoisResources, 1, "Info", "Authorisation override used");
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
@@ -1944,7 +1943,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "Object type and key specified in URI (%s: %s) do not match the WhoisResources contents", "mntner", "PP1-TEST");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Object type and key specified in URI (%s: %s) do not match the WhoisResources contents", "mntner", "PP1-TEST");
         }
     }
 
@@ -1956,7 +1955,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "Object type and key specified in URI (%s: %s) do not match the WhoisResources contents", "mntner", "OWNER-MNT");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Object type and key specified in URI (%s: %s) do not match the WhoisResources contents", "mntner", "OWNER-MNT");
         }
     }
 
@@ -1969,7 +1968,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException e) {
-            assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
 
@@ -1995,7 +1994,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "Mandatory attribute \"%s\" is missing", "changed");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Mandatory attribute \"%s\" is missing", "changed");
         }
     }
 
@@ -2047,7 +2046,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "No RIPE NCC Access Account found for %s", "in@valid.net");
+            RestTest.assertOnlyErrorMessage(e, "Error", "No RIPE NCC Access Account found for %s", "in@valid.net");
         }
     }
 
@@ -2063,10 +2062,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException e) {
-            final WhoisResources whoisResources = mapClientException(e);
-            assertErrorCount(whoisResources, 2);
-            assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
-            assertErrorMessage(whoisResources, 1, "Info", "RIPE NCC Access token ignored");
+            final WhoisResources whoisResources = RestTest.mapClientException(e);
+            RestTest.assertErrorCount(whoisResources, 2);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
+            RestTest.assertErrorMessage(whoisResources, 1, "Info", "RIPE NCC Access token ignored");
         }
     }
 
@@ -2082,9 +2081,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException e) {
-            final WhoisResources whoisResources = mapClientException(e);
-            assertErrorCount(whoisResources, 1);
-            assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
+            final WhoisResources whoisResources = RestTest.mapClientException(e);
+            RestTest.assertErrorCount(whoisResources, 1);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
 
@@ -2120,8 +2119,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertErrorCount(whoisResources, 1);
-        assertErrorMessage(whoisResources, 0, "Info", "Authorisation override used");
+        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Info", "Authorisation override used");
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
@@ -2618,7 +2617,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "Invalid search flag '%s' (in parameter '%s')", "h", "show-tag-inforG");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Invalid search flag '%s' (in parameter '%s')", "h", "show-tag-inforG");
         }
     }
 
@@ -2630,7 +2629,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "Flags are not allowed in 'query-string'");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Flags are not allowed in 'query-string'");
         }
     }
 
@@ -2642,7 +2641,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "Disallowed search flag '%s'", "q");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Disallowed search flag '%s'", "q");
         }
     }
 
@@ -2867,7 +2866,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException ignored) {
-            assertOnlyErrorMessage(ignored, "Error", "Query param 'query-string' cannot be empty");
+            RestTest.assertOnlyErrorMessage(ignored, "Error", "Query param 'query-string' cannot be empty");
         }
     }
 
@@ -2879,7 +2878,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "Invalid source '%s'", "INVALID");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Invalid source '%s'", "INVALID");
             assertThat(e.getResponse().getHeaders().get("Content-Type"), contains((Object) "application/xml"));
         }
     }
@@ -2892,7 +2891,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "Invalid source '%s'", "RIPE");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Invalid source '%s'", "RIPE");
         }
     }
 
@@ -3033,7 +3032,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
         } catch (BadRequestException e) {
-            final WhoisResources response = mapClientException(e);
+            final WhoisResources response = RestTest.mapClientException(e);
 
             assertThat(response.getErrorMessages(), hasSize(1));
         }
@@ -3151,7 +3150,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertOnlyErrorMessage(e, "Error", "Disallowed search flag '%s'", "persistent-connection");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Disallowed search flag '%s'", "persistent-connection");
         }
     }
 
@@ -3657,32 +3656,5 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void maintenance_mode_none_query() {
         maintenanceMode.set("NONE,NONE");
         RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
-    }
-
-    // helper methods
-
-    private static WhoisResources mapClientException(final ClientErrorException e) {
-        return e.getResponse().readEntity(WhoisResources.class);
-    }
-
-    static void assertOnlyErrorMessage(final ClientErrorException e, final String severity, final String text, final String... argument) {
-        WhoisResources whoisResources = mapClientException(e);
-        assertErrorCount(whoisResources, 1);
-        assertErrorMessage(whoisResources, 0, severity, text, argument);
-    }
-
-    static void assertErrorMessage(final WhoisResources whoisResources, final int number, final String severity, final String text, final String... argument) {
-        assertEquals(text, whoisResources.getErrorMessages().get(number).getText());
-        assertThat(whoisResources.getErrorMessages().get(number).getSeverity(), is(severity));
-        if (argument.length > 0) {
-            assertThat(whoisResources.getErrorMessages().get(number).getArgs(), hasSize(argument.length));
-            for (int i = 0; i < argument.length; i++) {
-                assertThat(whoisResources.getErrorMessages().get(number).getArgs().get(i).getValue(), is(argument[i]));
-            }
-        }
-    }
-
-    static void assertErrorCount(final WhoisResources whoisResources, final int count) {
-        assertThat(whoisResources.getErrorMessages(), hasSize(count));
     }
 }
