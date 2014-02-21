@@ -93,7 +93,7 @@ class MntByAuthentication extends AuthenticationStrategyBase {
         final List<RpslObject> candidates = rpslObjectDao.getByKeys(ObjectType.MNTNER, keys);
         if (isSelfReference(update, keys)) {
             if (update.getAction().equals(Action.CREATE)) {
-                candidates.add(ssoTranslator.translateAuthToUuid(updateContext, update.getReferenceObject()));
+                candidates.add(ssoTranslator.translateFromCacheAuthToUuid(updateContext, update.getReferenceObject()));
             } else {
                 candidates.add(update.getReferenceObject());
             }

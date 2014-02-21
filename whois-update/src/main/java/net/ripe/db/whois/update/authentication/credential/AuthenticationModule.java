@@ -35,7 +35,7 @@ public class AuthenticationModule {
     private final LoggerContext loggerContext;
 
     @Autowired
-    public AuthenticationModule(LoggerContext loggerContext,
+    public AuthenticationModule(final LoggerContext loggerContext,
                                 final CredentialValidator<?>... credentialValidators) {
 
         this.loggerContext = loggerContext;
@@ -47,7 +47,7 @@ public class AuthenticationModule {
     }
 
     public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext, final Collection<RpslObject> maintainers) {
-        Credentials offered = update.getCredentials();
+        final Credentials offered = update.getCredentials();
 
         loggerContext.logAuthenticationStrategy(update.getUpdate(), Reflection.getCallerClass().getCanonicalName(), maintainers);
 

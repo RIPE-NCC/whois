@@ -25,7 +25,7 @@ public class SsoTranslator {
         final RpslObject submittedObject = update.getSubmittedObject();
         SsoHelper.translateAuth(submittedObject, new AuthTranslator() {
             @Override
-            public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
+            public RpslAttribute translate(final String authType, final String authToken, final RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
                     if (!updateContext.hasSsoTranslationResult(authToken)) {
                         try {
@@ -41,15 +41,15 @@ public class SsoTranslator {
         });
     }
 
-    public RpslObject translateAuthToUuid(final UpdateContext updateContext, final RpslObject rpslObject) {
-        return translateAuth(updateContext, rpslObject);
+    public RpslObject translateFromCacheAuthToUuid(final UpdateContext updateContext, final RpslObject rpslObject) {
+        return translateFromCacheAuth(updateContext, rpslObject);
     }
 
-    public RpslObject translateAuthToUsername(final UpdateContext updateContext, final RpslObject rpslObject) {
-        return translateAuth(updateContext, rpslObject);
+    public RpslObject translateFromCacheAuthToUsername(final UpdateContext updateContext, final RpslObject rpslObject) {
+        return translateFromCacheAuth(updateContext, rpslObject);
     }
 
-    private RpslObject translateAuth(final UpdateContext updateContext, final RpslObject rpslObject) {
+    private RpslObject translateFromCacheAuth(final UpdateContext updateContext, final RpslObject rpslObject) {
         return SsoHelper.translateAuth(rpslObject, new AuthTranslator() {
             @Override
             public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {

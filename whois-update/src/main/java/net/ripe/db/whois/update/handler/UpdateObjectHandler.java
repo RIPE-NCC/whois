@@ -2,7 +2,6 @@ package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -67,7 +66,7 @@ class UpdateObjectHandler {
     public void execute(final PreparedUpdate update, final UpdateContext updateContext) {
         if (!updateContext.hasErrors(update)) {
             final RpslObjectUpdateInfo updateInfo;
-            RpslObject updatedObject = ssoTranslator.translateAuthToUuid(updateContext, update.getUpdatedObject());
+            final RpslObject updatedObject = ssoTranslator.translateFromCacheAuthToUuid(updateContext, update.getUpdatedObject());
             switch (update.getAction()) {
                 case CREATE:
                     updateInfo = rpslObjectUpdateDao.createObject(updatedObject);
