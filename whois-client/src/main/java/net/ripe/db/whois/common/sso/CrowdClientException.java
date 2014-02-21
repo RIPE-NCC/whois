@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.WebApplicationException;
 
-public class CrowdClientException extends Exception {
+public class CrowdClientException extends RuntimeException {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CrowdClientException.class);
 

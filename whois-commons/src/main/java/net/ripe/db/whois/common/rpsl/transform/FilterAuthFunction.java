@@ -30,7 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /*
-password and cookie parameters are reserved for rest api, so the port43 netty worker pool is not affected by any SSO
+password and cookie parameters are used in rest api lookup ONLY, so the port43 netty worker pool is not affected by any SSO
 server timeouts or network hiccups. Jetty could suffer from that, though - AH
  */
 @ThreadSafe
@@ -68,7 +68,7 @@ public class FilterAuthFunction implements FilterFunction {
         }
 
         final Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        final boolean authenticated = isMntnerAuthenticated(passwords, token, rpslObject, rpslObjectDao);
+        final boolean authenticated = isMntnerAuthenticated(rpslObject);
 
         for (final RpslAttribute authAttribute : authAttributes) {
             final Iterator<String> authIterator = SPACE_SPLITTER.split(authAttribute.getCleanValue()).iterator();
@@ -76,13 +76,8 @@ public class FilterAuthFunction implements FilterFunction {
 
             if (authenticated) {
                 if (passwordType.equals("SSO")) {
-                    try {
-                        final String username = crowdClient.getUsername(authIterator.next());
-                        replace.put(authAttribute, new RpslAttribute(AttributeType.AUTH, "SSO " + username));
-                    } catch (CrowdClientException e) {
-                        // TODO: [ES] substitute empty SSO value
-                        replace.put(authAttribute, new RpslAttribute(AttributeType.AUTH, "SSO"));
-                    }
+                    final String username = crowdClient.getUsername(authIterator.next());
+                    replace.put(authAttribute, new RpslAttribute(AttributeType.AUTH, "SSO " + username));
                 }
             } else {
                 if (passwordType.endsWith("-PW") || passwordType.equals("SSO")) {     // history table has CRYPT-PW, dummify that too!
@@ -101,21 +96,18 @@ public class FilterAuthFunction implements FilterFunction {
         }
     }
 
-    private boolean isMntnerAuthenticated(final List<String> passwords, final String token, final RpslObject rpslObject, final RpslObjectDao rpslObjectDao) {
+    private boolean isMntnerAuthenticated(final RpslObject rpslObject) {
         if (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(token)) {
             return false;
         }
 
-        final List<RpslAttribute> extendedAuthAttributes = Lists.newArrayList();
-        final List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
+        final List<RpslAttribute> extendedAuthAttributes = Lists.newArrayList(rpslObject.findAttributes(AttributeType.AUTH));
+        extendedAuthAttributes.addAll(getMntByAuthAttributes(rpslObject));
 
-        extendedAuthAttributes.addAll(authAttributes);
-        extendedAuthAttributes.addAll(getMntByAuthAttributes(rpslObject, rpslObjectDao));
-
-        return passwordAuthentication(passwords, extendedAuthAttributes) || ssoAuthentication(token, extendedAuthAttributes);
+        return passwordAuthentication(extendedAuthAttributes) || ssoAuthentication(extendedAuthAttributes);
     }
 
-    private Set<RpslAttribute> getMntByAuthAttributes(final RpslObject rpslObject, final RpslObjectDao rpslObjectDao) {
+    private Set<RpslAttribute> getMntByAuthAttributes(final RpslObject rpslObject) {
         final Set<CIString> maintainers = rpslObject.getValuesForAttribute(AttributeType.MNT_BY);
         maintainers.remove(rpslObject.getKey());
 
@@ -129,10 +121,11 @@ public class FilterAuthFunction implements FilterFunction {
         for (RpslObject mntner : mntByMntners) {
             auths.addAll(mntner.findAttributes(AttributeType.AUTH));
         }
+
         return auths;
     }
 
-    private boolean ssoAuthentication(final String token, final List<RpslAttribute> authAttributes) {
+    private boolean ssoAuthentication(final List<RpslAttribute> authAttributes) {
         if (StringUtils.isBlank(token)) {
             return false;
         }
@@ -154,7 +147,7 @@ public class FilterAuthFunction implements FilterFunction {
         return false;
     }
 
-    private boolean passwordAuthentication(final List<String> passwords, final List<RpslAttribute> authAttributes) {
+    private boolean passwordAuthentication(final List<RpslAttribute> authAttributes) {
         if (CollectionUtils.isEmpty(passwords)) {
             return false;
         }
