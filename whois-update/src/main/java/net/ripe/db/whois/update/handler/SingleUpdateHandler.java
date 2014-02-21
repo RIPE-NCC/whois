@@ -173,7 +173,7 @@ public class SingleUpdateHandler {
                 throw new IllegalStateException(String.format("Invalid number of results for %s", key), e);
             }
         }
-        originalObject = ssoTranslator.translateAuthToUsername(updateContext, originalObject);
+        originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, originalObject);
         originalObject = attributeSanitizer.sanitize(originalObject, new ObjectMessages());
         return originalObject;
     }

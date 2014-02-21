@@ -38,7 +38,7 @@ public class SsoTranslatorTest {
     public void translate_not_a_maintainer() {
         final RpslObject object = RpslObject.parse("person: test person\nnic-hdl: test-nic");
 
-        final RpslObject result = subject.translateAuthToUuid(updateContext, object);
+        final RpslObject result = subject.translateFromCacheAuthToUuid(updateContext, object);
 
         verifyZeroInteractions(updateContext);
         assertThat(result, is(object));
@@ -49,7 +49,7 @@ public class SsoTranslatorTest {
         final RpslObject object = RpslObject.parse("mntner: TEST-MNT\nauth: SSO username@test.net");
         when(updateContext.getSsoTranslationResult("username@test.net")).thenReturn("BBBB-1234-CCCC-DDDD");
 
-        final RpslObject result = subject.translateAuthToUsername(updateContext, object);
+        final RpslObject result = subject.translateFromCacheAuthToUsername(updateContext, object);
 
         assertThat(result, is(RpslObject.parse("mntner: TEST-MNT\nauth: SSO BBBB-1234-CCCC-DDDD")));
     }
@@ -59,7 +59,7 @@ public class SsoTranslatorTest {
         final RpslObject object = RpslObject.parse("mntner: TEST-MNT\nauth: SSO username@test.net");
         when(updateContext.getSsoTranslationResult("username@test.net")).thenReturn("BBBB-1234-CCCC-DDDD");
 
-        final RpslObject result = subject.translateAuthToUuid(updateContext, object);
+        final RpslObject result = subject.translateFromCacheAuthToUuid(updateContext, object);
 
         assertThat(result, is(RpslObject.parse("mntner: TEST-MNT\nauth: SSO BBBB-1234-CCCC-DDDD")));
         verify(updateContext).getSsoTranslationResult("username@test.net");
@@ -71,7 +71,7 @@ public class SsoTranslatorTest {
 
         when(updateContext.getSsoTranslationResult("aadd-2132-aaa-fff")).thenReturn("username@test.net");
 
-        final RpslObject result = subject.translateAuthToUuid(updateContext, object);
+        final RpslObject result = subject.translateFromCacheAuthToUuid(updateContext, object);
         assertThat(result, is(RpslObject.parse("mntner: TEST-MNT\nauth: SSO username@test.net")));
     }
 

@@ -189,7 +189,7 @@ public class WhoisRestService {
         try {
             // TODO: [AH] add delete by primary key to DAO layer, so there is no race condition from here to SingleUpdateHandler's global lock
             RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
-            originalObject = ssoTranslator.translateAuthToUsername(updateContext, originalObject);
+            originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, originalObject);
 
             return updatePerformer.performUpdate(
                     updateContext,

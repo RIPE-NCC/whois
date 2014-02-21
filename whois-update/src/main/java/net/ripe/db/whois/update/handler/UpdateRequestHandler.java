@@ -133,7 +133,7 @@ public class UpdateRequestHandler {
             attemptUpdates(updateRequest, updateContext, updates);
         } else {
             while (!updates.isEmpty()) {
-                List<Update> reattemptQueue = attemptUpdates(updateRequest, updateContext, updates);
+                final List<Update> reattemptQueue = attemptUpdates(updateRequest, updateContext, updates);
 
                 if (reattemptQueue.size() == updates.size()) {
                     break;
@@ -148,7 +148,7 @@ public class UpdateRequestHandler {
         }
     }
 
-    private List<Update> attemptUpdates(UpdateRequest updateRequest, UpdateContext updateContext, List<Update> updates) {
+    private List<Update> attemptUpdates(final UpdateRequest updateRequest, final UpdateContext updateContext, final List<Update> updates) {
         final List<Update> reattemptQueue = Lists.newArrayList();
         for (final Update update : updates) {
             final Stopwatch stopwatch = Stopwatch.createStarted();

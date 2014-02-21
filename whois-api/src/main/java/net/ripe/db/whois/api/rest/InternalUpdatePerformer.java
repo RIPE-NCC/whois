@@ -65,7 +65,7 @@ public class InternalUpdatePerformer {
         this.ssoTokenTranslator = ssoTokenTranslator;
     }
 
-    public UpdateContext initContext(Origin origin, String ssoToken) {
+    public UpdateContext initContext(final Origin origin, final String ssoToken) {
         loggerContext.init(getRequestId(origin.getFrom()));
         final UpdateContext updateContext = new UpdateContext(loggerContext);
         setSsoSessionToContext(updateContext, ssoToken);
@@ -106,10 +106,10 @@ public class InternalUpdatePerformer {
         return responseBuilder.build();
     }
 
-    private WhoisResources createResponse(final HttpServletRequest request, UpdateContext updateContext, Update update, RpslObject responseObject) {
+    private WhoisResources createResponse(final HttpServletRequest request, final UpdateContext updateContext, final Update update, final RpslObject responseObject) {
         final WhoisResources whoisResources = new WhoisResources();
         // global messages
-        List<ErrorMessage> errorMessages = Lists.newArrayList();
+        final List<ErrorMessage> errorMessages = Lists.newArrayList();
         for (Message message : updateContext.getGlobalMessages().getAllMessages()) {
             errorMessages.add(new ErrorMessage(message));
         }
