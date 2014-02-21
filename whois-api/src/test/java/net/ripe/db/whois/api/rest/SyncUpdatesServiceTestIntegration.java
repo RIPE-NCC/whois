@@ -10,7 +10,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -207,6 +206,41 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_person_only_data_parameter_with_invalid_sso_token() throws Exception {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject("" +
+                "mntner:        SSO-MNT\n" +
+                "descr:         description\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          SSO person@net.net\n" +
+                "mnt-by:        SSO-MNT\n" +
+                "referral-by:   SSO-MNT\n" +
+                "changed:       noreply@ripe.net 20130102\n" +
+                "source:        TEST");
+
+        final String person = "" +
+                "person:    Test Person\n" +
+                "address:   Amsterdam\n" +
+                "phone:     +31-6-123456\n" +
+                "nic-hdl:   TP2-TEST\n" +
+                "mnt-by:    SSO-MNT\n" +
+                "changed:   noreply@ripe.net 20130102\n" +
+                "source:    TEST";
+
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(person))
+                .request()
+                .cookie("crowd.token_key", "invalid-token")
+                .get(String.class);
+
+        assertThat(response, containsString("Create FAILED: [person] TP2-TEST   Test Person"));
+        assertThat(response, containsString(
+                "***Error:   Authorisation for [person] TP2-TEST failed\n" +
+                "            using \"mnt-by:\"\n" +
+                "            not authenticated by: SSO-MNT"));
+    }
+
+    @Test
     public void create_maintainer_only_data_parameter_with_sso_token() throws Exception {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject(MNTNER_TEST_MNTNER);
@@ -231,7 +265,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT").getValueForAttribute(AttributeType.AUTH), is(CIString.ciString("SSO 906635c2-0405-429a-800b-0602bd716124")));
     }
 
-    @Ignore("TODO: [ES] fix sso auth")
     @Test
     public void create_selfrefencing_maintainer_new_and_data_parameters_with_sso_token() throws Exception {
         databaseHelper.addObject(PERSON_ANY1_TEST);
