@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
@@ -3453,6 +3454,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, containsString("<attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\" />"));
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void search_huge_query_string() {
+        RestTest.target(getPort(), String.format("whois/search?query-string=%s&source=TEST", Strings.repeat("X", 5900)))
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
     }
 
     // response format
