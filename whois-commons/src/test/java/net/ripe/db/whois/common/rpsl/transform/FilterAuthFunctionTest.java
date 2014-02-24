@@ -138,25 +138,18 @@ public class FilterAuthFunctionTest {
                 "source:         RIPE # Filtered\n"));
     }
 
-    @Test
+    @Test(expected = CrowdClientException.class)
     public void crowd_client_exception() throws Exception {
         final UserSession userSession = new UserSession("user@host.org", true);
-        userSession.setUuid("T2hOz8tlmka5lxoZQxzC1Q00");
+        userSession.setUuid("d06e5500-ac91-4336-94f3-76cab38b73eb");
         when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
-        when(crowdClient.getUsername("T2hOz8tlmka5lxoZQxzC1Q00")).thenThrow(CrowdClientException.class);
+        when(crowdClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenThrow(CrowdClientException.class);
         subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
 
-        final RpslObject result = subject.apply(
-                RpslObject.parse(
-                        "mntner: SSO-MNT\n" +
-                        "auth: SSO T2hOz8tlmka5lxoZQxzC1Q00\n" +
-                        "source: RIPE"));
-
-        assertThat(result.toString(), is(
-                "mntner:         SSO-MNT\n" +
-                "auth:           SSO\n" +
-                "source:         RIPE\n"));
-
+        subject.apply(RpslObject.parse("" +
+                "mntner: SSO-MNT\n" +
+                "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +
+                "source: RIPE"));
     }
 
     @Test
@@ -173,7 +166,7 @@ public class FilterAuthFunctionTest {
                         "auth: SSO T2hOz8tlmka5lxoZQxzC1Q00\n" +
                         "source: RIPE"));
 
-        assertThat(result.toString(), is(
+        assertThat(result.toString(), is("" +
                 "mntner:         SSO-MNT\n" +
                 "auth:           SSO # Filtered\n" +
                 "source:         RIPE # Filtered\n"));
@@ -186,12 +179,12 @@ public class FilterAuthFunctionTest {
         subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
 
         final RpslObject result = subject.apply(
-                RpslObject.parse(
+                RpslObject.parse("" +
                         "mntner: SSO-MNT\n" +
                         "auth: SSO T2hOz8tlmka5lxoZQxzC1Q00\n" +
                         "source: RIPE"));
 
-        assertThat(result.toString(), is(
+        assertThat(result.toString(), is("" +
                 "mntner:         SSO-MNT\n" +
                 "auth:           SSO # Filtered\n" +
                 "source:         RIPE # Filtered\n"));
