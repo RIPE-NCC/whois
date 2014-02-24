@@ -2,8 +2,6 @@ package net.ripe.db.whois.api.syncupdate;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -25,8 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SyncUpdateBuilder {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SyncUpdateBuilder.class);
 
     private String url;
     private String host;

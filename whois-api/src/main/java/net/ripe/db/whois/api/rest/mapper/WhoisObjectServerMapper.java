@@ -31,9 +31,9 @@ public class WhoisObjectServerMapper extends AbstractWhoisObjectMapper {
     }
 
     @Override
-    Attribute buildAttribute(RpslAttribute attribute, final CIString value, final String source) {
+    Attribute buildAttribute(final RpslAttribute attribute, final CIString value, final String source) {
         // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
-        final String referencedType = (attribute.getType() != null && referencedTypeResolver != null) ? referencedTypeResolver.getReferencedType(attribute.getType(), value) : null;
+        final String referencedType = (attribute.getType() != null) ? referencedTypeResolver.getReferencedType(attribute.getType(), value) : null;
         final Link link = (referencedType != null) ? createLink(source, referencedType, value.toString()) : null;
         return new Attribute(attribute.getKey(), value.toString(), attribute.getCleanComment(), referencedType, link);
     }
