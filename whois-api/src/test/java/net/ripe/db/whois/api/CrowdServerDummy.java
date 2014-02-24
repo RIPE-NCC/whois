@@ -59,8 +59,6 @@ public class CrowdServerDummy implements Stub {
         {
             crowdSessionMap = Maps.newHashMap();
             crowdSessionMap.put("valid-token", new UserSession("person@net.net", true));
-            crowdSessionMap.put("inactive-correctuser-token", new UserSession("person@net.net", false));
-            crowdSessionMap.put("inactive-incorrectuser-token", new UserSession("random@ripe.net", false));
             crowdSessionMap.put("invalid-token", null);
         }
 
