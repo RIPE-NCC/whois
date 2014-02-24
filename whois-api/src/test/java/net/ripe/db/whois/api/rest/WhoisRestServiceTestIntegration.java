@@ -1300,35 +1300,33 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_JSON), String.class);
 
-        // TODO: [AH] this should be prettyprinted, too!
-        assertThat(response, is(String.format(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                        "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
-                        "<link xlink:type=\"locator\" xlink:href=\"http://localhost:%s/test/person?password=test\"/>" +
-                        "<objects>" +
-                        "<object type=\"person\">" +
-                        "<link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/PP1-TEST\"/>" +
-                        "<source id=\"test\"/>" +
-                        "<primary-key>" +
-                        "<attribute name=\"nic-hdl\" value=\"PP1-TEST\"/>" +
-                        "</primary-key>" +
-                        "<attributes>" +
-                        "<attribute name=\"person\" value=\"Pauleth Palthen\"/>" +
-                        "<attribute name=\"address\" value=\"Singel 258\"/>" +
-                        "<attribute name=\"phone\" value=\"+31-1234567890\"/>" +
-                        "<attribute name=\"e-mail\" value=\"noreply@ripe.net\"/>" +
-                        "<attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">" +
-                        "<link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>" +
-                        "</attribute>" +
-                        "<attribute name=\"nic-hdl\" value=\"PP1-TEST\"/>" +
-                        "<attribute name=\"changed\" value=\"noreply@ripe.net 20120101\"/>" +
-                        "<attribute name=\"remarks\" value=\"remark\"/>" +
-                        "<attribute name=\"source\" value=\"TEST\"/>" +
-                        "</attributes>" +
-                        "</object>" +
-                        "</objects>" +
-                        "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
-                        "</whois-resources>", getPort())));
+        assertThat(response, is(String.format(""+
+                "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                "  <link xlink:type=\"locator\" xlink:href=\"http://localhost:%d/test/person?password=test\" />\n" +
+                "  <objects>\n" +
+                "    <object type=\"person\">\n" +
+                "      <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/PP1-TEST\" />\n" +
+                "      <source id=\"test\" />\n" +
+                "      <primary-key>\n" +
+                "        <attribute name=\"nic-hdl\" value=\"PP1-TEST\" />\n" +
+                "      </primary-key>\n" +
+                "      <attributes>\n" +
+                "        <attribute name=\"person\" value=\"Pauleth Palthen\" />\n" +
+                "        <attribute name=\"address\" value=\"Singel 258\" />\n" +
+                "        <attribute name=\"phone\" value=\"+31-1234567890\" />\n" +
+                "        <attribute name=\"e-mail\" value=\"noreply@ripe.net\" />\n" +
+                "        <attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "          <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\" />\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"nic-hdl\" value=\"PP1-TEST\" />\n" +
+                "        <attribute name=\"changed\" value=\"noreply@ripe.net 20120101\" />\n" +
+                "        <attribute name=\"remarks\" value=\"remark\" />\n" +
+                "        <attribute name=\"source\" value=\"TEST\" />\n" +
+                "      </attributes>\n" +
+                "    </object>\n" +
+                "  </objects>\n" +
+                "  <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" />\n" +
+                "</whois-resources>", getPort())));
     }
 
     @Test
@@ -1440,7 +1438,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_self_referencing_maintainer_sso_auth_only() {
+    public void create_self_referencing_maintainer_sso_auth_only_and_uuid_is_stored_in_database() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
@@ -1739,7 +1737,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                                 "    </objects>\n" +
                                 "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
-        assertThat(response, containsString("<attribute name=\"remarks\" value=\"updated\"/>"));
+        assertThat(response, containsString("<attribute name=\"remarks\" value=\"updated\" />"));
         assertThat(response, not(containsString("errormessages")));
     }
 

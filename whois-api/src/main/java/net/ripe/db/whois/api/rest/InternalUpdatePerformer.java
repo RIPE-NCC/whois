@@ -35,7 +35,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
@@ -102,8 +104,15 @@ public class InternalUpdatePerformer {
             responseBuilder = Response.status(Response.Status.BAD_REQUEST);
         }
 
-        responseBuilder.entity(createResponse(request, updateContext, update, responseObject));
-        return responseBuilder.build();
+        return responseBuilder.entity(new StreamingOutput() {
+            @Override
+            public void write(OutputStream output) throws IOException, WebApplicationException {
+                final StreamingMarshal streamingMarshal = WhoisRestService.getStreamingMarshal(request, output);
+                final WhoisResources result = createResponse(request, updateContext, update, responseObject);
+                streamingMarshal.singleton(result);
+                streamingMarshal.close();
+            }
+        }).build();
     }
 
     private WhoisResources createResponse(final HttpServletRequest request, final UpdateContext updateContext, final Update update, final RpslObject responseObject) {
