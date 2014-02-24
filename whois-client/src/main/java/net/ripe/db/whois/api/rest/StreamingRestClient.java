@@ -78,7 +78,7 @@ public class StreamingRestClient implements Iterator<WhoisObject>, Closeable {
         }
     }
 
-    public static WhoisResources unMarshalError(InputStream inputStream) {
+    public static WhoisResources unMarshalError(final InputStream inputStream) {
         try {
             return (WhoisResources)unmarshaller.unmarshal(inputStream);
         } catch (JAXBException e) {
@@ -88,7 +88,7 @@ public class StreamingRestClient implements Iterator<WhoisObject>, Closeable {
 
     private static class WhoisObjectEventFilter implements EventFilter {
         @Override
-        public boolean accept(XMLEvent event) {
+        public boolean accept(final XMLEvent event) {
             return event.isStartElement() && event.asStartElement().getName().getLocalPart().equals("object");
         }
     }

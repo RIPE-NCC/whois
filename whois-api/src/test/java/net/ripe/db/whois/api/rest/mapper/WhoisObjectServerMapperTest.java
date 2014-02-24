@@ -8,11 +8,12 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
@@ -25,7 +26,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -38,11 +44,11 @@ public class WhoisObjectServerMapperTest {
 
     @Mock
     private ReferencedTypeResolver referencedTypeResolver;
-    private WhoisObjectServerMapper mapper;
+    private WhoisObjectServerMapper subject;
 
     @Before
     public void setup() {
-        mapper = new WhoisObjectServerMapper(referencedTypeResolver, BASE_URL);
+        subject = new WhoisObjectServerMapper(referencedTypeResolver, BASE_URL);
     }
 
     @Test
@@ -64,7 +70,7 @@ public class WhoisObjectServerMapperTest {
                         "changed:     dbtest@ripe.net\n" +
                         "source:      TEST\n");
 
-        final WhoisObject whoisObject = mapper.map(rpslObject);
+        final WhoisObject whoisObject = subject.map(rpslObject);
 
         assertThat(whoisObject.getType(), is("mntner"));
         assertThat(whoisObject.getSource().getId(), is("test"));
@@ -106,7 +112,7 @@ public class WhoisObjectServerMapperTest {
                 "changed:   hostmaster@ripe.net 20121115\n" +
                 "source:    TEST");
 
-        final WhoisObject whoisObject = mapper.map(rpslObject);
+        final WhoisObject whoisObject = subject.map(rpslObject);
 
         assertThat(whoisObject.getType(), is("as-set"));
         assertThat(whoisObject.getSource().getId(), is("test"));
@@ -138,7 +144,7 @@ public class WhoisObjectServerMapperTest {
                 new VersionResponseObject(2, Operation.UPDATE, 3, new VersionDateTime(new LocalDateTime()), ObjectType.AUT_NUM, "AS102"),
                 new VersionResponseObject(2, Operation.UPDATE, 4, new VersionDateTime(new LocalDateTime()), ObjectType.AUT_NUM, "AS102"));
 
-        final List<WhoisVersion> whoisVersions = mapper.mapVersions(Lists.newArrayList(deleted), versionInfos);
+        final List<WhoisVersion> whoisVersions = subject.mapVersions(Lists.newArrayList(deleted), versionInfos);
 
         assertThat(whoisVersions, hasSize(3));
         final WhoisVersion deletedVersion = whoisVersions.get(0);
@@ -159,7 +165,7 @@ public class WhoisObjectServerMapperTest {
 
     @Test
     public void map_tags() {
-        final List<WhoisTag> tags = mapper.map(RpslObject.parse("mntner: TEST-MNT\nsource: TEST"),
+        final List<WhoisTag> tags = subject.map(RpslObject.parse("mntner: TEST-MNT\nsource: TEST"),
                 Lists.newArrayList(
                         new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("foo"), "foo data"),
                         new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("bar"), "bar data"),
@@ -177,5 +183,31 @@ public class WhoisObjectServerMapperTest {
         final WhoisTag tag3 = tags.get(2);
         assertThat(tag3.getId(), is("barf"));
         assertThat(tag3.getData(), is("barf data"));
+    }
+
+    @Test
+    public void buildAttribute_lacking_attributeType() {
+        final Attribute attribute = subject.buildAttribute(
+                new RpslAttribute("key", "value"),
+                CIString.ciString("value"),
+                "TEST");
+
+        assertThat(attribute.getLink(), is(nullValue()));
+        assertThat(attribute.getValue(), is("value"));
+        assertThat(attribute.getName(), is("key"));
+    }
+
+    @Test
+    public void buildAttribute_attributeType_given() {
+        when(referencedTypeResolver.getReferencedType(AttributeType.NIC_HDL, CIString.ciString("TP-TEST"))).thenReturn(AttributeType.ROLE.getName());
+
+        final Attribute attribute = subject.buildAttribute(
+                new RpslAttribute(AttributeType.NIC_HDL, "TP-TEST"),
+                CIString.ciString("TP-TEST"),
+                "TEST");
+
+        assertThat(attribute.getLink().toString(), is("locator: http://rest.db.ripe.net/lookup/TEST/role/TP-TEST"));
+        assertThat(attribute.getName(), is("nic-hdl"));
+        assertThat(attribute.getValue(), is("TP-TEST"));
     }
 }

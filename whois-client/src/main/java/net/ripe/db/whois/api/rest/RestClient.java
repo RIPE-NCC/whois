@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +12,6 @@ import javax.ws.rs.client.ClientBuilder;
 
 @Component
 public class RestClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
 
     private Client client;
     private String restApiUrl;
@@ -27,7 +24,7 @@ public class RestClient {
         this.client = createClient();
     }
 
-    public RestClient(String restApiUrl, String sourceName) {
+    public RestClient(final String restApiUrl, final String sourceName) {
         this();
         setRestApiUrl(restApiUrl);
         setSource(sourceName);
