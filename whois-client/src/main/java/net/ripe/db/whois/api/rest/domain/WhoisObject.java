@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rest.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import java.util.Collections;
 import java.util.List;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -21,7 +23,7 @@ import java.util.List;
     "attributes",
     "tags"
 })
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "object")
 public class WhoisObject {
 
@@ -38,7 +40,7 @@ public class WhoisObject {
     private Attributes attributes;
 
     @XmlElement(name = "tags")
-    private WhoisTags tags = new WhoisTags();
+    private WhoisTags tags;
 
     @XmlAttribute(required = true)
     private String type;
