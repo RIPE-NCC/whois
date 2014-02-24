@@ -2026,24 +2026,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_person_with_incorrect_crowd_token_user_fails() {
-        databaseHelper.addObject(PAULETH_PALTHEN);
-        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
-
-        try {
-            RestTest.target(getPort(), "whois/test/person/PP1-TEST")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", "inactive-incorrectuser-token")
-                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
-            fail();
-        } catch (NotAuthorizedException e) {
-            final WhoisResources whoisResources = RestTest.mapClientException(e);
-            RestTest.assertErrorCount(whoisResources, 1);
-            RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
-        }
-    }
-
-    @Test
     public void update_comment_is_noop_and_returns_old_object() {
         assertThat(TEST_PERSON.findAttributes(AttributeType.REMARKS), hasSize(0));
         final RpslObjectBuilder builder = new RpslObjectBuilder(TEST_PERSON);
