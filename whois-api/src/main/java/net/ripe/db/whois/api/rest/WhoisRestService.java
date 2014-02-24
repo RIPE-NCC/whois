@@ -219,7 +219,6 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        // TODO: [AH] getSubmittedObject() can throw exceptions on mapping
         final RpslObject submittedObject = getSubmittedObject(request, resource);
         validateSubmittedObject(request, submittedObject, objectType, key);
 
@@ -254,7 +253,6 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        // TODO: [AH] getSubmittedObject() can throw exceptions on mapping
         final RpslObject submittedObject = getSubmittedObject(request, resource);
 
         final Origin origin = updatePerformer.createOrigin(request);
