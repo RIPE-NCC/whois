@@ -23,7 +23,6 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -536,7 +535,7 @@ public class WhoisRestService {
     }
 
     private void validateSubmittedObject(HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
-        if (!object.getKey().equals(CIString.ciString(key)) || !object.getType().getName().equalsIgnoreCase(objectType)) {
+        if (!object.getKey().equals(key) || !object.getType().getName().equalsIgnoreCase(objectType)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.uriMismatch(objectType, key))).build());
         }
     }
