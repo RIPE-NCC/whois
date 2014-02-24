@@ -9,13 +9,16 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.support.TestUpdateLog;
+import org.apache.commons.io.FileUtils;
 import org.joda.time.LocalDateTime;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
+import java.io.IOException;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
@@ -59,6 +62,11 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
 
         restClient = new RestClient(String.format("http://localhost:%d/whois", getPort()), "TEST");
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        cleanupAuditLogDirectory();
     }
 
     @Test
@@ -174,6 +182,18 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     @Test
     public void mailupdate_gets_logged() throws Exception {
         // TODO: test mailupdate gets logged
+    }
+
+    // helper methods
+
+    private void cleanupAuditLogDirectory() throws IOException {
+        for (File next : new File(auditLog).listFiles()) {
+            if (next.isDirectory()) {
+                FileUtils.deleteDirectory(next);
+            } else {
+                next.delete();
+            }
+        }
     }
 
 }
