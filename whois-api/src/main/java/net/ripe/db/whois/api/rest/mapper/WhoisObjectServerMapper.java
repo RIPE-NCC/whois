@@ -54,11 +54,13 @@ public class WhoisObjectServerMapper extends AbstractWhoisObjectMapper {
     public WhoisObject map(final RpslObject rpslObject, final List<TagResponseObject> tags) {
         final WhoisObject object = map(rpslObject);
 
-        final List<WhoisTag> whoisTags = Lists.newArrayListWithExpectedSize(tags.size());
-        for (final TagResponseObject tag : tags) {
-            whoisTags.add(new WhoisTag(tag.getType().toString(), tag.getValue()));
+        if (!tags.isEmpty()) {
+            final List<WhoisTag> whoisTags = Lists.newArrayListWithExpectedSize(tags.size());
+            for (final TagResponseObject tag : tags) {
+                whoisTags.add(new WhoisTag(tag.getType().toString(), tag.getValue()));
+            }
+            object.setTags(whoisTags);
         }
-        object.setTags(whoisTags);
         return object;
     }
 }

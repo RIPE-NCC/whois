@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -8,8 +10,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Collections;
 import java.util.List;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
 @XmlRootElement(name = "template")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(NON_EMPTY)
 public class Template {
 
     @XmlAttribute

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rest.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -16,9 +16,11 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "errormessage")
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(NON_EMPTY)
 public class ErrorMessage implements Comparable<ErrorMessage> {
     private static final Pattern BEGINNING_OF_QUERY_ERROR_MESSAGES = Pattern.compile("^(%+)(?:ERROR|WARNING):");
     private static final Pattern BEGINNING_OF_LINE_PERCENT_SIGNS = Pattern.compile("(?m)^%+ *");
