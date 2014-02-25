@@ -1144,6 +1144,27 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources, not(containsString("xmlns:xsi")));
     }
 
+    @Test
+    public void lookup_non_streaming_puts_xlink_into_root_element_and_nowhere_else() throws Exception {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+
+        final String whoisResources = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        assertThat(whoisResources, containsString("<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">"));
+        assertThat(whoisResources, containsString("<object type=\"aut-num\" version=\"1\">"));
+        assertThat(whoisResources, containsString("<objects>"));
+    }
+
     // create
 
     @Test
@@ -3254,27 +3275,60 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_non_streaming_puts_xlink_into_root_element_and_nowhere_else() throws Exception {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        databaseHelper.addObject(autnum);
-
-        final String whoisResources = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
-
-        assertThat(whoisResources, containsString("<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">"));
-        assertThat(whoisResources, containsString("<object type=\"aut-num\" version=\"1\">"));
-        assertThat(whoisResources, containsString("<objects>"));
+    public void search_not_found_json_format() {
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=invalid&source=TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
+            fail();
+        } catch (NotFoundException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is(String.format(
+                    "{\n" +
+                    "  \"link\" : {\n" +
+                    "    \"type\" : \"locator\",\n" +
+                    "    \"href\" : \"http://localhost:%s/search?query-string=invalid&source=TEST\"\n" +
+                    "  },\n" +
+                    "  \"errormessages\" : {\n" +
+                    "    \"errormessage\" : [ {\n" +
+                    "      \"severity\" : \"Error\",\n" +
+                    "      \"text\" : \"ERROR:101: no entries found\\n\\nNo entries found in source %%s.\\n\",\n" +
+                    "      \"args\" : [ {\n" +
+                    "        \"value\" : \"TEST\"\n" +
+                    "      } ]\n" +
+                    "    } ]\n" +
+                    "  },\n" +
+                    "  \"terms-and-conditions\" : {\n" +
+                    "    \"type\" : \"locator\",\n" +
+                    "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                    "  }\n" +
+                    "}", getPort())));
+        }
     }
 
-    // TODO: [ES] add failure cases for json and xml format
+    // TODO: [ES] xml error response is not pretty printed
+    @Test
+    public void search_not_found_xml_format() {
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=invalid&source=TEST")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+            fail();
+        } catch (NotFoundException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is(String.format(
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                    "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
+                    "<link xlink:type=\"locator\" xlink:href=\"http://localhost:%s/search?query-string=invalid&amp;source=TEST\"/>" +
+                    "<errormessages>" +
+                    "<errormessage severity=\"Error\" text=\"ERROR:101: no entries found&#xA;&#xA;No entries found in source %%s.&#xA;\">" +
+                    "<args value=\"TEST\"/>" +
+                    "</errormessage>" +
+                    "</errormessages>" +
+                    "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
+                    "</whois-resources>", getPort())));
+        }
+    }
 
     @Test
     public void search_multiple_objects_json_format() {
