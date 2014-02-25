@@ -102,7 +102,7 @@ public class AuthenticationModule {
         return null;
     }
 
-    public static class AuthComparator implements Comparator<CIString> {
+    private static class AuthComparator implements Comparator<CIString> {
         private static final CIString SSO = CIString.ciString("SSO");
 
         @Override
@@ -114,10 +114,9 @@ public class AuthenticationModule {
                 return 0;
             } else if (o1Sso) {
                 return -1;
-            } else if (o2Sso) {
+            } else {
                 return 1;
             }
-            return 0;   // never reached
         }
     }
 }
