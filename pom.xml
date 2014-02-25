@@ -38,6 +38,7 @@
         <sonar.jdbc.password />
     </properties>
 
+    <!-- TODO: [ES] move site-specific repositories to .m2/settings.xml -->
     <repositories>
         <repository>
             <id>ripe-releases</id>
