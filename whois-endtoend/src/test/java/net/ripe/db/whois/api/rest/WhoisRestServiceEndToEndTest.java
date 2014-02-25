@@ -580,7 +580,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         final WhoisResources whoisResources = exception.getResponse().readEntity(WhoisResources.class);
         final List<ErrorMessage> errorMessages = whoisResources.getErrorMessages();
         assertThat(errorMessages.size(), is(1));
-        assertThat(errorMessages.get(0).getText(), endsWith("\nnot authenticated by: %s"));
+        assertThat(errorMessages.get(0).getText(), endsWith("not authenticated by: %s"));
         assertThat(errorMessages.get(0).getArgs().size(), is(args.length));
         for (int i = 0; i < args.length; i++) {
             assertThat(errorMessages.get(0).getArgs().get(i).getValue(), is(args[i]));
