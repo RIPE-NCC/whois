@@ -1127,6 +1127,23 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, not(containsString("<!--")));
     }
 
+    @Test
+    public void lookup_successful_error_message_not_included() throws Exception {
+        final String response = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
+
+        assertThat(response, not(containsString("errormessages")));
+    }
+
+    @Test
+    public void lookup_xsi_attributes_not_in_root_level_link() {
+        final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST")
+                .request(MediaType.APPLICATION_XML_TYPE).get(String.class);
+        assertThat(whoisResources, not(containsString("xsi:type")));
+        assertThat(whoisResources, not(containsString("xmlns:xsi")));
+    }
+
     // create
 
     @Test
@@ -1500,6 +1517,59 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (BadRequestException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "No RIPE NCC Access Account found for %s", "in@valid.net");
         }
+    }
+
+    @Test
+    public void create_non_ascii_characters_are_preserved() {
+        assertThat(RestTest.target(getPort(), "whois/test/person?password=test")
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity("" +
+                        "{ \"objects\": {\n" +
+                        "   \"object\": [ {\n" +
+                        "    \"source\": { \"id\": \"RIPE\" }, \n" +
+                        "    \"attributes\": {\n" +
+                        "       \"attribute\": [\n" +
+                        "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                        "        { \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
+                        "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                        "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                        "        { \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                        "        { \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"remarks\", \"value\": \"created\" },\n" +
+                        "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                        "        ] }\n" +
+                        "    }] \n" +
+                        "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
+
+        assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON)
+                .get(String.class), containsString("Flughafenstraße 109/a"));
+
+        assertThat(RestTest.target(getPort(), "whois/search?query-string=PP1-TEST&source=TEST")
+                .request(MediaType.APPLICATION_JSON)
+                .get(String.class), containsString("Flughafenstraße 109/a"));
+
+        assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request(MediaType.APPLICATION_JSON)
+                .put(Entity.entity("" +
+                        "{ \"objects\": {\n" +
+                        "   \"object\": [ {\n" +
+                        "    \"source\": { \"id\": \"RIPE\" }, \n" +
+                        "    \"attributes\": {\n" +
+                        "       \"attribute\": [\n" +
+                        "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                        "        { \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
+                        "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                        "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                        "        { \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                        "        { \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"remarks\", \"value\": \"created\" },\n" +
+                        "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                        "        ] }\n" +
+                        "    }] \n" +
+                        "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
     }
 
     // delete
@@ -3204,6 +3274,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources, containsString("<objects>"));
     }
 
+    // TODO: [ES] add failure cases for json and xml format
+
     @Test
     public void search_multiple_objects_json_format() {
         databaseHelper.addObject("" +
@@ -3462,80 +3534,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
     }
 
-    // response format
-
     @Test
-    public void lookup_xsi_attributes_not_in_root_level_link() {
-        final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST")
-                .request(MediaType.APPLICATION_XML_TYPE).get(String.class);
-        assertThat(whoisResources, not(containsString("xsi:type")));
-        assertThat(whoisResources, not(containsString("xmlns:xsi")));
-    }
-
-    @Test
-    public void non_ascii_characters_are_preserved() {
-        assertThat(RestTest.target(getPort(), "whois/test/person?password=test")
-                .request(MediaType.APPLICATION_JSON)
-                .post(Entity.entity("" +
-                        "{ \"objects\": {\n" +
-                        "   \"object\": [ {\n" +
-                        "    \"source\": { \"id\": \"RIPE\" }, \n" +
-                        "    \"attributes\": {\n" +
-                        "       \"attribute\": [\n" +
-                        "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
-                        "        { \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
-                        "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
-                        "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
-                        "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
-                        "        { \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
-                        "        { \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
-                        "        { \"name\": \"remarks\", \"value\": \"created\" },\n" +
-                        "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
-                        "        ] }\n" +
-                        "    }] \n" +
-                        "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
-
-        assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST")
-                .request(MediaType.APPLICATION_JSON)
-                .get(String.class), containsString("Flughafenstraße 109/a"));
-
-        assertThat(RestTest.target(getPort(), "whois/search?query-string=PP1-TEST&source=TEST")
-                .request(MediaType.APPLICATION_JSON)
-                .get(String.class), containsString("Flughafenstraße 109/a"));
-
-        assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
-                .request(MediaType.APPLICATION_JSON)
-                .put(Entity.entity("" +
-                        "{ \"objects\": {\n" +
-                        "   \"object\": [ {\n" +
-                        "    \"source\": { \"id\": \"RIPE\" }, \n" +
-                        "    \"attributes\": {\n" +
-                        "       \"attribute\": [\n" +
-                        "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
-                        "        { \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
-                        "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
-                        "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
-                        "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
-                        "        { \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
-                        "        { \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
-                        "        { \"name\": \"remarks\", \"value\": \"created\" },\n" +
-                        "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
-                        "        ] }\n" +
-                        "    }] \n" +
-                        "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
-    }
-
-    @Test
-    public void error_message_not_included_in_successful_lookup() throws Exception {
-        final String response = RestTest.target(getPort(), "whois/test/person?password=test")
-                .request()
-                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
-
-        assertThat(response, not(containsString("errormessages")));
-    }
-
-    @Test
-    public void error_message_not_included_in_successful_search() throws Exception {
+    public void search_successful_error_message_not_included() throws Exception {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
