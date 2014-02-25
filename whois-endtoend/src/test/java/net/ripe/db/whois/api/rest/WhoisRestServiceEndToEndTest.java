@@ -404,6 +404,26 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_object_with_not_logged_in_invalid_SSO_and_passwd_maintainers_doesnt_mess_up_nor_authenticate() throws Exception {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeMntner("LIR2", "auth: SSO " + USER1),
+                makeMntner("LIR3", "auth: SSO " + USER2),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT");
+
+        try {
+            RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (NotAuthorizedException expected) {
+            assertUnauthorizedErrorMessage(expected, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT, LIR2-MNT, LIR3-MNT");
+        }
+    }
+
+    @Test
     public void create_object_with_SSO_and_passwd_maintainers_auth_by_SSO_and_passwd() throws Exception {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1),
