@@ -124,7 +124,7 @@ public class FilterAuthFunctionTest {
     }
 
     @Test
-    public void apply_sso() {
+    public void apply_sso_filtered() {
         final RpslObject rpslObject = RpslObject.parse("" +
                 "mntner: SSO-MNT\n" +
                 "auth: SSO T2hOz8tlmka5lxoZQxzC1Q00\n" +
@@ -138,14 +138,57 @@ public class FilterAuthFunctionTest {
                 "source:         RIPE # Filtered\n"));
     }
 
+    @Test
+    public void apply_sso_different_uuid_filtered() {
+        final UserSession userSession = new UserSession("noreply@ripe.net", true);
+        userSession.setUuid("76cab38b73eb-ac91-4336-94f3-d06e5500");
+        when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
+        when(crowdClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenReturn("user@host.org");
+
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "mntner: SSO-MNT\n" +
+                "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +
+                "source: RIPE");
+
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
+        final RpslObject result = subject.apply(rpslObject);
+
+        assertThat(result.toString(), is(
+                "mntner:         SSO-MNT\n" +
+                "auth:           SSO # Filtered\n" +
+                "source:         RIPE # Filtered\n"));
+    }
+
+    @Test
+    public void apply_sso_unfiltered() {
+        final UserSession userSession = new UserSession("user@host.org", true);
+        userSession.setUuid("d06e5500-ac91-4336-94f3-76cab38b73eb");
+        when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
+        when(crowdClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenReturn("user@host.org");
+
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "mntner: SSO-MNT\n" +
+                "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +
+                "source: RIPE");
+
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
+        final RpslObject result = subject.apply(rpslObject);
+
+        assertThat(result.toString(), is(
+                "mntner:         SSO-MNT\n" +
+                "auth:           SSO user@host.org\n" +
+                "source:         RIPE\n"));
+    }
+
     @Test(expected = CrowdClientException.class)
     public void crowd_client_exception() throws Exception {
         final UserSession userSession = new UserSession("user@host.org", true);
         userSession.setUuid("d06e5500-ac91-4336-94f3-76cab38b73eb");
+
         when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
         when(crowdClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenThrow(CrowdClientException.class);
-        subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
 
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
         subject.apply(RpslObject.parse("" +
                 "mntner: SSO-MNT\n" +
                 "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +
@@ -156,10 +199,11 @@ public class FilterAuthFunctionTest {
     public void crowd_client_exception_server_down() throws Exception {
         final UserSession userSession = new UserSession("user@host.org", true);
         userSession.setUuid("T2hOz8tlmka5lxoZQxzC1Q00");
+
         when(ssoTokenTranslator.translateSsoToken("token")).thenThrow(CrowdClientException.class);
         when(crowdClient.getUsername("T2hOz8tlmka5lxoZQxzC1Q00")).thenThrow(CrowdClientException.class);
-        subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
 
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
         final RpslObject result = subject.apply(
                 RpslObject.parse("" +
                         "mntner: SSO-MNT\n" +
@@ -170,7 +214,6 @@ public class FilterAuthFunctionTest {
                 "mntner:         SSO-MNT\n" +
                 "auth:           SSO # Filtered\n" +
                 "source:         RIPE # Filtered\n"));
-
     }
 
     @Test
