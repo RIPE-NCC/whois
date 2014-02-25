@@ -56,6 +56,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -99,16 +100,16 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
 
-    private static final RpslObject PASSWORD_ONLY_MNT = RpslObject.parse(
+    private static final RpslObject PASSWORD_ONLY_MNT = RpslObject.parse("" +
             "mntner:      PASSWORD-ONLY-MNT\n" +
-                    "descr:       Maintainer\n" +
-                    "admin-c:     TP1-TEST\n" +
-                    "upd-to:      noreply@ripe.net\n" +
-                    "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-                    "mnt-by:      PASSWORD-ONLY-MNT\n" +
-                    "referral-by: PASSWORD-ONLY-MNT\n" +
-                    "changed:     dbtest@ripe.net 20120101\n" +
-                    "source:      TEST");
+            "descr:       Maintainer\n" +
+            "admin-c:     TP1-TEST\n" +
+            "upd-to:      noreply@ripe.net\n" +
+            "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+            "mnt-by:      PASSWORD-ONLY-MNT\n" +
+            "referral-by: PASSWORD-ONLY-MNT\n" +
+            "changed:     dbtest@ripe.net 20120101\n" +
+            "source:      TEST");
 
     private static final RpslObject SSO_ONLY_MNT = RpslObject.parse("" +
             "mntner:         SSO-ONLY-MNT\n" +
@@ -483,6 +484,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/TEST/mntner/MNT-TEST?password=test&unfiltered")
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
         Attribute expected = new Attribute("auth", "SSO test@ripe.net", null, null, null);
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(expected));
@@ -1301,7 +1305,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_JSON), String.class);
 
-        assertThat(response, is(String.format(""+
+        assertThat(response, is(String.format("" +
                 "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
                 "  <link xlink:type=\"locator\" xlink:href=\"http://localhost:%d/test/person?password=test\" />\n" +
                 "  <objects>\n" +
@@ -1426,7 +1430,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_self_referencing_maintainer_password_auth_only() {
-
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner?password=test")
                 .request()
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PASSWORD_ONLY_MNT)), MediaType.APPLICATION_XML), WhoisResources.class);
@@ -1436,6 +1439,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(object.getType(), is("mntner"));
         assertThat(object.getLink(), is(new Link("locator", "http://rest-test.db.ripe.net/test/mntner/PASSWORD-ONLY-MNT")));
         assertThat(object.getPrimaryKey(), contains(new Attribute("mntner", "PASSWORD-ONLY-MNT")));
+        assertThat(object.getAttributes(), hasItems(new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null)));
     }
 
     @Test
@@ -1447,19 +1451,16 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItems(new Attribute("auth", "SSO person@net.net")));
+
         assertThat(databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-ONLY-MNT").findAttributes(AttributeType.AUTH),
-                containsInAnyOrder(
-                        new RpslAttribute(AttributeType.AUTH, "SSO 906635c2-0405-429a-800b-0602bd716124")));
+                contains(new RpslAttribute(AttributeType.AUTH, "SSO 906635c2-0405-429a-800b-0602bd716124")));
     }
 
     @Test
     public void create_self_referencing_maintainer_sso_auth_only_invalid_username() throws Exception {
         try {
-            final RpslObject updatedObject = new RpslObjectBuilder(SSO_ONLY_MNT)
-                    .replaceAttribute(
-                            new RpslAttribute(AttributeType.AUTH, "SSO person@net.net"),
-                            new RpslAttribute(AttributeType.AUTH, "SSO in@valid.net")).sort().get();
+            final RpslObject updatedObject = buildGenericObject(SSO_ONLY_MNT, "auth: SSO in@valid.net");
 
             RestTest.target(getPort(), "whois/test/mntner")
                     .request()
@@ -1467,9 +1468,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedObject)), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            final WhoisResources whoisResources = RestTest.mapClientException(e);
-            RestTest.assertErrorCount(whoisResources, 1);
-            RestTest.assertErrorMessage(whoisResources, 0, "Error", "No RIPE NCC Access Account found for %s", "in@valid.net");
+            RestTest.assertOnlyErrorMessage(e, "Error", "No RIPE NCC Access Account found for %s", "in@valid.net");
         }
     }
 
@@ -1704,39 +1703,39 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void update_spaces_in_password_succeeds() {
-        databaseHelper.addObject(RpslObject.parse(
+        databaseHelper.addObject(RpslObject.parse("" +
                 "mntner:      OWNER2-MNT\n" +
-                        "descr:       Owner Maintainer\n" +
-                        "admin-c:     TP1-TEST\n" +
-                        "upd-to:      noreply@ripe.net\n" +
-                        "auth:        MD5-PW $1$d9fKeTr2$NitG3QQZnA4z6zp1o.qmm/ # ' spaces '\n" +
-                        "mnt-by:      OWNER2-MNT\n" +
-                        "referral-by: OWNER2-MNT\n" +
-                        "changed:     dbtest@ripe.net 20120101\n" +
-                        "source:      TEST"));
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$NitG3QQZnA4z6zp1o.qmm/ # ' spaces '\n" +
+                "mnt-by:      OWNER2-MNT\n" +
+                "referral-by: OWNER2-MNT\n" +
+                "changed:     dbtest@ripe.net 20120101\n" +
+                "source:      TEST"));
 
         final String response = RestTest.target(getPort(), "whois/test/mntner/OWNER2-MNT?password=%20spaces%20")
                 .request(MediaType.APPLICATION_XML)
-                .put(Entity.entity(
+                .put(Entity.entity("" +
                         "<whois-resources>\n" +
-                                "    <objects>\n" +
-                                "        <object type=\"mntner\">\n" +
-                                "            <source id=\"TEST\"/>\n" +
-                                "            <attributes>\n" +
-                                "                <attribute name=\"mntner\" value=\"OWNER2-MNT\"/>\n" +
-                                "                <attribute name=\"descr\" value=\"Owner Maintainer\"/>\n" +
-                                "                <attribute name=\"admin-c\" value=\"TP1-TEST\"/>\n" +
-                                "                <attribute name=\"upd-to\" value=\"noreply@ripe.net\"/>\n" +
-                                "                <attribute name=\"auth\" value=\"MD5-PW $1$d9fKeTr2$NitG3QQZnA4z6zp1o.qmm/\"/>\n" +
-                                "                <attribute name=\"remarks\" value=\"updated\"/>\n" +
-                                "                <attribute name=\"mnt-by\" value=\"OWNER2-MNT\"/>\n" +
-                                "                <attribute name=\"referral-by\" value=\"OWNER2-MNT\"/>\n" +
-                                "                <attribute name=\"changed\" value=\"dbtest@ripe.net 20120102\"/>\n" +
-                                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
-                                "            </attributes>\n" +
-                                "        </object>\n" +
-                                "    </objects>\n" +
-                                "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+                        "    <objects>\n" +
+                        "        <object type=\"mntner\">\n" +
+                        "            <source id=\"TEST\"/>\n" +
+                        "            <attributes>\n" +
+                        "                <attribute name=\"mntner\" value=\"OWNER2-MNT\"/>\n" +
+                        "                <attribute name=\"descr\" value=\"Owner Maintainer\"/>\n" +
+                        "                <attribute name=\"admin-c\" value=\"TP1-TEST\"/>\n" +
+                        "                <attribute name=\"upd-to\" value=\"noreply@ripe.net\"/>\n" +
+                        "                <attribute name=\"auth\" value=\"MD5-PW $1$d9fKeTr2$NitG3QQZnA4z6zp1o.qmm/\"/>\n" +
+                        "                <attribute name=\"remarks\" value=\"updated\"/>\n" +
+                        "                <attribute name=\"mnt-by\" value=\"OWNER2-MNT\"/>\n" +
+                        "                <attribute name=\"referral-by\" value=\"OWNER2-MNT\"/>\n" +
+                        "                <attribute name=\"changed\" value=\"dbtest@ripe.net 20120102\"/>\n" +
+                        "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                        "            </attributes>\n" +
+                        "        </object>\n" +
+                        "    </objects>\n" +
+                        "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
         assertThat(response, containsString("<attribute name=\"remarks\" value=\"updated\" />"));
         assertThat(response, not(containsString("errormessages")));
@@ -1801,80 +1800,80 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON)
                 .put(Entity.entity(update, MediaType.APPLICATION_JSON), String.class);
 
-        assertThat(response, is(String.format(
+        assertThat(response, is(String.format("" +
                 "{\n" +
-                        "  \"link\" : {\n" +
-                        "    \"type\" : \"locator\",\n" +
-                        "    \"href\" : \"http://localhost:%s/test/mntner/OWNER-MNT?password=test\"\n" +
-                        "  },\n" +
-                        "  \"objects\" : {\n" +
-                        "    \"object\" : [ {\n" +
-                        "      \"type\" : \"mntner\",\n" +
-                        "      \"link\" : {\n" +
-                        "        \"type\" : \"locator\",\n" +
-                        "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                        "      },\n" +
-                        "      \"source\" : {\n" +
-                        "        \"id\" : \"test\"\n" +
-                        "      },\n" +
-                        "      \"primary-key\" : {\n" +
-                        "        \"attribute\" : [ {\n" +
-                        "          \"name\" : \"mntner\",\n" +
-                        "          \"value\" : \"OWNER-MNT\"\n" +
-                        "        } ]\n" +
-                        "      },\n" +
-                        "      \"attributes\" : {\n" +
-                        "        \"attribute\" : [ {\n" +
-                        "          \"name\" : \"mntner\",\n" +
-                        "          \"value\" : \"OWNER-MNT\"\n" +
-                        "        }, {\n" +
-                        "          \"name\" : \"descr\",\n" +
-                        "          \"value\" : \"description\"\n" +
-                        "        }, {\n" +
-                        "          \"link\" : {\n" +
-                        "            \"type\" : \"locator\",\n" +
-                        "            \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
-                        "          },\n" +
-                        "          \"name\" : \"admin-c\",\n" +
-                        "          \"value\" : \"TP1-TEST\",\n" +
-                        "          \"referenced-type\" : \"person\"\n" +
-                        "        }, {\n" +
-                        "          \"name\" : \"upd-to\",\n" +
-                        "          \"value\" : \"noreply@ripe.net\"\n" +
-                        "        }, {\n" +
-                        "          \"name\" : \"auth\",\n" +
-                        "          \"value\" : \"MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/\"\n" +
-                        "        }, {\n" +
-                        "          \"link\" : {\n" +
-                        "            \"type\" : \"locator\",\n" +
-                        "            \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                        "          },\n" +
-                        "          \"name\" : \"mnt-by\",\n" +
-                        "          \"value\" : \"OWNER-MNT\",\n" +
-                        "          \"referenced-type\" : \"mntner\"\n" +
-                        "        }, {\n" +
-                        "          \"link\" : {\n" +
-                        "            \"type\" : \"locator\",\n" +
-                        "            \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                        "          },\n" +
-                        "          \"name\" : \"referral-by\",\n" +
-                        "          \"value\" : \"OWNER-MNT\",\n" +
-                        "          \"referenced-type\" : \"mntner\"\n" +
-                        "        }, {\n" +
-                        "          \"name\" : \"changed\",\n" +
-                        "          \"value\" : \"dbtest@ripe.net 20120101\"\n" +
-                        "        }, {\n" +
-                        "          \"name\" : \"source\",\n" +
-                        "          \"value\" : \"TEST\"\n" +
-                        "        } ]\n" +
-                        "      }\n" +
-                        "    } ]\n" +
-                        "  },\n" +
-                        "  \"terms-and-conditions\" : {\n" +
-                        "    \"type\" : \"locator\",\n" +
-                        "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
-                        "  }\n" +
-                        "}", getPort())));
+                "  \"link\" : {\n" +
+                "    \"type\" : \"locator\",\n" +
+                "    \"href\" : \"http://localhost:%s/test/mntner/OWNER-MNT?password=test\"\n" +
+                "  },\n" +
+                "  \"objects\" : {\n" +
+                "    \"object\" : [ {\n" +
+                "      \"type\" : \"mntner\",\n" +
+                "      \"link\" : {\n" +
+                "        \"type\" : \"locator\",\n" +
+                "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                "      },\n" +
+                "      \"source\" : {\n" +
+                "        \"id\" : \"test\"\n" +
+                "      },\n" +
+                "      \"primary-key\" : {\n" +
+                "        \"attribute\" : [ {\n" +
+                "          \"name\" : \"mntner\",\n" +
+                "          \"value\" : \"OWNER-MNT\"\n" +
+                "        } ]\n" +
+                "      },\n" +
+                "      \"attributes\" : {\n" +
+                "        \"attribute\" : [ {\n" +
+                "          \"name\" : \"mntner\",\n" +
+                "          \"value\" : \"OWNER-MNT\"\n" +
+                "        }, {\n" +
+                "          \"name\" : \"descr\",\n" +
+                "          \"value\" : \"description\"\n" +
+                "        }, {\n" +
+                "          \"link\" : {\n" +
+                "            \"type\" : \"locator\",\n" +
+                "            \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
+                "          },\n" +
+                "          \"name\" : \"admin-c\",\n" +
+                "          \"value\" : \"TP1-TEST\",\n" +
+                "          \"referenced-type\" : \"person\"\n" +
+                "        }, {\n" +
+                "          \"name\" : \"upd-to\",\n" +
+                "          \"value\" : \"noreply@ripe.net\"\n" +
+                "        }, {\n" +
+                "          \"name\" : \"auth\",\n" +
+                "          \"value\" : \"MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/\"\n" +
+                "        }, {\n" +
+                "          \"link\" : {\n" +
+                "            \"type\" : \"locator\",\n" +
+                "            \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                "          },\n" +
+                "          \"name\" : \"mnt-by\",\n" +
+                "          \"value\" : \"OWNER-MNT\",\n" +
+                "          \"referenced-type\" : \"mntner\"\n" +
+                "        }, {\n" +
+                "          \"link\" : {\n" +
+                "            \"type\" : \"locator\",\n" +
+                "            \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                "          },\n" +
+                "          \"name\" : \"referral-by\",\n" +
+                "          \"value\" : \"OWNER-MNT\",\n" +
+                "          \"referenced-type\" : \"mntner\"\n" +
+                "        }, {\n" +
+                "          \"name\" : \"changed\",\n" +
+                "          \"value\" : \"dbtest@ripe.net 20120101\"\n" +
+                "        }, {\n" +
+                "          \"name\" : \"source\",\n" +
+                "          \"value\" : \"TEST\"\n" +
+                "        } ]\n" +
+                "      }\n" +
+                "    } ]\n" +
+                "  },\n" +
+                "  \"terms-and-conditions\" : {\n" +
+                "    \"type\" : \"locator\",\n" +
+                "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "  }\n" +
+                "}", getPort())));
     }
 
     @Test

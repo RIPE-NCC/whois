@@ -83,17 +83,17 @@ public class RpslObjectFilter {
         return !attributes.isEmpty() && attributes.get(0).getValue().contains(FILTERED);
     }
 
-    /** slow way to build specific objects from object skeletons/templates. Meant for testing only */
+    /** slow way to build specific objects from object skeletons/templates */
     public static RpslObject buildGenericObject(final RpslObject object, final String ... attributes) {
         return buildGenericObject(new RpslObjectBuilder(object), attributes);
     }
 
-    /** slow way to build specific objects from object skeletons/templates. Meant for testing only */
+    /** slow way to build specific objects from object skeletons/templates */
     public static RpslObject buildGenericObject(final String object, final String ... attributes) {
         return buildGenericObject(new RpslObjectBuilder(object), attributes);
     }
 
-    /** slow way to build specific objects from object skeletons/templates. Meant for testing only */
+    /** slow way to build specific objects from object skeletons/templates */
     public static RpslObject buildGenericObject(final RpslObjectBuilder builder, final String ... attributes) {
         List<RpslAttribute> attributeList = new ArrayList<>();
         for (String attribute : attributes) {
