@@ -205,7 +205,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "source:         TEST")));
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void lookup_inet6num_without_prefix_length() {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
@@ -219,12 +219,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        try {
-            RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::").request().get(WhoisResources.class);
-            fail();
-        } catch (NotFoundException ignored) {
-            // expected
-        }
+        RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::").request().get(WhoisResources.class);
     }
 
     @Test
@@ -447,24 +442,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisObject.getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void lookup_object_not_found() {
-        try {
-            RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
-            fail();
-        } catch (NotFoundException ignored) {
-            // expected
-        }
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void lookup_object_wrong_source() {
-        try {
-            RestTest.target(getPort(), "whois/test-grs/person/TP1-TEST").request().get(String.class);
-            fail();
-        } catch (NotFoundException ignored) {
-            // expected
-        }
+        RestTest.target(getPort(), "whois/test-grs/person/TP1-TEST").request().get(String.class);
     }
 
     @Test
@@ -1665,14 +1650,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void delete_nonexistant() {
-        try {
-            RestTest.target(getPort(), "whois/test/person/NON-EXISTANT").request().delete(String.class);
-            fail();
-        } catch (NotFoundException ignored) {
-            // expected
-        }
+        RestTest.target(getPort(), "whois/test/person/NON-EXISTANT").request().delete(String.class);
     }
 
     @Test
@@ -2005,16 +1985,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test
+    @Test(expected = NotAllowedException.class)
     public void update_post_not_allowed() {
-        try {
-            RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
-            fail();
-        } catch (NotAllowedException ignored) {
-            // expected
-        }
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
     }
 
     @Test
@@ -2302,19 +2277,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(versions.get(0).getRevision(), is(nullValue()));
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void versions_no_versions_found() throws IOException {
-        try {
-            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(String.class);
-            fail();
-        } catch (NotFoundException ignored) {
-            // expected
-        }
+        RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void version_nonexistant_version() throws IOException {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
@@ -2326,17 +2296,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n");
 
-        try {
-            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/2")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-            fail();
-        } catch (NotFoundException ignored) {
-            // expected
-        }
+        RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/2")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void version_wrong_object_type() throws IOException {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
@@ -2348,14 +2313,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n");
 
-        try {
-            RestTest.target(getPort(), "whois/test/inetnum/AS102/versions/1")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-            fail();
-        } catch (NotFoundException ignored) {
-            // expected
-        }
+        RestTest.target(getPort(), "whois/test/inetnum/AS102/versions/1")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
     }
 
     @Test
@@ -2415,7 +2375,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void version_not_showing_deleted_version() throws IOException {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
@@ -2429,14 +2389,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(autnum);
         databaseHelper.deleteObject(autnum);
 
-        try {
-            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-            fail();
-        } catch (NotFoundException ignored) {
-            // expected
-        }
+        RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
     }
 
     // response format
@@ -2776,7 +2731,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         ));
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void search_include_tag_param_no_results() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "aut-num:        AS102\n" +
@@ -2787,18 +2742,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n"));
 
-        try {
-            RestTest.target(getPort(),
-                    "whois/search?source=TEST&query-string=AS102&include-tag=foobar")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-            fail();
-        } catch (NotFoundException ignored) {
-            // expected
-        }
+        RestTest.target(getPort(),
+                "whois/search?source=TEST&query-string=AS102&include-tag=foobar")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void search_include_and_exclude_tags_params_no_results() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
@@ -2814,15 +2764,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
 
-        try {
-            RestTest.target(getPort(),
-                    "whois/search?source=TEST&query-string=AS102&exclude-tag=foobar&include-tag=unref&include-tag=other")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-            fail();
-        } catch (NotFoundException ignored) {
-            // expected
-        }
+        RestTest.target(getPort(),
+                "whois/search?source=TEST&query-string=AS102&exclude-tag=foobar&include-tag=unref&include-tag=other")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
     }
 
     @Test
@@ -3549,14 +3494,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void search_not_contains_empty_xmlns() {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "descr:          Private Network\n" +
-                        "country:        NL\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "mnt-lower:      OWNER-MNT\n" +
-                        "source:         TEST");
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
         ipTreeUpdater.rebuild();
 
         final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=2001:2002:2003:2004::5")
