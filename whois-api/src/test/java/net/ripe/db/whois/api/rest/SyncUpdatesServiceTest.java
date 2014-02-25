@@ -7,7 +7,9 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
@@ -34,6 +36,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -65,6 +68,8 @@ public class SyncUpdatesServiceTest {
         when(request.getCookies()).thenReturn(new Cookie[]{});
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
+        when(ssoTokenTranslator.translateSsoToken("valid-token")).thenReturn(new UserSession("test@ripe.net", true));
+        when(ssoTokenTranslator.translateSsoToken("invalid-token")).thenThrow(new CrowdClientException("Unknown RIPE NCC Access token: invalid-token"));
     }
 
     @Test
@@ -317,25 +322,76 @@ public class SyncUpdatesServiceTest {
                 "changed:  eshryane@ripe.net 20120829\n" +
                 "source:   test\n" +
                 "remarks:  something\n" +
-                "override: password";
+                "\n" +
+                "password: password";
         final String help = null;
         final String nnew = null;
         final String diff = null;
         final String redirect = null;
         final String source = "test";
-        final String ssoToken = null;
+        final String ssoToken = "valid-token";
 
         subject.doMultipartPost(request, source, data, help, nnew, diff, redirect, ssoToken);
 
-        verify(messageHandler).handle(argThat(new ArgumentMatcher<UpdateRequest>() {
-            @Override
-            public boolean matches(final Object argument) {
-                UpdateRequest updateRequest = (UpdateRequest) argument;
-                assertThat(updateRequest.getKeyword(), is(Keyword.NONE));
-                assertThat(updateRequest.getUpdateMessage(), is(data));
-                return true;
-            }
-        }), any(UpdateContext.class));
+        verify(messageHandler).handle(
+                argThat(new ArgumentMatcher<UpdateRequest>() {
+                    @Override
+                    public boolean matches(final Object argument) {
+                        final UpdateRequest updateRequest = (UpdateRequest) argument;
+                        assertThat(updateRequest.getKeyword(), is(Keyword.NONE));
+                        assertThat(updateRequest.getUpdateMessage(), is(data));
+                        return true;
+                    }
+                }),
+                argThat(new ArgumentMatcher<UpdateContext>() {
+                    @Override
+                    public boolean matches(final Object argument) {
+                        final UpdateContext updateContext = (UpdateContext)argument;
+                        assertThat(updateContext.getUserSession().getUsername(), is("test@ripe.net"));
+                        return true;
+                    }
+                }));
+    }
+
+    @Test
+    public void handle_multipart_post_invalid_sso_token() throws Exception {
+        final String data = "person:   Ed Shryane\n" +
+                "address:  Ripe NCC Singel 258\n" +
+                "phone:    +31-61238-2827\n" +
+                "nic-hdl:  ES222-RIPE\n" +
+                "mnt-by:   TEST-DBM-MNT\n" +
+                "changed:  eshryane@ripe.net 20120829\n" +
+                "source:   test\n" +
+                "remarks:  something\n" +
+                "\n" +
+                "password: password";
+        final String help = null;
+        final String nnew = null;
+        final String diff = null;
+        final String redirect = null;
+        final String source = "test";
+        final String ssoToken = "invalid-token";
+
+        subject.doMultipartPost(request, source, data, help, nnew, diff, redirect, ssoToken);
+
+        verify(messageHandler).handle(
+                argThat(new ArgumentMatcher<UpdateRequest>() {
+                    @Override
+                    public boolean matches(final Object argument) {
+                        final UpdateRequest updateRequest = (UpdateRequest) argument;
+                        assertThat(updateRequest.getKeyword(), is(Keyword.NONE));
+                        assertThat(updateRequest.getUpdateMessage(), is(data));
+                        return true;
+                    }
+                }),
+                argThat(new ArgumentMatcher<UpdateContext>() {
+                    @Override
+                    public boolean matches(final Object argument) {
+                        final UpdateContext updateContext = (UpdateContext)argument;
+                        assertThat(updateContext.getUserSession(), is(nullValue()));
+                        return true;
+                    }
+                }));
     }
 
     @Test
