@@ -8,7 +8,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -23,30 +22,8 @@ public class SsoTokenTranslatorTest {
         subject = new SsoTokenTranslator(crowdClient);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void translateSsoToken_invalid_session() throws Exception {
-        final String ssotoken = "ssotoken";
-
-        when(crowdClient.getUserSession(ssotoken)).thenThrow(new IllegalArgumentException("not found"));
-
-        subject.translateSsoToken(ssotoken);
-        fail();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void translateSsoToken_invalid_username() throws Exception {
-        final String ssotoken = "ssotoken";
-        final String username = "username";
-
-        when(crowdClient.getUserSession(ssotoken)).thenReturn(new UserSession(username, true));
-        when(crowdClient.getUuid(username)).thenThrow(new IllegalArgumentException("not found"));
-
-        subject.translateSsoToken(ssotoken);
-        fail();
-    }
-
     @Test
-    public void translateSsoToken_happypath() throws Exception {
+    public void translateSsoToken() {
         final String ssotoken = "ssotoken";
         final String username = "username";
         final String uuid = "uuid";
@@ -59,5 +36,25 @@ public class SsoTokenTranslatorTest {
         assertThat(userSession.getUsername(), is(username));
         assertThat(userSession.getUuid(), is(uuid));
         assertThat(userSession.isActive(), is(true));
+    }
+
+    @Test(expected = CrowdClientException.class)
+    public void translateSsoToken_invalid_session() {
+        final String ssotoken = "ssotoken";
+
+        when(crowdClient.getUserSession(ssotoken)).thenThrow(new CrowdClientException("Unknown RIPE NCC Access token: " + ssotoken));
+
+        subject.translateSsoToken(ssotoken);
+    }
+
+    @Test(expected = CrowdClientException.class)
+    public void translateSsoToken_invalid_username() {
+        final String ssotoken = "ssotoken";
+        final String username = "username";
+
+        when(crowdClient.getUserSession(ssotoken)).thenReturn(new UserSession(username, true));
+        when(crowdClient.getUuid(username)).thenThrow(new CrowdClientException("Unknown RIPE NCC Access user: " + username));
+
+        subject.translateSsoToken(ssotoken);
     }
 }
