@@ -29,22 +29,22 @@ public abstract class AbstractWhoisObjectMapper {
         final List<RpslAttribute> rpslAttributes = Lists.newArrayList();
 
         for (final Attribute attribute : whoisObject.getAttributes()) {
-            String rpslValue;
-
-            final String value = attribute.getValue();
-            final String comment = attribute.getComment();
-            if (StringUtils.isBlank(comment)) {
-                rpslValue = value;
-            } else {
-                if (value.indexOf('#') >= 0) {
-                    throw new IllegalArgumentException("Value cannot have a comment in " + attribute);
-                }
-                rpslValue = value + " # " + comment;
-            }
-            rpslAttributes.add(new RpslAttribute(attribute.getName(), rpslValue));
+            rpslAttributes.add(new RpslAttribute(attribute.getName(), getAttributeValue(attribute)));
         }
 
         return new RpslObject(rpslAttributes);
+    }
+
+    private String getAttributeValue(final Attribute attribute) {
+        if (StringUtils.isBlank(attribute.getComment())) {
+            return attribute.getValue();
+        } else {
+            if (attribute.getValue().indexOf('#') >= 0) {
+                throw new IllegalArgumentException("Value cannot have a comment in " + attribute);
+            } else {
+                return String.format("%s # %s", attribute.getValue(), attribute.getComment());
+            }
+        }
     }
 
     public List<RpslObject> mapWhoisObjects(final Iterable<WhoisObject> whoisObjects) {
