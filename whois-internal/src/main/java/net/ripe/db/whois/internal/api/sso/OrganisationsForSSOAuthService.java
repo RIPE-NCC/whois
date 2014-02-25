@@ -2,7 +2,7 @@ package net.ripe.db.whois.internal.api.sso;
 
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -23,13 +23,13 @@ import java.util.Set;
 public class OrganisationsForSSOAuthService {
 
     private final InverseOrgFinder orgFinder;
-    private final WhoisObjectServerMapper whoisObjectMapper;
+    private final WhoisObjectClientMapper whoisObjectMapper;
 
     @Autowired
     public OrganisationsForSSOAuthService(final InverseOrgFinder orgFinder) {
         this.orgFinder = orgFinder;
         // TODO: [AH] autowire
-        this.whoisObjectMapper = new WhoisObjectServerMapper(null, "");
+        this.whoisObjectMapper = new WhoisObjectClientMapper("");
     }
 
     @GET
