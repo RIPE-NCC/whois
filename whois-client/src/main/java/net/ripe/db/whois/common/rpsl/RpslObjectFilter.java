@@ -83,6 +83,7 @@ public class RpslObjectFilter {
         return !attributes.isEmpty() && attributes.get(0).getValue().contains(FILTERED);
     }
 
+    //TODO the below is only used by test classes (in different packages, mind you), move it out of here.
     /** slow way to build specific objects from object skeletons/templates */
     public static RpslObject buildGenericObject(final RpslObject object, final String ... attributes) {
         return buildGenericObject(new RpslObjectBuilder(object), attributes);
