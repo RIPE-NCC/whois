@@ -28,7 +28,6 @@ import java.net.URLConnection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class RestClientTarget {
     private Client client;
@@ -299,11 +298,7 @@ public class RestClientTarget {
     }
 
     private Invocation.Builder setHeaders(final Invocation.Builder request) {
-        // add headers 1 by 1 instead of replacing all (and wiping out cookies)
-        final Set<String> headerKeys = headers.keySet();
-        for (String header : headerKeys) {
-            request.header(header, headers.get(header));
-        }
+        request.headers(headers);
         return request;
     }
 
