@@ -2,7 +2,6 @@ package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
@@ -169,7 +168,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Error:   Unknown object referenced ORG-ACME-DE/
     }
 
-    @Ignore("unignore when sso branch is merged")
     def "create maintainer with sso authentication"() {
       when:
         def response = syncUpdate new SyncUpdate(data: """\
@@ -189,7 +187,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[mntner\] SSO-MNT/
     }
 
-    @Ignore("unignore when sso branch is merged")
     def "modify maintainer with sso authentication"() {
       when:
         syncUpdate new SyncUpdate(data: """\
