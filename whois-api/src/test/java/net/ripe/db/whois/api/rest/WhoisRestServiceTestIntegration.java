@@ -1177,7 +1177,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_invalid_source_in_request_body() {
+    public void create_person_invalid_source_in_request_body() {
         final RpslObject rpslObject = RpslObject.parse("" +
                 "person:  Pauleth Palthen\n" +
                 "address: Singel 258\n" +
@@ -1198,6 +1198,33 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    @Test
+    public void create_inetnum_multiple_errors() {
+        final RpslObject rpslObject = RpslObject.parse(
+                "inetnum:   10.0.0.0 - 10.255.255.255\n" +
+                "netname:   TEST-NET\n" +
+                "descr:     description\n" +
+                "country:       NONE\n" +
+                "admin-c:       INVALID-1\n" +
+                "tech-c:        INVALID-2\n" +
+                "status:    ASSIGNED PI\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "changed:   noreply@ripe.net\n" +
+                "source:    TEST\n");
+
+        try {
+            RestTest.target(getPort(), "whois/test/inetnum?password=test")
+                    .request(MediaType.APPLICATION_JSON)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(rpslObject)), MediaType.APPLICATION_JSON), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources whoisResources = RestTest.mapClientException(e);
+            RestTest.assertErrorCount(whoisResources, 3);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "Syntax error in %s", "NONE");
+            RestTest.assertErrorMessage(whoisResources, 1, "Error", "Syntax error in %s", "INVALID-1");
+            RestTest.assertErrorMessage(whoisResources, 2, "Error", "Syntax error in %s", "INVALID-2");
+        }
+    }
     @Test
     public void create_invalid_reference() {
         try {
