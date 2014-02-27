@@ -66,12 +66,12 @@ public class UpdateContext {
     }
 
     public void addSsoTranslationResult(final String username, final String uuid) {
-        String duplicateUuid = ssoTranslation.put(username, uuid);
-        String duplicateUsername = ssoTranslation.put(uuid, username);
-
+        final String duplicateUuid = ssoTranslation.put(username, uuid);
         if (duplicateUuid != null) {
             throw new IllegalStateException("Duplicate UUID '" + duplicateUuid + "' in SSO translation! (" + username + "=" + uuid + ")");
         }
+
+        final String duplicateUsername = ssoTranslation.put(uuid, username);
         if (duplicateUsername != null) {
             throw new IllegalStateException("Duplicate username '" + duplicateUsername + "' in SSO translation! (" + username + "=" + uuid + ")");
         }
@@ -81,6 +81,7 @@ public class UpdateContext {
         return ssoTranslation.containsKey(usernameOrUuid);
     }
 
+    @CheckForNull
     public String getSsoTranslationResult(final String usernameOrUuid) {
         return ssoTranslation.get(usernameOrUuid);
     }
