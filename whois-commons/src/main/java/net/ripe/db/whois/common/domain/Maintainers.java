@@ -2,16 +2,13 @@ package net.ripe.db.whois.common.domain;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciImmutableSet;
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 public class Maintainers {

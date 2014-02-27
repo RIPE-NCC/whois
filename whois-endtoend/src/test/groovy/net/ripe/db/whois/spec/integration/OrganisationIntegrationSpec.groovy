@@ -554,9 +554,134 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate update
 
       then:
-        println(response)
         response =~ /FAIL/
         response =~ /"abuse-c:" references a PERSON object/
         response =~ /This must reference a ROLE object with an "abuse-mailbox:"/
+    }
+
+    def "org attribute added by override any mntner"() {
+      given:
+        databaseHelper.addObject("" +
+                "aut-num: AS123\n" +
+                "as-name: asname\n" +
+                "descr: descr\n" +
+                "admin-c: TEST-RIPE\n" +
+                "tech-c: TEST-RIPE\n" +
+                "mnt-by: TST-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                aut-num: AS123
+                as-name: asname2
+                descr: descr
+                org: ORG-TOL1-TEST
+                admin-c: TEST-RIPE
+                tech-c: TEST-RIPE
+                mnt-by: TST-MNT
+                changed: test@ripe.net
+                source: TEST
+                password: update
+                override: denis,override1
+                """)
+      then:
+        response =~ /Modify SUCCEEDED: \[aut-num\] AS123/
+    }
+
+    def "org attribute changed by override end or power mntner"() {
+      given:
+        databaseHelper.addObject("" +
+                "aut-num: AS123\n" +
+                "as-name: asname\n" +
+                "descr: descr\n" +
+                "admin-c: TEST-RIPE\n" +
+                "tech-c: TEST-RIPE\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                aut-num: AS123
+                as-name: asname2
+                descr: descr
+                org: ORG-TOL1-TEST
+                admin-c: TEST-RIPE
+                tech-c: TEST-RIPE
+                mnt-by: RIPE-NCC-HM-MNT
+                changed: test@ripe.net
+                source: TEST
+                password: update
+                override: denis,override1
+                """)
+      then:
+        response =~ /Modify SUCCEEDED: \[aut-num\] AS123/
+    }
+
+    def "org attribute changed any mntner not override"() {
+      given:
+        databaseHelper.addObject("" +
+                "aut-num: AS123\n" +
+                "as-name: asname\n" +
+                "descr: descr\n" +
+                "org: ORG-TOL2-TEST\n" +
+                "admin-c: TEST-RIPE\n" +
+                "tech-c: TEST-RIPE\n" +
+                "mnt-by: TST-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                aut-num: AS123
+                as-name: asname2
+                descr: descr
+                org: ORG-TOL1-TEST
+                admin-c: TEST-RIPE
+                tech-c: TEST-RIPE
+                mnt-by: TST-MNT
+                changed: test@ripe.net
+                source: TEST
+                password: update
+                """)
+      then:
+        response =~ /FAIL/
+    }
+
+    def "org attribute changed end or power mntner not override"() {
+      given:
+        databaseHelper.addObject("" +
+                "mntner: RIPE-NCC-END-MNT\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "auth: MD5-PW \$1\$lg/7YFfk\$X6ScFx7wATYpuuh/VNU631 #end\n" +
+                "source: TEST");
+
+        databaseHelper.addObject("" +
+                "aut-num: AS123\n" +
+                "as-name: asname\n" +
+                "descr: descr\n" +
+                "org: ORG-TOL2-TEST\n" +
+                "admin-c: TEST-RIPE\n" +
+                "tech-c: TEST-RIPE\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                aut-num: AS123
+                as-name: asname2
+                descr: descr
+                org: ORG-TOL1-TEST
+                admin-c: TEST-RIPE
+                tech-c: TEST-RIPE
+                mnt-by: RIPE-NCC-END-MNT
+                changed: test@ripe.net
+                source: TEST
+                password: update
+                """)
+      then:
+        response =~ /Modify SUCCEEDED: \[aut-num\] AS123/
     }
 }
