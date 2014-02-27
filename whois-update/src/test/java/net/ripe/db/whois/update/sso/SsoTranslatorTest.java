@@ -80,7 +80,7 @@ public class SsoTranslatorTest {
         final RpslObject object = RpslObject.parse("aut-num: AS1234");
         when(update.getSubmittedObject()).thenReturn(object);
 
-        subject.populate(update, updateContext);
+        subject.populateCacheAuthToUuid(updateContext, update);
 
         verifyZeroInteractions(updateContext);
     }
@@ -90,7 +90,7 @@ public class SsoTranslatorTest {
         final RpslObject object = RpslObject.parse("mntner: TEST-MNT\nauth: MD5-PW aaff1232431");
         when(update.getSubmittedObject()).thenReturn(object);
 
-        subject.populate(update, updateContext);
+        subject.populateCacheAuthToUuid(updateContext, update);
 
         verifyZeroInteractions(updateContext);
     }
@@ -101,7 +101,7 @@ public class SsoTranslatorTest {
         when(update.getSubmittedObject()).thenReturn(object);
         when(updateContext.hasSsoTranslationResult("user@test.net")).thenReturn(true);
 
-        subject.populate(update, updateContext);
+        subject.populateCacheAuthToUuid(updateContext, update);
 
         verify(updateContext, times(0)).addSsoTranslationResult(eq("user@test.net"), anyString());
     }
