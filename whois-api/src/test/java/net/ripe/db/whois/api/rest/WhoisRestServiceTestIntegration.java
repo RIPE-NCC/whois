@@ -1225,6 +1225,62 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.assertErrorMessage(whoisResources, 2, "Error", "Syntax error in %s", "INVALID-2");
         }
     }
+
+    @Ignore("TODO: [ES] response is plaintext 'The validated collection is empty'")
+    @Test
+    public void create_invalid_format_no_attributes() {
+        try {
+            RestTest.target(getPort(), "whois/test/person.json?password=test")
+                    .request()
+                    .post(Entity.entity("{\n" +
+                            "  \"objects\" : {\n" +
+                            "    \"object\" : [ {\n" +
+                            "      \"type\" : \"inetnum\",\n" +
+                            "      \"source\" : {\n" +
+                            "        \"id\" : \"test\"\n" +
+                            "      },\n" +
+                            "      \"primary-key\" : {\n" +
+                            "        \"attribute\" : [ {\n" +
+                            "          \"name\" : \"inetnum\",\n" +
+                            "          \"value\" : \"10.0.0.0 - 10.255.255.255\"\n" +
+                            "        } ]\n" +
+                            "      }\n" +
+                            "    } ]\n" +
+                            "  }\n" +
+                            "}", MediaType.APPLICATION_JSON), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            System.out.println(e.getResponse().readEntity(String.class));
+        }
+    }
+
+    @Ignore("TODO: [ES] response is plaintext 'Unexpected character'")
+    @Test
+    public void create_invalid_json_format_empty_string() {
+        try {
+            RestTest.target(getPort(), "whois/test/person.json?password=test")
+                    .request()
+                    .post(Entity.entity("{\n" +
+                            "  \"objects\" : {\n" +
+                            "    \"object\" : [ {\n" +
+                            "      \"type\" : \"inetnum\",\n" +
+                            "      \"source\" : {\n" +
+                            "        \"id\" : \"test\"\n" +
+                            "      },\n" +
+                            "      \"primary-key\" : {\n" +
+                            "        \"attribute\" : [ {\n" +
+                            "          \"\"" +
+                            "        } ]\n" +
+                            "      }\n" +
+                            "    } ]\n" +
+                            "  }\n" +
+                            "}", MediaType.APPLICATION_JSON), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            System.out.println(e.getResponse().readEntity(String.class));
+        }
+    }
+
     @Test
     public void create_invalid_reference() {
         try {
