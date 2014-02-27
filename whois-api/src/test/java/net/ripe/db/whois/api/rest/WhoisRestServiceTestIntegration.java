@@ -31,6 +31,10 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.filter.EncodingFilter;
+import org.glassfish.jersey.message.DeflateEncoder;
+import org.glassfish.jersey.message.GZipEncoder;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -48,6 +52,7 @@ import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Variant;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -1659,6 +1664,24 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        ] }\n" +
                         "    }] \n" +
                         "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
+    }
+
+    @Test
+    public void create_gzip_compressed_request_and_response() throws Exception {
+        final Response response = RestTest.target(getPort(), "whois/test/person?password=test")
+                .property(ClientProperties.USE_ENCODING, "gzip")
+                .register(EncodingFilter.class)
+                .register(GZipEncoder.class)
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), new Variant(MediaType.APPLICATION_XML_TYPE, (String) null, "gzip")), Response.class);
+
+        assertThat(response.getHeaderString("Content-Type"), is(MediaType.APPLICATION_XML));
+        assertThat(response.getHeaderString("Content-Encoding"), is("gzip"));
+
+        final WhoisResources whoisResources = response.readEntity(WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), hasItem(new Attribute("person", "Pauleth Palthen")));
     }
 
     // delete
@@ -3632,6 +3655,36 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, not(containsString("errormessage")));
+    }
+
+    @Test
+    public void search_gzip_compressed_response() throws Exception {
+        final Response response = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST")
+                .register(EncodingFilter.class)
+                .register(GZipEncoder.class)
+                .request(MediaType.APPLICATION_XML)
+                .get();
+
+        assertThat(response.getHeaderString("Content-Type"), is(MediaType.APPLICATION_XML));
+        assertThat(response.getHeaderString("Content-Encoding"), is("gzip"));
+
+        final WhoisResources whoisResources = response.readEntity(WhoisResources.class);
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+    }
+
+    @Test
+    public void search_zlib_compressed_response() throws Exception {
+        final Response response = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST")
+                .register(EncodingFilter.class)
+                .register(DeflateEncoder.class)
+                .request(MediaType.APPLICATION_XML)
+                .get();
+
+        assertThat(response.getHeaderString("Content-Type"), is(MediaType.APPLICATION_XML));
+        assertThat(response.getHeaderString("Content-Encoding"), is("deflate"));
+
+        final WhoisResources whoisResources = response.readEntity(WhoisResources.class);
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
     }
 
     // maintenance mode
