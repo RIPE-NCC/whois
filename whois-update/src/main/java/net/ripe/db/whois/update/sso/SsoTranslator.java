@@ -12,6 +12,8 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.CheckForNull;
+
 @Component
 public class SsoTranslator {
     private final CrowdClient crowdClient;
@@ -21,10 +23,33 @@ public class SsoTranslator {
         this.crowdClient = crowdClient;
     }
 
-    public void populate(final Update update, final UpdateContext updateContext) {
+    public void populateCacheAuthToUsername(final UpdateContext updateContext, final RpslObject rpslObject) {
+        SsoHelper.translateAuth(rpslObject, new AuthTranslator() {
+            @Override
+            @CheckForNull
+            public RpslAttribute translate(final String authType, final String authToken, final RpslAttribute originalAttribute) {
+                if (authType.equals("SSO")) {
+                    if (!updateContext.hasSsoTranslationResult(authToken)) {
+                        try {
+                            final String username = crowdClient.getUsername(authToken);
+                            updateContext.addSsoTranslationResult(authToken, username);
+                        } catch (CrowdClientException e) {
+                            if (!updateContext.getGlobalMessages().getErrors().contains(UpdateMessages.ripeAccessServerUnavailable())) {
+                                updateContext.addGlobalMessage(UpdateMessages.ripeAccessServerUnavailable());
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+        });
+    }
+
+    public void populateCacheAuthToUuid(final UpdateContext updateContext, final Update update) {
         final RpslObject submittedObject = update.getSubmittedObject();
         SsoHelper.translateAuth(submittedObject, new AuthTranslator() {
             @Override
+            @CheckForNull
             public RpslAttribute translate(final String authType, final String authToken, final RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
                     if (!updateContext.hasSsoTranslationResult(authToken)) {
@@ -42,22 +67,29 @@ public class SsoTranslator {
     }
 
     public RpslObject translateFromCacheAuthToUuid(final UpdateContext updateContext, final RpslObject rpslObject) {
-        return translateFromCacheAuth(updateContext, rpslObject);
+        return translateAuthFromCache(updateContext, rpslObject);
     }
 
     public RpslObject translateFromCacheAuthToUsername(final UpdateContext updateContext, final RpslObject rpslObject) {
-        return translateFromCacheAuth(updateContext, rpslObject);
+        return translateAuthFromCache(updateContext, rpslObject);
     }
 
-    private RpslObject translateFromCacheAuth(final UpdateContext updateContext, final RpslObject rpslObject) {
+    private RpslObject translateAuthFromCache(final UpdateContext updateContext, final RpslObject rpslObject) {
         return SsoHelper.translateAuth(rpslObject, new AuthTranslator() {
             @Override
+            @CheckForNull
             public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
-                    String authValue = String.format("SSO %s", updateContext.getSsoTranslationResult(authToken));
-                    return new RpslAttribute(originalAttribute.getKey(), authValue);
+                    final String translatedValue = updateContext.getSsoTranslationResult(authToken);
+                    if (translatedValue != null) {
+                        String authValue = String.format("SSO %s", translatedValue);
+                        return new RpslAttribute(originalAttribute.getKey(), authValue);
+                    } else {
+                        return null;
+                    }
+                } else {
+                    return null;
                 }
-                return null;
             }
         });
     }
