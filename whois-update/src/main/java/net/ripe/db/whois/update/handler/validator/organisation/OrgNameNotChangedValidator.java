@@ -74,7 +74,7 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
 
         final Subject subject = updateContext.getSubject(update);
         if ( rsMaintainedReferenceFound && !(update.isOverride() || subject.hasPrincipal(Principal.RS_MAINTAINER))) {
-            updateContext.addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+            updateContext.addMessage(update, UpdateMessages.cantChangeOrgName());
         }
     }
 
