@@ -646,6 +646,44 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """)
       then:
+        response =~ /Modify SUCCEEDED: \[aut-num\] AS123/
+    }
+
+    def "org attribute changed any RS mntner not override nor auth by RS"() {
+      given:
+        databaseHelper.addObject("" +
+                "mntner: RIPE-NCC-END-MNT\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "auth: MD5-PW \$1\$lg/7YFfk\$X6ScFx7wATYpuuh/VNU631 #end\n" +
+                "source: TEST");
+
+        databaseHelper.addObject("" +
+                "aut-num: AS123\n" +
+                "as-name: asname\n" +
+                "descr: descr\n" +
+                "org: ORG-TOL2-TEST\n" +
+                "admin-c: TEST-RIPE\n" +
+                "tech-c: TEST-RIPE\n" +
+                "mnt-by: TST-MNT\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                aut-num: AS123
+                as-name: asname2
+                descr: descr
+                org: ORG-TOL1-TEST
+                admin-c: TEST-RIPE
+                tech-c: TEST-RIPE
+                mnt-by: TST-MNT
+                mnt-by: RIPE-NCC-END-MNT
+                changed: test@ripe.net
+                source: TEST
+                password: update
+                """)
+      then:
         response =~ /Error:   The org attribute value can only be set by administrative mntners/
     }
 
