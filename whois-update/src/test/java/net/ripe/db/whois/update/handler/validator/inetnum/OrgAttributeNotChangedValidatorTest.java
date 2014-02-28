@@ -1,5 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
@@ -8,6 +10,7 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -26,7 +29,13 @@ public class OrgAttributeNotChangedValidatorTest {
     @Mock private UpdateContext updateContext;
     @Mock private PreparedUpdate update;
     @Mock private Subject subjectObject;
+    @Mock private Maintainers maintainers;
     @InjectMocks private OrgAttributeNotChangedValidator subject;
+
+    @Before
+    public void setup() {
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT", "RIPE-NCC-END-MNT"));
+    }
 
     @Test
     public void getActions() {
@@ -84,7 +93,29 @@ public class OrgAttributeNotChangedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+        verify(updateContext, never()).addMessage(update, UpdateMessages.cantChangeOrgAttribute());
+    }
+
+    @Test
+    public void validate_resource_maintained_by_ripe_auth_by_other_mnt() {
+        final RpslObject original = RpslObject.parse("" +
+                "aut-num: AS123\n" +
+                "org: ORG-RT-TEST\n" +
+                "mnt-by: RIPE-NCC-HM-MNT");
+        when(update.getReferenceObject()).thenReturn(original);
+
+        final RpslObject updated = RpslObject.parse("" +
+                "aut-num: AS123\n" +
+                "org: ORG-PQ-TEST\n" +
+                "mnt-by: RIPE-NCC-HM-MNT");
+        when(update.getUpdatedObject()).thenReturn(updated);
+        when(update.isOverride()).thenReturn(Boolean.FALSE);
+        when(updateContext.getSubject(update)).thenReturn(subjectObject);
+        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, UpdateMessages.cantChangeOrgAttribute());
     }
 
     @Test
