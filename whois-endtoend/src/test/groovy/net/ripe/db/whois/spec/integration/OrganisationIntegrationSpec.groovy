@@ -646,7 +646,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """)
       then:
-        response =~ /Error:   This org-type value can only be set by administrative mntners/
+        response =~ /Error:   The org attribute value can only be set by administrative mntners/
     }
 
     def "org attribute changed RS mntner not override"() {
@@ -811,7 +811,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
       then:
-        response =~ /Error:   This org-type value can only be set by administrative mntners/
+        response =~ /Error:   The org name can only be set by administrative mntners/
     }
 
     def "org-name changed organisation ref by resource with RSmntner auth by RS mntner"() {

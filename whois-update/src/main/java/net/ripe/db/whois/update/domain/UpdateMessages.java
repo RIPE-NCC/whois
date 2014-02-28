@@ -193,6 +193,14 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "This org-type value can only be set by administrative mntners");
     }
 
+    public static Message cantChangeOrgAttribute() {
+        return new Message(Type.ERROR, "The org attribute value can only be set by administrative mntners");
+    }
+
+    public static Message cantChangeOrgName() {
+        return new Message(Type.ERROR, "The org name can only be set by administrative mntners");
+    }
+
     public static Message countryNotRecognised(final CharSequence country) {
         return new Message(Type.ERROR, "Country not recognised: %s", country);
     }

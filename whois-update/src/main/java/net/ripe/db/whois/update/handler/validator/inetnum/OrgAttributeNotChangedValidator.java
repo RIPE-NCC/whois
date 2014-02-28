@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -20,6 +21,12 @@ import java.util.Objects;
 
 @Component
 public class OrgAttributeNotChangedValidator implements BusinessRuleValidator {
+    private final Maintainers maintainers;
+
+    public OrgAttributeNotChangedValidator(final Maintainers maintainers) {
+        this.maintainers = maintainers;
+    }
+
     @Override
     public List<Action> getActions() {
         return Collections.singletonList(Action.MODIFY);
@@ -42,7 +49,7 @@ public class OrgAttributeNotChangedValidator implements BusinessRuleValidator {
 
         final Subject subject = updateContext.getSubject(update);
         if (!(update.isOverride() || subject.hasPrincipal(Principal.RS_MAINTAINER))) {
-            updateContext.addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+            updateContext.addMessage(update, UpdateMessages.cantChangeOrgAttribute());
         }
     }
 }
