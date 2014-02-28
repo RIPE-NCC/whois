@@ -44,6 +44,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringValueResolver;
 
+import javax.annotation.CheckForNull;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -326,6 +327,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     public RpslObject translateAuth(final RpslObject rpslObject) {
         return SsoHelper.translateAuth(rpslObject, new AuthTranslator() {
             @Override
+            @CheckForNull
             public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
                     try {

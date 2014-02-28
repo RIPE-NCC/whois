@@ -124,7 +124,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "mnt-by:         SSO-ONLY-MNT\n" +
             "referral-by:    SSO-ONLY-MNT\n" +
             "upd-to:         noreply@ripe.net\n" +
-            "changed:        noreply@ripe.net\n" +
+            "changed:        noreply@ripe.net 20120101\n" +
+            "source:         TEST");
+
+    private static final RpslObject SSO_AND_PASSWORD_MNT = RpslObject.parse("" +
+            "mntner:         SSO-PASSWORD-MNT\n" +
+            "descr:          Maintainer\n" +
+            "admin-c:        TP1-TEST\n" +
+            "auth:           SSO person@net.net\n" +
+            "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+            "mnt-by:         SSO-PASSWORD-MNT\n" +
+            "referral-by:    SSO-PASSWORD-MNT\n" +
+            "upd-to:         noreply@ripe.net\n" +
+            "changed:        noreply@ripe.net 20120101\n" +
             "source:         TEST");
 
     private static final RpslObject TEST_PERSON = RpslObject.parse("" +
@@ -1554,7 +1566,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_self_referencing_maintainer_sso_auth_only_and_uuid_is_stored_in_database() {
+    public void create_self_referencing_maintainer_sso_auth_only() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
@@ -1711,7 +1723,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         try {
             databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST");
             fail();
-        } catch (EmptyResultDataAccessException expected) {
+        } catch (EmptyResultDataAccessException ignored) {
+            // expected
         }
     }
 
@@ -1734,9 +1747,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("TODO: bad request on delete")
     @Test
-    public void delete_self_referencing_maintainer_with_crowd_token_succeeds() throws Exception {
+    public void delete_self_referencing_maintainer_with_sso_auth_attribute_authenticated_with_crowd_token_succeeds() throws Exception {
         databaseHelper.addObject(SSO_ONLY_MNT);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/SSO-ONLY-MNT")
@@ -1750,6 +1762,48 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         try {
             databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-ONLY-MNT");
+            fail();
+        } catch (EmptyResultDataAccessException ignored) {
+            // expected
+        }
+    }
+
+    @Test
+    public void delete_self_referencing_maintainer_with_sso_auth_attribute_authenticated_with_password_succeeds() throws Exception {
+        databaseHelper.addObject(SSO_AND_PASSWORD_MNT);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT?password=test")
+                .request()
+                .delete(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
+
+        try {
+            databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-PASSWORD-MNT");
+            fail();
+        } catch (EmptyResultDataAccessException ignored) {
+            // expected
+        }
+    }
+
+    @Test
+    public void delete_self_referencing_maintainer_with_sso_auth_attribute_invalid_token_authenticated_with_password_succeeds() throws Exception {
+        databaseHelper.addObject(SSO_AND_PASSWORD_MNT);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT?password=test")
+                .request()
+                .cookie("crowd.token_key", "invalid-token")
+                .delete(WhoisResources.class);
+
+        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Info", "RIPE NCC Access token ignored");
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
+
+        try {
+            databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-PASSWORD-MNT");
             fail();
         } catch (EmptyResultDataAccessException ignored) {
             // expected

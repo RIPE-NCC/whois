@@ -97,7 +97,7 @@ public class UpdateRequestHandler {
         dnsChecker.checkAll(updateRequest, updateContext);
 
         for (final Update update : updateRequest.getUpdates()) {
-            ssoTranslator.populate(update, updateContext);
+            ssoTranslator.populateCacheAuthToUuid(updateContext, update);
         }
 
         processUpdateQueue(updateRequest, updateContext);
