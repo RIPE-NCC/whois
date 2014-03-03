@@ -1983,11 +1983,13 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(3, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
-                ["Authorisation for [organisation] ORG-LIR2-TEST failed"]
+                ["Authorisation for [organisation] ORG-LIR2-TEST failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT",
+                 "This org-type value can only be set by administrative mntners",
+                 "The org name can only be set by administrative mntners"]
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "Local Internet Registry")
     }
