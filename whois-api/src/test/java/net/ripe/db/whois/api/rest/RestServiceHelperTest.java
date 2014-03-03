@@ -16,21 +16,26 @@ public class RestServiceHelperTest {
     @Mock private HttpServletRequest request;
 
     @Test
-    public void getRequestUrl_url_only() {
-        when(request.getRequestURL()).thenReturn(new StringBuffer("http://test.net"));
-
-        final String result = RestServiceHelper.getRequestURL(request);
-
-        assertThat(result, is("http://test.net"));
+    public void getRequestUrl() {
+        assertThat(getRequestURL("http://test.net", null), is("http://test.net"));
+        assertThat(getRequestURL("http://test.net", "flags=list-versions"), is("http://test.net?flags=list-versions"));
+        assertThat(getRequestURL("http://test.net", "password=abc"), is("http://test.net"));
+        assertThat(getRequestURL("http://test.net", "password=abc&password=xyz"), is("http://test.net"));
+        assertThat(getRequestURL("http://test.net", "param=one&password=xyz"), is("http://test.net?param=one"));
+        assertThat(getRequestURL("http://test.net", "password=xyz&param=one"), is("http://test.net?param=one"));
+        assertThat(getRequestURL("http://test.net", "password=abc&param=one&password=xyz"), is("http://test.net?param=one"));
+        assertThat(getRequestURL("http://test.net", "param=one&password=abc&param=two"), is("http://test.net?param=one&param=two"));
+        assertThat(getRequestURL("http://test.net", "param=one&password=abc&param=two&password=xyz"), is("http://test.net?param=one&param=two"));
+        assertThat(getRequestURL("http://test.net", "password=abc&param=one&password=xyz&param=two"), is("http://test.net?param=one&param=two"));
+        assertThat(getRequestURL("http://test.net", "password=aaa&password=bbb&param=one&password=ccc&param=two"), is("http://test.net?param=one&param=two"));
     }
 
-    @Test
-    public void getRequestUrl_url_and_querystring() {
-        when(request.getRequestURL()).thenReturn(new StringBuffer("http://test.net"));
-        when(request.getQueryString()).thenReturn("flags=list-versions");
+    // helper methods
 
-        final String result = RestServiceHelper.getRequestURL(request);
+    private String getRequestURL(final String url, final String queryString) {
+        when(request.getRequestURL()).thenReturn(new StringBuffer(url));
+        when(request.getQueryString()).thenReturn(queryString);
 
-        assertThat(result, is("http://test.net?flags=list-versions"));
+        return RestServiceHelper.getRequestURL(request);
     }
 }

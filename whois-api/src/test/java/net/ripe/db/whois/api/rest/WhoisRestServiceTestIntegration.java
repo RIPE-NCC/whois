@@ -798,6 +798,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
+    // TODO: [ES] XML xlink:href for request URL ?
     @Test
     public void lookup_mntner_xml_text() {
         final String result = RestTest.target(getPort(), "whois/test/mntner/owner-mnt.xml")
@@ -1175,7 +1176,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person?password=test", getPort())));
+        assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person", getPort())));
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
 
@@ -1430,7 +1431,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, is(String.format("" +
                 "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
-                "  <link xlink:type=\"locator\" xlink:href=\"http://localhost:%d/test/person?password=test\" />\n" +
+                "  <link xlink:type=\"locator\" xlink:href=\"http://localhost:%d/test/person\" />\n" +
                 "  <objects>\n" +
                 "    <object type=\"person\">\n" +
                 "      <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/PP1-TEST\" />\n" +
@@ -1467,7 +1468,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "{\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://localhost:%d/test/person?password=test\"\n" +
+                "    \"href\" : \"http://localhost:%d/test/person\"\n" +
                 "  },\n" +
                 "  \"objects\" : {\n" +
                 "    \"object\" : [ {\n" +
@@ -2035,7 +2036,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "{\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://localhost:%s/test/mntner/OWNER-MNT?password=test\"\n" +
+                "    \"href\" : \"http://localhost:%s/test/mntner/OWNER-MNT\"\n" +
                 "  },\n" +
                 "  \"objects\" : {\n" +
                 "    \"object\" : [ {\n" +
