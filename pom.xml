@@ -71,6 +71,10 @@
             <id>ripe-releases</id>
             <url>http://nexus.ripe.net/nexus/content/repositories/releases</url>
         </repository>
+        <repository>
+            <id>ripe-snapshots</id>
+            <url>http://nexus.ripe.net/nexus/content/repositories/snapshots</url>
+        </repository>
     </distributionManagement>
 
     <modules>
