@@ -14,6 +14,7 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -37,6 +38,12 @@ public class OrgNameNotChangedValidatorTest {
     @Mock private RpslObjectDao objectDao;
     @Mock private Maintainers maintainers;
     @InjectMocks private OrgNameNotChangedValidator subject;
+
+    @Before
+    public void setup() {
+        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT"), CIString.ciString("RIPE-NCC-END-MNT")));
+        when(updateContext.getSubject(update)).thenReturn(subjectObject);
+    }
 
     @Test
     public void getActions() {
@@ -75,8 +82,8 @@ public class OrgNameNotChangedValidatorTest {
                 "organisation: ORG-TEST1\n" +
                 "org-name: Updated Organisation" +
                 "mnt-by: TEST-MNT");
-
         when(update.getUpdatedObject()).thenReturn(updatedObject);
+
         when(updateDao.getReferences(object)).thenReturn(Collections.EMPTY_SET);
 
         subject.validate(update, updateContext);
@@ -96,8 +103,8 @@ public class OrgNameNotChangedValidatorTest {
                 "organisation: ORG-TEST1\n" +
                 "org-name: Updated Organisation" +
                 "mnt-by: TEST-MNT");
-
         when(update.getUpdatedObject()).thenReturn(updatedObject);
+
         when(updateDao.getReferences(object)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.PERSON, "TEST-NIC")));
 
         subject.validate(update, updateContext);
@@ -117,16 +124,15 @@ public class OrgNameNotChangedValidatorTest {
                 "organisation: ORG-TEST1\n" +
                 "org-name: Updated Organisation" +
                 "mnt-by: TEST-MNT");
-
         when(update.getUpdatedObject()).thenReturn(updatedObject);
+
         when(updateDao.getReferences(object)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.AUT_NUM, "AS123")));
         when(objectDao.getById(5)).thenReturn(RpslObject.parse("" +
                 "aut-num: AS3434\n" +
                 "mnt-by: TEST-MNT\n" +
                 "org: ORG-TEST1\n" +
                 "source: TEST"));
-        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT"), CIString.ciString("RIPE-NCC-END-MNT")));
-        when(updateContext.getSubject(update)).thenReturn(subjectObject);
+
         when(update.isOverride()).thenReturn(Boolean.FALSE);
         when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
 
@@ -147,22 +153,21 @@ public class OrgNameNotChangedValidatorTest {
                 "organisation: ORG-TEST1\n" +
                 "org-name: Updated Organisation" +
                 "mnt-by: RIPE-NCC-HM-MNT");
-
         when(update.getUpdatedObject()).thenReturn(updatedObject);
+
         when(updateDao.getReferences(object)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.AUT_NUM, "AS123")));
         when(objectDao.getById(5)).thenReturn(RpslObject.parse("" +
                 "aut-num: AS3434\n" +
                 "mnt-by: RIPE-NCC-END-MNT\n" +
                 "org: ORG-TEST1\n" +
                 "source: TEST"));
-        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT"), CIString.ciString("RIPE-NCC-END-MNT")));
-        when(updateContext.getSubject(update)).thenReturn(subjectObject);
+
         when(update.isOverride()).thenReturn(Boolean.FALSE);
         when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+        verify(updateContext).addMessage(update, UpdateMessages.cantChangeOrgName());
     }
 
     @Test
@@ -177,17 +182,15 @@ public class OrgNameNotChangedValidatorTest {
                 "organisation: ORG-TEST1\n" +
                 "org-name: Updated Organisation" +
                 "mnt-by: TEST-MNT");
-
         when(update.getUpdatedObject()).thenReturn(updatedObject);
+
         when(updateDao.getReferences(object)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.AUT_NUM, "AS123")));
         when(objectDao.getById(5)).thenReturn(RpslObject.parse("" +
                 "aut-num: AS3434\n" +
                 "mnt-by: RIPE-NCC-END-MNT\n" +
                 "org: ORG-TEST1\n" +
                 "source: TEST"));
-        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT"), CIString.ciString("RIPE-NCC-END-MNT")));
 
-        when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(update.isOverride()).thenReturn(Boolean.FALSE);
         when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.TRUE);
 
@@ -208,16 +211,15 @@ public class OrgNameNotChangedValidatorTest {
                 "organisation: ORG-TEST1\n" +
                 "org-name: Updated Organisation" +
                 "mnt-by: TEST-MNT");
-
         when(update.getUpdatedObject()).thenReturn(updatedObject);
+
         when(updateDao.getReferences(object)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.AUT_NUM, "AS123")));
         when(objectDao.getById(5)).thenReturn(RpslObject.parse("" +
                 "aut-num: AS3434\n" +
                 "mnt-by: RIPE-NCC-END-MNT\n" +
                 "org: ORG-TEST1\n" +
                 "source: TEST"));
-        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT"), CIString.ciString("RIPE-NCC-END-MNT")));
-        when(updateContext.getSubject(update)).thenReturn(subjectObject);
+
         when(update.isOverride()).thenReturn(Boolean.TRUE);
         when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
 
