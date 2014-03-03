@@ -22,6 +22,20 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
+                "RL-ORG": """\
+                role:    First Role
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                org:     ORG-LIR2-TEST
+                admin-c: TP1-TEST
+                tech-c:  TP1-TEST
+                nic-hdl: FR1-TEST
+                mnt-by:  OWNER-MNT
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+                """,
                 "ORG": """\
                 organisation:    auto-1
                 org-type:        other
@@ -65,6 +79,20 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
+                "ASSIGN-PA": """\
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR2-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
                 "LEGACY": """\
                 inetnum:      10.168.0.0 - 10.169.255.255
                 netname:      TEST-NET-NAME
@@ -74,6 +102,21 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       EARLY-REGISTRATION
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+                "ASSIGN-PI": """\
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR2-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
@@ -2066,13 +2109,14 @@ class OrgSpec extends BaseQueryUpdateSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
-                ["Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed"]
+                ["Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT",
+                 "The org attribute value can only be set by administrative mntners"]
 
         query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
     }
@@ -2196,6 +2240,258 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
 
         query_object_matches("-r -T inetnum 10.168.0.0 - 10.169.255.255", "inetnum", "10.168.0.0 - 10.169.255.255", "org:\\s*ORG-LIRA-TEST")
+    }
+
+    def "modify assignment, referenced org is type LIR and also referenced in allocation, change org:"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASSIGN-PA") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password:     lir
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
+    }
+
+    def "create assignment, referenced org is type LIR and also referenced in allocation"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
+        queryObjectNotFound("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password:     lir
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
+    }
+
+    def "modify person, referenced org is type LIR and also referenced in allocation, change org:"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("RL-ORG") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T role FR1-TEST", "role", "First Role", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                role:    First Role
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                org:     ORG-LIRA-TEST
+                admin-c: TP1-TEST
+                tech-c:  TP1-TEST
+                nic-hdl: FR1-TEST
+                mnt-by:  OWNER-MNT
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+
+                password:     owner
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+        ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   First Role" }
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -T role FR1-TEST", "role", "First Role", "org:\\s*ORG-LIRA-TEST")
+    }
+    def "modify pi, change org:"() {
+        given:
+        syncUpdate(getTransient("ASSIGN-PI") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password:     lir
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.255.0 - 192.168.255.255") ==
+                ["The org attribute value can only be set by administrative mntners"]
+
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIR2-TEST")
+    }
+
+    def "modify pi, change org: with override"() {
+        given:
+        syncUpdate(getTransient("ASSIGN-PI") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
+    }
+
+    def "modify pi, change org: with RS pw"() {
+        given:
+        syncUpdate(getTransient("ASSIGN-PI") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password:     nccend
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
+
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
     }
 
 }
