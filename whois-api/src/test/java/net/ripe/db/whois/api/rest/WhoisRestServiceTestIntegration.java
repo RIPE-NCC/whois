@@ -757,6 +757,29 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_mntner_encoded_password() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner:         TEST-MNT\n" +
+                "descr:          Test Organisation\n" +
+                "admin-c:        TP1-TEST\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "auth:           MD5-PW $1$GVXqt/5m$TaeN0iPr84mNoz8j3IDs//  # auth?auth \n" +
+                "mnt-by:         TEST-MNT\n" +
+                "referral-by:    TEST-MNT\n" +
+                "changed:        noreply@ripe.net 20140303\n" +
+                "source:         TEST"));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/TEST-MNT?password=auth%3Fauth")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), hasItems(
+                new Attribute("auth", "MD5-PW $1$GVXqt/5m$TaeN0iPr84mNoz8j3IDs//", "auth?auth", null, null)));
+    }
+
+
+    @Test
     public void lookup_irt_correct_password_and_unfiltered_param_is_unfiltered() {
         databaseHelper.addObject(TEST_IRT);
 
@@ -798,7 +821,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
-    // TODO: [ES] XML xlink:href for request URL ?
     @Test
     public void lookup_mntner_xml_text() {
         final String result = RestTest.target(getPort(), "whois/test/mntner/owner-mnt.xml")
@@ -1384,6 +1406,28 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (NotAuthorizedException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
+    }
+
+    @Test
+    public void create_mntner_encoded_password() {
+        final RpslObject rpslObject = RpslObject.parse(
+                "mntner:         TEST-MNT\n" +
+                "descr:          Test Organisation\n" +
+                "admin-c:        TP1-TEST\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "auth:           MD5-PW $1$GVXqt/5m$TaeN0iPr84mNoz8j3IDs//  # auth?auth \n" +
+                "mnt-by:         TEST-MNT\n" +
+                "referral-by:    TEST-MNT\n" +
+                "changed:        noreply@ripe.net 20140303\n" +
+                "source:         TEST");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner?password=auth%3Fauth")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(rpslObject)), MediaType.APPLICATION_JSON), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%d/test/mntner", getPort())));
     }
 
     @Test
