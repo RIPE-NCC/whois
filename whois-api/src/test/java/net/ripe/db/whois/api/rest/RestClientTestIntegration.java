@@ -306,6 +306,88 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_person_multiple_matches() {
+        databaseHelper.addObject(
+                "person:        WW Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       WP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST\n");
+        databaseHelper.addObject(
+                "person:        Someone Else\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       WW\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST\n");
+
+        final RpslObject response = restClient.request().lookup(ObjectType.PERSON, "WW");
+
+        assertThat(response.getValueForAttribute(AttributeType.NIC_HDL).toString(), is("WW"));
+    }
+
+    @Test
+    public void lookup_route_multiple_matches() {
+        databaseHelper.addObject(
+                "inetnum:       193.0.0.0 - 193.0.0.255\n" +
+                "netname:       RIPE-NCC\n" +
+                "descr:         some description\n" +
+                "country:       NL\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "status:        SUB-ALLOCATED PA\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       org@ripe.net 20120505\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "aut-num:       AS3333\n" +
+                "as-name:       RIPE-NCC-ONE\n" +
+                "descr:         RIPE-NCC\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       noreply@ripe.net 20120101\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "aut-num:       AS3334\n" +
+                "as-name:       RIPE-NCC-TWO\n" +
+                "descr:         RIPE-NCC\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       noreply@ripe.net 20120101\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "route:         193.0.0.0/21\n" +
+                "descr:         RIPE-NCC\n" +
+                "origin:        AS3333\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       noreply@ripe.net 20120101\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "route:         193.0.0.0/21\n" +
+                "descr:         RIPE-NCC\n" +
+                "origin:        AS3334\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       noreply@ripe.net 20120101\n" +
+                "source:        TEST");
+        resetIpTrees();
+
+        // TODO: [ES] what should happen on multiple matches, if the primary key is not fully specified? currently return the first match.
+        final RpslObject responseNoOrgin = restClient.request().lookup(ObjectType.ROUTE, "193.0.0.0/21");
+        assertThat(responseNoOrgin.getValueForAttribute(AttributeType.ROUTE).toString(), is("193.0.0.0/21"));
+        assertThat(responseNoOrgin.getValueForAttribute(AttributeType.ORIGIN).toString(), is("AS3333"));
+
+        // primary key is fully specified (one match)
+        final RpslObject responseWithOrgin = restClient.request().lookup(ObjectType.ROUTE, "193.0.0.0/21AS3334");
+        assertThat(responseWithOrgin.getValueForAttribute(AttributeType.ROUTE).toString(), is("193.0.0.0/21"));
+        assertThat(responseWithOrgin.getValueForAttribute(AttributeType.ORIGIN).toString(), is("AS3334"));
+    }
+
+    @Test
     public void delete_with_reason() {
         final RpslObject person = RpslObject.parse("" +
                 "person:        Test Person\n" +

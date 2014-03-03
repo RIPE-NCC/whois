@@ -1,10 +1,10 @@
 package net.ripe.db.whois.api.rest;
 
-
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
+import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -204,7 +204,21 @@ public class RestClientTarget {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
 
-            return whoisResources.getWhoisObjects().get(0);
+            if (whoisResources.getWhoisObjects().size() == 1) {
+                return whoisResources.getWhoisObjects().get(0);
+            } else {
+                for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
+                    if (whoisObject.getType().equals(objectType.getName())) {
+                        for (Attribute attribute : whoisObject.getPrimaryKey()) {
+                            if (attribute.getValue().equalsIgnoreCase(pkey)) {
+                                return whoisObject;
+                            }
+                        }
+                    }
+                }
+
+                throw new RestClientException(pkey + " (" + objectType.getName() + ") not found in " + source);
+            }
 
         } catch (ClientErrorException e) {
             throw createException(e);
