@@ -68,7 +68,7 @@
 
     <distributionManagement>
         <repository>
-            <id>nexus</id>
+            <id>ripe-releases</id>
             <url>http://nexus.ripe.net/nexus/content/repositories/releases</url>
         </repository>
     </distributionManagement>
