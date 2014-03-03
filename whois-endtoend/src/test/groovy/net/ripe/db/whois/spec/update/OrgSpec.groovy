@@ -107,6 +107,19 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
+                "LEGACY-NO-ORG": """\
+                inetnum:      10.168.0.0 - 10.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       EARLY-REGISTRATION
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
                 "ASSIGN-PI": """\
                 inetnum:      192.168.255.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
@@ -1994,6 +2007,44 @@ class OrgSpec extends BaseQueryUpdateSpec {
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "Local Internet Registry")
     }
 
+    def "modify organisation, remove org-name attribute"() {
+      given:
+        dbfixture(getTransient("ORG-NAME"))
+
+      expect:
+        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+      when:
+        def message = syncUpdate("""
+                organisation:    ORG-FO1-TEST
+                org-type:        other
+                org:             ORG-FO1-TEST
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                changed:         denis@ripe.net 20121016
+                source:          TEST
+
+                password: owner2
+                """.stripIndent()
+        )
+
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-FO1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-FO1-TEST") == ["Mandatory attribute \"org-name\" is missing"]
+    }
+
     def "modify organisation, org-type:LIR, change org-name with override"() {
         given:
         syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
@@ -2073,11 +2124,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "My Registry")
     }
-
-
-
-
-
 
     def "modify allocation, change org:"() {
         given:
@@ -2244,6 +2290,41 @@ class OrgSpec extends BaseQueryUpdateSpec {
         query_object_matches("-r -T inetnum 10.168.0.0 - 10.169.255.255", "inetnum", "10.168.0.0 - 10.169.255.255", "org:\\s*ORG-LIRA-TEST")
     }
 
+    def "modify legacy, add org: attribute"() {
+      given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("LEGACY-NO-ORG") + "override: denis,override1")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      10.168.0.0 - 10.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR2-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       EARLY-REGISTRATION
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password:     lir
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
     def "modify assignment, referenced org is type LIR and also referenced in allocation, change org:"() {
         given:
         syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
@@ -2369,6 +2450,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-r -T role FR1-TEST", "role", "First Role", "org:\\s*ORG-LIRA-TEST")
     }
+
     def "modify pi, change org:"() {
         given:
         syncUpdate(getTransient("ASSIGN-PI") + "override: denis,override1")
