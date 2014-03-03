@@ -14,6 +14,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.log4j.helpers.NullEnumeration;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -184,7 +185,7 @@ public class InternalUpdatePerformerTest {
     @Test
     public void createOrigin() {
         when(requestMock.getRemoteAddr()).thenReturn("127.0.0.1");
-        when(dateTimeProviderMock.getCurrentDateTime()).thenReturn(new LocalDateTime(5556667777888l));
+        when(dateTimeProviderMock.getCurrentDateTime()).thenReturn(new LocalDateTime(5556667777888l, DateTimeZone.UTC));
 
         final Origin origin = subject.createOrigin(requestMock);
 
@@ -193,10 +194,10 @@ public class InternalUpdatePerformerTest {
         assertThat(origin.getName(), is("rest api"));
         assertThat(origin.getNotificationHeader(), containsString("" +
                 "- From-Host: 127.0.0.1\n" +
-                " - Date/Time: Mon Jan 31 07:49:37"));
+                " - Date/Time: Mon Jan 31 06:49:37"));
         assertThat(origin.getResponseHeader(), containsString("" +
                 "- From-Host: 127.0.0.1\n" +
-                " - Date/Time: Mon Jan 31 07:49:37"));
+                " - Date/Time: Mon Jan 31 06:49:37"));
     }
 
     @Test
