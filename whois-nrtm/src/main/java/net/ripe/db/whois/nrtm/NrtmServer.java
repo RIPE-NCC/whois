@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
+// TODO: [ES] refactor use of two variables (one static) for port number
 @Component
 public class NrtmServer implements ApplicationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmServer.class);
@@ -34,8 +35,8 @@ public class NrtmServer implements ApplicationService {
     private Channel serverChannelLegacy;
     private Channel serverChannel;
 
-    public static int port;
-    public static int legacyPort;
+    private static int port;
+    private static int legacyPort;
 
     @Autowired
     public NrtmServer(final NrtmChannelsRegistry nrtmChannelsRegistry,
@@ -55,8 +56,8 @@ public class NrtmServer implements ApplicationService {
             return;
         }
 
-        serverChannel = bootstrapChannel(nrtmServerPipelineFactory, port, "NEW DUMMIFER");
-        serverChannelLegacy = bootstrapChannel(legacyNrtmServerPipelineFactory, legacyPort, "OLD DUMMIFER");
+        serverChannel = bootstrapChannel(nrtmServerPipelineFactory, nrtmPort, "NEW DUMMIFER");
+        serverChannelLegacy = bootstrapChannel(legacyNrtmServerPipelineFactory, nrtmPortLegacy, "OLD DUMMIFER");
 
         port = ((InetSocketAddress) serverChannel.getLocalAddress()).getPort();
         legacyPort = ((InetSocketAddress) serverChannelLegacy.getLocalAddress()).getPort();
@@ -97,5 +98,13 @@ public class NrtmServer implements ApplicationService {
                 maintenanceMode.setShutdown();
             }
         }
+    }
+
+    public static int getPort() {
+        return port;
+    }
+
+    public static int getLegacyPort() {
+        return legacyPort;
     }
 }
