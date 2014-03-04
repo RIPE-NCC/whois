@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -49,14 +50,17 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
         }
 
         final CIString orgType = update.getUpdatedObject().getValueForAttribute(AttributeType.ORG_TYPE);
+        final boolean authPowerMntner = updateContext.getSubject(update).hasPrincipal(Principal.POWER_MAINTAINER);
 
         if (!OTHER.equals(orgType)) {
-            final Set<CIString> mntBys = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
-            final boolean hasOnlyPowerMaintainer = Sets.intersection(maintainers.getPowerMaintainers(), mntBys).containsAll(mntBys);
-
-            if (!hasOnlyPowerMaintainer || !updateContext.getSubject(update).hasPrincipal(Principal.POWER_MAINTAINER)) {
+            if (!authPowerMntner && (update.getAction() == Action.CREATE ||
+                    (update.getAction() == Action.MODIFY && orgTypeHasChanged(update.getReferenceObject().getValueForAttribute(AttributeType.ORG_TYPE), orgType)))) {
                 updateContext.addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
             }
         }
+    }
+
+    private boolean orgTypeHasChanged(final CIString originalOrgtype, final CIString newOrgtype) {
+        return !originalOrgtype.equals(newOrgtype);
     }
 }
