@@ -258,7 +258,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         result =~ /\*\*\*Error:   This org-type value can only be set by administrative mntners/
     }
 
-    def "other mntners than powermaintainers fail create"() {
+    def "create auth by pwrmntner succeeds"() {
       given:
         def update = new SyncUpdate(data: "organisation: AUTO-1\n" +
                 "org-name:     Other Organisation Ltd\n" +
@@ -277,7 +277,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         def result = syncUpdate update
 
       then:
-        result =~ /\*\*\*Error:   This org-type value can only be set by administrative mntners/
+        result =~ /Create SUCCEEDED: \[organisation\] ORG-OOL1-TEST/
     }
 
     def "create organisation no mntner"() {

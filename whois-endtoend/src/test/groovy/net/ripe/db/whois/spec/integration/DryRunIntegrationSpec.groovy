@@ -222,7 +222,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
                 dry-run:""".stripIndent())
 
       then:
-        response =~ /\*\*\*Error:   This org-type value can only be set by administrative mntners/
         response =~ /\*\*\*Info:    Dry-run performed, no changes to the database have been made/
     }
 
