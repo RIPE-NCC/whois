@@ -31,7 +31,7 @@ class RestQueryProperties {
             throw new IllegalArgumentException("Cannot determine Source from query");
         }
 
-        if (query.toLowerCase().startsWith("whois/search?")){
+        if (query.toLowerCase().startsWith("whois/search")){
             this.queryType = QueryType.SEARCH;
         } else if (query.toLowerCase().startsWith("whois/ripe/") || query.toLowerCase().contains("whois/test/")) {
             this.queryType = QueryType.LOOKUP;
