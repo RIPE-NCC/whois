@@ -9,8 +9,8 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.query.endtoend.compare.CompareResults;
 import net.ripe.db.whois.query.endtoend.compare.ComparisonConfiguration;
 import net.ripe.db.whois.query.endtoend.compare.ComparisonExecutor;
-import net.ripe.db.whois.query.endtoend.compare.query.KnownDifferencesPredicate;
 import net.ripe.db.whois.query.endtoend.compare.QueryReader;
+import net.ripe.db.whois.query.endtoend.compare.query.KnownDifferencesPredicate;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
 import org.slf4j.Logger;
@@ -41,7 +41,10 @@ public class RestCompareResults implements CompareResults {
     private final File targetDir;
     private final int logEntries;
 
-    public RestCompareResults(final RestExecutorConfiguration config1, final RestExecutorConfiguration config2, final QueryReader queryReader, final File targetDir, final int logEntries) throws UnknownHostException {
+    public RestCompareResults(final RestExecutorConfiguration config1,
+                              final RestExecutorConfiguration config2,
+                              final QueryReader queryReader, final File targetDir,
+                              final int logEntries) throws UnknownHostException {
         this.config1 = config1;
         this.config2 = config2;
         this.restExecutor1 = new RestExecutor(config1);
@@ -94,14 +97,12 @@ public class RestCompareResults implements CompareResults {
         assertThat("Number of failed queries", failedQueries, Matchers.is(0));
     }
 
-    public Future<List<ResponseObject>> executeQuery(final ComparisonExecutor queryExecutor, final String queryString) {
+    public Future<List<ResponseObject>> executeQuery(final ComparisonExecutor comparisonExecutor, final String queryString) {
         return executorService.submit(new Callable<List<ResponseObject>>() {
             @Override
             public List<ResponseObject> call() throws Exception {
-                return queryExecutor.getResponse(queryString);
+                return comparisonExecutor.getResponse(queryString);
             }
         });
     }
-
-
 }
