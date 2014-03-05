@@ -9,6 +9,16 @@
 whois/ripe/mntner/RIPE-DBM-STARTUP-MNT
 whois/ripe/person/dw-ripe
 whois/ripe/inet6num/2001:2002:2003::
+whois/ripe/inetnum/193.0.0.0%20-%20193.0.7.255
+whois/ripe/organisation/olga
+whois/ripe/route6
+
+whois/ripe/mntner/RIPE-DBM-STARTUP-MNT.json
+whois/ripe/person/dw-ripe.json
+whois/ripe/inet6num/2001:2002:2003::.json
+whois/ripe/inetnum/193.0.0.0%20-%20193.0.7.255.json
+whois/ripe/organisation/olga.json
+whois/ripe/route6.json
 
 
 # search
@@ -19,5 +29,39 @@ whois/ripe/inet6num/2001:2002:2003::
 
 
 whois/search?query-string=AS102&source=RIPE
+whois/search?query-string=olga&source=RIPE
 whois/search?query-string=dw-ripe&source=RIPE
 whois/search?query-string=dw-ripe&source=RIPE&flags=no-filtering&flags=rB
+whois/search?query-string=AS3333&source=RIPE&flags=show-tag-info
+
+whois/search.json?query-string=AS102&source=RIPE
+whois/search.json?query-string=olga&source=RIPE
+whois/search.json?query-string=dw-ripe&source=RIPE
+whois/search.json?query-string=dw-ripe&source=RIPE&flags=no-filtering&flags=rB
+whois/search.json?query-string=AS3333&source=RIPE&flags=show-tag-info
+
+
+# abuse contact
+whois/ripe/abuse-contact/193.0.0.0%20-%20193.0.7.255
+whois/ripe/abuse-contact/2001:610::/32
+whois/ripe/abuse-contact/AS5503
+
+whois/ripe/abuse-contact/193.0.0.0%20-%20193.0.7.255.json
+whois/ripe/abuse-contact/2001:610::/32.json
+whois/ripe/abuse-contact/AS5503.json
+
+
+# version(s)
+whois/ripe/aut-num/AS3333/versions
+whois/ripe/aut-num/AS/version/5
+
+whois/ripe/aut-num/AS3333/versions.json
+whois/ripe/aut-num/AS/versions/3.json
+
+
+# metadata
+whois/ripe/metadata/sources.json
+whois/ripe/metadata/sources.xml
+
+whois/ripe/metadata/templates/route.xml
+whois/ripe/metadata/templates/route6.json
