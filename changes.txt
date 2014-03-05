@@ -24,6 +24,7 @@ Objects can be created/modified when appropriate using the SSO account.
 [web] #125 no error with wrong type on lookup
 [web] #123 dbweb - search results should be streamed
 [web] #122 Person objects have incorrect lookup links in search form results
+[web] #124 dbweb does not pass on the X-Forwarded-for header to whois backend
 [web] #144 Lookup page is missing RIPEStat link
 [web] #138 syntax error in link to aut-num in route object in web query
 [web] #132 selecting Types on web query returns wrong types
