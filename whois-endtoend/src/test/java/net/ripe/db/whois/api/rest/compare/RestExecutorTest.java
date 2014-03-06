@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest.compare;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,14 +11,6 @@ public class RestExecutorTest {
     @Test
     public void test_compactXmlNaive() throws Exception {
         String compact = RestExecutor.compactXmlNaive(getXml());
-        assertThat(compact, not(containsString("\n")));
-        assertThat(compact, not(containsString("\t")));
-    }
-
-    @Test
-    @Ignore
-    public void test_compactXml() throws Exception {
-        String compact = RestExecutor.compactXml(getXml());
         assertThat(compact, not(containsString("\n")));
         assertThat(compact, not(containsString("\t")));
     }
