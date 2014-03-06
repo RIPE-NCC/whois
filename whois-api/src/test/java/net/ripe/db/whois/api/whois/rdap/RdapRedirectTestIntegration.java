@@ -210,8 +210,8 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
         databaseHelper.getInternalsTemplate().update(
                 "INSERT INTO scheduler (host, done, date, task) VALUES ('localhost', ?, ?, ?)",
-                dateTimeProvider.getCurrentDateTime().getMillisOfDay() + 1,
-                dateTimeProvider.getCurrentDate().toString(),
+                testDateTimeProvider.getCurrentDateTime().getMillisOfDay() + 1,
+                testDateTimeProvider.getCurrentDate().toString(),
                 AuthoritativeResourceImportTask.class.getSimpleName());
 
         authoritativeResourceData.refreshAuthoritativeResourceCache();

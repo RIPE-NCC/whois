@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.support;
 
+import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -32,9 +33,9 @@ public class DummyWhoisClient {
         throw new IllegalStateException("Unable to execute query");
     }
 
-    public static String query(final int port, final String query, final int timeout) {
+    public static String query(final int port, final String query, final int timeoutMs) {
         try {
-            return new DummyWhoisClient("127.0.0.1", port).sendQuery(query, Charset.forName("ISO-8859-1"), timeout);
+            return new DummyWhoisClient("127.0.0.1", port).sendQuery(query, Charsets.ISO_8859_1, timeoutMs);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to execute query");
         }
@@ -52,7 +53,7 @@ public class DummyWhoisClient {
     }
 
     public String sendQuery(String query) throws IOException {
-        return sendQuery(query, Charset.forName("ISO-8859-1"));
+        return sendQuery(query, Charsets.ISO_8859_1);
     }
 
     public String sendQuery(String query, Charset charset) throws IOException {
@@ -60,10 +61,10 @@ public class DummyWhoisClient {
     }
 
     @RetryFor(IOException.class)
-    public String sendQuery(final String query, final Charset charset, final int timeout) throws IOException {
+    public String sendQuery(final String query, final Charset charset, final int timeoutMs) throws IOException {
         final Socket socket = new Socket(host, port);
-        if (timeout > 0) {
-            socket.setSoTimeout(timeout);
+        if (timeoutMs > 0) {
+            socket.setSoTimeout(timeoutMs);
         }
 
         PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);

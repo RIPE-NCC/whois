@@ -2,7 +2,7 @@ package net.ripe.db.whois.query.query;
 
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.attrs.AutNum;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 
 class AbuseContactValidator implements QueryValidator {
     @Override

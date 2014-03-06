@@ -38,7 +38,7 @@ public class RpslObjectsToTextExporterTest {
     @Mock ExportDao exportDao;
     @Mock TagsDao tagsDao;
 
-    RpslObjectsToTextExporter subject;
+    RpslObjectsExporter subject;
     File exportDir;
     File tmpDir;
 
@@ -52,7 +52,7 @@ public class RpslObjectsToTextExporterTest {
 
         when(exportFileWriterFactory.isExportDir(any(File.class))).thenReturn(true);
 
-        subject = new RpslObjectsToTextExporter(exportFileWriterFactory, exportDao, tagsDao, exportdirName, tmpDirName, true);
+        subject = new RpslObjectsExporter(exportFileWriterFactory, exportDao, tagsDao, exportdirName, tmpDirName, true);
     }
 
     @Test(expected = RuntimeException.class)

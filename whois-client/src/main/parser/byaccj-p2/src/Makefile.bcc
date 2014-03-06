@@ -1,0 +1,61 @@
+#################################################
+## Borland C++ 5 Makefile for Byacc/Java
+## Date: 01 Jan 01
+## Author: Bob Jamison
+#################################################
+
+CC     = bcc32
+CFLAGS = -O -WC -w-8004 -w-8057
+TAR    = /bin/tar
+GZIP   = /usr/sbin/gzip
+VERS   = byaccj1.15
+
+OBJ 	= closure.obj \
+	error.obj \
+	lalr.obj \
+	lr0.obj \
+	main.obj \
+	mkpar.obj \
+	output.obj \
+	reader.obj \
+	skeleton.obj \
+	symtab.obj \
+	verbose.obj \
+	warshall.obj
+
+all: yacc.exe
+
+SRCS   = closure.c \
+	error.c \
+	lalr.c \
+	lr0.c \
+	main.c \
+	mkpar.c \
+	output.c \
+	reader.c \
+	skeleton.c \
+	symtab.c \
+	verbose.c \
+	warshall.c
+
+yacc.exe: $(OBJ)
+	bcc32 -eyacc.exe $(OBJ)
+
+
+clean:
+	del /q *.obj *.exe y.tab.c *.java *.class
+
+###
+closure.obj: closure.c defs.h
+error.obj: error.c defs.h
+lalr.obj: lalr.c defs.h
+lr0.obj: lr0.c defs.h
+main.obj: main.c defs.h
+mkpar.obj: mkpar.c defs.h
+output.obj: output.c defs.h
+reader.obj: reader.c defs.h
+skeleton.obj: skeleton.c defs.h
+symtab.obj: symtab.c defs.h
+verbose.obj: verbose.c defs.h
+warshall.obj: warshall.c defs.h
+

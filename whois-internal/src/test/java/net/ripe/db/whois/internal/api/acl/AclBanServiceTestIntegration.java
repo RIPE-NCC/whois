@@ -1,14 +1,13 @@
 package net.ripe.db.whois.internal.api.acl;
 
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
@@ -17,14 +16,15 @@ import javax.ws.rs.core.MediaType;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class AclBanServiceTestIntegration extends AbstractInternalTest {
     private static final String BANS_PATH = "api/acl/bans";
-
-    @Autowired TestDateTimeProvider dateTimeProvider;
 
     @Before
     public void setUp() throws Exception {
@@ -38,10 +38,7 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
         databaseHelper.insertAclIpDenied("10.0.0.2/32");
         databaseHelper.insertAclIpDenied("2001::/64");
 
-        @SuppressWarnings("unchecked")
-        final List<Ban> bans = getBans();
-
-        assertThat(bans, hasSize(4));
+        assertThat(getBans(), hasSize(4));
     }
 
     @Test
@@ -96,14 +93,13 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
     @Test
     public void createBanWithInvalidPrefixLength() throws Exception {
         try {
-            final String response = RestTest.target(getPort(), BANS_PATH, null, apiKey)
+            RestTest.target(getPort(), BANS_PATH, null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(new Ban("10.1.2.0/24", "comment", new Date()), MediaType.APPLICATION_JSON_TYPE), String.class);
-
+            fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), is("IPv4 must be a single address"));
         }
-
     }
 
     @Test
@@ -114,9 +110,10 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
                 "  \"since\" : \"invalid\"\n" +
                 "}";
         try {
-            final String response = RestTest.target(getPort(), BANS_PATH, null, apiKey)
+            RestTest.target(getPort(), BANS_PATH, null, apiKey)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .post(Entity.entity(banEntity, MediaType.APPLICATION_JSON), String.class);
+            fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), containsString("Can not construct instance of java.util.Date from String value 'invalid': not a valid representation"));
         }
@@ -198,8 +195,25 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
         assertThat(deletedBan.getPrefix(), is("10.0.0.1/32"));
         assertThat(deletedBan.getComment(), is("test"));
 
-        final List<Ban> bans = getBans();
-        assertThat(bans, hasSize(1));
+        assertThat(getBans(), hasSize(1));
+    }
+
+    @Test
+    public void deleteBanUnencodedPrefix() throws Exception {
+        databaseHelper.insertAclIpDenied("2a01:488:67:1000::/64");
+
+        RestTest.target(getPort(), BANS_PATH + "/2a01:488:67:1000::/64", null, apiKey).request().delete();
+
+        assertThat(getBans(), hasSize(1));
+    }
+
+    @Test
+    public void deleteBanUnencodedPrefixWithExtension() throws Exception {
+        databaseHelper.insertAclIpDenied("2a01:488:67:1000::/64");
+
+        RestTest.target(getPort(), BANS_PATH + "/2a01:488:67:1000::/64.json", null, apiKey).request().delete();
+
+        assertThat(getBans(), hasSize(1));
     }
 
     @Test
@@ -244,13 +258,13 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
 
     @SuppressWarnings("unchecked")
     private List<BanEvent> getBanEvents(final String prefix) {
-        return RestTest.target(getPort(), String.format("%s/%s/events", BANS_PATH, RestTest.encode(prefix)), null, apiKey)
+        return RestTest.target(getPort(), String.format("%s/%s/events", BANS_PATH, RestClientUtils.encode(prefix)), null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(new GenericType<List<BanEvent>>() {
                 });
     }
 
     private void plusOneDay() {
-        dateTimeProvider.setTime(dateTimeProvider.getCurrentDateTime().plusDays(1));
+        testDateTimeProvider.setTime(testDateTimeProvider.getCurrentDateTime().plusDays(1));
     }
 }

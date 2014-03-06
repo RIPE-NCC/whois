@@ -4,21 +4,26 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.71-SNAPSHOT</version>
+        <version>1.73-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois-client</artifactId>
-    <version>1.71-SNAPSHOT</version>
+    <version>1.73-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <!-- TODO: [AH] minimize the amount of dependencies in whois-client -->
     <dependencies>
         <!-- TODO: aspectj error without this, but there shouldn't even be aspectj for whois-client -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
             <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jopt-simple</groupId>
+            <artifactId>jopt-simple</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -51,6 +56,10 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>apache-log4j-extras</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -112,7 +121,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <executable>src/main/resources/bin/generateByaccs</executable>
+                    <executable>src/main/parser/bin/generateByaccs</executable>
                 </configuration>
             </plugin>
             <plugin>
@@ -126,7 +135,7 @@
                         </goals>
                         <configuration>
                             <lexDefinitions>
-                                <lexDefinition>src/main/resources/jflex</lexDefinition>
+                                <lexDefinition>src/main/parser/jflex</lexDefinition>
                             </lexDefinitions>
                         </configuration>
                     </execution>

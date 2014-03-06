@@ -37,16 +37,15 @@ public class DailyScheduler {
     @Scheduled(cron = "0 0 0 * * *")
     public void executeScheduledTasks() {
         final LocalDate date = dateTimeProvider.getCurrentDate();
-        final String hostName = Hosts.getLocalHost().getHostName();
 
         for (final DailyScheduledTask task : scheduledTasks) {
-            if (!dailySchedulerDao.acquireDailyTask(date, task.getClass(), hostName)) {
+            if (!dailySchedulerDao.acquireDailyTask(date, task.getClass(), Hosts.getLocalHostName())) {
                 continue;
             }
 
-            final Stopwatch stopwatch = new Stopwatch().start();
+            final Stopwatch stopwatch = Stopwatch.createStarted();
             try {
-                LOGGER.debug("Starting scheduled task: {}", task);
+                LOGGER.info("Starting scheduled task: {}", task);
                 task.run();
                 dailySchedulerDao.markTaskDone(System.currentTimeMillis(), date, task.getClass());
             } catch (RuntimeException e) {
@@ -56,7 +55,8 @@ public class DailyScheduler {
             }
         }
 
+        LOGGER.info("Finished! (no unclaimed tasks left)");
         final int deletedRows = dailySchedulerDao.removeOldScheduledEntries(date);
-        LOGGER.info("Performing daily cluster maintenance (key: {}, purged {} old entries)", date, deletedRows);
+        LOGGER.info("Purging old entries from scheduler table (key: {}, purged {} old entries)", date, deletedRows);
     }
 }

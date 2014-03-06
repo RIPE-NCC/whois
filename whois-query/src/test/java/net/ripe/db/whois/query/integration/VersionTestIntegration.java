@@ -7,8 +7,8 @@ import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
-import net.ripe.db.whois.query.domain.QueryMessages;
-import net.ripe.db.whois.common.domain.VersionDateTime;
+import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -178,7 +178,7 @@ public class VersionTestIntegration extends AbstractWhoisIntegrationTest {
     @Test
     public void showVersion_lastVersionDeleted() {
         databaseHelper.addObject(RpslObject.parse("mntner: TEST-DBM"));
-        databaseHelper.removeObject(RpslObject.parse("mntner: TEST-DBM"));
+        databaseHelper.deleteObject(RpslObject.parse("mntner: TEST-DBM"));
 
         final String response = stripHeader(DummyWhoisClient.query(QueryServer.port, "--show-version 1 TEST-DBM"));
 

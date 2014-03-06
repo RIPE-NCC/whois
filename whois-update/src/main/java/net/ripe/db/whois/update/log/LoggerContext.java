@@ -8,7 +8,12 @@ import net.ripe.db.whois.common.jdbc.driver.ResultInfo;
 import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContainer;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -20,7 +25,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPOutputStream;
@@ -140,7 +150,7 @@ public class LoggerContext {
     public void logUpdateStarted(final Update update) {
         final Context ctx = getContext();
         ctx.auditLogger.logUpdate(update);
-        ctx.stopwatch = new Stopwatch().start();
+        ctx.stopwatch = Stopwatch.createStarted();
         ctx.currentUpdate = update;
     }
 
@@ -194,6 +204,14 @@ public class LoggerContext {
 
     public void logAction(final UpdateContainer updateContainer, final Action action) {
         getContext().auditLogger.logAction(updateContainer.getUpdate(), action);
+    }
+
+    public void logAuthenticationStrategy(Update update, String authenticationStrategy, Collection<RpslObject> maintainers) {
+        getContext().auditLogger.logAuthenticationStrategy(update, authenticationStrategy, maintainers);
+    }
+
+    public void logCredentials(Update update) {
+        getContext().auditLogger.logCredentials(update);
     }
 
     public void logString(final Update update, final String element, final String auditMessage) {

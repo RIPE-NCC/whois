@@ -1,8 +1,12 @@
 package net.ripe.db.whois.api.rest.domain;
 
-import javax.xml.bind.annotation.*;
-import java.util.Collection;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -16,72 +20,49 @@ import java.util.List;
 @XmlRootElement(name = "parameters")
 public class Parameters {
     @XmlElement(name = "inverse-lookup")
-    protected InverseAttributes inverseAttributes;
+    @JsonProperty(value = "inverse-lookup")
+    private InverseAttributes inverseAttributes;
     @XmlElement(name="type-filters")
-    protected TypeFilters typeFilters;
+    @JsonProperty(value = "type-filters")
+    private TypeFilters typeFilters;
     @XmlElement(name = "flags")
-    protected Flags flags;
+    private Flags flags;
     @XmlElement(name = "query-strings", required = true)
-    protected QueryStrings queryStrings;
+    @JsonProperty(value = "query-strings")
+    private QueryStrings queryStrings;
     @XmlElement(name = "sources", required = true)
-    protected Sources sources;
+    private Sources sources;
     @XmlElement(name = "primary-key")
-    protected AbusePKey primaryKey;
+    @JsonProperty(value = "primary-key")
+    private AbusePKey primaryKey;
 
-    public void setInverseLookup(List<InverseAttribute> values) {
-        this.inverseAttributes = new InverseAttributes(values);
+    public Parameters(final InverseAttributes inverseAttributes, final TypeFilters typeFilters, final Flags flags, final QueryStrings queryStrings, final Sources sources, final AbusePKey primaryKey) {
+        this.inverseAttributes = inverseAttributes;
+        this.typeFilters = typeFilters;
+        this.flags = flags;
+        this.queryStrings = queryStrings;
+        this.sources = sources;
+        this.primaryKey = primaryKey;
     }
 
-    public void setInverseLookup(Collection<String> values) {
-        this.inverseAttributes = new InverseAttributes(values);
+    public Parameters() {
+        // required no-arg constructor
     }
 
     public InverseAttributes getInverseLookup() {
         return this.inverseAttributes;
     }
 
-    public void setTypeFilters(List<TypeFilter> values) {
-        this.typeFilters = new TypeFilters(values);
-    }
-
-    public void setTypeFilters(Collection<String> values) {
-        this.typeFilters = new TypeFilters(values);
-    }
-
     public TypeFilters getTypeFilters() {
         return typeFilters;
-    }
-
-    public void setFlags(List<Flag> values) {
-        this.flags = new Flags(values);
-    }
-
-    public void setFlags(Collection<String> flags) {
-        this.flags = new Flags(flags);
     }
 
     public Flags getFlags() {
         return this.flags;
     }
 
-    public void setQueryStrings(List<QueryString> values) {
-        this.queryStrings = new QueryStrings(values);
-    }
-
-    public void setQueryStrings(String value) {
-        this.queryStrings = new QueryStrings(new QueryString(value));
-    }
-
     public QueryStrings getQueryStrings() {
         return this.queryStrings;
-    }
-
-    public void setSources(List<Source> values) {
-        this.sources = new Sources(values);
-    }
-
-    public void setSources(Collection<String> values) {
-        this.sources = new Sources(values);
     }
 
     public Sources getSources() {
@@ -90,9 +71,5 @@ public class Parameters {
 
     public AbusePKey getPrimaryKey() {
         return primaryKey;
-    }
-
-    public void setPrimaryKey(AbusePKey primaryKey) {
-        this.primaryKey = primaryKey;
     }
 }

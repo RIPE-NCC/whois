@@ -1,37 +1,10 @@
 package net.ripe.db.whois.api.rest;
 
-import net.ripe.db.whois.api.rest.domain.Attribute;
-import net.ripe.db.whois.api.rest.domain.Attributes;
-import net.ripe.db.whois.api.rest.domain.Flag;
-import net.ripe.db.whois.api.rest.domain.Flags;
-import net.ripe.db.whois.api.rest.domain.GeolocationAttributes;
-import net.ripe.db.whois.api.rest.domain.GrsMirror;
-import net.ripe.db.whois.api.rest.domain.GrsSource;
-import net.ripe.db.whois.api.rest.domain.GrsSources;
-import net.ripe.db.whois.api.rest.domain.InverseAttribute;
-import net.ripe.db.whois.api.rest.domain.InverseAttributes;
-import net.ripe.db.whois.api.rest.domain.Language;
+import javanet.staxutils.IndentingXMLStreamWriter;
+import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.Link;
-import net.ripe.db.whois.api.rest.domain.Location;
-import net.ripe.db.whois.api.rest.domain.Parameters;
-import net.ripe.db.whois.api.rest.domain.PrimaryKey;
-import net.ripe.db.whois.api.rest.domain.QueryStrings;
-import net.ripe.db.whois.api.rest.domain.Source;
-import net.ripe.db.whois.api.rest.domain.Sources;
-import net.ripe.db.whois.api.rest.domain.Template;
-import net.ripe.db.whois.api.rest.domain.TemplateAttribute;
-import net.ripe.db.whois.api.rest.domain.TemplateAttributes;
 import net.ripe.db.whois.api.rest.domain.TemplateResources;
-import net.ripe.db.whois.api.rest.domain.Templates;
-import net.ripe.db.whois.api.rest.domain.TypeFilter;
-import net.ripe.db.whois.api.rest.domain.TypeFilters;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.domain.WhoisObjects;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
-import net.ripe.db.whois.api.rest.domain.WhoisTags;
-import net.ripe.db.whois.api.rest.domain.WhoisVersion;
-import net.ripe.db.whois.api.rest.domain.WhoisVersions;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -44,59 +17,42 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
 
 class StreamingMarshalXml implements StreamingMarshal {
+    private static final JAXBContext context;
+    private static final XMLOutputFactory xmlOutputFactory;
 
-    private static JAXBContext context;
-    private static XMLOutputFactory xmlOutputFactory;
-
-    public StreamingMarshalXml() {
+    static {
         try {
-            this.context = JAXBContext.newInstance(
-                    Attribute.class,
-                    Attributes.class,
-                    Flag.class,
-                    Flags.class,
-                    GeolocationAttributes.class,
-                    GrsMirror.class,
-                    GrsSource.class,
-                    GrsSources.class,
-                    InverseAttribute.class,
-                    InverseAttributes.class,
-                    Language.class,
-                    Link.class,
-                    Location.class,
-                    Parameters.class,
-                    PrimaryKey.class,
-                    QueryStrings.class,
-                    Source.class,
-                    Sources.class,
-                    Template.class,
-                    TemplateAttribute.class,
-                    TemplateAttributes.class,
-                    TemplateResources.class,
-                    Templates.class,
-                    TypeFilter.class,
-                    TypeFilters.class,
-                    WhoisObject.class,
-                    WhoisObjects.class,
-                    WhoisResources.class,
-                    WhoisTag.class,
-                    WhoisTags.class,
-                    WhoisVersion.class,
-                    WhoisVersions.class);
+            context = JAXBContext.newInstance(WhoisResources.class, TemplateResources.class, AbuseResources.class);
             xmlOutputFactory = XMLOutputFactory.newFactory();
         } catch (JAXBException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private XMLStreamWriter xmlOut;
+    private final XMLStreamWriter xmlOut;
+    private final Marshaller marshaller;
+    private final String root;
+
+    StreamingMarshalXml(final OutputStream outputStream, String root) {
+        try {
+            this.root = root;
+
+            xmlOut = new IndentingXMLStreamWriter(xmlOutputFactory.createXMLStreamWriter(outputStream));
+
+            marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+
+        } catch (XMLStreamException | JAXBException e) {
+            throw new StreamingException(e);
+        }
+    }
 
     @Override
-    public void open(final OutputStream outputStream, String root) {
+    public void open() {
         try {
-            xmlOut = xmlOutputFactory.createXMLStreamWriter(outputStream);
             xmlOut.writeStartDocument();
             xmlOut.writeStartElement(root);
+
             // TODO: this is ugly, should come from package info instead (which is the case with no streaming)
             xmlOut.writeNamespace("xlink", Link.XLINK_URI);
         } catch (XMLStreamException e) {
@@ -128,8 +84,6 @@ class StreamingMarshalXml implements StreamingMarshal {
         JAXBElement<T> element = new JAXBElement<>(QName.valueOf(name), (Class<T>) t.getClass(), t);
 
         try {
-            final Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
             marshaller.marshal(element, xmlOut);
         } catch (JAXBException e) {
             throw new StreamingException(e);
@@ -142,6 +96,15 @@ class StreamingMarshalXml implements StreamingMarshal {
             xmlOut.writeEndDocument();
             xmlOut.close();
         } catch (XMLStreamException e) {
+            throw new StreamingException(e);
+        }
+    }
+
+    @Override
+    public <T> void singleton(T t) {
+        try {
+            marshaller.marshal(t, xmlOut);
+        } catch (JAXBException e) {
             throw new StreamingException(e);
         }
     }

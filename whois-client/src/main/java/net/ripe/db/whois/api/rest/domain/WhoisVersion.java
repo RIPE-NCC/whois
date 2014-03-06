@@ -1,7 +1,14 @@
 package net.ripe.db.whois.api.rest.domain;
 
-import javax.xml.bind.annotation.*;
+import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
+@Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
         "deletedDate",
@@ -12,13 +19,13 @@ import javax.xml.bind.annotation.*;
 @XmlRootElement(name = "version")
 public class WhoisVersion {
     @XmlAttribute(name = "deleted")
-    protected String deletedDate;
+    private String deletedDate;
     @XmlElement(name = "revision", required = false)
-    protected Integer revision;
+    private Integer revision;
     @XmlElement(name = "date", required = false)
-    protected String date;
+    private String date;
     @XmlElement(name = "operation", required = false)
-    protected String operation;
+    private String operation;
 
     public WhoisVersion(final String operation, final String date, final int revision) {
         this.operation = operation;

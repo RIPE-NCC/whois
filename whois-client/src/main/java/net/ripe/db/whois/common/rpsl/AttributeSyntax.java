@@ -7,9 +7,11 @@ import net.ripe.db.whois.common.generated.ComponentsParser;
 import net.ripe.db.whois.common.generated.ComponentsR6Parser;
 import net.ripe.db.whois.common.generated.DefaultParser;
 import net.ripe.db.whois.common.generated.ExportParser;
+import net.ripe.db.whois.common.generated.ExportViaParser;
 import net.ripe.db.whois.common.generated.FilterParser;
 import net.ripe.db.whois.common.generated.IfaddrParser;
 import net.ripe.db.whois.common.generated.ImportParser;
+import net.ripe.db.whois.common.generated.ImportViaParser;
 import net.ripe.db.whois.common.generated.InjectParser;
 import net.ripe.db.whois.common.generated.InjectR6Parser;
 import net.ripe.db.whois.common.generated.InterfaceParser;
@@ -37,7 +39,7 @@ import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
-// TODO: [AH] queries should NOT match AUTO- versions of keys
+// TODO: [AH] queries should NOT match AUTO- versions of keys, we should remove the AUTO- patterns from here
 // TODO: [AH] fix capture groups (add '?:' where capture is not needed)
 public interface AttributeSyntax extends Documented {
     AttributeSyntax ANY_SYNTAX = new AnySyntax();
@@ -77,20 +79,14 @@ public interface AttributeSyntax extends Documented {
             "inbound | outbound [<as-expression>]\n");
 
     AttributeSyntax AUTH_SCHEME_SYNTAX = new AttributeSyntaxRegexp(
-            Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
+            Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|SSO [-@.\\w]{1,90}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
             "<auth-scheme> <scheme-info>       Description\n" +
             "\n" +
-            "MD5-PW        encrypted           This scheme is the weakest form of\n" +
-            "              password, produced  authentication. It is by no means\n" +
-            "              using the FreeBSD   to keep out a determined malicious\n" +
-            "              crypt_md5           attacker. As you are publishing the\n" +
-            "              algorithm           encrypted password in the RIPE\n" +
-            "                                  database, it is open to attack.\n" +
-            "                                  We strongly advise phrases longer\n" +
-            "                                  than 8 characters to be used,\n" +
-            "                                  avoiding the use of words or\n" +
-            "                                  combinations of words found in any\n" +
-            "                                  dictionary of any language.\n" +
+            "MD5-PW        encrypted           We strongly advise phrases longer\n" +
+            "              password, produced  than 8 characters to be used,\n" +
+            "              using the FreeBSD   avoiding the use of words or\n" +
+            "              crypt_md5           combinations of words found in any\n" +
+            "              algorithm           dictionary of any language.\n" +
             "\n" +
             "PGPKEY-<id>                       Strong scheme of authentication.\n" +
             "                                  <id> is the PGP key ID to be\n" +
@@ -99,10 +95,15 @@ public interface AttributeSyntax extends Documented {
             "                                  corresponding key-cert object's\n" +
             "                                  \"key-cert:\" attribute.\n" +
             "\n" +
-            "X509-<nnn>                       Strong scheme of authentication.\n" +
+            "X509-<nnn>                        Strong scheme of authentication.\n" +
             "                                  <nnn> is the index number of the\n" +
             "                                  corresponding key-cert object's\n" +
-            "                                  \"key-cert:\" attribute (X509-nnn).\n");
+            "                                  \"key-cert:\" attribute (X509-nnn).\n" +
+            "\n" +
+            "SSO           username            The username is the same as one used \n" +
+            "                                  for a RIPE NCC Access account. This must \n" +
+            "                                  be a valid username and is checked \n" +
+            "                                  against the RIPE NCC Access user list.\n");
 
     AttributeSyntax CERTIF_SYNTAX = new AnySyntax("" +
             "The value of the public key should be supplied either using\n" +
@@ -265,6 +266,18 @@ public interface AttributeSyntax extends Documented {
             "to <peering-N> [action <action-N>]\n" +
             "announce <filter>\n");
 
+    AttributeSyntax EXPORT_VIA_SYNTAX = new AttributeSyntaxParser(new ExportViaParser(), "" +
+            "[protocol <protocol-1>] [into <protocol-2>]   \n" +
+            "afi <afi-list>\n" +
+            "<peering-1>\n" +
+            "to <peering-2> [action <action-1>; <action-2>; ... <action-N>;]\n" +
+            "    .\n" +
+            "    .\n" +
+            "    .\n" +
+            "<peering-3>\n" +
+            "to <peering-M> [action <action-1>; <action-2>; ... <action-N>;]\n" +
+            "announce <filter>\n");
+
     AttributeSyntax MP_FILTER_SYNTAX = new AttributeSyntaxParser(new MpFilterParser(), "" +
             "Logical expression which when applied to a set of multiprotocol\n" +
             "routes returns a subset of these routes. Please refer to RPSLng\n" +
@@ -278,6 +291,19 @@ public interface AttributeSyntax extends Documented {
             "    .\n" +
             "    .\n" +
             "from <peering-N> [action <action-N>]\n" +
+            "accept (<filter>|<filter> except <importexpression>|\n" +
+            "        <filter> refine <importexpression>)\n");
+
+    AttributeSyntax IMPORT_VIA_SYNTAX = new AttributeSyntaxParser(new ImportViaParser(), "" +
+            "[protocol <protocol-1>] [into <protocol-2>]\n" +
+            "afi <afi-list>\n" +
+            "<peering-1>\n" +
+            "from <peering-2> [action <action-1>; <action-2>; ... <action-N>;]\n" +
+            "    .\n" +
+            "    .\n" +
+            "    .\n" +
+            "<peering-3>\n" +
+            "from <peering-M> [action <action-1>; <action-2>; ... <action-N>;]\n" +
             "accept (<filter>|<filter> except <importexpression>|\n" +
             "        <filter> refine <importexpression>)\n");
 
@@ -325,6 +351,7 @@ public interface AttributeSyntax extends Documented {
     AttributeSyntax NUMBER_SYNTAX = new AttributeSyntaxRegexp(Pattern.compile("^[0-9]+$"), "" +
             "Specifies a numeric value.\n");
 
+    // TODO: [AH] replace nameparser with regex
     AttributeSyntax OBJECT_NAME_SYNTAX = new AttributeSyntaxParser(new NameParser(), "" +
             "Made up of letters, digits, the character underscore \"_\",\n" +
             "and the character hyphen \"-\"; the first character of a name\n" +
@@ -817,14 +844,9 @@ public interface AttributeSyntax extends Documented {
         @Override
         public String getDescription(final ObjectType objectType) {
             return "" +
-                    "A list of at least 2 words separated by white space. The\n" +
-                    "first and the last word cannot end with dot (\".\"). The\n" +
-                    "following words are not allowed: \"Dr\", \"Prof\", \"Mv\", \"Ms\",\n" +
-                    "\"Mr\", no matter whether they end with dot (\".\") or not. A\n" +
-                    "word is made up of letters, digits, the character underscore\n" +
-                    "\"_\", and the character hyphen \"-\"; the first character of a\n" +
-                    "name must be a letter, and the last character of a name must\n" +
-                    "be a letter or a digit.\n";
+                    "Must have at least 2 words beginning with a letter.\n" +
+                    "Each word consists of letters, digits and the following symbols:\n" +
+                    "    .`'_-\n";
 
         }
     }

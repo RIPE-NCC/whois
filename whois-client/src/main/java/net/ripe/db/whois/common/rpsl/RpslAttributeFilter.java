@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.rpsl;
 
+// TODO: [AH] move getComment in here
 public final class RpslAttributeFilter {
     private RpslAttributeFilter() {
     }

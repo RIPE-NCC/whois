@@ -270,7 +270,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
       when:
         def deleteRoute = new SyncUpdate(data: """\
-                    route: 195.0/24
+                    route: 195.0.0.0/24
                     descr: Test route
                     origin: AS12726
                     mnt-by: TEST-MNT
@@ -1541,7 +1541,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
       when:
         def deleteInetnum = syncUpdate(new SyncUpdate(data: """\
-                            inetnum: 197.0/24
+                            inetnum: 197.0.0.0 - 197.0.0.255
                             netname: RIPE-NCC
                             descr: description
                             country: NL
@@ -1724,5 +1724,21 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response =~ "Delete SUCCEEDED: \\[route\\] 182.125.0.0/32AS132"
+    }
+
+    def "create route with partially missing primary key should return proper error"() {
+        given:
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route:
+                            descr: Test route
+                            origin: AS12726
+                            mnt-by: TEST-MNT
+                            changed: ripe@test.net 20091015
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent()))
+        expect:
+        insertRoute =~ /\nNumber of objects found:\s+0\n/
     }
 }

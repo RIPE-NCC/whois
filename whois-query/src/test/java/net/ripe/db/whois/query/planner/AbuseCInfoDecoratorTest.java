@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,6 +70,6 @@ public class AbuseCInfoDecoratorTest {
 
         final MessageObject result = (MessageObject) iterator.next();
 
-        assertThat(result.toString(), is(QueryMessages.abuseCNotRegistered("AS333").getValue()));
+        assertThat(result.toString(), is(QueryMessages.abuseCNotRegistered("AS333").getFormattedText()));
     }
 }

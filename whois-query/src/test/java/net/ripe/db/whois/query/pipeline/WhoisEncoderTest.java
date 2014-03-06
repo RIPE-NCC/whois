@@ -3,7 +3,7 @@ package net.ripe.db.whois.query.pipeline;
 import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;

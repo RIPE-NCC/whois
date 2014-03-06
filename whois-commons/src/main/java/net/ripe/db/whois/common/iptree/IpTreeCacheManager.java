@@ -132,7 +132,7 @@ public class IpTreeCacheManager {
                     try {
                         intervalMap.put(ipEntry.getKey(), ipEntry);
                     } catch (IntersectingIntervalException e) {
-                        LOGGER.warn("Skipping intersecting entry {}, should be cleaned up in database", ipEntry);
+                        LOGGER.warn("Skipping intersecting entry {}, should be cleaned up in database ({})", ipEntry, e.getMessage());
                     }
 
                     break;

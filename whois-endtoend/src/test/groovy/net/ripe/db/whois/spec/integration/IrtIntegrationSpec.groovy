@@ -264,7 +264,7 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
         def keycert = """\
                     key-cert:     PGPKEY-28F6CD6C
                     method:       PGP
-                    owner:        DFN-CERT (2003), ENCRYPTION Key
+                    owner:        Ed Shryane <eshryane@ripe.net>
                     fingerpr:     1C40 500A 1DC4 A8D8 D3EA  ABF9 EE99 1EE2 28F6 CD6C
                     certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
                     certif:       Version: GnuPG v1.4.11 (Darwin)
@@ -296,8 +296,8 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     certif:       kSYadR4aN+CVhYHOsn5nxbiKSFNAWh40q7tDP7I=
                     certif:       =XRho
                     certif:       -----END PGP PUBLIC KEY BLOCK-----
-                    mnt-by:       TEST-MNT
                     notify:       noreply@ripe.net
+                    mnt-by:       TEST-MNT
                     changed:      noreply@ripe.net 20120213
                     source:       TEST
                     """.stripIndent()
@@ -359,8 +359,8 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         kSYadR4aN+CVhYHOsn5nxbiKSFNAWh40q7tDP7I=
                 certif:         =XRho
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
-                mnt-by:         TEST-MNT
                 notify:         noreply@ripe.net
+                mnt-by:         TEST-MNT
                 changed:        noreply@ripe.net 20120213
                 source:         TEST
                 password:       update

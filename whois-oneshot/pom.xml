@@ -4,12 +4,13 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.71-SNAPSHOT</version>
+        <version>1.73-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
+    <groupId>net.ripe.db</groupId>
     <artifactId>whois-oneshot</artifactId>
-    <version>1.71-SNAPSHOT</version>
+    <version>1.73-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -34,8 +35,21 @@
             <artifactId>whois-update</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-client</artifactId>
+        </dependency>
+        <dependency> <!-- Make sure this is not shaded -->
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-internal</artifactId>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901.jdbc4</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
@@ -69,7 +83,7 @@
         <profile>
             <id>release</id>
             <properties>
-                <whois.main>net.ripe.db.ascleanup.AutNumCleanup</whois.main>
+                <whois.main>net.ripe.db.abusec.ListOrgsWithNoAbuseC</whois.main>
             </properties>
             <build>
                 <plugins>

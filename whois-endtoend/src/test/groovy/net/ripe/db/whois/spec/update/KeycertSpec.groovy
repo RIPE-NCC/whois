@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
@@ -24,7 +23,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
             "X509-1": """\
                 key-cert:     AUTO-1
                 method:       X509
-                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-receiver/emailAddress=test-receiver@linux.testlab.ripe.net
+                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-receiver/EMAILADDRESS=test-receiver@linux.testlab.ripe.net
                 fingerpr:     D5:92:29:08:F8:AB:75:5F:42:F5:A8:5F:A3:8D:08:2E
                 certif:       -----BEGIN CERTIFICATE-----
                 certif:       MIID/DCCA2WgAwIBAgICAIQwDQYJKoZIhvcNAQEEBQAwcTELMAkGA1UEBhMCRVUx
@@ -639,7 +638,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 body: """\
                 key-cert:     AUTO-1
                 method:       X509
-                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-receiver/emailAddress=test-receiver@linux.testlab.ripe.net
+                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-receiver/EMAILADDRESS=test-receiver@linux.testlab.ripe.net
                 fingerpr:     D5:92:29:08:F8:AB:75:5F:42:F5:A8:5F:A3:8D:08:2E
                 certif:       -----BEGIN CERTIFICATE-----
                 certif:       MIID/DCCA2WgAwIBAgICAIQwDQYJKoZIhvcNAQEEBQAwcTELMAkGA1UEBhMCRVUx
@@ -682,12 +681,8 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
-        ack.warningSuccessMessagesFor("Create", "[key-cert] X509-1") == [
-                "Supplied attribute 'method' has been replaced with a generated value",
-                "Supplied attribute 'owner' has been replaced with a generated value",
-                "Supplied attribute 'fingerpr' has been replaced with a generated value"]
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
     }
@@ -1621,9 +1616,9 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 subject: "",
                 body: """\
                 key-cert:     X509-1
-                method:       X509
-                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-receiver/emailAddress=test-receiver@linux.testlab.ripe.net
-                fingerpr:     D5:92:29:08:F8:AB:75:5F:42:F5:A8:5F:A3:8D:08:2E
+                method:       Placeholder
+                owner:        Placeholder
+                fingerpr:     Placeholder
                 certif:       -----BEGIN CERTIFICATE-----
                 certif:       MIID/DCCA2WgAwIBAgICAIQwDQYJKoZIhvcNAQEEBQAwcTELMAkGA1UEBhMCRVUx
                 certif:       EDAOBgNVBAgTB0hvbGxhbmQxEDAOBgNVBAoTB25jY0RFTU8xHTAbBgNVBAMTFFNv
@@ -1813,7 +1808,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 body: """\
                 key-cert:     X509-1
                 method:       X509
-                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-user/emailAddress=test-user@linux.testlab.ripe.net
+                owner:        /C=NL/O=RIPE NCC/OU=Members/CN=uk.bt.test-user/EMAILADDRESS=test-user@linux.testlab.ripe.net
                 fingerpr:     AC:B5:B1:36:95:F3:46:93:B1:2D:58:EB:E1:46:DA:3F
                 certif:       -----BEGIN CERTIFICATE-----
                 certif:       MIID8zCCA1ygAwIBAgICAIIwDQYJKoZIhvcNAQEEBQAwcTELMAkGA1UEBhMCRVUx
@@ -1856,12 +1851,8 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
-        ack.warningSuccessMessagesFor("Modify", "[key-cert] X509-1") == [
-                "Supplied attribute 'method' has been replaced with a generated value",
-                "Supplied attribute 'owner' has been replaced with a generated value",
-                "Supplied attribute 'fingerpr' has been replaced with a generated value"]
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
     }
@@ -2294,9 +2285,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT person FP1-TEST", "person", "First Person")
     }
 
-    // modify key-cert with single key, wrong generated values
-    @Ignore
-    def "modify key-cert with single key, wrong generated values"() { // TODO [AK] Check this test with Dennis
+    def "modify key-cert with single key, wrong generated values"() {
       expect:
         queryObject("-rBT key-cert PGPKEY-459F13C0", "key-cert", "PGPKEY-459F13C0")
 
@@ -2334,11 +2323,16 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
         ack.success
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 3, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] PGPKEY-459F13C0" }
+
+        ack.successes.any { it.operation == "No operation" && it.key == "[key-cert] PGPKEY-459F13C0" }
+        ack.warningSuccessMessagesFor("No operation", "[key-cert] PGPKEY-459F13C0") == [
+                "Supplied attribute 'owner' has been replaced with a generated value",
+                "Supplied attribute 'fingerpr' has been replaced with a generated value",
+                "Submitted object identical to database object"]
 
         query_object_matches("-rBT key-cert PGPKEY-459F13C0", "key-cert", "PGPKEY-459F13C0", "DB Test \\(RSA key for DB testing\\) <dbtest@ripe.net>")
     }
@@ -2543,4 +2537,62 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
         query_object_not_matches("-rBT key-cert PGPKEY-459F13C0", "key-cert", "PGPKEY-459F13C0", "Test User \\(testing\\) <dbtest@ripe.net>")
     }
+
+    @Ignore
+    def "create X509 key-cert obj X509-99, ref in mntner, delete key-cert"() {
+        expect:
+        queryObjectNotFound("-r -T key-cert X509-99", "key-cert", "X509-99")
+
+        when:
+        def response = syncUpdate("""\
+                key-cert:     X509-99
+                certif:       -----BEGIN CERTIFICATE-----
+                certif:       MIID/DCCA2WgAwIBAgICAIQwDQYJKoZIhvcNAQEEBQAwcTELMAkGA1UEBhMCRVUx
+                certif:       EDAOBgNVBAgTB0hvbGxhbmQxEDAOBgNVBAoTB25jY0RFTU8xHTAbBgNVBAMTFFNv
+                certif:       ZnR3YXJlIFBLSSBUZXN0aW5nMR8wHQYJKoZIhvcNAQkBFhBzb2Z0aWVzQHJpcGUu
+                certif:       bmV0MB4XDTAzMDkwODE1NTMyOFoXDTA0MDkwNzE1NTMyOFowgYUxCzAJBgNVBAYT
+                certif:       Ak5MMREwDwYDVQQKEwhSSVBFIE5DQzEQMA4GA1UECxMHTWVtYmVyczEcMBoGA1UE
+                certif:       AxMTdWsuYnQudGVzdC1yZWNlaXZlcjEzMDEGCSqGSIb3DQEJARYkdGVzdC1yZWNl
+                certif:       aXZlckBsaW51eC50ZXN0bGFiLnJpcGUubmV0MIIBIjANBgkqhkiG9w0BAQEFAAOC
+                certif:       AQ8AMIIBCgKCAQEAwYAvr71Mkw68CoMKmrHs8rHbMlLotPVqx5RuJ4d+IomL0i2i
+                certif:       F7NVBkg1VLuAER1wl1X2pK746ptevTzwWi/QmgFZajTqLjCfW1sou2TXEA5s80t3
+                certif:       JXRNk9xF6VXnggxCiqeWyfdC9Q7yOnlNdkJgzmQ/OuE9EVkKaY2kcnMU4NVyvbmD
+                certif:       DtgdgSEuvRlgyeDi2gTh79QAfTnzH2d2SFGt1lZT48PuwCXl485pxyu+gVmykEMr
+                certif:       EAgG6H/Dpl7t/jyV9w/HRAFaSV8mzpaLg6rxM03ThOPl6R61RJzEqTi0zX4OHkxV
+                certif:       q7m1aniNJIvWefU1Yfvdv3zzTcmxWmA3yhOt6wIDAQABo4IBCDCCAQQwCQYDVR0T
+                certif:       BAIwADARBglghkgBhvhCAQEEBAMCBaAwCwYDVR0PBAQDAgXgMBoGCWCGSAGG+EIB
+                certif:       DQQNFgtSSVBFIE5DQyBDQTAdBgNVHQ4EFgQU/EdNYQO8tjU3p1uJLsYn4f0bmmAw
+                certif:       gZsGA1UdIwSBkzCBkIAUHpLUfvaBVfxXVCcT0kh9NJeH7ouhdaRzMHExCzAJBgNV
+                certif:       BAYTAkVVMRAwDgYDVQQIEwdIb2xsYW5kMRAwDgYDVQQKEwduY2NERU1PMR0wGwYD
+                certif:       VQQDExRTb2Z0d2FyZSBQS0kgVGVzdGluZzEfMB0GCSqGSIb3DQEJARYQc29mdGll
+                certif:       c0ByaXBlLm5ldIIBADANBgkqhkiG9w0BAQQFAAOBgQCEve6deqF0nvHKFJ0QfEJS
+                certif:       UkRTCF7YCx7Jb2tKIHfMgbrUs3x9bmpShpBkJwjEsNYp0Vvk7hfhiFgKM4AGyYd3
+                certif:       hZNmF5c/d0gauqvL+egb+3V+Zg+sJTzHMVKQLF1ybWgJjU75Pi+mO7BG0zsQ13pT
+                certif:       YxuZCR2W15nwt7zLiHtmfw==
+                certif:       -----END CERTIFICATE-----
+                remarks:      Sample Key Certificate
+                notify:       dbtest@ripe.net
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20040101
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", response)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[key-cert] X509-99" }
+        ack.errorMessagesFor("Create", "[key-cert] X509-99") ==
+                ["Syntax error in X509-99 (must be AUTO-nnn for create)"]
+
+        queryObjectNotFound("-rGBT key-cert X509-99", "key-cert", "X509-99")
+    }
+
 }

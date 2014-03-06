@@ -3,7 +3,7 @@ package net.ripe.db.whois.query.support;
 import net.ripe.db.whois.common.support.AbstractDaoTest;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;

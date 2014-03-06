@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.freetext.FreeTextIndex;
+import net.ripe.db.whois.api.rest.RestClientUtils;
 import net.ripe.db.whois.api.whois.rdap.domain.*;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.joda.time.LocalDateTime;
@@ -1344,7 +1345,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     private String syncupdate(String data) {
         WebTarget resource = RestTest.target(getPort(), String.format("whois/syncupdates/test"));
         return resource.request()
-                .post(javax.ws.rs.client.Entity.entity("DATA=" + RestTest.encode(data),
+                .post(javax.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
                         MediaType.APPLICATION_FORM_URLENCODED),
                         String.class);
 

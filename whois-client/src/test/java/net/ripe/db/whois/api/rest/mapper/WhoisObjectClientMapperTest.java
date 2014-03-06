@@ -92,6 +92,7 @@ public class WhoisObjectClientMapperTest {
                 new Attribute("members", "as1", null, null, null),
                 new Attribute("members", "as2", null, null, null),
                 new Attribute("members", "as3", null, null, null),
+                new Attribute("members", "", null, null, null),     // note: this is incorrect syntax but still handled by the mapper
                 new Attribute("mnt-by", "TS1-MNT", null, null, null),
                 new Attribute("changed", "hostmaster@ripe.net 20121115", null, null, null),
                 new Attribute("source", "TEST", null, null, null)

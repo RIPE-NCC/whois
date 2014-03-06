@@ -1,19 +1,25 @@
 package net.ripe.db.whois.internal.api.abusec;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.api.rest.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -50,7 +56,8 @@ public class AbuseCService {
 
         RpslObject organisation;
         try {
-            organisation = restClient.lookup(ObjectType.ORGANISATION, orgkey);
+            organisation = restClient.request()
+                    .lookup(ObjectType.ORGANISATION, orgkey);
         } catch (Exception e) {
             // TODO: check for specific exception
             LOGGER.error("exception", e);
@@ -66,16 +73,20 @@ public class AbuseCService {
 
         try {
             final RpslObject role = createAbuseCRole(organisation, email);
-            final RpslObject createdRole = restClient.createOverride(role, String.format("%s,%s", override, ABUSEC_SERVICE));
-            final RpslObject updatedOrganisation = createOrganisationWithAbuseCAttribute(organisation, createdRole.getKey().toString());
+            final RpslObject createdRole = restClient.request()
+                    .addParam("override", String.format("%s,%s", override, ABUSEC_SERVICE))
+                    .create(role);
 
-            restClient.updateOverride(updatedOrganisation, String.format("%s,%s", override, ABUSEC_SERVICE));
+            final RpslObject updatedOrganisation = createOrganisationWithAbuseCAttribute(organisation, createdRole.getKey().toString());
+            restClient.request()
+                    .addParam("override", String.format("%s,%s", override, ABUSEC_SERVICE))
+                    .update(updatedOrganisation);
 
             return Response.ok(String.format("http://apps.db.ripe.net/search/lookup.html?source=%s&key=%s&type=ORGANISATION", sourceName, orgkey)).build();
         } catch (Exception e) {
             LOGGER.error("exception", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-        return null;
     }
 
     @GET
@@ -83,7 +94,8 @@ public class AbuseCService {
     @Produces(MediaType.TEXT_PLAIN)
     public Response lookupAbuseContact(@PathParam("orgkey") final String orgKey) {
         try {
-            final RpslObject organisation = restClient.lookup(ObjectType.ORGANISATION, orgKey);
+            final RpslObject organisation = restClient.request()
+                    .lookup(ObjectType.ORGANISATION, orgKey);
             try {
                 final CIString abuseMailbox = lookupAbuseMailbox(organisation);
                 return Response.ok(abuseMailbox.toString()).build();
@@ -99,7 +111,8 @@ public class AbuseCService {
 
     private CIString lookupAbuseMailbox(final RpslObject organisation) {
         final String abuseRoleName = organisation.getValueForAttribute(AttributeType.ABUSE_C).toString();
-        final RpslObject abuseRole = restClient.lookup(ObjectType.ROLE, abuseRoleName);
+        final RpslObject abuseRole = restClient.request()
+                .lookup(ObjectType.ROLE, abuseRoleName);
         return abuseRole.getValueForAttribute(AttributeType.ABUSE_MAILBOX);
     }
 
@@ -114,7 +127,7 @@ public class AbuseCService {
         for (RpslAttribute address : organisation.findAttributes(AttributeType.ADDRESS)) {
             attributes.add(address);
         }
-        final RpslAttribute email = organisation.findAttribute(AttributeType.E_MAIL);
+        final RpslAttribute email = organisation.findAttributes(AttributeType.E_MAIL).get(0);
         attributes.add(organisation.findAttribute(AttributeType.E_MAIL));
         attributes.add(new RpslAttribute(AttributeType.CHANGED, email.getValue()));
         final RpslAttribute source = organisation.findAttribute(AttributeType.SOURCE);

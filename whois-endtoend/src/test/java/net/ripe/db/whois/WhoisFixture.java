@@ -3,6 +3,7 @@ package net.ripe.db.whois;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
+import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
@@ -17,6 +18,7 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
@@ -24,7 +26,9 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
+import net.ripe.db.whois.db.WhoisServer;
 import net.ripe.db.whois.query.QueryServer;
+import net.ripe.db.whois.query.support.TestWhoisLog;
 import net.ripe.db.whois.scheduler.task.unref.UnrefCleanup;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
@@ -70,12 +74,14 @@ public class WhoisFixture {
     protected UnrefCleanup unrefCleanup;
     protected IndexDao indexDao;
     protected WhoisServer whoisServer;
+    protected RestClient restClient;
+    protected TestWhoisLog testWhoisLog;
 
     static {
         Slf4JLogConfiguration.init();
 
         System.setProperty("application.version", "0.1-ENDTOEND");
-        System.setProperty("mail.dequeue.threads", "2");
+        System.setProperty("mail.update.threads", "2");
         System.setProperty("mail.dequeue.interval", "10");
         System.setProperty("whois.maintainers.power", "RIPE-NCC-HM-MNT");
         System.setProperty("whois.maintainers.enduser", "RIPE-NCC-END-MNT");
@@ -89,7 +95,7 @@ public class WhoisFixture {
 
 
     public void start() throws Exception {
-        applicationContext = new ClassPathXmlApplicationContext("applicationContext-whois-test.xml");
+        applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois-test.xml", WhoisProfile.TEST);
         databaseHelper = applicationContext.getBean(DatabaseHelper.class);
         whoisServer = applicationContext.getBean(WhoisServer.class);
         jettyBootstrap = applicationContext.getBean(JettyBootstrap.class);
@@ -111,10 +117,13 @@ public class WhoisFixture {
         sourceContext = applicationContext.getBean(SourceContext.class);
         unrefCleanup = applicationContext.getBean(UnrefCleanup.class);
         indexDao = applicationContext.getBean(IndexDao.class);
+        restClient = applicationContext.getBean(RestClient.class);
+        testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
 
         databaseHelper.setup();
-
         whoisServer.start();
+
+        restClient.setRestApiUrl(String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
 
         initData();
     }
@@ -228,6 +237,12 @@ public class WhoisFixture {
         return DummyWhoisClient.query(QueryServer.port, query);
     }
 
+    public RpslObject restLookup(ObjectType objectType, String pkey, String... passwords) {
+        return restClient.request()
+                .addParams("password", passwords)
+                .lookup(objectType, pkey);
+    }
+
     public List<String> queryPersistent(final List<String> queries) throws Exception {
         final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
         final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
@@ -283,6 +298,10 @@ public class WhoisFixture {
 
     public DnsGatewayStub getDnsGatewayStub() {
         return dnsGatewayStub;
+    }
+
+    public TestWhoisLog getTestWhoisLog() {
+        return testWhoisLog;
     }
 
     public MailSenderStub getMailSender() {

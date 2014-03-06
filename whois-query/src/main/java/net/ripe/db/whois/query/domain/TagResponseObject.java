@@ -2,6 +2,7 @@ package net.ripe.db.whois.query.domain;
 
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.query.QueryMessages;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -33,7 +34,7 @@ public class TagResponseObject implements ResponseObject {
 
     @Override
     public byte[] toByteArray() {
-        if (getType().equals(CIString.ciString("unref"))) {
+        if (getType().equals("unref")) {
             return QueryMessages.unreferencedTagInfo(objectKey, getValue()).toString().getBytes();
         } else {
             return QueryMessages.tagInfo(getType(), getValue()).toString().getBytes();

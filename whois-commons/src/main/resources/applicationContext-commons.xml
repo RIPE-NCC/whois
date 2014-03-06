@@ -9,13 +9,12 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <!-- TODO: this is loaded many many times on context init, which slows down startup process -->
     <tx:annotation-driven mode="aspectj"/>
 
     <context:spring-configured/>
 
-    <context:component-scan base-package="net.ripe.db.whois">
-        <context:exclude-filter type="regex" expression="net\.ripe\.db\.whois\.internal\..*" />
-    </context:component-scan>
+    <context:component-scan base-package="net.ripe.db.whois.common"/>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="sourceAwareDataSource"/>
@@ -55,7 +54,7 @@
         <property name="password" value="${internals.database.password}"/>
     </bean>
 
-    <bean id="whoisMasterDataSource" parent="abstractDataSource">
+    <bean id="whoisMasterDataSource" parent="abstractDataSource" depends-on="loggingDriver">
         <property name="driverClass" value="${whois.db.master.driver}"/>
         <property name="jdbcUrl" value="${whois.db.master.url}"/>
         <property name="user" value="${whois.db.master.username}"/>

@@ -39,14 +39,11 @@ public class DailyLogFolder extends LogSource {
         this.path = dailyLogFolder.toAbsolutePath().toString();
     }
 
-    public void processLoggedFiles(final LoggedUpdateProcessor loggedUpdateProcessor) {
+    public void processLoggedFiles(final LoggedUpdateProcessor<DailyLogEntry> loggedUpdateProcessor) {
         try (final DirectoryStream<Path> updateLogFolders = Files.newDirectoryStream(dailyLogFolder, new DirectoryStream.Filter<Path>() {
             @Override
             public boolean accept(Path entry) throws IOException {
-                if (Files.isDirectory(entry) && UPDATE_LOG_FOLDER_PATTERN.matcher(entry.toString()).matches()) {
-                    return true;
-                }
-                return false;
+                return Files.isDirectory(entry) && UPDATE_LOG_FOLDER_PATTERN.matcher(entry.toString()).matches();
             }
         })) {
 
@@ -54,7 +51,9 @@ public class DailyLogFolder extends LogSource {
                 try (final DirectoryStream<Path> updateLogEntries = Files.newDirectoryStream(updateLogFolder, new DirectoryStream.Filter<Path>() {
                     @Override
                     public boolean accept(Path entry) throws IOException {
-                        return Files.isRegularFile(entry) && NewLogFormatProcessor.INDEXED_LOG_ENTRIES.matcher(entry.toString()).matches();
+                        return Files.isRegularFile(entry) &&
+                                (NewLogFormatProcessor.INDEXED_MSG_LOG_ENTRIES.matcher(entry.toString()).matches() ||
+                                 NewLogFormatProcessor.INDEXED_ACK_LOG_ENTRIES.matcher(entry.toString()).matches());
                     }
                 })) {
 
@@ -74,6 +73,7 @@ public class DailyLogFolder extends LogSource {
                 }
             }
         } catch (IOException e) {
+            LOGGER.warn("IO exception processing dir: {}", dailyLogFolder, e);
         }
     }
 

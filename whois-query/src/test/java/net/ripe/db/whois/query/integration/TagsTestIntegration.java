@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
+import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
@@ -118,7 +119,7 @@ public class TagsTestIntegration extends AbstractWhoisIntegrationTest {
     @Test
     public void filterTag_include_does_not_apply() {
         final String response = DummyWhoisClient.query(QueryServer.port, "-B --filter-tag-include unref TP1-TEST");
-        assertThat(response, containsString("" +
+        assertThat(response, stringMatchesRegexp("(?si)" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
                 "%\n" +
@@ -126,7 +127,7 @@ public class TagsTestIntegration extends AbstractWhoisIntegrationTest {
                 "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
                 "\n" +
                 "% Note: tag filtering is enabled,\n" +
-                "%       Only showing objects WITH tag(s): unref\n" +
+                "%       Only showing objects WITH tag\\(s\\): unref\n" +
                 "\n" +
                 "% Information related to 'TP1-TEST'\n" +
                 "\n" +
@@ -134,7 +135,7 @@ public class TagsTestIntegration extends AbstractWhoisIntegrationTest {
                 "%\n" +
                 "% No entries found in source TEST.\n" +
                 "\n" +
-                "% This query was served by the RIPE Database Query Service version 0.1-TEST (UNDEFINED)\n" +
+                "% This query was served by the RIPE Database Query Service version 0.1-TEST \\(.*\\)\n" +
                 "\n" +
                 "\n"));
         assertThat(response, not(containsString("person:         Test Person")));
@@ -167,7 +168,7 @@ public class TagsTestIntegration extends AbstractWhoisIntegrationTest {
     public void filterTag_exclude_does_not_apply() {
         final String response = DummyWhoisClient.query(QueryServer.port, "--filter-tag-exclude unref TP1-TEST");
         assertThat(response, containsString("person:         Test Person"));
-        assertThat(response, containsString("" +
+        assertThat(response, stringMatchesRegexp("(?si)" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
                 "%\n" +
@@ -178,18 +179,18 @@ public class TagsTestIntegration extends AbstractWhoisIntegrationTest {
                 "%       To receive output for a database update, use the \"-B\" flag.\n" +
                 "\n" +
                 "% Note: tag filtering is enabled,\n" +
-                "%       Only showing objects WITHOUT tag(s): unref\n" +
+                "%       Only showing objects WITHOUT tag\\(s\\): unref\n" +
                 "\n" +
                 "% Information related to 'TP1-TEST'\n" +
                 "\n" +
                 "person:         Test Person\n" +
                 "address:        Street\n" +
-                "phone:          +31324243\n" +
+                "phone:          \\+31324243\n" +
                 "nic-hdl:        TP1-TEST\n" +
                 "mnt-by:         RIPE-NCC-HM-MNT\n" +
                 "source:         TEST # Filtered\n" +
                 "\n" +
-                "% This query was served by the RIPE Database Query Service version 0.1-TEST (UNDEFINED)\n" +
+                "% This query was served by the RIPE Database Query Service version 0.1-TEST \\(.*\\)\n" +
                 "\n" +
                 "\n"));
     }

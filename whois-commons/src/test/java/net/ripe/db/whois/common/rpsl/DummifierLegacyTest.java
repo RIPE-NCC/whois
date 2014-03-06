@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -204,5 +205,29 @@ public class DummifierLegacyTest {
                 "remarks:        * To view the original object, please query the RIPE Database at:\n" +
                 "remarks:        * http://www.ripe.net/whois\n" +
                 "remarks:        ****************************\n"));
+    }
+
+    @Test
+    public void dummify_mntner_keeps_dummy_auth_line_only() {
+        final RpslObject mntner = RpslObject.parse(11, "" +
+                "mntner: AARDVARK-MNT\n" +
+                "descr: Mntner for guy's objects\n" +
+                "admin-c: FB99999-RIPE\n" +
+                "tech-c: FB99999-RIPE\n" +
+                "upd-to: guy@ripe.net\n" +
+                "auth: X509-1\n" +
+                "auth: X509-1689\n" +
+                "auth: MD5-PW $1$SaltSalt$ThisIsABrokenMd5Hash.\n" +
+                "auth: SSO 1234-5678-9abc-dead-beef\n" +
+                "notify: guy@ripe.net\n" +
+                "mnt-by: AARDVARK-MNT\n" +
+                "referral-by: AARDVARK-MNT\n" +
+                "changed: guy@ripe.net 20120510\n" +
+                "source: RIPE # Filtered");
+
+        final RpslObject dummified = subject.dummify(3, mntner);
+
+        RpslAttribute expectedDummifiedAuth = new RpslAttribute("auth", "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.");
+        assertThat(dummified.findAttribute(AttributeType.AUTH), is(expectedDummifiedAuth));
     }
 }

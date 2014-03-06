@@ -41,7 +41,7 @@ class ResourceTagger {
     }
 
     void tagObjects(final GrsSource grsSource) {
-        final Stopwatch stopwatch = new Stopwatch().start();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         try {
             sourceContext.setCurrent(Source.master(grsSource.getName()));
             tagObjectsInContext(grsSource);

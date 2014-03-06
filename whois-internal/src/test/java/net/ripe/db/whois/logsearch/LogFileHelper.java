@@ -1,6 +1,7 @@
 package net.ripe.db.whois.logsearch;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.support.FileHelper;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -10,7 +11,13 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
 public class LogFileHelper {
@@ -29,9 +36,13 @@ public class LogFileHelper {
     }
 
     public static File createLogFile(final File parent, final String date, final String time, final String random, final String content) throws IOException {
+        return createLogFile(parent, date, time, random, content, "001.msg-in.txt.gz");
+    }
+
+    public static File createLogFile(final File parent, final String date, final String time, final String random, final String content, final String filename) throws IOException {
         final File directory = createLogDirectory(parent, date, time, random);
 
-        final File logFile = new File(directory, "001.msg-in.txt.gz");
+        final File logFile = new File(directory, filename);
         final FileOutputStream fileOutputStream = new FileOutputStream(logFile);
 
         BufferedWriter writer = null;
@@ -54,20 +65,25 @@ public class LogFileHelper {
     }
 
     public static File createTarredLogFile(final File parent, final String date, final String time, final String random, final String content) throws IOException {
-        return createTarredLogFile(parent, date, time, random, "001.msg-in.txt.gz", content);
+        final Map<String, String> fileWithContents = Maps.newHashMap();
+        fileWithContents.put("001.msg-in.txt.gz", content);
+        return createTarredLogFile(parent, date, time, random, fileWithContents);
     }
 
-    public static File createTarredLogFile(final File parent, final String date, final String time, final String random, final String filename, final String content) throws IOException {
+    // create YYYYMMDD.tar containing multiple logfiles /HHMMSS.<random>/<Map.Entry.key>
+
+    public static File createTarredLogFile(final File parent, final String date, final String time, final String random, final Map<String, String> filesWithContents) throws IOException {
         final File tarFile = new File(parent, String.format("%s.tar", date));
         try (TarArchiveOutputStream outputStream = new TarArchiveOutputStream(new FileOutputStream(tarFile))) {
+            for (Map.Entry<String, String> entry : filesWithContents.entrySet()) {
+                final byte[] gzippedData = gzip(entry.getValue());
+                final TarArchiveEntry archiveEntry = new TarArchiveEntry(String.format("%s.%s/%s", time, random, entry.getKey()));
 
-            final byte[] gzippedData = gzip(content);
-            final TarArchiveEntry archiveEntry = new TarArchiveEntry(String.format("%s.%s/%s", time, random, filename));
-
-            archiveEntry.setSize(gzippedData.length);
-            outputStream.putArchiveEntry(archiveEntry);
-            outputStream.write(gzippedData);
-            outputStream.closeArchiveEntry();
+                archiveEntry.setSize(gzippedData.length);
+                outputStream.putArchiveEntry(archiveEntry);
+                outputStream.write(gzippedData);
+                outputStream.closeArchiveEntry();
+            }
 
             return tarFile;
         }

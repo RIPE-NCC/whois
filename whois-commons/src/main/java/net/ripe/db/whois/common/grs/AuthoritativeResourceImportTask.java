@@ -63,7 +63,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
             try {
                 final AuthoritativeResource authoritativeResource = downloadAuthoritativeResource(sourceName);
                 resourceDataDao.store(sourceName, authoritativeResource);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.warn("Exception processing " + sourceName, e);
             }
         }

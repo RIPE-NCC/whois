@@ -1,28 +1,64 @@
 package net.ripe.db.whois.common.jdbc.driver;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.lang.reflect.Proxy;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.DriverPropertyInfo;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
+@Component
 public class LoggingDriver implements Driver {
+    private final static org.slf4j.Logger LOGGER = LoggerFactory.getLogger(LoggingDriver.class);
+
     private static final String URL_PREFIX = "jdbc:log:";
     private static final String PARAM_DRIVER = "driver";
-    private static final String PARAM_LOGGER = "logger";
     private static final String URL_DELIMITERS = ":/;=&?";
 
     private static final Map<String, Target> targets = Maps.newHashMap();
+    private LoggingHandler loggingHandler;
 
-    static {
-        final LoggingDriver driver = new LoggingDriver();
+    @Autowired(required = false)
+    public void setLoggingHandler(final LoggingHandler loggingHandler) {
+        this.loggingHandler = loggingHandler;
+    }
+
+    @PostConstruct
+    public void init() {
+        // there should be only one LoggingDriver initialized per JVM (or we won't know which applicationContext's logger to log to)
         try {
-            DriverManager.registerDriver(driver);
+            Driver driver = DriverManager.getDriver(URL_PREFIX);
+            LOGGER.error("LoggingDriver already installed; removing");
+            DriverManager.deregisterDriver(driver);
+        } catch (SQLException expected) {
+        }
+
+        try {
+            DriverManager.registerDriver(this);
         } catch (SQLException e) {
-            throw new IllegalStateException("Unable to register driver: " + driver.getClass(), e);
+            throw new IllegalStateException("Unable to register logging JDBC driver", e);
+        }
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        try {
+            DriverManager.deregisterDriver(this);
+        } catch (SQLException e) {
+            LOGGER.error("Unable to de-register logging JDBC driver", e);
         }
     }
 
@@ -48,7 +84,6 @@ public class LoggingDriver implements Driver {
         final StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("jdbc:");
 
-        String targetLogger = null;
         String targetDriver = null;
         final String urlWithoutPrefix = url.substring(URL_PREFIX.length());
         final StringTokenizer urlTokenizer = new StringTokenizer(urlWithoutPrefix, URL_DELIMITERS, true);
@@ -56,8 +91,6 @@ public class LoggingDriver implements Driver {
             final String s = urlTokenizer.nextToken();
             if (PARAM_DRIVER.equals(s)) {
                 targetDriver = getParameter(urlTokenizer);
-            } else if (PARAM_LOGGER.equals(s)) {
-                targetLogger = getParameter(urlTokenizer);
             } else {
                 urlBuilder.append(s);
             }
@@ -65,12 +98,7 @@ public class LoggingDriver implements Driver {
 
         checkClass(PARAM_DRIVER, targetDriver, Driver.class);
 
-        String targetUrl = urlBuilder.toString();
-        while (URL_DELIMITERS.contains(targetUrl.substring(targetUrl.length() - 1))) {
-            targetUrl = targetUrl.substring(0, targetUrl.length() - 1);
-        }
-
-        final LoggingHandler loggingHandler = createLoggingHandler(targetLogger);
+        final String targetUrl = StringUtils.stripEnd(urlBuilder.toString(), URL_DELIMITERS);
 
         target = new Target(targetUrl, loggingHandler);
 
@@ -89,18 +117,6 @@ public class LoggingDriver implements Driver {
         }
 
         return result;
-    }
-
-    private LoggingHandler createLoggingHandler(final String targetLogger) {
-        final Class<LoggingHandler> loggingHandlerClass = checkClass(PARAM_LOGGER, targetLogger, LoggingHandler.class);
-
-        try {
-            return loggingHandlerClass.newInstance();
-        } catch (InstantiationException e) {
-            throw new IllegalArgumentException("Unable to create instance of " + targetLogger);
-        } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException("Unable to create instance of " + targetLogger);
-        }
     }
 
     private <T> Class<T> checkClass(final String name, final String value, final Class<T> type) {
@@ -147,7 +163,7 @@ public class LoggingDriver implements Driver {
         return false;
     }
 
-    // @Override, but only in Java 1.7
+    @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return null;
     }

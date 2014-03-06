@@ -1274,8 +1274,8 @@ class AuthSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
-    // Create assignment, parent with mnt-lower, diff pw to mnt-by, no pw supplied, override separate from object
-    @Ignore def "create assignment, parent with mnt-lower, diff pw to mnt-by, no pw supplied, override separate from object"() {
+    @Ignore
+    def "create assignment, parent with mnt-lower, diff pw to mnt-by, no pw supplied, override separate from object"() {
       given:
         syncUpdate(getTransient("P-LOW") + "password: hm\npassword: owner3")
 

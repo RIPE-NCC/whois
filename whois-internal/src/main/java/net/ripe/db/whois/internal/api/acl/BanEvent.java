@@ -47,7 +47,7 @@ public class BanEvent {
     }
 
     /**
-     * time when the event occured
+     * time when the event occurred
      */
     @XmlElement(required = false)
     @XmlSchemaType(name = "datetime", type = XMLGregorianCalendar.class)

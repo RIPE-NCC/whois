@@ -22,16 +22,15 @@ public class AbuseContactMapper {
             }
         }
 
-        final AbuseResources abuseResources = new AbuseResources();
-        abuseResources.setAbuseContact(new AbuseContact().setEmail(abuseEmail));
-        abuseResources.setLink(new Link("locator", String.format("http://rest.db.ripe.net/abuse-contact/%s", key)));
-        abuseResources.setService("abuse-contact");
+        final Parameters parameters = new Parameters(null, null, null, null, null, new AbusePKey(foundKey));
 
-        final Parameters parameters = new Parameters();
-        parameters.setPrimaryKey(new AbusePKey(foundKey));
-        abuseResources.setParameters(parameters);
-
-        abuseResources.setTermsAndConditions(new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+        final AbuseResources abuseResources = new AbuseResources(
+                "abuse-contact",
+                new Link("locator", String.format("http://rest.db.ripe.net/abuse-contact/%s", key)),
+                parameters,
+                new AbuseContact(abuseEmail),
+                new Link("locator", WhoisResources.TERMS_AND_CONDITIONS)
+        );
 
         return abuseResources;
     }

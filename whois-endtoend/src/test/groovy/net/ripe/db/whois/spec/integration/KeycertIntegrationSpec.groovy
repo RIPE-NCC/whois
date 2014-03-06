@@ -186,23 +186,40 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[key-cert\] PGPKEY-28F6CD6C/
     }
 
-    def "create keycert replace generated fields"() {
+    def "create keycert replace multiple owner fields"() {
       given:
-        def request = getResource("keycerts/PGPKEY-28F6CD6C.TXT") + "password: update";
-        def update = new SyncUpdate(data: request.stripIndent())
-
-      when:
-        def response = syncUpdate update
-
-      then:
-        response =~ /Create SUCCEEDED: \[key-cert\] PGPKEY-28F6CD6C/
-        response =~ /\*\*\*Warning: Supplied attribute 'method' has been replaced with a generated value/
+        def response = syncUpdate new SyncUpdate(data:  """
+            key-cert:       PGPKEY-459F13C0
+            method:         PGP
+            owner:          Placeholder
+            owner:          Another owner
+            fingerpr:       Placeholder
+            certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
+                            Version: GnuPG v1.4.12 (Darwin)
+            +
+                            mI0EUM8WtAEEALnqIV3MGrTZpzspsUPFozlNYts2KK136IvmHNjySNSlp8inLTTq
+                            hOU+6bdpQYsLJOhzlFwoH/RXdCouRJ64Xq3VginxqpYfww5PKuO3MHs6hkBZgted
+                            I/+/qcBvK4PWTNeD6xEWvKFZiBPsijU7etXbo+K2hQOSu2LrbDncLFkBABEBAAG0
+                            MkRCIFRlc3QgKFJTQSBrZXkgZm9yIERCIHRlc3RpbmcpIDxkYnRlc3RAcmlwZS5u
+                            ZXQ+iLkEEwECACMFAlDPFrQCGy8HCwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAK
+                            CRByxObDRZ8TwLPkA/42vdjRKQ3zQmFYcjszCy5L/MLlj4gYjZkOJICVudLMz3c1
+                            Ztda5JaUu+KnFZ664ekVLxLJY6coH1N9bxWKNSzKaoEx4WhV8OHGk2xdSkJHK887
+                            f4UYpA4085JxwkgzljzxAxfLf1GQuSNw3eY0b3T2GDgXRQwcSl4xdufto0zERQ==
+                            =t1N2
+                            -----END PGP PUBLIC KEY BLOCK-----
+            mnt-by:         UPD-MNT
+            changed:        noreply@ripe.net
+            source:         TEST
+            password: update
+            """.stripIndent())
+      expect:
+        response =~ /Create SUCCEEDED: \[key-cert\] PGPKEY-459F13C0/
         response =~ /\*\*\*Warning: Supplied attribute 'owner' has been replaced with a generated value/
         response =~ /\*\*\*Warning: Supplied attribute 'fingerpr' has been replaced with a generated
             value/
     }
 
-    def "noop keycert replace generated fields"() {
+    def "create keycert no generated fields"() {
       given:
         def request = getResource("keycerts/PGPKEY-28F6CD6C.TXT") + "password: update";
         def update = new SyncUpdate(data: request.stripIndent())
@@ -212,10 +229,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response =~ /Create SUCCEEDED: \[key-cert\] PGPKEY-28F6CD6C/
-        response =~ /\*\*\*Warning: Supplied attribute 'method' has been replaced with a generated value/
-        response =~ /\*\*\*Warning: Supplied attribute 'owner' has been replaced with a generated value/
-        response =~ /\*\*\*Warning: Supplied attribute 'fingerpr' has been replaced with a generated
-            value/
     }
 
     def "update keycert replace certif fields"() {
@@ -473,8 +486,8 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
                 "certif:         kSYadR4aN+CVhYHOsn5nxbiKSFNAWh40q7tDP7I=\n" +
                 "certif:         =XRho\n" +
                 "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
-                "mnt-by:         UPD-MNT\n" +
                 "notify:         noreply@ripe.net\n" +
+                "mnt-by:         UPD-MNT\n" +
                 "changed:        noreply@ripe.net 20120213\n" +
                 "source:         TEST\n" +
                 "password:       update\n" +

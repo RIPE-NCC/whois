@@ -5,7 +5,11 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.UserDao;
-import net.ripe.db.whois.common.domain.*;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.IpRanges;
+import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.domain.PendingUpdate;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -13,20 +17,36 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.OverrideCredential;
+import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Component
-public class Authenticator {
+public class Authenticator implements EnvironmentAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(Authenticator.class);
 
     private final IpRanges ipRanges;
@@ -36,6 +56,7 @@ public class Authenticator {
     private final List<AuthenticationStrategy> authenticationStrategies;
     private final Map<CIString, Set<Principal>> principalsMap;
     private final Map<ObjectType, Set<String>> typesWithPendingAuthenticationSupport;
+    private Environment environment;
 
     @Autowired
     public Authenticator(final IpRanges ipRanges,
@@ -94,6 +115,8 @@ public class Authenticator {
 
     public void authenticate(final Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject;
+
+        loggerContext.logCredentials(update.getUpdate());
 
         if (origin.isDefaultOverride()) {
             subject = new Subject(Principal.OVERRIDE_MAINTAINER);
@@ -179,7 +202,7 @@ public class Authenticator {
         }
 
         // TODO: [AH] remove the isDeployed() when we are done migrating power-maintainer tests to syncupdates (a lot of tests that require power mntner are using mailupdates ATM)
-        if (!principals.isEmpty() && !origin.isDefaultOverride() && WhoisProfile.isDeployed()) {
+        if (!principals.isEmpty() && !origin.isDefaultOverride() && environment.acceptsProfiles(WhoisProfile.DEPLOYED)) {
             if (!origin.allowAdminOperations() || !ipRanges.isTrusted(IpInterval.parse(origin.getFrom()))) {
                 authenticationMessages.add(UpdateMessages.ripeMntnerUpdatesOnlyAllowedFromWithinNetwork());
             }
@@ -237,6 +260,7 @@ public class Authenticator {
         if (isPending(update, updateContext, pendingAuthentications.keySet())) {
             final PendingUpdate pendingUpdate = findAndStorePendingUpdate(updateContext, update);
             if (pendingUpdate != null) {
+                //TODO: [TP] Replace magic string
                 if (failedAuthentications.remove("MntByAuthentication")) {
                     passedAuthentications.add("MntByAuthentication");
                 }
@@ -260,5 +284,10 @@ public class Authenticator {
     public boolean isAuthenticationForTypeComplete(final ObjectType objectType, final PendingUpdate pendingUpdate) {
         final Set<String> authenticationStrategyNames = typesWithPendingAuthenticationSupport.get(objectType);
         return pendingUpdate.getPassedAuthentications().containsAll(authenticationStrategyNames);
+    }
+
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 }

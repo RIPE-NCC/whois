@@ -28,7 +28,7 @@ public class DatabaseMaintenanceJmx extends JmxBase {
         this.indexDao = indexDao;
     }
 
-    @ManagedOperation(description = "Recovers a deleted object")
+    @ManagedOperation(description = "Recovers a deleted object (you will need to issue an IP tree rebuild if needed)")
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "objectId", description = "Id of the object to recover"),
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation")
@@ -39,7 +39,7 @@ public class DatabaseMaintenanceJmx extends JmxBase {
             public String call() {
                 try {
                     final RpslObjectUpdateInfo updateInfo = updateDao.undeleteObject(objectId);
-                    return String.format("Recovered object: %s", updateInfo);
+                    return String.format("Recovered object: %s\n *** Remember to update IP trees if needed", updateInfo);
                 } catch (RuntimeException e) {
                     LOGGER.error("Unable to recover object with id: {}", objectId, e);
                     return String.format("Unable to recover: %s", e.getMessage());

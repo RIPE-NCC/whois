@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.support;
 
-import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperTest;
@@ -18,7 +17,6 @@ public abstract class AbstractDaoTest extends AbstractDatabaseHelperTest {
     @Autowired protected RpslObjectUpdateDao rpslObjectUpdateDao;
     @Autowired protected SourceAwareDataSource sourceAwareDataSource;
     @Autowired protected IpTreeUpdater ipTreeUpdater;
-    @Autowired protected TestDateTimeProvider dateTimeProvider;
 
     @Before
     public void resetIpTrees() {

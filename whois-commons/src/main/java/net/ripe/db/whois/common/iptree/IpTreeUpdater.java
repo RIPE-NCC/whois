@@ -1,6 +1,8 @@
 package net.ripe.db.whois.common.iptree;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -14,12 +16,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
@@ -94,7 +101,7 @@ public class IpTreeUpdater {
 
     public void rebuild() {
         LOGGER.info("Building IP trees");
-        final Stopwatch stopwatch = new Stopwatch().start();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
 
         invokeAll(sourceConfigurationsForRebuild, new OperationCallback() {
             @Override
@@ -104,6 +111,20 @@ public class IpTreeUpdater {
         });
 
         LOGGER.info("Finished building IP trees in {}", stopwatch);
+    }
+
+    public void rebuild(final String source) {
+        for (SourceConfiguration sourceConfiguration : Iterables.filter(sourceConfigurationsForRebuild, new Predicate<SourceConfiguration>() {
+            @Override
+            public boolean apply(@Nullable SourceConfiguration input) {
+                return input.getSource().getName().contains(source);
+            }
+        })) {
+            LOGGER.info("Rebuilding IP trees for {}", sourceConfiguration);
+            final Stopwatch stopwatch = Stopwatch.createStarted();
+            ipTreeCacheManager.rebuild(sourceConfiguration);
+            LOGGER.info("Finished building IP trees for {} in {}", sourceConfiguration, stopwatch);
+        }
     }
 
     @Scheduled(fixedDelay = TREE_UPDATE_IN_SECONDS * 1000)

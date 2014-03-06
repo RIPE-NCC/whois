@@ -30,53 +30,6 @@ public class NamedQueryTestIntegration extends AbstractWhoisIntegrationTest {
     }
 
     @Test
-    public void objDoc() throws Exception {     // TODO: rewrite test
-        String response;
-        /*response = DummyWhoisClient.query(QueryServer.port, "-v person");
-        System.out.println(response);
-        /*response = DummyWhoisClient.query(QueryServer.port, "-v as-block");
-        System.out.println(response);*/
-        /*response = DummyWhoisClient.query(QueryServer.port, "-v as-set");
-        System.out.println(response);*/
-        response = DummyWhoisClient.query(QueryServer.port, "-v aut-num");
-        System.out.println(response);
-        /*response = DummyWhoisClient.query(QueryServer.port, "-v domain");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v filter-set");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v inet6num");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v inetnum");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v inet-rtr");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v irt");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v key-cert");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v mntner");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v organisation");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v peering-set");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v poem");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v poetic-form");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v role");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v route");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v route6");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v route-set");
-        System.out.println(response);
-        response = DummyWhoisClient.query(QueryServer.port, "-v rtr-set");
-        System.out.println(response);  */
-    }
-
-    @Test
     public void organisationQueryCaseInsensitive() throws Exception {
         String response = DummyWhoisClient.query(QueryServer.port, "-rT oa orG-Zv1-RipE");
 

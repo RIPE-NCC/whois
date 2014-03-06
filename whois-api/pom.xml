@@ -3,13 +3,13 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.71-SNAPSHOT</version>
+        <version>1.73-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois-api</artifactId>
-    <version>1.71-SNAPSHOT</version>
+    <version>1.73-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -24,9 +24,12 @@
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
+            <artifactId>whois-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
             <artifactId>whois-update</artifactId>
         </dependency>
-
         <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
@@ -63,6 +66,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
+        </dependency>
+
+        <!-- StaxUtils for the IndentingXMLStreamWriter -->
+        <dependency>
+            <groupId>net.java.dev.stax-utils</groupId>
+            <artifactId>stax-utils</artifactId>
         </dependency>
 
         <!-- Lucene free text search -->

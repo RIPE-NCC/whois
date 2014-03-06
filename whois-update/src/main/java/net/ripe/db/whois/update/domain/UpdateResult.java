@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -99,7 +100,7 @@ public class UpdateResult {
         final boolean showAttributes = !UpdateStatus.SUCCESS.equals(status);
 
         if (!showAttributes && dryRun && Action.MODIFY.equals(action) && originalObject != null) {
-            writer.write(updatedObject.diff(originalObject));
+            writer.write(RpslObjectFilter.diff(originalObject, updatedObject));
             writer.write('\n');
         }
 
@@ -126,7 +127,7 @@ public class UpdateResult {
         for (final Message message : messages.getAllMessages()) {
             Messages.Type type = message.getType();
             if (UpdateStatus.PENDING_AUTHENTICATION.equals(status) && Messages.Type.ERROR.equals(type)) {
-                writer.write(UpdateMessages.print(new Message(Messages.Type.INFO, message.getValue())));
+                writer.write(UpdateMessages.print(new Message(Messages.Type.INFO, message.getFormattedText())));
             } else {
                 writer.write(UpdateMessages.print(message));
             }

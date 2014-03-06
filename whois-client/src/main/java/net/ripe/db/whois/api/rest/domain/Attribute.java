@@ -1,8 +1,10 @@
 package net.ripe.db.whois.api.rest.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import net.ripe.db.whois.api.rest.mapper.ValidXmlAdapter;
+import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -10,7 +12,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Objects;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
+@Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "link",
@@ -18,21 +24,21 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
     "value",
     "referencedType"
 })
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "attribute")
 public class Attribute {
 
     @XmlElement
-    protected Link link;
+    private Link link;
     @XmlAttribute(name = "value", required = true)
     @XmlJavaTypeAdapter(value = ValidXmlAdapter.class)
-    protected String value;
+    private String value;
     @XmlAttribute(name = "referenced-type")
-    protected String referencedType;
+    private String referencedType;
     @XmlAttribute(name = "name")
-    protected String name;
+    private String name;
     @XmlAttribute(name = "comment")
-    protected String comment;
+    private String comment;
 
     public Attribute(final String name, final String value, final String comment, final String referencedType, final Link link) {
         this.name = name;
@@ -54,40 +60,20 @@ public class Attribute {
         return link;
     }
 
-    public void setLink(Link value) {
-        this.link = value;
-    }
-
     public String getValue() {
         return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public String getReferencedType() {
         return referencedType;
     }
 
-    public void setReferencedType(String value) {
-        this.referencedType = value;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setName(String value) {
-        this.name = value;
-    }
-
     public String getComment() {
         return comment;
-    }
-
-    public void setComment(String value) {
-        this.comment = value;
     }
 
     @Override
@@ -111,14 +97,30 @@ public class Attribute {
         }
 
         final Attribute attribute = (Attribute) o;
-        return (attribute.name != null ? attribute.name.equals(name) : name == null) &&
-                (attribute.value != null ? attribute.value.equals(value) : value == null) &&
-                (attribute.comment != null ? attribute.comment.equals(comment) : comment == null) &&
-                (attribute.referencedType != null ? attribute.referencedType.equals(referencedType) : referencedType == null) &&
-                (attribute.link != null ? attribute.link.equals(link) : link == null);
+
+        return Objects.equals(attribute.name, name) &&
+                Objects.equals(attribute.value, value) &&
+                Objects.equals(attribute.comment, comment) &&
+                Objects.equals(attribute.referencedType, referencedType) &&
+                Objects.equals(attribute.link, link);
     }
 
     public String toString() {
-        return name + ": " + value;
+        StringBuilder builder = new StringBuilder();
+        builder.append(name).append(": ").append(value);
+
+        if (!StringUtils.isBlank(comment)) {
+            builder.append(" # ").append(comment);
+        }
+
+        if (!StringUtils.isBlank(referencedType)) {
+            builder.append(" [").append(referencedType).append("]");
+        }
+
+        if (link != null) {
+            builder.append(" [").append(link).append("]");
+        }
+
+        return builder.toString();
     }
 }

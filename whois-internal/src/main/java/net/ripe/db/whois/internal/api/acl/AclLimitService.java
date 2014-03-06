@@ -1,11 +1,18 @@
 package net.ripe.db.whois.internal.api.acl;
 
-import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.domain.IpResourceTree;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -47,7 +54,7 @@ public class AclLimitService {
      * @return Current limit for the specified prefix.
      */
     @GET
-    @Path("/{prefix}")
+    @Path("/{prefix:.*}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getLimit(@PathParam("prefix") final String prefix) {
 
@@ -70,6 +77,7 @@ public class AclLimitService {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response saveLimit(final Limit limit) {
         final IpInterval<?> ipInterval = IpInterval.parse(limit.getPrefix());
+        validate(ipInterval);
         limit.setPrefix(ipInterval.toString());
 
         final IpResourceTree<Limit> limitsTree = getLimitsTree();
@@ -100,7 +108,7 @@ public class AclLimitService {
      * @return The deleted limit.
      */
     @DELETE
-    @Path("/{prefix}")
+    @Path("/{prefix:.*}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response deleteLimit(@PathParam("prefix") final String prefix) {
 
@@ -115,5 +123,11 @@ public class AclLimitService {
         }
 
         return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    private void validate(final IpInterval<?> ipInterval) {
+        if (ipInterval instanceof Ipv6Resource && ipInterval.getPrefixLength() > 64) {
+            throw new IllegalArgumentException("IPv6 must be at least a /64 prefix range");
+        }
     }
 }

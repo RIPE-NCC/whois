@@ -29,7 +29,9 @@ public class LogFileUpdateJmx extends JmxBase {
     private final NewLogFormatProcessor newLogFormatProcessor;
 
     @Autowired
-    public LogFileUpdateJmx(final LogFileIndex logFileIndex, final LegacyLogFormatProcessor legacyLogFormatProcessor, final NewLogFormatProcessor newLogFormatProcessor) {
+    public LogFileUpdateJmx(final LogFileIndex logFileIndex,
+                            final LegacyLogFormatProcessor legacyLogFormatProcessor,
+                            final NewLogFormatProcessor newLogFormatProcessor) {
         super(LOGGER);
         this.logFileIndex = logFileIndex;
         this.legacyLogFormatProcessor = legacyLogFormatProcessor;
@@ -41,7 +43,7 @@ public class LogFileUpdateJmx extends JmxBase {
             @ManagedOperationParameter(name = "idPrefix", description = "prefix (not regex, not wildcards; just prefix!)"),
     })
     public String deleteIndexByIdPrefix(final String idPrefix) {
-        invokeOperation("delete all indexes beginning with ", idPrefix, new Callable<Void>() {
+        invokeOperation("delete all indexes beginning with", idPrefix, new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 logFileIndex.removeAllByIdPrefix(idPrefix);

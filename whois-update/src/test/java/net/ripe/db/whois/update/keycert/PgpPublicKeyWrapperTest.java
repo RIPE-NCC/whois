@@ -13,9 +13,12 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -69,8 +72,7 @@ public class PgpPublicKeyWrapperTest {
     public void owner() {
         PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(pgpKeycert);
 
-        assertThat(subject.getOwner(),
-                is("Test Person5 <noreply5@ripe.net>"));
+        assertThat(subject.getOwners(), containsInAnyOrder("Test Person5 <noreply5@ripe.net>"));
     }
 
     @Test

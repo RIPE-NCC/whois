@@ -33,7 +33,11 @@ public class UpdateNotifier {
     private final Maintainers maintainers;
 
     @Autowired
-    public UpdateNotifier(final RpslObjectDao rpslObjectDao, final ResponseFactory responseFactory, final MailGateway mailGateway, final VersionDao versionDao, final Maintainers maintainers) {
+    public UpdateNotifier(final RpslObjectDao rpslObjectDao,
+                          final ResponseFactory responseFactory,
+                          final MailGateway mailGateway,
+                          final VersionDao versionDao,
+                          final Maintainers maintainers) {
         this.rpslObjectDao = rpslObjectDao;
         this.responseFactory = responseFactory;
         this.mailGateway = mailGateway;

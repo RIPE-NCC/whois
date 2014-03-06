@@ -51,13 +51,13 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
         nrtmServer.start();
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.port));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         System.setProperty("nrtm.import.2-GRS.source", "TEST");
         System.setProperty("nrtm.import.2-GRS.host", "localhost");
-        System.setProperty("nrtm.import.2-GRS.port", Integer.toString(NrtmServer.port));
+        System.setProperty("nrtm.import.2-GRS.port", Integer.toString(NrtmServer.getPort()));
         System.setProperty("nrtm.import.3-GRS.source", "TEST");
         System.setProperty("nrtm.import.3-GRS.host", "localhost");
-        System.setProperty("nrtm.import.3-GRS.port", Integer.toString(NrtmServer.port));
+        System.setProperty("nrtm.import.3-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
     }
 

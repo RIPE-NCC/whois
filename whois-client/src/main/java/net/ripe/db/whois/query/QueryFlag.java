@@ -1,11 +1,12 @@
 package net.ripe.db.whois.query;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.CheckForNull;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public enum QueryFlag {
@@ -187,7 +188,7 @@ public enum QueryFlag {
         private Class<?> requiredArgument;
 
         private Builder(final String... flags) {
-            this.flags = Lists.newArrayList(flags);
+            this.flags = Arrays.asList(flags);
         }
 
         Builder withSearchKey(final String searchKey) {
@@ -270,19 +271,19 @@ public enum QueryFlag {
         return toString;
     }
 
-    private static Set<String> VALID_LONG_FLAGS;
-    private static Set<String> VALID_SHORT_FLAGS;
+    private static Map<String, QueryFlag> VALID_LONG_FLAGS;
+    private static Map<String, QueryFlag> VALID_SHORT_FLAGS;
 
     static {
-        final ImmutableSet.Builder<String> validLongFlags = ImmutableSet.builder();
-        final ImmutableSet.Builder<String> validShortFlags = ImmutableSet.builder();
+        final ImmutableMap.Builder<String, QueryFlag> validLongFlags = ImmutableMap.builder();
+        final ImmutableMap.Builder<String, QueryFlag> validShortFlags = ImmutableMap.builder();
 
         for (final QueryFlag queryFlag : QueryFlag.values()) {
             for (final String flag : queryFlag.getFlags()) {
                 if (flag.length() > 1) {
-                    validLongFlags.add(flag);
+                    validLongFlags.put(flag, queryFlag);
                 } else {
-                    validShortFlags.add(flag);
+                    validShortFlags.put(flag, queryFlag);
                 }
             }
         }
@@ -292,10 +293,18 @@ public enum QueryFlag {
     }
 
     public static Set<String> getValidLongFlags() {
-        return VALID_LONG_FLAGS;
+        return VALID_LONG_FLAGS.keySet();
     }
 
     public static Set<String> getValidShortFlags() {
-        return VALID_SHORT_FLAGS;
+        return VALID_SHORT_FLAGS.keySet();
+    }
+
+    public static QueryFlag getForLongFlag(String longFlag) {
+        return VALID_LONG_FLAGS.get(longFlag);
+    }
+
+    public static QueryFlag getForShortFlag(String shortFlag) {
+        return VALID_SHORT_FLAGS.get(shortFlag);
     }
 }

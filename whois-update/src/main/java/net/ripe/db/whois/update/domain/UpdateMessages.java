@@ -8,12 +8,12 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
-import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
-import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
-import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
+import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 
 import java.util.Set;
 
@@ -24,7 +24,7 @@ public final class UpdateMessages {
     private static final Joiner LIST_JOINED = Joiner.on(", ");
 
     public static String print(final Message message) {
-        return prettyPrint(String.format("***%s: ", message.getType()), message.getValue(), 12, 80);
+        return prettyPrint(String.format("***%s: ", message.getType()), message.getFormattedText(), 12, 80);
     }
 
     private UpdateMessages() {
@@ -39,7 +39,7 @@ public final class UpdateMessages {
     }
 
     public static Message unexpectedError() {
-        return new Message(Type.ERROR, "Unexpected error occured");
+        return new Message(Type.ERROR, "Unexpected error occurred");
     }
 
     public static Message filteredNotAllowed() {
@@ -193,6 +193,14 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "This org-type value can only be set by administrative mntners");
     }
 
+    public static Message cantChangeOrgAttribute() {
+        return new Message(Type.ERROR, "The org attribute value can only be set by administrative mntners");
+    }
+
+    public static Message cantChangeOrgName() {
+        return new Message(Type.ERROR, "The org name can only be set by administrative mntners");
+    }
+
     public static Message countryNotRecognised(final CharSequence country) {
         return new Message(Type.ERROR, "Country not recognised: %s", country);
     }
@@ -333,6 +341,10 @@ public final class UpdateMessages {
 
     public static Message invalidChildPrefixLength() {
         return new Message(Type.ERROR, "More specific objects exist that do not match assignment-size");
+    }
+
+    public static Message invalidParentEntryForInterval(final IpInterval s) {
+        return new Message(Type.ERROR, "Interval %s must have exactly one parent", s);
     }
 
     public static Message invalidPrefixLength(final IpInterval ipInterval, final int assignmentSize) {
@@ -536,5 +548,13 @@ public final class UpdateMessages {
 
     public static Message dryRunNotice() {
         return new Message(Type.INFO, "Dry-run performed, no changes to the database have been made");
+    }
+
+    public static Message ripeAccessAccountUnavailable(final CharSequence username) {
+        return new Message(Type.ERROR, "No RIPE NCC Access Account found for %s", username);
+    }
+
+    public static Message ripeAccessServerUnavailable() {
+        return new Message(Type.ERROR, "RIPE NCC Access server is unavailable");
     }
 }

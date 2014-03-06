@@ -1,7 +1,8 @@
 package net.ripe.db.whois.spec
-import com.google.common.collect.Lists
+
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
+import net.ripe.db.whois.common.Message
 import net.ripe.db.whois.common.Messages
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.rpsl.RpslObject
@@ -82,21 +83,20 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
 
     def grepQueryLog(String pattern) {
         DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
-        File queryLogFile = new File("var/log/qry/qrylog." + DATE_FORMATTER.print(whoisFixture.getTestDateTimeProvider().currentDate));
 
         boolean result = false;
-        queryLogFile.eachLine { line ->
+        getTestWhoisLog().messages.each { line ->
             if (line =~ pattern) result = true;
         }
         result
     }
 
     def dnsStubbedResponse(String domain, String... messages) {
-        List<net.ripe.db.whois.common.Message> messageList = Lists.newArrayList()
-        for (final String message : messages) {
-            messageList.add(new net.ripe.db.whois.common.Message(Messages.Type.ERROR, message))
+        Message[] messageList = new Message[messages.length];
+        for (int i = 0; i < messages.length; i++) {
+            messageList[i] = new Message(Messages.Type.ERROR, messages[i]);
         }
 
-        getDnsGatewayStub().addResponse(ciString(domain), messageList.toArray(new net.ripe.db.whois.common.Message[messageList.size()]))
+        getDnsGatewayStub().addResponse(ciString(domain), messageList)
     }
 }

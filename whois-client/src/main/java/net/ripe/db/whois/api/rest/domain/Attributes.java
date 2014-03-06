@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import com.google.common.collect.Lists;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -11,13 +13,17 @@ import java.util.List;
 public class Attributes {
 
     @XmlElement(name = "attribute")
-    protected List<Attribute> attributes;
+    private List<Attribute> attributes;
 
     public Attributes(final List<Attribute> attributes) {
         this.attributes = attributes;
     }
 
     public Attributes() {
-        // required no-arg constructor
+        this.attributes = Lists.newArrayList();
+    }
+
+    public List<Attribute> getAttributes() {
+        return this.attributes;
     }
 }

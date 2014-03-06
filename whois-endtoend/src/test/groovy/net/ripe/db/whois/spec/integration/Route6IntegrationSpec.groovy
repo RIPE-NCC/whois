@@ -208,7 +208,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
     def "delete route6"() {
         when:
         def delete = new SyncUpdate(data: """\
-                route6: 2001:1578:0200::/40
+                route6: 2001:1578:200::/40
                 descr: TEST-ROUTE6
                 origin: AS12726
                 mnt-by: TEST-MNT
@@ -988,7 +988,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
 
         when:
         def deleteRoute = new SyncUpdate(data: """\
-                            route6: 5353::0/24
+                            route6: 5353::/24
                             descr: Test route6
                             origin: AS12726
                             pingable: 5353::0/32

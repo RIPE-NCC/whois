@@ -32,10 +32,7 @@ public class AclProxyServiceTestIntegration extends AbstractInternalTest {
         databaseHelper.insertAclIpProxy("10.0.0.2/32");
         databaseHelper.insertAclIpProxy("10.0.0.3/32");
 
-        @SuppressWarnings("unchecked")
-        final List<Proxy> proxies = getProxies();
-
-        assertThat(proxies, hasSize(4));
+        assertThat(getProxies(), hasSize(4));
     }
 
     @Test
@@ -56,8 +53,7 @@ public class AclProxyServiceTestIntegration extends AbstractInternalTest {
         assertThat(proxy.getPrefix(), is("10.0.0.1/32"));
         assertThat(proxy.getComment(), is("test"));
 
-        final List<Proxy> proxies = getProxies();
-        assertThat(proxies, hasSize(2));
+        assertThat(getProxies(), hasSize(2));
     }
 
     @Test
@@ -69,8 +65,7 @@ public class AclProxyServiceTestIntegration extends AbstractInternalTest {
         assertThat(proxy.getPrefix(), is("10.0.0.0/32"));
         assertThat(proxy.getComment(), is("test"));
 
-        final List<Proxy> proxies = getProxies();
-        assertThat(proxies, hasSize(1));
+        assertThat(getProxies(), hasSize(1));
     }
 
     @Test
@@ -81,8 +76,25 @@ public class AclProxyServiceTestIntegration extends AbstractInternalTest {
 
         assertThat(proxy.getPrefix(), is("10.0.0.0/32"));
 
-        final List<Proxy> proxies = getProxies();
-        assertThat(proxies, hasSize(0));
+        assertThat(getProxies(), hasSize(0));
+    }
+
+    @Test
+    public void deleteProxyUnencodedPrefix() throws Exception {
+        databaseHelper.insertAclIpProxy("2a01:488:67:1000::/64");
+
+        RestTest.target(getPort(), PROXIES_PATH + "/2a01:488:67:1000::/64", null, apiKey).request().delete();
+
+        assertThat(getProxies(), hasSize(1));
+    }
+
+    @Test
+    public void deleteProxyUnencodedPrefixWithExtension() throws Exception {
+        databaseHelper.insertAclIpProxy("2a01:488:67:1000::/64");
+
+        RestTest.target(getPort(), PROXIES_PATH + "/2a01:488:67:1000::/64.json", null, apiKey).request().delete();
+
+        assertThat(getProxies(), hasSize(1));
     }
 
     @SuppressWarnings("unchecked")

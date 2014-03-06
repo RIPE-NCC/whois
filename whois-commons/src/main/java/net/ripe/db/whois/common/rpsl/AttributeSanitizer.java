@@ -101,7 +101,7 @@ public class AttributeSanitizer {
             }
         }
 
-        return new RpslObjectFilter(object).replaceAttributes(replacements);
+        return new RpslObjectBuilder(object).replaceAttributes(replacements).get();
     }
 
     private String getCommentReplacement(final RpslAttribute attribute) {

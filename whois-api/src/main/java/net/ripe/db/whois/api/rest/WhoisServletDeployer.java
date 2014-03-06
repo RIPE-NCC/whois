@@ -8,7 +8,10 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.message.DeflateEncoder;
+import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.filter.EncodingFilter;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -47,7 +50,10 @@ public class WhoisServletDeployer implements ServletDeployer {
     @Override
     public void deploy(WebAppContext context) {
         context.addFilter(new FilterHolder(maintenanceModeFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
+
         final ResourceConfig resourceConfig = new ResourceConfig();
+        EncodingFilter.enableFor(resourceConfig, GZipEncoder.class);
+        EncodingFilter.enableFor(resourceConfig, DeflateEncoder.class);
         resourceConfig.register(MultiPartFeature.class);
         resourceConfig.register(whoisRestService);
         resourceConfig.register(syncUpdatesService);
@@ -55,9 +61,11 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(geolocationService);
         resourceConfig.register(abuseContactService);
         resourceConfig.register(defaultExceptionMapper);
+
         final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
         jaxbJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
         jaxbJsonProvider.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+
         resourceConfig.register(jaxbJsonProvider);
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");
     }

@@ -1,9 +1,11 @@
 package net.ripe.db.whois.update.keycert;
 
+import java.util.List;
+
 public interface KeyWrapper {
     String getMethod();
 
-    String getOwner();
+    List<String> getOwners();
 
     String getFingerprint();
 }

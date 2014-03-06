@@ -11,7 +11,7 @@ import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.query.QueryServer;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
@@ -25,6 +25,7 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoLastAndUpdateSerials;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoTablesIgnoreMissing;
+import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static net.ripe.db.whois.query.support.PatternCountMatcher.matchesPatternCount;
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.Matchers.*;
@@ -79,13 +80,6 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     }
 
     @Test
-    public void testDoc() {         // TODO: add assertion
-        final String response = DummyWhoisClient.query(QueryServer.port, "-v mntner");
-
-        System.out.println(response);
-    }
-
-    @Test
     public void kFlagShouldKeepTheConnectionOpenUntilTheSecondKWithoutArguments() throws Exception {
         final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
 
@@ -135,7 +129,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "\n\n\n");
 
         assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -148,7 +142,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "help\nhelp");
 
         assertThat(response, containsString("RIPE Database Reference Manual"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -156,7 +150,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-q version");
 
         assertThat(response, containsString("% whois-server-"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -164,7 +158,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "--version");
 
         assertThat(response, containsString("% whois-server-"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -172,7 +166,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-r -T inetnum RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -180,7 +174,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-r -T mntner RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -188,7 +182,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "--no-referenced --select-types mntner RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -196,7 +190,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-r -T organisation");
 
         assertThat(response, containsString("no search key specified"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -204,7 +198,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-r -T as-block AS2 - AS1");
 
         assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -213,7 +207,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-rT domain 9.4.e164.arpa.");
 
         assertThat(response, not(containsString("trailing dot in domain query")));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -221,7 +215,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "80-28.79.198.195.in-addr.arpa");
 
         assertThat(response, containsString("no entries found"));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -318,7 +312,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-rT person");
 
         assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
     }
 
     @Test
@@ -326,7 +320,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         final String response = DummyWhoisClient.query(QueryServer.port, "-rT as-block AS2-AS1");
 
         assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
-        assertThat(response, not(containsString(QueryMessages.internalErrorOccured().toString())));
+        assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
         assertThat(response, not(containsString(QueryMessages.outputFilterNotice().toString())));
     }
 
@@ -742,7 +736,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "source:         RIPE"));
 
         final String response = DummyWhoisClient.query(QueryServer.port, "-s TEST-GRS AS760-MNT");
-        assertThat(response, containsString("" +
+        assertThat(response, stringMatchesRegexp("(?si)" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
                 "%\n" +
@@ -756,15 +750,15 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "admin-c:        DUMY-RIPE\n" +
                 "auth:           MD5-PW # Filtered\n" +
                 "source:         TEST-GRS # Filtered\n" +
-                "remarks:        ****************************\n" +
-                "remarks:        * THIS OBJECT IS MODIFIED\n" +
-                "remarks:        * Please note that all data that is generally regarded as personal\n" +
-                "remarks:        * data has been removed from this object.\n" +
-                "remarks:        * To view the original object, please query the RIPE Database at:\n" +
-                "remarks:        * http://www.ripe.net/whois\n" +
-                "remarks:        ****************************\n" +
+                "remarks:        \\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\n" +
+                "remarks:        \\* THIS OBJECT IS MODIFIED\n" +
+                "remarks:        \\* Please note that all data that is generally regarded as personal\n" +
+                "remarks:        \\* data has been removed from this object.\n" +
+                "remarks:        \\* To view the original object, please query the RIPE Database at:\n" +
+                "remarks:        \\* http://www.ripe.net/whois\n" +
+                "remarks:        \\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\n" +
                 "\n" +
-                "% This query was served by the RIPE Database Query Service version 0.1-TEST (UNDEFINED)\n" +
+                "% This query was served by the RIPE Database Query Service version 0.1-TEST \\(.*\\)\n" +
                 "\n" +
                 "\n"));
     }

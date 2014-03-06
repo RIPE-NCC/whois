@@ -120,7 +120,7 @@ public class GrsImporterTest {
         verify(grsSourceRipe, never()).handleObjects(any(File.class), any(ObjectHandler.class));
     }
 
-    private void await(final List<Future<?>> futures) throws ExecutionException, InterruptedException {
+    private void await(final List<Future> futures) throws ExecutionException, InterruptedException {
         for (final Future<?> future : futures) {
             future.get();
         }

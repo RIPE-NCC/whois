@@ -34,5 +34,4 @@ public interface RpslObjectDao extends ProxyLoader<Identifiable, RpslObject> {
     List<RpslObjectInfo> relatedTo(RpslObject identifiable, Set<ObjectType> excludeObjectTypes);
 
     RpslObject getByKey(ObjectType type, CIString key);
-
 }

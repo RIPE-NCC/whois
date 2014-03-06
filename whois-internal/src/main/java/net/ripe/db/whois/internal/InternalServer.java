@@ -24,10 +24,9 @@ public class InternalServer {
     public static void main(final String[] args) {
         Slf4JLogConfiguration.init();
 
-        final Stopwatch stopwatch = new Stopwatch().start();
-        WhoisProfile.setDeployed();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("applicationContext-internal.xml");
+        final ClassPathXmlApplicationContext applicationContext = WhoisProfile.initContextWithProfile("applicationContext-internal.xml", WhoisProfile.DEPLOYED);
 
         final InternalServer logSearchServer = applicationContext.getBean(InternalServer.class);
         Runtime.getRuntime().addShutdownHook(new Thread() {

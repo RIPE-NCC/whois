@@ -77,7 +77,7 @@ public class RipeMaintainerAuthenticationSyncupdatesTestIntegration extends Abst
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity("DATA=" + RestTest.encode(RPSL_PERSON_WITH_RIPE_MAINTAINER) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+                .post(Entity.entity("DATA=" + RestClientUtils.encode(RPSL_PERSON_WITH_RIPE_MAINTAINER) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
         assertThat(response, containsString("" +
                 "***Error:   Authentication by RIPE NCC maintainers only allowed from within the\n" +
@@ -90,7 +90,7 @@ public class RipeMaintainerAuthenticationSyncupdatesTestIntegration extends Abst
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity("DATA=" + RestTest.encode(RPSL_PERSON_WITH_RIPE_MAINTAINER) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+                .post(Entity.entity("DATA=" + RestClientUtils.encode(RPSL_PERSON_WITH_RIPE_MAINTAINER) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
         assertThat(response, not(containsString("" +
                 "***Error:   Authentication by RIPE NCC maintainers only allowed from within the\n" +

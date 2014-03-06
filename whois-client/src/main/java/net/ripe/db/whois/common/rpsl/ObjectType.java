@@ -35,6 +35,7 @@ public enum ObjectType {
 
     static {
         TYPE_NAMES = new HashMap<>(ObjectType.values().length * 2, 1);
+
         for (final ObjectType type : ObjectType.values()) {
             TYPE_NAMES.put(ciString(type.getName()), type);
             TYPE_NAMES.put(ciString(type.getShortName()), type);
@@ -69,7 +70,7 @@ public enum ObjectType {
     public static ObjectType getByName(final String name) throws IllegalArgumentException {
         final ObjectType ret = getByNameOrNull(name);
         if (ret == null) {
-            throw new IllegalArgumentException("Object type " + name + " not found");
+            throw new IllegalArgumentException("Invalid object type: " + name);
         }
         return ret;
     }
@@ -80,6 +81,10 @@ public enum ObjectType {
             nameOrNull = nameOrNull.substring(1);
         }
         return TYPE_NAMES.get(ciString(nameOrNull));
+    }
+
+    public static ObjectType getByFirstAttribute(final AttributeType firstAttribute) {
+        return ObjectType.getByName(firstAttribute.getName());
     }
 
     public static Set<ObjectType> getSets() {

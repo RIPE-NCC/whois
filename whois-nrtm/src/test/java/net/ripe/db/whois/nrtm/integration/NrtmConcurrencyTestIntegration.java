@@ -63,7 +63,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
 
     @Test
     public void dontHangOnHugeAutNumObject() throws Exception {
-        String response = DummyWhoisClient.query(NrtmServer.port, String.format("-g TEST:3:%d-%d", MIN_RANGE, MAX_RANGE), 5 * 1000);
+        String response = DummyWhoisClient.query(NrtmServer.getPort(), String.format("-g TEST:3:%d-%d", MIN_RANGE, MAX_RANGE), 5 * 1000);
 
         assertTrue(response, response.contains(String.format("ADD %d", MIN_RANGE)));  // serial 21486000 is a huge aut-num
         assertTrue(response, response.contains(String.format("DEL %d", MIN_RANGE + 1)));
@@ -197,7 +197,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
             Socket socket = null;
 
             try {
-                socket = new Socket("localhost", NrtmServer.port);
+                socket = new Socket("localhost", NrtmServer.getPort());
                 socket.setSoTimeout(1000);
 
                 out = new PrintWriter(socket.getOutputStream(), true);

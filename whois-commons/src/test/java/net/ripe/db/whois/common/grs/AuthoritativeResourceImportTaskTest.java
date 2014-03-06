@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -24,7 +25,13 @@ import java.nio.file.Path;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthoritativeResourceImportTaskTest {
@@ -52,10 +59,11 @@ public class AuthoritativeResourceImportTaskTest {
         assertThat(resourceCaptor.getValue().getNrInetnums(), is(0));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void download_not_resource_data() throws IOException {
         when(valueResolver.resolveStringValue(anyString())).thenReturn("http://www.ripe.net/download");
         subject.run();
+        verify(resourceDataDao, never()).store(anyString(), Mockito.<AuthoritativeResource>anyObject());
     }
 
     @Test

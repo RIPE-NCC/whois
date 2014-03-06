@@ -7,13 +7,20 @@ import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.domain.VersionDateTime;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.query.VersionDateTime;
+import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.domain.*;
+import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
+import net.ripe.db.whois.query.domain.MessageObject;
+import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.domain.ResponseHandler;
+import net.ripe.db.whois.query.domain.VersionResponseObject;
+import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -98,7 +105,7 @@ public class VersionQueryExecutor implements QueryExecutor {
         final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
         if (versionInfos.isEmpty() && lastDeletionTimestamp != null) {
             return Lists.newArrayList(
-                    new MessageObject(QueryMessages.versionListHeader(objectType.getName().toUpperCase(), searchKey)),
+                    new MessageObject(QueryMessages.versionListStart(objectType.getName().toUpperCase(), searchKey)),
                     new DeletedVersionResponseObject(lastDeletionTimestamp, objectType, searchKey));
         }
 
@@ -122,7 +129,7 @@ public class VersionQueryExecutor implements QueryExecutor {
     private Iterable<? extends ResponseObject> getAllVersions(final VersionLookupResult res, final String searchKey) {
         final ObjectType objectType = res.getObjectType();
         final List<ResponseObject> messages = Lists.newArrayList();
-        messages.add(new MessageObject(QueryMessages.versionListHeader(objectType.getName().toUpperCase(), searchKey)));
+        messages.add(new MessageObject(QueryMessages.versionListStart(objectType.getName().toUpperCase(), searchKey)));
 
         final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
         final String pkey = res.getPkey();
@@ -151,7 +158,11 @@ public class VersionQueryExecutor implements QueryExecutor {
         final RpslObject rpslObject = versionDao.getRpslObject(info);
 
         return Lists.newArrayList(
-                new MessageObject(QueryMessages.versionInformation(version, (version == versionInfos.size()), rpslObject.getKey(), info.getOperation(), info.getTimestamp())),
+                new MessageObject(QueryMessages.versionInformation(version,
+                        (version == versionInfos.size()),
+                        rpslObject.getKey(),
+                        info.getOperation() == Operation.UPDATE ? "UPDATE" : "DELETE",   // TODO: [AH] Operation is overloaded/abused (DAO + different interpretations per module)
+                        info.getTimestamp())),
                 rpslObject);
     }
 
@@ -162,7 +173,7 @@ public class VersionQueryExecutor implements QueryExecutor {
 
         return Lists.newArrayList(
                 new MessageObject(QueryMessages.versionDifferenceHeader(versions[0], versions[1], firstObject.getKey())),
-                new MessageObject(secondObject.diff(firstObject)));
+                new MessageObject(RpslObjectFilter.diff(firstObject, secondObject)));
     }
 
     private Collection<ObjectType> getObjectType(final Query query) {

@@ -4,7 +4,11 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.search.IndexTemplate;
-import net.ripe.db.whois.internal.logsearch.logformat.*;
+import net.ripe.db.whois.internal.logsearch.logformat.DailyLogEntry;
+import net.ripe.db.whois.internal.logsearch.logformat.DailyLogFolder;
+import net.ripe.db.whois.internal.logsearch.logformat.LoggedUpdate;
+import net.ripe.db.whois.internal.logsearch.logformat.TarredLogEntry;
+import net.ripe.db.whois.internal.logsearch.logformat.TarredLogFile;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
 import org.apache.lucene.index.IndexWriter;
 import org.joda.time.LocalDate;
@@ -18,14 +22,21 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileSystemException;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 @Component
 public class NewLogFormatProcessor implements LogFormatProcessor {
-    public static final Pattern INDEXED_LOG_ENTRIES = Pattern.compile("(?:^|.*/)[0-9]+\\.(?:msg-in|msg-out)\\.txt\\.gz$");
+    public static final Pattern INDEXED_MSG_LOG_ENTRIES = Pattern.compile("(?:^|.*/)[0-9]+\\.(?:msg-in|msg-out)\\.txt\\.gz$");
+    public static final Pattern INDEXED_ACK_LOG_ENTRIES = Pattern.compile("^.*/\\d{6}\\.rest_.*_.*/[0-9]+\\.ack\\.txt\\.gz$");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NewLogFormatProcessor.class);
 
@@ -60,7 +71,8 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                 tarredLogFile.processLoggedFiles(new LoggedUpdateProcessor<TarredLogEntry>() {
                     @Override
                     public boolean accept(final TarredLogEntry tarredLogEntry) {
-                        return INDEXED_LOG_ENTRIES.matcher(tarredLogEntry.getUpdateId()).matches();
+                        return (INDEXED_MSG_LOG_ENTRIES.matcher(tarredLogEntry.getUpdateId()).matches() ||
+                                INDEXED_ACK_LOG_ENTRIES.matcher(tarredLogEntry.getUpdateId()).matches());
                     }
 
                     @Override
@@ -72,6 +84,7 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
         });
     }
 
+    // TODO: [ES] test this method from integration
     public void addDailyLogFolderToIndex(final String path) throws IOException {
         logFileIndex.update(new IndexTemplate.WriteCallback() {
             @Override
@@ -79,7 +92,8 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                 new DailyLogFolder(Paths.get(path)).processLoggedFiles(new LoggedUpdateProcessor<DailyLogEntry>() {
                     @Override
                     public boolean accept(DailyLogEntry dailyLogEntry) {
-                        return INDEXED_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches();
+                        return (INDEXED_MSG_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches() ||
+                                INDEXED_ACK_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches());
                     }
 
                     @Override
@@ -156,7 +170,8 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                                 new DailyLogFolder(dir).processLoggedFiles(new LoggedUpdateProcessor<DailyLogEntry>() {
                                     @Override
                                     public boolean accept(DailyLogEntry dailyLogEntry) {
-                                        return INDEXED_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches() &&
+                                        return ((INDEXED_MSG_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches() ||
+                                                 INDEXED_ACK_LOG_ENTRIES.matcher(dailyLogEntry.getUpdateId()).matches())) &&
                                                 !todaysIndexedFiles.contains(dailyLogEntry.getUpdateId());
                                     }
 
@@ -177,6 +192,11 @@ public class NewLogFormatProcessor implements LogFormatProcessor {
                             return FileVisitResult.CONTINUE;
                         }
                     });
+                } catch (FileSystemException e) {
+                    // stale file handle is a normal event when daily logs are rotated into tar files
+                    if (!e.getReason().equals("Stale file handle")) {
+                        LOGGER.error(e.getMessage(), e);
+                    }
                 } catch (IOException e) {
                     LOGGER.error(e.getMessage(), e);
                 }

@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
@@ -88,7 +88,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractWhoisIntegrationTe
         String response = new DummyWhoisClient(QueryServer.port).sendQuery("-rBGxTinetnum 10.0.0.0");
 
         assertThat(stripHeader(response), Matchers.containsString("% This query was served by the RIPE Database Query"));
-        assertThat(stripHeader(response), Matchers.containsString(trim(QueryMessages.internalErrorOccured())));
+        assertThat(stripHeader(response), Matchers.containsString(trim(QueryMessages.internalErroroccurred())));
     }
 
     @Test

@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -223,7 +224,7 @@ public class PgpCredentialValidatorTest {
         final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-67ABAB48");
 
-        keycertObject = RpslObjectFilter.removeAttributeTypes(keycertObject, Lists.newArrayList(AttributeType.CERTIF));
+        keycertObject = new RpslObjectBuilder(keycertObject).removeAttributeType(AttributeType.CERTIF).get();
 
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenReturn(keycertObject);
 

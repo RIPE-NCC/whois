@@ -69,22 +69,18 @@ class HelpSpec extends BaseQueryUpdateSpec {
             """.stripIndent()
     }
 
-//    def "send a HeLp and HowTo message and check the response"() {
-//        when:
-//
-//        def message = send new Message(
-//                subject: "HeLp HowTo",
-//                body: ""
-//        )
-//
-//        then:
-//
-//        def ack = ackFor message
-//
-//        ack.subject == "Failed: HeLp HowTo"
-//        ack.contents =~ """\
-//            Subject: HELP
-//            """.stripIndent()
-//
-//    }
+    def "send a HeLp and HowTo message and check the response"() {
+      when:
+        def message = send new Message(
+            subject: "HeLp HowTo",
+            body: ""
+        )
+
+      then:
+        def ack = ackFor message
+        ack.subject == "FAILED: HeLp HowTo"
+        ack.contents =~ "Subject:    HeLp HowTo"
+        ack.contents =~ /\*\*\*Warning: Invalid keyword\(s\) found: HeLp HowTo/
+        ack.contents =~ /\*\*\*Warning: All keywords were ignored/
+    }
 }

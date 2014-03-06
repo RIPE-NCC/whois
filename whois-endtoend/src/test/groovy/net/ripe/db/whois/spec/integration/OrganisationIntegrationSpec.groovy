@@ -554,9 +554,370 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate update
 
       then:
-        println(response)
         response =~ /FAIL/
         response =~ /"abuse-c:" references a PERSON object/
         response =~ /This must reference a ROLE object with an "abuse-mailbox:"/
+    }
+
+    def "org attribute added by override any mntner"() {
+      given:
+        databaseHelper.addObject("" +
+                "aut-num: AS123\n" +
+                "as-name: asname\n" +
+                "descr: descr\n" +
+                "admin-c: TEST-RIPE\n" +
+                "tech-c: TEST-RIPE\n" +
+                "mnt-by: TST-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                aut-num: AS123
+                as-name: asname2
+                descr: descr
+                org: ORG-TOL1-TEST
+                admin-c: TEST-RIPE
+                tech-c: TEST-RIPE
+                mnt-by: TST-MNT
+                changed: test@ripe.net
+                source: TEST
+                password: update
+                override: denis,override1
+                """)
+      then:
+        response =~ /Modify SUCCEEDED: \[aut-num\] AS123/
+    }
+
+    def "org attribute changed by override RS mntner"() {
+      given:
+        databaseHelper.addObject("" +
+                "aut-num: AS123\n" +
+                "as-name: asname\n" +
+                "descr: descr\n" +
+                "admin-c: TEST-RIPE\n" +
+                "tech-c: TEST-RIPE\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                aut-num: AS123
+                as-name: asname2
+                descr: descr
+                org: ORG-TOL1-TEST
+                admin-c: TEST-RIPE
+                tech-c: TEST-RIPE
+                mnt-by: RIPE-NCC-HM-MNT
+                changed: test@ripe.net
+                source: TEST
+                password: update
+                override: denis,override1
+                """)
+      then:
+        response =~ /Modify SUCCEEDED: \[aut-num\] AS123/
+    }
+
+    def "org attribute changed any mntner not override"() {
+      given:
+        databaseHelper.addObject("" +
+                "aut-num: AS123\n" +
+                "as-name: asname\n" +
+                "descr: descr\n" +
+                "org: ORG-TOL2-TEST\n" +
+                "admin-c: TEST-RIPE\n" +
+                "tech-c: TEST-RIPE\n" +
+                "mnt-by: TST-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                aut-num: AS123
+                as-name: asname2
+                descr: descr
+                org: ORG-TOL1-TEST
+                admin-c: TEST-RIPE
+                tech-c: TEST-RIPE
+                mnt-by: TST-MNT
+                changed: test@ripe.net
+                source: TEST
+                password: update
+                """)
+      then:
+        response =~ /Modify SUCCEEDED: \[aut-num\] AS123/
+    }
+
+    def "org attribute changed any RS mntner not override nor auth by RS"() {
+      given:
+        databaseHelper.addObject("" +
+                "mntner: RIPE-NCC-END-MNT\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "auth: MD5-PW \$1\$lg/7YFfk\$X6ScFx7wATYpuuh/VNU631 #end\n" +
+                "source: TEST");
+
+        databaseHelper.addObject("" +
+                "aut-num: AS123\n" +
+                "as-name: asname\n" +
+                "descr: descr\n" +
+                "org: ORG-TOL2-TEST\n" +
+                "admin-c: TEST-RIPE\n" +
+                "tech-c: TEST-RIPE\n" +
+                "mnt-by: TST-MNT\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                aut-num: AS123
+                as-name: asname2
+                descr: descr
+                org: ORG-TOL1-TEST
+                admin-c: TEST-RIPE
+                tech-c: TEST-RIPE
+                mnt-by: TST-MNT
+                mnt-by: RIPE-NCC-END-MNT
+                changed: test@ripe.net
+                source: TEST
+                password: update
+                """)
+      then:
+        response =~ /Error:   The org attribute value can only be set by administrative mntners/
+    }
+
+    def "org attribute changed RS mntner not override"() {
+      given:
+        databaseHelper.addObject("" +
+                "mntner: RIPE-NCC-END-MNT\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "auth: MD5-PW \$1\$lg/7YFfk\$X6ScFx7wATYpuuh/VNU631 #end\n" +
+                "source: TEST");
+
+        databaseHelper.addObject("" +
+                "aut-num: AS123\n" +
+                "as-name: asname\n" +
+                "descr: descr\n" +
+                "org: ORG-TOL2-TEST\n" +
+                "admin-c: TEST-RIPE\n" +
+                "tech-c: TEST-RIPE\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                aut-num: AS123
+                as-name: asname2
+                descr: descr
+                org: ORG-TOL1-TEST
+                admin-c: TEST-RIPE
+                tech-c: TEST-RIPE
+                mnt-by: RIPE-NCC-END-MNT
+                changed: test@ripe.net
+                source: TEST
+                password: update
+                """)
+      then:
+        response =~ /Modify SUCCEEDED: \[aut-num\] AS123/
+    }
+
+
+
+    def "org-name changed organisation not ref"() {
+      given:
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name: Test Org" +
+                "mnt-by: TST-MNT\n" +
+                "source: TEST")
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     Updated Org
+                org-type:     OTHER
+                address:      Singel 258
+                e-mail:        bitbucket@ripe.net
+                changed:      admin@test.com 20120505
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                password: update
+                """.stripIndent())
+
+      then:
+        response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
+    }
+
+    def "org-name changed organisation ref by mntner"() {
+      given:
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name: Test Org" +
+                "mnt-by: TST-MNT\n" +
+                "source: TEST")
+
+        databaseHelper.addObject("" +
+                "mntner: REF-MNT\n" +
+                "org: ORG-TO1-TEST\n" +
+                "mnt-by: REF-MNT\n" +
+                "source: TEST")
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     Updated Org
+                org-type:     OTHER
+                address:      Singel 258
+                e-mail:        bitbucket@ripe.net
+                changed:      admin@test.com 20120505
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                password: update
+                """.stripIndent())
+
+      then:
+        response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
+    }
+
+    def "org-name changed organisation ref by resource without RSmntner not auth by RS mntner"() {
+      given:
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name: Test Org" +
+                "mnt-by: TST-MNT\n" +
+                "source: TEST")
+
+        databaseHelper.addObject("" +
+                "aut-num: AS1234\n" +
+                "org: ORG-TO1-TEST\n" +
+                "mnt-by: TST-MNT\n" +
+                "source: TEST")
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     Updated Org
+                org-type:     OTHER
+                address:      Singel 258
+                e-mail:        bitbucket@ripe.net
+                changed:      admin@test.com 20120505
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                password: update
+                """.stripIndent())
+
+      then:
+        response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
+    }
+
+    def "org-name changed organisation ref by resource with RSmntner not auth by RS mntner"() {
+      given:
+        databaseHelper.addObject("" +
+                "mntner: RIPE-NCC-END-MNT\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "auth: MD5-PW \$1\$lg/7YFfk\$X6ScFx7wATYpuuh/VNU631 #end\n" +
+                "source: TEST");
+
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name: Test Org" +
+                "mnt-by: TST-MNT\n" +
+                "source: TEST")
+
+        databaseHelper.addObject("" +
+                "aut-num: AS1234\n" +
+                "org: ORG-TO1-TEST\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "source: TEST")
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     Updated Org
+                org-type:     OTHER
+                address:      Singel 258
+                e-mail:        bitbucket@ripe.net
+                changed:      admin@test.com 20120505
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                password: update
+                """.stripIndent())
+
+      then:
+        response =~ /Error:   The org name can only be set by administrative mntners/
+    }
+
+    def "org-name changed organisation ref by resource with RSmntner auth by RS mntner"() {
+      given:
+        databaseHelper.addObject("" +
+                "mntner: RIPE-NCC-END-MNT\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "auth: MD5-PW \$1\$lg/7YFfk\$X6ScFx7wATYpuuh/VNU631 #end\n" +
+                "source: TEST");
+
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name: Test Org" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "source: TEST")
+
+        databaseHelper.addObject("" +
+                "aut-num: AS1234\n" +
+                "org: ORG-TO1-TEST\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "source: TEST")
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     Updated Org
+                org-type:     OTHER
+                address:      Singel 258
+                e-mail:        bitbucket@ripe.net
+                changed:      admin@test.com 20120505
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                password: end
+                """.stripIndent())
+
+      then:
+        response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
+    }
+
+    def "org-name changed organisation ref by resource with RSmntner auth by override"() {
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name: Test Org" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "source: TEST")
+
+        databaseHelper.addObject("" +
+                "aut-num: AS1234\n" +
+                "org: ORG-TO1-TEST\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "source: TEST")
+
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     Updated Org
+                org-type:     OTHER
+                address:      Singel 258
+                e-mail:        bitbucket@ripe.net
+                changed:      admin@test.com 20120505
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                override:   denis,override1
+                """.stripIndent())
+
+      then:
+        response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
     }
 }

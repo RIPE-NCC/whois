@@ -15,7 +15,6 @@ import java.io.IOException;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class AbuseContactTestIntegration extends AbstractIntegrationTest {
@@ -88,7 +87,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     // inetnum
 
     @Test
-    public void inetnum_exact_match_abuse_contact_found() {
+    public void lookup_inetnum_exact_match_abuse_contact_found() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -109,22 +108,23 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/193.0.0.0 - 193.0.0.255")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/193.0.0.0 - 193.0.0.255")
                 .request()
                 .get(String.class);
 
         assertThat(result, is("" +
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-contact\">" +
-                "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/193.0.0.0 - 193.0.0.255\"/>" +
-                "<parameters><primary-key value=\"193.0.0.0 - 193.0.0.255\"/></parameters>" +
-                "<abuse-contacts email=\"abuse@test.net\"/>" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
+                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-contact\">\n" +
+                "  <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/193.0.0.0 - 193.0.0.255\" />\n" +
+                "  <parameters>\n" +
+                "    <primary-key value=\"193.0.0.0 - 193.0.0.255\" />\n" +
+                "  </parameters>\n" +
+                "  <abuse-contacts email=\"abuse@test.net\" />\n" +
+                "  <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" />\n" +
                 "</abuse-resources>"));
     }
 
     @Test
-    public void inetnum_child_address_abuse_contact_found() {
+    public void lookup_inetnum_child_address_abuse_contact_found() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -145,7 +145,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/193.0.0.1")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/193.0.0.1")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
 
@@ -172,7 +172,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void inetnum_abuse_contact_not_found() {
+    public void lookup_inetnum_abuse_contact_not_found() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -192,7 +192,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/193.0.0.1")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/193.0.0.1")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
 
@@ -218,22 +218,17 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "}"));
     }
 
-    @Test
-    public void inetnum_not_found() {
-        try {
-            RestTest.target(getPort(), "whois/abuse-contact/test/193.0.1.2")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(String.class);
-            fail();
-        } catch (NotFoundException e) {
-            // expected
-        }
+    @Test(expected = NotFoundException.class)
+    public void lookup_inetnum_not_found() {
+        RestTest.target(getPort(), "whois/abuse-contact/193.0.1.2")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
     }
 
     // inet6num
 
     @Test
-    public void inet6num_abuse_contact_found_accept_json() throws IOException {
+    public void lookup_inet6num_abuse_contact_found_accept_json() throws IOException {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -254,7 +249,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/2a00:1f78::/32")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/2a00:1f78::/32")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
 
@@ -281,7 +276,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void inet6num_abuse_contact_found_accept_xml() {
+    public void lookup_inet6num_abuse_contact_found_accept_xml() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -302,38 +297,32 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/2a00:1f78::/32")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/2a00:1f78::/32")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
 
         assertThat(result, is("" +
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-contact\">" +
-                "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/2a00:1f78::/32\"/>" +
-                "<parameters>" +
-                "<primary-key value=\"2a00:1f78::/32\"/>" +
-                "</parameters>" +
-                "<abuse-contacts email=\"abuse@test.net\"/>" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
+                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-contact\">\n" +
+                "  <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/2a00:1f78::/32\" />\n" +
+                "  <parameters>\n" +
+                "    <primary-key value=\"2a00:1f78::/32\" />\n" +
+                "  </parameters>\n" +
+                "  <abuse-contacts email=\"abuse@test.net\" />\n" +
+                "  <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" />\n" +
                 "</abuse-resources>"));
     }
 
-    @Test
-    public void inet6num_not_found() {
-        try {
-            RestTest.target(getPort(), "whois/abuse-contact/test/2a00:1234::/32")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(String.class);
-            fail();
-        } catch (NotFoundException e) {
-            // expected
-        }
+    @Test(expected = NotFoundException.class)
+    public void lookup_inet6num_not_found() {
+        RestTest.target(getPort(), "whois/abuse-contact/2a00:1234::/32")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
     }
 
     // autnum
 
     @Test
-    public void autnum_abuse_contact_found() {
+    public void lookup_autnum_abuse_contact_found() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -351,7 +340,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "changed:       org@ripe.net 20120505\n" +
                 "source:        TEST");
 
-        final AbuseResources result = RestTest.target(getPort(), "whois/abuse-contact/test/AS333")
+        final AbuseResources result = RestTest.target(getPort(), "whois/abuse-contact/AS333")
                 .request(MediaType.APPLICATION_XML)
                 .get(AbuseResources.class);
 
@@ -359,7 +348,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void autnum_abuse_contact_not_found() {
+    public void lookup_autnum_abuse_contact_not_found() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -376,7 +365,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "changed:       org@ripe.net 20120505\n" +
                 "source:        test");
 
-        final AbuseResources abuseResources = RestTest.target(getPort(), "whois/abuse-contact/test/AS333")
+        final AbuseResources abuseResources = RestTest.target(getPort(), "whois/abuse-contact/AS333")
                 .request(MediaType.APPLICATION_XML)
                 .get(AbuseResources.class);
 
@@ -384,20 +373,15 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
         assertThat(abuseResources.getAbuseContact().getEmail(), is(""));
     }
 
-    @Test
-    public void autnum_not_found() {
-        try {
-            RestTest.target(getPort(), "whois/abuse-contact/test/AS333")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(String.class);
-            fail();
-        } catch (NotFoundException e) {
-            // expected
-        }
+    @Test(expected = NotFoundException.class)
+    public void lookup_autnum_not_found() {
+        RestTest.target(getPort(), "whois/abuse-contact/AS333")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
     }
 
     @Test
-    public void autnum_abuse_contact_found_json_extension() {
+    public void lookup_autnum_abuse_contact_found_json_extension() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -415,7 +399,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "changed:       org@ripe.net 20120505\n" +
                 "source:        test");
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/test/AS333.json")
+        final String result = RestTest.target(getPort(), "whois/abuse-contact/AS333.json")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
 

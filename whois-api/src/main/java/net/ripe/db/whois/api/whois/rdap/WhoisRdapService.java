@@ -362,7 +362,7 @@ public class WhoisRdapService {
     private List<RpslObject> getAbuseContacts(final RpslObject rpslObject) {
         final ObjectType objectType = rpslObject.getType();
         if (ABUSE_CONTACT_TYPES.contains(objectType)) {
-            return abuseCFinder.findAbuseContacts(rpslObject);
+            return abuseCFinder.getAbuseContactObjects(rpslObject);
         }
         return Collections.emptyList();
     }

@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.QueryFlag;
@@ -88,8 +88,7 @@ public class FilterTagsDecorator implements ResponseDecorator {
             result.add(new TagResponseObject(object.getKey(), tag.getType(), tag.getValue()));
         }
 
-        // TODO [AH]: formatting to take place in queryhandler
-        result.add(new MessageObject(""));
+        result.add(new MessageObject(QueryMessages.tagInfoEnd()));
     }
 
     private static boolean containsTag(List<Tag> objectTags, Set<CIString> tagsFromQuery) {

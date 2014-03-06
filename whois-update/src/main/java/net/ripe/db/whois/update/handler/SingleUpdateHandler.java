@@ -6,11 +6,27 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.autokey.AutoKeyResolver;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.Operation;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.OverrideOptions;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
+import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -38,6 +54,7 @@ public class SingleUpdateHandler {
     private final UpdateObjectHandler updateObjectHandler;
     private final IpTreeUpdater ipTreeUpdater;
     private final PendingUpdateHandler pendingUpdateHandler;
+    private final SsoTranslator ssoTranslator;
     private CIString source;
 
     @Value("${whois.source}")
@@ -46,7 +63,18 @@ public class SingleUpdateHandler {
     }
 
     @Autowired
-    public SingleUpdateHandler(final AutoKeyResolver autoKeyResolver, final AttributeGenerator attributeGenerator, final AttributeSanitizer attributeSanitizer, final UpdateLockDao updateLockDao, final LoggerContext loggerContext, final Authenticator authenticator, final UpdateObjectHandler updateObjectHandler, final RpslObjectDao rpslObjectDao, final RpslObjectUpdateDao rpslObjectUpdateDao, final IpTreeUpdater ipTreeUpdater, final PendingUpdateHandler pendingUpdateHandler) {
+    public SingleUpdateHandler(final AutoKeyResolver autoKeyResolver,
+                               final AttributeGenerator attributeGenerator,
+                               final AttributeSanitizer attributeSanitizer,
+                               final UpdateLockDao updateLockDao,
+                               final LoggerContext loggerContext,
+                               final Authenticator authenticator,
+                               final UpdateObjectHandler updateObjectHandler,
+                               final RpslObjectDao rpslObjectDao,
+                               final RpslObjectUpdateDao rpslObjectUpdateDao,
+                               final IpTreeUpdater ipTreeUpdater,
+                               final PendingUpdateHandler pendingUpdateHandler,
+                               final SsoTranslator ssoTranslator) {
         this.autoKeyResolver = autoKeyResolver;
         this.attributeGenerator = attributeGenerator;
         this.attributeSanitizer = attributeSanitizer;
@@ -58,9 +86,9 @@ public class SingleUpdateHandler {
         this.updateObjectHandler = updateObjectHandler;
         this.ipTreeUpdater = ipTreeUpdater;
         this.pendingUpdateHandler = pendingUpdateHandler;
+        this.ssoTranslator = ssoTranslator;
     }
 
-    // TODO: [AH] this code is too script-like, with updateContext acting as a global variable stash, with sub-scripts like authenticator altering it.
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void handle(final Origin origin, final Keyword keyword, final Update update, final UpdateContext updateContext) {
         updateLockDao.setUpdateLock();
@@ -71,13 +99,16 @@ public class SingleUpdateHandler {
         }
 
         final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
-        final RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
+        RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
         final RpslObject originalObject = getOriginalObject(updatedObject, update, updateContext, overrideOptions);
         final Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
 
         checkForUnexpectedModification(update);
 
+        if (action == Action.NOOP){
+            updatedObject = originalObject;
+        }
         PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
         updateContext.setPreparedUpdate(preparedUpdate);
 
@@ -90,6 +121,7 @@ public class SingleUpdateHandler {
             throw new UpdateFailedException();
         }
 
+        // TODO: [AH] Hard to follow code from here. Refactor on next change.
         final RpslObject objectWithResolvedKeys = autoKeyResolver.resolveAutoKeys(updatedObject, update, updateContext, action);
         preparedUpdate = new PreparedUpdate(update, originalObject, objectWithResolvedKeys, action, overrideOptions);
 
@@ -115,18 +147,17 @@ public class SingleUpdateHandler {
 
     @CheckForNull
     private RpslObject getOriginalObject(final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final OverrideOptions overrideOptions) {
+        RpslObject originalObject;
         if (overrideOptions.isObjectIdOverride()) {
             final int objectId = overrideOptions.getObjectId();
             try {
-                final RpslObject rpslObject = rpslObjectDao.getById(objectId);
+                originalObject = rpslObjectDao.getById(objectId);
 
                 final ObjectType objectType = update.getType();
                 final CIString key = update.getSubmittedObject().getKey();
-                if (!objectType.equals(rpslObject.getType()) || !key.equals(rpslObject.getKey())) {
+                if (!objectType.equals(originalObject.getType()) || !key.equals(originalObject.getKey())) {
                     updateContext.addMessage(update, UpdateMessages.overrideOriginalMismatch(objectId, objectType, key));
                 }
-
-                return attributeSanitizer.sanitize(rpslObject, new ObjectMessages());
             } catch (EmptyResultDataAccessException e) {
                 updateContext.addMessage(update, UpdateMessages.overrideOriginalNotFound(objectId));
                 return null;
@@ -135,30 +166,28 @@ public class SingleUpdateHandler {
             final CIString key = updatedObject.getKey();
 
             try {
-                final RpslObject originalObject = rpslObjectDao.getByKey(updatedObject.getType(), key);
-                return attributeSanitizer.sanitize(originalObject, new ObjectMessages());
+                originalObject = rpslObjectDao.getByKey(updatedObject.getType(), key);
             } catch (EmptyResultDataAccessException e) {
                 return null;
             } catch (IncorrectResultSizeDataAccessException e) {
                 throw new IllegalStateException(String.format("Invalid number of results for %s", key), e);
             }
         }
+        originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, originalObject);
+        originalObject = attributeSanitizer.sanitize(originalObject, new ObjectMessages());
+        return originalObject;
     }
 
     private RpslObject getUpdatedObject(final Update update, final UpdateContext updateContext, final Keyword keyword) {
-        RpslObject updatedObject = attributeSanitizer.sanitize(update.getSubmittedObject(), updateContext.getMessages(update));
-
-        if (!Operation.DELETE.equals(update.getOperation())) {
-            updatedObject = attributeGenerator.generateAttributes(updatedObject, update, updateContext);
-        }
+        RpslObject updatedObject = update.getSubmittedObject();
 
         if (RpslObjectFilter.isFiltered(updatedObject)) {
             updateContext.addMessage(update, UpdateMessages.filteredNotAllowed());
         }
 
-        final CIString objectSource = new RpslObjectFilter(updatedObject).getSource();
+        final CIString objectSource = updatedObject.getValueOrNullForAttribute(AttributeType.SOURCE);
         if (objectSource != null && !source.equals(objectSource)) {
-            updateContext.addMessage(update, UpdateMessages.unrecognizedSource(objectSource));
+            updateContext.addMessage(update, UpdateMessages.unrecognizedSource(objectSource.toUpperCase()));
         }
 
         if (Operation.DELETE.equals(update.getOperation())) {
@@ -170,6 +199,9 @@ public class SingleUpdateHandler {
                 updateContext.addMessage(update, UpdateMessages.multipleReasonsSpecified(update.getOperation()));
             }
         } else {
+            updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
+            updatedObject = attributeGenerator.generateAttributes(updatedObject, update, updateContext);
+
             final ObjectMessages messages = ObjectTemplate.getTemplate(updatedObject.getType()).validate(updatedObject);
             if (messages.hasMessages()) {
                 updateContext.addMessages(update, messages);
@@ -195,7 +227,7 @@ public class SingleUpdateHandler {
         return Action.MODIFY;
     }
 
-    // `TODO: [AH] Optimize the DAO call to work on objectid
+    // TODO: [AH] Replace with versioning
     private void checkForUnexpectedModification(final Update update) {
         if (update.getSubmittedObjectInfo() != null) {
             final RpslObjectUpdateInfo latestUpdateInfo = rpslObjectUpdateDao.lookupObject(

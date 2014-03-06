@@ -5,11 +5,14 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.Validate;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-// TODO: [AH] shovel RpslObjectFilter & other data-changing methods from RpslObject over here
 public class RpslObjectBuilder {
-    private List<RpslAttribute> attributes;
+    private RpslObject original;
+    private final List<RpslAttribute> attributes;
 
     public RpslObjectBuilder() {
         this.attributes = Lists.newArrayList();
@@ -20,6 +23,7 @@ public class RpslObjectBuilder {
     }
 
     public RpslObjectBuilder(RpslObject rpslObject) {
+        this.original = rpslObject;
         this.attributes = Lists.newArrayList(rpslObject.getAttributes());
     }
 
@@ -32,7 +36,7 @@ public class RpslObjectBuilder {
     }
 
     public RpslObject get() {
-        return new RpslObject(attributes);
+        return original == null ? new RpslObject(attributes) : new RpslObject(original, attributes);
     }
 
     public List<RpslAttribute> getAttributes() {
@@ -40,11 +44,11 @@ public class RpslObjectBuilder {
     }
 
     // Note: we use ISO_8859_1 encoding everywhere as it is the only one that maps directly from byte to char (as in, it effectively is a '(char)byteValue')
-    static List<RpslAttribute> getAttributes(String input) {
+    public static List<RpslAttribute> getAttributes(String input) {
         return getAttributes(input.getBytes(Charsets.ISO_8859_1));
     }
 
-    static List<RpslAttribute> getAttributes(byte[] buf) {
+    public static List<RpslAttribute> getAttributes(byte[] buf) {
         Validate.notNull(buf, "Object can not be null");
 
         final List<RpslAttribute> newAttributes = new ArrayList<>(32);
@@ -105,5 +109,133 @@ public class RpslObjectBuilder {
         }
 
         return newAttributes;
+    }
+
+    public int size() {
+        return attributes.size();
+    }
+
+    public RpslAttribute getAttribute(int index) {
+        return attributes.get(index);
+    }
+
+    public RpslObjectBuilder setAttribute(int index, RpslAttribute attribute) {
+        attributes.set(index, attribute);
+        return this;
+    }
+
+    public RpslObjectBuilder addAttribute(final RpslAttribute newAttribute) {
+        attributes.add(newAttribute);
+        return this;
+    }
+
+    public RpslObjectBuilder addAttributes(final Collection<RpslAttribute> newAttributes) {
+        attributes.addAll(newAttributes);
+        return this;
+    }
+
+    public RpslObjectBuilder removeAttribute(int index) {
+        attributes.remove(index);
+        return this;
+    }
+
+    /** by attribute order in template */
+    public RpslObjectBuilder sort() {
+        AttributeType attributeType = getTypeAttributeOrNull();
+        if (attributeType != null) {
+            Collections.sort(attributes, ObjectTemplate.getTemplate(ObjectType.getByFirstAttribute(attributeType)).getAttributeTypeComparator());
+        }
+        return this;
+    }
+
+    public AttributeType getTypeAttributeOrNull() {
+        try {
+            return attributes.get(0).getType();
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
+    public AttributeType getTypeAttribute() {
+        AttributeType type = attributes.get(0).getType();
+        if (type == null) {
+            throw new IllegalArgumentException(attributes.get(0) + " is not a known type");
+        }
+        return type;
+    }
+
+    public RpslObjectBuilder addAttributes(final int index, final Collection<RpslAttribute> newAttributes) {
+        attributes.addAll(index, newAttributes);
+        return this;
+    }
+
+    public RpslObjectBuilder replaceAttributes(final Map<RpslAttribute, RpslAttribute> attributesToReplace) {
+        if (attributesToReplace.isEmpty()) {
+            return this;
+        }
+
+        for (int i = 0; i < attributes.size(); i++) {
+            RpslAttribute newValue = attributesToReplace.get(attributes.get(i));
+            if (newValue != null) {
+                attributes.set(i, newValue);
+            }
+        }
+        return this;
+    }
+
+    public RpslObjectBuilder replaceAttribute(final RpslAttribute oldAttribute, final RpslAttribute newAttribute) {
+        for (int i = 0; i < attributes.size(); i++) {
+            if (attributes.get(i).equals(oldAttribute)) {
+                attributes.set(i, newAttribute);
+                return this;
+            }
+        }
+        return this;
+    }
+
+    public RpslObjectBuilder removeAttribute(final RpslAttribute attribute) {
+        for (int i = 0; i < attributes.size(); i++) {
+            if (attributes.get(i).equals(attribute)) {
+                attributes.remove(i);
+                return this;
+            }
+        }
+        return this;
+    }
+
+    public RpslObjectBuilder removeAttributeType(final AttributeType attributeType) {
+        for (int i = 0; i < attributes.size(); i++) {
+            if (attributes.get(i).getType() == attributeType) {
+                attributes.remove(i--);
+            }
+        }
+        return this;
+    }
+
+    public RpslObjectBuilder removeAttributeTypes(final Collection<AttributeType> attributeTypes) {
+        for (int i = 0; i < attributes.size(); i++) {
+            if (attributeTypes.contains(attributes.get(i).getType())) {
+                attributes.remove(i--);
+            }
+        }
+        return this;
+    }
+
+    public RpslObjectBuilder retainAttributeType(final AttributeType attributeType) {
+        for (int i = 0; i < attributes.size(); i++) {
+            if (attributes.get(i).getType() != attributeType) {
+                attributes.remove(i--);
+            }
+        }
+        return this;
+    }
+
+    public RpslObjectBuilder retainAttributeTypes(final Collection<AttributeType> attributeTypes) {
+        for (int i = 0; i < attributes.size(); i++) {
+            if (!attributeTypes.contains(attributes.get(i).getType())) {
+                attributes.remove(i--);
+            }
+        }
+        return this;
     }
 }

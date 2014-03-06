@@ -10,7 +10,7 @@ import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.planner.RpslResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
@@ -26,7 +26,9 @@ public class SearchQueryExecutor implements QueryExecutor {
     private final RpslResponseDecorator rpslResponseDecorator;
 
     @Autowired
-    public SearchQueryExecutor(final SourceContext sourceContext, final RpslObjectSearcher rpslObjectSearcher, final RpslResponseDecorator rpslResponseDecorator) {
+    public SearchQueryExecutor(final SourceContext sourceContext,
+                               final RpslObjectSearcher rpslObjectSearcher,
+                               final RpslResponseDecorator rpslResponseDecorator) {
         this.sourceContext = sourceContext;
         this.rpslObjectSearcher = rpslObjectSearcher;
         this.rpslResponseDecorator = rpslResponseDecorator;
@@ -54,6 +56,7 @@ public class SearchQueryExecutor implements QueryExecutor {
 
     @Override
     public void execute(final Query query, final ResponseHandler responseHandler) {
+        //TODO intentional lack of RsplObject in results should not give below error (-> add+implement Query.shouldProduceRpslObjects())
         boolean noResults = true;
 
         final Set<Source> sources = getSources(query);
@@ -64,7 +67,6 @@ public class SearchQueryExecutor implements QueryExecutor {
 
                 for (final ResponseObject responseObject : rpslResponseDecorator.getResponse(query, searchResults)) {
 
-                    // TODO: [AH] make sure responseHandler implementation can handle executionHandler worker threads pushing data (think of suspend-on-write, buffer overflow, slow connections, etc...)
                     responseHandler.handle(responseObject);
 
                     if (!(responseObject instanceof MessageObject)) {
@@ -72,14 +74,14 @@ public class SearchQueryExecutor implements QueryExecutor {
                     }
                 }
             } catch (IllegalSourceException e) {
-                responseHandler.handle(new MessageObject(QueryMessages.unknownSource(source.getName()) + "\n"));
+                responseHandler.handle(new MessageObject(QueryMessages.unknownSource(source.getName())));
                 noResults = false;
             } finally {
                 sourceContext.removeCurrentSource();
             }
         }
 
-        if (noResults) { //TODO intentional lack of RsplObject in results should not give below error
+        if (noResults) {
             responseHandler.handle(new MessageObject(QueryMessages.noResults(Joiner.on(',').join(Iterables.transform(sources, new Function<Source, String>() {
                 @Override
                 public String apply(final Source input) {

@@ -1,8 +1,5 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
@@ -10,7 +7,6 @@ import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import org.apache.commons.lang.Validate;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -18,6 +14,7 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.domain.CIString.ciImmutableSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
@@ -27,24 +24,18 @@ public final class RpslAttribute {
 
     private final AttributeType type;
     private final String key;
-    private final String value;
+    private final String value;     // non-clean, contains EOL comments too
+    private String cleanComment;
 
     private int hash;
     private Set<CIString> cleanValues;
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
-        // Constructor is only used by RpslObject, which behaves, so no need to copy arrays
-    RpslAttribute(final byte[] key, final byte[] value) {
-        Validate.notNull(key);
-        Validate.notNull(value);
-
-        this.key = new String(key, Charsets.ISO_8859_1).toLowerCase();
-        this.value = new String(value, Charsets.ISO_8859_1);
-        this.type = AttributeType.getByNameOrNull(this.key);
-    }
-
     public RpslAttribute(final AttributeType attributeType, final String value) {
-        this(attributeType.getName(), value);
+        Validate.notNull(attributeType);
+        Validate.notNull(value);
+        this.key = attributeType.getName();
+        this.value = value;
+        this.type = attributeType;
     }
 
     public RpslAttribute(final String key, final String value) {
@@ -63,34 +54,28 @@ public final class RpslAttribute {
         return value;
     }
 
+    public String getCleanComment() {
+        if (cleanValues == null) {
+            extractCleanValueAndComment(value);
+        }
+        return cleanComment;
+    }
+
     public CIString getCleanValue() {
         final Set<CIString> values = getCleanValues();
         switch (values.size()) {
             case 0:
-                throw new IllegalStateException("No value found");
+                throw new IllegalStateException("No " + type + ": value found");
             case 1:
                 return values.iterator().next();
             default:
-                throw new IllegalStateException("Multiple clean values found: " + values);
+                throw new IllegalStateException("Multiple " + type + ": values found");
         }
     }
 
     public Set<CIString> getCleanValues() {
         if (cleanValues == null) {
-            final String cleanedValue = determineCleanValue(value);
-
-            final Set<CIString> values;
-            if (type == null) {
-                cleanValues = Collections.singleton(ciString(cleanedValue));
-            } else {
-                cleanValues = ImmutableSet.copyOf(Iterables.transform(type.splitValue(cleanedValue), new Function<String, CIString>() {
-                    @Nullable
-                    @Override
-                    public CIString apply(@Nullable String input) {
-                        return ciString(input);
-                    }
-                }));
-            }
+            extractCleanValueAndComment(value);
         }
 
         return cleanValues;
@@ -135,13 +120,15 @@ public final class RpslAttribute {
         }
     }
 
-    private static String determineCleanValue(final String value) {
-        final StringBuilder result = new StringBuilder(value.length());
+    private void extractCleanValueAndComment(final String value) {
+        final StringBuilder cleanedValue = new StringBuilder(value.length());
+        final StringBuilder commentValue = new StringBuilder(value.length());
 
         boolean comment = false;
         boolean space = false;
         boolean newline = false;
-        boolean written = false;
+        boolean valueWritten = false;
+        boolean commentWritten = false;
 
         for (final char c : value.toCharArray()) {
             if (c == '\n') {
@@ -160,9 +147,6 @@ public final class RpslAttribute {
 
             if (c == '#') {
                 comment = true;
-            }
-
-            if (comment) {
                 continue;
             }
 
@@ -171,20 +155,40 @@ public final class RpslAttribute {
                 continue;
             }
 
-            if (written) {
+            if (comment) {
+                if (commentWritten) {
+                    if (space) {
+                        commentValue.append(' ');
+                        space = false;
+                    }
+                } else {
+                    commentWritten = true;
+                    space = false;
+                }
+                commentValue.append(c);
+                continue;
+            }
+
+            if (valueWritten) {
                 if (space) {
-                    result.append(' ');
+                    cleanedValue.append(' ');
                     space = false;
                 }
             } else {
-                written = true;
+                valueWritten = true;
                 space = false;
             }
 
-            result.append(c);
+            cleanedValue.append(c);
         }
 
-        return result.toString();
+        this.cleanComment = commentWritten ? commentValue.toString() : null;
+
+        if (type == null) {
+            cleanValues = Collections.singleton(ciString(cleanedValue.toString()));
+        } else {
+            cleanValues = ciImmutableSet(type.splitValue(cleanedValue.toString()));
+        }
     }
 
     public void validateSyntax(final ObjectType objectType, final ObjectMessages objectMessages) {
@@ -246,32 +250,23 @@ public final class RpslAttribute {
         RpslAttribute attribute = (RpslAttribute) o;
 
         if (type == null) {
-            if (attribute.type != null || !key.equals(attribute.key)) {
+            if (attribute.type != null) {
                 return false;
             }
+            return key.equals(attribute.key);
         } else {
             if (type != attribute.type) {
                 return false;
             }
+            return Iterables.elementsEqual(getCleanValues(), attribute.getCleanValues());
         }
-
-        return Iterables.elementsEqual(getCleanValues(), attribute.getCleanValues());
     }
 
     @Override
     public int hashCode() {
         if (hash == 0) {
-            int result = 0;
-            if (type != null) {
-                result += type.hashCode();
-            } else {
-                result += key.hashCode();
-            }
-
-            result = 31 * result + getCleanValues().hashCode();
-            hash = result == 0 ? 1 : result;
+            hash = 31 * key.hashCode() + getCleanValues().hashCode();
         }
-
         return hash;
     }
 

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.support;
 
+import com.google.common.base.Charsets;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -7,7 +8,6 @@ import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.handler.codec.string.StringEncoder;
 
-import java.nio.charset.Charset;
 import java.util.concurrent.Executors;
 
 public final class NettyWhoisClientFactory {
@@ -39,7 +39,7 @@ public final class NettyWhoisClientFactory {
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = Channels.pipeline();
 
-                pipeline.addLast("encoder", new StringEncoder(Charset.forName("UTF-8")));
+                pipeline.addLast("encoder", new StringEncoder(Charsets.UTF_8));
                 pipeline.addLast("whois-handler", clientHandler);
 
                 return pipeline;

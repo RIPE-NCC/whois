@@ -1,11 +1,18 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
 
-import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
-import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import org.junit.Test;
 
-import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.*;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_PA;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_PI;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_UNSPECIFIED;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ASSIGNED_ANYCAST;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ASSIGNED_PA;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ASSIGNED_PI;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.EARLY_REGISTRATION;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.LIR_PARTITIONED_PA;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.LIR_PARTITIONED_PI;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.SUB_ALLOCATED_PA;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 

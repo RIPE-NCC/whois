@@ -75,4 +75,29 @@ public class Update implements UpdateContainer {
     public Credentials getCredentials() {
         return paragraph.getCredentials();
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+
+        builder.append("PARAGRAPH:\n\n").append(paragraph.getContent());
+        if (!(builder.charAt(builder.length() - 1) == '\n')) {
+            builder.append('\n');
+        }
+        builder.append("\nOBJECT:\n\n").append(submittedObject);
+        if (!(builder.charAt(builder.length() - 1) == '\n')) {
+            builder.append('\n');
+        }
+        if (operation == Operation.DELETE) {
+            builder.append("\n\n");
+            for (String reason : deleteReasons) {
+                builder.append("REASON = ").append(reason).append('\n');
+            }
+        }
+        if (submittedObjectInfo != null) {
+            builder.append("\nOBJECT INFO:\n\n").append(submittedObjectInfo.toString()).append('\n');
+        }
+
+        return builder.toString();
+    }
 }

@@ -40,8 +40,8 @@ public class AbuseCFinder {
         this.maintainers = maintainers;
     }
 
-    public List<RpslObject> findAbuseContacts(final RpslObject object) {
-        List<RpslObject> abuseContacts = getAbuseContactObjects(object);
+    public Map<CIString, CIString> getAbuseContacts(final RpslObject object) {
+        Collection<CIString> abuseContacts = getAbuseMailboxes(object);
 
         if (abuseContacts.isEmpty() && object.getType() != ObjectType.AUT_NUM) {
             RpslObject parentObject = object;
@@ -53,6 +53,7 @@ public class AbuseCFinder {
                 } else if (parentObject.getType() == ObjectType.INET6NUM) {
                     parent = ipv6Tree.findFirstLessSpecific(Ipv6Resource.parse(parentObject.getKey()));
                 }
+
                 final IpEntry ipEntry = CollectionHelper.uniqueResult(parent);
                 if (ipEntry == null) {
                     break;
@@ -65,18 +66,15 @@ public class AbuseCFinder {
                     break;
                 }
 
-                abuseContacts = getAbuseContactObjects(parentObject);
+                abuseContacts = getAbuseMailboxes(parentObject);
 
                 if (isMaintainedByRs(parentObject)) {
                     break;
                 }
             }
         }
-        return abuseContacts;
-    }
 
-    public Map<CIString, CIString> getAbuseContacts(final RpslObject object) {
-        final Iterator<CIString> iterator = getValuesForAttribute(findAbuseContacts(object), AttributeType.ABUSE_MAILBOX).iterator();
+        final Iterator<CIString> iterator = abuseContacts.iterator();
         final Map<CIString, CIString> objectKeyWithAbuseContact = Maps.newHashMap();
         if (iterator.hasNext()) {
             objectKeyWithAbuseContact.put(object.getKey(), iterator.next());
@@ -84,17 +82,24 @@ public class AbuseCFinder {
         return objectKeyWithAbuseContact;
     }
 
-    private List<RpslObject> getAbuseContactObjects(final RpslObject object) {
+    public List<RpslObject> getAbuseContactObjects(final RpslObject object) {
         final Set<CIString> orgAttributes = object.getValuesForAttribute(AttributeType.ORG);
         final List<RpslObject> orgObjects = objectDao.getByKeys(ObjectType.ORGANISATION, orgAttributes);
 
         return objectDao.getByKeys(ObjectType.ROLE, getValuesForAttribute(orgObjects, AttributeType.ABUSE_C));
     }
 
-    private Collection<CIString> getValuesForAttribute(final Collection<RpslObject> objects, final AttributeType attributeType) {
-        final Set<CIString> values = Sets.newHashSet();
+    private Collection<CIString> getAbuseMailboxes(final RpslObject object) {
+        final Set<CIString> orgAttributes = object.getValuesForAttribute(AttributeType.ORG);
+        final List<RpslObject> orgObjects = objectDao.getByKeys(ObjectType.ORGANISATION, orgAttributes);
 
-        for (final RpslObject object : objects) {
+        return getValuesForAttribute(objectDao.getByKeys(ObjectType.ROLE, getValuesForAttribute(orgObjects, AttributeType.ABUSE_C)), AttributeType.ABUSE_MAILBOX);
+    }
+
+    private Collection<CIString> getValuesForAttribute(final Collection<RpslObject> objects, final AttributeType attributeType) {
+        Set<CIString> values = Sets.newHashSet();
+
+        for (RpslObject object : objects) {
             values.addAll(object.getValuesForAttribute(attributeType));
         }
         return values;

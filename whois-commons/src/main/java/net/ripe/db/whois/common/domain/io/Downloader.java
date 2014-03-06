@@ -36,7 +36,7 @@ public class Downloader {
         final String expectedMd5 = matcher.group(1);
         final String md5 = DigestUtils.md5Hex(resourceDataStream);
         if (!md5.equalsIgnoreCase(expectedMd5)) {
-            throw new IllegalArgumentException(String.format("MD5 has invalid - expected: %s; actual: %s", expectedMd5, md5));
+            throw new IllegalArgumentException(String.format("MD5 hash invalid - expected: %s; actual: %s", expectedMd5, md5));
         }
     }
 
@@ -64,7 +64,7 @@ public class Downloader {
     void downloadToFile(final Logger logger, final InputStream is, final Path file) throws IOException {
         Files.createDirectories(file.getParent());
 
-        final Stopwatch stopwatch = new Stopwatch().start();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
 
         try (ReadableByteChannel rbc = Channels.newChannel(is);
              FileChannel fc = FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);

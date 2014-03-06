@@ -9,7 +9,6 @@ import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.mail.MailSenderStub;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -43,7 +42,7 @@ public class MessageDequeueTestIntegration extends AbstractIntegrationTest {
 
     @BeforeClass
     public static void setNumberOfThreads() {
-        System.setProperty("mail.dequeue.threads", String.valueOf(CLIENTS));
+        System.setProperty("mail.update.threads", String.valueOf(CLIENTS));
     }
 
     @Test

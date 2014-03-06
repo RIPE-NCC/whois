@@ -13,6 +13,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -59,8 +60,7 @@ public class X509CertificateWrapperTest {
     public void getOwner() {
         X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
 
-        assertThat(subject.getOwner(),
-                is("/C=NL/ST=Some-State/O=BOGUS"));
+        assertThat(subject.getOwners(), containsInAnyOrder("/C=NL/ST=Some-State/O=BOGUS"));
     }
 
     @Test

@@ -29,7 +29,10 @@ public class AccessControlListManager {
     private final PersonalObjectAccounting personalObjectAccounting;
 
     @Autowired
-    public AccessControlListManager(final DateTimeProvider dateTimeProvider, final IpResourceConfiguration resourceConfiguration, final AccessControlListDao accessControlListDao, final PersonalObjectAccounting personalObjectAccounting) {
+    public AccessControlListManager(final DateTimeProvider dateTimeProvider,
+                                    final IpResourceConfiguration resourceConfiguration,
+                                    final AccessControlListDao accessControlListDao,
+                                    final PersonalObjectAccounting personalObjectAccounting) {
         this.dateTimeProvider = dateTimeProvider;
         this.resourceConfiguration = resourceConfiguration;
         this.accessControlListDao = accessControlListDao;

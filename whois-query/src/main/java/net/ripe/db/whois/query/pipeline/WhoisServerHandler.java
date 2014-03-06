@@ -9,6 +9,10 @@ import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import org.jboss.netty.channel.*;
 
+/**
+ * The worker threads are asynchronously pushing data down the Netty pipeline.
+ * Make sure IO threads can handle the flow.
+ */
 public class WhoisServerHandler extends SimpleChannelUpstreamHandler {
     private final QueryHandler queryHandler;
     private boolean closed;

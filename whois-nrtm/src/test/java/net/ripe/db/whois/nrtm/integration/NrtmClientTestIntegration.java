@@ -50,7 +50,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.port));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
     }
 
@@ -89,7 +89,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         databaseHelper.addObject(person);
 
         nrtmServer.start();
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.port));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
 
         objectExists(ObjectType.PERSON, "OP1-TEST", true);
@@ -97,7 +97,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Test
     public void delete_maintainer_from_nrtm() throws Exception {
-        databaseHelper.removeObject(MNTNER);
+        databaseHelper.deleteObject(MNTNER);
 
         objectExists(ObjectType.MNTNER, "OWNER-MNT", false);
     }
@@ -162,7 +162,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
         databaseHelper.addObject(person2);
         nrtmServer.start();
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.port));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
 
         objectExists(ObjectType.PERSON, "OP2-TEST", true);

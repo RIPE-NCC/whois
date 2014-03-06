@@ -15,7 +15,7 @@ import java.util.List;
 public class Sources {
 
     @XmlElement(name = "source")
-    protected List<Source> sources;
+    private List<Source> sources;
 
     public Sources(final List<Source> sources) {
         this.sources = sources;
@@ -29,7 +29,7 @@ public class Sources {
     }
 
     public Sources() {
-        // required no-arg constructor
+        this.sources = Lists.newArrayList();
     }
 
     public List<Source> getSources() {

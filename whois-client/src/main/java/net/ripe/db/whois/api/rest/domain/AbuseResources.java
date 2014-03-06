@@ -1,7 +1,8 @@
 package net.ripe.db.whois.api.rest.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -9,6 +10,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
+@Immutable
 @SuppressWarnings("UnusedDeclaration")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -18,7 +22,7 @@ import javax.xml.bind.annotation.XmlType;
         "abuseContact",
         "termsAndConditions"
 })
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "abuse-resources")
 public class AbuseResources {
     @XmlAttribute
@@ -32,42 +36,32 @@ public class AbuseResources {
     @XmlElement(name = "terms-and-conditions")
     private Link termsAndConditions;
 
+    public AbuseResources(final String service, final Link link, final Parameters parameters, final AbuseContact abuseContact, final Link termsAndConditions) {
+        this.service = service;
+        this.link = link;
+        this.parameters = parameters;
+        this.abuseContact = abuseContact;
+        this.termsAndConditions = termsAndConditions;
+    }
+
+    public AbuseResources() {
+        // required no-arg constructor
+    }
+
     public String getService() {
         return service;
     }
-    public AbuseResources setService(final String service) {
-        this.service = service;
-        return this;
-    }
-
     public Link getLink() {
         return link;
     }
-    public void setLink(Link link) {
-        this.link = link;
-    }
-
     public Parameters getParameters() {
         return parameters;
     }
-    public AbuseResources setParameters(final Parameters value) {
-        this.parameters = value;
-        return this;
-    }
-
     public AbuseContact getAbuseContact() {
         return abuseContact;
-    }
-    public AbuseResources setAbuseContact(final AbuseContact abuseContact) {
-        this.abuseContact = abuseContact;
-        return this;
     }
 
     public Link getTermsAndConditions() {
         return termsAndConditions;
-    }
-
-    public void setTermsAndConditions(final Link termsAndConditions) {
-        this.termsAndConditions = termsAndConditions;
     }
 }

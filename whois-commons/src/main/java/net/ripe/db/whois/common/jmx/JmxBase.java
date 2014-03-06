@@ -16,7 +16,7 @@ public abstract class JmxBase {
 
     // TODO: [AH] add flag for starting in daemon thread
     protected <T> T invokeOperation(final String description, final String comment, final Callable<T> callable) {
-        final Stopwatch stopwatch = new Stopwatch().start();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
 
         logger.info("{} ({})", description, comment);
 

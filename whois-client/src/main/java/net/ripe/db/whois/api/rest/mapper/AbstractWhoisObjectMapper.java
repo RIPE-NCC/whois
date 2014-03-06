@@ -1,8 +1,6 @@
 package net.ripe.db.whois.api.rest.mapper;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Source;
@@ -13,20 +11,15 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.commons.lang.StringUtils;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public abstract class AbstractWhoisObjectMapper {
 
-    // TODO: [AH] this should be in RpslAttribute
-    private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)^[^#]*[#](.*)$");
-
-    protected final String baseUrl;
+   protected final String baseUrl;
 
     public AbstractWhoisObjectMapper(final String baseUrl) {
         this.baseUrl = baseUrl;
@@ -34,11 +27,24 @@ public abstract class AbstractWhoisObjectMapper {
 
     public RpslObject map(final WhoisObject whoisObject) {
         final List<RpslAttribute> rpslAttributes = Lists.newArrayList();
+
         for (final Attribute attribute : whoisObject.getAttributes()) {
-            rpslAttributes.add(new RpslAttribute(attribute.getName(), attribute.getValue()));
+            rpslAttributes.add(new RpslAttribute(attribute.getName(), getAttributeValue(attribute)));
         }
 
         return new RpslObject(rpslAttributes);
+    }
+
+    private String getAttributeValue(final Attribute attribute) {
+        if (StringUtils.isBlank(attribute.getComment())) {
+            return attribute.getValue();
+        } else {
+            if (attribute.getValue().indexOf('#') >= 0) {
+                throw new IllegalArgumentException("Value cannot have a comment in " + attribute);
+            } else {
+                return String.format("%s # %s", attribute.getValue(), attribute.getComment());
+            }
+        }
     }
 
     public List<RpslObject> mapWhoisObjects(final Iterable<WhoisObject> whoisObjects) {
@@ -47,6 +53,10 @@ public abstract class AbstractWhoisObjectMapper {
             rpslObjects.add(map(whoisObject));
         }
         return rpslObjects;
+    }
+
+    public WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
+        return mapRpslObjects(Arrays.asList(rpslObjects));
     }
 
     public WhoisResources mapRpslObjects(final Iterable<RpslObject> rpslObjects) {
@@ -62,16 +72,16 @@ public abstract class AbstractWhoisObjectMapper {
     public WhoisObject map(final RpslObject rpslObject) {
         final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
         final String type = rpslObject.getType().getName();
-        final RpslAttribute primaryKeyRpslAttribute = getPrimaryKey(rpslObject);
-        final String primaryKeyName = primaryKeyRpslAttribute.getKey();
-        final String primaryKeyValue = primaryKeyRpslAttribute.getCleanValue().toString();
-        final Attribute primaryKeyAttribute = createAttribute(primaryKeyName, primaryKeyValue, null, null, null);
-        final List<Attribute> primaryKeyAttributes = Lists.newArrayList(primaryKeyAttribute);
+
+        final List<Attribute> primaryKeyAttributes = new ArrayList<>();
+        for (RpslAttribute keyAttribute : rpslObject.findAttributes(ObjectTemplate.getTemplate(rpslObject.getType()).getKeyAttributes())) {
+            primaryKeyAttributes.add(new Attribute(keyAttribute.getKey(), keyAttribute.getCleanValue().toString()));
+        }
 
         final List<Attribute> attributes = buildAttributes(rpslObject, source);
 
         return createWhoisObject(
-                createSource(source),
+                new Source(source),
                 type,
                 attributes,
                 primaryKeyAttributes,
@@ -81,26 +91,14 @@ public abstract class AbstractWhoisObjectMapper {
     private List<Attribute> buildAttributes(RpslObject rpslObject, String source) {
         final List<Attribute> attributes = Lists.newArrayList();
         for (RpslAttribute attribute : rpslObject.getAttributes()) {
-            final String comment = getComment(attribute);
             for (CIString value : attribute.getCleanValues()) {
-                if (value.length() > 0) {
-                    attributes.add(buildAttribute(attribute, value, comment, source));
-                }
+                attributes.add(buildAttribute(attribute, value, source));
             }
         }
         return attributes;
     }
 
-    abstract Attribute buildAttribute(RpslAttribute attribute, final CIString value, final String comment, final String source);
-
-    @Nullable
-    protected String getComment(final RpslAttribute attribute) {
-        Matcher m = COMMENT_PATTERN.matcher(attribute.getValue());
-        if (m.find()) {
-            return m.group(1).trim();
-        }
-        return null;
-    }
+    abstract Attribute buildAttribute(RpslAttribute attribute, final CIString value, final String source);
 
     protected Link createLink(final RpslObject rpslObject) {
         final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
@@ -113,33 +111,6 @@ public abstract class AbstractWhoisObjectMapper {
         return new Link("locator", String.format("%s/%s/%s/%s", baseUrl, source, type, key));
     }
 
-    protected Source createSource(final String id) {
-        return new Source(id);
-    }
-
-    protected RpslAttribute getPrimaryKey(final RpslObject rpslObject) {
-        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
-        Iterator<AttributeType> iterator = Sets.intersection(objectTemplate.getKeyAttributes(), objectTemplate.getLookupAttributes()).iterator();
-        if (iterator.hasNext()) {
-            AttributeType primaryKey = iterator.next();
-            if (!iterator.hasNext()) {
-                return rpslObject.findAttribute(primaryKey);
-            }
-        }
-
-        throw new IllegalArgumentException("Couldn't find primary key attribute for type: " + rpslObject.getType());
-    }
-
-    protected Attribute createAttribute(final String name, final String value, final String comment, final String referencedType, final Link link) {
-        final Attribute attribute = new Attribute();
-        attribute.setName(name);
-        attribute.setValue(value);
-        attribute.setComment(comment);
-        attribute.setReferencedType(referencedType);
-        attribute.setLink(link);
-        return attribute;
-    }
-
     protected WhoisObject createWhoisObject(final Source source, final String type, final List<Attribute> attributes, final List<Attribute> primaryKey, final Link link) {
         final WhoisObject whoisObject = new WhoisObject();
         whoisObject.setSource(source);
@@ -149,5 +120,4 @@ public abstract class AbstractWhoisObjectMapper {
         whoisObject.setPrimaryKey(primaryKey);
         return whoisObject;
     }
-
 }

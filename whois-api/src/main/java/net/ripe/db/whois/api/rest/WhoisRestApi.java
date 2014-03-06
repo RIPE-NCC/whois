@@ -61,6 +61,6 @@ public class WhoisRestApi implements Origin {
 
     @Override
     public String toString() {
-        return "SyncUpdate(" + getId() + ")";
+        return "WhoisRestApi(" + getId() + ")";
     }
 }

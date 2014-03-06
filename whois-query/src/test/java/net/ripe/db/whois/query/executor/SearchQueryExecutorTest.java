@@ -8,9 +8,10 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.planner.RpslResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,8 +96,8 @@ public class SearchQueryExecutorTest {
         subject.execute(query, responseHandler);
         verify(rpslObjectSearcher, never()).search(query);
 
-        assertThat(responseHandler.getResponseObjects(), hasItems((ResponseObject) new MessageObject(QueryMessages.unknownSource("UNKNOWN").toString() + "\n")));
         assertThat(responseHandler.getResponseObjects(), hasSize(1));   // make sure that e.g. 'no results found' is not printed
+        assertThat(responseHandler.getResponseObjects().get(0), Matchers.<ResponseObject>is(new MessageObject(QueryMessages.unknownSource("UNKNOWN"))));
     }
 
     @Test

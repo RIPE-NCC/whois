@@ -2,127 +2,255 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.Link;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.update.domain.Credentials;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.Operation;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.OverrideCredential;
+import net.ripe.db.whois.update.domain.Paragraph;
+import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.update.domain.SsoCredential;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.UpdateRequest;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
+import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Component
 public class InternalUpdatePerformer {
-    private static final Pattern UPDATE_RESPONSE_ERRORS = Pattern.compile("(?m)^\\*\\*\\*Error:\\s*((.*)(\\n[ ]+.*)*)$");
-
     private final UpdateRequestHandler updateRequestHandler;
-    private final RpslObjectDao rpslObjectDao;
+    private final DateTimeProvider dateTimeProvider;
+    private final WhoisObjectServerMapper whoisObjectMapper;
+    private final LoggerContext loggerContext;
+    private final SsoTokenTranslator ssoTokenTranslator;
 
     @Autowired
-    public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler, final RpslObjectDao rpslObjectDao) {
+    public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler,
+                                   final DateTimeProvider dateTimeProvider,
+                                   final WhoisObjectServerMapper whoisObjectMapper,
+                                   final LoggerContext loggerContext,
+                                   final SsoTokenTranslator ssoTokenTranslator) {
         this.updateRequestHandler = updateRequestHandler;
-        this.rpslObjectDao = rpslObjectDao;
+        this.dateTimeProvider = dateTimeProvider;
+        this.whoisObjectMapper = whoisObjectMapper;
+        this.loggerContext = loggerContext;
+        this.ssoTokenTranslator = ssoTokenTranslator;
     }
 
-    public RpslObject performUpdate(final Origin origin, final Update update, final String content, final Keyword keyword, final LoggerContext loggerContext) {
+    public UpdateContext initContext(final Origin origin, final String ssoToken) {
         loggerContext.init(getRequestId(origin.getFrom()));
-        try {
-            final UpdateContext updateContext = new UpdateContext(loggerContext);
-            final boolean notificationsEnabled = true;
-
-            final UpdateRequest updateRequest = new UpdateRequest(
-                    origin,
-                    keyword,
-                    content,
-                    Lists.newArrayList(update),
-                    notificationsEnabled);
-
-            final UpdateResponse response = updateRequestHandler.handle(updateRequest, updateContext);
-
-            if (updateContext.getStatus(update) == UpdateStatus.FAILED_AUTHENTICATION) {
-                throw new WebApplicationException(getResponse(new UpdateResponse(UpdateStatus.FAILED_AUTHENTICATION, response.getResponse())));
-            }
-            if (response.getStatus() != UpdateStatus.SUCCESS) {
-                throw new WebApplicationException(getResponse(response));
-            }
-
-            return updateContext.getPreparedUpdate(update).getUpdatedObject();
-        } finally {
-            loggerContext.remove();
-        }
+        final UpdateContext updateContext = new UpdateContext(loggerContext);
+        setSsoSessionToContext(updateContext, ssoToken);
+        return updateContext;
     }
 
-    public Update createUpdate(final RpslObject rpslObject, final List<String> passwords, final String deleteReason, String override) {
+    public void closeContext() {
+        loggerContext.remove();
+    }
+
+    public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
+                                  final String content, final Keyword keyword, final HttpServletRequest request) {
+
+        logHttpHeaders(loggerContext, request);
+        logHttpUri(loggerContext, request);
+
+        loggerContext.log("msg-in.txt", new UpdateLogCallback(update));
+
+        final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
+        updateRequestHandler.handle(updateRequest, updateContext);
+        final RpslObject responseObject = updateContext.getPreparedUpdate(update).getUpdatedObject();
+
+        final Response.ResponseBuilder responseBuilder;
+        UpdateStatus status = updateContext.getStatus(update);
+        if (status == UpdateStatus.SUCCESS) {
+            responseBuilder = Response.status(Response.Status.OK);
+        } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
+            responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
+        } else if (status == UpdateStatus.EXCEPTION) {
+            responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+        } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
+            responseBuilder = Response.status(Response.Status.CONFLICT);
+        } else {
+            responseBuilder = Response.status(Response.Status.BAD_REQUEST);
+        }
+
+        return responseBuilder.entity(new StreamingOutput() {
+            @Override
+            public void write(OutputStream output) throws IOException, WebApplicationException {
+                final StreamingMarshal streamingMarshal = WhoisRestService.getStreamingMarshal(request, output);
+                final WhoisResources result = createResponse(request, updateContext, update, responseObject);
+                streamingMarshal.singleton(result);
+                streamingMarshal.close();
+            }
+        }).build();
+    }
+
+    private WhoisResources createResponse(final HttpServletRequest request, final UpdateContext updateContext, final Update update, final RpslObject responseObject) {
+        final WhoisResources whoisResources = new WhoisResources();
+        // global messages
+        final List<ErrorMessage> errorMessages = Lists.newArrayList();
+        for (Message message : updateContext.getGlobalMessages().getAllMessages()) {
+            errorMessages.add(new ErrorMessage(message));
+        }
+
+        // object messages
+        for (Message message : updateContext.getMessages(update).getMessages().getAllMessages()) {
+            errorMessages.add(new ErrorMessage(message));
+        }
+
+        // attribute messages
+        for (Map.Entry<RpslAttribute, Messages> entry : updateContext.getMessages(update).getAttributeMessages().entrySet()) {
+            RpslAttribute rpslAttribute = entry.getKey();
+            for (Message message : entry.getValue().getAllMessages()) {
+                errorMessages.add(new ErrorMessage(message, rpslAttribute));
+            }
+        }
+
+        if (!errorMessages.isEmpty()) {
+            whoisResources.setErrorMessages(errorMessages);
+        }
+        whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(responseObject)));
+        whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
+        whoisResources.includeTermsAndConditions();
+        return whoisResources;
+    }
+
+
+    public Update createUpdate(final UpdateContext updateContext, final RpslObject rpslObject, final List<String> passwords, final String deleteReason, final String override) {
         return new Update(
-                createParagraph(rpslObject, passwords, override),
+                createParagraph(updateContext, rpslObject, passwords, override),
                 deleteReason != null ? Operation.DELETE : Operation.UNSPECIFIED,
                 deleteReason != null ? Lists.newArrayList(deleteReason) : null,
                 rpslObject);
     }
 
-    private Paragraph createParagraph(final RpslObject rpslObject, final List<String> passwords, String override) {
+    private Paragraph createParagraph(final UpdateContext updateContext, final RpslObject rpslObject, final List<String> passwords, final String override) {
         final Set<Credential> credentials = Sets.newHashSet();
         for (String password : passwords) {
             credentials.add(new PasswordCredential(password));
         }
+
         if (override != null) {
             credentials.add(OverrideCredential.parse(override));
+        }
+
+        if (updateContext.getUserSession() != null) {
+            credentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
         }
 
         return new Paragraph(rpslObject.toString(), new Credentials(credentials));
     }
 
-    private Response getResponse(final UpdateResponse updateResponse) {
-        int status;
-        switch (updateResponse.getStatus()) {
-            case FAILED: {
-                status = HttpServletResponse.SC_BAD_REQUEST;
+    public Origin createOrigin(final HttpServletRequest request) {
+        return new WhoisRestApi(dateTimeProvider, request.getRemoteAddr());
+    }
 
-                final String errors = findAllErrors(updateResponse);
-                if (!errors.isEmpty()) {
-                    if (errors.contains("Enforced new keyword specified, but the object already exists")) {
-                        status = HttpServletResponse.SC_CONFLICT;
-                    }
-                    return Response.status(status).entity(errors).build();
-                }
+    public String createContent(final RpslObject rpslObject, final List<String> passwords, final String deleteReason, String override) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(rpslObject.toString());
 
-                break;
-            }
-            case EXCEPTION:
-                status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-                break;
-            case FAILED_AUTHENTICATION:
-                status = HttpServletResponse.SC_UNAUTHORIZED;
-                final String errors = findAllErrors(updateResponse);
-                if (!errors.isEmpty()) {
-                    return Response.status(status).entity(errors).build();
-                }
-                break;
-            default:
-                status = HttpServletResponse.SC_OK;
+        if (builder.charAt(builder.length() - 1) != '\n') {
+            builder.append('\n');
         }
 
-        return Response.status(status).build();
+        if (deleteReason != null) {
+            builder.append("delete: ");
+            builder.append(deleteReason);
+            builder.append("\n\n");
+        }
+
+        if (passwords != null) {
+            for (final String password : passwords) {
+                builder.append("password: ");
+                builder.append(password);
+                builder.append('\n');
+            }
+        }
+
+        if (override != null) {
+            builder.append("override: ");
+            builder.append(override);
+            builder.append("\n\n");
+        }
+
+        return builder.toString();
     }
 
     private String getRequestId(final String remoteAddress) {
-        return String.format("rest_%s_%s", remoteAddress, System.nanoTime());
+        return String.format("rest_%s_%s", remoteAddress, dateTimeProvider.getNanoTime());
     }
 
-    private String findAllErrors(final UpdateResponse updateResponse) {
-        final StringBuilder builder = new StringBuilder();
-        final Matcher matcher = UPDATE_RESPONSE_ERRORS.matcher(updateResponse.getResponse());
-        while (matcher.find()) {
-            builder.append(matcher.group(1).replaceAll("[\\n ]+", " "));
-            builder.append('\n');
+    public void setSsoSessionToContext(final UpdateContext updateContext, final String ssoToken) {
+        if (!StringUtils.isBlank(ssoToken)) {
+            try {
+                updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
+            } catch (CrowdClientException e) {
+                loggerContext.log(new Message(Messages.Type.ERROR, e.getMessage()));
+                updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
+            }
         }
-        return builder.toString();
     }
+
+    public static void logHttpHeaders(final LoggerContext loggerContext, final HttpServletRequest request) {
+        final Enumeration<String> names = request.getHeaderNames();
+        while (names.hasMoreElements()) {
+            final String name = names.nextElement();
+            final Enumeration<String> values = request.getHeaders(name);
+            while (values.hasMoreElements()) {
+                loggerContext.log(new Message(Messages.Type.INFO, String.format("Header: %s=%s", name, values.nextElement())));
+            }
+        }
+    }
+
+    public static void logHttpUri(final LoggerContext loggerContext, final HttpServletRequest request) {
+        if (StringUtils.isEmpty(request.getQueryString())) {
+            loggerContext.log(new Message(Messages.Type.INFO, request.getRequestURI()));
+        } else {
+            loggerContext.log(new Message(Messages.Type.INFO, String.format("%s?%s", request.getRequestURI(), request.getQueryString())));
+        }
+    }
+
+    class UpdateLogCallback implements LogCallback {
+        private final Update update;
+
+        public UpdateLogCallback(final Update update) {
+            this.update = update;
+        }
+
+        @Override
+        public void log(final OutputStream outputStream) throws IOException {
+            outputStream.write(update.toString().getBytes());
+        }
+    }
+
 }

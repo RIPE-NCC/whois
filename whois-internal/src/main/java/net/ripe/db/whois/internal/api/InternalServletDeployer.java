@@ -5,8 +5,13 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import net.ripe.db.whois.internal.api.abusec.AbuseCService;
-import net.ripe.db.whois.internal.api.acl.*;
+import net.ripe.db.whois.internal.api.acl.AclBanService;
+import net.ripe.db.whois.internal.api.acl.AclLimitService;
+import net.ripe.db.whois.internal.api.acl.AclMirrorService;
+import net.ripe.db.whois.internal.api.acl.AclProxyService;
+import net.ripe.db.whois.internal.api.acl.ApiKeyFilter;
 import net.ripe.db.whois.internal.api.logsearch.LogSearchService;
+import net.ripe.db.whois.internal.api.sso.OrganisationsForSSOAuthService;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -28,9 +33,13 @@ public class InternalServletDeployer implements ServletDeployer {
     private final AbuseCService abuseCService;
     private final LogSearchService logSearchService;
     private final DefaultExceptionMapper defaultExceptionMapper;
+    private final OrganisationsForSSOAuthService organisationsForSSOAuthService;
 
     @Autowired
-    public InternalServletDeployer(final ApiKeyFilter apiKeyFilter, final AclBanService aclBanService, final AclLimitService aclLimitService, final AclMirrorService aclMirrorService, final AclProxyService aclProxyService, final AbuseCService abuseCService, LogSearchService logSearchService, DefaultExceptionMapper defaultExceptionMapper) {
+    public InternalServletDeployer(final ApiKeyFilter apiKeyFilter, final AclBanService aclBanService, final AclLimitService aclLimitService,
+                                   final AclMirrorService aclMirrorService, final AclProxyService aclProxyService,
+                                   final AbuseCService abuseCService, final LogSearchService logSearchService,
+                                   final DefaultExceptionMapper defaultExceptionMapper, final OrganisationsForSSOAuthService organisationsForSSOAuthService) {
         this.aclBanService = aclBanService;
         this.aclLimitService = aclLimitService;
         this.aclMirrorService = aclMirrorService;
@@ -39,6 +48,7 @@ public class InternalServletDeployer implements ServletDeployer {
         this.apiKeyFilter = apiKeyFilter;
         this.logSearchService = logSearchService;
         this.defaultExceptionMapper = defaultExceptionMapper;
+        this.organisationsForSSOAuthService = organisationsForSSOAuthService;
     }
 
     @Override
@@ -52,6 +62,7 @@ public class InternalServletDeployer implements ServletDeployer {
         resourceConfig.register(aclProxyService);
         resourceConfig.register(abuseCService);
         resourceConfig.register(logSearchService);
+        resourceConfig.register(organisationsForSSOAuthService);
         resourceConfig.register(defaultExceptionMapper);
 
         final JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();

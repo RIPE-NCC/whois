@@ -1,13 +1,15 @@
 package net.ripe.db.whois.common.ip;
 
-import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.junit.Test;
 
 import java.math.BigInteger;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class Ipv6ResourceTest {
     private Ipv6Resource subject;
@@ -388,17 +390,5 @@ public class Ipv6ResourceTest {
     @Test(expected = IllegalArgumentException.class)
     public void invalid_prefix_length() {
         Ipv6Resource.parse("2001::/129");
-    }
-
-    @Test
-    public void begin() {
-        final Ipv6Resource subject = Ipv6Resource.parse("2001:2002:2003::/48");
-        assertThat(subject.beginAsInetAddress().getHostAddress(), is("2001:2002:2003:0:0:0:0:0"));
-    }
-
-    @Test
-    public void end() {
-        final Ipv6Resource subject = Ipv6Resource.parse("2001:2002:2003::/48");
-        assertThat(subject.endAsInetAddress().getHostAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff"));
     }
 }

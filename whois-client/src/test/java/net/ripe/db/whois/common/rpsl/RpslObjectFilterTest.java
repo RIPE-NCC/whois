@@ -8,7 +8,6 @@ import static org.junit.Assert.assertThat;
 
 public class RpslObjectFilterTest {
     RpslObject mntner;
-    RpslObjectFilter subject;
 
     @Before
     public void setUp() throws Exception {
@@ -26,18 +25,11 @@ public class RpslObjectFilterTest {
                 "changed:         BECHA@example.net 20101010\n" +
                 "source:          DEV\n"
         );
-
-        subject = new RpslObjectFilter(mntner);
     }
 
     @Test(expected = AuthenticationException.class)
     public void getCertificateFromKeyCert() {
-        subject.getCertificateFromKeyCert();
-    }
-
-    @Test
-    public void getSource() {
-        assertThat(subject.getSource().toString(), is("DEV"));
+        RpslObjectFilter.getCertificateFromKeyCert(mntner);
     }
 
     @Test
@@ -54,7 +46,7 @@ public class RpslObjectFilterTest {
                         "        MIIHaTCCBlGgAwIBAgICGSowDQYJKoZIhvcNAQEFBQAwgYwxCzAJBgNVBAYTAklM\n" +
                         "        -----END CERTIFICATE-----");
 
-        final String certificate = (new RpslObjectFilter(keycert)).getCertificateFromKeyCert();
+        final String certificate = RpslObjectFilter.getCertificateFromKeyCert(keycert);
 
         assertThat(certificate, is(
                 "-----BEGIN CERTIFICATE-----\n" +
@@ -70,7 +62,7 @@ public class RpslObjectFilterTest {
                         "certif: MIIHaTCCBlGgAwIBAgICGSowDQYJKoZIhvcNAQEFBQAwgYwxCzAJBgNVBAYTAklM\n" +
                         "certif: -----END CERTIFICATE-----");
 
-        final String certificate = (new RpslObjectFilter(keycert)).getCertificateFromKeyCert();
+        final String certificate = RpslObjectFilter.getCertificateFromKeyCert(keycert);
 
         assertThat(certificate, is(
                 "-----BEGIN CERTIFICATE-----\n" +
@@ -87,7 +79,7 @@ public class RpslObjectFilterTest {
                         "\t      MRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRh\n" +
                         "+       -----END CERTIFICATE-----");
 
-        final String certificate = (new RpslObjectFilter(keycert)).getCertificateFromKeyCert();
+        final String certificate = RpslObjectFilter.getCertificateFromKeyCert(keycert);
 
         assertThat(certificate, is(
                 "-----BEGIN CERTIFICATE-----\n" +
@@ -95,4 +87,131 @@ public class RpslObjectFilterTest {
                         "MRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRh\n" +
                         "-----END CERTIFICATE-----\n"));
     }
+
+    @Test
+    public void diff_idential() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                        "description: descr\n" +
+                        "mnt-by: UPD-MNT\n" +
+                        "source: TEST\n");
+
+        assertThat(RpslObjectFilter.diff(original, original), is(""));
+    }
+
+    @Test
+    public void diff_delete_lines() throws Exception {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                        "description: descr\n" +
+                        "mnt-by: UPD-MNT\n" +
+                        "source: TEST\n");
+        final RpslObject updated = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                        "source: TEST\n");
+
+        assertThat(RpslObjectFilter.diff(original, updated),
+                is("@@ -1,4 +1,2 @@\n" +
+                        " mntner:         UPD-MNT\n" +
+                        "-description:    descr\n" +
+                        "-mnt-by:         UPD-MNT\n" +
+                        " source:         TEST\n"));
+    }
+
+    @Test
+    public void diff_add_lines() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                        "source: TEST\n");
+        final RpslObject updated = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                        "description: descr\n" +
+                        "mnt-by: UPD-MNT\n" +
+                        "source: TEST\n");
+
+        assertThat(RpslObjectFilter.diff(original, updated),
+                is("@@ -1,2 +1,4 @@\n" +
+                        " mntner:         UPD-MNT\n" +
+                        "+description:    descr\n" +
+                        "+mnt-by:         UPD-MNT\n" +
+                        " source:         TEST\n"));
+    }
+
+    @Test
+    public void diff_change_line() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                        "description: descr\n" +
+                        "mnt-by: UPD-MNT\n" +
+                        "source: TEST\n");
+        final RpslObject updated = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                        "description: updated\n" +
+                        "mnt-by: UPD-MNT\n" +
+                        "source: TEST\n");
+
+        assertThat(RpslObjectFilter.diff(original, updated),
+                is("@@ -1,3 +1,3 @@\n" +
+                        " mntner:         UPD-MNT\n" +
+                        "-description:    descr\n" +
+                        "+description:    updated\n" +
+                        " mnt-by:         UPD-MNT\n"));
+    }
+
+    @Test
+    public void diff_add_and_change_lines() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                        "mnt-by: UPD-MNT\n" +
+                        "source: TEST\n");
+        final RpslObject updated = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                        "description: updated\n" +
+                        "mnt-by: UPD-MNT2\n" +
+                        "source: TEST\n");
+
+        assertThat(RpslObjectFilter.diff(original, updated),
+                is("@@ -1,3 +1,4 @@\n" +
+                        " mntner:         UPD-MNT\n" +
+                        "-mnt-by:         UPD-MNT\n" +
+                        "+description:    updated\n" +
+                        "+mnt-by:         UPD-MNT2\n" +
+                        " source:         TEST\n"));
+    }
+
+    @Test
+    public void diff_separate_changes() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                        "description: descr\n" +
+                        "admin-c: OR1-TEST\n" +
+                        "tech-c: OR2-TEST\n" +
+                        "remarks: remark\n" +
+                        "mnt-by: UPD-MNT\n" +
+                        "changed: noreply@ripe.net\n" +
+                        "source: TEST\n");
+        final RpslObject updated = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                        "description: updated\n" +
+                        "admin-c: OR1-TEST\n" +
+                        "tech-c: OR2-TEST\n" +
+                        "remarks: remark\n" +
+                        "mnt-by: UPD-MNT\n" +
+                        "changed: updated@ripe.net\n" +
+                        "source: TEST\n");
+
+        assertThat(RpslObjectFilter.diff(original, updated),
+                is("@@ -1,3 +1,3 @@\n" +
+                        " mntner:         UPD-MNT\n" +
+                        "-description:    descr\n" +
+                        "+description:    updated\n" +
+                        " admin-c:        OR1-TEST\n" +
+                        "@@ -6,3 +6,3 @@\n" +
+                        " mnt-by:         UPD-MNT\n" +
+                        "-changed:        noreply@ripe.net\n" +
+                        "+changed:        updated@ripe.net\n" +
+                        " source:         TEST\n"));
+    }
+
+
 }

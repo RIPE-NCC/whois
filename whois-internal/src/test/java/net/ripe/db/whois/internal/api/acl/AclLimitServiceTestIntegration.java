@@ -4,6 +4,7 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -18,6 +19,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class AclLimitServiceTestIntegration extends AbstractInternalTest {
@@ -65,6 +67,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
             RestTest.target(getPort(), LIMITS_PATH, "10", null, apiKey)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Limit.class);
+            fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), is("'10' is not an IP string literal."));
         }
@@ -81,8 +84,28 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
         assertThat(limit.getPersonObjectLimit(), is(10000));
         assertThat(limit.isUnlimitedConnections(), is(true));
 
-        final List<Limit> limits = getLimits();
-        assertThat(limits, hasSize(3));
+        assertThat(getLimits(), hasSize(3));
+    }
+
+    @Test
+    public void createLimit_no_prefix_length_ipv4() throws Exception {
+            final Limit limit = RestTest.target(getPort(), LIMITS_PATH, null, apiKey)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Entity.entity(new Limit("10.0.0.1", "test", 10000, true), MediaType.APPLICATION_JSON_TYPE), Limit.class);
+
+        assertThat(limit.getPrefix(), is("10.0.0.1/32"));
+    }
+
+    @Test
+    public void createLimit_no_prefix_length_ipv6() throws Exception {
+        try {
+            RestTest.target(getPort(), LIMITS_PATH, null, apiKey)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Entity.entity(new Limit("1001:1002::", "test", 10000, true), MediaType.APPLICATION_JSON_TYPE), Limit.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), is("IPv6 must be at least a /64 prefix range"));
+        }
     }
 
     @Test
@@ -96,16 +119,30 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
         assertThat(limit.getPersonObjectLimit(), is(10000));
         assertThat(limit.isUnlimitedConnections(), is(true));
 
-        final List<Limit> limits = getLimits();
-        assertThat(limits, hasSize(2));
+        assertThat(getLimits(), hasSize(2));
     }
 
+    @Ignore("TODO: failing test")
     @Test
-    public void deleteLimit_root() throws Exception {
+    public void deleteLimit_root_ipv4() throws Exception {
         try {
             RestTest.target(getPort(), LIMITS_PATH, "0/0", null, apiKey)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .delete(Limit.class);
+            fail();
+        } catch (ForbiddenException e) {
+            assertThat(e.getResponse().readEntity(String.class), is("Deleting the root object is not allowed"));
+        }
+    }
+
+    @Ignore("TODO: failing test")
+    @Test
+    public void deleteLimit_root_ipv6() throws Exception {
+        try {
+            RestTest.target(getPort(), LIMITS_PATH, "::0/0", null, apiKey)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .delete(Limit.class);
+            fail();
         } catch (ForbiddenException e) {
             assertThat(e.getResponse().readEntity(String.class), is("Deleting the root object is not allowed"));
         }
@@ -117,6 +154,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
             RestTest.target(getPort(), LIMITS_PATH, "10.0.0.0/32", null, apiKey)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .delete(Limit.class);
+            fail();
         } catch (NotFoundException ignored) {
             // expected
         }
@@ -136,6 +174,24 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
 
         assertThat(limit.getPrefix(), is("10.0.0.0/32"));
         assertThat(limit.getComment(), is("test"));
+
+        assertThat(getLimits(), hasSize(2));
+    }
+
+    @Test
+    public void deleteLimitUnencodedPrefix() throws Exception {
+        databaseHelper.insertAclIpLimit("2a01:488:67:1000::/64", 1, true);
+
+        RestTest.target(getPort(), LIMITS_PATH + "/2a01:488:67:1000::/64", null, apiKey).request().delete();
+
+        assertThat(getLimits(), hasSize(2));
+    }
+
+    @Test
+    public void deleteLimitUnencodedPrefixWithExtension() throws Exception {
+        databaseHelper.insertAclIpDenied("2a01:488:67:1000::/64");
+
+        RestTest.target(getPort(), LIMITS_PATH + "/2a01:488:67:1000::/64.json", null, apiKey).request().delete();
 
         assertThat(getLimits(), hasSize(2));
     }

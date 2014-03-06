@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.NestableRuntimeException;
 import org.springframework.core.io.ClassPathResource;
@@ -11,6 +12,7 @@ import org.springframework.util.FileCopyUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -62,6 +64,14 @@ public class FileHelper {
         }
 
         return gzipFile;
+    }
+
+    public static String fetchGzip(File file) {
+        try (InputStreamReader reader = new InputStreamReader(new GzipCompressorInputStream(new FileInputStream(file)))) {
+            return FileCopyUtils.copyToString(reader);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error processing gzip file: " + file.getAbsolutePath(), e);
+        }
     }
 
     public static File addToGZipFile(final String gzipFilename, final String content) throws IOException {

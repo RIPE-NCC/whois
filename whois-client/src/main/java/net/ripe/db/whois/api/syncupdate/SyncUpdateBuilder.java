@@ -6,6 +6,7 @@ import org.springframework.util.FileCopyUtils;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -16,19 +17,33 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SyncUpdateBuilder {
+
+    private String url;
     private String host;
-    private int port;
+    private Integer port;
     private String source;
     private String data;
+    private MultivaluedMap<String, String> headers;
     private boolean help;
     private boolean diff;
     private boolean aNew;
     private boolean redirect;
+
+    public SyncUpdateBuilder setHeaders(MultivaluedMap<String, String> headers) {
+        this.headers = headers;
+        return this;
+    }
+
+    public SyncUpdateBuilder setUrl(String url) {
+        this.url = url;
+        return this;
+    }
 
     public SyncUpdateBuilder setHost(String host) {
         this.host = host;
@@ -71,7 +86,15 @@ public class SyncUpdateBuilder {
     }
 
     public Client build() {
-        return new Client(host, port, source, data, help, diff, aNew, redirect);
+        if (url != null) {
+            return new Client(url, headers, data, help, diff, aNew, redirect);
+        }
+
+        if (host != null && port != null && source != null) {
+            return new Client(host, port, source, headers, data, help, diff, aNew, redirect);
+        }
+
+        throw new IllegalStateException("Either (host, port, source) or (url) should not be null");
     }
 
     public static class Client {
@@ -80,19 +103,17 @@ public class SyncUpdateBuilder {
         private static final Pattern CHARSET_PATTERN = Pattern.compile(".*;charset=(.*)");
         private static final String CHARSET = "ISO-8859-1";
 
-        private final String host;
-        private final int port;
-        private final String source;
+        private final URL url;
+        private final MultivaluedMap<String, String> headers;
         private final String data;
         private final boolean isHelp;
         private final boolean isDiff;
         private final boolean isNew;
         private final boolean isRedirect;
 
-        public Client(final String host, final int port, final String source, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
-            this.host = host;
-            this.port = port;
-            this.source = source;
+        public Client(final String host, final int port, final String source, final MultivaluedMap<String, String> headers, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
+            this.url = getUrl(host, port, source);
+            this.headers = headers;
             this.data = data;
             this.isHelp = isHelp;
             this.isDiff = isDiff;
@@ -100,23 +121,35 @@ public class SyncUpdateBuilder {
             this.isRedirect = isRedirect;
         }
 
+        public Client(final String url, final MultivaluedMap<String, String> headers, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
+            this.url = getUrl(url);
+            this.headers = headers;
+            this.data = data;
+            this.isHelp = isHelp;
+            this.isDiff = isDiff;
+            this.isNew = isNew;
+            this.isRedirect = isRedirect;
+       }
+
         public String post() {
             try {
-                HttpURLConnection connection = (HttpURLConnection) getUrl(host, port, source).openConnection();
+                final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
                 final String body = getBody();
                 connection.setRequestProperty(HttpHeaders.CONTENT_LENGTH, Integer.toString(body.length()));
                 connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED + "; charset=" + CHARSET);
 
+                setHeaders(connection);
+
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
 
-                Writer writer = new OutputStreamWriter(connection.getOutputStream());
+                final Writer writer = new OutputStreamWriter(connection.getOutputStream());
                 writer.write(body);
                 writer.close();
 
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    throw new IllegalStateException("Unexpected response code: " + connection.getResponseCode());
+                    throw new IllegalStateException(connection.getResponseMessage());
                 }
 
                 return readResponse(connection);
@@ -175,10 +208,28 @@ public class SyncUpdateBuilder {
         }
 
         private static URL getUrl(final String host, final int port, final String source) {
+            return getUrl(String.format("http://%s%s/whois/syncupdates/%s", host, (port != 0 ? ":" + Integer.toString(port) : ""), source));
+        }
+
+        private static URL getUrl(final String url){
             try {
-                return new URL(String.format("http://%s%s/whois/syncupdates/%s", host, (port != 0 ? ":" + Integer.toString(port) : ""), source));
+                return new URL(url);
             } catch (MalformedURLException e) {
                 throw new IllegalArgumentException(e);
+            }
+        }
+
+        private void setHeaders(final HttpURLConnection connection) {
+            if (this.headers != null) {
+                for (final Map.Entry<String, List<String>> entry : headers.entrySet()) {
+                    final String key = entry.getKey();
+                    if (connection.getRequestProperty(key) == null) {
+                        // don't overwrite existing headers (e.g. content-type, content-length)
+                        for (final String value : entry.getValue()) {
+                            connection.addRequestProperty(key, value);
+                        }
+                    }
+                }
             }
         }
     }

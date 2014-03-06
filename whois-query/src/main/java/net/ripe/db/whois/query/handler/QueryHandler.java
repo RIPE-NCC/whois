@@ -6,10 +6,10 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.executor.QueryExecutor;
 import net.ripe.db.whois.query.query.Query;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class QueryHandler {
@@ -28,7 +29,10 @@ public class QueryHandler {
     private final List<QueryExecutor> queryExecutors;
 
     @Autowired
-    public QueryHandler(final WhoisLog whoisLog, final AccessControlListManager accessControlListManager, final SourceContext sourceContext, final QueryExecutor... queryExecutors) {
+    public QueryHandler(final WhoisLog whoisLog,
+                        final AccessControlListManager accessControlListManager,
+                        final SourceContext sourceContext,
+                        final QueryExecutor... queryExecutors) {
         this.whoisLog = whoisLog;
         this.accessControlListManager = accessControlListManager;
         this.sourceContext = sourceContext;
@@ -37,7 +41,7 @@ public class QueryHandler {
 
     public void streamResults(final Query query, final InetAddress remoteAddress, final int contextId, final ResponseHandler responseHandler) {
         new Runnable() {
-            private final Stopwatch stopwatch = new Stopwatch().start();
+            private final Stopwatch stopwatch = Stopwatch.createStarted();
 
             private InetAddress accountingAddress;
             private boolean useAcl;
@@ -131,7 +135,7 @@ public class QueryHandler {
             }
 
             private void logQuery(@Nullable final QueryCompletionInfo completionInfo) {
-                whoisLog.logQueryResult(responseHandler.getApi(), accountedObjects, notAccountedObjects, completionInfo, stopwatch.elapsedMillis(), remoteAddress, contextId, query.toString());
+                whoisLog.logQueryResult(responseHandler.getApi(), accountedObjects, notAccountedObjects, completionInfo, stopwatch.elapsed(TimeUnit.MILLISECONDS), remoteAddress, contextId, query.toString());
             }
 
         }.run();

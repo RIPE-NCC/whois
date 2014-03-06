@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.executor.decorators.ResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ class AbuseCInfoDecorator implements ResponseDecorator {
 
     @Override
     public Iterable<? extends ResponseObject> decorate(Query query, Iterable<? extends ResponseObject> input) {
-        if (query.isBriefAbuseContact() || !sourceContext.isMain()) {
+        if (query.via(Query.Origin.REST) || query.isBriefAbuseContact() || !sourceContext.isMain()) {
             return input;
         }
 

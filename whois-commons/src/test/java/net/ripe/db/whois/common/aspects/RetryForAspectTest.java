@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+// TODO: [AH] it's practically impossible to hook into slf4j to see it the retryfor is logged properly. Add test for this once we switched to a proper logging framework
 public class RetryForAspectTest extends AbstractDaoTest {
     static final int ATTEMPTS = 5;
 
