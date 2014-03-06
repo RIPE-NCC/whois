@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Objects;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -24,7 +24,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
     "value",
     "referencedType"
 })
-@JsonInclude(NON_EMPTY)
+@JsonInclude(NON_NULL)
 @XmlRootElement(name = "attribute")
 public class Attribute {
 

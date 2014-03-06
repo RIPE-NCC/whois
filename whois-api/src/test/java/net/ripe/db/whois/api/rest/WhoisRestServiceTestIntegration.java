@@ -63,6 +63,7 @@ import java.util.Map;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
+import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -822,55 +823,91 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_xml_text() {
-        final String result = RestTest.target(getPort(), "whois/test/mntner/owner-mnt.xml")
-                .request()
+    public void lookup_mntner_xml_text() throws Exception {
+        final RpslObject TRICKY_MNT = RpslObject.parse("" +
+                "mntner:         TRICKY-MNT\n" +
+                "descr:          Maintainer\n" +
+                "admin-c:        TP1-TEST\n" +
+                "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:           SSO person@net.net\n" +
+                "mnt-by:         TRICKY-MNT\n" +
+                "referral-by:    TRICKY-MNT\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "remarks:\n"+
+                "remarks:        remark with # comment\n"+
+                "source:         TEST");
+
+        databaseHelper.addObject(TRICKY_MNT);
+        final String response = RestTest.target(getPort(), "whois/test/mntner/TRICKY-MNT")
+                .request(MediaType.APPLICATION_XML_TYPE)
                 .get(String.class);
 
-        assertThat(result, is("" +
+        assertThat(response, is(
                 "<?xml version='1.0' encoding='UTF-8'?>\n" +
-                "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
-                "  <objects>\n" +
-                "    <object type=\"mntner\">\n" +
-                "      <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\" />\n" +
-                "      <source id=\"test\" />\n" +
-                "      <primary-key>\n" +
-                "        <attribute name=\"mntner\" value=\"OWNER-MNT\" />\n" +
-                "      </primary-key>\n" +
-                "      <attributes>\n" +
-                "        <attribute name=\"mntner\" value=\"OWNER-MNT\" />\n" +
-                "        <attribute name=\"descr\" value=\"Owner Maintainer\" />\n" +
-                "        <attribute name=\"admin-c\" value=\"TP1-TEST\" referenced-type=\"person\">\n" +
-                "          <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/TP1-TEST\" />\n" +
-                "        </attribute>\n" +
-                "        <attribute name=\"auth\" value=\"MD5-PW\" comment=\"Filtered\" />\n" +
-                "        <attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\" />\n" +
-                "        <attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
-                "          <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\" />\n" +
-                "        </attribute>\n" +
-                "        <attribute name=\"referral-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
-                "          <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\" />\n" +
-                "        </attribute>\n" +
-                "        <attribute name=\"source\" value=\"TEST\" comment=\"Filtered\" />\n" +
-                "      </attributes>\n" +
-                "    </object>\n" +
-                "  </objects>\n" +
-                "  <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" />\n" +
-                "</whois-resources>"));
+                        "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                        "  <objects>\n" +
+                        "    <object type=\"mntner\">\n" +
+                        "      <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/TRICKY-MNT\" />\n" +
+                        "      <source id=\"test\" />\n" +
+                        "      <primary-key>\n" +
+                        "        <attribute name=\"mntner\" value=\"TRICKY-MNT\" />\n" +
+                        "      </primary-key>\n" +
+                        "      <attributes>\n" +
+                        "        <attribute name=\"mntner\" value=\"TRICKY-MNT\" />\n" +
+                        "        <attribute name=\"descr\" value=\"Maintainer\" />\n" +
+                        "        <attribute name=\"admin-c\" value=\"TP1-TEST\" referenced-type=\"person\">\n" +
+                        "          <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/TP1-TEST\" />\n" +
+                        "        </attribute>\n" +
+                        "        <attribute name=\"auth\" value=\"MD5-PW\" comment=\"Filtered\" />\n" +
+                        "        <attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\" />\n" +
+                        "        <attribute name=\"mnt-by\" value=\"TRICKY-MNT\" referenced-type=\"mntner\">\n" +
+                        "          <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/TRICKY-MNT\" />\n" +
+                        "        </attribute>\n" +
+                        "        <attribute name=\"referral-by\" value=\"TRICKY-MNT\" referenced-type=\"mntner\">\n" +
+                        "          <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/TRICKY-MNT\" />\n" +
+                        "        </attribute>\n" +
+                        "        <attribute name=\"remarks\" value=\"\" />\n" +
+                        "        <attribute name=\"remarks\" value=\"remark with\" comment=\"comment\" />\n" +
+                        "        <attribute name=\"source\" value=\"TEST\" comment=\"Filtered\" />\n" +
+                        "      </attributes>\n" +
+                        "    </object>\n" +
+                        "  </objects>\n" +
+                        "  <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" />\n" +
+                        "</whois-resources>"));
     }
-
     @Test
-    public void lookup_mntner_json_text() {
-        final String result = RestTest.target(getPort(), "whois/test/mntner/owner-mnt.json")
-                .request()
+    public void lookup_mntner_json_text() throws Exception {
+        final RpslObject TRICKY_MNT = RpslObject.parse("" +
+                "mntner:         TRICKY-MNT\n" +
+                "descr:          Maintainer\n" +
+                "admin-c:        TP1-TEST\n" +
+                "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:           SSO person@net.net\n" +
+                "mnt-by:         TRICKY-MNT\n" +
+                "referral-by:    TRICKY-MNT\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "remarks:\n"+
+                "remarks:        remark with # comment\n"+
+                "source:         TEST");
+
+        databaseHelper.addObject(TRICKY_MNT);
+        final String response = RestTest.target(getPort(), "whois/test/mntner/TRICKY-MNT")
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
 
-        assertThat(result, is(
+        //assert that remarks with an empty value appear in the response.
+        assertThat(response, matchesPattern("\"name\" : \"remarks\",\\s+\"value\" : \"\"\\s+}"));
+        //assert that comments are not added as empty values.
+        assertThat(response, not(matchesPattern("\"value\"\\s*:\\s*\"TRICKY-MNT\"\\s*,\\s*\"comment\"")));
+
+        assertThat(response, is(
                 "{\"objects\":{\"object\":[ {\n" +
                         "  \"type\" : \"mntner\",\n" +
                         "  \"link\" : {\n" +
                         "    \"type\" : \"locator\",\n" +
-                        "    \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "    \"href\" : \"http://rest-test.db.ripe.net/test/mntner/TRICKY-MNT\"\n" +
                         "  },\n" +
                         "  \"source\" : {\n" +
                         "    \"id\" : \"test\"\n" +
@@ -878,16 +915,16 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "  \"primary-key\" : {\n" +
                         "    \"attribute\" : [ {\n" +
                         "      \"name\" : \"mntner\",\n" +
-                        "      \"value\" : \"OWNER-MNT\"\n" +
+                        "      \"value\" : \"TRICKY-MNT\"\n" +
                         "    } ]\n" +
                         "  },\n" +
                         "  \"attributes\" : {\n" +
                         "    \"attribute\" : [ {\n" +
                         "      \"name\" : \"mntner\",\n" +
-                        "      \"value\" : \"OWNER-MNT\"\n" +
+                        "      \"value\" : \"TRICKY-MNT\"\n" +
                         "    }, {\n" +
                         "      \"name\" : \"descr\",\n" +
-                        "      \"value\" : \"Owner Maintainer\"\n" +
+                        "      \"value\" : \"Maintainer\"\n" +
                         "    }, {\n" +
                         "      \"link\" : {\n" +
                         "        \"type\" : \"locator\",\n" +
@@ -907,19 +944,26 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "    }, {\n" +
                         "      \"link\" : {\n" +
                         "        \"type\" : \"locator\",\n" +
-                        "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/TRICKY-MNT\"\n" +
                         "      },\n" +
                         "      \"name\" : \"mnt-by\",\n" +
-                        "      \"value\" : \"OWNER-MNT\",\n" +
+                        "      \"value\" : \"TRICKY-MNT\",\n" +
                         "      \"referenced-type\" : \"mntner\"\n" +
                         "    }, {\n" +
                         "      \"link\" : {\n" +
                         "        \"type\" : \"locator\",\n" +
-                        "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/TRICKY-MNT\"\n" +
                         "      },\n" +
                         "      \"name\" : \"referral-by\",\n" +
-                        "      \"value\" : \"OWNER-MNT\",\n" +
+                        "      \"value\" : \"TRICKY-MNT\",\n" +
                         "      \"referenced-type\" : \"mntner\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"remarks\",\n" +
+                        "      \"value\" : \"\"\n" +
+                        "    }, {\n" +
+                        "      \"name\" : \"remarks\",\n" +
+                        "      \"value\" : \"remark with\",\n" +
+                        "      \"comment\" : \"comment\"\n" +
                         "    }, {\n" +
                         "      \"name\" : \"source\",\n" +
                         "      \"value\" : \"TEST\",\n" +
