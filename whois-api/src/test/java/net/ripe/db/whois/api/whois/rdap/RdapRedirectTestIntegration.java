@@ -200,7 +200,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     // helper methods
 
     private void addResourceData(final String source, final String resource) {
-        databaseHelper.getInternalsTemplate().update("INSERT INTO authoritative_resource VALUES (?, ?)", source, resource);
+        databaseHelper.getInternalsTemplate().update("INSERT INTO authoritative_resource (source, resource) VALUES (?, ?)", source, resource);
     }
 
     private void refreshResourceData() {
