@@ -90,6 +90,12 @@ public class AbuseCTestIntegration extends AbstractWhoisIntegrationTest {
             "tech-c:        NIC3-TEST\n" +
             "source:        TEST",
 
+            "inetnum:       193.0.0.0 - 193.0.0.255\n" +
+            "netname:       RIPE\n" +
+            "admin-c:       NIC2-TEST\n" +
+            "tech-c:        NIC3-TEST\n" +
+            "source:        TEST",
+
             "route:         193.0.0.0/8\n" +
             "descr:         RIPE-NCC\n" +
             "origin:        A201\n" +
@@ -128,6 +134,16 @@ public class AbuseCTestIntegration extends AbstractWhoisIntegrationTest {
                 "% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'\n" +
                 "\n" +
                 "inetnum:        173.0.0.0 - 173.255.255.255"));
+    }
+
+    @Test
+    public void simpleLookupChildInetnum() {
+        final String response = DummyWhoisClient.query(QueryServer.port, "193.0.0.0");
+
+        assertThat(response, containsString("" +
+                "% Abuse contact for '193.0.0.0 - 193.0.0.255' is 'shown@abuse.net'\n" +
+                "\n" +
+                "inetnum:        193.0.0.0 - 193.0.0.255"));
     }
 
     @Test
