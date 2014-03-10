@@ -83,7 +83,7 @@ public class AttributeGenerator {
         for (String attributeValue : validAttributeValues) {
             if (!found.contains(attributeValue)) {
                 // add missing attribute
-                builder.addAttribute(new RpslAttribute(attributeType, attributeValue)).sort();
+                builder.append(new RpslAttribute(attributeType, attributeValue)).sort();
             }
         }
     }
