@@ -3,9 +3,8 @@ package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
@@ -18,14 +17,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Map;
-
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
-import static org.hamcrest.Matchers.containsString;
+import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -48,13 +44,14 @@ public class AbuseCFinderTest {
     public void getAbuseContacts_oneOrgReferenceNoAbuseC() {
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG-TEST1");
         final RpslObject parent = RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\nmnt-by: RS2-MNT");
-        when(objectDao.getByKeys(ObjectType.ORGANISATION, ciSet("ORG-TEST1"))).thenReturn(Lists.<RpslObject>newArrayList());
+
+        when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG-TEST1"))).thenReturn(RpslObject.parse("organisation: ORG-TEST1\n"));
         when(ipv4Tree.findFirstLessSpecific(Ipv4Resource.parse(inetnum.getKey()))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(parent.getKey()), 5)));
         when(objectDao.getById(5)).thenReturn(parent);
 
-        final Map<CIString, CIString> abuseContacts = subject.getAbuseContacts(inetnum);
+        final String abuseContact = subject.getAbuseContact(inetnum);
 
-        assertTrue(abuseContacts.isEmpty());
+        assertThat(abuseContact, is(nullValue()));
     }
 
     @Test
@@ -64,49 +61,39 @@ public class AbuseCFinderTest {
 
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse(inetnum.getKey());
         when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(root.getKey()), 1)));
-        when(objectDao.getByKeys(ObjectType.ORGANISATION, ciSet("ORG-TEST1"))).thenReturn(Lists.newArrayList(RpslObject.parse("organisation: ORG-TEST1\nabuse-c: ABU-TEST")));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: abuse role\nabuse-mailbox: abuse@ripe.net\nnic-hdl: ABU-TEST")));
+        when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG-TEST1"))).thenReturn(RpslObject.parse("organisation: ORG-TEST1\nabuse-c: ABU-TEST"));
+        when(objectDao.getByKey(ObjectType.ROLE, ciString("ABU-TEST"))).thenReturn(RpslObject.parse("role: abuse role\nabuse-mailbox: abuse@ripe.net\nnic-hdl: ABU-TEST"));
 
-        final Map<CIString, CIString> abuseContacts = subject.getAbuseContacts(inetnum);
+        assertThat(subject.getAbuseContact(inetnum), is("abuse@ripe.net"));
 
-        assertThat(abuseContacts.size(), is(1));
-        final CIString abuseContact = abuseContacts.get(inetnum.getKey());
-        assertThat(abuseContact.toString(), containsString("abuse@ripe.net"));
     }
 
     @Test
     public void getAbuseContacts_inetnum() {
         final RpslObject object = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG1-TEST");
-        final RpslObject org = RpslObject.parse("organisation: ORG1-TEST\nabuse-c: AB-TEST");
-        final RpslObject role = RpslObject.parse("role: A Role\nabuse-mailbox: abuse@ripe.net\nnic-hdl: AB-TEST");
-        when(objectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn(Lists.newArrayList(org));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(role));
+        when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG1-TEST"))).thenReturn(RpslObject.parse("organisation: ORG1-TEST\nabuse-c: AB-TEST"));
+        when(objectDao.getByKey(ObjectType.ROLE, ciString("AB-TEST"))).thenReturn(RpslObject.parse("role: A Role\nabuse-mailbox: abuse@ripe.net\nnic-hdl: AB-TEST"));
 
         final RpslObject root = RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\norg: ORG-TEST1\nmnt-by:RS1-MNT");
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse(object.getKey());
         when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(root.getKey()), 1)));
 
-        final Map<CIString, CIString> abuseContacts = subject.getAbuseContacts(object);
-
-        assertThat(abuseContacts.get(object.getKey()).toString(), containsString("abuse@ripe.net"));
+        assertThat(subject.getAbuseContact(object), is("abuse@ripe.net"));
     }
 
     @Test
     public void getAbuseContacts_inetnum_parent() {
         final RpslObject child = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255");
         final RpslObject parent = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG1-TEST");
-        final RpslObject org = RpslObject.parse("organisation: ORG1-TEST\nabuse-c: AB-TEST");
-        final RpslObject role = RpslObject.parse("role: A Role\nabuse-mailbox: abuse@ripe.net\nnic-hdl: AB-TEST");
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse(parent.getKey());
         final Ipv4Entry ipv4Entry = new Ipv4Entry(ipv4Resource, 1);
 
         when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(ipv4Entry));
-        when(objectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn(Lists.newArrayList(org));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(role));
+        when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG1-TEST"))).thenReturn(RpslObject.parse("organisation: ORG1-TEST\nabuse-c: AB-TEST"));
+        when(objectDao.getByKey(ObjectType.ROLE, ciString("AB-TEST"))).thenReturn(RpslObject.parse("role: A Role\nabuse-mailbox: abuse@ripe.net\nnic-hdl: AB-TEST"));
+        when(objectDao.getById(1)).thenReturn(parent);
 
-        final Map<CIString, CIString> abuseContacts = subject.getAbuseContacts(child);
-
-        assertThat(abuseContacts.get(child.getKey()).toString(), containsString("abuse@ripe.net"));
+        assertThat(subject.getAbuseContact(child), is("abuse@ripe.net"));
     }
 
     @Test
@@ -117,23 +104,19 @@ public class AbuseCFinderTest {
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse(object.getKey());
         when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(root.getKey()), 1)));
         when(objectDao.getById(1)).thenReturn(root);
+        when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG-TEST1"))).thenReturn(RpslObject.parse("organisation: ORG-TEST1"));
 
-        final Map<CIString, CIString> abuseContacts = subject.getAbuseContacts(object);
-
-        assertThat(abuseContacts.size(), is(0));
+        assertThat(subject.getAbuseContact(object), is(nullValue()));
     }
 
     @Test
     public void getAbuseContacs_autnum_with_abuseccontacts() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS8462\norg: ORG1-TEST");
-        final RpslObject organisation = RpslObject.parse("organisation: ORG1-TEST\nabuse-c: AB-TEST");
-        final RpslObject role = RpslObject.parse("role: Abuse Role\nnic-hdl: AB-TEST\nabuse-mailbox: abuse@ripe.net");
-        when(objectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn(Lists.newArrayList(organisation));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anySet())).thenReturn(Lists.newArrayList(role));
 
-        final Map<CIString, CIString> result = subject.getAbuseContacts(autnum);
+        when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG1-TEST"))).thenReturn(RpslObject.parse("organisation: ORG1-TEST\nabuse-c: AB-TEST"));
+        when(objectDao.getByKey(ObjectType.ROLE, ciString("AB-TEST"))).thenReturn(RpslObject.parse("role: Abuse Role\nnic-hdl: AB-TEST\nabuse-mailbox: abuse@ripe.net"));
 
-        assertThat(result.get(autnum.getKey()).toString(), containsString("abuse@ripe.net"));
+        assertThat(subject.getAbuseContact(autnum), is("abuse@ripe.net"));
         verifyZeroInteractions(ipv4Tree);
         verifyZeroInteractions(ipv6Tree);
     }
@@ -141,21 +124,16 @@ public class AbuseCFinderTest {
     @Test
     public void getAbuseContacts_autnum_without_abusecontacts() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS8462\norg: ORG1-TEST");
-        final RpslObject organisation = RpslObject.parse("organisation: ORG1-TEST");
 
-        when(objectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn(Lists.newArrayList(organisation));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anySet())).thenReturn(Lists.<RpslObject>newArrayList());
+        when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG1-TEST"))).thenReturn(RpslObject.parse("organisation: ORG1-TEST"));
 
-        final Map<CIString, CIString> result = subject.getAbuseContacts(autnum);
-
-        assertThat(result.size(), is(0));
+        assertThat(subject.getAbuseContact(autnum), is(nullValue()));
     }
 
     @Test
     public void getAbuseContacts_rootObject() {
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0");
 
-        final Map<CIString, CIString> result = subject.getAbuseContacts(inetnum);
-        assertThat(result.size(), is(0));
+        assertThat(subject.getAbuseContact(inetnum), is(nullValue()));
     }
 }

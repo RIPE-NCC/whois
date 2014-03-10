@@ -1,12 +1,10 @@
 package net.ripe.db.whois.query.planner;
 
-import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.query.Query;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 
 import static org.hamcrest.Matchers.instanceOf;
@@ -44,10 +41,7 @@ public class AbuseCInfoDecoratorTest {
     @Test
     public void inet6num_with_abuse_contact() {
         final RpslObject object = RpslObject.parse("inet6num: ffc::0/64\norg: ORG-TEST");
-        final HashMap<CIString, CIString> map = Maps.newHashMap();
-        map.put(CIString.ciString("ffc::0/64"), CIString.ciString("abuse@ripe.net"));
-
-        when(abuseCFinder.getAbuseContacts(object)).thenReturn(map);
+        when(abuseCFinder.getAbuseContact(object)).thenReturn("abuse@ripe.net");
         when(sourceContext.isMain()).thenReturn(true);
 
         final Iterator<? extends ResponseObject> iterator = subject.decorate(Query.parse("AS3333"), Collections.singletonList(object)).iterator();
@@ -63,7 +57,7 @@ public class AbuseCInfoDecoratorTest {
     @Test
     public void autnum_without_abuse_contact() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS333\nas-name: TEST-NAME\norg: ORG-TOL1-TEST");
-        when(abuseCFinder.getAbuseContacts(autnum)).thenReturn(new HashMap<CIString, CIString>());
+        when(abuseCFinder.getAbuseContact(autnum)).thenReturn(null);
         when(sourceContext.isMain()).thenReturn(true);
 
         final Iterator<? extends ResponseObject> iterator = subject.decorate(Query.parse("AS3333"), Collections.singletonList(autnum)).iterator();
