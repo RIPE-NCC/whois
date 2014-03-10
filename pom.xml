@@ -792,7 +792,7 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups />
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/whois/spec/*/*Spec.java,**/*EndToEndTest.java</test.files.integration>
+                <test.files.integration>**/whois/spec/*/*Spec.class,**/*EndToEndTest.class</test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
