@@ -2,6 +2,7 @@ package net.ripe.db.whois.api;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import net.ripe.db.whois.api.rest.RestClientUtils;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import org.apache.commons.lang.StringUtils;
@@ -21,9 +22,10 @@ public class RestTest {
     private static final Client client;
 
     static {
-        final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
-        jsonProvider.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
-        jsonProvider.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        final JacksonJsonProvider jsonProvider = new JacksonJaxbJsonProvider()
+                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false)
+                .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
         client = ClientBuilder.newBuilder()
                 .register(MultiPartFeature.class)
                 .register(jsonProvider)
@@ -31,7 +33,7 @@ public class RestTest {
     }
 
     public static final WebTarget target(final int port, final String path) {
-       return client.target(String.format("http://localhost:%d/%s", port, path));
+        return client.target(String.format("http://localhost:%d/%s", port, path));
     }
 
     public static final WebTarget target(final int port, final String path, String queryParam, final String apiKey) {
