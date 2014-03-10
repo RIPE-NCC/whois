@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import difflib.DiffUtils;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,9 +65,9 @@ public class RpslObjectFilter {
 
     public static RpslObjectBuilder setFiltered(RpslObjectBuilder builder) {
         for (int i = builder.size() - 1; i >= 0; i--) {
-            RpslAttribute attribute = builder.getAttribute(i);
+            RpslAttribute attribute = builder.get(i);
             if (attribute.getType() == AttributeType.SOURCE) {
-                builder.setAttribute(i, new RpslAttribute(AttributeType.SOURCE, attribute.getCleanValue() + FILTERED));
+                builder.set(i, new RpslAttribute(AttributeType.SOURCE, attribute.getCleanValue() + FILTERED));
                 break;
             }
         }
@@ -83,7 +84,6 @@ public class RpslObjectFilter {
         return !attributes.isEmpty() && attributes.get(0).getValue().contains(FILTERED);
     }
 
-    //TODO the below is only used by test classes (in different packages, mind you), move it out of here.
     /** slow way to build specific objects from object skeletons/templates */
     public static RpslObject buildGenericObject(final RpslObject object, final String ... attributes) {
         return buildGenericObject(new RpslObjectBuilder(object), attributes);
@@ -100,11 +100,14 @@ public class RpslObjectFilter {
         for (String attribute : attributes) {
             attributeList.addAll(RpslObjectBuilder.getAttributes(attribute));
         }
+
+        EnumSet<AttributeType> seenTypes = EnumSet.noneOf(AttributeType.class);
         for (RpslAttribute rpslAttribute : attributeList) {
-            builder.removeAttributeType(rpslAttribute.getType());
+            seenTypes.add(rpslAttribute.getType());
         }
 
-        builder.addAttributes(attributeList);
+        builder.removeAttributeTypes(seenTypes);
+        builder.prepend(attributeList);
         return builder.sort().get();
     }
 

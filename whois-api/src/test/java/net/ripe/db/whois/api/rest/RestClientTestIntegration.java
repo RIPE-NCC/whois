@@ -101,7 +101,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void update_person_with_empty_remarks_has_remarks() throws Exception {
-        final RpslObject object = new RpslObjectBuilder(TEST_PERSON).addAttribute(new RpslAttribute(AttributeType.REMARKS, "")).sort().get();
+        final RpslObject object = new RpslObjectBuilder(TEST_PERSON).append(new RpslAttribute(AttributeType.REMARKS, "")).sort().get();
 
         final RpslObject updatedResult = restClient.request()
                 .addParam("password", "test")

@@ -115,26 +115,36 @@ public class RpslObjectBuilder {
         return attributes.size();
     }
 
-    public RpslAttribute getAttribute(int index) {
+    public RpslAttribute get(int index) {
         return attributes.get(index);
     }
 
-    public RpslObjectBuilder setAttribute(int index, RpslAttribute attribute) {
+    public RpslObjectBuilder set(int index, RpslAttribute attribute) {
         attributes.set(index, attribute);
         return this;
     }
 
-    public RpslObjectBuilder addAttribute(final RpslAttribute newAttribute) {
+    public RpslObjectBuilder append(final RpslAttribute newAttribute) {
         attributes.add(newAttribute);
         return this;
     }
 
-    public RpslObjectBuilder addAttributes(final Collection<RpslAttribute> newAttributes) {
+    public RpslObjectBuilder append(final Collection<RpslAttribute> newAttributes) {
         attributes.addAll(newAttributes);
         return this;
     }
 
-    public RpslObjectBuilder removeAttribute(int index) {
+    public RpslObjectBuilder prepend(final RpslAttribute newAttribute) {
+        attributes.add(0, newAttribute);
+        return this;
+    }
+
+    public RpslObjectBuilder prepend(final Collection<RpslAttribute> newAttributes) {
+        attributes.addAll(0, newAttributes);
+        return this;
+    }
+
+    public RpslObjectBuilder remove(int index) {
         attributes.remove(index);
         return this;
     }
