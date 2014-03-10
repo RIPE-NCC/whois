@@ -4,6 +4,7 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.common.ApplicationService;
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.User;
@@ -15,6 +16,7 @@ import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -39,6 +41,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+@Category(IntegrationTest.class)
 public class AbuseCServiceTestIntegration extends AbstractInternalTest {
 
     @Autowired private AbuseCService abuseCService;

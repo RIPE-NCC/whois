@@ -29,8 +29,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Category(ManualTest.class)
-public class ReplayQueryLogsTestIntegration {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReplayQueryLogsTestIntegration.class);
+public class ReplayQueryLogs {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReplayQueryLogs.class);
     private static String whoisHost;
     private static int whoisPort;
     private static Resource queryLog;

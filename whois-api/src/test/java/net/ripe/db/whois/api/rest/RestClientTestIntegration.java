@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -11,6 +12,7 @@ import net.ripe.db.whois.query.QueryFlag;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.ws.rs.core.Cookie;
@@ -29,6 +31,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@Category(IntegrationTest.class)
 public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
