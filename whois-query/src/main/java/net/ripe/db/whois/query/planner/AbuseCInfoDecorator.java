@@ -2,13 +2,12 @@ package net.ripe.db.whois.query.planner;
 
 
 import net.ripe.db.whois.common.collect.IterableTransformer;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.executor.decorators.ResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Deque;
 import java.util.EnumSet;
-import java.util.Map;
 
 @Component
 class AbuseCInfoDecorator implements ResponseDecorator {
@@ -52,12 +50,12 @@ class AbuseCInfoDecorator implements ResponseDecorator {
                     return;
                 }
 
-                final Map<CIString, CIString> abuseContacts = abuseCFinder.getAbuseContacts(object);
+                final String abuseContact = abuseCFinder.getAbuseContact(object);
 
-                if (abuseContacts.isEmpty()) {
+                if (abuseContact == null) {
                     result.add(new MessageObject(QueryMessages.abuseCNotRegistered(object.getKey())));
                 } else {
-                    result.add(new MessageObject(QueryMessages.abuseCShown(abuseContacts)));
+                    result.add(new MessageObject(QueryMessages.abuseCShown(object.getKey(), abuseContact)));
                 }
 
                 result.add(input);

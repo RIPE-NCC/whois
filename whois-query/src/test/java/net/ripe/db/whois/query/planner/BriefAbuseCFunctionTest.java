@@ -1,7 +1,5 @@
 package net.ripe.db.whois.query.planner;
 
-import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.MessageObject;
@@ -10,8 +8,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.HashMap;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
@@ -90,9 +86,7 @@ public class BriefAbuseCFunctionTest {
                 "mnt-by:   BAR\n" +
                 "source: RIPE\n" +
                 "abuse-mailbox: abuse@me.now");
-        final HashMap<CIString, CIString> map = Maps.newHashMap();
-        map.put(CIString.ciString("::0"), CIString.ciString("abusec@ripe.net"));
-        when(abuseCFinder.getAbuseContacts(rpslObject)).thenReturn(map);
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn("abusec@ripe.net");
 
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +
@@ -107,15 +101,12 @@ public class BriefAbuseCFunctionTest {
                 "mnt-by:   BAR\n" +
                 "source: RIPE\n" +
                 "abuse-mailbox: abuse@me.now");
-        final HashMap<CIString, CIString> map = Maps.newHashMap();
-        map.put(CIString.ciString("10.0.0.0"), CIString.ciString("abusec@ripe.net"));
-
-        when(abuseCFinder.getAbuseContacts(rpslObject)).thenReturn(map);
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn("abuse@ripe.net");
 
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +
                 "inetnum:        10.0.0.0\n" +
-                "abuse-mailbox:  abusec@ripe.net\n"));
+                "abuse-mailbox:  abuse@ripe.net\n"));
     }
 
     @Test
