@@ -86,14 +86,17 @@ class AbuseCFinder {
 
     @Nullable
     private String getAbuseMailbox(final RpslObject object) {
-        if (object.containsAttribute(AttributeType.ORG)) {
-            final RpslObject organisation = objectDao.getByKey(ObjectType.ORGANISATION, object.getValueForAttribute(AttributeType.ORG));
-            if (organisation.containsAttribute(AttributeType.ABUSE_C)) {
-                final RpslObject abuseCRole = objectDao.getByKey(ObjectType.ROLE, organisation.getValueForAttribute(AttributeType.ABUSE_C));
-                if (abuseCRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
-                    return abuseCRole.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString();
+        try {
+            if (object.containsAttribute(AttributeType.ORG)) {
+                final RpslObject organisation = objectDao.getByKey(ObjectType.ORGANISATION, object.getValueForAttribute(AttributeType.ORG));
+                if (organisation.containsAttribute(AttributeType.ABUSE_C)) {
+                    final RpslObject abuseCRole = objectDao.getByKey(ObjectType.ROLE, organisation.getValueForAttribute(AttributeType.ABUSE_C));
+                    if (abuseCRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
+                        return abuseCRole.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString();
+                    }
                 }
             }
+        } catch (EmptyResultDataAccessException ignored) {
         }
 
         return null;
