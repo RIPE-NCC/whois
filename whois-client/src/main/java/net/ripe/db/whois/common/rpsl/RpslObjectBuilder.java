@@ -149,13 +149,20 @@ public class RpslObjectBuilder {
         return this;
     }
 
-    /** by attribute order in template */
+    /** determine type by first type attribute present in object, then sort attributes according to attribute order in template.
+     * This sort is guaranteed to be <i>stable</i>:  equal elements will not be reordered as a result of the sort.*/
     public RpslObjectBuilder sort() {
-        AttributeType attributeType = getTypeAttributeOrNull();
-        if (attributeType != null) {
-            Collections.sort(attributes, ObjectTemplate.getTemplate(ObjectType.getByFirstAttribute(attributeType)).getAttributeTypeComparator());
+        for (RpslAttribute attribute : attributes) {
+            final ObjectType objectType = ObjectType.getByNameOrNull(attribute.getKey());
+            if (objectType == null) {
+                continue;
+            }
+
+            Collections.sort(attributes, ObjectTemplate.getTemplate(objectType).getAttributeTypeComparator());
+            return this;
         }
-        return this;
+
+        throw new IllegalStateException("No type attribute found");
     }
 
     public AttributeType getTypeAttributeOrNull() {
