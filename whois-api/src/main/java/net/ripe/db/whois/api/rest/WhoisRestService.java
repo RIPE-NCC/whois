@@ -623,6 +623,7 @@ public class WhoisRestService {
                     responseHandler.flushAndGetErrors();
 
                 } catch (RuntimeException e) {
+                    e.printStackTrace();
                     throw createWebApplicationException(e, responseHandler);
                 }
             } catch (StreamingException ignored) {  // only happens on IOException

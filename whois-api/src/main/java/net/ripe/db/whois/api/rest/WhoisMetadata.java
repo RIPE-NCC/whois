@@ -91,9 +91,7 @@ public class WhoisMetadata {
         return Response.ok(new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
-                final StreamingMarshal streamingMarshal = WhoisRestService.getStreamingMarshal(request, output);
-                streamingMarshal.singleton(result);
-                streamingMarshal.close();
+                WhoisRestService.getStreamingMarshal(request, output).singleton(result);
             }
         }).build();
     }
@@ -120,9 +118,7 @@ public class WhoisMetadata {
         return Response.ok(new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
-                final StreamingMarshal streamingMarshal = WhoisRestService.getStreamingMarshal(request, output);
-                streamingMarshal.singleton(result);
-                streamingMarshal.close();
+                WhoisRestService.getStreamingMarshal(request, output).singleton(result);
             }
         }).build();
     }

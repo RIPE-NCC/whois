@@ -1,31 +1,38 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.base.Charsets;
+import com.sun.xml.internal.stream.writers.XMLStreamWriterImpl;
 import javanet.staxutils.IndentingXMLStreamWriter;
-import javanet.staxutils.io.StAXStreamWriter;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.TemplateResources;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CoderResult;
 
 class StreamingMarshalXml implements StreamingMarshal {
+    private static final NewLineEncoder NEW_LINE_ENCODER = new NewLineEncoder();
     private static final JAXBContext context;
     private static final XMLOutputFactory xmlOutputFactory;
+    private static final Field fEncoder;
 
     static {
         try {
             context = JAXBContext.newInstance(WhoisResources.class, TemplateResources.class, AbuseResources.class);
             xmlOutputFactory = XMLOutputFactory.newFactory();
-        } catch (JAXBException e) {
+            fEncoder = XMLStreamWriterImpl.class.getDeclaredField("fEncoder");
+        } catch (JAXBException | NoSuchFieldException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -38,12 +45,17 @@ class StreamingMarshalXml implements StreamingMarshal {
         try {
             this.root = root;
 
-            xmlOut = new IndentingXMLStreamWriter(new StAXStreamWriter(outputStream));
+            // dirty hack to avoid stupid XMLStreamWriterImpl not xml-encoding newlines, causing them to disappear on deserialization
+            final XMLStreamWriter xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(outputStream);
+            fEncoder.setAccessible(true);
+            fEncoder.set(xmlStreamWriter, NEW_LINE_ENCODER);
+
+            xmlOut = new IndentingXMLStreamWriter(xmlStreamWriter);
 
             marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
 
-        } catch (JAXBException e) {
+        } catch (XMLStreamException | JAXBException | IllegalAccessException e) {
             throw new StreamingException(e);
         }
     }
@@ -82,10 +94,8 @@ class StreamingMarshalXml implements StreamingMarshal {
     @Override
     @SuppressWarnings("unchecked")
     public <T> void write(final String name, final T t) {
-        JAXBElement<T> element = new JAXBElement<>(QName.valueOf(name), (Class<T>) t.getClass(), t);
-
         try {
-            marshaller.marshal(element, xmlOut);
+            marshaller.marshal(t, xmlOut);
         } catch (JAXBException e) {
             throw new StreamingException(e);
         }
@@ -105,8 +115,26 @@ class StreamingMarshalXml implements StreamingMarshal {
     public <T> void singleton(T t) {
         try {
             marshaller.marshal(t, xmlOut);
-        } catch (JAXBException e) {
+            xmlOut.close();
+        } catch (JAXBException | XMLStreamException e) {
             throw new StreamingException(e);
+        }
+    }
+
+    static final class NewLineEncoder extends CharsetEncoder {
+
+        NewLineEncoder() {  // should never be called
+            super(Charsets.UTF_8, 1, 2);
+        }
+
+        @Override
+        public boolean canEncode(char c) {
+            return c != '\n';
+        }
+
+        @Override
+        protected CoderResult encodeLoop(CharBuffer in, ByteBuffer out) {
+            throw new IllegalStateException("Should never be called!");
         }
     }
 }
