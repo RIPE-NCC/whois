@@ -15,7 +15,11 @@ import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -39,7 +43,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
@@ -178,17 +188,13 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public RpslObject getByKey(final ObjectType type, final CIString key) {
-        try {
-            return jdbcTemplate.queryForObject("" +
-                    "SELECT object_id, object " +
-                    "  FROM last " +
-                    "  WHERE object_type = ? and pkey = ? and sequence_id != 0 ",
-                    new RpslObjectRowMapper(),
-                    ObjectTypeIds.getId(type),
-                    key.toString());
-        } catch (EmptyResultDataAccessException e) {
-            return getByKeyFromIndex(type, key);
-        }
+        return jdbcTemplate.queryForObject("" +
+                "SELECT object_id, object " +
+                "  FROM last " +
+                "  WHERE object_type = ? and pkey = ? and sequence_id != 0 ",
+                new RpslObjectRowMapper(),
+                ObjectTypeIds.getId(type),
+                key.toString());
     }
 
     @Override
