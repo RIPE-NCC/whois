@@ -47,7 +47,20 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
 
     @Override
     public boolean isReferenced(final RpslObject object) {
-        return !getReferences(object).isEmpty();
+        for (final RpslAttribute attribute : object.findAttributes(ObjectTemplate.getTemplate(object.getType()).getKeyAttributes())) {
+            for (final IndexStrategy indexStrategy : IndexStrategies.getReferencing(object.getType())) {
+                for (final CIString value : attribute.getReferenceValues()) {
+                    for (final RpslObjectInfo result : indexStrategy.findInIndex(jdbcTemplate, value)) {
+                        if (object.getKey().equals(ciString(result.getKey())) && result.getObjectType().equals(object.getType())) {
+                            continue;
+                        }
+
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override
