@@ -451,7 +451,6 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "netname:      IANA-BLK\n" +
                 "descr:        The whole IPv4 address space\n" +
                 "country:      EU # Country is really world wide\n" +
-                "org:          ORG-TT1-TEST\n" +
                 "admin-c:      AA1-TEST\n" +
                 "tech-c:       AA2-TEST\n" +
                 "status:       ALLOCATED UNSPECIFIED\n" +
@@ -475,7 +474,6 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "netname:        IANA-BLK\n" +
                 "descr:          The whole IPv4 address space\n" +
                 "country:        EU # Country is really world wide\n" +
-                "org:            ORG-TT1-TEST\n" +
                 "admin-c:        AA1-TEST\n" +
                 "tech-c:         AA2-TEST\n" +
                 "status:         ALLOCATED UNSPECIFIED\n" +

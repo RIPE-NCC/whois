@@ -35,7 +35,10 @@ class AbuseCFinder {
     private final Maintainers maintainers;
 
     @Autowired
-    public AbuseCFinder(final RpslObjectDao objectDao, final Ipv4Tree ipv4Tree, final Ipv6Tree ipv6Tree, final Maintainers maintainers) {
+    public AbuseCFinder(final RpslObjectDao objectDao,
+                        final Ipv4Tree ipv4Tree,
+                        final Ipv6Tree ipv6Tree,
+                        final Maintainers maintainers) {
         this.objectDao = objectDao;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
