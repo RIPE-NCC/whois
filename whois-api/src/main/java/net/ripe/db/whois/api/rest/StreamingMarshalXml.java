@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Charsets;
-import com.sun.xml.internal.stream.writers.XMLStreamWriterImpl;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.Link;
@@ -23,16 +22,16 @@ import java.nio.charset.CoderResult;
 
 class StreamingMarshalXml implements StreamingMarshal {
     private static final NewLineEncoder NEW_LINE_ENCODER = new NewLineEncoder();
+
     private static final JAXBContext context;
     private static final XMLOutputFactory xmlOutputFactory;
-    private static final Field fEncoder;
+    private static Field fEncoder = null;
 
     static {
         try {
             context = JAXBContext.newInstance(WhoisResources.class, TemplateResources.class, AbuseResources.class);
             xmlOutputFactory = XMLOutputFactory.newFactory();
-            fEncoder = XMLStreamWriterImpl.class.getDeclaredField("fEncoder");
-        } catch (JAXBException | NoSuchFieldException e) {
+        } catch (JAXBException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -45,9 +44,14 @@ class StreamingMarshalXml implements StreamingMarshal {
         try {
             this.root = root;
 
-            // dirty hack to avoid stupid XMLStreamWriterImpl not xml-encoding newlines, causing them to disappear on deserialization
             final XMLStreamWriter xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(outputStream);
-            fEncoder.setAccessible(true);
+
+            // dirty hack to avoid stupid XMLStreamWriterImpl not xml-encoding newlines, causing them to disappear on deserialization
+            if (fEncoder == null) {
+                final Field fEncoder = xmlStreamWriter.getClass().getDeclaredField("fEncoder");
+                fEncoder.setAccessible(true);
+                this.fEncoder = fEncoder;
+            }
             fEncoder.set(xmlStreamWriter, NEW_LINE_ENCODER);
 
             xmlOut = new IndentingXMLStreamWriter(xmlStreamWriter);
@@ -55,7 +59,7 @@ class StreamingMarshalXml implements StreamingMarshal {
             marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
 
-        } catch (XMLStreamException | JAXBException | IllegalAccessException e) {
+        } catch (XMLStreamException | JAXBException | IllegalAccessException | NoSuchFieldException e) {
             throw new StreamingException(e);
         }
     }
