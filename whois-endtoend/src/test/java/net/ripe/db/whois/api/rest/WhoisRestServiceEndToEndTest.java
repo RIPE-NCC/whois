@@ -127,7 +127,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
     // TODO: [AH] find an elegant way to run all tests twice, with XML/JSON requests
     // TODO: [AH] XML fails on newline difference
-    private final String mediaType = MediaType.APPLICATION_JSON;
+    private final String mediaType = MediaType.APPLICATION_XML;
 
     @Autowired WhoisObjectServerMapper whoisObjectMapper;
     @Autowired CrowdClient crowdClient;
