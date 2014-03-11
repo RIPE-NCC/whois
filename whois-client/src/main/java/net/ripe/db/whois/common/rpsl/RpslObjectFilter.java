@@ -107,7 +107,7 @@ public class RpslObjectFilter {
         }
 
         builder.removeAttributeTypes(seenTypes);
-        builder.prepend(attributeList);
+        builder.append(attributeList);
         return builder.sort().get();
     }
 
