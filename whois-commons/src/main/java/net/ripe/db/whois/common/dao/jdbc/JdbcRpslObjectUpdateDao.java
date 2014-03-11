@@ -74,18 +74,13 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
     }
 
     @Override
-    public Map<RpslAttribute, Set<String>> getInvalidReferences(final RpslObject object) {
-        final Map<RpslAttribute, Set<String>> invalidReferenceMap = Maps.newHashMap();
+    public Map<RpslAttribute, Set<CIString>> getInvalidReferences(final RpslObject object) {
+        final Map<RpslAttribute, Set<CIString>> invalidReferenceMap = Maps.newHashMap();
 
         for (final RpslAttribute attribute : object.getAttributes()) {
             final Set<CIString> invalidReferenceValues = getInvalidReferences(object, attribute);
             if (!invalidReferenceValues.isEmpty()) {
-                final Set<String> invalidReferences = Sets.newLinkedHashSetWithExpectedSize(invalidReferenceValues.size());
-                for (final CIString invalidReferenceValue : invalidReferenceValues) {
-                    invalidReferences.add(invalidReferenceValue.toString());
-                }
-
-                invalidReferenceMap.put(attribute, invalidReferences);
+                invalidReferenceMap.put(attribute, invalidReferenceValues);
             }
         }
 

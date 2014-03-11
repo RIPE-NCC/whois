@@ -26,7 +26,7 @@ public interface RpslObjectUpdateDao {
 
     Set<RpslObjectInfo> getReferences(RpslObject object);
 
-    Map<RpslAttribute, Set<String>> getInvalidReferences(RpslObject object);
+    Map<RpslAttribute, Set<CIString>> getInvalidReferences(RpslObject object);
 
     @CheckForNull
     RpslObjectInfo getAttributeReference(AttributeType attributeType, CIString keyValue);

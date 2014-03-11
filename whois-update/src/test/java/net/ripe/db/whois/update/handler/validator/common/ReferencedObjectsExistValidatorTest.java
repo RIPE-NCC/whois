@@ -1,7 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
@@ -24,7 +23,9 @@ import java.util.Set;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReferencedObjectsExistValidatorTest {
@@ -49,7 +50,7 @@ public class ReferencedObjectsExistValidatorTest {
 
     @Test
     public void validate_no_invalid_references() {
-        when(rpslObjectUpdateDao.getInvalidReferences(object)).thenReturn(Collections.<RpslAttribute, Set<String>>emptyMap());
+        when(rpslObjectUpdateDao.getInvalidReferences(object)).thenReturn(Collections.<RpslAttribute, Set<CIString>>emptyMap());
         subject.validate(update, updateContext);
 
         verify(updateContext).getMessages(update);
@@ -60,13 +61,9 @@ public class ReferencedObjectsExistValidatorTest {
     public void validate_invalid_references() {
         final RpslAttribute invalidAttribute = object.getAttributes().get(1);
 
-        final Map<RpslAttribute, Set<String>> invalidReferences = Maps.newHashMap();
-        final Set<String> result = Sets.newLinkedHashSet();
-        for (final CIString value : invalidAttribute.getCleanValues()) {
-            result.add(value.toString());
-        }
+        final Map<RpslAttribute, Set<CIString>> invalidReferences = Maps.newHashMap();
 
-        invalidReferences.put(invalidAttribute, result);
+        invalidReferences.put(invalidAttribute, invalidAttribute.getCleanValues());
 
         when(updateContext.getMessages(update)).thenReturn(new ObjectMessages());
         when(rpslObjectUpdateDao.getInvalidReferences(object)).thenReturn(invalidReferences);

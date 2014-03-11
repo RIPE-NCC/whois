@@ -4,6 +4,7 @@ package net.ripe.db.whois.common.dao.jdbc;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -17,7 +18,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class JdbcRpslObjectUpdateDaoCtdTest extends AbstractDaoTest {
@@ -37,9 +40,9 @@ public class JdbcRpslObjectUpdateDaoCtdTest extends AbstractDaoTest {
     public void invalid_reference() {
         final RpslObject maintainer = RpslObject.parse("mntner: TEST-MNT\nmnt-by:TEST-MNT\nadmin-c:NIC-TEST");
 
-        final Map<RpslAttribute, Set<String>> invalidReferences = subject.getInvalidReferences(maintainer);
+        final Map<RpslAttribute, Set<CIString>> invalidReferences = subject.getInvalidReferences(maintainer);
         assertThat(invalidReferences.keySet(), contains(maintainer.findAttribute(AttributeType.ADMIN_C)));
-        assertThat(invalidReferences.get(maintainer.findAttribute(AttributeType.ADMIN_C)), contains("NIC-TEST"));
+        assertThat(invalidReferences.get(maintainer.findAttribute(AttributeType.ADMIN_C)), contains(ciString("NIC-TEST")));
     }
 
     @Test
