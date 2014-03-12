@@ -40,7 +40,8 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
     private final DateTimeProvider dateTimeProvider;
 
     @Autowired
-    public JdbcRpslObjectUpdateDao(@Qualifier("sourceAwareDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
+    public JdbcRpslObjectUpdateDao(@Qualifier("sourceAwareDataSource") final DataSource dataSource,
+                                   final DateTimeProvider dateTimeProvider) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.dateTimeProvider = dateTimeProvider;
     }

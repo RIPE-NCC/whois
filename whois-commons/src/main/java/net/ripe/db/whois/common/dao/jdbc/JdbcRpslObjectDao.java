@@ -188,13 +188,17 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public RpslObject getByKey(final ObjectType type, final CIString key) {
-        return jdbcTemplate.queryForObject("" +
-                "SELECT object_id, object " +
-                "  FROM last " +
-                "  WHERE object_type = ? and pkey = ? and sequence_id != 0 ",
-                new RpslObjectRowMapper(),
-                ObjectTypeIds.getId(type),
-                key.toString());
+        try {
+            return jdbcTemplate.queryForObject("" +
+                    "SELECT object_id, object " +
+                    "  FROM last " +
+                    "  WHERE object_type = ? and pkey = ? and sequence_id != 0 ",
+                    new RpslObjectRowMapper(),
+                    ObjectTypeIds.getId(type),
+                    key.toString());
+        } catch (EmptyResultDataAccessException e) {
+            return getByKeyFromIndex(type, key);
+        }
     }
 
     @Override
