@@ -97,6 +97,7 @@ class AbuseCFinder {
                 }
             }
         } catch (EmptyResultDataAccessException ignored) {
+            LOGGER.debug("Ignored invalid reference (object {})", object.getKey());
         }
 
         return null;
