@@ -39,7 +39,6 @@ public class RestExecutor implements ComparisonExecutor {
         final Stopwatch stopWatch = Stopwatch.createStarted();
 
         try {
-            System.out.println("url = " + String.format("http://%s:%d/%s", configuration.getHost(), props.getPortFromConfiguration(configuration), query));
             response = RestCaller.target(configuration.getHost(), props.getPortFromConfiguration(configuration), query)
                     .request(props.getMediaType())
                     .get(String.class);
@@ -80,7 +79,6 @@ public class RestExecutor implements ComparisonExecutor {
             return response;
         }
     }
-
 
     public static String compactJson(final String response) {
         try {
