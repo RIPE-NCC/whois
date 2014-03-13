@@ -611,22 +611,19 @@ public class WhoisRestService {
         public void write(final OutputStream output) throws IOException, WebApplicationException {
             streamingMarshal = getStreamingMarshal(request, output);
 
+            SearchResponseHandler responseHandler = new SearchResponseHandler();
             try {
-                SearchResponseHandler responseHandler = new SearchResponseHandler();
-                try {
-                    final int contextId = System.identityHashCode(Thread.currentThread());
-                    queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
+                final int contextId = System.identityHashCode(Thread.currentThread());
+                queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
 
-                    if (!responseHandler.rpslObjectFound()) {
-                        throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(createErrorEntity(request, responseHandler.flushAndGetErrors())).build());
-                    }
-                    responseHandler.flushAndGetErrors();
-
-                } catch (RuntimeException e) {
-                    e.printStackTrace();
-                    throw createWebApplicationException(e, responseHandler);
+                if (!responseHandler.rpslObjectFound()) {
+                    throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(createErrorEntity(request, responseHandler.flushAndGetErrors())).build());
                 }
-            } catch (StreamingException ignored) {  // only happens on IOException
+                responseHandler.flushAndGetErrors();
+
+            } catch (StreamingException ignored) {
+            } catch (RuntimeException e) {
+                throw createWebApplicationException(e, responseHandler);
             }
         }
 
@@ -741,13 +738,14 @@ public class WhoisRestService {
                     ((StreamingMarshalJson) streamingMarshal).endArray();
                 }
 
-                streamingMarshal.end();
+                streamingMarshal.end("objects");
                 if (errors.size() > 0) {
                     streamingMarshal.write("errormessages", createErrorMessages(errors));
                     errors.clear();
                 }
 
                 streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+                streamingMarshal.end("whois-resources");
                 streamingMarshal.close();
                 return errors;
             }
@@ -801,6 +799,4 @@ public class WhoisRestService {
 
         return new StreamingMarshalXml(outputStream, "whois-resources");
     }
-
-
 }

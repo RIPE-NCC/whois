@@ -106,7 +106,7 @@ public class SingleUpdateHandler {
 
         checkForUnexpectedModification(update);
 
-        if (action == Action.NOOP){
+        if (action == Action.NOOP) {
             updatedObject = originalObject;
         }
         PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);

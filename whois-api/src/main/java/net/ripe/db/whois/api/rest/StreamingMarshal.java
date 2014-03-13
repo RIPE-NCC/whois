@@ -5,7 +5,7 @@ interface StreamingMarshal {
 
     void start(String name);
 
-    void end();
+    void end(String name);
 
     <T> void write(String name, T t);
 
