@@ -416,14 +416,14 @@ public class WhoisRestService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/search")
     public Response search(
-            @Context HttpServletRequest request,
-            @QueryParam("source") Set<String> sources,
-            @QueryParam("query-string") String searchKey,   // ouch, but it's too costly to change the API just for this
-            @QueryParam("inverse-attribute") Set<String> inverseAttributes,
-            @QueryParam("include-tag") Set<String> includeTags,
-            @QueryParam("exclude-tag") Set<String> excludeTags,
-            @QueryParam("type-filter") Set<String> types,
-            @QueryParam("flags") Set<String> flags) {
+            @Context final HttpServletRequest request,
+            @QueryParam("source") final Set<String> sources,
+            @QueryParam("query-string") final String searchKey,   // ouch, but it's too costly to change the API just for this
+            @QueryParam("inverse-attribute") final Set<String> inverseAttributes,
+            @QueryParam("include-tag") final Set<String> includeTags,
+            @QueryParam("exclude-tag") final Set<String> excludeTags,
+            @QueryParam("type-filter") final Set<String> types,
+            @QueryParam("flags") final Set<String> flags) {
 
         validateSources(request, sources);
         validateSearchKey(request, searchKey);
@@ -458,7 +458,7 @@ public class WhoisRestService {
         return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service);
     }
 
-    private void validateSearchKey(HttpServletRequest request, String searchKey) {
+    private void validateSearchKey(final HttpServletRequest request, String searchKey) {
         if (StringUtils.isBlank(searchKey)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.queryStringEmpty())).build());
         }
@@ -472,7 +472,7 @@ public class WhoisRestService {
         }
     }
 
-    private void validateSources(HttpServletRequest request, final Set<String> sources) {
+    private void validateSources(final HttpServletRequest request, final Set<String> sources) {
         for (final String source : sources) {
             if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.invalidSource(source))).build());
@@ -480,7 +480,7 @@ public class WhoisRestService {
         }
     }
 
-    private Set<QueryFlag> splitInputFlags(HttpServletRequest request, final Set<String> inputFlags) {
+    private Set<QueryFlag> splitInputFlags(final HttpServletRequest request, final Set<String> inputFlags) {
         final Set<QueryFlag> separateFlags = Sets.newLinkedHashSet();  // reporting errors should happen in the same order
         for (final String flagParameter : inputFlags) {
             QueryFlag forLongFlag = QueryFlag.getForLongFlag(flagParameter);
@@ -502,7 +502,7 @@ public class WhoisRestService {
         return separateFlags;
     }
 
-    private void checkForInvalidFlags(HttpServletRequest request, final Set<QueryFlag> flags) {
+    private void checkForInvalidFlags(final HttpServletRequest request, final Set<QueryFlag> flags) {
         for (final QueryFlag flag : flags) {
             if (NOT_ALLOWED_SEARCH_QUERY_FLAGS.contains(flag)) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.disallowedSeachFlag(flag))).build());
@@ -530,14 +530,14 @@ public class WhoisRestService {
         return whoisResources;
     }
 
-    private RpslObject getSubmittedObject(HttpServletRequest request, final WhoisResources whoisResources) {
+    private RpslObject getSubmittedObject(final HttpServletRequest request, final WhoisResources whoisResources) {
         if (whoisResources.getWhoisObjects().isEmpty() || whoisResources.getWhoisObjects().size() > 1) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.singleObjectExpected(whoisResources.getWhoisObjects().size()))).build());
         }
         return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
-    private void validateSubmittedObject(HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
+    private void validateSubmittedObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
         if (!object.getKey().equals(key) || !object.getType().getName().equalsIgnoreCase(objectType)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.uriMismatch(objectType, key))).build());
         }
