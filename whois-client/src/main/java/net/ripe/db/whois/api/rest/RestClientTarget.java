@@ -204,6 +204,7 @@ public class RestClientTarget {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
 
+            // TODO: [AH] fix lookup to actually return 1 object, then remove this workaround
             if (whoisResources.getWhoisObjects().size() == 1) {
                 return whoisResources.getWhoisObjects().get(0);
             } else {
@@ -304,16 +305,18 @@ public class RestClientTarget {
         return updatedWebTarget;
     }
 
-    private Invocation.Builder setCookies(final Invocation.Builder request) {
+    private void setCookies(final Invocation.Builder request) {
         for (Cookie cookie : cookies) {
             request.cookie(cookie);
         }
-        return request;
     }
 
-    private Invocation.Builder setHeaders(final Invocation.Builder request) {
-        request.headers(headers);
-        return request;
+    private void setHeaders(final Invocation.Builder request) {
+        for (Map.Entry<String, List<Object>> entry : headers.entrySet()) {
+            for (Object value : entry.getValue()) {
+                request.header(entry.getKey(), value);
+            }
+        }
     }
 
     private void setHeaders(URLConnection urlConnection) {
