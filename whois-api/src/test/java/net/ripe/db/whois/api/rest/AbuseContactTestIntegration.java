@@ -113,13 +113,14 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(result, is("" +
-                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-contact\">\n" +
-                "  <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/193.0.0.0 - 193.0.0.255\" />\n" +
-                "  <parameters>\n" +
-                "    <primary-key value=\"193.0.0.0 - 193.0.0.255\" />\n" +
-                "  </parameters>\n" +
-                "  <abuse-contacts email=\"abuse@test.net\" />\n" +
-                "  <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" />\n" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<abuse-resources service=\"abuse-contact\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/193.0.0.0 - 193.0.0.255\"/>\n" +
+                "    <parameters>\n" +
+                "        <primary-key value=\"193.0.0.0 - 193.0.0.255\"/>\n" +
+                "    </parameters>\n" +
+                "    <abuse-contacts email=\"abuse@test.net\"/>\n" +
+                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
                 "</abuse-resources>"));
     }
 
@@ -302,13 +303,14 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(result, is("" +
-                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-contact\">\n" +
-                "  <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/2a00:1f78::/32\" />\n" +
-                "  <parameters>\n" +
-                "    <primary-key value=\"2a00:1f78::/32\" />\n" +
-                "  </parameters>\n" +
-                "  <abuse-contacts email=\"abuse@test.net\" />\n" +
-                "  <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\" />\n" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<abuse-resources service=\"abuse-contact\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/2a00:1f78::/32\"/>\n" +
+                "    <parameters>\n" +
+                "        <primary-key value=\"2a00:1f78::/32\"/>\n" +
+                "    </parameters>\n" +
+                "    <abuse-contacts email=\"abuse@test.net\"/>\n" +
+                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
                 "</abuse-resources>"));
     }
 
