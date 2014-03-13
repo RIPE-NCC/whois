@@ -21,7 +21,6 @@ import net.ripe.db.whois.common.generated.MpFilterParser;
 import net.ripe.db.whois.common.generated.MpImportParser;
 import net.ripe.db.whois.common.generated.MpPeerParser;
 import net.ripe.db.whois.common.generated.MpPeeringParser;
-import net.ripe.db.whois.common.generated.NameParser;
 import net.ripe.db.whois.common.generated.PeerParser;
 import net.ripe.db.whois.common.generated.PeeringParser;
 import net.ripe.db.whois.common.generated.V6FilterParser;
@@ -351,8 +350,7 @@ public interface AttributeSyntax extends Documented {
     AttributeSyntax NUMBER_SYNTAX = new AttributeSyntaxRegexp(Pattern.compile("^[0-9]+$"), "" +
             "Specifies a numeric value.\n");
 
-    // TODO: [AH] replace nameparser with regex
-    AttributeSyntax OBJECT_NAME_SYNTAX = new AttributeSyntaxParser(new NameParser(), "" +
+    AttributeSyntax OBJECT_NAME_SYNTAX = new AttributeSyntaxParser(new AttributeParser.NameParser(), "" +
             "Made up of letters, digits, the character underscore \"_\",\n" +
             "and the character hyphen \"-\"; the first character of a name\n" +
             "must be a letter, and the last character of a name must be a\n" +
