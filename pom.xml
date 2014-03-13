@@ -397,11 +397,15 @@
                 </exclusions>
             </dependency>
 
-            <!-- com.sun.xml, for jaxbmarshaller -->
             <dependency>
-                <groupId>org.ow2.util.bundles</groupId>
-                <artifactId>jaxb2-ri-2.2.5</artifactId>
-                <version>1.0.0</version>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-core</artifactId>
+                <version>2.2.7</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>2.2.7</version>
             </dependency>
 
             <!-- lucene for fulltext search -->
