@@ -205,10 +205,10 @@ public class WhoisRdapService {
         LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
 
         if (StringUtils.isEmpty(name)) {
-            return Response.status(BAD_REQUEST).build();
+            throw createError(Response.Status.BAD_REQUEST, "", Collections.EMPTY_LIST);
         }
 
-        return Response.status(NOT_FOUND).build();
+        throw createError(Response.Status.NOT_FOUND, "", Collections.EMPTY_LIST);
     }
 
     @GET

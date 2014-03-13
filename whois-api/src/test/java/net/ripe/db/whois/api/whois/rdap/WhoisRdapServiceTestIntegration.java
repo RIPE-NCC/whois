@@ -1072,7 +1072,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            // expected
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, containsString("" +
+                    "  } ],\n" +
+                    "  \"port43\" : \"whois.ripe.net\",\n" +
+                    "  \"errorCode\" : 404,\n" +
+                    "  \"title\" : \"\","));
         }
     }
 
@@ -1085,7 +1090,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            // expected
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, containsString("" +
+                    "  } ],\n" +
+                    "  \"port43\" : \"whois.ripe.net\",\n" +
+                    "  \"errorCode\" : 400,\n" +
+                    "  \"title\" : \"\","));
         }
     }
 
