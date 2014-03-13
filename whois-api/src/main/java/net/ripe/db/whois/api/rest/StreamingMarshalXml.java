@@ -1,13 +1,13 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.ImmutableList;
-import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 import javanet.staxutils.events.NamespaceEvent;
 import javanet.staxutils.io.XMLWriterUtils;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.TemplateResources;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;

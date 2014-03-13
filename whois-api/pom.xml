@@ -71,8 +71,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.ow2.util.bundles</groupId>
-            <artifactId>jaxb2-ri-2.2.5</artifactId>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
         </dependency>
 
         <!-- Lucene free text search -->
