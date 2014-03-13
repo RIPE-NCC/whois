@@ -5,10 +5,82 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 
 import javax.annotation.CheckForNull;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static net.ripe.db.whois.common.rpsl.AttributeSyntax.*;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.AGGR_BNDRY_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.AGGR_MTD_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ALIAS_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.AS_BLOCK_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.AS_NUMBER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.AS_SET_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.AUTH_SCHEME_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.CERTIF_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.CHANGED_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.COMPONENTS_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.COUNTRY_CODE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.DEFAULT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.DOMAIN_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.DS_RDATA_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.EMAIL_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.EXPORT_COMPS_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.EXPORT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.EXPORT_VIA_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FILTER_SET_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FILTER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FREE_FORM_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.GENERATED_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.GEOLOC_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.HOLES_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IFADDR_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IMPORT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IMPORT_VIA_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.INET_RTR_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.INJECT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.INTERFACE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IPV4_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IPV6_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IRT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.KEY_CERT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.LANGUAGE_CODE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MBRS_BY_REF_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MEMBERS_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MEMBER_OF_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.METHOD_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MNT_ROUTES_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_DEFAULT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_EXPORT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_FILTER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_IMPORT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_MEMBERS_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_PEERING_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_PEER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.NETNAME_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.NIC_HANDLE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.NSERVER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.NUMBER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.OBJECT_NAME_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ORGANISATION_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ORG_NAME_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ORG_TYPE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PEERING_SET_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PEERING_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PEER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PERSON_ROLE_NAME_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PHONE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PINGABLE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POEM_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POETIC_FORM_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE6_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SET_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.RTR_SET_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.SOURCE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.STATUS_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeValueType.LIST_VALUE;
 
 public enum AttributeType implements Documented {
@@ -246,7 +318,7 @@ public enum AttributeType implements Documented {
 
     MNTNER(new Builder("mntner", "mt")
             .doc("A unique identifier of the mntner object.")
-            .syntax(OBJECT_NAME_SYNTAX)),                                   // TODO: need to include reserved words in object name syntax
+            .syntax(OBJECT_NAME_SYNTAX)),
 
     MNT_BY(new Builder("mnt-by", "mb")
             .doc("Specifies the identifier of a registered mntner object used for authorisation of operations " +
