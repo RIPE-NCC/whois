@@ -74,7 +74,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
@@ -341,7 +340,14 @@ public class WhoisRdapService {
     }
 
     private Response redirect(final String requestPath, final Query query) {
-        final URI uri = delegatedStatsService.getUriForRedirect(requestPath, query);
+        final URI uri;
+
+        try {
+            uri = delegatedStatsService.getUriForRedirect(requestPath, query);
+        } catch (WebApplicationException e) {
+            return createErrorResponse(Response.Status.NOT_FOUND, "");
+        }
+
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
     }
 
@@ -415,7 +421,7 @@ public class WhoisRdapService {
             });
 
             if (objects.isEmpty()) {
-                return Response.status(NOT_FOUND).build();
+                return createErrorResponse(Response.Status.NOT_FOUND, "");
             }
 
             final Iterable<LocalDateTime> lastUpdateds = Iterables.transform(objects, new Function<RpslObject, LocalDateTime>() {

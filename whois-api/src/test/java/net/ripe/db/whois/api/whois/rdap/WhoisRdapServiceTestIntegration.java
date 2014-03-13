@@ -318,12 +318,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Ip.class);
             fail();
         } catch (final BadRequestException e) {
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, containsString("" +
-                    "  } ],\n" +
-                    "  \"port43\" : \"whois.ripe.net\",\n" +
-                    "  \"errorCode\" : 400,\n" +
-                    "  \"title\" : \"Invalid syntax.\","));
+            assertErrorResponse(e.getResponse(), 400, "Invalid syntax.");
         }
     }
 
@@ -335,12 +330,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Ip.class);
             fail();
         } catch (final BadRequestException e) {
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, containsString("" +
-                    "  } ],\n" +
-                    "  \"port43\" : \"whois.ripe.net\",\n" +
-                    "  \"errorCode\" : 400,\n" +
-                    "  \"title\" : \"Invalid syntax.\","));
+            assertErrorResponse(e.getResponse(), 400, "Invalid syntax.");
         }
 
     }
@@ -620,12 +610,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Domain.class);
             fail();
         } catch (NotFoundException e) {
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, containsString("" +
-                    "  } ],\n" +
-                    "  \"port43\" : \"whois.ripe.net\",\n" +
-                    "  \"errorCode\" : 404,\n" +
-                    "  \"title\" : \"\","));
+            assertErrorResponse(e.getResponse(), 404, "");
         }
     }
 
@@ -637,7 +622,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Domain.class);
             fail();
         } catch (NotFoundException e) {
-            // expected
+            assertErrorResponse(e.getResponse(), 404, "RIPE NCC does not support forward domain queries.");
         }
     }
 
@@ -651,7 +636,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Autnum.class);
             fail();
         } catch (NotFoundException e) {
-            // expected
+            assertErrorResponse(e.getResponse(), 404, "");
         }
     }
 
@@ -675,7 +660,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Autnum.class);
             fail();
         } catch (BadRequestException e) {
-            // expected
+            assertErrorResponse(e.getResponse(), 400, "Invalid syntax.");
         }
     }
 
@@ -766,7 +751,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Autnum.class);
             fail();
         } catch (NotFoundException e) {
-            // expected
+            assertErrorResponse(e.getResponse(), 404, "");
         }
     }
 
@@ -933,7 +918,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            // expected
+            assertErrorResponse(e.getResponse(), 404, "");
         }
     }
 
@@ -945,7 +930,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            // expected
+            assertErrorResponse(e.getResponse(), 400, "Invalid syntax.");
         }
     }
 
@@ -1038,7 +1023,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            // expected
+            assertErrorResponse(e.getResponse(), 404, "");
         }
     }
 
@@ -1075,12 +1060,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, containsString("" +
-                    "  } ],\n" +
-                    "  \"port43\" : \"whois.ripe.net\",\n" +
-                    "  \"errorCode\" : 404,\n" +
-                    "  \"title\" : \"\","));
+            assertErrorResponse(e.getResponse(), 404, "");
         }
     }
 
@@ -1093,12 +1073,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, containsString("" +
-                    "  } ],\n" +
-                    "  \"port43\" : \"whois.ripe.net\",\n" +
-                    "  \"errorCode\" : 400,\n" +
-                    "  \"title\" : \"\","));
+            assertErrorResponse(e.getResponse(), 400, "");
         }
     }
 
@@ -1190,7 +1165,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            // expected
+            assertErrorResponse(e.getResponse(), 404, "");
         }
     }
 
@@ -1214,7 +1189,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            // expected
+            assertErrorResponse(e.getResponse(), 404, "");
         }
     }
 
@@ -1340,7 +1315,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            // expected
+            assertErrorResponse(e.getResponse(), 400, "");
         }
     }
 
@@ -1352,7 +1327,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            // expected
+            assertErrorResponse(e.getResponse(), 400, "");
         }
     }
 
@@ -1416,5 +1391,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                         MediaType.APPLICATION_FORM_URLENCODED),
                         String.class);
 
+    }
+
+    private void assertErrorResponse(final Response errorResponse, final int expectedErrorCode, final String expectedErrorText) {
+        final String response = errorResponse.readEntity(String.class);
+        assertThat(response, containsString(String.format("" +
+                "  } ],\n" +
+                "  \"port43\" : \"whois.ripe.net\",\n" +
+                "  \"errorCode\" : %d,\n" +
+                "  \"title\" : \"%s\",", expectedErrorCode, expectedErrorText)));
     }
 }
