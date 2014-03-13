@@ -97,14 +97,16 @@ public class MessageDequeue implements ApplicationService {
             throw new IllegalStateException("Already started");
         }
 
-        freeThreads.set(nrThreads);
+        if (nrThreads > 0) {
+            freeThreads.set(nrThreads);
 
-        handlerExecutor = Executors.newFixedThreadPool(nrThreads);
+            handlerExecutor = Executors.newFixedThreadPool(nrThreads);
 
-        pollerExecutor = Executors.newSingleThreadScheduledExecutor();
-        pollerExecutor.scheduleWithFixedDelay(new MessagePoller(), intervalMs, intervalMs, TimeUnit.MILLISECONDS);
+            pollerExecutor = Executors.newSingleThreadScheduledExecutor();
+            pollerExecutor.scheduleWithFixedDelay(new MessagePoller(), intervalMs, intervalMs, TimeUnit.MILLISECONDS);
 
-        LOGGER.info("Message dequeue started");
+            LOGGER.info("Message dequeue started");
+        }
     }
 
     @Override

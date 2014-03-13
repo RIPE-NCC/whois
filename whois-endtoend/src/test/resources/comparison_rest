@@ -2,22 +2,95 @@
 
 # lookup
 
-# whois/test/mntner/owner-mnt
-# whois/test/person/TP1-RIPE
-# whois/test/inet6num/2001:2002:2003::
-
-whois/ripe/mntner/RIPE-DBM-STARTUP-MNT
-whois/ripe/person/dw-ripe
+whois/ripe/as-block/as512
+whois/ripe/as-set/AS8308:AS-Customers:AS197621
+whois/ripe/aut-num/AS513
+whois/ripe/domain/0.0.0.0.0.0.0.0.0.0.2.0.0.0.0.0.0.0.0.0.0.0.0.0.c.e.0.0.a.2.ip6.arpa
+whois/ripe/filter-set/AS3344:fltr-bogons
 whois/ripe/inet6num/2001:2002:2003::
+whois/ripe/inetnum/193.0.0.0%20-%20193.0.7.255
+whois/ripe/inet-rtr/bgp2-rtr.kt.am
+whois/ripe/irt/IRT-AA
+whois/ripe/key-cert/PGPKEY-006AC66C
+whois/ripe/mntner/RIPE-DBM-STARTUP-MNT
+whois/ripe/organisation/olga
+whois/ripe/peering-set/AS702:PRNG-NL
+whois/ripe/person/dw-ripe
+whois/ripe/role/NA568-RIPE
+whois/ripe/route6
+whois/ripe/route6/2001:f40::/32AS9930
+whois/ripe/route/72.27.10.0/24AS10292
+whois/ripe/route-set/RS-KROOT-LOCAL
+whois/ripe/rtr-set/rtrs-AS1930
+
+whois/ripe/as-block/as512.json
+whois/ripe/as-set/AS8308:AS-Customers:AS197621.json
+whois/ripe/aut-num/AS513.json
+whois/ripe/domain/0.0.0.0.0.0.0.0.0.0.2.0.0.0.0.0.0.0.0.0.0.0.0.0.c.e.0.0.a.2.ip6.arpa.json
+whois/ripe/filter-set/AS3344:fltr-bogons.json
+whois/ripe/inet-rtr/bgp2-rtr.kt.am.json
+whois/ripe/inet6num/2001:2002:2003::.json
+whois/ripe/inetnum/193.0.0.0%20-%20193.0.7.255.json
+whois/ripe/irt/IRT-AA.json
+whois/ripe/key-cert/PGPKEY-006AC66C.json
+whois/ripe/mntner/RIPE-DBM-STARTUP-MNT.json
+whois/ripe/organisation/olga.json
+whois/ripe/peering-set/AS702:PRNG-NL.json
+whois/ripe/person/dw-ripe.json
+whois/ripe/role/NA568-RIPE.json
+whois/ripe/route6.json
+whois/ripe/route6/2001:f40::/32AS9930.json
+whois/ripe/route/72.27.10.0/24AS10292.json
+whois/ripe/route-set/RS-KROOT-LOCAL.json
+whois/ripe/rtr-set/rtrs-AS1930.json
 
 
 # search
 
-# whois/search?query-string=AS102&source=TEST
-# whois/search?query-string=TP1-TEST&source=TEST
-# whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB
-
-
 whois/search?query-string=AS102&source=RIPE
+whois/search?query-string=olga&source=RIPE
 whois/search?query-string=dw-ripe&source=RIPE
 whois/search?query-string=dw-ripe&source=RIPE&flags=no-filtering&flags=rB
+whois/search?query-string=AS3333&source=RIPE&flags=show-tag-info
+whois/search?query-string=RIPE-DBM-STARTUP-MNT&source=RIPE&inverse-attribute=mnt-by&inverse-attribute=mnt-ref
+whois/search?query-string=olga&source=ripe&type-filter=person
+whois/search?query-string=193.0.0.0%20-%20193.0.7.255&source=RIPE&include-tag=RIPE-USER-RESOURCE
+whois/search?query-string=193.0.0.0%20-%20193.0.7.255&source=RIPE&exclude-tag=RIPE-USER-RESOURCE
+
+whois/search.json?query-string=AS102&source=RIPE
+whois/search.json?query-string=olga&source=RIPE
+whois/search.json?query-string=dw-ripe&source=RIPE
+whois/search.json?query-string=dw-ripe&source=RIPE&flags=no-filtering&flags=rB
+whois/search.json?query-string=AS3333&source=RIPE&flags=show-tag-info
+whois/search.json?query-string=RIPE-DBM-STARTUP-MNT&source=RIPE&inverse-attribute=mnt-by&inverse-attribute=mnt-ref
+whois/search.json?query-string=olga&source=ripe&type-filter=person
+whois/search.json?query-string=193.0.0.0%20-%20193.0.7.255&source=RIPE&exclude-tag=RIPE-USER-RESOURCE
+
+
+# abuse contact
+
+whois/ripe/abuse-contact/193.0.0.0%20-%20193.0.7.255
+whois/ripe/abuse-contact/2001:610::/32
+whois/ripe/abuse-contact/AS5503
+
+whois/ripe/abuse-contact/193.0.0.0%20-%20193.0.7.255.json
+whois/ripe/abuse-contact/2001:610::/32.json
+whois/ripe/abuse-contact/AS5503.json
+
+
+# version(s)
+
+whois/ripe/aut-num/AS3333/versions
+whois/ripe/aut-num/AS/version/5
+
+whois/ripe/aut-num/AS3333/versions.json
+whois/ripe/aut-num/AS/versions/3.json
+
+
+# metadata
+
+whois/ripe/metadata/sources.json
+whois/ripe/metadata/sources.xml
+
+whois/ripe/metadata/templates/route.xml
+whois/ripe/metadata/templates/route6.json

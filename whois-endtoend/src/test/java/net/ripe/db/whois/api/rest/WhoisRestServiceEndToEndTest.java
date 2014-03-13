@@ -36,7 +36,6 @@ import java.util.List;
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -126,6 +125,10 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
             .build();
 
+    // TODO: [AH] find an elegant way to run all tests twice, with XML/JSON requests
+    // TODO: [AH] XML fails on newline difference
+    private final String mediaType = MediaType.APPLICATION_XML;
+
     @Autowired WhoisObjectServerMapper whoisObjectMapper;
     @Autowired CrowdClient crowdClient;
 
@@ -149,9 +152,9 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=owner")
-                    .request(MediaType.APPLICATION_XML)
+                    .request(mediaType)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), emptyIterable());
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -174,9 +177,9 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=owner")
-                    .request(MediaType.APPLICATION_XML)
+                    .request(mediaType)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), emptyIterable());
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -199,9 +202,9 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=owner")
-                    .request(MediaType.APPLICATION_XML)
+                    .request(mediaType)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), emptyIterable());
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -223,8 +226,8 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             RestTest.target(getPort(), "whois/test/inetnum?password=owner")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+                    .request(mediaType)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), String.class);
             fail();
         } catch (NotAuthorizedException expected) {
             assertUnauthorizedErrorMessage(expected, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT");
@@ -241,8 +244,8 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             RestTest.target(getPort(), "whois/test/inetnum?password=owner")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+                    .request(mediaType)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), String.class);
             fail();
         } catch (NotAuthorizedException expected) {
             assertUnauthorizedErrorMessage(expected, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT");
@@ -260,9 +263,9 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         final String token = crowdClient.login(USER2, PASSWORD2);
         try {
             final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=owner")
-                    .request(MediaType.APPLICATION_XML)
+                    .request(mediaType)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), emptyIterable());
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -284,8 +287,8 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=owner&password=lir")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .request(mediaType)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), emptyIterable());
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -306,9 +309,9 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         final String token = crowdClient.login(USER1, PASSWORD1);
         try {
             final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=owner&password=lir")
-                    .request(MediaType.APPLICATION_XML)
+                    .request(mediaType)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), emptyIterable());
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -330,10 +333,11 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             RestTest.target(getPort(), "whois/test/inetnum?password=owner")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+                    .request(mediaType)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException expected) {
+            final WhoisResources whoisResources = RestTest.mapClientException(expected);
             assertUnauthorizedErrorMessage(expected, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT");
         }
     }
@@ -370,9 +374,9 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             RestTest.target(getPort(), "whois/test/inetnum?password=owner")
-                    .request(MediaType.APPLICATION_XML)
+                    .request(mediaType)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), String.class);
             fail();
         } catch (NotAuthorizedException expected) {
             assertUnauthorizedErrorMessage(expected, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT");
@@ -393,8 +397,8 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=owner&password=lir")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .request(mediaType)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), emptyIterable());
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -471,8 +475,8 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             RestTest.target(getPort(), "whois/test/inetnum?password=owner")
-                    .request(MediaType.APPLICATION_XML)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), String.class);
+                    .request(mediaType)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), String.class);
             fail();
         } catch (NotAuthorizedException expected) {
             assertUnauthorizedErrorMessage(expected, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT, LIR2-MNT, LIR3-MNT");
@@ -492,9 +496,9 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=owner")
-                    .request(MediaType.APPLICATION_XML)
+                    .request(mediaType)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), emptyIterable());
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -518,9 +522,9 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0 - 10.0.255.255")
-                    .request(MediaType.APPLICATION_XML)
+                    .request(mediaType)
                     .cookie("crowd.token_key", token)
-                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(updatedAssignment), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(updatedAssignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), emptyIterable());
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -568,7 +572,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0 - 10.0.255.255")
-                    .request(MediaType.APPLICATION_XML)
+                    .request(mediaType)
                     .cookie("crowd.token_key", token)
                     .delete();
         } catch (ClientErrorException e) {
@@ -620,9 +624,9 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             RestTest.target(getPort(), "whois/test/inetnum")
-                    .request(MediaType.APPLICATION_XML)
+                    .request(mediaType)
                     .cookie("crowd.token_key", token)
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(assignment), mediaType), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException expected) {
             final WhoisResources whoisResources = expected.getResponse().readEntity(WhoisResources.class);
@@ -643,10 +647,10 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         try {
             String whoisResources = RestTest.target(getPort(), "whois/test/person/TP2-TEST?password=lir")
-                    .request(MediaType.APPLICATION_XML)
+                    .request(mediaType)
                     .cookie("crowd.token_key", token)
                     .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
-                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(updatedPerson), MediaType.APPLICATION_XML), String.class);
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(updatedPerson), mediaType), String.class);
             System.err.println(whoisResources);
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
@@ -704,7 +708,9 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         final WhoisResources whoisResources = exception.getResponse().readEntity(WhoisResources.class);
         final List<ErrorMessage> errorMessages = whoisResources.getErrorMessages();
         assertThat(errorMessages.size(), is(1));
-        assertThat(errorMessages.get(0).getText(), endsWith("not authenticated by: %s"));
+        assertThat(errorMessages.get(0).getText(), is("Authorisation for [%s] %s failed\n" +
+                "using \"%s:\"\n" +
+                "not authenticated by: %s"));
         assertThat(errorMessages.get(0).getArgs().size(), is(args.length));
         for (int i = 0; i < args.length; i++) {
             assertThat(errorMessages.get(0).getArgs().get(i).getValue(), is(args[i]));

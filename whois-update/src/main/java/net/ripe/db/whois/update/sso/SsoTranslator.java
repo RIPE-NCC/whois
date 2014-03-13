@@ -84,12 +84,9 @@ public class SsoTranslator {
                     if (translatedValue != null) {
                         String authValue = String.format("SSO %s", translatedValue);
                         return new RpslAttribute(originalAttribute.getKey(), authValue);
-                    } else {
-                        return null;
                     }
-                } else {
-                    return null;
                 }
+                return null;
             }
         });
     }

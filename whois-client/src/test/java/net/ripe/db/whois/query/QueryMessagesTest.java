@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query;
 
-import com.google.common.collect.ImmutableMap;
 import net.ripe.db.whois.common.Message;
 import org.junit.Test;
 
@@ -44,7 +43,7 @@ public class QueryMessagesTest {
 
     @Test
     public void restApiExpectsAbuseContactsInSpecificFormat() {
-        assertThat(QueryMessages.abuseCShown(ImmutableMap.of("193.0.0.0 - 193.0.7.255", "abuse@ripe.net")).toString(), is("% Abuse contact for '193.0.0.0 - 193.0.7.255' is 'abuse@ripe.net'\n"));
+        assertThat(QueryMessages.abuseCShown("193.0.0.0 - 193.0.7.255", "abuse@ripe.net").toString(), is("% Abuse contact for '193.0.0.0 - 193.0.7.255' is 'abuse@ripe.net'\n"));
     }
 
     @Test

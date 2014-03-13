@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Hosts;
 
 import java.net.InetAddress;
-import java.util.Map;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.Messages.Type;
@@ -45,9 +44,8 @@ public final class QueryMessages {
         return new Message(Type.INFO, "%% Note: %s means ALL personal data has been filtered from this output.\n", QueryFlag.NO_PERSONAL.getLongFlag());
     }
 
-    public static Message abuseCShown(final Map<? extends CharSequence, ? extends CharSequence> result) {
-        final Map.Entry entry = result.entrySet().iterator().next();
-        return new Message(Type.INFO, "%% Abuse contact for '%s' is '%s'\n", entry.getKey(), entry.getValue());
+    public static Message abuseCShown(final CharSequence key, final CharSequence value) {
+        return new Message(Type.INFO, "%% Abuse contact for '%s' is '%s'\n", key, value);
     }
 
     public static Message abuseCNotRegistered(final CharSequence key) {

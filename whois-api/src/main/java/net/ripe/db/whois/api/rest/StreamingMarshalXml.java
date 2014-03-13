@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import javanet.staxutils.IndentingXMLStreamWriter;
+import javanet.staxutils.io.StAXStreamWriter;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.TemplateResources;
@@ -11,19 +12,16 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
 
 class StreamingMarshalXml implements StreamingMarshal {
     private static final JAXBContext context;
-    private static final XMLOutputFactory xmlOutputFactory;
 
     static {
         try {
             context = JAXBContext.newInstance(WhoisResources.class, TemplateResources.class, AbuseResources.class);
-            xmlOutputFactory = XMLOutputFactory.newFactory();
         } catch (JAXBException e) {
             throw new IllegalStateException(e);
         }
@@ -37,12 +35,12 @@ class StreamingMarshalXml implements StreamingMarshal {
         try {
             this.root = root;
 
-            xmlOut = new IndentingXMLStreamWriter(xmlOutputFactory.createXMLStreamWriter(outputStream));
+            xmlOut = new IndentingXMLStreamWriter(new StAXStreamWriter(outputStream));
 
             marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
 
-        } catch (XMLStreamException | JAXBException e) {
+        } catch (JAXBException e) {
             throw new StreamingException(e);
         }
     }

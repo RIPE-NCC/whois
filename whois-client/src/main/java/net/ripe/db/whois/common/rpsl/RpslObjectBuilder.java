@@ -115,37 +115,54 @@ public class RpslObjectBuilder {
         return attributes.size();
     }
 
-    public RpslAttribute getAttribute(int index) {
+    public RpslAttribute get(int index) {
         return attributes.get(index);
     }
 
-    public RpslObjectBuilder setAttribute(int index, RpslAttribute attribute) {
+    public RpslObjectBuilder set(int index, RpslAttribute attribute) {
         attributes.set(index, attribute);
         return this;
     }
 
-    public RpslObjectBuilder addAttribute(final RpslAttribute newAttribute) {
+    public RpslObjectBuilder append(final RpslAttribute newAttribute) {
         attributes.add(newAttribute);
         return this;
     }
 
-    public RpslObjectBuilder addAttributes(final Collection<RpslAttribute> newAttributes) {
+    public RpslObjectBuilder append(final Collection<RpslAttribute> newAttributes) {
         attributes.addAll(newAttributes);
         return this;
     }
 
-    public RpslObjectBuilder removeAttribute(int index) {
+    public RpslObjectBuilder prepend(final RpslAttribute newAttribute) {
+        attributes.add(0, newAttribute);
+        return this;
+    }
+
+    public RpslObjectBuilder prepend(final Collection<RpslAttribute> newAttributes) {
+        attributes.addAll(0, newAttributes);
+        return this;
+    }
+
+    public RpslObjectBuilder remove(int index) {
         attributes.remove(index);
         return this;
     }
 
-    /** by attribute order in template */
+    /** determine type by first type attribute present in object, then sort attributes according to attribute order in template.
+     * This sort is guaranteed to be <i>stable</i>:  equal elements will not be reordered as a result of the sort.*/
     public RpslObjectBuilder sort() {
-        AttributeType attributeType = getTypeAttributeOrNull();
-        if (attributeType != null) {
-            Collections.sort(attributes, ObjectTemplate.getTemplate(ObjectType.getByFirstAttribute(attributeType)).getAttributeTypeComparator());
+        for (RpslAttribute attribute : attributes) {
+            final ObjectType objectType = ObjectType.getByNameOrNull(attribute.getKey());
+            if (objectType == null) {
+                continue;
+            }
+
+            Collections.sort(attributes, ObjectTemplate.getTemplate(objectType).getAttributeTypeComparator());
+            return this;
         }
-        return this;
+
+        throw new IllegalStateException("No type attribute found");
     }
 
     public AttributeType getTypeAttributeOrNull() {

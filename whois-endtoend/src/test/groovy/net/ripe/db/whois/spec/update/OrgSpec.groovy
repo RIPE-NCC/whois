@@ -120,6 +120,20 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
+                "LEGACY-OTHER": """\
+                inetnum:      10.168.0.0 - 10.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-OR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       EARLY-REGISTRATION
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
                 "ASSIGN-PI": """\
                 inetnum:      192.168.255.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
@@ -134,6 +148,47 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
+                """,
+                "ASSIGN-PI-OTHER": """\
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-OR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+                "ASSIGN-PA-OTHER": """\
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-OR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+                "AS500": """\
+                aut-num:     AS500
+                as-name:     TEST-AS
+                descr:       Testing Authorisation code
+                org:         ORG-OR1-TEST
+                admin-c:     TP1-TEST
+                tech-c:      TP1-TEST
+                mnt-by:      LIR-MNT
+                mnt-by:      RIPE-NCC-END-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
                 """,
         ]
     }
@@ -1996,12 +2051,11 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
                 ["Authorisation for [organisation] ORG-LIR2-TEST failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT",
-                 "This org-type value can only be set by administrative mntners",
                  "The org name can only be set by administrative mntners"]
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "Local Internet Registry")
@@ -2123,6 +2177,213 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "My Registry")
+    }
+
+    def "modify organisation, org-type:OTHER, change org-name with user password"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OR1-TEST
+                org-type:     OTHER
+                org-name:     Changed Other Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+
+                password:     lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Changed Other Registry")
+    }
+
+    def "modify organisation, org-type:OTHER, ref from PI, change org-name"() {
+        given:
+        syncUpdate(getTransient("ASSIGN-PI-OTHER") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "ASSIGNED PI")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OR1-TEST
+                org-type:     OTHER
+                org-name:     New Other Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
+                ["The org name can only be set by administrative mntners"]
+
+        query_object_not_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
+    }
+
+    def "modify organisation, org-type:OTHER, ref from ASSIGNED PA, change org-name"() {
+        given:
+        syncUpdate(getTransient("ASSIGN-PA-OTHER") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "ASSIGNED PA")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OR1-TEST
+                org-type:     OTHER
+                org-name:     New Other Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
+
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
+    }
+
+    def "modify organisation, org-type:OTHER, ref from legacy, change org-name"() {
+        given:
+        syncUpdate(getTransient("LEGACY-OTHER") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 10.168.0.0 - 10.169.255.255", "inetnum", "10.168.0.0 - 10.169.255.255", "EARLY-REGISTRATION")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OR1-TEST
+                org-type:     OTHER
+                org-name:     New Other Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
+
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
+    }
+
+    def "modify organisation, org-type:OTHER, ref from ASN, change org-name"() {
+        given:
+        syncUpdate(getTransient("AS500") + "override: denis,override1")
+
+        expect:
+        queryObject("-r -T aut-num AS500", "aut-num", "AS500")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OR1-TEST
+                org-type:     OTHER
+                org-name:     New Other Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
+                ["The org name can only be set by administrative mntners"]
+
+        query_object_not_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
     }
 
     def "modify allocation, change org:"() {

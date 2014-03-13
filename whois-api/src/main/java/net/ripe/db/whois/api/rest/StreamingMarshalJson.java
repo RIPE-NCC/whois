@@ -112,6 +112,7 @@ class StreamingMarshalJson implements StreamingMarshal {
     public <T> void singleton(T t) {
         try {
             generator.writeObject(t);
+            generator.close();
         } catch (IOException e) {
             throw new StreamingException(e);
         }

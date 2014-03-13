@@ -107,10 +107,8 @@ public class InternalUpdatePerformer {
         return responseBuilder.entity(new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
-                final StreamingMarshal streamingMarshal = WhoisRestService.getStreamingMarshal(request, output);
                 final WhoisResources result = createResponse(request, updateContext, update, responseObject);
-                streamingMarshal.singleton(result);
-                streamingMarshal.close();
+                WhoisRestService.getStreamingMarshal(request, output).singleton(result);
             }
         }).build();
     }

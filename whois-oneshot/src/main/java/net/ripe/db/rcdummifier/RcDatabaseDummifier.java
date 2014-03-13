@@ -147,12 +147,12 @@ public class RcDatabaseDummifier {
             boolean foundPassword = false;
             RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
             for (int i = 0; i < builder.size(); i++) {
-                RpslAttribute attribute = builder.getAttribute(i);
+                RpslAttribute attribute = builder.get(i);
                 if (AttributeType.AUTH.equals(attribute.getType()) && (attribute.getCleanValue().startsWith("md5-pw"))) {
                     if (foundPassword) {
-                        builder.removeAttribute(i);
+                        builder.remove(i);
                     } else {
-                        builder.setAttribute(i, new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toString())));
+                        builder.set(i, new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toString())));
                         foundPassword = true;
                     }
                 }

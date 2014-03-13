@@ -67,7 +67,7 @@ public class OrgNameNotChangedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+        verify(updateContext, never()).addMessage(update, UpdateMessages.cantChangeOrgName());
     }
 
     @Test
@@ -88,7 +88,7 @@ public class OrgNameNotChangedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+        verify(updateContext, never()).addMessage(update, UpdateMessages.cantChangeOrgName());
     }
 
     @Test
@@ -109,7 +109,7 @@ public class OrgNameNotChangedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+        verify(updateContext, never()).addMessage(update, UpdateMessages.cantChangeOrgName());
     }
 
     @Test
@@ -138,7 +138,7 @@ public class OrgNameNotChangedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+        verify(updateContext, never()).addMessage(update, UpdateMessages.cantChangeOrgName());
     }
 
     @Test
@@ -196,7 +196,7 @@ public class OrgNameNotChangedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+        verify(updateContext, never()).addMessage(update, UpdateMessages.cantChangeOrgName());
     }
 
     @Test
@@ -225,6 +225,6 @@ public class OrgNameNotChangedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+        verify(updateContext, never()).addMessage(update, UpdateMessages.cantChangeOrgName());
     }
 }

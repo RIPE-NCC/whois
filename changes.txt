@@ -1,3 +1,35 @@
+## 1.72
+[web, api] Better integration with other Ripe services:
+Introduced Single Sign On (SSO) for Ripe Database web interface.
+Objects can be created/modified when appropriate using the SSO account.
+
+[api] #158 source element
+[api] #152 Improve logging
+[api] #150 restclient streamSearch returns url as an errormessage when no object is found
+[api] #140 --no-personal does not work on web queries
+[api] #130 JSON output is weird
+[api] #114 REST API JSON response duplicate declaration for 'object' property
+[api] #119 in case of noop, rest update returns the new object instead of the one in database.
+[api] #148 primary-key element incorrect for route(6)
+[api] #145 Empty/unused element in JAXB objects
+[query] #121 The built-in help message (-v) contains outdated information about syntax rules of person and role object names
+[update] #149 Cannot Update Maintainer with Multiple Passwords
+[update] #141 Undelete JMX command unreliable
+[web] #179 inverse web query does not find some objects
+[web] #177 update a PERSON from result list selects wrong object
+[web] #172 After sign out in webupdates, user is not redirected to webupdates.
+[web] #164 RIPE # Filtered not shown on filtered objects
+[web] #161 web query start page needs some more '?' text
+[web] #160 web query 'General Info' text change
+[web] #125 no error with wrong type on lookup
+[web] #123 dbweb - search results should be streamed
+[web] #122 Person objects have incorrect lookup links in search form results
+[web] #124 dbweb does not pass on the X-Forwarded-for header to whois backend
+[web] #144 Lookup page is missing RIPEStat link
+[web] #138 syntax error in link to aut-num in route object in web query
+[web] #132 selecting Types on web query returns wrong types
+[web] #131 inverse web query does not find aut-num objects
+
 ## 1.71
 [all] byacc, flex and generator files are not part of deployable whois.jar
 [update] No attribute sanitation of object on delete

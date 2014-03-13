@@ -706,6 +706,7 @@
                         <include>${test.files.integration}</include>
                     </includes>
                     <groups>${test.groups}</groups>
+                    <excludedGroups>${test.groups.excluded}</excludedGroups>
                     <forkCount>${test.forkCount.integration}</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
@@ -763,7 +764,7 @@
             </plugin>
         </plugins>
     </build>
-    <!-- TODO: [AH] have either @Category annotation or file name decide which category a test falls into; now there's both available -->
+
     <profiles>
         <profile>
             <id>junit</id>
@@ -783,19 +784,10 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
+                <test.groups.excluded/>
+                <test.files.unit>None</test.files.unit>
+                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>
-                <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/*TestIntegration*.class,**/*Spec*.class</test.files.integration>
-            </properties>
-        </profile>
-        <profile>
-            <id>comparison</id>
-            <properties>
-                <test.redirectOutput>false</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
-                <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/*CompareTwoQueryInstances*</test.files.integration>
-                <test.files.integration>**/*RestCompareTwoInstancesByComparisonFile*</test.files.integration>
             </properties>
         </profile>
         <profile>
@@ -803,8 +795,9 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups />
+                <test.groups.excluded>net.ripe.db.whois.common.IntegrationTest,net.ripe.db.whois.common.ManualTest</test.groups.excluded>
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/whois/spec/*/*Spec.java,**/*EndToEndTest.java</test.files.integration>
+                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
@@ -812,7 +805,8 @@
             <id>all</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
+                <test.groups/>
+                <test.groups.excluded/>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>

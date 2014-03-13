@@ -1,14 +1,13 @@
 package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
@@ -21,7 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class AbuseCFinder {
@@ -33,20 +35,25 @@ public class AbuseCFinder {
     private final Maintainers maintainers;
 
     @Autowired
-    public AbuseCFinder(final RpslObjectDao objectDao, final Ipv4Tree ipv4Tree, final Ipv6Tree ipv6Tree, final Maintainers maintainers) {
+    public AbuseCFinder(final RpslObjectDao objectDao,
+                        final Ipv4Tree ipv4Tree,
+                        final Ipv6Tree ipv6Tree,
+                        final Maintainers maintainers) {
         this.objectDao = objectDao;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.maintainers = maintainers;
     }
 
-    public Map<CIString, CIString> getAbuseContacts(final RpslObject object) {
-        Collection<CIString> abuseContacts = getAbuseMailboxes(object);
+    @CheckForNull
+    @Nullable
+    public String getAbuseContact(final RpslObject object) {
+        String abuseContact = getAbuseMailbox(object);
 
-        if (abuseContacts.isEmpty() && object.getType() != ObjectType.AUT_NUM) {
+        if ((abuseContact == null) && (object.getType() != ObjectType.AUT_NUM)) {
             RpslObject parentObject = object;
 
-            while (abuseContacts.isEmpty()) {
+            while (abuseContact == null) {
                 List<? extends IpEntry> parent = Lists.newArrayList();
                 if (parentObject.getType() == ObjectType.INETNUM) {
                     parent = ipv4Tree.findFirstLessSpecific(Ipv4Resource.parse(parentObject.getKey()));
@@ -66,7 +73,7 @@ public class AbuseCFinder {
                     break;
                 }
 
-                abuseContacts = getAbuseMailboxes(parentObject);
+                abuseContact = getAbuseMailbox(parentObject);
 
                 if (isMaintainedByRs(parentObject)) {
                     break;
@@ -74,35 +81,26 @@ public class AbuseCFinder {
             }
         }
 
-        final Iterator<CIString> iterator = abuseContacts.iterator();
-        final Map<CIString, CIString> objectKeyWithAbuseContact = Maps.newHashMap();
-        if (iterator.hasNext()) {
-            objectKeyWithAbuseContact.put(object.getKey(), iterator.next());
+        return abuseContact;
+    }
+
+    @Nullable
+    private String getAbuseMailbox(final RpslObject object) {
+        try {
+            if (object.containsAttribute(AttributeType.ORG)) {
+                final RpslObject organisation = objectDao.getByKey(ObjectType.ORGANISATION, object.getValueForAttribute(AttributeType.ORG));
+                if (organisation.containsAttribute(AttributeType.ABUSE_C)) {
+                    final RpslObject abuseCRole = objectDao.getByKey(ObjectType.ROLE, organisation.getValueForAttribute(AttributeType.ABUSE_C));
+                    if (abuseCRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
+                        return abuseCRole.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString();
+                    }
+                }
+            }
+        } catch (EmptyResultDataAccessException ignored) {
+            LOGGER.debug("Ignored invalid reference (object {})", object.getKey());
         }
-        return objectKeyWithAbuseContact;
-    }
 
-    public List<RpslObject> getAbuseContactObjects(final RpslObject object) {
-        final Set<CIString> orgAttributes = object.getValuesForAttribute(AttributeType.ORG);
-        final List<RpslObject> orgObjects = objectDao.getByKeys(ObjectType.ORGANISATION, orgAttributes);
-
-        return objectDao.getByKeys(ObjectType.ROLE, getValuesForAttribute(orgObjects, AttributeType.ABUSE_C));
-    }
-
-    private Collection<CIString> getAbuseMailboxes(final RpslObject object) {
-        final Set<CIString> orgAttributes = object.getValuesForAttribute(AttributeType.ORG);
-        final List<RpslObject> orgObjects = objectDao.getByKeys(ObjectType.ORGANISATION, orgAttributes);
-
-        return getValuesForAttribute(objectDao.getByKeys(ObjectType.ROLE, getValuesForAttribute(orgObjects, AttributeType.ABUSE_C)), AttributeType.ABUSE_MAILBOX);
-    }
-
-    private Collection<CIString> getValuesForAttribute(final Collection<RpslObject> objects, final AttributeType attributeType) {
-        Set<CIString> values = Sets.newHashSet();
-
-        for (RpslObject object : objects) {
-            values.addAll(object.getValuesForAttribute(attributeType));
-        }
-        return values;
+        return null;
     }
 
     private boolean isMaintainedByRs(final RpslObject inetObject) {
