@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("UnusedDeclaration")
@@ -25,6 +26,6 @@ public class WhoisObjects {
     }
 
     public List<WhoisObject> getWhoisObjects() {
-        return whoisObjects;
+        return whoisObjects == null ? Collections.<WhoisObject>emptyList() : whoisObjects;
     }
 }

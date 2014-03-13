@@ -239,7 +239,6 @@ public class WhoisRestService {
         }
     }
 
-    // TODO: deprecate mod_proxy for 'POST /ripe' and add check for objectType == submitted object type here
     @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -378,6 +377,7 @@ public class WhoisRestService {
             throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(createErrorEntity(request, versionsResponseHandler.getErrors())).build());
         }
 
+        // TODO: [AH] this should use StreamingMarshal to properly handle newlines in errormessages
         final WhoisResources whoisResources = new WhoisResources();
         final WhoisObject whoisObject = whoisObjectMapper.map(versionWithRpslResponseObject.getRpslObject());
         whoisObject.setVersion(versionWithRpslResponseObject.getVersion());
@@ -534,6 +534,7 @@ public class WhoisRestService {
         if (whoisResources.getWhoisObjects().isEmpty() || whoisResources.getWhoisObjects().size() > 1) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.singleObjectExpected(whoisResources.getWhoisObjects().size()))).build());
         }
+
         return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
     }
 
