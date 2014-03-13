@@ -57,7 +57,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -75,7 +74,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
@@ -164,10 +162,10 @@ public class WhoisRdapService {
                 break;
 
             case "nameserver":
-                return Response.status(NOT_FOUND).build();
+                return createErrorResponse(Response.Status.NOT_FOUND, "");
 
             default:
-                return Response.status(BAD_REQUEST).build();
+                return createErrorResponse(Response.Status.BAD_REQUEST, "");
         }
 
         return lookupObject(request, whoisObjectTypes, getKey(whoisObjectTypes, key));
@@ -192,7 +190,7 @@ public class WhoisRdapService {
         }
 
         LOGGER.info("Bad request: {}", request.getRequestURI());
-        return Response.status(BAD_REQUEST).build();
+        return createErrorResponse(Response.Status.BAD_REQUEST, "");
     }
 
     @GET
@@ -205,10 +203,10 @@ public class WhoisRdapService {
         LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
 
         if (StringUtils.isEmpty(name)) {
-            throw createError(Response.Status.BAD_REQUEST, "", Collections.EMPTY_LIST);
+            return createErrorResponse(Response.Status.BAD_REQUEST, "");
         }
 
-        throw createError(Response.Status.NOT_FOUND, "", Collections.EMPTY_LIST);
+        return createErrorResponse(Response.Status.NOT_FOUND, "");
     }
 
     @GET
@@ -227,22 +225,19 @@ public class WhoisRdapService {
         try {
             Domain.parse(key);
         } catch (AttributeParseException e) {
-            throw new NotFoundException("RIPE NCC does not support forward domain queries.");
+            throw new WebApplicationException(createErrorResponse(Response.Status.NOT_FOUND, "RIPE NCC does not support forward domain queries."));
         }
     }
 
     private void validateIp(final String rawUri, final String key) {
         try {
             IpInterval.parse(key);
-            manualIpValidation(rawUri);
         } catch (IllegalArgumentException e) {
-            throw createError(Response.Status.BAD_REQUEST, "Invalid syntax.", Collections.EMPTY_LIST);
+            throw new WebApplicationException(createErrorResponse(Response.Status.BAD_REQUEST, "Invalid syntax."));
         }
-    }
 
-    private void manualIpValidation(final String str) {
-        if (str.contains("//")) {
-            throw new IllegalArgumentException();
+        if (rawUri.contains("//")) {
+            throw new WebApplicationException(createErrorResponse(Response.Status.BAD_REQUEST, "Invalid syntax."));
         }
     }
 
@@ -250,28 +245,27 @@ public class WhoisRdapService {
         try {
             AutNum.parse(key);
         } catch (AttributeParseException e) {
-            throw createError(Response.Status.BAD_REQUEST, "Invalid syntax.", Collections.EMPTY_LIST);
+            throw new WebApplicationException(createErrorResponse(Response.Status.BAD_REQUEST, "Invalid syntax."));
         }
     }
 
     private void validateEntity(final String key) {
         if (key.toUpperCase().startsWith("ORG-")) {
             if (!AttributeType.ORGANISATION.isValidValue(ORGANISATION, key)) {
-                throw createError(Response.Status.BAD_REQUEST, "Invalid syntax.", Collections.EMPTY_LIST);
+                throw new WebApplicationException(createErrorResponse(Response.Status.BAD_REQUEST, "Invalid syntax."));
             }
         } else {
             if (!AttributeType.NIC_HDL.isValidValue(ObjectType.PERSON, key)) {
-                throw createError(Response.Status.BAD_REQUEST, "Invalid syntax.", Collections.EMPTY_LIST);
+                throw new WebApplicationException(createErrorResponse(Response.Status.BAD_REQUEST, "Invalid syntax."));
             }
         }
     }
 
-    private WebApplicationException createError(final Response.Status status, final String errorTitle, final List<String> errorDescriptions) {
-        final Response response = Response.status(status)
-                .entity(rdapObjectMapper.mapError(status.getStatusCode(), errorTitle, errorDescriptions))
+    private Response createErrorResponse(final Response.Status status, final String errorTitle) {
+        return Response.status(status)
+                .entity(rdapObjectMapper.mapError(status.getStatusCode(), errorTitle, Collections.EMPTY_LIST))
                 .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
                 .build();
-        return new WebApplicationException(response);
     }
 
     private String getKey(final Set<ObjectType> objectTypes, final String key) {

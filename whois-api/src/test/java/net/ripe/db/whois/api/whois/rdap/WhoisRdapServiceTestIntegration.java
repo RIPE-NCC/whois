@@ -324,7 +324,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     "  \"port43\" : \"whois.ripe.net\",\n" +
                     "  \"errorCode\" : 400,\n" +
                     "  \"title\" : \"Invalid syntax.\","));
-            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
         }
     }
 
@@ -342,7 +341,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     "  \"port43\" : \"whois.ripe.net\",\n" +
                     "  \"errorCode\" : 400,\n" +
                     "  \"title\" : \"Invalid syntax.\","));
-            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
         }
 
     }
@@ -622,7 +620,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Domain.class);
             fail();
         } catch (NotFoundException e) {
-            // expected
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, containsString("" +
+                    "  } ],\n" +
+                    "  \"port43\" : \"whois.ripe.net\",\n" +
+                    "  \"errorCode\" : 404,\n" +
+                    "  \"title\" : \"\","));
         }
     }
 
