@@ -384,7 +384,7 @@
                 <version>2.3.1</version>
             </dependency>
 
-            <!-- StaxUtils for the IndentingXMLStreamWriter -->
+            <!-- StaxUtils for the XmlWriterUtils -->
             <dependency>
                 <groupId>net.java.dev.stax-utils</groupId>
                 <artifactId>stax-utils</artifactId>

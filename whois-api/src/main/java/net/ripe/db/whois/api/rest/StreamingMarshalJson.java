@@ -66,7 +66,7 @@ class StreamingMarshalJson implements StreamingMarshal {
 
 
     @Override
-    public void end() {
+    public void end(final String name) {
         try {
             generator.writeEndObject();
         } catch (IOException e) {
