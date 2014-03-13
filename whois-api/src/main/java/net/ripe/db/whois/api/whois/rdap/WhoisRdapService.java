@@ -325,7 +325,7 @@ public class WhoisRdapService {
                             getRequestUrl(request),
                             resultObject,
                             objectDao.getLastUpdated(resultObject.getObjectId()),
-                            getAbuseContacts(resultObject)))
+                            abuseCFinder.getAbuseContactRole(resultObject)))
                     .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
                     .build();
 
@@ -372,14 +372,6 @@ public class WhoisRdapService {
             builder.append(request.getQueryString());
         }
         return builder.toString();
-    }
-
-    private List<RpslObject> getAbuseContacts(final RpslObject rpslObject) {
-        final ObjectType objectType = rpslObject.getType();
-        if (ABUSE_CONTACT_TYPES.contains(objectType)) {
-            return abuseCFinder.getAbuseContactObjects(rpslObject);
-        }
-        return Collections.emptyList();
     }
 
     private String objectTypesToString(final Collection<ObjectType> objectTypes) {

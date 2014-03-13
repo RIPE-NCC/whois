@@ -6,12 +6,14 @@ import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 public final class CollectionHelper {
     private CollectionHelper() {
     }
 
+    @Nullable
     public static <T> T uniqueResult(final Collection<T> c) {
         switch (c.size()) {
             case 0:

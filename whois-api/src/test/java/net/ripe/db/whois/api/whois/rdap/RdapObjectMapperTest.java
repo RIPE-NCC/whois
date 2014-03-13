@@ -17,31 +17,33 @@ public class RdapObjectMapperTest {
 
     @Test
     public void ip() {
-        final Ip result = (Ip) map((RpslObject.parse("" +
-                "inetnum:        10.0.0.0 - 10.255.255.255\n" +
-                "netname:        RIPE-NCC\n" +
-                "descr:          some descr\n" +
-                "country:        NL\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "status:         OTHER\n" +
-                "language:       EN\n" +
-                "mnt-by:         TST-MNT\n" +
-                "mnt-lower:      TST-MNT\n" +
-                "mnt-domains:    TST-MNT\n" +
-                "mnt-routes:     TST-MNT\n" +
-                "mnt-irt:        irt-IRT1\n" +
-                "notify:         notify@test.net\n" +
-                "org:            ORG-TOL1-TEST\n" +
-                "changed:        ripe@test.net 20120101\n" +
-                "source:         TEST")),
-                Lists.newArrayList(RpslObject.parse("" +
+        final Ip result = (Ip) map(
+                RpslObject.parse(
+                        "inetnum:        10.0.0.0 - 10.255.255.255\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          some descr\n" +
+                        "country:        NL\n" +
+                        "admin-c:        TP1-TEST\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         OTHER\n" +
+                        "language:       EN\n" +
+                        "mnt-by:         TST-MNT\n" +
+                        "mnt-lower:      TST-MNT\n" +
+                        "mnt-domains:    TST-MNT\n" +
+                        "mnt-routes:     TST-MNT\n" +
+                        "mnt-irt:        irt-IRT1\n" +
+                        "notify:         notify@test.net\n" +
+                        "org:            ORG-TOL1-TEST\n" +
+                        "changed:        ripe@test.net 20120101\n" +
+                        "source:         TEST"),
+                RpslObject.parse(
                         "role: Abuse Contact\n" +
                         "nic-hdl: AB-TEST\n" +
                         "mnt-by:  TEST-MNT\n" +
                         "admin-c: TP1-TEST\n" +
                         "tech-c:  TP2-TEST\n" +
-                        "phone:   +31 12345678")));
+                        "phone:   +31 12345678"
+                ));
 
         assertThat(result.getHandle(), is("10.0.0.0 - 10.255.255.255"));
         assertThat(result.getStartAddress(), is("10.0.0.0/32"));
@@ -404,11 +406,11 @@ public class RdapObjectMapperTest {
     }
 
     private Object map(final RpslObject rpslObject) {
-        return map(rpslObject, Lists.<RpslObject>newArrayList());
+        return map(rpslObject, null);
     }
 
-    private Object map(final RpslObject rpslObject, final List<RpslObject> abuseContacts) {
-        return new RdapObjectMapper(new NoticeFactory("", "", "", "", "", "", "", "", "", ""), "whois.ripe.net").map("http://localhost/", rpslObject, VERSION_TIMESTAMP, abuseContacts);
+    private Object map(final RpslObject rpslObject, final RpslObject abuseContact) {
+        return new RdapObjectMapper(new NoticeFactory("", "", "", "", "", "", "", "", "", ""), "whois.ripe.net").map("http://localhost/", rpslObject, VERSION_TIMESTAMP, abuseContact);
     }
 
     private Object mapSearch(final List<RpslObject> objects, final Iterable<LocalDateTime> lastUpdateds) {

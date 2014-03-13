@@ -29,7 +29,7 @@ import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import org.joda.time.LocalDateTime;
 
-import java.util.Collections;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -78,8 +78,8 @@ class RdapObjectMapper {
         this.port43 = port43;
     }
 
-    public Object map(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, final List<RpslObject> abuseContacts) {
-        return mapCommons(getRdapObject(requestUrl, rpslObject, lastChangedTimestamp, abuseContacts), requestUrl);
+    public Object map(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, @Nullable final RpslObject abuseContact) {
+        return mapCommons(getRdapObject(requestUrl, rpslObject, lastChangedTimestamp, abuseContact), requestUrl);
     }
 
     public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final Iterable<LocalDateTime> localDateTimes) {
@@ -88,9 +88,9 @@ class RdapObjectMapper {
 
         for (final RpslObject object : objects) {
             if (object.getType() == DOMAIN) {
-                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, iterator.next(), Collections.EMPTY_LIST));
+                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, iterator.next(), null));
             } else {
-                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, iterator.next(), Collections.EMPTY_LIST));
+                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, iterator.next(), null));
             }
         }
 
@@ -105,7 +105,7 @@ class RdapObjectMapper {
         return rdapObject;
     }
 
-    private RdapObject getRdapObject(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, final List<RpslObject> abuseContacts) {
+    private RdapObject getRdapObject(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, @Nullable final RpslObject abuseContact) {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
 
@@ -137,7 +137,7 @@ class RdapObjectMapper {
 
         rdapResponse.getNotices().addAll(noticeFactory.generateNotices(requestUrl, rpslObject));
 
-        for (final RpslObject abuseContact : abuseContacts) {
+        if (abuseContact != null) {
             rdapResponse.getEntitySearchResults().add(createEntity(abuseContact, Role.ABUSE));
         }
 
