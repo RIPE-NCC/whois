@@ -149,7 +149,7 @@ public class WhoisRdapService {
                 break;
 
             case "ip":
-                validateIp(key);
+                validateIp(request.getRequestURI(), key);
                 whoisObjectTypes.add(key.contains(":") ? INET6NUM : INETNUM);
                 break;
 
@@ -231,11 +231,18 @@ public class WhoisRdapService {
         }
     }
 
-    private void validateIp(final String key) {
+    private void validateIp(final String rawUri, final String key) {
         try {
             IpInterval.parse(key);
+            manualIpValidation(rawUri);
         } catch (IllegalArgumentException e) {
             throw createError(Response.Status.BAD_REQUEST, "Invalid syntax.", Collections.EMPTY_LIST);
+        }
+    }
+
+    private void manualIpValidation(final String str) {
+        if (str.contains("//")) {
+            throw new IllegalArgumentException();
         }
     }
 

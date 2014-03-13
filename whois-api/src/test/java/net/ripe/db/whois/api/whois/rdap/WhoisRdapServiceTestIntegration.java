@@ -299,6 +299,36 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_inetnum_invalid_syntax_multislash() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "changed:      dbtest@ripe.net 20020101\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        try {
+            createResource("ip/192.0.0.0//32")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+            fail();
+        } catch (final BadRequestException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, containsString("" +
+                    "  } ],\n" +
+                    "  \"port43\" : \"whois.ripe.net\",\n" +
+                    "  \"errorCode\" : 400,\n" +
+                    "  \"title\" : \"Invalid syntax.\","));
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+        }
+    }
+
+    @Test
     public void lookup_inetnum_invalid_syntax() {
         try {
             createResource("ip/invalid")
@@ -306,7 +336,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Ip.class);
             fail();
         } catch (final BadRequestException e) {
-            // expected
             final String response = e.getResponse().readEntity(String.class);
             assertThat(response, containsString("" +
                     "  } ],\n" +
