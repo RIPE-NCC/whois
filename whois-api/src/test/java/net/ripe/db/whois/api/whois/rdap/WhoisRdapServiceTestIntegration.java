@@ -5,7 +5,18 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.freetext.FreeTextIndex;
 import net.ripe.db.whois.api.rest.RestClientUtils;
-import net.ripe.db.whois.api.whois.rdap.domain.*;
+import net.ripe.db.whois.api.whois.rdap.domain.Action;
+import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
+import net.ripe.db.whois.api.whois.rdap.domain.Domain;
+import net.ripe.db.whois.api.whois.rdap.domain.Entity;
+import net.ripe.db.whois.api.whois.rdap.domain.Event;
+import net.ripe.db.whois.api.whois.rdap.domain.Ip;
+import net.ripe.db.whois.api.whois.rdap.domain.Link;
+import net.ripe.db.whois.api.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.whois.rdap.domain.Notice;
+import net.ripe.db.whois.api.whois.rdap.domain.Remark;
+import net.ripe.db.whois.api.whois.rdap.domain.Role;
+import net.ripe.db.whois.api.whois.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
@@ -27,7 +38,13 @@ import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -290,7 +307,15 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (final BadRequestException e) {
             // expected
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, containsString("" +
+                    "  } ],\n" +
+                    "  \"port43\" : \"whois.ripe.net\",\n" +
+                    "  \"errorCode\" : 400,\n" +
+                    "  \"title\" : \"Invalid syntax.\","));
+            assertThat(e.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
         }
+
     }
 
     // inet6num

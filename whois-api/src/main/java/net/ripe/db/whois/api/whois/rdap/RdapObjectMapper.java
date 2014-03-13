@@ -97,6 +97,14 @@ class RdapObjectMapper {
         return mapCommons(searchResult, requestUrl);
     }
 
+    public RdapObject mapError(final Integer errorCode, final String errorTitle, final List<String> errorDescriptions) {
+        final RdapObject rdapObject = mapCommons(new RdapObject(), null);
+        rdapObject.setErrorCode(errorCode);
+        rdapObject.setErrorTitle(errorTitle);
+        rdapObject.setDescription(errorDescriptions);
+        return rdapObject;
+    }
+
     private RdapObject getRdapObject(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, final List<RpslObject> abuseContacts) {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();

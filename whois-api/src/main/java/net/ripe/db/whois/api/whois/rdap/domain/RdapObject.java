@@ -3,7 +3,12 @@ package net.ripe.db.whois.api.whois.rdap.domain;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Lists;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 import java.util.List;
 
@@ -39,6 +44,12 @@ public class RdapObject implements Serializable {
     protected List<String> rdapConformance;
     protected List<Notice> notices;
     protected String port43;
+
+    protected Integer errorCode;
+    @XmlElement(name = "title")
+    protected String errorTitle;
+    @XmlElement(name = "description")
+    protected List<String> errorDescription;
 
     public List<Object> getStatus() {
         if (status == null) {
@@ -103,5 +114,32 @@ public class RdapObject implements Serializable {
 
     public void setPort43(final String value) {
         this.port43 = value;
+    }
+
+    public Integer getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(final Integer errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorTitle() {
+        return errorTitle;
+    }
+
+    public void setErrorTitle(final String errorTitle) {
+        this.errorTitle = errorTitle;
+    }
+
+    public List<String> getDescription() {
+        if (errorDescription == null) {
+            errorDescription = Lists.newArrayList();
+        }
+        return this.errorDescription;
+    }
+
+    public void setDescription(final List<String> description) {
+        this.errorDescription = description;
     }
 }

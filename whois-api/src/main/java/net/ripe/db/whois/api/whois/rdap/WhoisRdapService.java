@@ -235,7 +235,7 @@ public class WhoisRdapService {
         try {
             IpInterval.parse(key);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid IP syntax.", e);
+            throw createError(Response.Status.BAD_REQUEST, "Invalid syntax.", Collections.EMPTY_LIST);
         }
     }
 
@@ -243,20 +243,28 @@ public class WhoisRdapService {
         try {
             AutNum.parse(key);
         } catch (AttributeParseException e) {
-            throw new IllegalArgumentException("Invalid syntax.");
+            throw createError(Response.Status.BAD_REQUEST, "Invalid syntax.", Collections.EMPTY_LIST);
         }
     }
 
     private void validateEntity(final String key) {
         if (key.toUpperCase().startsWith("ORG-")) {
             if (!AttributeType.ORGANISATION.isValidValue(ORGANISATION, key)) {
-                throw new IllegalArgumentException("Invalid syntax.");
+                throw createError(Response.Status.BAD_REQUEST, "Invalid syntax.", Collections.EMPTY_LIST);
             }
         } else {
             if (!AttributeType.NIC_HDL.isValidValue(ObjectType.PERSON, key)) {
-                throw new IllegalArgumentException("Invalid syntax");
+                throw createError(Response.Status.BAD_REQUEST, "Invalid syntax.", Collections.EMPTY_LIST);
             }
         }
+    }
+
+    private WebApplicationException createError(final Response.Status status, final String errorTitle, final List<String> errorDescriptions) {
+        final Response response = Response.status(status)
+                .entity(rdapObjectMapper.mapError(status.getStatusCode(), errorTitle, errorDescriptions))
+                .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
+                .build();
+        return new WebApplicationException(response);
     }
 
     private String getKey(final Set<ObjectType> objectTypes, final String key) {
