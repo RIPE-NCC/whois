@@ -70,6 +70,11 @@
             <artifactId>stax-utils</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.ow2.util.bundles</groupId>
+            <artifactId>jaxb2-ri-2.2.5</artifactId>
+        </dependency>
+
         <!-- Lucene free text search -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
