@@ -384,7 +384,7 @@
                 <version>2.3.1</version>
             </dependency>
 
-            <!-- StaxUtils for the XmlWriterUtils -->
+            <!-- StaxUtils for the XMLWriterUtils -->
             <dependency>
                 <groupId>net.java.dev.stax-utils</groupId>
                 <artifactId>stax-utils</artifactId>
@@ -395,6 +395,13 @@
                         <artifactId>jsr173-ri</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <!-- com.sun.xml, for jaxbmarshaller -->
+            <dependency>
+                <groupId>org.ow2.util.bundles</groupId>
+                <artifactId>jaxb2-ri-2.2.5</artifactId>
+                <version>1.0.0</version>
             </dependency>
 
             <!-- lucene for fulltext search -->

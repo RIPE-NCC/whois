@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.ImmutableList;
-import com.sun.xml.internal.bind.marshaller.CharacterEscapeHandler;
+import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 import javanet.staxutils.events.NamespaceEvent;
 import javanet.staxutils.io.XMLWriterUtils;
 import net.ripe.db.whois.api.rest.domain.Link;
@@ -48,7 +48,7 @@ class StreamingMarshalXml implements StreamingMarshal {
             marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.setProperty("com.sun.xml.internal.bind.characterEscapeHandler", NEWLINE_ESCAPE_HANDLER);
+            marshaller.setProperty(CharacterEscapeHandler.class.getName(), NEWLINE_ESCAPE_HANDLER);
 
         } catch (JAXBException e) {
             throw new StreamingException(e);
