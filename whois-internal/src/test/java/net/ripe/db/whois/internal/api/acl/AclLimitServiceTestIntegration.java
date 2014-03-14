@@ -16,6 +16,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -69,7 +70,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
                     .get(Limit.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("'10' is not an IP string literal."));
+            assertThat(e.getResponse().readEntity(String.class), containsString("'10' is not an IP string literal."));
         }
     }
 
@@ -104,7 +105,7 @@ public class AclLimitServiceTestIntegration extends AbstractInternalTest {
                     .post(Entity.entity(new Limit("1001:1002::", "test", 10000, true), MediaType.APPLICATION_JSON_TYPE), Limit.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("IPv6 must be at least a /64 prefix range"));
+            assertThat(e.getResponse().readEntity(String.class), containsString("IPv6 must be at least a /64 prefix range"));
         }
     }
 
