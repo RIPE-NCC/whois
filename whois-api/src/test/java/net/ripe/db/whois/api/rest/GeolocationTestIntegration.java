@@ -281,7 +281,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
                     .get(String.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("ipkey is required"));
+            assertThat(e.getResponse().readEntity(String.class), containsString("ipkey is required"));
         }
     }
 }
