@@ -98,7 +98,7 @@ public class AclBanServiceTestIntegration extends AbstractInternalTest {
                 .post(Entity.entity(new Ban("10.1.2.0/24", "comment", new Date()), MediaType.APPLICATION_JSON_TYPE), String.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("IPv4 must be a single address"));
+            assertThat(e.getResponse().readEntity(String.class), containsString("IPv4 must be a single address"));
         }
     }
 

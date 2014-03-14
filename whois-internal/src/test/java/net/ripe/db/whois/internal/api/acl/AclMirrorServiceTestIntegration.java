@@ -14,6 +14,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -70,7 +71,7 @@ public class AclMirrorServiceTestIntegration extends AbstractInternalTest {
                     .get(Mirror.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("'10' is not an IP string literal."));
+            assertThat(e.getResponse().readEntity(String.class), containsString("'10' is not an IP string literal."));
         }
     }
 
