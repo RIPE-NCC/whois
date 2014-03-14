@@ -194,6 +194,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public RpslObject getByKey(final ObjectType type, final CIString key) {
+        // tries fast lookup by last table first, then fall back on index tables in case of keys which have multiple formatting, e.g. inet6num
         try {
             return jdbcTemplate.queryForObject("" +
                     "SELECT object_id, object " +

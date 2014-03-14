@@ -193,7 +193,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 hasItem(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")));
     }
 
-
     @Test
     public void create_and_lookup_with_sso_only() throws Exception {
         final RpslObject object = RpslObject.parse("" +

@@ -19,31 +19,32 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
     public void template_xml() throws Exception {
         final String response = request("whois/metadata/templates/peering-set.xml", HttpURLConnection.HTTP_OK);
 
-        assertThat(response, is(
+        assertThat(response, is(""+
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<template-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
-                        "  <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/metadata/templates/peering-set\" />\n" +
-                        "  <service name=\"getObjectTemplate\" />\n" +
-                        "  <templates>\n" +
-                        "    <template type=\"peering-set\">\n" +
-                        "      <source id=\"ripe\" />\n" +
-                        "      <attributes>\n" +
-                        "        <attribute name=\"peering-set\" requirement=\"MANDATORY\" cardinality=\"SINGLE\" keys=\"PRIMARY_KEY LOOKUP_KEY\" />\n" +
-                        "        <attribute name=\"descr\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"\" />\n" +
-                        "        <attribute name=\"peering\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\" />\n" +
-                        "        <attribute name=\"mp-peering\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\" />\n" +
-                        "        <attribute name=\"remarks\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\" />\n" +
-                        "        <attribute name=\"org\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\" />\n" +
-                        "        <attribute name=\"tech-c\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\" />\n" +
-                        "        <attribute name=\"admin-c\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\" />\n" +
-                        "        <attribute name=\"notify\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\" />\n" +
-                        "        <attribute name=\"mnt-by\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\" />\n" +
-                        "        <attribute name=\"mnt-lower\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\" />\n" +
-                        "        <attribute name=\"changed\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"\" />\n" +
-                        "        <attribute name=\"source\" requirement=\"MANDATORY\" cardinality=\"SINGLE\" keys=\"\" />\n" +
-                        "      </attributes>\n" +
-                        "    </template>\n" +
-                        "  </templates>\n" +
-                        "</template-resources>"));
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/metadata/templates/peering-set\"/>\n" +
+                "    <service name=\"getObjectTemplate\"/>\n" +
+                "    <templates>\n" +
+                "        <template type=\"peering-set\">\n" +
+                "            <source id=\"ripe\"/>\n" +
+                "            <attributes>\n" +
+                "                <attribute name=\"peering-set\" requirement=\"MANDATORY\" cardinality=\"SINGLE\" keys=\"PRIMARY_KEY LOOKUP_KEY\"/>\n" +
+                "                <attribute name=\"descr\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
+                "                <attribute name=\"peering\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
+                "                <attribute name=\"mp-peering\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
+                "                <attribute name=\"remarks\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
+                "                <attribute name=\"org\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>\n" +
+                "                <attribute name=\"tech-c\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>\n" +
+                "                <attribute name=\"admin-c\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>\n" +
+                "                <attribute name=\"notify\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>\n" +
+                "                <attribute name=\"mnt-by\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>\n" +
+                "                <attribute name=\"mnt-lower\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>\n" +
+                "                <attribute name=\"changed\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
+                "                <attribute name=\"source\" requirement=\"MANDATORY\" cardinality=\"SINGLE\" keys=\"\"/>\n" +
+                "            </attributes>\n" +
+                "        </template>\n" +
+                "    </templates>\n" +
+                "</template-resources>"));
     }
 
     @Test
@@ -150,13 +151,14 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
     public void sources_xml() throws Exception {
         final String response = request("whois/metadata/sources.xml", HttpURLConnection.HTTP_OK);
         assertThat(response, is("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
-                "  <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/metadata/sources\" />\n" +
-                "  <service name=\"getSupportedDataSources\" />\n" +
-                "  <sources>\n" +
-                "    <source id=\"test\" />\n" +
-                "    <source id=\"test-grs\" />\n" +
-                "  </sources>\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/metadata/sources\"/>\n" +
+                "    <service name=\"getSupportedDataSources\"/>\n" +
+                "    <sources>\n" +
+                "        <source id=\"test\"/>\n" +
+                "        <source id=\"test-grs\"/>\n" +
+                "    </sources>\n" +
                 "</whois-resources>"));
     }
 

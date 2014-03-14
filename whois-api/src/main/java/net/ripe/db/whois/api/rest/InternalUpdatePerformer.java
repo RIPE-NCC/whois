@@ -21,6 +21,7 @@ import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.OverrideCredential;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -88,7 +89,6 @@ public class InternalUpdatePerformer {
 
         final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
         updateRequestHandler.handle(updateRequest, updateContext);
-        final RpslObject responseObject = updateContext.getPreparedUpdate(update).getUpdatedObject();
 
         final Response.ResponseBuilder responseBuilder;
         UpdateStatus status = updateContext.getStatus(update);
@@ -107,13 +107,13 @@ public class InternalUpdatePerformer {
         return responseBuilder.entity(new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
-                final WhoisResources result = createResponse(request, updateContext, update, responseObject);
+                final WhoisResources result = createResponse(request, updateContext, update);
                 WhoisRestService.getStreamingMarshal(request, output).singleton(result);
             }
         }).build();
     }
 
-    private WhoisResources createResponse(final HttpServletRequest request, final UpdateContext updateContext, final Update update, final RpslObject responseObject) {
+    private WhoisResources createResponse(final HttpServletRequest request, final UpdateContext updateContext, final Update update) {
         final WhoisResources whoisResources = new WhoisResources();
         // global messages
         final List<ErrorMessage> errorMessages = Lists.newArrayList();
@@ -137,7 +137,12 @@ public class InternalUpdatePerformer {
         if (!errorMessages.isEmpty()) {
             whoisResources.setErrorMessages(errorMessages);
         }
-        whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(responseObject)));
+
+        final PreparedUpdate preparedUpdate = updateContext.getPreparedUpdate(update);
+        if (preparedUpdate != null) {
+            whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(preparedUpdate.getUpdatedObject())));
+        }
+
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
         whoisResources.includeTermsAndConditions();
         return whoisResources;

@@ -21,7 +21,11 @@ public class RestServiceHelperTest {
         assertThat(getRequestURL("http://test.net", "flags=list-versions"), is("http://test.net?flags=list-versions"));
         assertThat(getRequestURL("http://test.net", "password=abc"), is("http://test.net"));
         assertThat(getRequestURL("http://test.net", "password=abc&password=xyz"), is("http://test.net"));
+        assertThat(getRequestURL("http://test.net", "password= abc&PassWord=xyz"), is("http://test.net"));
         assertThat(getRequestURL("http://test.net", "param=one&password=xyz"), is("http://test.net?param=one"));
+        assertThat(getRequestURL("http://test.net", "param=password&password=xyz"), is("http://test.net?param=password"));
+        assertThat(getRequestURL("http://test.net", "param=password&parampassword=xyz"), is("http://test.net?param=password&parampassword=xyz"));
+        assertThat(getRequestURL("http://test.net", "param=password&password=xyz&param=password&param=one"), is("http://test.net?param=password&param=password&param=one"));
         assertThat(getRequestURL("http://test.net", "password=xyz&param=one"), is("http://test.net?param=one"));
         assertThat(getRequestURL("http://test.net", "password=abc&param=one&password=xyz"), is("http://test.net?param=one"));
         assertThat(getRequestURL("http://test.net", "param=one&password=abc&param=two"), is("http://test.net?param=one&param=two"));

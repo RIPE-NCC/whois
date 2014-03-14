@@ -48,6 +48,7 @@ public class WhoisRestServiceTest {
         source = Source.slave("TEST");
         when(sourceContext.getCurrentSource()).thenReturn(source);
         when(sourceContext.getAllSourceNames()).thenReturn(CIString.ciSet("TEST", "TEST-GRS"));
+        when(request.getRequestURL()).thenReturn(new StringBuffer());
     }
 
     @Test
