@@ -733,7 +733,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 route6: 5353::0/24
                 descr: Test route6
                 origin: AS123
-                pingable: 5353::0/32
+                pingable: 5353::
                 mnt-by: TEST-MNT
                 changed: ripe@test.net 20091015
                 source: TEST
@@ -754,7 +754,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 route6: 5353::0/24
                 descr: Test route6
                 origin: AS123
-                pingable: 5354::0/32
+                pingable: 5354::0
                 mnt-by: TEST-MNT
                 changed: ripe@test.net 20091015
                 source: TEST
@@ -893,7 +893,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         descr:          Test route
                         origin:         AS12726
                         mnt-by:         TEST-MNT
-                        pingable:       9998::/32
+                        pingable:       9998::
                         changed:        ripe@test.net 20091015
                         source:         TEST
                         password:       update
@@ -955,7 +955,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             route6: 5353::0/24
                             descr: Test route6
                             origin: AS12726
-                            pingable: 5353::0/32
+                            pingable: 5353::0
                             mnt-by: TEST-MNT
                             changed: ripe@test.net 20091015
                             source: TEST
@@ -991,7 +991,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             route6: 5353::/24
                             descr: Test route6
                             origin: AS12726
-                            pingable: 5353::0/32
+                            pingable: 5353::0
                             mnt-by: TEST-MNT
                             changed: ripe@test.net 20091015
                             source: TEST
@@ -1014,7 +1014,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             route6: 5353::0/24
                             descr: Test route6
                             origin: AS12726
-                            pingable: 5353::0/32
+                            pingable: 5353::0
                             mnt-by: TEST-MNT
                             changed: ripe@test.net 20091015
                             source: TEST
@@ -1050,7 +1050,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             route6: 5353::0/24
                             descr: Test route6 modified
                             origin: AS12726
-                            pingable: 5353::0/32
+                            pingable: 5353::
                             mnt-by: TEST-MNT
                             changed: ripe@test.net 20091015
                             source: TEST
