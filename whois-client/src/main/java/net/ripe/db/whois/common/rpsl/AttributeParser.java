@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.attrs.AddressPrefixRange;
+import net.ripe.db.whois.common.rpsl.attrs.IPAddress;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.AutNum;
@@ -26,6 +27,13 @@ public interface AttributeParser<T> {
         @Override
         public AddressPrefixRange parse(final String s) {
             return AddressPrefixRange.parse(s);
+        }
+    }
+
+    final class IPAddressParser implements AttributeParser<IPAddress> {
+        @Override
+        public IPAddress parse(final String s) {
+            return IPAddress.parse(s);
         }
     }
 
