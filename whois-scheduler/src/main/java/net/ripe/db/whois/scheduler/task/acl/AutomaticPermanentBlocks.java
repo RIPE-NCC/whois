@@ -25,7 +25,9 @@ public class AutomaticPermanentBlocks implements DailyScheduledTask {
     private final IpResourceConfiguration ipResourceConfiguration;
 
     @Autowired
-    public AutomaticPermanentBlocks(final DateTimeProvider dateTimeProvider, final AccessControlListDao accessControlListDao, final IpResourceConfiguration ipResourceConfiguration) {
+    public AutomaticPermanentBlocks(final DateTimeProvider dateTimeProvider,
+                                    final AccessControlListDao accessControlListDao,
+                                    final IpResourceConfiguration ipResourceConfiguration) {
         this.dateTimeProvider = dateTimeProvider;
         this.accessControlListDao = accessControlListDao;
         this.ipResourceConfiguration = ipResourceConfiguration;
