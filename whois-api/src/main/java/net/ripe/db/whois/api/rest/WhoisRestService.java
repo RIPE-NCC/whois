@@ -44,6 +44,8 @@ import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -106,6 +108,9 @@ import static net.ripe.db.whois.query.QueryFlag.VERSION;
 @Component
 @Path("/")
 public class WhoisRestService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRestService.class);
+
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
 
     public static final String SERVICE_SEARCH = "search";
@@ -649,6 +654,7 @@ public class WhoisRestService {
                 return new WebApplicationException(responseBuilder.build());
 
             } else {
+                LOGGER.error(exception.getMessage(), exception);
 
                 final Response.ResponseBuilder responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
                 final List<Message> messages = responseHandler.flushAndGetErrors();

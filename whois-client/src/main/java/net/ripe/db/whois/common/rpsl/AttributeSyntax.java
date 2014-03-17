@@ -418,7 +418,10 @@ public interface AttributeSyntax extends Documented {
             "<string> can include alphanumeric characters, and \"_\" and\n" +
             "\"-\" characters.\n");
 
-    AttributeSyntax PINGABLE_SYNTAX = new RoutePrefixSyntax();
+    AttributeSyntax PINGABLE_SYNTAX = new AttributeSyntaxParser(new AttributeParser.IPAddressParser(), "" +
+            "<ipv4-address> as defined in RFC2622\n" +
+            "| <ipv6-address> as defined in RFC4012\n");
+
     AttributeSyntax PHONE_SYNTAX = new AttributeSyntaxRegexp(30,
             Pattern.compile("" +
                     "(?i)^" +

@@ -47,23 +47,30 @@ public class AbuseCFinder {
     @CheckForNull
     @Nullable
     public String getAbuseContact(final RpslObject object) {
+        final RpslObject role = getAbuseContactRole(object);
+        return (role != null) ? role.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString() : null;
+    }
+
+    @CheckForNull
+    @Nullable
+    public RpslObject getAbuseContactRole(final RpslObject object) {
         switch (object.getType()) {
             case INETNUM:
             case INET6NUM:
 
-                final String abuseMailbox = getAbuseMailbox(object);
+                final RpslObject role = getAbuseContactRoleInternal(object);
 
-                if (abuseMailbox == null) {
+                if (role == null) {
                     final RpslObject parentObject = getParentObject(object);
                     if (parentObject != null && !isMaintainedByRs(parentObject)) {
-                        return getAbuseContact(parentObject);
+                        return getAbuseContactRole(parentObject);
                     }
                 }
 
-                return abuseMailbox;
+                return role;
 
             case AUT_NUM:
-                return getAbuseMailbox(object);
+                return getAbuseContactRoleInternal(object);
 
             default:
                 return null;
@@ -72,7 +79,7 @@ public class AbuseCFinder {
 
     @CheckForNull
     @Nullable
-    public RpslObject getAbuseContactRole(final RpslObject object) {
+    private RpslObject getAbuseContactRoleInternal(final RpslObject object) {
         try {
             if (object.containsAttribute(AttributeType.ORG)) {
                 final RpslObject organisation = objectDao.getByKey(ObjectType.ORGANISATION, object.getValueForAttribute(AttributeType.ORG));
@@ -86,14 +93,7 @@ public class AbuseCFinder {
         } catch (EmptyResultDataAccessException ignored) {
             LOGGER.debug("Ignored invalid reference (object {})", object.getKey());
         }
-
         return null;
-    }
-
-    @Nullable
-    private String getAbuseMailbox(final RpslObject object) {
-        final RpslObject abuseContactRole = getAbuseContactRole(object);
-        return (abuseContactRole != null) ? abuseContactRole.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString() : null;
     }
 
     private boolean isMaintainedByRs(final RpslObject inetObject) {
