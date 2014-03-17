@@ -97,7 +97,7 @@ public class LoggingDriverTest {
         assertThat(propertyInfo.length, greaterThan(0));
     }
 
-    public static class TestLoggingHandler implements LoggingHandler {
+    static class TestLoggingHandler implements LoggingHandler {
         @Override
         public void log(StatementInfo statementInfo, ResultInfo resultInfo) {
             currentLoggingHandler.log(statementInfo, resultInfo);
