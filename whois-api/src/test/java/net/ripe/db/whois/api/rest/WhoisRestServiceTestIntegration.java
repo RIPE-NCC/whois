@@ -46,6 +46,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
@@ -755,6 +756,32 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
                 new Attribute("auth", "SSO person@net.net"),
                 new Attribute("source", "TEST")));
+    }
+
+    @Test
+    public void lookup_maintainer_invalid_crowd_uuid() throws Exception {
+        databaseHelper.addObject(
+                "mntner:         MNT-TEST\n" +
+                "descr:          Test maintainer\n" +
+                "admin-c:        TP1-TEST\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "auth:           MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
+                "auth:           SSO e58f4ee0-5d26-450f-a933-349ce1440fbc\n" +
+                "mnt-by:         MNT-TEST\n" +
+                "referral-by:    MNT-TEST\n" +
+                "changed:        noreply@ripe.net 20140115\n" +
+                "source:         TEST");
+
+        try {
+            RestTest.target(getPort(), "whois/TEST/mntner/MNT-TEST?password=123&unfiltered")
+                    .request(MediaType.APPLICATION_XML_TYPE)
+                    .cookie("crowd.access_key", "xyzinvalid")
+                    .get(WhoisResources.class);
+            fail();
+        } catch (InternalServerErrorException e) {
+            // TODO: [ES] also test that we log the error on the server side.
+            assertThat(e.getResponse().readEntity(String.class), containsString("internal software error"));
+        }
     }
 
     @Test
