@@ -885,11 +885,11 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     def "create route pingable contained withing prefix value"() {
       when:
         def create = new SyncUpdate(data: """\
-                route: 195.0/24
+                route: 195.0.0.0/24
                 descr: other route
                 origin: AS456
                 mnt-by: LOWER-MNT
-                pingable: 195.0/32
+                pingable: 195.0.0.1
                 changed: ripe@test.net 20091015
                 source: TEST
                 password: update
@@ -908,11 +908,11 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     def "create route pingable not contained withing prefix value"() {
       when:
         def create = new SyncUpdate(data: """\
-                route: 195.0/24
+                route: 195.0.0.0/24
                 descr: other route
                 origin: AS456
                 mnt-by: LOWER-MNT
-                pingable: 196.0/32
+                pingable: 196.0.0.1
                 changed: ripe@test.net 20091015
                 source: TEST
                 password: update
@@ -1048,11 +1048,11 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     def "modify route fail on pingables "() {
       when:
         def response = syncUpdate new SyncUpdate(data: """\
-                        route: 180.0/24
+                        route: 180.0.0.0/24
                         descr: Test route
                         origin: AS12726
                         mnt-by: TEST-MNT
-                        pingable: 181.0.0.0/32
+                        pingable: 181.0.0.0
                         changed: ripe@test.net 20091015
                         source: TEST
                         password: update
