@@ -148,7 +148,7 @@ class PingSpec extends BaseQueryUpdateSpec {
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
                 pingable:       99.13.0.1
-                pingable:       2013:600::/32
+                pingable:       2013:600::
                 ping-hdl:       TP1-test
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
@@ -188,7 +188,7 @@ class PingSpec extends BaseQueryUpdateSpec {
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
                 pingable:       99.13.0.1
-                pingable:       2013:600::/32
+                pingable:       2013:600::
                 ping-hdl:       TP1-test
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
@@ -227,7 +227,7 @@ class PingSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                pingable:       2014:600::/32
+                pingable:       2014:600::
                 ping-hdl:       TP1-test
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
