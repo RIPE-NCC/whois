@@ -15,7 +15,7 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 
 @ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml"})
 @TestExecutionListeners(listeners = {
-        SetupQueryDatabaseTestExecutionListener.class,
+//        SetupQueryDatabaseTestExecutionListener.class,
         TransactionalTestExecutionListener.class,
         DependencyInjectionTestExecutionListener.class,
         DirtiesContextTestExecutionListener.class},

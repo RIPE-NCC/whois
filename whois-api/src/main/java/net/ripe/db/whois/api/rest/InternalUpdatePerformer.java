@@ -224,6 +224,7 @@ public class InternalUpdatePerformer {
         }
     }
 
+    // TODO: [AH] format logging of this properly (e.g. add proper global message support for headers and request url
     public static void logHttpHeaders(final LoggerContext loggerContext, final HttpServletRequest request) {
         final Enumeration<String> names = request.getHeaderNames();
         while (names.hasMoreElements()) {

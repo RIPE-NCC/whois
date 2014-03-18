@@ -40,6 +40,10 @@ public class LoggerContextTest {
 
     @Before
     public void setUp() throws Exception {
+        try {   // need to reinit static threadlocal
+            subject.remove();
+        } catch (IllegalStateException ignored) {}
+        
         subject.init(folder.getRoot());
 
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(new LocalDateTime());
@@ -159,6 +163,7 @@ public class LoggerContextTest {
     @Test
     public void init_with_null_should_not_fail() throws Exception {
         LoggerContext context = new LoggerContext(dateTimeProvider);
+        context.remove();
         context.setBaseDir(folder.getRoot().getCanonicalPath());
 
         context.init((String) null);
@@ -169,6 +174,7 @@ public class LoggerContextTest {
     @Test
     public void init_filename_too_long() throws Exception {
         LoggerContext context = new LoggerContext(dateTimeProvider);
+        context.remove();
         context.setBaseDir(folder.getRoot().getCanonicalPath());
 
         context.init(
@@ -184,6 +190,7 @@ public class LoggerContextTest {
     @Test
     public void init_filename_illegal_path() throws Exception {
         LoggerContext context = new LoggerContext(dateTimeProvider);
+        context.remove();
         context.setBaseDir(folder.getRoot().getCanonicalPath());
 
         context.init("/../../../../../../../");
@@ -195,6 +202,7 @@ public class LoggerContextTest {
     @Test
     public void init_filename_illegal_characters() throws Exception {
         LoggerContext context = new LoggerContext(dateTimeProvider);
+        context.remove();
         context.setBaseDir(folder.getRoot().getCanonicalPath());
 
         context.init("2001:2002::\t\n\\x0B\f\r//?<>\\*|\"");

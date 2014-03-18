@@ -29,6 +29,8 @@ public class LoggingDriver implements Driver {
     private static final String URL_DELIMITERS = ":/;=&?";
 
     private static final Map<String, Target> targets = Maps.newHashMap();
+
+    // FIXME: [AH] design issue: LoggingHandler is passed down to Connections, but on multiple/reinitialized ApplicationContexts, JDBC is keeping a dangling reference to it
     private LoggingHandler loggingHandler;
 
     @Autowired(required = false)
@@ -37,12 +39,16 @@ public class LoggingDriver implements Driver {
     }
 
     @PostConstruct
-    public void init() {
-        // there should be only one LoggingDriver initialized per JVM (or we won't know which applicationContext's logger to log to)
+    public synchronized void init() {
+        // there should be only one LoggingDriver initialized per JVM (or we won't know which applicationContext's loggerContext to log to)
         try {
             Driver driver = DriverManager.getDriver(URL_PREFIX);
             LOGGER.error("LoggingDriver already installed; removing");
-            DriverManager.deregisterDriver(driver);
+            try {
+                DriverManager.deregisterDriver(driver);
+            } catch (SQLException e) {
+                throw new IllegalStateException("Unable to de-register logging JDBC driver", e);
+            }
         } catch (SQLException expected) {
         }
 
@@ -54,11 +60,11 @@ public class LoggingDriver implements Driver {
     }
 
     @PreDestroy
-    public void shutdown() {
+    public synchronized void shutdown() {
         try {
             DriverManager.deregisterDriver(this);
         } catch (SQLException e) {
-            LOGGER.error("Unable to de-register logging JDBC driver", e);
+            throw new IllegalStateException("Unable to de-register logging JDBC driver", e);
         }
     }
 
