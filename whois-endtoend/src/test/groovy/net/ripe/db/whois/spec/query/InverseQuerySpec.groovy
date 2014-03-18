@@ -1,16 +1,10 @@
 package net.ripe.db.whois.spec.query
 
+import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.BasicFixtures
 
-/**
- * Created with IntelliJ IDEA.
- * User: denis
- * Date: 12/04/2013
- * Time: 13:19
- * To change this template use File | Settings | File Templates.
- */
-
+@org.junit.experimental.categories.Category(EndToEndTest.class)
 class InverseQuerySpec extends BaseQueryUpdateSpec {
 
     @Override

@@ -1,11 +1,13 @@
 package net.ripe.db.whois.spec.update
 
+import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import org.joda.time.LocalDateTime
 import spock.lang.Ignore
 
 @Ignore("We are not pushing current unref cleanup into production, but reimplement it - review this suite then")
+@org.junit.experimental.categories.Category(EndToEndTest.class)
 class UnrefCleanupSpec extends BaseQueryUpdateSpec {
 
     def "non-existing object"() {

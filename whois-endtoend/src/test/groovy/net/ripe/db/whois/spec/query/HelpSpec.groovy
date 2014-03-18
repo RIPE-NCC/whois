@@ -1,8 +1,10 @@
 package net.ripe.db.whois.spec.query
 
+import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.query.QueryMessages
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
+@org.junit.experimental.categories.Category(EndToEndTest.class)
 class HelpSpec extends BaseQueryUpdateSpec {
 
     def header = """\
