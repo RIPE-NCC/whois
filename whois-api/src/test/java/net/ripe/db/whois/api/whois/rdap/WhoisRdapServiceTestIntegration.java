@@ -1073,7 +1073,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorResponse(e, "");
+            assertErrorResponse(e, "empty lookup key");
         }
     }
 
@@ -1351,7 +1351,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            // expected
+            assertErrorResponse(e, "empty search term");
         }
     }
 

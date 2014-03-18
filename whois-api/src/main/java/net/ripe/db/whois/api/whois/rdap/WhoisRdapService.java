@@ -199,7 +199,7 @@ public class WhoisRdapService {
         LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
 
         if (StringUtils.isEmpty(name)) {
-            return createErrorResponse(Response.Status.BAD_REQUEST, "");
+            throw new IllegalArgumentException("empty lookup key");
         }
 
         return createErrorResponse(Response.Status.NOT_FOUND, "");
@@ -282,6 +282,10 @@ public class WhoisRdapService {
     }
 
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
+        if (StringUtils.isEmpty(key)) {
+            throw new IllegalArgumentException("empty lookup term");
+        }
+
         final Query query = Query.parse(
                 String.format("%s %s %s %s %s %s",
                         QueryFlag.NO_GROUPING.getLongFlag(),
@@ -392,6 +396,11 @@ public class WhoisRdapService {
 
     private Response handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
         LOGGER.info("Search {} for {}", fields, term);
+
+        if (StringUtils.isEmpty(term)) {
+            throw new IllegalArgumentException("empty search term");
+        }
+
         try {
             final List<RpslObject> objects = freeTextIndex.search(new IndexTemplate.SearchCallback<List<RpslObject>>() {
                 @Override
@@ -414,7 +423,8 @@ public class WhoisRdapService {
                         return results;
 
                     } catch (ParseException e) {
-                        throw new IllegalArgumentException(e);
+                        LOGGER.error("handleSearch", e);
+                        throw new IllegalArgumentException("cannot parse query " + term);
                     }
                 }
             });
