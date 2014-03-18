@@ -4,11 +4,13 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
+import groovy.lang.Category;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.common.EndToEndTest;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -46,7 +48,7 @@ import static org.junit.Assert.fail;
 
 // TODO: [ES] dependency on testlab properties in main whois.properties (should be separated into environment specific file)
 @ActiveProfiles(profiles = WhoisProfile.ENDTOEND, inheritProfiles = false)
-@Ignore("TODO: [ES] ignore failing tests for now")
+@Category(EndToEndTest.class)
 public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
     // accounts used for testing on serval.testlab

@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.authentication.Principal;
+import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -33,7 +34,9 @@ public class MntLowerAddedRemoved implements BusinessRuleValidator {
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        if (update.isOverride()) {
+        final Subject subject = updateContext.getSubject(update);
+
+        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
             return;
         }
 
@@ -46,7 +49,7 @@ public class MntLowerAddedRemoved implements BusinessRuleValidator {
         }
 
         final Set<CIString> differences = update.getDifferences(AttributeType.MNT_LOWER);
-        if (!differences.isEmpty() && !updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER)) {
+        if (!differences.isEmpty() && !subject.hasPrincipal(Principal.RS_MAINTAINER)) {
             updateContext.addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
         }
     }

@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
+import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -29,7 +30,9 @@ public class EnumDomainAuthorisationValidator implements BusinessRuleValidator {
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        if (update.isOverride()) {
+        final Subject subject = updateContext.getSubject(update);
+
+        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
             return;
         }
 
@@ -37,7 +40,7 @@ public class EnumDomainAuthorisationValidator implements BusinessRuleValidator {
         final CIString domainString = rpslObject.getKey();
         final Domain domain = Domain.parse(domainString);
         if (domain.getType() == Domain.Type.E164) {
-            if (!updateContext.getSubject(update).hasPrincipal(Principal.ENUM_MAINTAINER)) {
+            if (!subject.hasPrincipal(Principal.ENUM_MAINTAINER)) {
                 updateContext.addMessage(update, UpdateMessages.authorisationRequiredForEnumDomain());
             }
         }

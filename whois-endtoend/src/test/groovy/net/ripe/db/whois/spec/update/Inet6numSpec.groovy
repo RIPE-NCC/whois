@@ -1,10 +1,12 @@
 package net.ripe.db.whois.spec.update
 
+import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import spock.lang.Ignore
 
+@org.junit.experimental.categories.Category(EndToEndTest.class)
 class Inet6numSpec extends BaseQueryUpdateSpec {
 
     @Override

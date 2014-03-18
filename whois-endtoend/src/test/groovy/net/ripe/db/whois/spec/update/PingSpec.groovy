@@ -1,8 +1,10 @@
 package net.ripe.db.whois.spec.update
 
+import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
 
+@org.junit.experimental.categories.Category(EndToEndTest.class)
 class PingSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -168,7 +170,7 @@ class PingSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS2000" }
         ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS2000") ==
-              ["Syntax error in 2013:600::/32"]
+              ["2013:600:: is not a valid IPv4 address"]
 
         queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
@@ -205,10 +207,10 @@ class PingSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route6] 2013:600::/32AS2000" }
-        ack.errorMessagesFor("Create", "[route6] 2013:600::/32AS2000") ==
-              ["Syntax error in 99.13.0.1"]
+        ack.errorMessagesFor("Create", "[route6] 2013:600::/32AS2000") =~
+              ["99.13.0.1 is not a valid IPv6 address"]
 
         queryObjectNotFound("-rGBT route6 2013:600::/32", "route6", "2013:600::/32")
     }
@@ -247,7 +249,7 @@ class PingSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route6] 2013:600::/32AS2000" }
         ack.errorMessagesFor("Create", "[route6] 2013:600::/32AS2000") ==
-              ["2014:600::/32 is outside the range of this object"]
+              ["2014:600:: is outside the range of this object"]
 
         queryObjectNotFound("-rGBT route6 2013:600::/32", "route6", "2013:600::/32")
     }

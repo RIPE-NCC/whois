@@ -38,7 +38,7 @@ public class EndUserMaintainerChecksTest {
     public void modify_has_no_endusermntner() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST\nmnt-by: TEST-MNT"));
         when(updateContext.getSubject(update)).thenReturn(principalSubject);
-        when(principalSubject.hasPrincipal(any(Principal.class))).thenReturn(true);
+        when(principalSubject.hasPrincipal(Principal.ENDUSER_MAINTAINER)).thenReturn(true);
 
         subject.validate(update, updateContext);
 
@@ -47,7 +47,6 @@ public class EndUserMaintainerChecksTest {
 
     @Test
     public void modify_has_no_endusermntner_override() {
-        when(update.isOverride()).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST\nmnt-by: TEST-MNT"));
         when(updateContext.getSubject(update)).thenReturn(principalSubject);
         when(principalSubject.hasPrincipal(any(Principal.class))).thenReturn(true);
@@ -59,9 +58,9 @@ public class EndUserMaintainerChecksTest {
 
     @Test
     public void modify_succeeds() {
+        when(principalSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST\nmnt-by: END-MNT"));
         when(updateContext.getSubject(update)).thenReturn(principalSubject);
-        when(principalSubject.hasPrincipal(any(Principal.class))).thenReturn(true);
 
         subject.validate(update, updateContext);
 

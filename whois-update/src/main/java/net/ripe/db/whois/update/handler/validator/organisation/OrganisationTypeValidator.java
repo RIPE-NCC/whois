@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.authentication.Principal;
+import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -33,18 +34,16 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        if (update.isOverride()) {
+        final Subject subject = updateContext.getSubject(update);
+
+        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
             return;
         }
 
         final CIString orgType = update.getUpdatedObject().getValueForAttribute(AttributeType.ORG_TYPE);
-        final boolean authPowerMntner = updateContext.getSubject(update).hasPrincipal(Principal.POWER_MAINTAINER);
 
-
-        if (!OTHER.equals(orgType)) {
-            if (orgTypeHasChanged(update, orgType) && !authPowerMntner) {
-                updateContext.addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
-            }
+        if (!OTHER.equals(orgType) && orgTypeHasChanged(update, orgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
+            updateContext.addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
         }
     }
 

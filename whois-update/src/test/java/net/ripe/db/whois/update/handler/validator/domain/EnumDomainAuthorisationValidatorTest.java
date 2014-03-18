@@ -6,6 +6,7 @@ import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.Before;
@@ -17,7 +18,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnumDomainAuthorisationValidatorTest {
@@ -47,18 +52,22 @@ public class EnumDomainAuthorisationValidatorTest {
                 "domain: 200.193.193.in-addr.arpa"));
 
         subject.validate(update, updateContext);
-        verifyZeroInteractions(updateContext);
+
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
     public void validate_override() {
-        when(update.isOverride()).thenReturn(true);
+        when(authSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("domain: 2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
 
         when(authSubject.hasPrincipal(Principal.ENUM_MAINTAINER)).thenReturn(false);
 
         subject.validate(update, updateContext);
-        verifyZeroInteractions(updateContext);
+
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test

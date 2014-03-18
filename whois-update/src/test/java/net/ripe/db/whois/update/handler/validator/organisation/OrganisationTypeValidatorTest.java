@@ -7,6 +7,7 @@ import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.Before;
@@ -19,6 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -37,6 +39,7 @@ public class OrganisationTypeValidatorTest {
     @Before
     public void setup() {
         when(maintainers.getPowerMaintainers()).thenReturn(ciSet("POWER-MNT"));
+        when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(authenticationSubject);
     }
 
     @Test
@@ -54,11 +57,11 @@ public class OrganisationTypeValidatorTest {
 
     @Test
     public void update_is_override() {
-        when(update.isOverride()).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
 
         subject.validate(update, updateContext);
 
-        verify(update).isOverride();
+        verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(update);
         verifyNoMoreInteractions(updateContext);
     }

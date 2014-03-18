@@ -144,7 +144,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
     @Test
     public void validate_resource_not_maintained_by_ripe_override() {
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
+        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
+        when(subjectObject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
 
         final RpslObject original = RpslObject.parse("" +
@@ -159,7 +160,6 @@ public class OrgAttributeNotChangedValidatorTest {
                 "mnt-by: RIPE-NCC-END-MNT");
         when(update.getUpdatedObject()).thenReturn(updated);
 
-        when(update.isOverride()).thenReturn(Boolean.TRUE);
 
         subject.validate(update, updateContext);
 

@@ -1,8 +1,10 @@
 package net.ripe.db.whois.spec.query
 
+import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.BasicFixtures
 
+@org.junit.experimental.categories.Category(EndToEndTest.class)
 class TagsSpec extends BaseQueryUpdateSpec {
 
     @Override

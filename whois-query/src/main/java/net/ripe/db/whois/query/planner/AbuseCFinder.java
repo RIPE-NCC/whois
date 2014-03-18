@@ -3,7 +3,6 @@ package net.ripe.db.whois.query.planner;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.Set;
 
 @Component
 public class AbuseCFinder {
@@ -96,11 +94,7 @@ public class AbuseCFinder {
     }
 
     private boolean isMaintainedByRs(final RpslObject inetObject) {
-        final Set<CIString> objectMaintainers = Sets.newHashSet();
-        objectMaintainers.addAll(inetObject.getValuesForAttribute(AttributeType.MNT_BY));
-        objectMaintainers.addAll(inetObject.getValuesForAttribute(AttributeType.MNT_LOWER));
-
-        return !Sets.intersection(this.maintainers.getRsMaintainers(), objectMaintainers).isEmpty();
+        return !Sets.intersection(this.maintainers.getRsMaintainers(), inetObject.getValuesForAttribute(AttributeType.MNT_BY, AttributeType.MNT_LOWER)).isEmpty();
     }
 
     @Nullable

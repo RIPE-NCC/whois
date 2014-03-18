@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.authentication.Principal;
+import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -39,11 +40,8 @@ public class DeleteRsMaintainedObjectValidator implements BusinessRuleValidator 
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        if (update.isOverride()) {
-            return;
-        }
-
-        if (updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER)) {
+        final Subject subject = updateContext.getSubject(update);
+        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.RS_MAINTAINER)) {
             return;
         }
 
