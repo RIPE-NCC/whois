@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Properties;
 
+// TODO: [AH] remove mandatory @DIrtiesContext, rely on per-class @DirtiesContext and ReinitTestExecutionListener instead
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles(WhoisProfile.TEST)
 @TestExecutionListeners(listeners = {TransactionalTestExecutionListener.class})
