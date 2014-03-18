@@ -1395,11 +1395,30 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     private void assertErrorResponse(final ClientErrorException exception, final String expectedErrorText) {
         assertThat(exception.getResponse().readEntity(String.class), 
-                containsString(String.format("" +
-                "  } ],\n" +
-                "  \"port43\" : \"whois.ripe.net\",\n" +
-                "  \"errorCode\" : %d,\n" +
-                "  \"title\" : \"%s\",", 
+                containsString(String.format(
+                        "{\n" +
+                        "  \"links\" : [ {\n" +
+                        "    \"rel\" : \"self\"\n" +
+                        "  }, {\n" +
+                        "    \"value\" : \"http://www.ripe.net/data-tools/support/documentation/terms\",\n" +
+                        "    \"rel\" : \"copyright\",\n" +
+                        "    \"href\" : \"http://www.ripe.net/data-tools/support/documentation/terms\"\n" +
+                        "  } ],\n" +
+                        "  \"rdapConformance\" : [ \"rdap_level_0\" ],\n" +
+                        "  \"notices\" : [ {\n" +
+                        "    \"title\" : \"Terms and Conditions\",\n" +
+                        "    \"description\" : [ \"This is the RIPE Database query service. The objects are in RDAP format.\" ],\n" +
+                        "    \"links\" : [ {\n" +
+                        "      \"rel\" : \"terms-of-service\",\n" +
+                        "      \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\",\n" +
+                        "      \"type\" : \"application/pdf\"\n" +
+                        "    } ]\n" +
+                        "  } ],\n" +
+                        "  \"port43\" : \"whois.ripe.net\",\n" +
+                        "  \"errorCode\" : %d,\n" +
+                        "  \"title\" : \"%s\",\n" +
+                        "  \"description\" : [ ]\n" +           // TODO: [ES] omit empty arrays
+                        "}",
                         exception.getResponse().getStatus(),
                         expectedErrorText)));
     }
