@@ -1,7 +1,9 @@
 package net.ripe.db.whois.spec.query
 
+import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
+@org.junit.experimental.categories.Category(EndToEndTest.class)
 class BasicQuerySpec extends BaseQueryUpdateSpec {
 
     @Override

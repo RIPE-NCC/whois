@@ -1,9 +1,11 @@
 package net.ripe.db.whois.spec.update
 
+import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.BasicFixtures
 import net.ripe.db.whois.spec.domain.Message
 
+@org.junit.experimental.categories.Category(EndToEndTest.class)
 class MailSpec extends BaseQueryUpdateSpec {
 
     @Override

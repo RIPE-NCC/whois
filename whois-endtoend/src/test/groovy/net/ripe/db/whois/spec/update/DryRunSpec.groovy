@@ -1,9 +1,11 @@
 package net.ripe.db.whois.spec.update
 
+import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
+@org.junit.experimental.categories.Category(EndToEndTest.class)
 class DryRunSpec extends BaseQueryUpdateSpec {
 
     @Override
