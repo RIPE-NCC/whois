@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.io.ByteArrayOutput;
 import org.apache.commons.lang.Validate;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
@@ -285,17 +286,16 @@ public class RpslObject implements Identifiable, ResponseObject {
         return attributes.get(0).getCleanValue();
     }
 
-    public Set<CIString> getValuesForAttribute(final AttributeType attributeType) {
-        final List<RpslAttribute> attributeList = findAttributes(attributeType);
-        if (attributeList.isEmpty()) {
-            return Collections.emptySet();
-        }
-
+    public Set<CIString> getValuesForAttribute(final AttributeType... attributeType) {
         final Set<CIString> values = Sets.newLinkedHashSet();
-        for (final RpslAttribute attribute : attributeList) {
-            values.addAll(attribute.getCleanValues());
+        for (AttributeType attrType : attributeType) {
+            final List<RpslAttribute> rpslAttributes = getOrCreateCache().get(attrType);
+            if (!CollectionUtils.isEmpty(rpslAttributes)) {
+                for (RpslAttribute rpslAttribute : rpslAttributes) {
+                    values.addAll(rpslAttribute.getCleanValues());
+                }
+            }
         }
-
         return values;
     }
 }
