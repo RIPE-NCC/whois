@@ -55,8 +55,11 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
                 "inet6num:      ::/0\n" +
                 "netname:       IANA-BLK\n" +
                 "source:        TEST");
-
         ipTreeUpdater.rebuild();
+
+        deleteResourceData("test", "0.0.0.0/0");
+        deleteResourceData("test", "::/0");
+        refreshResourceData();
     }
 
     // autnum
@@ -198,6 +201,10 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     }
 
     // helper methods
+
+    private void deleteResourceData(final String source, final String resource) {
+        databaseHelper.getInternalsTemplate().update("DELETE FROM authoritative_resource WHERE source = ? AND resource = ?", source, resource);
+    }
 
     private void addResourceData(final String source, final String resource) {
         databaseHelper.getInternalsTemplate().update("INSERT INTO authoritative_resource (source, resource) VALUES (?, ?)", source, resource);
