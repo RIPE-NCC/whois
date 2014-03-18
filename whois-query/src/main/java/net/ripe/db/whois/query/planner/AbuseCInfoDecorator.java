@@ -54,10 +54,10 @@ class AbuseCInfoDecorator implements ResponseDecorator {
 
                 final String abuseContact = abuseCFinder.getAbuseContact(object);
 
-                if (abuseContact == null) {
-                    result.add(new MessageObject(QueryMessages.abuseCNotRegistered(object.getKey())));
-                } else {
+                if (abuseContact != null) {
                     result.add(new MessageObject(QueryMessages.abuseCShown(object.getKey(), abuseContact)));
+                } else {
+                    result.add(new MessageObject(QueryMessages.abuseCNotRegistered(object.getKey())));
                 }
 
                 result.add(input);

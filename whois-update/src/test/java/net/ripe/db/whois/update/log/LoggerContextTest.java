@@ -43,7 +43,7 @@ public class LoggerContextTest {
         try {   // need to reinit static threadlocal
             subject.remove();
         } catch (IllegalStateException ignored) {}
-        
+
         subject.init(folder.getRoot());
 
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(new LocalDateTime());

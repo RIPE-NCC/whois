@@ -7,9 +7,8 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.iptree.Ipv4Entry;
+import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
-import net.ripe.db.whois.common.iptree.Ipv6Entry;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -62,7 +61,7 @@ public class AbuseCFinder {
 
                 if (role == null) {
                     final RpslObject parentObject = getParentObject(object);
-                    if (parentObject != null && !isMaintainedByRs(parentObject)) {
+                    if (parentObject != null && !isMaintainedByRs(object)) {
                         return getAbuseContactRole(parentObject);
                     }
                 }
@@ -106,35 +105,25 @@ public class AbuseCFinder {
 
     @Nullable
     private RpslObject getParentObject(final RpslObject object) {
+        final IpEntry ipEntry;
+
         switch (object.getType()) {
             case INETNUM:
-
-                final Ipv4Entry ipv4Entry = CollectionHelper.uniqueResult(ipv4Tree.findFirstLessSpecific(Ipv4Resource.parse(object.getKey())));
-                if (ipv4Entry != null) {
-                    try {
-                        return objectDao.getById(ipv4Entry.getObjectId());
-                    } catch (EmptyResultDataAccessException e) {
-                        LOGGER.warn("Parent does not exist: {}", ipv4Entry.getObjectId());
-                    }
-                }
+                ipEntry = CollectionHelper.uniqueResult(ipv4Tree.findFirstLessSpecific(Ipv4Resource.parse(object.getKey())));
                 break;
 
             case INET6NUM:
-
-                final Ipv6Entry ipv6Entry = CollectionHelper.uniqueResult(ipv6Tree.findFirstLessSpecific(Ipv6Resource.parse(object.getKey())));
-                if (ipv6Entry != null) {
-                    try {
-                        return objectDao.getById(ipv6Entry.getObjectId());
-                    } catch (EmptyResultDataAccessException e) {
-                        LOGGER.warn("Parent does not exist: {}", ipv6Entry.getObjectId());
-                    }
-                }
+                ipEntry = CollectionHelper.uniqueResult(ipv6Tree.findFirstLessSpecific(Ipv6Resource.parse(object.getKey())));
                 break;
 
             default:
                 throw new IllegalArgumentException("Unexpected type: " + object.getType());
         }
 
-        return null;
+        try {
+            return (ipEntry != null) ? objectDao.getById(ipEntry.getObjectId()) : null;
+        } catch (EmptyResultDataAccessException e) {
+            throw new IllegalStateException("Parent does not exist: " + ipEntry.getObjectId());
+        }
     }
 }
