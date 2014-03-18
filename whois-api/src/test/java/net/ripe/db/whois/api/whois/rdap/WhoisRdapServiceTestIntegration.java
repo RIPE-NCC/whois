@@ -22,7 +22,6 @@ import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -286,7 +285,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getLang(), is(nullValue()));
     }
 
-    @Ignore("TODO: if 0/0 is found, then return 404 (or redirect if found in GRS)")
+//    @Ignore("TODO: if 0/0 is found, then return 404 (or redirect if found in GRS)")
     @Test
     public void lookup_inetnum_not_found() {
         try {
@@ -414,7 +413,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getName(), is("RIPE-NCC"));
     }
 
-    @Ignore("TODO: if ::0 is found, then return 404 (or redirect if found in GRS)")
+//    @Ignore("TODO: if ::0 is found, then return 404 (or redirect if found in GRS)")
     @Test
     public void lookup_inet6num_not_found() {
         try {

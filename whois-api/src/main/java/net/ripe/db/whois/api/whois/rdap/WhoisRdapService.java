@@ -136,19 +136,18 @@ public class WhoisRdapService {
 
         switch (objectType.toLowerCase()) {
             case "autnum":
-                whoisObjectTypes.add(AUT_NUM);
-                validateAutnum(getKey(whoisObjectTypes, key));
-                break;
+                String autnumKey = String.format("AS%s", key);
+                validateAutnum(autnumKey);
+                return lookupResource(request, AUT_NUM, autnumKey);
 
             case "domain":
                 validateDomain(key);
                 whoisObjectTypes.add(DOMAIN);
-                break;
+                return lookupObject(request, whoisObjectTypes, key);
 
             case "ip":
                 validateIp(request.getRequestURI(), key);
-                whoisObjectTypes.add(key.contains(":") ? INET6NUM : INETNUM);
-                break;
+                return lookupResource(request, key.contains(":") ? INET6NUM : INETNUM, key);
 
             case "entity":
                 validateEntity(key);
@@ -158,7 +157,7 @@ public class WhoisRdapService {
                     whoisObjectTypes.add(PERSON);
                     whoisObjectTypes.add(ROLE);
                 }
-                break;
+                return lookupObject(request, whoisObjectTypes, key);
 
             case "nameserver":
                 return createErrorResponse(Response.Status.NOT_FOUND, "");
@@ -166,8 +165,6 @@ public class WhoisRdapService {
             default:
                 return createErrorResponse(Response.Status.BAD_REQUEST, "");
         }
-
-        return lookupObject(request, whoisObjectTypes, getKey(whoisObjectTypes, key));
     }
 
     @GET
@@ -267,11 +264,21 @@ public class WhoisRdapService {
                 .build();
     }
 
-    private String getKey(final Set<ObjectType> objectTypes, final String key) {
-        if (objectTypes.contains(AUT_NUM)) {
-            return String.format("AS%s", key);
+    protected Response lookupResource(final HttpServletRequest request, final ObjectType objectType, final String key) {
+        final Query query = Query.parse(
+                String.format("%s %s %s %s %s %s",
+                        QueryFlag.NO_GROUPING.getLongFlag(),
+                        QueryFlag.NO_REFERENCED.getLongFlag(),
+                        QueryFlag.SELECT_TYPES.getLongFlag(),
+                        objectType.getName(),
+                        QueryFlag.NO_FILTERING.getLongFlag(),
+                        key));
+
+        if (!delegatedStatsService.isMaintainedInRirSpace(CIString.ciString(source), objectType, CIString.ciString(key))) {
+            return redirect(getRequestPath(request), query);
         }
-        return key;
+
+        return handleQuery(query, request);
     }
 
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
@@ -305,7 +312,7 @@ public class WhoisRdapService {
             });
 
             if (result.isEmpty()) {
-                return redirect(getRequestPath(request), query);
+                return createErrorResponse(Response.Status.NOT_FOUND, "");
             }
 
             if (result.size() > 1) {
@@ -316,8 +323,8 @@ public class WhoisRdapService {
 
             if (resultObject.getKey().equals(CIString.ciString("0.0.0.0 - 255.255.255.255")) ||
                     resultObject.getKey().equals(CIString.ciString("::/0"))) {
-                // TODO: handle root object
-                return redirect(getRequestPath(request), query);
+                // TODO: handle root object in RIPE space
+                return createErrorResponse(Response.Status.NOT_FOUND, "");
             }
 
             return Response.ok(
