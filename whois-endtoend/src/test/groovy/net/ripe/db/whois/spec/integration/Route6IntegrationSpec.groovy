@@ -766,7 +766,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         response =~ /FAIL/
-        response =~ /Error:   5354::0\/32 is outside the range of this object/
+        response =~ /Error:   5354::0 is outside the range of this object/
     }
 
     def "create route6 member-of exists in route-set"() {
@@ -900,7 +900,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         """.stripIndent())
         then:
         response =~ /FAIL/
-        response =~ /Error:   9998::\/32 is outside the range of this object/
+        response =~ /Error:   9998:: is outside the range of this object/
     }
 
     def "modify route6 fail on holes"() {

@@ -925,7 +925,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response =~ /FAIL/
-        response =~ /Error:   196.0\/32 is outside the range of this object/
+        response =~ /Error:   196.0.0.1 is outside the range of this object/
     }
 
     def "create route member-of exists in route-set"() {
@@ -1059,7 +1059,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         """.stripIndent())
       then:
         response =~ /FAIL/
-        response =~ /Error:   181.0.0.0\/32 is outside the range of this object/
+        response =~ /Error:   181.0.0.0 is outside the range of this object/
     }
 
     def "modify route fail on holes"() {
