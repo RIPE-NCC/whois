@@ -180,8 +180,8 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
     @Test
     public void validate_added_override() {
         when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
+        when(authSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
 
-        when(update.isOverride()).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "mntner: DEV-MNT\n" +
                 "mnt-routes: RS-MNT ANY\n"));

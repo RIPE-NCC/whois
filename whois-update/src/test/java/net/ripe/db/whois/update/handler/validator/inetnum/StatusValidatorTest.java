@@ -5,10 +5,9 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.domain.Maintainers;
-import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Entry;
@@ -16,10 +15,12 @@ import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.Before;
@@ -33,7 +34,11 @@ import java.util.Collections;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StatusValidatorTest {
@@ -83,10 +88,11 @@ public class StatusValidatorTest {
     public void child_status_missing_results_in_warning_ipv4_override() {
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse("192.0/16");
         final Ipv4Entry parent = new Ipv4Entry(ipv4Resource, 1);
-        when(update.isOverride()).thenReturn(true);
+
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ALLOCATED PA"));
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
 
         final RpslObject child = new RpslObject(2, Lists.newArrayList(new RpslAttribute("inetnum", "192.0/32")));
         final Ipv4Entry entry = new Ipv4Entry(Ipv4Resource.parse("192.0/32"), 2);
@@ -96,10 +102,10 @@ public class StatusValidatorTest {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parent));
         when(objectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 192.0/16"));
 
-
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -114,7 +120,6 @@ public class StatusValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ALLOCATED PA"));
         when(objectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 192.0/32\nstatus: ALLOCATED PI"));
 
-
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.incorrectChildStatus("ALLOCATED PA", "ALLOCATED PI"));
@@ -122,9 +127,9 @@ public class StatusValidatorTest {
 
     @Test
     public void invalid_child_status_fails_ipv4_override() {
-        when(update.isOverride()).thenReturn(true);
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
 
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse("192.0/32");
         final Ipv4Entry child = new Ipv4Entry(ipv4Resource, 1);
@@ -133,10 +138,10 @@ public class StatusValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ALLOCATED PA"));
         when(objectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 192.0/32\nstatus: ALLOCATED PI"));
 
-
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -156,18 +161,19 @@ public class StatusValidatorTest {
 
     @Test
     public void not_authorized_by_rsmntner_ipv4_override() {
-        when(update.isOverride()).thenReturn(true);
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
         when(objectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255"));
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST"));
 
         when(ipv4Tree.findFirstMoreSpecific(any(Ipv4Resource.class))).thenReturn(Lists.<Ipv4Entry>newArrayList());
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -224,9 +230,9 @@ public class StatusValidatorTest {
 
     @Test
     public void parent_has_no_status_ipv4_override() {
-        when(update.isOverride()).thenReturn(true);
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED PI"));
 
         when(ipv4Tree.findFirstMoreSpecific(any(Ipv4Resource.class))).thenReturn(Lists.<Ipv4Entry>newArrayList());
@@ -238,7 +244,8 @@ public class StatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -261,9 +268,9 @@ public class StatusValidatorTest {
 
     @Test
     public void incorrect_parent_status_ipv4_override() {
-        when(update.isOverride()).thenReturn(true);
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED PI"));
 
         when(ipv4Tree.findFirstMoreSpecific(any(Ipv4Resource.class))).thenReturn(Lists.<Ipv4Entry>newArrayList());
@@ -275,7 +282,8 @@ public class StatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -320,10 +328,10 @@ public class StatusValidatorTest {
 
     @Test
     public void child_status_missing_results_in_warning_ipv6_override() {
-        when(update.isOverride()).thenReturn(true);
         when(update.getType()).thenReturn(ObjectType.INET6NUM);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: 2001::/48\nstatus: ALLOCATED-BY-LIR"));
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
 
         final RpslObject child = new RpslObject(2, Lists.newArrayList(new RpslAttribute("inet6num", "2001::/128")));
         final Ipv6Entry entry = new Ipv6Entry(Ipv6Resource.parse("2001::/128"), 2);
@@ -337,7 +345,8 @@ public class StatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -536,6 +545,8 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.invalidParentEntryForInterval(Ipv4Resource.parse("192.0/24")));
+
+        verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
     }
 

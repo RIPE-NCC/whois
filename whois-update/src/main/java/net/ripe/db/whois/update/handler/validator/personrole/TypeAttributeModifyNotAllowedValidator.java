@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.handler.validator.personrole;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -27,6 +28,10 @@ public class TypeAttributeModifyNotAllowedValidator implements BusinessRuleValid
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+        if (updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
+            return;
+        }
+
         final CIString originalValue = update.getReferenceObject().getTypeAttribute().getCleanValue();
         final CIString updatedValue = update.getUpdatedObject().getTypeAttribute().getCleanValue();
 

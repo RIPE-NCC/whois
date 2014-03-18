@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
+import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -35,7 +36,9 @@ public class FirstDescriptionChanged implements BusinessRuleValidator {
             return; // TODO [AH] This check breaks updates for ERX ranges; Denis is working with RS to sort it out (2013-06-10)
         }
 
-        if (update.isOverride()) {
+        final Subject subject = updateContext.getSubject(update);
+
+        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
             return;
         }
 
@@ -44,7 +47,7 @@ public class FirstDescriptionChanged implements BusinessRuleValidator {
         final CIString updatedFirstDescription = update.getUpdatedObject().findAttributes(AttributeType.DESCR).get(0).getCleanValue();
 
         final boolean statusRequiresEndMntnerAuth = getStatus(update).requiresRsMaintainer();
-        final boolean hasEndMntnerAuth = updateContext.getSubject(update).hasPrincipal(Principal.ENDUSER_MAINTAINER);
+        final boolean hasEndMntnerAuth = subject.hasPrincipal(Principal.ENDUSER_MAINTAINER);
         if (statusRequiresEndMntnerAuth && !hasEndMntnerAuth && !originalFirstDescription.equals(updatedFirstDescription)) {
             updateContext.addMessage(update, UpdateMessages.authorisationRequiredForFirstAttrChange(AttributeType.DESCR));
         }

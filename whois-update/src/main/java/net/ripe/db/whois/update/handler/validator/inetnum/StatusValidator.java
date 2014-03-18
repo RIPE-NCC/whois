@@ -64,7 +64,7 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        if (update.isOverride()) {
+        if (updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
             return;
         }
 

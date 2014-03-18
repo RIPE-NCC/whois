@@ -53,7 +53,7 @@ public class OrgAttributeNotChangedValidator implements BusinessRuleValidator {
         boolean rsMaintained = !Sets.intersection(this.maintainers.getRsMaintainers(), originalObject.getValuesForAttribute(AttributeType.MNT_BY)).isEmpty();
 
         final Subject subject = updateContext.getSubject(update);
-        if (rsMaintained && !(update.isOverride() || subject.hasPrincipal(Principal.RS_MAINTAINER))) {
+        if (rsMaintained && !(subject.hasPrincipal(Principal.RS_MAINTAINER) || subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER))) {
             updateContext.addMessage(update, UpdateMessages.cantChangeOrgAttribute());
         }
     }

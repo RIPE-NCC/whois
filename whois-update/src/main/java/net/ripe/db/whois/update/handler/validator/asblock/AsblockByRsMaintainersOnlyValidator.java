@@ -27,7 +27,7 @@ public class AsblockByRsMaintainersOnlyValidator implements BusinessRuleValidato
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        final boolean authenticatedByOverride = update.isOverride() && updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER);
+        final boolean authenticatedByOverride = updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER);
         final boolean authenticatedByDbmMaintainer = updateContext.getSubject(update).hasPrincipal(Principal.DBM_MAINTAINER);
         if (!(authenticatedByOverride || authenticatedByDbmMaintainer)) {
             updateContext.addMessage(update, UpdateMessages.asblockIsMaintainedByRipe());
