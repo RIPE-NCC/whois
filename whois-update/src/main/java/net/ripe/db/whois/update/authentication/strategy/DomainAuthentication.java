@@ -34,7 +34,10 @@ class DomainAuthentication extends AuthenticationStrategyBase {
     private final AuthenticationModule authenticationModule;
 
     @Autowired
-    public DomainAuthentication(final Ipv4Tree ipv4Tree, final Ipv6Tree ipv6Tree, final RpslObjectDao objectDao, final AuthenticationModule authenticationModule) {
+    public DomainAuthentication(final Ipv4Tree ipv4Tree,
+                                final Ipv6Tree ipv6Tree,
+                                final RpslObjectDao objectDao,
+                                final AuthenticationModule authenticationModule) {
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.objectDao = objectDao;

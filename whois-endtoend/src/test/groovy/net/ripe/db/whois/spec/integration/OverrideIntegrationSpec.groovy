@@ -171,6 +171,22 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         result.contains("***Error:   Override authentication failed")
+        result.contains("Modify FAILED: [organisation] ORG-TOL1-TEST");
+    }
+
+    def "override wrong password fails overriding business rules"() {
+        given:
+        def data = fixtures["ORG1"].stripIndent() + "override:agoston,oops\npassword: update\n"
+        data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
+
+        def update = new SyncUpdate(data: data)
+
+        when:
+        def result = syncUpdate update
+
+        then:
+        result.contains("***Error:   Override authentication failed")
+        result.contains("Modify FAILED: [organisation] ORG-TOL1-TEST");
     }
 
     @Ignore("TODO: override with spaces fails")

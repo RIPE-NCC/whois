@@ -2,7 +2,9 @@ package net.ripe.db.whois.update.handler.validator.personrole;
 
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.Before;
@@ -11,18 +13,24 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+// TODO: [AH] drop this class, cover in integration/e2e tests
 @RunWith(MockitoJUnitRunner.class)
 public class TypeAttributeModifyNotAllowedValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
+    @Mock Subject updateSubject;
 
     private TypeAttributeModifyNotAllowedValidator subject;
 
     @Before
     public void setup() {
         subject = new TypeAttributeModifyNotAllowedValidator();
+        when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(updateSubject);
     }
 
     @Test
@@ -33,7 +41,8 @@ public class TypeAttributeModifyNotAllowedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -44,7 +53,8 @@ public class TypeAttributeModifyNotAllowedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test

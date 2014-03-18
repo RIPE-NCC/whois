@@ -220,8 +220,8 @@ public class OrgNameNotChangedValidatorTest {
                 "org: ORG-TEST1\n" +
                 "source: TEST"));
 
-        when(update.isOverride()).thenReturn(Boolean.TRUE);
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
+        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
+        when(subjectObject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
 
         subject.validate(update, updateContext);
 
