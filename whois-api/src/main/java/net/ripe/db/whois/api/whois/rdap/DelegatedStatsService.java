@@ -88,4 +88,9 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
         LOGGER.debug("Resource {} not found", query.getSearchValue());
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
+
+    public boolean isMaintainedInRirSpace(final CIString source, final ObjectType objectType, final CIString pkey){
+        final AuthoritativeResource authoritativeResource = resourceData.getAuthoritativeResource(source);
+        return authoritativeResource.isMaintainedInRirSpace(objectType, pkey);
+    }
 }
