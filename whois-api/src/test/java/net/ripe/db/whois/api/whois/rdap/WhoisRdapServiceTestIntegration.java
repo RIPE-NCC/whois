@@ -28,6 +28,7 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.RedirectionException;
 import javax.ws.rs.client.WebTarget;
@@ -318,7 +319,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Ip.class);
             fail();
         } catch (final BadRequestException e) {
-            assertErrorResponse(e.getResponse(), 400, "Invalid syntax.");
+            assertErrorResponse(e, "Invalid syntax.");
         }
     }
 
@@ -330,7 +331,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Ip.class);
             fail();
         } catch (final BadRequestException e) {
-            assertErrorResponse(e.getResponse(), 400, "Invalid syntax.");
+            assertErrorResponse(e, "Invalid syntax.");
         }
 
     }
@@ -610,7 +611,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Domain.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e.getResponse(), 404, "");
+            assertErrorResponse(e, "");
         }
     }
 
@@ -622,7 +623,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Domain.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e.getResponse(), 404, "RIPE NCC does not support forward domain queries.");
+            assertErrorResponse(e, "RIPE NCC does not support forward domain queries.");
         }
     }
 
@@ -636,7 +637,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Autnum.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e.getResponse(), 404, "");
+            assertErrorResponse(e, "");
         }
     }
 
@@ -660,7 +661,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Autnum.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorResponse(e.getResponse(), 400, "Invalid syntax.");
+            assertErrorResponse(e, "Invalid syntax.");
         }
     }
 
@@ -751,7 +752,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Autnum.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e.getResponse(), 404, "");
+            assertErrorResponse(e, "");
         }
     }
 
@@ -918,7 +919,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e.getResponse(), 404, "");
+            assertErrorResponse(e, "");
         }
     }
 
@@ -930,7 +931,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorResponse(e.getResponse(), 400, "Invalid syntax.");
+            assertErrorResponse(e, "Invalid syntax.");
         }
     }
 
@@ -1023,7 +1024,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e.getResponse(), 404, "");
+            assertErrorResponse(e, "");
         }
     }
 
@@ -1060,7 +1061,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e.getResponse(), 404, "");
+            assertErrorResponse(e, "");
         }
     }
 
@@ -1073,7 +1074,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorResponse(e.getResponse(), 400, "");
+            assertErrorResponse(e, "");
         }
     }
 
@@ -1165,7 +1166,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e.getResponse(), 404, "");
+            assertErrorResponse(e, "");
         }
     }
 
@@ -1189,7 +1190,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e.getResponse(), 404, "");
+            assertErrorResponse(e, "");
         }
     }
 
@@ -1315,7 +1316,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorResponse(e.getResponse(), 400, "");
+            assertErrorResponse(e, "");
         }
     }
 
@@ -1327,7 +1328,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorResponse(e.getResponse(), 400, "");
+            assertErrorResponse(e, "");
         }
     }
 
@@ -1393,12 +1394,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     }
 
-    private void assertErrorResponse(final Response errorResponse, final int expectedErrorCode, final String expectedErrorText) {
-        final String response = errorResponse.readEntity(String.class);
-        assertThat(response, containsString(String.format("" +
+    private void assertErrorResponse(final ClientErrorException exception, final String expectedErrorText) {
+        assertThat(exception.getResponse().readEntity(String.class), 
+                containsString(String.format("" +
                 "  } ],\n" +
                 "  \"port43\" : \"whois.ripe.net\",\n" +
                 "  \"errorCode\" : %d,\n" +
-                "  \"title\" : \"%s\",", expectedErrorCode, expectedErrorText)));
+                "  \"title\" : \"%s\",", 
+                        exception.getResponse().getStatus(),
+                        expectedErrorText)));
     }
 }
