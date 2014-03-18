@@ -44,8 +44,10 @@ public class LoggerContext {
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
     private static final int MAXIMUM_FILENAME_LENGTH = 255;
 
+    // static, to avoid overlapping applicationContexts masking Contexts
+    private static final ThreadLocal<Context> context = new ThreadLocal<>();
+
     private final DateTimeProvider dateTimeProvider;
-    private final ThreadLocal<Context> context = new ThreadLocal<>();
 
     @Value("${dir.update.audit.log}") private String baseDir;
 
@@ -91,14 +93,13 @@ public class LoggerContext {
         final AuditLogger auditLogger = new AuditLogger(dateTimeProvider, getOutputstream(getFile(dir, fileNumber.getAndIncrement(), "audit.xml")));
 
         context.set(new Context(dir, fileNumber, auditLogger));
-        LOGGER.debug("Using dir: {}", dir.getAbsolutePath());
     }
 
     public void remove() {
         try {
             getContext().auditLogger.close();
         } finally {
-            this.context.remove();
+            context.remove();
         }
     }
 
@@ -186,14 +187,9 @@ public class LoggerContext {
         getContext().auditLogger.logPreparedUpdate(preparedUpdate);
     }
 
-    public boolean canLog() {
-        final Context ctx = context.get();
-        return !(ctx == null || ctx.currentUpdate == null);
-    }
-
     public void logQuery(final StatementInfo statementInfo, final ResultInfo resultInfo) {
         final Context ctx = context.get();
-        if (canLog()) {
+        if (ctx != null && ctx.currentUpdate != null) {
             ctx.auditLogger.logQuery(ctx.currentUpdate, statementInfo, resultInfo);
         }
     }
