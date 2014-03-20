@@ -59,13 +59,13 @@ public class IndexWithAuthTest extends IndexTestBase {
     }
 
     @Test
-    public void addIndex_skips_writing_sso_hash() throws Exception {
+    public void addIndex_works_for_sso_hash() throws Exception {
         RpslObjectInfo maintainer = objectUpdateInfoMap.get(OWNER_MNT);
 
         final int added = subject.addToIndex(whoisTemplate, maintainer, null, "SSO 1234-5678");
         assertThat(added, is(1));
 
-        assertThat(subject.findInIndex(whoisTemplate, "SSO 1234-5678"), is(empty()));
+        assertThat(subject.findInIndex(whoisTemplate, "SSO 1234-5678"), hasSize(1));
     }
 
     @Test
