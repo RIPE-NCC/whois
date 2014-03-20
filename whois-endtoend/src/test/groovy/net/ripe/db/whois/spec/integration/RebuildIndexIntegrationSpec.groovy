@@ -582,7 +582,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
         queryObject("-i mnt-nfy nfy@test.net", "mntner", "MNT-MNT")
         queryObject("-i notify notify@ripe.net", "mntner", "MNT-MNT")
         queryObject("-i abuse-mailbox abuse@ripe.net", "mntner", "MNT-MNT")
-        queryObject("-i auth MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7.", "mntner", "MNT-MNT")
     }
 
     def "rebuild with peering-set"() {
