@@ -546,6 +546,11 @@ public class Query {
                 final AttributeType type = AttributeType.getByName(attributeType);
                 if (AttributeType.PERSON.equals(type)) {
                     ret.addAll(Arrays.asList(AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
+                } else if (AttributeType.AUTH.equals(type)) {
+                    final String auth = queryParser.getSearchKey().toUpperCase();
+                    if (auth.startsWith("SSO ") || auth.startsWith("MD5-PW ")) {
+                        throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.inverseSearchNotAllowed());
+                    }
                 } else {
                     ret.add(type);
                 }

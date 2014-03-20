@@ -3,7 +3,7 @@ package net.ripe.db.whois.query.integration;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
-import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
+import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
-public class NamedQueryTestIntegration extends AbstractWhoisIntegrationTest {
+public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     @Before
     public void startupWhoisServer() {

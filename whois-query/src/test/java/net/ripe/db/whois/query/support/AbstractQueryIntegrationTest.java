@@ -1,26 +1,16 @@
 package net.ripe.db.whois.query.support;
 
 import net.ripe.db.whois.common.support.AbstractDaoTest;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.QueryMessages;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml"})
-@TestExecutionListeners(listeners = {
-//        SetupQueryDatabaseTestExecutionListener.class,
-        TransactionalTestExecutionListener.class,
-        DependencyInjectionTestExecutionListener.class,
-        DirtiesContextTestExecutionListener.class},
-        inheritListeners = false)
-public abstract class AbstractWhoisIntegrationTest extends AbstractDaoTest {
+public abstract class AbstractQueryIntegrationTest extends AbstractDaoTest {
     public static final String HOST = "localhost";
 
     @Autowired protected QueryServer queryServer;
