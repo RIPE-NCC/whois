@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.IntegrationTest
 import org.joda.time.LocalDateTime
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import spock.lang.Ignore;
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
@@ -3707,5 +3708,158 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.contents =~ "Warning: Message was signed more than one week ago"
+    }
+
+    @Ignore("TODO: [ES] not supported")
+    def "pgp signed message with public key attached"() {
+      when:
+        syncUpdate new SyncUpdate(data: """
+                key-cert:       PGPKEY-5763950D
+                method:         PGP
+                owner:          noreply@ripe.net <noreply@ripe.net>
+                fingerpr:       884F 8E23 69E5 E6F1 9FB3  63F4 BBCC BB2D 5763 950D
+                certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:         Version: GnuPG v1.4.12 (Darwin)
+                certif:         Comment: GPGTools - http://gpgtools.org
+                certif:
+                certif:         mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+
+                certif:         yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH
+                certif:         2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBN
+                certif:         E+VPeLOAi+D97s+Da/UZWkZxFJHdV+cAzQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+L
+                certif:         A9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTgA5eyKMnTKAdwhIY5/VDxUd1YprnK+Ebd
+                certif:         YNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IURaXNABEBAAG0I25vcmVwbHlAcmlwZS5u
+                certif:         ZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYV
+                certif:         CAIJCgsEFgIDAQIeAQIXgAAKCRC7zLstV2OVDdjSCACYAyyWr83Df/zzOWGP+qMF
+                certif:         Vukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB
+                certif:         0owcacoaxUd0i+gVEn7CBHPVUfNIuNemcrf1N7aqBkpBLf+NINZ2+3c3t14k1BGe
+                certif:         xCInxEqHnq4zbUmunCNYjHoKbUj6Aq7janyC7W1MIIAcOY9/PvWQyf3VnERQImgt
+                certif:         0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDvb5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5Z
+                certif:         xrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olxp7/z++mADXPprmLaK8vjQmiC2q/KOTVA
+                certif:         uQENBFC0yvUBCADTYI6i4baHAkeY2lR2rebpTu1nRHbIET20II8/ZmZDK8E2Lwyv
+                certif:         eWold6pAWDq9E23J9xAWL4QUQRQ4V+28+lknMySXbU3uFLXGAs6W9PrZXGcmy/12
+                certif:         pZ+82hHckh+jN9xUTtF89NK/wHh09SAxDa/ST/z/Dj0k3pQWzgBdi36jwEFtHhck
+                certif:         xFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh/6JqMUb+hY71Dr7oxlIFLdsREsFVzVec
+                certif:         YHsKINlZKh60dA/Br+CC7fClBycEsR4Z7akw9cPLWIGnjvw2+nq9miE005QLqRy4
+                certif:         dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5UhmZABEBAAGJAR8EGAECAAkFAlC0yvUC
+                certif:         GwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4
+                certif:         HNaR0NIV/GAt/uca11DtIdj3kBAj69QSPqNVRqaZja3NyhNWQM4OPDWKIUZfolF3
+                certif:         eY2q58kEhxhz3JKJt4z45TnFY2GFGqYwFPQ94z1S9FOJCifL/dLpwPBSKucCac9y
+                certif:         6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL/xnU4NgZ90GHmmQFfdUiX36jWK99LBqC
+                certif:         RNW8V2MV+rElPVRHev+nw7vgCM0ewXZwQB/bBLbBrayx8LzGtMvAo4kDJ1kpQpip
+                certif:         a/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3OQ4Mh8yiI+AjiQ==
+                certif:         =HQmg
+                certif:         -----END PGP PUBLIC KEY BLOCK-----
+                notify:         noreply@ripe.net
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20010101
+                source:         TEST
+                password:       owner
+             """.stripIndent())
+        syncUpdate new SyncUpdate(data:
+                getFixtures().get("OWNER-MNT").stripIndent().
+                        replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
+                        + "password: owner")
+      then:
+        def message = send "From: personupdatex@ripe.net\n" +
+                "To: auto-dbm@ripe.net\n" +
+                "Subject: NEW\n" +
+                "Message-ID: <20121204141256.GM1426@f17.test.net>\n" +
+                "Mime-Version: 1.0\n" +
+                "Content-Type: multipart/signed; micalg=pgp-sha1;\n" +
+                " protocol=\"application/pgp-signature\";\n" +
+                " boundary=\"oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG\"\n"
+                "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:24.0) Gecko/20100101 Thunderbird/24.4.0\n" +
+                "X-Enigmail-Version: 1.6\n" +
+                "\n" +
+                "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
+                "--oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG\n" +
+                "Content-Type: multipart/mixed;\n" +
+                " boundary=\"------------070902000202090608000102\"\n" +
+                "\n" +
+                "This is a multi-part message in MIME format.\n" +
+                "--------------070902000202090608000102\n" +
+                "Content-Type: text/plain; charset=ISO-8859-1\n" +
+                "Content-Transfer-Encoding: quoted-printable\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "changed: denis@ripe.net 20121016\n" +
+                "source:  TEST\n" +
+                "\n" +
+                "\n" +
+                "--------------070902000202090608000102\n" +
+                "Content-Type: application/pgp-keys;\n" +
+                " name=\"0x5763950D.asc\"\n" +
+                "Content-Transfer-Encoding: quoted-printable\n" +
+                "Content-Disposition: attachment;\n" +
+                " filename=\"0x5763950D.asc\"\n" +
+                "\n" +
+                "-----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                "Version: GnuPG v1\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+\n" +
+                "yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH\n" +
+                "2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBN\n" +
+                "E+VPeLOAi+D97s+Da/UZWkZxFJHdV+cAzQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+L\n" +
+                "A9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTgA5eyKMnTKAdwhIY5/VDxUd1YprnK+Ebd\n" +
+                "YNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IURaXNABEBAAG0I25vcmVwbHlAcmlwZS5u\n" +
+                "ZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYV\n" +
+                "CAIJCgsEFgIDAQIeAQIXgAAKCRC7zLstV2OVDdjSCACYAyyWr83Df/zzOWGP+qMF\n" +
+                "Vukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB\n" +
+                "0owcacoaxUd0i+gVEn7CBHPVUfNIuNemcrf1N7aqBkpBLf+NINZ2+3c3t14k1BGe\n" +
+                "xCInxEqHnq4zbUmunCNYjHoKbUj6Aq7janyC7W1MIIAcOY9/PvWQyf3VnERQImgt\n" +
+                "0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDvb5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5Z\n" +
+                "xrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olxp7/z++mADXPprmLaK8vjQmiC2q/KOTVA\n" +
+                "uQENBFC0yvUBCADTYI6i4baHAkeY2lR2rebpTu1nRHbIET20II8/ZmZDK8E2Lwyv\n" +
+                "eWold6pAWDq9E23J9xAWL4QUQRQ4V+28+lknMySXbU3uFLXGAs6W9PrZXGcmy/12\n" +
+                "pZ+82hHckh+jN9xUTtF89NK/wHh09SAxDa/ST/z/Dj0k3pQWzgBdi36jwEFtHhck\n" +
+                "xFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh/6JqMUb+hY71Dr7oxlIFLdsREsFVzVec\n" +
+                "YHsKINlZKh60dA/Br+CC7fClBycEsR4Z7akw9cPLWIGnjvw2+nq9miE005QLqRy4\n" +
+                "dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5UhmZABEBAAGJAR8EGAECAAkFAlC0yvUC\n" +
+                "GwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4\n" +
+                "HNaR0NIV/GAt/uca11DtIdj3kBAj69QSPqNVRqaZja3NyhNWQM4OPDWKIUZfolF3\n" +
+                "eY2q58kEhxhz3JKJt4z45TnFY2GFGqYwFPQ94z1S9FOJCifL/dLpwPBSKucCac9y\n" +
+                "6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL/xnU4NgZ90GHmmQFfdUiX36jWK99LBqC\n" +
+                "RNW8V2MV+rElPVRHev+nw7vgCM0ewXZwQB/bBLbBrayx8LzGtMvAo4kDJ1kpQpip\n" +
+                "a/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3OQ4Mh8yiI+AjiQ=3D=3D\n" +
+                "=3DHQmg\n" +
+                "-----END PGP PUBLIC KEY BLOCK-----\n" +
+                "\n" +
+                "--------------070902000202090608000102--\n" +
+                "\n" +
+                "--oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG\n" +
+                "Content-Type: application/pgp-signature; name=\"signature.asc\"\n" +
+                "Content-Description: OpenPGP digital signature\n" +
+                "Content-Disposition: attachment; filename=\"signature.asc\"\n" +
+                "\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Version: GnuPG v1\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/\n" +
+                "\n" +
+                "iQEcBAEBAgAGBQJTKyb0AAoJELvMuy1XY5UNvRYH/1D3Kj7pwM6flT/h+KqJ0JOd\n" +
+                "NOma/qNvc33u/wYstFPIhCj2qzdpQ1Pwat6kzVQmwiqkUMeB0V7asGe0Wi2KXt13\n" +
+                "uqScGR9BTVWLzpcq/axykxJ8ThGu1kE7weA4LrZSvn2hn4Mjfu3epddRdlLcFcDo\n" +
+                "2/DQFMOfbwirLmobYaq+H74OBQ4hFRb3z7H0TNDkYr5pIp+EmcZ29wznKRQWk6+C\n" +
+                "9GYpzxqUb8Vc5WHtreW5WYlxkme5f1B/G0NnbZHi9y3uwvgtdUp+7JXuw1dBGpOF\n" +
+                "v0hAfHFkttdiCCYcI8dUzQZjsNthjV/27EMwjvvZ46Iq6P8LhgTo3nH1pqBLRNw=\n" +
+                "=APKb\n" +
+                "-----END PGP SIGNATURE-----\n" +
+                "\n" +
+                "--oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG--";
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
     }
 }
