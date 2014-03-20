@@ -345,6 +345,6 @@ public final class QueryMessages {
     }
 
     public static Message inverseSearchNotAllowed() {
-        return new Message(Type.INFO, "%% Inverse search on 'auth' attribute is limited to 'key-cert' objects only");
+        return new Message(Type.INFO, "% Inverse search on 'auth' attribute is limited to 'key-cert' objects only");
     }
 }

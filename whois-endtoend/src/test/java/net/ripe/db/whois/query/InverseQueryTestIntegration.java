@@ -64,29 +64,27 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
     public void inverse_auth_sso_with_email() {
         final String response = DummyWhoisClient.query(QueryServer.port, "-B -i auth SSO person@net.net");
         System.err.println(response);
-        assertThat(response, containsString("%ERROR:101: no entries found"));
+        assertThat(response, containsString("% Inverse search on 'auth' attribute is limited to 'key-cert' objects only"));
     }
 
     @Test
     public void inverse_auth_sso_with_uuid() {
         final String response = DummyWhoisClient.query(QueryServer.port, "-B -i auth SSO 906635c2-0405-429a-800b-0602bd716124");
         System.err.println(response);
-        assertThat(response, containsString("mntner:         OWNER-MNT"));
-        assertThat(response, containsString("auth:           MD5-PW # Filtered"));
+        assertThat(response, containsString("% Inverse search on 'auth' attribute is limited to 'key-cert' objects only"));
     }
 
     @Test
     public void inverse_auth_md5() {
         final String response = DummyWhoisClient.query(QueryServer.port, "-B -i auth MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/");
         System.err.println(response);
-        assertThat(response, containsString("mntner:         OWNER-MNT"));
-        assertThat(response, containsString("auth:           MD5-PW # Filtered"));
+        assertThat(response, containsString("% Inverse search on 'auth' attribute is limited to 'key-cert' objects only"));
     }
 
     @Test
     public void inverse_auth_unknown_md5() {
         final String response = DummyWhoisClient.query(QueryServer.port, "-B -i auth MD5-PW $1$deadbeef$Si7YudNf4rUGmR71n/cqk/");
         System.err.println(response);
-        assertThat(response, containsString("%ERROR:101: no entries found"));
+        assertThat(response, containsString("% Inverse search on 'auth' attribute is limited to 'key-cert' objects only"));
     }
 }

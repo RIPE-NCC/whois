@@ -14,7 +14,7 @@ class IndexWithAuth extends IndexWithValueAndType {
     @Override
     public int addToIndex(JdbcTemplate jdbcTemplate, RpslObjectInfo objectInfo, RpslObject object, String value) {
         final String auth = value.toUpperCase();
-        if (auth.startsWith("SSO ") || auth.startsWith("MD5-PW ")) {
+        if (auth.startsWith("MD5-PW ")) {
             return 1;
         } else {
             return super.addToIndex(jdbcTemplate, objectInfo, object, value);
