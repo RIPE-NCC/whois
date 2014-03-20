@@ -9,7 +9,7 @@ import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.pipeline.*;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
+import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-query-test.xml"}, inheritLocations = false)
 @Category(IntegrationTest.class)
-public class WhoisConnectionTestIntegration extends AbstractWhoisIntegrationTest {
+public class WhoisConnectionTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired @ReplaceWithMock WhoisServerPipelineFactory whoisServerPipelineFactory;
     @Autowired @ReplaceWithMock QueryHandler queryHandler;
     @Autowired @WrapWithSpy QueryChannelsRegistry queryChannelsRegistry;

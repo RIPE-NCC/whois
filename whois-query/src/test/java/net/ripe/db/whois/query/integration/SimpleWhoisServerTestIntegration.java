@@ -10,7 +10,7 @@ import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
+import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-query-test.xml"}, inheritLocations = false)
 @Category(IntegrationTest.class)
-public class SimpleWhoisServerTestIntegration extends AbstractWhoisIntegrationTest {
+public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired @ReplaceWithMock private QueryHandler queryHandler;
     @Autowired @ReplaceWithMock private AccessControlListManager accessControlListManager;
 

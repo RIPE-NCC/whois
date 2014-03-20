@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.VersionDateTime;
-import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
+import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 
 @Category(IntegrationTest.class)
-public class VersionTestIntegration extends AbstractWhoisIntegrationTest {
+public class VersionTestIntegration extends AbstractQueryIntegrationTest {
 
     @Before
     public void startup() {

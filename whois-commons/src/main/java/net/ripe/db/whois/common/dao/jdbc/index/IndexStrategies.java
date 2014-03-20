@@ -27,7 +27,7 @@ public final class IndexStrategies {
                 new IndexWithAsBlock(AttributeType.AS_BLOCK),
                 new Unindexed(AttributeType.AS_NAME),
                 new IndexWithValue(AttributeType.AS_SET, "as_set", "as_set"),
-                new IndexWithValueAndType(AttributeType.AUTH, "auth", "auth"),
+                new IndexWithAuth(AttributeType.AUTH, "auth", "auth"),
                 new IndexWithReference(AttributeType.AUTHOR, "author", "pe_ro_id"),
                 new IndexWithValue(AttributeType.AUT_NUM, "aut_num", "aut_num"),
                 new Unindexed(AttributeType.CERTIF),

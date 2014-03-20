@@ -12,7 +12,7 @@ import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
+import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 @Category(IntegrationTest.class)
-public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
+public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     private static final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
 
     @Autowired IpTreeUpdater ipTreeUpdater;
