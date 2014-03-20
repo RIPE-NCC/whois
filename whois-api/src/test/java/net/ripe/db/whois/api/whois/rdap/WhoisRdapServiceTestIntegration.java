@@ -1,5 +1,8 @@
 package net.ripe.db.whois.api.whois.rdap;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
@@ -27,6 +30,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
@@ -1366,16 +1370,29 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .get(SearchResult.class);
 
         final List<Entity> entities = result.getEntitySearchResults();
-        assertThat(entities, hasSize(5));
-        assertThat(entities.get(0).getHandle(), is("TP1-TEST"));
-        assertThat(entities.get(1).getHandle(), is("TP2-TEST"));
-        assertThat(entities.get(2).getHandle(), is("PP1-TEST"));
-        assertThat(entities.get(3).getHandle(), is("FR1-TEST"));
-        assertThat(entities.get(4).getHandle(), is("ORG-TEST1-TEST"));
-        assertThat(entities.get(4).getNotices(), hasSize(2));
-        assertThat(entities.get(4).getNotices().get(0).getTitle(), is("Filtered"));
-        assertThat(entities.get(4).getNotices().get(1).getTitle(), is("Source"));
-
+        assertThat(
+                Lists.transform(entities, new Function<Entity, String>() {
+                    @Override
+                    public String apply(@Nullable Entity entity) {
+                        return entity.getHandle();
+                    }
+            }), containsInAnyOrder("TP1-TEST", "TP2-TEST", "PP1-TEST", "FR1-TEST", "ORG-TEST1-TEST"));
+        assertThat(
+                Iterables.transform(
+                        Iterables.filter(entities, new Predicate<Entity>() {
+                            @Override
+                            public boolean apply(@Nullable Entity entity) {
+                                if (entity.getHandle().equals("ORG-TEST1-TEST")) {
+                                    return true;
+                                }
+                                return false;
+                            }
+                }).iterator().next().getNotices(), new Function<Notice, String>() {
+                    @Override
+                    public String apply(@Nullable Notice notice) {
+                        return notice.getTitle();
+                    }
+            }), containsInAnyOrder("Source", "Filtered"));
         assertThat(result.getNotices(), hasSize(1));
         assertThat(result.getNotices().get(0).getTitle(), is("Terms and Conditions"));
     }
