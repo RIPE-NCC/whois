@@ -40,7 +40,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  RIPE-NCC-HM-MNT
                     referral-by: RIPE-NCC-HM-MNT
                     upd-to:  dbtest@ripe.net
-                    auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    auth:    MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss.  #hm
                     changed: dbtest@ripe.net 20120707
                     source:  TEST
                 """,
@@ -302,7 +302,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org: ORG-TOL5-TEST
                     changed: ripe@test.net 20120505
                     source: TEST
-                    password:update
+                    password: update
+                    password: hm
                     """.stripIndent()))
 
         then:
@@ -324,7 +325,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             status: ALLOCATED PI
                             mnt-by:RIPE-NCC-HM-MNT
                             source: TEST
-                            password:update
+                            password: hm
+                            password: update
                         """.stripIndent()))
         when:
         insertResponse =~ /SUCCESS/
@@ -343,7 +345,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org: ORG-TOL5-TEST
                     status: ALLOCATED PI
                     source: TEST
-                    password:update
+                    password: hm
+                    password: update
                 """.stripIndent())
 
         then:
@@ -365,7 +368,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             org: ORG-TOL1-TEST
             changed: ripe@test.net 20120505
             source: TEST
-            password:update
+            password: update
+            password: hm
         """.stripIndent()))
 
         then:
@@ -408,7 +412,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             org: ORG-TOL1-TEST
             changed: ripe@test.net 20120505
             source: TEST
-            password:update
+            password: update
+            password: hm
         """.stripIndent()))
 
         expect:
@@ -427,7 +432,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             org: ORG-TOL2-TEST
             changed: ripe@test.net 20120505
             source: TEST
-            password:update""".stripIndent())
+            password: hm""".stripIndent())
 
         then:
         response =~ /FAIL/
@@ -450,7 +455,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             changed: ripe@test.net 20120505
             source: TEST
 
-            password:update
+            password: update
+            password: hm
 
             inetnum: 192.0.0.0 - 192.0.0.255
             netname: RIPE-NCC
@@ -484,7 +490,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             mnt-by: RIPE-NCC-HM-MNT
                             changed: ripe@test.net 20120505
                             source: TEST
-                            password:update
+                            password: update
+                            password: hm
                         """.stripIndent()))
 
         expect:
@@ -502,7 +509,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             mnt-by: RIPE-NCC-HM-MNT
                             changed: ripe@test.net 20120505
                             source: TEST
-                            password:update
+                            password: hm
                         """.stripIndent()))
 
         then:
@@ -525,7 +532,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org: ORG-TOL5-TEST
                     changed: ripe@test.net 20120505
                     source: TEST
-                    password:update
+                    password: update
+                    password: hm
                     """.stripIndent()))
 
       then:
@@ -588,7 +596,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: RIPE-NCC-HM-MNT
                     changed: ripe@test.net 20120505
                     source: TEST
-                    password:update
+                    password: hm
+                    password: update
                 """.stripIndent()))
 
         expect:
@@ -607,7 +616,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: RIPE-NCC-HM-MNT
                     changed: ripe@test.net 20120505
                     source: TEST
-                    password:update
+                    password: hm
                 """.stripIndent())
 
         then:
@@ -630,7 +639,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: RIPE-NCC-HM-MNT
                     changed: ripe@test.net 20120505
                     source: TEST
-                    password:update
+                    password: hm
+                    password: update
 
                     inetnum: 10.0.0.0 - 10.0.0.255
                     netname: RIPE-NCC
@@ -665,7 +675,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: RIPE-NCC-HM-MNT
                     changed: ripe@test.net 20120505
                     source: TEST
-                    password:update
+                    password: hm
+                    password: update
                 """.stripIndent()))
 
         expect:
@@ -683,7 +694,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: RIPE-NCC-HM-MNT
                     changed: ripe@test.net 20120505
                     source: TEST
-                    password:update
+                    password: hm
                 """.stripIndent())
 
         then:
@@ -706,6 +717,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org: ORG-TOL1-TEST
                     source: TEST
                     password:update
+                    password:hm
                 """.stripIndent()))
 
         expect:
@@ -750,6 +762,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
 
                     password:update
+                    password:hm
 
                     inetnum: 192.0.0.0 - 192.0.0.255
                     netname: RIPE-NCC
@@ -784,7 +797,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: RIPE-NCC-HM-MNT
                     changed: ripe@test.net 20120505
                     source: TEST
-                    password:update
+                    password: hm
+                    password: update
                 """.stripIndent()))
         expect:
         insertResponse =~ /SUCCESS/
@@ -825,6 +839,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     changed: ripe@test.net 20120505
                     source: TEST
                     password:update
+                    password:hm
                 """.stripIndent()))
         expect:
         insertResponse =~ /SUCCESS/
@@ -846,7 +861,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org:ORG-TOL5-TEST
                     changed: ripe@test.net 20120505
                     source: TEST
-                    password:update
+                    password: hm
+                    password: update
                 """.stripIndent()))
 
         expect:
@@ -892,6 +908,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             source: TEST
             org:ORG-TOL1-TEST
             password:update
+            password:hm
             """.stripIndent()))
         then:
         insertResponse =~ /SUCCESS/
@@ -934,6 +951,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             org:ORG-TOL1-TEST
 
             password:update
+            password:hm
 
             inetnum: 192.0.0.0 - 192.0.0.255
             netname: RIPE-NCC
@@ -1089,6 +1107,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 password: update
+                password: hm
                 """.stripIndent()))
 
         then:
@@ -1154,6 +1173,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 password:     emptypassword
                 password:     pimaintainer
                 password:     update
+                password:     hm
                 """.stripIndent()))
         then:
         response =~ /SUCCESS/
@@ -1176,6 +1196,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 source:       TEST
                 password:     emptypassword
                 password:     update
+                password:     hm
                 """.stripIndent()))
         then:
         response =~ /SUCCESS/
@@ -1284,15 +1305,17 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 changed: ripe@test.net 20120505
                 source: TEST
                 password: hm
+                password: update
                 """.stripIndent()))
         then:
-            response =~ /Create SUCCEEDED: \[inetnum\] 194.0.0.0 - 194.0.0.255/
+            response =~ /Create SUCCEEDED: \[inetnum\] 196.0.0.0 - 196.255.255.255/
     }
 
     def "create ALLOCATED PI inetnum with OTHER sponsoring-org as rs-maintainer"() {
         when:
             def response = syncUpdate(new SyncUpdate(data: """\
                 inetnum: 196.0.0.0 - 196.255.255.255
+                org: ORG-TOL2-TEST
                 sponsoring-org: ORG-TOL2-TEST
                 netname: TEST-NET
                 descr: description
@@ -1307,7 +1330,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: hm
                 """.stripIndent()))
         then:
-            response =~ /Create FAILED: \[inetnum\] 194.0.0.0 - 194.0.0.255/
+            response =~ /Create FAILED: \[inetnum\] 196.0.0.0 - 196.255.255.255/
     }
 
     def "create ALLOCATED PA inetnum with LIR sponsoring-org with override"() {
@@ -1329,7 +1352,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 override:denis,override1
                 """.stripIndent()))
         then:
-            response =~ /Create SUCCEEDED: \[inetnum\] 194.0.0.0 - 194.0.0.255/
+            response =~ /Create SUCCEEDED: \[inetnum\] 196.0.0.0 - 196.255.255.255/
     }
 
     def "create ALLOCATED PI inetnum with OTHER sponsoring-org with override"() {
@@ -1420,6 +1443,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         when:
             def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 194.0.0.0 - 194.255.255.255
+                    org: ORG-TOL5-TEST
                     sponsoring-org: ORG-TOL5-TEST
                     netname: TEST-NET
                     descr: description
@@ -1432,6 +1456,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     changed: ripe@test.net 20120505
                     source: TEST
                     password: hm
+                    password: update
                     """.stripIndent()))
         then:
             response =~ /Modify SUCCEEDED: \[inetnum\] 194.0.0.0 - 194.255.255.255/
@@ -1462,6 +1487,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         when:
             def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 194.0.0.0 - 194.255.255.255
+                    org: ORG-TOL5-TEST
                     sponsoring-org: ORG-TOL5-TEST
                     netname: TEST-NET
                     descr: description
@@ -1599,6 +1625,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         given:
             def override = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 193.0.0.0 - 193.0.0.255
+                    org: ORG-TOL5-TEST
                     sponsoring-org: ORG-TOL5-TEST
                     netname: RIPE-NCC
                     descr: description
@@ -1635,6 +1662,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             def override = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 194.0.0.0 - 194.255.255.255
                     sponsoring-org: ORG-TOL5-TEST
+                    org: ORG-TOL5-TEST
                     netname: TEST-NET
                     descr: description
                     country: NL
@@ -1671,6 +1699,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         given:
             def override = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 194.0.0.0 - 194.255.255.255
+                    org: ORG-TOL5-TEST
                     sponsoring-org: ORG-TOL5-TEST
                     netname: TEST-NET
                     descr: description
@@ -1688,6 +1717,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         when:
             def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 194.0.0.0 - 194.255.255.255
+                    org: ORG-TOL5-TEST
                     netname: TEST-NET
                     descr: description
                     country: NL
