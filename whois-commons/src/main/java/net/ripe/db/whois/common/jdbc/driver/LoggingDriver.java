@@ -74,6 +74,7 @@ public class LoggingDriver implements Driver {
             return null;
         }
 
+        // TODO: [AH] don't create proxies if no logginghandler defined (ergo no logging is going to take place)
         final Target target = getTarget(url);
         final Connection connection = DriverManager.getConnection(target.getUrl(), info);
         final ConnectionInvocationHandler invocationHandler = new ConnectionInvocationHandler(connection, target.getLoggingHandler());
