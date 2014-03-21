@@ -599,7 +599,7 @@ public enum AttributeType implements Documented {
 
     SPONSORING_ORG(new Builder("sponsoring-org", "sp")
             .doc("Points to an existing organisation object representing the sponsoring organisation responsible for the resource.")
-            .syntax(ORGANISATION_SYNTAX)
+            .syntax(GENERATED_SYNTAX)
             .references(ObjectType.ORGANISATION)),
 
     STATUS(new Builder("status", "st")
