@@ -557,4 +557,8 @@ public final class UpdateMessages {
     public static Message ripeAccessServerUnavailable() {
         return new Message(Type.ERROR, "RIPE NCC Access server is unavailable");
     }
+
+    public static Message sponsoringOrgChanged() {
+        return new Message(Type.WARNING, "\"sponsoring-org:\" can only be added/removed by RIPE NCC");
+    }
 }
