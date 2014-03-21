@@ -50,7 +50,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         final RpslObject organisation = objectDao.getByKey(ObjectType.ORGANISATION, updatedObject.getValueForAttribute(AttributeType.ORG));
 
         if (!organisation.getValueForAttribute(AttributeType.ORG_TYPE).equals("LIR")) {
-            // TODO add error message that Denis defines
+            updateContext.addMessage(update, UpdateMessages.sponsoringOrgNotLIR());
         }
 
         final boolean hasRsMaintainer = !Sets.intersection(
@@ -58,7 +58,6 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
                 updatedObject.getValuesForAttribute(AttributeType.MNT_BY)).isEmpty();
 
         if (!hasRsMaintainer) {
-            //TODO possibly differentiate between create and update
             updateContext.addMessage(update, UpdateMessages.sponsoringOrgChanged());
         }
     }
