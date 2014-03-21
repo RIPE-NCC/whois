@@ -53,6 +53,7 @@ public class QueryHandler {
             public void run() {
                 try {
                     final QueryExecutor queryExecutor = getQueryExecutor();
+                    authenticate();
                     initAcl(queryExecutor);
                     executeQuery(queryExecutor);
                     logQuery(null);
@@ -104,6 +105,11 @@ public class QueryHandler {
                 } else if (!accessControlListManager.canQueryPersonalObjects(inetAddress)) {
                     throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(inetAddress));
                 }
+            }
+
+            private void authenticate() {
+                // here be authenticated queries
+                query.setOverride(accessControlListManager.isOverride(remoteAddress));
             }
 
             private void executeQuery(QueryExecutor queryExecutor) {

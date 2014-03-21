@@ -29,14 +29,12 @@ import java.util.*;
 @Component
 class RpslObjectSearcher {
     private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES = EnumSet.noneOf(AttributeType.class);
+    private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES_OVERRIDE = EnumSet.of(AttributeType.SPONSORING_ORG);
 
     static {
         for (final ObjectType objectType : ObjectType.values()) {
             INVERSE_ATTRIBUTE_TYPES.addAll(ObjectTemplate.getTemplate(objectType).getInverseLookupAttributes());
         }
-
-        // hack for sponsoring-org
-        INVERSE_ATTRIBUTE_TYPES.add(AttributeType.SPONSORING_ORG);
     }
 
     private final RpslObjectDao rpslObjectDao;
@@ -235,7 +233,7 @@ class RpslObjectSearcher {
     private Iterable<ResponseObject> indexLookupReverse(final Query query) {
         final List<ResponseObject> errors = Lists.newArrayList();
         for (final AttributeType attributeType : query.getAttributeTypes()) {
-            if (!INVERSE_ATTRIBUTE_TYPES.contains(attributeType)) {
+            if (!(INVERSE_ATTRIBUTE_TYPES.contains(attributeType) || (query.isOverride() && INVERSE_ATTRIBUTE_TYPES_OVERRIDE.contains(attributeType)))) {
                 errors.add(new MessageObject(QueryMessages.attributeNotSearchable(attributeType.getName())));
             }
         }
