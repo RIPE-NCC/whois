@@ -28,15 +28,15 @@ import java.util.*;
 
 @Component
 class RpslObjectSearcher {
-    private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES;
+    private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES = EnumSet.noneOf(AttributeType.class);
 
     static {
-        Set<AttributeType> supportAttributeTypes = Sets.newHashSet();
         for (final ObjectType objectType : ObjectType.values()) {
-            supportAttributeTypes.addAll(ObjectTemplate.getTemplate(objectType).getInverseLookupAttributes());
+            INVERSE_ATTRIBUTE_TYPES.addAll(ObjectTemplate.getTemplate(objectType).getInverseLookupAttributes());
         }
 
-        INVERSE_ATTRIBUTE_TYPES = Sets.newEnumSet(supportAttributeTypes, AttributeType.class);
+        // hack for sponsoring-org
+        INVERSE_ATTRIBUTE_TYPES.add(AttributeType.SPONSORING_ORG);
     }
 
     private final RpslObjectDao rpslObjectDao;
