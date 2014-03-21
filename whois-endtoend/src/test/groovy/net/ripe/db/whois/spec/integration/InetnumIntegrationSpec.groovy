@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
@@ -137,6 +136,32 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                """,
+                "INET2": """\
+                    inetnum: 194.0.0.0 - 194.255.255.255
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-lower: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                """,
+                "INET3": """\
+                    inetnum: 195.0.0.0 - 195.255.255.255
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PI
+                    mnt-by: TEST-MNT
+                    mnt-lower: TEST-MNT
                     changed: ripe@test.net 20120505
                     source: TEST
                 """,
@@ -1177,4 +1202,506 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         response.contains("Create SUCCEEDED: [inetnum] 192.168.200.0 - 192.168.200.255")
     }
+
+    // sponsoring-org tests
+
+    // create inetnum
+
+    def "create SUB-ALLOCATED PA inetnum with OTHER sponsoring-org"() {
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 194.0.0.0 - 194.0.0.255
+                    sponsoring-org: ORG-TOL2-TEST
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: SUB-ALLOCATED PA
+                    mnt-by: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    password: update
+                    """.stripIndent()))
+        then:
+            response =~ /Create FAILED: \[inetnum\] 194.0.0.0 - 194.0.0.255/
+    }
+
+    def "create SUB-ALLOCATED PA inetnum with LIR sponsoring-org"() {
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum: 194.0.0.0 - 194.0.0.255
+                sponsoring-org: ORG-TOL5-TEST
+                netname: TEST-NET
+                descr: description
+                country: NL
+                admin-c: TEST-PN
+                tech-c: TEST-PN
+                status: SUB-ALLOCATED PA
+                mnt-by: TEST-MNT
+                changed: ripe@test.net 20120505
+                source: TEST
+                password: update
+                """.stripIndent()))
+        then:
+            response =~ /Create FAILED: \[inetnum\] 194.0.0.0 - 194.0.0.255/
+    }
+
+    def "create ALLOCATED PI inetnum with LIR sponsoring-org"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum: 195.0.0.0 - 195.0.0.255
+                sponsoring-org: ORG-TOL5-TEST
+                netname: TEST-NET
+                descr: description
+                country: NL
+                admin-c: TEST-PN
+                tech-c: TEST-PN
+                status: ALLOCATED PI
+                mnt-by: TEST-MNT
+                changed: ripe@test.net 20120505
+                source: TEST
+                password: update
+                """.stripIndent()))
+        then:
+            response =~ /Create FAILED: \[inetnum\] 195.0.0.0 - 195.0.0.255/
+    }
+
+    def "create ALLOCATED PA inetnum with LIR sponsoring-org as rs-maintainer"() {
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum: 196.0.0.0 - 196.255.255.255
+                org: ORG-TOL5-TEST
+                sponsoring-org: ORG-TOL5-TEST
+                netname: TEST-NET
+                descr: description
+                country: NL
+                admin-c: TEST-PN
+                tech-c: TEST-PN
+                status: ALLOCATED PA
+                mnt-by: RIPE-NCC-HM-MNT
+                mnt-lower: TEST-MNT
+                changed: ripe@test.net 20120505
+                source: TEST
+                password: hm
+                """.stripIndent()))
+        then:
+            response =~ /Create SUCCEEDED: \[inetnum\] 194.0.0.0 - 194.0.0.255/
+    }
+
+    def "create ALLOCATED PI inetnum with OTHER sponsoring-org as rs-maintainer"() {
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum: 196.0.0.0 - 196.255.255.255
+                sponsoring-org: ORG-TOL2-TEST
+                netname: TEST-NET
+                descr: description
+                country: NL
+                admin-c: TEST-PN
+                tech-c: TEST-PN
+                status: ALLOCATED PI
+                mnt-by: RIPE-NCC-HM-MNT
+                mnt-lower: TEST-MNT
+                changed: ripe@test.net 20120505
+                source: TEST
+                password: hm
+                """.stripIndent()))
+        then:
+            response =~ /Create FAILED: \[inetnum\] 194.0.0.0 - 194.0.0.255/
+    }
+
+    def "create ALLOCATED PA inetnum with LIR sponsoring-org with override"() {
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum: 196.0.0.0 - 196.255.255.255
+                org: ORG-TOL5-TEST
+                sponsoring-org: ORG-TOL5-TEST
+                netname: TEST-NET
+                descr: description
+                country: NL
+                admin-c: TEST-PN
+                tech-c: TEST-PN
+                status: ALLOCATED PA
+                mnt-by: RIPE-NCC-HM-MNT
+                mnt-lower: TEST-MNT
+                changed: ripe@test.net 20120505
+                source: TEST
+                override:denis,override1
+                """.stripIndent()))
+        then:
+            response =~ /Create SUCCEEDED: \[inetnum\] 194.0.0.0 - 194.0.0.255/
+    }
+
+    def "create ALLOCATED PI inetnum with OTHER sponsoring-org with override"() {
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum: 196.0.0.0 - 196.255.255.255
+                sponsoring-org: ORG-TOL2-TEST
+                netname: TEST-NET
+                descr: description
+                country: NL
+                admin-c: TEST-PN
+                tech-c: TEST-PN
+                status: ALLOCATED PI
+                mnt-by: RIPE-NCC-HM-MNT
+                mnt-lower: TEST-MNT
+                changed: ripe@test.net 20120505
+                source: TEST
+                override:denis,override1
+                """.stripIndent()))
+        then:
+            response =~ /Create FAILED: \[inetnum\] 196.0.0.0 - 196.255.255.255/
+    }
+
+    // add attribute
+
+    def "update SUB-ALLOCATED PA inetnum add OTHER sponsoring-org"() {
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 193.0.0.0 - 193.0.0.255
+                    sponsoring-org: ORG-TOL2-TEST
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: SUB-ALLOCATED PA
+                    mnt-by: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    password: update
+                    """.stripIndent()))
+        then:
+            response =~ /Modify FAILED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
+    }
+
+    def "update SUB-ALLOCATED PA inetnum add LIR sponsoring-org"() {
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 193.0.0.0 - 193.0.0.255
+                    sponsoring-org: ORG-TOL5-TEST
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: SUB-ALLOCATED PA
+                    mnt-by: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    password: update
+                    """.stripIndent()))
+        then:
+            response =~ /Modify FAILED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
+    }
+
+    def "update ALLOCATED PA inetnum add OTHER sponsoring-org as rs-maintainer"() {
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 194.0.0.0 - 194.255.255.255
+                    sponsoring-org: ORG-TOL2-TEST
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-lower: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    password: hm
+                    """.stripIndent()))
+        then:
+            response =~ /Modify FAILED: \[inetnum\] 194.0.0.0 - 194.255.255.255/
+    }
+
+    def "update ALLOCATED PA inetnum add LIR sponsoring-org as rs-maintainer"() {
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 194.0.0.0 - 194.255.255.255
+                    sponsoring-org: ORG-TOL5-TEST
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-lower: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    password: hm
+                    """.stripIndent()))
+        then:
+            response =~ /Modify SUCCEEDED: \[inetnum\] 194.0.0.0 - 194.255.255.255/
+    }
+
+    def "update ALLOCATED PA inetnum add OTHER sponsoring-org with override"() {
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 194.0.0.0 - 194.255.255.255
+                    sponsoring-org: ORG-TOL2-TEST
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-lower: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    override:denis,override1
+                    """.stripIndent()))
+        then:
+            response =~ /Modify FAILED: \[inetnum\] 194.0.0.0 - 194.255.255.255/
+    }
+
+    def "update ALLOCATED PA inetnum add LIR sponsoring-org with override"() {
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 194.0.0.0 - 194.255.255.255
+                    sponsoring-org: ORG-TOL5-TEST
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-lower: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    override:denis,override1
+                    """.stripIndent()))
+        then:
+            response =~ /Modify SUCCEEDED: \[inetnum\] 194.0.0.0 - 194.255.255.255/
+    }
+
+    // change attribute
+
+    def "update SUB-ALLOCATED PA inetnum change sponsoring-org from LIR to OTHER"() {
+        given:
+            def override = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 193.0.0.0 - 193.0.0.255
+                    sponsoring-org: ORG-TOL5-TEST
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: SUB-ALLOCATED PA
+                    mnt-by: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    override:denis,override1
+                    """.stripIndent()))
+            override =~ /Modify SUCCEEDED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 193.0.0.0 - 193.0.0.255
+                    sponsoring-org: ORG-TOL2-TEST
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: SUB-ALLOCATED PA
+                    mnt-by: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    password: update
+                    """.stripIndent()))
+        then:
+            response =~ /Modify FAILED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
+    }
+
+    def "update ALLOCATED PA inetnum change sponsoring-org from LIR to OTHER as rs-maintainer"() {
+        given:
+            def override = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 194.0.0.0 - 194.255.255.255
+                    sponsoring-org: ORG-TOL5-TEST
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-lower: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    override:denis,override1
+                """.stripIndent()))
+            override =~ /Modify SUCCEEDED: \[inetnum\] 194.0.0.0 - 194.255.255.255/
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 194.0.0.0 - 194.255.255.255
+                    sponsoring-org: ORG-TOL2-TEST
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-lower: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    password: hm
+                    """.stripIndent()))
+        then:
+            response =~ /Modify FAILED: \[inetnum\] 194.0.0.0 - 194.255.255.255/
+    }
+
+    def "update ALLOCATED PA inetnum change sponsoring-org from LIR to OTHER with override"() {
+        given:
+            def override = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 194.0.0.0 - 194.255.255.255
+                    sponsoring-org: ORG-TOL5-TEST
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-lower: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    override:denis,override1
+                """.stripIndent()))
+            override =~ /Modify SUCCEEDED: \[inetnum\] 194.0.0.0 - 194.255.255.255/
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 194.0.0.0 - 194.255.255.255
+                    sponsoring-org: ORG-TOL2-TEST
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-lower: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    override:denis,override1
+                    """.stripIndent()))
+        then:
+            response =~ /Modify FAILED: \[inetnum\] 194.0.0.0 - 194.255.255.255/
+    }
+
+    // remove attribute
+
+    def "update SUB-ALLOCATED PA inetnum remove sponsoring-org"() {
+        given:
+            def override = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 193.0.0.0 - 193.0.0.255
+                    sponsoring-org: ORG-TOL5-TEST
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: SUB-ALLOCATED PA
+                    mnt-by: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    override:denis,override1
+                    """.stripIndent()))
+            override =~ /Modify SUCCEEDED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 193.0.0.0 - 193.0.0.255
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: SUB-ALLOCATED PA
+                    mnt-by: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    password: update
+                    """.stripIndent()))
+        then:
+            response =~ /Modify FAILED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
+    }
+
+    def "update ALLOCATED PA inetnum remove sponsoring-org as rs-maintainer"() {
+        given:
+            def override = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 194.0.0.0 - 194.255.255.255
+                    sponsoring-org: ORG-TOL5-TEST
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-lower: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    override:denis,override1
+                """.stripIndent()))
+            override =~ /Modify SUCCEEDED: \[inetnum\] 194.0.0.0 - 194.255.255.255/
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 194.0.0.0 - 194.255.255.255
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-lower: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    password: hm
+                    """.stripIndent()))
+        then:
+            response =~ /Modify FAILED: \[inetnum\] 194.0.0.0 - 194.255.255.255/
+    }
+
+    def "update ALLOCATED PA inetnum remove sponsoring-org with override"() {
+        given:
+            def override = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 194.0.0.0 - 194.255.255.255
+                    sponsoring-org: ORG-TOL5-TEST
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-lower: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    override:denis,override1
+                """.stripIndent()))
+            override =~ /Modify SUCCEEDED: \[inetnum\] 194.0.0.0 - 194.255.255.255/
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 194.0.0.0 - 194.255.255.255
+                    netname: TEST-NET
+                    descr: description
+                    country: NL
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-lower: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    override:denis,override1
+                    """.stripIndent()))
+        then:
+            response =~ /Modify SUCCEEDED: \[inetnum\] 194.0.0.0 - 194.255.255.255/
+    }
+
 }
