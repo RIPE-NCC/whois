@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
@@ -116,6 +117,7 @@ public class WhoisRestService {
     public static final String SERVICE_SEARCH = "search";
 
     private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&').omitEmptyStrings();
+    private static final Splitter WHITESPACE_SPLITTER = Splitter.on(CharMatcher.WHITESPACE).trimResults().omitEmptyStrings();
     private static final Splitter EQUALS_SPLITTER = Splitter.on('=').omitEmptyStrings();
 
     private static final Set<QueryFlag> NOT_ALLOWED_SEARCH_QUERY_FLAGS = ImmutableSet.of(
@@ -325,11 +327,11 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        final Query query = Query.parse(String.format("%s %s %s %s",
-                QueryFlag.SELECT_TYPES.getLongFlag(),
-                ObjectType.getByName(objectType).getName(),
-                QueryFlag.LIST_VERSIONS.getLongFlag(),
-                key), Query.Origin.REST);
+        QueryBuilder queryBuilder = new QueryBuilder()
+                .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
+                .addFlag(QueryFlag.LIST_VERSIONS);
+
+        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST);
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
@@ -365,12 +367,11 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        final Query query = Query.parse(String.format("%s %s %s %s %s",
-                QueryFlag.SELECT_TYPES.getLongFlag(),
-                ObjectType.getByName(objectType).getName(),
-                QueryFlag.SHOW_VERSION.getLongFlag(),
-                version,
-                key), Query.Origin.REST);
+        QueryBuilder queryBuilder = new QueryBuilder()
+                .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
+                .addCommaList(QueryFlag.SHOW_VERSION, String.valueOf(version));
+
+        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST);
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
@@ -759,7 +760,7 @@ public class WhoisRestService {
         }
     }
 
-    private static final class QueryBuilder {
+    public static final class QueryBuilder {
         private static final Joiner COMMA_JOINER = Joiner.on(',');
         private final StringBuilder query = new StringBuilder(128);
 
@@ -769,12 +770,19 @@ public class WhoisRestService {
         }
 
         public QueryBuilder addCommaList(final QueryFlag queryFlag, final String arg) {
+            if (checkForNoParam(arg)) {
+                throw new IllegalArgumentException(queryFlag.getLongFlag() + " has a flag argument");
+            }
             query.append(queryFlag.getLongFlag()).append(' ').append(arg).append(' ');
             return this;
         }
 
         public QueryBuilder addCommaList(final QueryFlag queryFlag, final Collection<String> args) {
             if (args.size() > 0) {
+                if (checkForNoParam(args)) {
+                    throw new IllegalArgumentException(queryFlag.getLongFlag() + " has a flag argument");
+                }
+
                 query.append(queryFlag.getLongFlag()).append(' ');
                 COMMA_JOINER.appendTo(query, args);
                 query.append(' ');
@@ -783,7 +791,25 @@ public class WhoisRestService {
         }
 
         public String build(final String searchKey) {
+            if (checkForNoParam(searchKey)) {
+                throw new IllegalArgumentException("search key can not contain flags");
+            }
             return query.append(searchKey).toString();
+        }
+
+        public static boolean checkForNoParam(String... params) {
+            return checkForNoParam(Arrays.asList(params));
+        }
+
+        public static boolean checkForNoParam(Collection<String> params) {
+            for (final String param : params) {
+                for (final String searchparam : WHITESPACE_SPLITTER.split(param)) {
+                    if (searchparam.startsWith("-")) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 

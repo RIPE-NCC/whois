@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import static net.ripe.db.whois.api.rest.WhoisRestService.QueryBuilder;
+
 @Component
 @Path("/abuse-contact")
 public class AbuseContactService {
@@ -44,10 +46,10 @@ public class AbuseContactService {
             @Context final HttpServletRequest request,
             @PathParam("key") final String key) {
 
-        final String format = String.format("%s %s",
-                QueryFlag.ABUSE_CONTACT.getLongFlag(),
-                key);
-        final Query query = Query.parse(format);
+        QueryBuilder queryBuilder = new QueryBuilder()
+                .addFlag(QueryFlag.ABUSE_CONTACT);
+
+        final Query query = Query.parse(queryBuilder.build(key));
 
         final List<AbuseResources> abuseResources = Lists.newArrayList();
 
