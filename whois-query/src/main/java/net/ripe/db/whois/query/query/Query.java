@@ -544,15 +544,20 @@ public class Query {
         for (final String attributeType : attributeTypes) {
             try {
                 final AttributeType type = AttributeType.getByName(attributeType);
-                if (AttributeType.PERSON.equals(type)) {
-                    ret.addAll(Arrays.asList(AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
-                } else if (AttributeType.AUTH.equals(type)) {
-                    final String auth = queryParser.getSearchKey().toUpperCase();
-                    if (auth.startsWith("SSO ") || auth.startsWith("MD5-PW ")) {
-                        throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.inverseSearchNotAllowed());
-                    }
-                } else {
-                    ret.add(type);
+                switch (type) {
+                    case PERSON:
+                        ret.addAll(Arrays.asList(AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
+                        break;
+
+                    case AUTH:
+                        final String auth = queryParser.getSearchKey().toUpperCase();
+                        if (auth.startsWith("SSO ") || auth.startsWith("MD5-PW ")) {
+                            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.inverseSearchNotAllowed());
+                        }
+                        break;
+
+                    default:
+                        ret.add(type);
                 }
             } catch (IllegalArgumentException e) {
                 throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidAttributeType(attributeType));
