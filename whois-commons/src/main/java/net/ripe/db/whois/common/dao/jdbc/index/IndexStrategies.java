@@ -111,6 +111,7 @@ public final class IndexStrategies {
                 new IndexWithValue(AttributeType.RTR_SET, "rtr_set", "rtr_set"),
                 new Unindexed(AttributeType.SIGNATURE),
                 new Unindexed(AttributeType.SOURCE),
+                new IndexWithReference(AttributeType.SPONSORING_ORG, "sponsoring_org", "org_id"),
                 new Unindexed(AttributeType.STATUS),
                 new IndexWithReference(AttributeType.TECH_C, "tech_c", "pe_ro_id"),
                 new Unindexed(AttributeType.TEXT),
