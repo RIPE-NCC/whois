@@ -559,6 +559,10 @@ public final class UpdateMessages {
     }
 
     public static Message sponsoringOrgChanged() {
-        return new Message(Type.WARNING, "\"sponsoring-org:\" can only be added/removed by RIPE NCC");
+        return new Message(Type.WARNING, "\"sponsoring-org\" value is managed by RIPE NCC");
+    }
+
+    public static Message sponsoringOrgNotLIR() {
+        return new Message(Type.ERROR, "Referenced object must have org-type LIR");
     }
 }
