@@ -785,6 +785,17 @@
             </properties>
         </profile>
         <profile>
+            <!-- travis can't run endtoend tests because of the dependency on ripe-internal servers like crowd -->
+            <id>travis</id>
+            <properties>
+                <test.redirectOutput>true</test.redirectOutput>
+                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
+                <test.files.unit>**/*Test.class</test.files.unit>
+                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
+                <test.forkCount.integration>3</test.forkCount.integration>
+            </properties>
+        </profile>
+        <profile>
             <id>release</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
