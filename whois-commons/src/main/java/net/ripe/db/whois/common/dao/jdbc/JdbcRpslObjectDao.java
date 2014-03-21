@@ -292,6 +292,8 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     private Set<RpslObjectInfo> findByKeyInIndex(final ObjectType type, final CIString key) {
         final Set<RpslObjectInfo> objectInfos = Sets.newHashSetWithExpectedSize(1);
         final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(type);
+
+        // FIXME: [AH] this would erroneously try to match the individual key of route(6) object, instead of matching against the combined key
         for (final AttributeType attributeType : objectTemplate.getKeyAttributes()) {
             final List<RpslObjectInfo> rpslObjectInfos = IndexStrategies.get(attributeType).findInIndex(jdbcTemplate, key);
             for (final RpslObjectInfo rpslObjectInfo : rpslObjectInfos) {
