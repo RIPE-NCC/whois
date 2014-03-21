@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -42,7 +43,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final boolean sponsoringOrgHasChanged = sponsoringOrgHasChanged(update);
-        if (!sponsoringOrgHasChanged || update.isOverride()) {
+        if (!sponsoringOrgHasChanged) {
             return;
         }
 
@@ -57,16 +58,16 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
                 maintainers.getRsMaintainers(),
                 updatedObject.getValuesForAttribute(AttributeType.MNT_BY)).isEmpty();
 
-        if (!hasRsMaintainer) {
+        if (!hasRsMaintainer && !update.isOverride()) {
             updateContext.addMessage(update, UpdateMessages.sponsoringOrgChanged());
         }
     }
 
     private boolean sponsoringOrgHasChanged(final PreparedUpdate update) {
-        final CIString refSponsoringOrg = update.getReferenceObject().getValueForAttribute(AttributeType.SPONSORING_ORG);
-        final CIString updSponsoringOrg = update.getUpdatedObject().getValueForAttribute(AttributeType.SPONSORING_ORG);
+        final CIString refSponsoringOrg = update.getReferenceObject().getValueOrNullForAttribute(AttributeType.SPONSORING_ORG);
+        final CIString updSponsoringOrg = update.getUpdatedObject().getValueOrNullForAttribute(AttributeType.SPONSORING_ORG);
         final boolean presentOnCreate = update.getAction() == Action.CREATE && (refSponsoringOrg != null && !refSponsoringOrg.equals(""));
 
-        return presentOnCreate || (update.getAction() == Action.MODIFY && !refSponsoringOrg.equals(updSponsoringOrg));
+        return presentOnCreate || (update.getAction() == Action.MODIFY && !Objects.equal(refSponsoringOrg, updSponsoringOrg));
     }
 }
