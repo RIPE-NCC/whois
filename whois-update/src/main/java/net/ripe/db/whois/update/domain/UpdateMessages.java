@@ -559,7 +559,7 @@ public final class UpdateMessages {
     }
 
     public static Message sponsoringOrgChanged() {
-        return new Message(Type.WARNING, "\"sponsoring-org\" value is managed by RIPE NCC");
+        return new Message(Type.ERROR, "\"sponsoring-org\" value is managed by RIPE NCC");
     }
 
     public static Message sponsoringOrgNotLIR() {
