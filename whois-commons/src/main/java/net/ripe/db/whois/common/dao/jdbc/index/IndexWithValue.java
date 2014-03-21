@@ -23,6 +23,7 @@ class IndexWithValue extends IndexStrategySimpleLookup {
 
     @Override
     public List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final String value) {
+        // FIXME: [AH] joining to last is very costly and unnecessary here; look for ways to drop this join
         final String query = MessageFormat.format("" +
                 "SELECT l.object_id, l.object_type, l.pkey " +
                 "  FROM {0} " +
