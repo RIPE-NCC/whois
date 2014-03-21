@@ -804,7 +804,7 @@ public class WhoisRestService {
         public static boolean checkForNoParam(Collection<String> params) {
             for (final String param : params) {
                 for (final String searchparam : WHITESPACE_SPLITTER.split(param)) {
-                    if (searchparam.startsWith("-")) {
+                    if (searchparam.length() > 1 && searchparam.charAt(0) == '-') {
                         return true;
                     }
                 }
