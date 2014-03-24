@@ -48,10 +48,13 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
-        final RpslObject organisation = objectDao.getByKey(ObjectType.ORGANISATION, updatedObject.getValueForAttribute(AttributeType.ORG));
 
-        if (!organisation.getValueForAttribute(AttributeType.ORG_TYPE).equals("LIR")) {
-            updateContext.addMessage(update, UpdateMessages.sponsoringOrgNotLIR());
+        if (updatedObject.containsAttribute(AttributeType.SPONSORING_ORG)) {
+            final RpslObject sponsoringOrganisation = objectDao.getByKey(ObjectType.ORGANISATION, updatedObject.getValueForAttribute(AttributeType.SPONSORING_ORG));
+
+            if (!sponsoringOrganisation.getValueForAttribute(AttributeType.ORG_TYPE).equals("LIR")) {
+                updateContext.addMessage(update, UpdateMessages.sponsoringOrgNotLIR());
+            }
         }
 
         final boolean hasRsMaintainer = !Sets.intersection(

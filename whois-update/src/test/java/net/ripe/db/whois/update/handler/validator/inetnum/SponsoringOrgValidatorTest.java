@@ -59,6 +59,7 @@ public class SponsoringOrgValidatorTest {
         verify(updateContext, never()).addMessage(update, UpdateMessages.sponsoringOrgNotLIR());
     }
 
+    @Test
     public void sponsoring_org_not_added() {
         final RpslObject object = RpslObject.parse("" +
                 "aut-num: AS123\n" +
@@ -90,7 +91,7 @@ public class SponsoringOrgValidatorTest {
                 "source: TEST"));
 
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(objectDao.getByKey(ObjectType.ORGANISATION, CIString.ciString("ORG-TR1-TEST"))).thenReturn(RpslObject.parse("" +
+        when(objectDao.getByKey(ObjectType.ORGANISATION, CIString.ciString("ORG-SP1-TEST"))).thenReturn(RpslObject.parse("" +
                 "organisation: ORG-TR1-TEST\n" +
                 "org-type: OTHER\n" +
                 "mnt-by: TEST-MNT\n" +
@@ -120,7 +121,7 @@ public class SponsoringOrgValidatorTest {
                 "source: TEST"));
 
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(objectDao.getByKey(ObjectType.ORGANISATION, CIString.ciString("ORG-TR1-TEST"))).thenReturn(RpslObject.parse("" +
+        when(objectDao.getByKey(ObjectType.ORGANISATION, CIString.ciString("ORG-SP1-TEST"))).thenReturn(RpslObject.parse("" +
                 "organisation: ORG-TR1-TEST\n" +
                 "org-type: LIR\n" +
                 "mnt-by: TEST-MNT\n" +
@@ -150,7 +151,7 @@ public class SponsoringOrgValidatorTest {
                 "source: TEST"));
 
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(objectDao.getByKey(ObjectType.ORGANISATION, CIString.ciString("ORG-TR1-TEST"))).thenReturn(RpslObject.parse("" +
+        when(objectDao.getByKey(ObjectType.ORGANISATION, CIString.ciString("ORG-SP1-TEST"))).thenReturn(RpslObject.parse("" +
                 "organisation: ORG-TR1-TEST\n" +
                 "org-type: LIR\n" +
                 "mnt-by: TEST-MNT\n" +
@@ -180,7 +181,7 @@ public class SponsoringOrgValidatorTest {
                 "source: TEST"));
 
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(objectDao.getByKey(ObjectType.ORGANISATION, CIString.ciString("ORG-TR1-TEST"))).thenReturn(RpslObject.parse("" +
+        when(objectDao.getByKey(ObjectType.ORGANISATION, CIString.ciString("ORG-SP1-TEST"))).thenReturn(RpslObject.parse("" +
                 "organisation: ORG-TR1-TEST\n" +
                 "org-type: LIR\n" +
                 "mnt-by: TEST-MNT\n" +
