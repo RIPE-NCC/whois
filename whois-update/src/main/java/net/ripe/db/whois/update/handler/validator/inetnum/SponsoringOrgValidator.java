@@ -17,7 +17,11 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
+
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_TYPE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.SPONSORING_ORG;
 
 @Component
 public class SponsoringOrgValidator implements BusinessRuleValidator {
@@ -49,10 +53,11 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
 
         final RpslObject updatedObject = update.getUpdatedObject();
 
-        if (updatedObject.containsAttribute(AttributeType.SPONSORING_ORG)) {
-            final RpslObject sponsoringOrganisation = objectDao.getByKey(ObjectType.ORGANISATION, updatedObject.getValueForAttribute(AttributeType.SPONSORING_ORG));
+        if (updatedObject.containsAttribute(SPONSORING_ORG)) {
+            final List<RpslObject> sponsoringOrganisations = objectDao.getByKeys(ObjectType.ORGANISATION, Collections.singletonList(updatedObject.getValueForAttribute(SPONSORING_ORG)));
 
-            if (!sponsoringOrganisation.getValueForAttribute(AttributeType.ORG_TYPE).equals("LIR")) {
+            if (sponsoringOrganisations.isEmpty() ||
+                    !sponsoringOrganisations.get(0).getValueForAttribute(ORG_TYPE).equals("LIR")) {
                 updateContext.addMessage(update, UpdateMessages.sponsoringOrgNotLIR());
             }
         }
@@ -67,8 +72,8 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     }
 
     private boolean sponsoringOrgHasChanged(final PreparedUpdate update) {
-        final CIString refSponsoringOrg = update.getReferenceObject().getValueOrNullForAttribute(AttributeType.SPONSORING_ORG);
-        final CIString updSponsoringOrg = update.getUpdatedObject().getValueOrNullForAttribute(AttributeType.SPONSORING_ORG);
+        final CIString refSponsoringOrg = update.getReferenceObject().getValueOrNullForAttribute(SPONSORING_ORG);
+        final CIString updSponsoringOrg = update.getUpdatedObject().getValueOrNullForAttribute(SPONSORING_ORG);
         final boolean presentOnCreate = update.getAction() == Action.CREATE && (refSponsoringOrg != null && !refSponsoringOrg.equals(""));
 
         return presentOnCreate || (update.getAction() == Action.MODIFY && !Objects.equal(refSponsoringOrg, updSponsoringOrg));
