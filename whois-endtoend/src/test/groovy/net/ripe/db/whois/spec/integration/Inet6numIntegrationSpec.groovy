@@ -1012,4 +1012,51 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
         insert =~ /Modify SUCCEEDED: \[inet6num\] a000:11:fe::\/64/
         insert =~ /Value A000:0011:fE:00::012c\/64 converted to a000:11:fe::\/64/
     }
+
+    def "able to create SUB_ALLOCATED PA inet6num with LIR sponsoring org"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                                       inet6num: A000:0011:fA:00::012c/64
+                                       netname: RIPE-NCC
+                                       descr: some descr
+                                       country: DK
+                                       admin-c:  TEST-PN
+                                       tech-c: TEST-PN
+                                       status: ASSIGNED ANYCAST
+                                       mnt-by: TEST-MNT
+                                       mnt-by: RIPE-NCC-HM-MNT
+                                       org: ORG-TOL2-TEST
+                                       sponsoring-org: ORG-TOL2-TEST
+                                       changed: ripe@test.net 20120506
+                                       source: TEST
+                                       password: update
+                                       password: emptypassword
+                                    """.stripIndent()))
+        then:
+        response =~ /Create SUCCEEDED: \[inet6num\] a000:11:fa::\/64/
+    }
+
+    def "unable to create SUB_ALLOCATED PA inet6num with RIR sponsoring org"() {
+        when:
+            def response = syncUpdate(new SyncUpdate(data: """\
+                                       inet6num: A000:0011:fA:00::012c/64
+                                       netname: RIPE-NCC
+                                       descr: some descr
+                                       country: DK
+                                       admin-c:  TEST-PN
+                                       tech-c: TEST-PN
+                                       status: ASSIGNED
+                                       mnt-by: TEST-MNT
+                                       mnt-by: RIPE-NCC-HM-MNT
+                                       sponsoring-org: ORG-TOL1-TEST
+                                       changed: ripe@test.net 20120506
+                                       source: TEST
+                                       password: update
+                                       password: emptypassword
+                                    """.stripIndent()))
+        then:
+            response =~ /Error:   Referenced object must have org-type LIR/
+    }
+
+
 }
