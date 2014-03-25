@@ -62,7 +62,7 @@ public class Query {
     private List<String> passwords;
     private String ssoToken;
     private Origin origin;
-    private boolean override;
+    private boolean trusted;
 
     private Query(final String query, final Origin origin) {
         try {
@@ -118,12 +118,12 @@ public class Query {
         return ssoToken;
     }
 
-    public boolean isOverride() {
-        return override;
+    public boolean isTrusted() {
+        return trusted;
     }
 
-    public void setOverride(boolean override) {
-        this.override = override;
+    public void setTrusted(boolean trusted) {
+        this.trusted = trusted;
     }
 
     public boolean via(Origin origin) {
