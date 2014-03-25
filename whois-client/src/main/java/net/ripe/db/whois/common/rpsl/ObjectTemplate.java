@@ -591,11 +591,11 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         final AttributeType attributeType = attributeTemplate.getAttributeType();
         final int attributeTypeCount = attributeCount.get(attributeType);
 
-        if (MANDATORY.equals(attributeTemplate.getRequirement()) && attributeTypeCount == 0) {
+        if (attributeTemplate.getRequirement() == MANDATORY && attributeTypeCount == 0) {
             objectMessages.addMessage(ValidationMessages.missingMandatoryAttribute(attributeType));
         }
 
-        if (SINGLE.equals(attributeTemplate.getCardinality()) && attributeTypeCount > 1) {
+        if (attributeTemplate.getCardinality() == SINGLE && attributeTypeCount > 1) {
             objectMessages.addMessage(ValidationMessages.tooManyAttributesOfType(attributeType));
         }
     }
