@@ -109,7 +109,7 @@ public class QueryHandler {
 
             private void authenticate() {
                 // here be authenticated queries
-                query.setOverride(accessControlListManager.isOverride(remoteAddress));
+                query.setTrusted(accessControlListManager.isTrusted(remoteAddress));
             }
 
             private void executeQuery(QueryExecutor queryExecutor) {

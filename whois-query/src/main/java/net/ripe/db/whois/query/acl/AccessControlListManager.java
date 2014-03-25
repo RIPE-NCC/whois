@@ -74,7 +74,7 @@ public class AccessControlListManager {
         return getPersonalObjects(remoteAddress) >= 0;
     }
 
-    public boolean isOverride(final InetAddress remoteAddress) {
+    public boolean isTrusted(final InetAddress remoteAddress) {
         return ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress));
     }
 
