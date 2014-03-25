@@ -16,8 +16,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collections;
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -91,11 +96,11 @@ public class SponsoringOrgValidatorTest {
                 "source: TEST"));
 
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(objectDao.getByKey(ObjectType.ORGANISATION, CIString.ciString("ORG-SP1-TEST"))).thenReturn(RpslObject.parse("" +
+        when(objectDao.getByKeys(eq(ObjectType.ORGANISATION), any(List.class))).thenReturn(Collections.singletonList(RpslObject.parse("" +
                 "organisation: ORG-TR1-TEST\n" +
                 "org-type: OTHER\n" +
                 "mnt-by: TEST-MNT\n" +
-                "source: TEST"));
+                "source: TEST")));
         when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT")));
         when(update.isOverride()).thenReturn(false);
 
@@ -121,11 +126,11 @@ public class SponsoringOrgValidatorTest {
                 "source: TEST"));
 
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(objectDao.getByKey(ObjectType.ORGANISATION, CIString.ciString("ORG-SP1-TEST"))).thenReturn(RpslObject.parse("" +
+        when(objectDao.getByKeys(eq(ObjectType.ORGANISATION), any(List.class))).thenReturn(Collections.singletonList(RpslObject.parse("" +
                 "organisation: ORG-TR1-TEST\n" +
                 "org-type: LIR\n" +
                 "mnt-by: TEST-MNT\n" +
-                "source: TEST"));
+                "source: TEST")));
         when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT")));
         when(update.isOverride()).thenReturn(false);
 
@@ -151,11 +156,11 @@ public class SponsoringOrgValidatorTest {
                 "source: TEST"));
 
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(objectDao.getByKey(ObjectType.ORGANISATION, CIString.ciString("ORG-SP1-TEST"))).thenReturn(RpslObject.parse("" +
+        when(objectDao.getByKeys(eq(ObjectType.ORGANISATION), any(List.class))).thenReturn(Collections.singletonList(RpslObject.parse("" +
                 "organisation: ORG-TR1-TEST\n" +
                 "org-type: LIR\n" +
                 "mnt-by: TEST-MNT\n" +
-                "source: TEST"));
+                "source: TEST")));
         when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT")));
         when(update.isOverride()).thenReturn(true);
 
@@ -181,11 +186,11 @@ public class SponsoringOrgValidatorTest {
                 "source: TEST"));
 
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(objectDao.getByKey(ObjectType.ORGANISATION, CIString.ciString("ORG-SP1-TEST"))).thenReturn(RpslObject.parse("" +
+        when(objectDao.getByKeys(eq(ObjectType.ORGANISATION), any(List.class))).thenReturn(Collections.singletonList(RpslObject.parse("" +
                 "organisation: ORG-TR1-TEST\n" +
                 "org-type: LIR\n" +
                 "mnt-by: TEST-MNT\n" +
-                "source: TEST"));
+                "source: TEST")));
         when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT")));
         when(update.isOverride()).thenReturn(false);
 
