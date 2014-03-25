@@ -70,7 +70,7 @@ public class RestExecutor implements ComparisonExecutor {
         String line;
 
         try {
-            while((line = br.readLine()) != null){
+            while ((line = br.readLine()) != null) {
                 sb.append(line.trim());
             }
             return sb.toString();
@@ -89,7 +89,8 @@ public class RestExecutor implements ComparisonExecutor {
             return response;
         }
     }
-        static private class RestCaller {
+
+    static private class RestCaller {
         private static final Client client;
 
         static {
