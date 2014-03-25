@@ -204,13 +204,13 @@ public class AccessControlListManagerTest {
     @Test
     public void override_from_trusted_range() {
         when(ipRanges.isTrusted(any(IpInterval.class))).thenReturn(true);
-        assertThat(subject.isOverride(InetAddresses.forString("10.0.0.1")), is(true));
+        assertThat(subject.isTrusted(InetAddresses.forString("10.0.0.1")), is(true));
     }
 
     @Test
     public void override_from_untrusted_range() {
         when(ipRanges.isTrusted(any(IpInterval.class))).thenReturn(false);
-        assertThat(subject.isOverride(InetAddresses.forString("10.0.0.1")), is(false));
+        assertThat(subject.isTrusted(InetAddresses.forString("10.0.0.1")), is(false));
     }
 
     private InetAddress mask(InetAddress address, int mask) {
