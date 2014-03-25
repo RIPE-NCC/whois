@@ -20,7 +20,7 @@ import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class TrustedRangeTestIntegration extends AbstractIntegrationTest {
+public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
 
     @Autowired IpRanges ipRanges;
 
