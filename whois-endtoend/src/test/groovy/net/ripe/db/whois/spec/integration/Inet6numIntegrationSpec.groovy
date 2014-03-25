@@ -1013,7 +1013,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
         insert =~ /Value A000:0011:fE:00::012c\/64 converted to a000:11:fe::\/64/
     }
 
-    def "able to create SUB_ALLOCATED PA inet6num with LIR sponsoring org"() {
+    def "create ASSIGNED inet6num with LIR sponsoring org"() {
         when:
         def response = syncUpdate(new SyncUpdate(data: """\
                                        inet6num: A000:0011:fA:00::012c/64
@@ -1036,7 +1036,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[inet6num\] a000:11:fa::\/64/
     }
 
-    def "unable to create SUB_ALLOCATED PA inet6num with RIR sponsoring org"() {
+    def "create ASSIGNED  inet6num with RIR sponsoring org fails"() {
         when:
             def response = syncUpdate(new SyncUpdate(data: """\
                                        inet6num: A000:0011:fA:00::012c/64
@@ -1058,5 +1058,26 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
             response =~ /Error:   Referenced object must have org-type LIR/
     }
 
-
+    def "create ASSIGNED inetnum, no maintainers but with override"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inet6num: A000:0011:fA:00::012c/64
+                org: ORG-TOL2-TEST
+                sponsoring-org: ORG-TOL2-TEST
+                netname: TEST-NET
+                descr: description
+                country: NL
+                admin-c: TEST-PN
+                tech-c: TEST-PN
+                status: ASSIGNED
+                mnt-lower: TEST-MNT
+                mnt-by: OTHER-MNT
+                changed: ripe@test.net
+                source: TEST
+                override:denis,override1
+                """.stripIndent()))
+        then:
+        response =~ /Create SUCCEEDED: \[inet6num\] a000:11:fa::\/64/
+        response =~ /Authorisation override used/
+    }
 }
