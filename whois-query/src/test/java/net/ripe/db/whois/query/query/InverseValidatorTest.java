@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.query;
 
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.query.QueryMessages;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,7 +10,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static net.ripe.db.whois.query.QueryMessages.inverseSearchNotAllowed;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -54,7 +54,7 @@ public class InverseValidatorTest {
 
         subject.validate(query, messages);
 
-        assertThat(messages.getInfos(), contains(inverseSearchNotAllowed()));
+        assertThat(messages.getErrors(), contains(QueryMessages.inverseSearchNotAllowed()));
     }
 
     @Test
@@ -64,6 +64,6 @@ public class InverseValidatorTest {
 
         subject.validate(query, messages);
 
-        assertThat(messages.getInfos(), contains(inverseSearchNotAllowed()));
+        assertThat(messages.getErrors(), contains(QueryMessages.inverseSearchNotAllowed()));
     }
 }
