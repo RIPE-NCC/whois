@@ -20,8 +20,11 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.*;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_TYPE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.SPONSORING_ORG;
+import static net.ripe.db.whois.common.rpsl.ObjectType.*;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 
 @Component
 public class SponsoringOrgValidator implements BusinessRuleValidator {
@@ -41,7 +44,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
 
     @Override
     public List<ObjectType> getTypes() {
-        return Lists.newArrayList(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
+        return Lists.newArrayList(INETNUM, INET6NUM, AUT_NUM);
     }
 
     @Override
@@ -54,7 +57,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         final RpslObject updatedObject = update.getUpdatedObject();
 
         if (updatedObject.containsAttribute(SPONSORING_ORG)) {
-            final List<RpslObject> sponsoringOrganisations = objectDao.getByKeys(ObjectType.ORGANISATION, Collections.singletonList(updatedObject.getValueForAttribute(SPONSORING_ORG)));
+            final List<RpslObject> sponsoringOrganisations = objectDao.getByKeys(ORGANISATION, singletonList(updatedObject.getValueForAttribute(SPONSORING_ORG)));
 
             if (sponsoringOrganisations.isEmpty() ||
                     !sponsoringOrganisations.get(0).getValueForAttribute(ORG_TYPE).equals("LIR")) {
