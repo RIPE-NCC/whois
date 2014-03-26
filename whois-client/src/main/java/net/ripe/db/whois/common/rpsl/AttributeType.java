@@ -150,6 +150,10 @@ public enum AttributeType implements Documented {
             .doc("The autonomous system number.")
             .syntax(AS_NUMBER_SYNTAX)),
 
+    AUTNUM_STATUS(new Builder("status", "st")
+            .doc("Ask Denis")                //TODO
+            .syntax(STATUS_SYNTAX)),
+
     CERTIF(new Builder("certif", "ce")
             .doc("Contains the public key.")
             .syntax(CERTIF_SYNTAX)),

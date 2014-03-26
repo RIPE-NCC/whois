@@ -1222,6 +1222,18 @@ public class AttributeSyntaxTest {
     }
 
     @Test
+    public void statusAutnum() {
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "OTHER");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "AssIgNed");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "legacy");
+
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "ALLOCATED PI");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "33546565465");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "PGPKEY-");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "whatever");
+    }
+
+    @Test
     public void signature() throws Exception {
         verifyFailure(ObjectType.IRT, AttributeType.SIGNATURE, "PGPKEY-");
         verifyFailure(ObjectType.IRT, AttributeType.SIGNATURE, "A6D57ECE");
