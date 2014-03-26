@@ -10,8 +10,8 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
-import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
@@ -28,8 +28,13 @@ import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertI
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static net.ripe.db.whois.query.support.PatternCountMatcher.matchesPatternCount;
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @Category(IntegrationTest.class)
 public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
@@ -936,5 +941,16 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         final String query = DummyWhoisClient.query(QueryServer.port, "2aaa:6fff::/48");
 
         assertThat(query, containsString("route6:         2aaa:6fff::/48"));
+    }
+
+    @Test
+    public void autnum_status_description() {
+        final String query = DummyWhoisClient.query(QueryServer.port, "-v aut-num");
+
+        assertThat(query, containsString("status:         [generated]  [single]     [ ]"));
+        assertThat(query, containsString("status"));
+        assertThat(query, containsString("o ASSIGNED"));
+        assertThat(query, containsString("o LEGACY"));
+        assertThat(query, containsString("o OTHER"));
     }
 }
