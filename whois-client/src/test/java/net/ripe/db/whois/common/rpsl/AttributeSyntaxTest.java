@@ -1223,14 +1223,14 @@ public class AttributeSyntaxTest {
 
     @Test
     public void statusAutnum() {
-        verifySuccess(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "OTHER");
-        verifySuccess(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "AssIgNed");
-        verifySuccess(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "legacy");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.STATUS, "OTHER");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.STATUS, "AssIgNed");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.STATUS, "legacy");
 
-        verifyFailure(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "ALLOCATED PI");
-        verifyFailure(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "33546565465");
-        verifyFailure(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "PGPKEY-");
-        verifyFailure(ObjectType.AUT_NUM, AttributeType.AUTNUM_STATUS, "whatever");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "ALLOCATED PI");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "33546565465");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "PGPKEY-");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "whatever");
     }
 
     @Test

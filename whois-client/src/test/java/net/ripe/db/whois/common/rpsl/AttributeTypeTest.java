@@ -39,7 +39,7 @@ public class AttributeTypeTest {
             final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
 
             for (final AttributeTemplate attributeTemplate : objectTemplate.getAttributeTemplates()) {
-                if (attributeTemplate.getRequirement().equals(AttributeTemplate.Requirement.GENERATED)) {
+                if (attributeTemplate.getRequirement().equals(AttributeTemplate.Requirement.GENERATED) && objectType != ObjectType.AUT_NUM) {
                     final AttributeSyntax syntax = attributeTemplate.getAttributeType().getSyntax();
                     if (!(syntax instanceof AttributeSyntax.AnySyntax) && !syntax.equals(AttributeSyntax.GENERATED_SYNTAX)) {
                         fail("Generated attributes should accept any or generated syntax: " + attributeTemplate.getAttributeType());

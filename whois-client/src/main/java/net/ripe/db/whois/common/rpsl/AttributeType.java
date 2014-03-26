@@ -150,10 +150,6 @@ public enum AttributeType implements Documented {
             .doc("The autonomous system number.")
             .syntax(AS_NUMBER_SYNTAX)),
 
-    AUTNUM_STATUS(new Builder("status", "st")
-            .doc("Ask Denis")                //TODO
-            .syntax(STATUS_SYNTAX)),
-
     CERTIF(new Builder("certif", "ce")
             .doc("Contains the public key.")
             .syntax(CERTIF_SYNTAX)),
@@ -600,7 +596,7 @@ public enum AttributeType implements Documented {
             .syntax(SOURCE_SYNTAX)),
 
     STATUS(new Builder("status", "st")
-            .doc("Specifies the status of the address range represented by inetnum or inet6num object.")
+            .doc("Specifies the status of the address range represented by inetnum or inet6num object.") //TODO Denis to suggest phrasing to include autnum status
             .syntax(STATUS_SYNTAX)),
 
     TECH_C(new Builder("tech-c", "tc")
