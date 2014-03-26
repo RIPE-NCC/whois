@@ -520,9 +520,7 @@ public enum AttributeType implements Documented {
 
     PERSON(new Builder("person", "pn")
             .doc("Specifies the full name of an administrative, technical or zone contact person for " +
-                    "other objects in the database." +
-                    "Person name cannot contain titles such as \"Dr.\", \"Prof.\", \"Mv.\", \"Ms.\", \"Mr.\", etc." +
-                    "It is composed of alphabetic characters.")
+                    "other objects in the database.")
             .syntax(PERSON_ROLE_NAME_SYNTAX)),
 
     PHONE(new Builder("phone", "ph")
