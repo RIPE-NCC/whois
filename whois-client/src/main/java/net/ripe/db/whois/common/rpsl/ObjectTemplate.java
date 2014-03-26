@@ -40,7 +40,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.AS_NAME;
 import static net.ripe.db.whois.common.rpsl.AttributeType.AS_SET;
 import static net.ripe.db.whois.common.rpsl.AttributeType.AUTH;
 import static net.ripe.db.whois.common.rpsl.AttributeType.AUTHOR;
-import static net.ripe.db.whois.common.rpsl.AttributeType.AUTNUM_STATUS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.AttributeType.CERTIF;
 import static net.ripe.db.whois.common.rpsl.AttributeType.CHANGED;
@@ -179,7 +178,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(AUTNUM_STATUS, GENERATED, SINGLE),
+                        new AttributeTemplate(STATUS, GENERATED, SINGLE),
                         new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_ROUTES, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
@@ -679,7 +678,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                 final AttributeTemplate attributeTemplate = attributeTemplateMap.get(attributeType);
                 if (attributeTemplate == null) {
                     objectMessages.addMessage(attribute, ValidationMessages.invalidAttributeForObject(attributeType));
-                } else if (!attributeTemplate.getRequirement().equals(GENERATED)) {
+                } else if (!attributeTemplate.getRequirement().equals(GENERATED) && rpslObjectType != ObjectType.AUT_NUM) {
                     attribute.validateSyntax(rpslObjectType, objectMessages);
                     attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
                 }
