@@ -71,20 +71,21 @@ public class AutnumStatusValidator implements BusinessRuleValidator {
 
             final AutnumStatus status = AutnumStatus.valueOf(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
 
-            if (!mntByRs) {
-                if (status == AutnumStatus.ASSIGNED) {
-                    updateContext.addMessage(update, UpdateMessages.invalidStatusAssigned());
-                    return;
-                }
-            } else {
+            if (mntByRs) {
                 if (status != AutnumStatus.ASSIGNED) {
                     updateContext.addMessage(update, UpdateMessages.invalidStatusMustBeAssigned(status));
+                }
+            } else {
+                if (status != AutnumStatus.OTHER) {
+                    updateContext.addMessage(update, UpdateMessages.invalidStatusMustBeOther(status));
+                    return;
                 }
             }
 
         } else {
 
             if (!mntByRs) {
+                // TODO: generated OTHER if not specified?
                 updateContext.addMessage(update, ValidationMessages.missingMandatoryAttribute(AttributeType.STATUS));
                 return;
             } else {
@@ -101,23 +102,31 @@ public class AutnumStatusValidator implements BusinessRuleValidator {
         final boolean mntByRs = !Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty();
 
         if (update.getUpdatedObject().containsAttribute(AttributeType.STATUS)) {
-            if (!update.getReferenceObject().containsAttribute(AttributeType.STATUS)) {
+            final AutnumStatus status = AutnumStatus.valueOf(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
+
+            if (update.getReferenceObject().containsAttribute(AttributeType.STATUS)) {
+                final AutnumStatus previousStatus = AutnumStatus.valueOf(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
+
+                if ((previousStatus == AutnumStatus.LEGACY) && (status == AutnumStatus.ASSIGNED)) {
+                    updateContext.addMessage(update, UpdateMessages.statusCanOnlyBeChangedByRsMaintainer());
+                }
+            } else {
                 if (!mntByRs) {
-                    updateContext.addMessage(update, UpdateMessages.statusCannotBeAdded(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS)));
-                    return;
+                    updateContext.addMessage(update, UpdateMessages.statusCanOnlyBeAddedByRsMaintainer(status));
                 } else {
-                    final AutnumStatus status = AutnumStatus.valueOf(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
                     if (status != AutnumStatus.ASSIGNED) {
                         updateContext.addMessage(update, UpdateMessages.invalidStatusMustBeAssigned(status));
                     }
                 }
             }
+
         } else {
             if (update.getReferenceObject().containsAttribute(AttributeType.STATUS)) {
                 if (mntByRs) {
                     // TODO: generate ASSIGNED status
                 } else {
-                    updateContext.addMessage(update, UpdateMessages.statusCannotBeRemoved(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS)));
+                    final AutnumStatus previousStatus = AutnumStatus.valueOf(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
+                    updateContext.addMessage(update, UpdateMessages.statusCannotBeRemoved(previousStatus));
                     return;
                 }
             }
