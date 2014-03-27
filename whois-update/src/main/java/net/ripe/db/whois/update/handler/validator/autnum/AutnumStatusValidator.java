@@ -64,8 +64,7 @@ public class AutnumStatusValidator implements BusinessRuleValidator {
     }
 
     private void validateCreate(final PreparedUpdate update, final UpdateContext updateContext) {
-        final Set<CIString> mntBy = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
-        final boolean mntByRs = !Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty();
+        final boolean mntByRs = isMaintainedByRsMaintainer(update);
 
         if (update.getUpdatedObject().containsAttribute(AttributeType.STATUS)) {
 
@@ -98,8 +97,7 @@ public class AutnumStatusValidator implements BusinessRuleValidator {
 
     private void validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
 
-        final Set<CIString> mntBy = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
-        final boolean mntByRs = !Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty();
+        final boolean mntByRs = isMaintainedByRsMaintainer(update);
 
         if (update.getUpdatedObject().containsAttribute(AttributeType.STATUS)) {
             final AutnumStatus status = AutnumStatus.valueOf(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
@@ -107,14 +105,14 @@ public class AutnumStatusValidator implements BusinessRuleValidator {
             if (update.getReferenceObject().containsAttribute(AttributeType.STATUS)) {
                 final AutnumStatus previousStatus = AutnumStatus.valueOf(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
 
-                if (!mntByRs) {
+                if (mntByRs && !isAuthorisedByRsMaintainer(update, updateContext)) {
                     if ((previousStatus == AutnumStatus.LEGACY) && (status == AutnumStatus.ASSIGNED)) {
                         updateContext.addMessage(update, UpdateMessages.statusCanOnlyBeChangedByRsMaintainer());
                         return;
                     }
                 }
             } else {
-                if (!mntByRs) {
+                if (mntByRs && !isAuthorisedByRsMaintainer(update, updateContext)) {
                     updateContext.addMessage(update, UpdateMessages.statusCanOnlyBeAddedByRsMaintainer(status));
                     return;
                 }
@@ -146,4 +144,12 @@ public class AutnumStatusValidator implements BusinessRuleValidator {
         }
     }
 
+    private boolean isMaintainedByRsMaintainer(final PreparedUpdate update) {
+        final Set<CIString> mntBy = update.getReferenceObject().getValuesForAttribute(AttributeType.MNT_BY);
+        return !Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty();
+    }
+
+    private boolean isAuthorisedByRsMaintainer(final PreparedUpdate update, final UpdateContext updateContext) {
+        return updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
+    }
 }
