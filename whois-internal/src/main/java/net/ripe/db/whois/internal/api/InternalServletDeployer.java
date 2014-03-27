@@ -36,10 +36,15 @@ public class InternalServletDeployer implements ServletDeployer {
     private final OrganisationsForSSOAuthService organisationsForSSOAuthService;
 
     @Autowired
-    public InternalServletDeployer(final ApiKeyFilter apiKeyFilter, final AclBanService aclBanService, final AclLimitService aclLimitService,
-                                   final AclMirrorService aclMirrorService, final AclProxyService aclProxyService,
-                                   final AbuseCService abuseCService, final LogSearchService logSearchService,
-                                   final DefaultExceptionMapper defaultExceptionMapper, final OrganisationsForSSOAuthService organisationsForSSOAuthService) {
+    public InternalServletDeployer(final ApiKeyFilter apiKeyFilter,
+                                   final AclBanService aclBanService,
+                                   final AclLimitService aclLimitService,
+                                   final AclMirrorService aclMirrorService,
+                                   final AclProxyService aclProxyService,
+                                   final AbuseCService abuseCService,
+                                   final LogSearchService logSearchService,
+                                   final DefaultExceptionMapper defaultExceptionMapper,
+                                   final OrganisationsForSSOAuthService organisationsForSSOAuthService) {
         this.aclBanService = aclBanService;
         this.aclLimitService = aclLimitService;
         this.aclMirrorService = aclMirrorService;
