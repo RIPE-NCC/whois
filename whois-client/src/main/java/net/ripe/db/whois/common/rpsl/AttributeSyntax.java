@@ -419,8 +419,7 @@ public interface AttributeSyntax extends Documented {
             "\"-\" characters.\n");
 
     AttributeSyntax PINGABLE_SYNTAX = new AttributeSyntaxParser(new AttributeParser.IPAddressParser(), "" +
-            "<ipv4-address> as defined in RFC2622\n" +
-            "| <ipv6-address> as defined in RFC4012\n");
+            "<ipv4-address> | <ipv6-address>\n");
 
     AttributeSyntax PHONE_SYNTAX = new AttributeSyntaxRegexp(30,
             Pattern.compile("" +
