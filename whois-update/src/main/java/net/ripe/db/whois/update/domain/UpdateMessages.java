@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
@@ -563,6 +564,14 @@ public final class UpdateMessages {
     }
 
     public static Message statusCannotBeAdded(final CharSequence status) {
-        return new Message(Type.ERROR, "Status %s can only be added by a RIPE NCC maintainer.", status);
+        return new Message(Type.ERROR, "Status %s can only be added by a RIPE NCC Maintainer.", status);
+    }
+
+    public static Message invalidStatusMustBeAssigned(final AutnumStatus status) {
+        return new Message(Type.ERROR, "Invalid status %s (must be 'ASSIGNED' if maintained by a RIPE NCC Maintainer)", status);
+    }
+
+    public static Message invalidStatusAssigned() {
+        return new Message(Type.ERROR, "Invalid status ASSIGNED (can only be set by a RIPE NCC Maintainer)");
     }
 }
