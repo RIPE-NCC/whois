@@ -559,11 +559,11 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "RIPE NCC Access server is unavailable");
     }
 
-    public static Message statusCannotBeRemoved(final CharSequence status) {
+    public static Message statusCannotBeRemoved(final AutnumStatus status) {
         return new Message(Type.ERROR, "Status %s cannot be removed.", status);
     }
 
-    public static Message statusCannotBeAdded(final CharSequence status) {
+    public static Message statusCanOnlyBeAddedByRsMaintainer(final AutnumStatus status) {
         return new Message(Type.ERROR, "Status %s can only be added by a RIPE NCC Maintainer.", status);
     }
 
@@ -571,7 +571,11 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Invalid status %s (must be 'ASSIGNED' if maintained by a RIPE NCC Maintainer)", status);
     }
 
-    public static Message invalidStatusAssigned() {
-        return new Message(Type.ERROR, "Invalid status ASSIGNED (can only be set by a RIPE NCC Maintainer)");
+    public static Message invalidStatusMustBeOther(final AutnumStatus status) {
+        return new Message(Type.ERROR, "Invalid status %s (must be 'OTHER' if not maintained by a RIPE NCC Maintainer)", status);
+    }
+
+    public static Message statusCanOnlyBeChangedByRsMaintainer() {
+        return new Message(Type.ERROR, "Status can only be changed from LEGACY to ASSIGNED by a RIPE NCC Maintainer");
     }
 }
