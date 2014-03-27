@@ -557,4 +557,12 @@ public final class UpdateMessages {
     public static Message ripeAccessServerUnavailable() {
         return new Message(Type.ERROR, "RIPE NCC Access server is unavailable");
     }
+
+    public static Message statusCannotBeRemoved(final CharSequence status) {
+        return new Message(Type.ERROR, "Status %s cannot be removed.", status);
+    }
+
+    public static Message statusCannotBeAdded(final CharSequence status) {
+        return new Message(Type.ERROR, "Status %s can only be added by a RIPE NCC maintainer.", status);
+    }
 }
