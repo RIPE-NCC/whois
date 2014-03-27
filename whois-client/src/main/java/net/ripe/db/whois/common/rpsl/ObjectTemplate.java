@@ -678,7 +678,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                 final AttributeTemplate attributeTemplate = attributeTemplateMap.get(attributeType);
                 if (attributeTemplate == null) {
                     objectMessages.addMessage(attribute, ValidationMessages.invalidAttributeForObject(attributeType));
-                } else if (!attributeTemplate.getRequirement().equals(GENERATED) && rpslObjectType != ObjectType.AUT_NUM) {
+                } else if (!attributeTemplate.getRequirement().equals(GENERATED) ) {
                     attribute.validateSyntax(rpslObjectType, objectMessages);
                     attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
                 }
