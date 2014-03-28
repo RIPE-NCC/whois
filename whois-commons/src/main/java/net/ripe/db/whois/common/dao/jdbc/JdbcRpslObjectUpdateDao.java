@@ -69,12 +69,13 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
         Set<RpslObjectInfo> references = Sets.newHashSet();
         final List<IndexStrategy> indexStrategies = IndexStrategies.getReferencing(object.getType());
 
-        for (final RpslAttribute attribute : object.findAttributes(ObjectTemplate.getTemplate(object.getType()).getKeyAttributes())) {
+        // for route(6), individually check each key
+        for (final RpslAttribute keyAttr : object.findAttributes(ObjectTemplate.getTemplate(object.getType()).getKeyAttributes())) {
             for (final IndexStrategy indexStrategy : indexStrategies) {
-                for (final CIString value : attribute.getReferenceValues()) {
+                for (final CIString value : keyAttr.getReferenceValues()) {
                     final List<RpslObjectInfo> results = indexStrategy.findInIndex(jdbcTemplate, value);
                     for (final RpslObjectInfo result : results) {
-                        if (object.getKey().equals(ciString(result.getKey())) && result.getObjectType().equals(object.getType())) {
+                        if (object.getKey().equals(result.getKey()) && result.getObjectType().equals(object.getType())) {
                             continue;
                         }
 
