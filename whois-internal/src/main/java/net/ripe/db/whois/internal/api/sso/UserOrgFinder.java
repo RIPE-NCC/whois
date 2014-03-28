@@ -35,10 +35,11 @@ public class UserOrgFinder {
     // auth <- mntner <- org (mnt-by/mnt-ref)
     @Transactional
     public Set<RpslObject> findOrganisationsForAuth(final String auth) {
-        final Set<RpslObject> result = Sets.newHashSet();
+        final Set<RpslObjectInfo> orgIds = Sets.newHashSet();
 
         List<RpslObjectInfo> mntnerIds = IndexStrategies.get(AttributeType.AUTH).findInIndex(jdbcTemplate, auth);
 
+        // FIXME: Denis needs to specify what this actually needs to do
         for (final RpslObjectInfo mntnerId : mntnerIds) {
             final RpslObject mntner = JdbcRpslObjectOperations.getObjectById(jdbcTemplate, mntnerId.getObjectId());
 
@@ -46,11 +47,12 @@ public class UserOrgFinder {
 
             AttributeType inverseLookupAttr = intersection.isEmpty() ? AttributeType.MNT_BY : AttributeType.MNT_REF;
 
-            final List<RpslObjectInfo> orgIds = IndexStrategies.get(inverseLookupAttr).findInIndex(jdbcTemplate, mntnerId, ObjectType.ORGANISATION);
+            orgIds.addAll(IndexStrategies.get(inverseLookupAttr).findInIndex(jdbcTemplate, mntnerId, ObjectType.ORGANISATION));
+        }
 
-            for (RpslObjectInfo orgId : orgIds) {
-                result.add(JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId.getObjectId()));
-            }
+        final Set<RpslObject> result = Sets.newHashSet();
+        for (RpslObjectInfo orgId : orgIds) {
+            result.add(JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId.getObjectId()));
         }
 
         return result;
