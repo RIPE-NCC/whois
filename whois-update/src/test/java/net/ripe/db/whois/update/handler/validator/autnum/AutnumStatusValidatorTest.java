@@ -1,14 +1,18 @@
 package net.ripe.db.whois.update.handler.validator.autnum;
 
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -44,6 +48,7 @@ public class AutnumStatusValidatorTest {
 
 
     @Test
+    @Ignore // pending clarification
     public void create_override_no_status() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num: AS123\n" +
@@ -104,12 +109,14 @@ public class AutnumStatusValidatorTest {
 
 
     @Test
+    @Ignore // pending clarification
     public void create_rsmaintainer_no_status() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num: AS123\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
@@ -118,18 +125,20 @@ public class AutnumStatusValidatorTest {
     }
 
     @Test
+    @Ignore // pending clarification
     public void create_rsmaintainer_status_assigned() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: ASSIGNED\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext, never()).addMessage(eq(preparedUpdate), any(Message.class));
+        verify(updateContext).addMessage(eq(preparedUpdate), any(Message.class));
     }
 
     @Test
@@ -137,9 +146,11 @@ public class AutnumStatusValidatorTest {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
@@ -152,9 +163,10 @@ public class AutnumStatusValidatorTest {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: OTHER\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
@@ -193,6 +205,23 @@ public class AutnumStatusValidatorTest {
     }
 
     @Test
+    public void create_userauth_mntby_rs_status_assigned() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num: AS123\n" +
+                "status: ASSIGNED\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "mnt-by: TEST-MNT\n" +
+                "source: TEST");
+
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
+        setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.FALSE);
+
+        subject.validate(preparedUpdate, updateContext);
+
+        verify(updateContext, never()).addMessage(eq(preparedUpdate), any(Message.class));
+    }
+
+    @Test
     public void create_userauth_status_legacy() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num: AS123\n" +
@@ -227,12 +256,10 @@ public class AutnumStatusValidatorTest {
     public void modify_override_adding_status_legacy() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
         setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
@@ -246,12 +273,10 @@ public class AutnumStatusValidatorTest {
     public void modify_override_adding_status_other() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: OTHER\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
         setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
@@ -265,12 +290,10 @@ public class AutnumStatusValidatorTest {
     public void modify_override_adding_status_assigned() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: ASSIGNED\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
         setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
@@ -282,15 +305,14 @@ public class AutnumStatusValidatorTest {
 
 
     @Test
+    @Ignore // waiting for clarification
     public void modify_override_removing_status() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
         setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
@@ -306,12 +328,10 @@ public class AutnumStatusValidatorTest {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: ASSIGNED\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
         setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
@@ -326,12 +346,10 @@ public class AutnumStatusValidatorTest {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: OTHER\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
         setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
@@ -346,12 +364,10 @@ public class AutnumStatusValidatorTest {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: OTHER\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: ASSIGNED\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
         setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
@@ -366,12 +382,10 @@ public class AutnumStatusValidatorTest {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: OTHER\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
         setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
@@ -386,12 +400,10 @@ public class AutnumStatusValidatorTest {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: ASSIGNED\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
         setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
@@ -406,12 +418,10 @@ public class AutnumStatusValidatorTest {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: ASSIGNED\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: OTHER\n" +
-                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
         setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
@@ -423,17 +433,19 @@ public class AutnumStatusValidatorTest {
 
 
     @Test
+    @Ignore //pending clarification
     public void modify_rsmaintainer_adding_status_legacy() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
@@ -445,14 +457,15 @@ public class AutnumStatusValidatorTest {
     public void modify_rsmaintainer_adding_status_assigned() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: ASSIGNED\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
@@ -464,14 +477,15 @@ public class AutnumStatusValidatorTest {
     public void modify_rsmaintainer_adding_status_other() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: OTHER\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
@@ -481,17 +495,19 @@ public class AutnumStatusValidatorTest {
 
 
     @Test
+    @Ignore //pending clarification
     public void modify_rsmaintainer_removing_status() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
@@ -505,14 +521,15 @@ public class AutnumStatusValidatorTest {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: ASSIGNED\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
@@ -525,14 +542,15 @@ public class AutnumStatusValidatorTest {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: OTHER\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
@@ -545,14 +563,15 @@ public class AutnumStatusValidatorTest {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: ASSIGNED\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: OTHER\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
@@ -565,14 +584,15 @@ public class AutnumStatusValidatorTest {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: ASSIGNED\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
@@ -585,14 +605,15 @@ public class AutnumStatusValidatorTest {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: OTHER\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: ASSIGNED\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
@@ -601,23 +622,25 @@ public class AutnumStatusValidatorTest {
     }
 
     @Test
+    @Ignore // pending clarification
     public void modify_rsmaintainer_changing_status_OTHER_to_LEGACY() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: OTHER\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
-                "mnt-by: TEST-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext).addMessage(eq(preparedUpdate), any(Message.class));
+        verify(updateContext).addMessage(preparedUpdate, UpdateMessages.invalidStatusMustBeOther(AutnumStatus.LEGACY));
     }
 
 
@@ -637,7 +660,7 @@ public class AutnumStatusValidatorTest {
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext, never()).addMessage(eq(preparedUpdate), any(Message.class));
+        verify(updateContext).addMessage(eq(preparedUpdate), any(Message.class));
     }
 
     @Test
@@ -796,7 +819,7 @@ public class AutnumStatusValidatorTest {
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext).addMessage(eq(preparedUpdate), any(Message.class));
+        verify(updateContext).addMessage(preparedUpdate, UpdateMessages.invalidStatusMustBeOther(AutnumStatus.ASSIGNED));
     }
 
     @Test
