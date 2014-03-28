@@ -11,7 +11,7 @@ import net.ripe.db.whois.internal.api.acl.AclMirrorService;
 import net.ripe.db.whois.internal.api.acl.AclProxyService;
 import net.ripe.db.whois.internal.api.acl.ApiKeyFilter;
 import net.ripe.db.whois.internal.api.logsearch.LogSearchService;
-import net.ripe.db.whois.internal.api.sso.OrganisationsForSSOAuthService;
+import net.ripe.db.whois.internal.api.sso.UserOrgFinderService;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -33,7 +33,7 @@ public class InternalServletDeployer implements ServletDeployer {
     private final AbuseCService abuseCService;
     private final LogSearchService logSearchService;
     private final DefaultExceptionMapper defaultExceptionMapper;
-    private final OrganisationsForSSOAuthService organisationsForSSOAuthService;
+    private final UserOrgFinderService organisationsForSSOAuthService;
 
     @Autowired
     public InternalServletDeployer(final ApiKeyFilter apiKeyFilter,
@@ -44,7 +44,7 @@ public class InternalServletDeployer implements ServletDeployer {
                                    final AbuseCService abuseCService,
                                    final LogSearchService logSearchService,
                                    final DefaultExceptionMapper defaultExceptionMapper,
-                                   final OrganisationsForSSOAuthService organisationsForSSOAuthService) {
+                                   final UserOrgFinderService organisationsForSSOAuthService) {
         this.aclBanService = aclBanService;
         this.aclLimitService = aclLimitService;
         this.aclMirrorService = aclMirrorService;

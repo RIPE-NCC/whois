@@ -20,13 +20,13 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-public class InverseOrgFinder {
+public class UserOrgFinder {
     private final Maintainers maintainers;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public InverseOrgFinder(@Qualifier("whoisReadOnlySlaveDataSource") final DataSource dataSource,
-                            final Maintainers maintainers) {
+    public UserOrgFinder(@Qualifier("whoisReadOnlySlaveDataSource") final DataSource dataSource,
+                         final Maintainers maintainers) {
 
         this.maintainers = maintainers;
         this.jdbcTemplate = new JdbcTemplate(dataSource);

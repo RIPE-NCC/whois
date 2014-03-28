@@ -33,11 +33,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
-public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInternalTest {
+public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
 
     @Autowired @Qualifier("whoisReadOnlySlaveDataSource") DataSource dataSource;
     @Autowired CrowdClient crowdClient;
-    @Autowired InverseOrgFinder inverseOrgFinder;
+    @Autowired UserOrgFinder userOrgFinder;
     CrowdServerDummy crowdServerDummy;
 
     @Before
