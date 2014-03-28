@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.Validate;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -40,6 +41,16 @@ abstract class IndexStrategyAdapter implements IndexStrategy {
 
     @Override
     public List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final String value) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo value) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo value, final ObjectType type) {
         return Collections.emptyList();
     }
 

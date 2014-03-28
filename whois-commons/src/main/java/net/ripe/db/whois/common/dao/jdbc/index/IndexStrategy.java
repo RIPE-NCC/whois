@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -19,6 +20,10 @@ public interface IndexStrategy {
     List<RpslObjectInfo> findInIndex(JdbcTemplate jdbcTemplate, String value);
 
     List<RpslObjectInfo> findInIndex(JdbcTemplate jdbcTemplate, CIString value);
+
+    List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo value);
+
+    List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo value, final ObjectType type);
 
     void removeFromIndex(JdbcTemplate jdbcTemplate, RpslObjectInfo objectInfo);
 

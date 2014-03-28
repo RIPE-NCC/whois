@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
+import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -99,11 +99,42 @@ class IndexWithReference extends IndexStrategySimpleLookup {
                         "  WHERE {0}.{1} in (:ids) " +
                         "  AND l.sequence_id != 0 ",
                 lookupTableName,
-                lookupColumnName);
+                lookupColumnName
+        );
 
         return new NamedParameterJdbcTemplate(jdbcTemplate).query(
                 query,
                 new MapSqlParameterSource("ids", ids),
-                new RpslObjectResultSetExtractor());
+                new RpslObjectInfoResultSetExtractor());
+    }
+
+    public List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo value) {
+        // FIXME: [AH] joining to last is very costly and unnecessary here; look for ways to drop this join
+        final String query = MessageFormat.format(
+                "SELECT l.object_id, l.object_type, l.pkey " +
+                        "  FROM {0} " +
+                        "  LEFT JOIN last l ON l.object_id = {0}.object_id " +
+                        "  WHERE {0}.{1} = ? " +
+                        "  AND l.sequence_id != 0 ",
+                lookupTableName,
+                lookupColumnName
+        );
+
+        return jdbcTemplate.query(query, new RpslObjectInfoResultSetExtractor(), value.getObjectId());
+    }
+
+    public List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo value, final ObjectType type) {
+        // FIXME: [AH] joining to last is very costly and unnecessary here; look for ways to drop this join
+        final String query = MessageFormat.format(
+                "SELECT l.object_id, l.object_type, l.pkey " +
+                        "  FROM {0} " +
+                        "  LEFT JOIN last l ON l.object_id = {0}.object_id " +
+                        "  WHERE {0}.{1} = ? AND {0}.object_type = ? " +
+                        "  AND l.sequence_id != 0 ",
+                lookupTableName,
+                lookupColumnName
+        );
+
+        return jdbcTemplate.query(query, new RpslObjectInfoResultSetExtractor(), value.getObjectId(), ObjectTypeIds.getId(type));
     }
 }
