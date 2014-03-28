@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
+import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -59,7 +59,7 @@ class IndexWithMemberOf extends IndexWithReference {
                 lookupTableName,
                 lookupColumnName);
 
-        return jdbcTemplate.query(query, new RpslObjectResultSetExtractor(), value);
+        return jdbcTemplate.query(query, new RpslObjectInfoResultSetExtractor(), value);
     }
 
     private AttributeType getReferenceAttribute(final ObjectType objectType) {
