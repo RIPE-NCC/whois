@@ -26,7 +26,7 @@ public class SetDefaultAbuseC {
         String override = options.valueOf(ARG_OVERRIDE).toString();
 
         final RestClient restClient = new RestClient("https://rest.db.ripe.net", "RIPE");
-        final AbuseCService abuseCService = new AbuseCService(restClient, "RIPE");
+        final AbuseCService abuseCService = null; //new AbuseCService(restClient, "RIPE"); FIX THIS @ next time use
 
         abuseCService.setOverride(override);
 
