@@ -123,6 +123,9 @@ public class UpdateContext {
         loggerContext.logAction(updateContainer, action);
     }
 
+    public Action getAction(final UpdateContainer updateContainer) {
+        return getOrCreateContext(updateContainer).action;
+    }
     public PreparedUpdate getPreparedUpdate(final UpdateContainer updateContainer) {
         return getOrCreateContext(updateContainer).preparedUpdate;
     }

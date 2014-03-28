@@ -135,7 +135,7 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
         queryObject("AS10000", "aut-num", "AS10000")
 
       when:
-        def response = syncUpdate("""\
+        def response = syncUpdate(new SyncUpdate(data:"""\
                 aut-num:     AS10000
                 as-name:     TEST-AS
                 descr:       Testing Authorisation code
@@ -146,7 +146,7 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
                 changed:     dbtest@ripe.net
                 source:      TEST
                 password:   owner
-                """.stripIndent())
+                """.stripIndent(), redirect: false))
 
       then:
         response =~ /Warning: Submitted object identical to database object/
@@ -194,10 +194,6 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
         def ack = ackFor message
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 0, 1)
-
-        // TODO: [ES] why are there two notifications for a NOOP from mailupdates?
-        def ownernfy = notificationFor "mntnfy_owner@ripe.net"
-        def owner2nfy = notificationFor "mntnfy_owner2@ripe.net"
 
         noMoreMessages()
     }
