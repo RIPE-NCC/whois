@@ -75,7 +75,7 @@ public class NrtmQueryHandlerTest {
         });
 
         subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, UPDATE_INTERVAL);
-        subject.PENDING_WRITES.set(channelMock, new AtomicInteger());
+        NrtmQueryHandler.PENDING_WRITES.set(channelMock, new AtomicInteger());
     }
 
     @Test
@@ -211,7 +211,7 @@ public class NrtmQueryHandlerTest {
 
     @Test
     public void throttleChannelKeepaliveQuery() {
-        subject.PENDING_WRITES.set(channelMock, new AtomicInteger(subject.MAX_PENDING_WRITES + 1));
+        NrtmQueryHandler.PENDING_WRITES.set(channelMock, new AtomicInteger(NrtmQueryHandler.MAX_PENDING_WRITES + 1));
 
         when(messageEventMock.getMessage()).thenReturn("-g RIPE:3:1-LAST -k");
 
