@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
+import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
@@ -327,7 +327,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
                 indexStrategy.getLookupTableName(),
                 indexStrategy.getLookupColumnName());
 
-        return jdbcTemplate.query(query, new RpslObjectResultSetExtractor(), attributeValue);
+        return jdbcTemplate.query(query, new RpslObjectInfoResultSetExtractor(), attributeValue);
     }
 
     @Override
