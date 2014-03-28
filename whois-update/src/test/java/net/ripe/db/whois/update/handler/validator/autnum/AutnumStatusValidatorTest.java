@@ -645,6 +645,7 @@ public class AutnumStatusValidatorTest {
 
 
     @Test
+    @Ignore // pending clarification, story description is contradictive
     public void modify_userauth_adding_status_other() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
