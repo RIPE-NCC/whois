@@ -1,11 +1,14 @@
 package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.grs.AuthoritativeResource;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.keycert.KeyWrapper;
@@ -21,22 +24,26 @@ import java.util.Set;
 @Component
 public class AttributeGenerator {
     private final KeyWrapperFactory keyWrapperFactory;
+    private final AuthoritativeResource authoritativeResource;
 
     @Autowired
-    public AttributeGenerator(final KeyWrapperFactory keyWrapperFactory) {
+    public AttributeGenerator(final KeyWrapperFactory keyWrapperFactory, final SourceContext sourceContext, final AuthoritativeResourceData authoritativeResourceData) {
         this.keyWrapperFactory = keyWrapperFactory;
+        this.authoritativeResource = authoritativeResourceData.getAuthoritativeResource(sourceContext.getCurrentSource().getName());
     }
 
     public RpslObject generateAttributes(final RpslObject object, final Update update, final UpdateContext updateContext) {
         switch (object.getType()) {
             case KEY_CERT:
-                return generateKeycertAttributes(object, update, updateContext);
+                return generateKeycertAttributesForKeycert(object, update, updateContext);
+            case AUT_NUM:
+                return generateKeycertAttributesForAutnum(object, update, updateContext);
             default:
                 return object;
         }
     }
 
-    private RpslObject generateKeycertAttributes(final RpslObject object, final Update update, final UpdateContext updateContext) {
+    private RpslObject generateKeycertAttributesForKeycert(final RpslObject object, final Update update, final UpdateContext updateContext) {
         final KeyWrapper keyWrapper = keyWrapperFactory.createKeyWrapper(object, update, updateContext);
         if (keyWrapper == null) {
             return object;
@@ -49,6 +56,11 @@ public class AttributeGenerator {
         cleanupAttributeType(update, updateContext, builder, AttributeType.FINGERPR, keyWrapper.getFingerprint());
 
         return builder.get();
+    }
+
+    private RpslObject generateKeycertAttributesForAutnum(final RpslObject object, final Update update, final UpdateContext updateContext) {
+        // TODO: generate status attribute for autnum object
+        return object;
     }
 
     private static void cleanupAttributeType(final Update update, final UpdateContext updateContext, final RpslObjectBuilder builder, final AttributeType attributeType, final String validAttributeValue) {

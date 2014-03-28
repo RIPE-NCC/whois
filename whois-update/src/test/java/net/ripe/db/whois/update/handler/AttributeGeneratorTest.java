@@ -3,19 +3,22 @@ package net.ripe.db.whois.update.handler;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
+import net.ripe.db.whois.common.source.Source;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
 import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -37,7 +40,15 @@ public class AttributeGeneratorTest {
     @Mock Update update;
     @Mock UpdateContext updateContext;
     @Mock KeyWrapperFactory keyWrapperFactory;
-    @InjectMocks AttributeGenerator subject;
+    @Mock SourceContext sourceContext;
+    @Mock AuthoritativeResourceData authoritativeResourceData;
+    AttributeGenerator subject;
+
+    @Before
+    public void setup() {
+        when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
+        subject = new AttributeGenerator(keyWrapperFactory, sourceContext, authoritativeResourceData);
+    }
 
     @Test
     public void generate_attributes_for_x509_certificate() {
