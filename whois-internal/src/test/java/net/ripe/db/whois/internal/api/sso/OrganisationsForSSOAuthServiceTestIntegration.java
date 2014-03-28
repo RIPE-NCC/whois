@@ -6,7 +6,10 @@ import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
+import net.ripe.db.whois.common.ClockDateTimeProvider;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectDao;
+import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.internal.AbstractInternalTest;
@@ -41,9 +44,10 @@ public class OrganisationsForSSOAuthServiceTestIntegration extends AbstractInter
     public void setUp() throws Exception {
         databaseHelper.insertApiKey(apiKey, "/api/user", apiKey);
         databaseHelper.setCrowdClient(crowdClient);
+
         // TODO: drop this once we have proper wiring in whois-internal
-        databaseHelper.setRpslObjectDao(inverseOrgFinder.getObjectDao());
-        databaseHelper.setRpslObjectUpdateDao(inverseOrgFinder.getUpdateDao());
+        databaseHelper.setRpslObjectDao(new JdbcRpslObjectDao(dataSource, null));
+        databaseHelper.setRpslObjectUpdateDao(new JdbcRpslObjectUpdateDao(dataSource, new ClockDateTimeProvider()));
     }
 
     @Before

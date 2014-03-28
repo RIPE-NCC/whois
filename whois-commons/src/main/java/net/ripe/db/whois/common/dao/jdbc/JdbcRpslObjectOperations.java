@@ -353,6 +353,15 @@ public class JdbcRpslObjectOperations {
         });
     }
 
+    public static RpslObject getObjectById(final JdbcTemplate jdbcTemplate, final int objectId) {
+        return jdbcTemplate.queryForObject("" +
+                        "SELECT object_id, object FROM last " +
+                        "WHERE object_id = ? " +
+                        "AND sequence_id != 0",
+                new RpslObjectRowMapper(),
+                objectId
+        );
+    }
     @CheckForNull
     public static SerialEntry getById(final JdbcTemplate jdbcTemplate, final int serialId) {
         try {

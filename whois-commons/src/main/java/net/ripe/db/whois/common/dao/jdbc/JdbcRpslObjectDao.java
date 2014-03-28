@@ -173,12 +173,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public RpslObject getById(final int objectId) {
-        return jdbcTemplate.queryForObject("" +
-                "SELECT object_id, object FROM last " +
-                "WHERE object_id = ? " +
-                "AND sequence_id != 0",
-                new RpslObjectRowMapper(),
-                objectId);
+        return JdbcRpslObjectOperations.getObjectById(jdbcTemplate, objectId);
     }
 
     @Override
