@@ -3,8 +3,8 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -290,7 +290,7 @@ public class RestClientTarget {
             try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
                 final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
                 throw new RestClientException(whoisResources.getErrorMessages());
-            } catch (Exception e1) {
+            } catch (IllegalArgumentException | StreamingException | IOException e1) {
                 throw new RestClientException(e1.getCause());
             }
         }
