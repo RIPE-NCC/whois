@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -17,31 +18,29 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 @Component
 public class AutnumStatusValidator implements BusinessRuleValidator {
 
-    private static final List<Action> ACTIONS = Collections.unmodifiableList(Lists.newArrayList(Action.CREATE, Action.MODIFY));
-    private static final List<ObjectType> TYPES = Collections.unmodifiableList(Lists.newArrayList(ObjectType.AUT_NUM));
-
     private final Maintainers maintainers;
+    private final SourceContext sourceContext;
 
     @Autowired
-    public AutnumStatusValidator(final Maintainers maintainers) {
+    public AutnumStatusValidator(final Maintainers maintainers, final SourceContext sourceContext) {
         this.maintainers = maintainers;
+        this.sourceContext = sourceContext;
     }
 
     @Override
     public List<Action> getActions() {
-        return ACTIONS;
+        return Lists.newArrayList(Action.CREATE, Action.MODIFY);
     }
 
     @Override
     public List<ObjectType> getTypes() {
-        return TYPES;
+        return Lists.newArrayList(ObjectType.AUT_NUM);
     }
 
     @Override
