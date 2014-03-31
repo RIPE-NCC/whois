@@ -66,7 +66,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         final RpslObject updatedObject = update.getUpdatedObject();
 
         if (updatedObject.containsAttribute(SPONSORING_ORG)) {
-            final List<RpslObject> sponsoringOrganisations = objectDao.getByKeys(ORGANISATION, Collections.singletonList(updatedObject.getValueForAttribute(SPONSORING_ORG)));
+            final List<RpslObject> sponsoringOrganisations = objectDao.getByKeys(ORGANISATION, Collections.singletonList(updatedObject.getValueOrNullForAttribute(SPONSORING_ORG)));
 
             if (sponsoringOrganisations.isEmpty() || !sponsoringOrganisations.get(0).getValueForAttribute(ORG_TYPE).equals("LIR")) {
                 updateContext.addMessage(update, sponsoringOrgNotLIR());
