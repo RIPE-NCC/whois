@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public final class RpslObjectResultSetExtractor implements ResultSetExtractor<List<RpslObjectInfo>> {
+public final class RpslObjectInfoResultSetExtractor implements ResultSetExtractor<List<RpslObjectInfo>> {
     private final RpslObjectInfoMapper rpslObjectInfoMapper = new RpslObjectInfoMapper();
 
     @Override

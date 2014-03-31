@@ -3,6 +3,7 @@ package net.ripe.db.whois.internal.api.abusec;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -34,11 +35,13 @@ public class AbuseCService {
     private final RestClient restClient;
     private String override;
     private String sourceName;
+    private final Maintainers maintainers;
 
     @Autowired
-    public AbuseCService(RestClient restClient, @Value("${whois.source}") String sourceName) {
+    public AbuseCService(final RestClient restClient, @Value("${whois.source}") final String sourceName, final Maintainers maintainers) {
         this.restClient = restClient;
         this.sourceName = sourceName;
+        this.maintainers = maintainers;
     }
 
     @Value("${api.rest.override}")
@@ -72,7 +75,13 @@ public class AbuseCService {
         }
 
         try {
-            final RpslObject role = createAbuseCRole(organisation, email);
+            RpslObject role;
+            try {
+                role = createAbuseCRole(organisation, email);
+            } catch (IllegalStateException e) {
+                return Response.status(Response.Status.FORBIDDEN).entity(e.getMessage()).build();
+            }
+
             final RpslObject createdRole = restClient.request()
                     .addParam("override", String.format("%s,%s", override, ABUSEC_SERVICE))
                     .create(role);
@@ -121,9 +130,17 @@ public class AbuseCService {
         attributes.add(new RpslAttribute(AttributeType.ROLE, "Abuse-C Role"));
         attributes.add(new RpslAttribute(AttributeType.NIC_HDL, "AUTO-1"));
         attributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseMailbox));
+        boolean addedValidMntner = false;
         for (RpslAttribute mntRef : organisation.findAttributes(AttributeType.MNT_REF)) {
-            attributes.add(new RpslAttribute(AttributeType.MNT_BY, mntRef.getValue()));
+            if (!maintainers.getRsMaintainers().contains(mntRef.getCleanValue())) {
+                addedValidMntner = true;
+                attributes.add(new RpslAttribute(AttributeType.MNT_BY, mntRef.getValue()));
+            }
         }
+        if (!addedValidMntner) {
+            throw new IllegalStateException("can't create abuse contact with only RS maintainers");
+        }
+
         for (RpslAttribute address : organisation.findAttributes(AttributeType.ADDRESS)) {
             attributes.add(address);
         }

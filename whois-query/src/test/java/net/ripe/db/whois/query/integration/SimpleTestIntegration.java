@@ -447,6 +447,16 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "The content of the attributes of the route6 class are defined below:\n" +
                 "\n" +
                 "route6\n"));
+
+        assertThat(response, containsString("" +
+                "pingable\n" +
+                "\n" +
+                "   Allows a network operator to advertise an IP address of a node that\n" +
+                "   should be reachable from outside networks. This node can be used as a\n" +
+                "   destination address for diagnostic tests. The IP address must be\n" +
+                "   within the address range of the prefix containing this attribute.\n" +
+                "\n" +
+                "     \n"));
     }
 
     @Test
