@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import static junit.framework.Assert.fail;
+import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
@@ -223,6 +224,7 @@ public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
         assertThat(response, containsString("UPD-MNT"));
         assertThat(response, containsString("OTHER-MNT"));
         assertThat(response, not(containsString("TEST-MNT")));
+        assertThat(response, stringMatchesRegexp("(?si).*20130508.*20130507.*"));
     }
 
     @Test
@@ -234,6 +236,7 @@ public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
         String response = getUpdates("mntner", "20130509", "20130506");
 
         assertThat(response, containsString("Found 2 update log(s)"));
+        assertThat(response, stringMatchesRegexp("(?si).*20130508.*20130507.*"));
     }
 
     @Test
@@ -258,6 +261,7 @@ public class LogSearchNewFormatTestIntegration extends AbstractLogSearchTest {
         assertThat(response, containsString("person: Wilfred D"));
         assertThat(response, containsString("person: Urban J"));
         assertThat(response, containsString("person: Albert K"));
+        assertThat(response, stringMatchesRegexp("(?si).*20110308.*20110307.*20100305.*"));
     }
 
     @Test

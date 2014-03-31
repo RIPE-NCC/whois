@@ -3,6 +3,7 @@ package net.ripe.db.whois.query.acl;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.OperationTimeoutException;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,13 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
 
     @Override
     public int getQueriedPersonalObjects(final InetAddress remoteAddress) {
-        final Integer count = counterMap.get(remoteAddress);
+        Integer count = null;
+        try {
+            count = counterMap.get(remoteAddress);
+        } catch (OperationTimeoutException e) {
+            // prevents user from seeing "internal server error"
+        }
+
         if (count == null) {
             return 0;
         }

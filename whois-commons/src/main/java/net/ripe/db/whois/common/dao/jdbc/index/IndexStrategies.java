@@ -15,7 +15,7 @@ public final class IndexStrategies {
     private static final Map<ObjectType, List<IndexStrategy>> INDEXES_REFERING_OBJECT;
 
     static {
-        final IndexStrategy[] indexStrategies = new IndexStrategy[]{
+        final IndexStrategy[] indexStrategies = {
                 new IndexWithReference(AttributeType.ABUSE_C, "abuse_c", "pe_ro_id"),
                 new IndexWithValueAndType(AttributeType.ABUSE_MAILBOX, "abuse_mailbox", "abuse_mailbox"),
                 new Unindexed(AttributeType.ADDRESS),

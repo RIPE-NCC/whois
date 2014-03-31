@@ -211,7 +211,7 @@ public class FreeTextIndex extends RebuildableIndex {
 
             final Stopwatch stopwatch = Stopwatch.createStarted();
             for (int serial = last + 1; serial <= end; serial++) {
-                final SerialEntry serialEntry = JdbcRpslObjectOperations.getById(jdbcTemplate, serial);
+                final SerialEntry serialEntry = JdbcRpslObjectOperations.getSerialEntry(jdbcTemplate, serial);
                 if (serialEntry == null) {
                     // TODO: [AH] suboptimal; there could be big gaps in serial entries. we should have a getNextId() call instead, SELECT()ing on serial_id > serial
                     continue;

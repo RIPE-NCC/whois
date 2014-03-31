@@ -75,6 +75,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PHONE_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PINGABLE_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POEM_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POETIC_FORM_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.REFERRAL_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE6_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SET_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SYNTAX;
@@ -520,9 +521,7 @@ public enum AttributeType implements Documented {
 
     PERSON(new Builder("person", "pn")
             .doc("Specifies the full name of an administrative, technical or zone contact person for " +
-                    "other objects in the database." +
-                    "Person name cannot contain titles such as \"Dr.\", \"Prof.\", \"Mv.\", \"Ms.\", \"Mr.\", etc." +
-                    "It is composed of alphabetic characters.")
+                    "other objects in the database.")
             .syntax(PERSON_ROLE_NAME_SYNTAX)),
 
     PHONE(new Builder("phone", "ph")
@@ -550,10 +549,8 @@ public enum AttributeType implements Documented {
             .syntax(POETIC_FORM_SYNTAX)),
 
     REFERRAL_BY(new Builder("referral-by", "rb")
-            .doc("This attribute is required in the maintainer object. It may never be altered after the addition " +
-                    "of the maintainer. This attribute refers to the maintainer that created this maintainer. " +
-                    "It may be multiple if more than one signature appeared on the transaction creating the object.")
-            .syntax(OBJECT_NAME_SYNTAX)
+            .doc("Mandatory historical attribute referencing a mntner name. Not used. Suggest setting it to this mntner name.")
+            .syntax(REFERRAL_SYNTAX)
             .references(ObjectType.MNTNER)),
 
     REF_NFY(new Builder("ref-nfy", "rn")
