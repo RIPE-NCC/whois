@@ -1,19 +1,21 @@
 package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.grs.AuthoritativeResource;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
-import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.keycert.KeyWrapper;
 import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -24,12 +26,17 @@ import java.util.Set;
 @Component
 public class AttributeGenerator {
     private final KeyWrapperFactory keyWrapperFactory;
-    private final AuthoritativeResource authoritativeResource;
+    private final Maintainers maintainers;
+    private final RpslObjectDao rpslObjectDao;
 
     @Autowired
-    public AttributeGenerator(final KeyWrapperFactory keyWrapperFactory, final SourceContext sourceContext, final AuthoritativeResourceData authoritativeResourceData) {
+    public AttributeGenerator(
+            final KeyWrapperFactory keyWrapperFactory,
+            final Maintainers maintainers,
+            final RpslObjectDao rpslObjectDao) {
         this.keyWrapperFactory = keyWrapperFactory;
-        this.authoritativeResource = authoritativeResourceData.getAuthoritativeResource(sourceContext.getCurrentSource().getName());
+        this.maintainers = maintainers;
+        this.rpslObjectDao = rpslObjectDao;
     }
 
     public RpslObject generateAttributes(final RpslObject object, final Update update, final UpdateContext updateContext) {
@@ -59,7 +66,20 @@ public class AttributeGenerator {
     }
 
     private RpslObject generateKeycertAttributesForAutnum(final RpslObject object, final Update update, final UpdateContext updateContext) {
-        // TODO: generate status attribute for autnum object
+        // TODO: [ES] status is only generated on create
+        if (!doesObjectExist(object)) {
+            if (isMaintainedByRsMaintainer(object)) {
+                final RpslObjectBuilder builder = new RpslObjectBuilder(object);
+                cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, AutnumStatus.ASSIGNED.toString());
+                return builder.get();
+            } else {
+                // TODO: [ES] need more exact rules on difference between LEGACY and OTHER
+                final RpslObjectBuilder builder = new RpslObjectBuilder(object);
+                cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, AutnumStatus.OTHER.toString());
+                return builder.get();
+            }
+        }
+
         return object;
     }
 
@@ -97,6 +117,20 @@ public class AttributeGenerator {
                 // add missing attribute
                 builder.append(new RpslAttribute(attributeType, attributeValue)).sort();
             }
+        }
+    }
+
+    private boolean isMaintainedByRsMaintainer(final RpslObject object) {
+        final Set<CIString> mntBy = object.getValuesForAttribute(AttributeType.MNT_BY);
+        return !Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty();
+    }
+
+    private boolean doesObjectExist(final RpslObject object) {
+        try {
+            rpslObjectDao.getByKey(object.getType(), object.getKey());
+            return true;
+        } catch (EmptyResultDataAccessException e) {
+            return false;
         }
     }
 }
