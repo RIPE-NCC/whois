@@ -151,7 +151,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         ensureLocalhost(jdbcTemplate);
         cleanupOldTables(jdbcTemplate);
 
-        String uniqueForkId = System.getProperty("jvmId");
+        String uniqueForkId = System.getProperty("surefire.forkNumber");
         if (StringUtils.isBlank(uniqueForkId) || !StringUtils.isAlphanumeric(uniqueForkId)) {
             uniqueForkId = DigestUtils.md5DigestAsHex(UUID.randomUUID().toString().getBytes());
         }
