@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
+import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.apache.commons.lang.Validate;
@@ -31,6 +31,6 @@ class IndexWithNameAndType extends IndexWithName {
     public List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final String value) {
         final String[] names = Iterables.toArray(SPACE_SPLITTER.split(value), String.class);
         final String query = new StringBuilder(getObjectQueryByName(lookupTableName, names)).append(" AND l.object_type = ").append(objectTypeId).toString();
-        return jdbcTemplate.query(query, new RpslObjectResultSetExtractor(), (Object[]) names);
+        return jdbcTemplate.query(query, new RpslObjectInfoResultSetExtractor(), (Object[]) names);
     }
 }

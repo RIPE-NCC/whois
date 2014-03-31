@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
+import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
@@ -173,12 +173,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public RpslObject getById(final int objectId) {
-        return jdbcTemplate.queryForObject("" +
-                "SELECT object_id, object FROM last " +
-                "WHERE object_id = ? " +
-                "AND sequence_id != 0",
-                new RpslObjectRowMapper(),
-                objectId);
+        return JdbcRpslObjectOperations.getObjectById(jdbcTemplate, objectId);
     }
 
     @Override
@@ -332,7 +327,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
                 indexStrategy.getLookupTableName(),
                 indexStrategy.getLookupColumnName());
 
-        return jdbcTemplate.query(query, new RpslObjectResultSetExtractor(), attributeValue);
+        return jdbcTemplate.query(query, new RpslObjectInfoResultSetExtractor(), attributeValue);
     }
 
     @Override
