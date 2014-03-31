@@ -12,7 +12,6 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -48,7 +47,6 @@ public class AutnumStatusValidatorTest {
 
 
     @Test
-    @Ignore // pending clarification
     public void create_override_no_status() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num: AS123\n" +
@@ -109,7 +107,6 @@ public class AutnumStatusValidatorTest {
 
 
     @Test
-    @Ignore // pending clarification
     public void create_rsmaintainer_no_status() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num: AS123\n" +
@@ -125,7 +122,6 @@ public class AutnumStatusValidatorTest {
     }
 
     @Test
-    @Ignore // pending clarification
     public void create_rsmaintainer_status_assigned() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num: AS123\n" +
@@ -138,7 +134,7 @@ public class AutnumStatusValidatorTest {
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext).addMessage(eq(preparedUpdate), any(Message.class));
+        verify(updateContext, never()).addMessage(eq(preparedUpdate), any(Message.class));
     }
 
     @Test
@@ -305,7 +301,6 @@ public class AutnumStatusValidatorTest {
 
 
     @Test
-    @Ignore // waiting for clarification
     public void modify_override_removing_status() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
@@ -433,7 +428,6 @@ public class AutnumStatusValidatorTest {
 
 
     @Test
-    @Ignore //pending clarification
     public void modify_rsmaintainer_adding_status_legacy() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
@@ -450,7 +444,7 @@ public class AutnumStatusValidatorTest {
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext, never()).addMessage(eq(preparedUpdate), any(Message.class));
+        verify(updateContext).addMessage(eq(preparedUpdate), any(Message.class));
     }
 
     @Test
@@ -495,7 +489,6 @@ public class AutnumStatusValidatorTest {
 
 
     @Test
-    @Ignore //pending clarification
     public void modify_rsmaintainer_removing_status() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
@@ -622,7 +615,6 @@ public class AutnumStatusValidatorTest {
     }
 
     @Test
-    @Ignore // pending clarification
     public void modify_rsmaintainer_changing_status_OTHER_to_LEGACY() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
@@ -640,12 +632,11 @@ public class AutnumStatusValidatorTest {
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext).addMessage(preparedUpdate, UpdateMessages.invalidStatusMustBeOther(AutnumStatus.LEGACY));
+        verify(updateContext).addMessage(preparedUpdate, UpdateMessages.invalidStatusMustBeAssigned(AutnumStatus.LEGACY));
     }
 
 
     @Test
-    @Ignore // pending clarification, story description is contradictive
     public void modify_userauth_adding_status_other() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
@@ -661,7 +652,7 @@ public class AutnumStatusValidatorTest {
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext).addMessage(eq(preparedUpdate), any(Message.class));
+        verify(updateContext, never()).addMessage(eq(preparedUpdate), any(Message.class));
     }
 
     @Test
