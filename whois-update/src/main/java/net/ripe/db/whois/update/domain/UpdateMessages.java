@@ -571,11 +571,15 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Invalid status %s (must be 'ASSIGNED' if maintained by a RIPE NCC Maintainer)", status);
     }
 
-    public static Message invalidStatusMustBeOther(final AutnumStatus status) {
-        return new Message(Type.ERROR, "Invalid status %s (must be 'OTHER' if not maintained by a RIPE NCC Maintainer)", status);
+    public static Message invalidStatusMustBeOther() {
+        return new Message(Type.ERROR, "Invalid status %s (must be 'OTHER' if not authorised by a RIPE NCC Maintainer)");
     }
 
-    public static Message statusCanOnlyBeChangedByRsMaintainer() {
-        return new Message(Type.ERROR, "Status can only be changed from LEGACY to ASSIGNED by a RIPE NCC Maintainer");
+    public static Message invalidStatusCannotBeAssigned() {
+        return new Message(Type.ERROR, "Invalid status %s (can only be 'ASSIGNED' if maintained by a RIPE NCC Maintainer)");
+    }
+
+    public static Message statusCanOnlyBeChangedByOverride(final AutnumStatus previousStatus, final AutnumStatus currentStatus) {
+        return new Message(Type.ERROR, "Status can only be changed from %s to %s by the RIPE NCC", previousStatus, currentStatus);
     }
 }

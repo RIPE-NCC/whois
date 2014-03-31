@@ -633,4 +633,23 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
         autnum =~ /status:         ASSIGNED/
     }
+
+    def "create aut-num object, invalid status"() {
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                        aut-num:        AS102
+                        as-name:        RS-2
+                        status:         INVALID
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         UPD-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        password: update
+                        """.stripIndent())
+      then:
+        response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
+        response =~ /SUCCESS/
+    }
 }
