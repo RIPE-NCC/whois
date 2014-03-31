@@ -53,11 +53,11 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(autnum, autnum, Action.CREATE, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(autnum, autnum, Action.CREATE, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext).addMessage(eq(preparedUpdate), any(Message.class));
+        verify(updateContext, never()).addMessage(eq(preparedUpdate), any(Message.class));       // TODO: [ES] status will be generated
     }
 
     @Test
@@ -68,7 +68,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(autnum, autnum, Action.CREATE, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(autnum, autnum, Action.CREATE, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -83,7 +83,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(autnum, autnum, Action.CREATE, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(autnum, autnum, Action.CREATE, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -98,7 +98,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(autnum, autnum, Action.CREATE, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(autnum, autnum, Action.CREATE, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -113,8 +113,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(null, autnum, Action.CREATE, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -129,8 +128,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(autnum, autnum, Action.CREATE, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -146,8 +144,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(autnum, autnum, Action.CREATE, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -162,8 +159,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(autnum, autnum, Action.CREATE, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -178,7 +174,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(autnum, autnum, Action.CREATE, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -193,7 +189,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(autnum, autnum, Action.CREATE, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -209,8 +205,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(autnum, autnum, Action.CREATE, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -225,7 +220,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(autnum, autnum, Action.CREATE, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -240,7 +235,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(autnum, autnum, Action.CREATE, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(autnum, autnum, Action.CREATE, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -258,7 +253,7 @@ public class AutnumStatusValidatorTest {
                 "status: LEGACY\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -275,7 +270,7 @@ public class AutnumStatusValidatorTest {
                 "status: OTHER\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -292,7 +287,7 @@ public class AutnumStatusValidatorTest {
                 "status: ASSIGNED\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -305,16 +300,18 @@ public class AutnumStatusValidatorTest {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
+                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
+                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext).addMessage(eq(preparedUpdate), any(Message.class));
+        verify(updateContext, never()).addMessage(eq(preparedUpdate), any(Message.class));              // TODO: [ES] verify change
     }
 
 
@@ -323,13 +320,15 @@ public class AutnumStatusValidatorTest {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: LEGACY\n" +
+                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         final RpslObject update = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "status: ASSIGNED\n" +
+                "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -347,7 +346,7 @@ public class AutnumStatusValidatorTest {
                 "status: OTHER\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -365,7 +364,7 @@ public class AutnumStatusValidatorTest {
                 "status: ASSIGNED\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -383,7 +382,7 @@ public class AutnumStatusValidatorTest {
                 "status: LEGACY\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -401,7 +400,7 @@ public class AutnumStatusValidatorTest {
                 "status: LEGACY\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -419,7 +418,7 @@ public class AutnumStatusValidatorTest {
                 "status: OTHER\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.TRUE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, true, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -439,8 +438,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(original, update, Action.MODIFY, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -459,8 +457,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(original, update, Action.MODIFY, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -479,8 +476,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(original, update, Action.MODIFY, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -500,8 +496,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(original, update, Action.MODIFY, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -522,12 +517,11 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(original, update, Action.MODIFY, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext, never()).addMessage(eq(preparedUpdate), any(Message.class));
+        verify(updateContext).addMessage(preparedUpdate, UpdateMessages.statusCanOnlyBeChangedByOverride(AutnumStatus.LEGACY, AutnumStatus.ASSIGNED));
     }
 
     @Test
@@ -543,8 +537,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(original, update, Action.MODIFY, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -564,8 +557,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(original, update, Action.MODIFY, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -585,8 +577,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(original, update, Action.MODIFY, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -606,8 +597,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(original, update, Action.MODIFY, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -627,8 +617,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
                 "source: TEST");
 
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.TRUE);
+        setupStubs(original, update, Action.MODIFY, false, true);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -648,7 +637,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -667,11 +656,11 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext).addMessage(eq(preparedUpdate), any(Message.class));
+        verify(updateContext, never()).addMessage(eq(preparedUpdate), any(Message.class));      // TODO: [ES] status cannot be ASSIGNED, but can be LEGACY?
     }
 
     @Test
@@ -686,7 +675,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -706,7 +695,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -727,7 +716,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -747,7 +736,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -767,7 +756,7 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -787,11 +776,11 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext).addMessage(eq(preparedUpdate), any(Message.class));
+        verify(updateContext, never()).addMessage(eq(preparedUpdate), any(Message.class));       // TODO: [ES] LEGACY is a valid status for user-maintained autnum?
     }
 
     @Test
@@ -807,11 +796,11 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext).addMessage(preparedUpdate, UpdateMessages.invalidStatusMustBeOther(AutnumStatus.ASSIGNED));
+        verify(updateContext).addMessage(preparedUpdate, UpdateMessages.invalidStatusCannotBeAssigned());
     }
 
     @Test
@@ -827,20 +816,21 @@ public class AutnumStatusValidatorTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        setupStubs(original, update, Action.MODIFY, Boolean.FALSE, Boolean.FALSE);
+        setupStubs(original, update, Action.MODIFY, false, false);
 
         subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext).addMessage(eq(preparedUpdate), any(Message.class));
+        verify(updateContext, never()).addMessage(eq(preparedUpdate), any(Message.class));  // TODO: [ES] status cannot be ASSIGNED (but can be LEGACY) ?
     }
 
 
-    private void setupStubs(final RpslObject original, final RpslObject update, final Action action, final boolean isOverride, final boolean isRsMaintainer) {
+    private void setupStubs(final RpslObject originalObject, final RpslObject updatedObject, final Action action, final boolean isOverride, final boolean hasRsAuthorisation) {
+        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         when(preparedUpdate.getAction()).thenReturn(action);
-        when(preparedUpdate.getReferenceObject()).thenReturn(original);
-        when(preparedUpdate.getUpdatedObject()).thenReturn(update);
+        when(preparedUpdate.getReferenceObject()).thenReturn(originalObject);
+        when(preparedUpdate.getUpdatedObject()).thenReturn(updatedObject);
         when(updateContext.getSubject(preparedUpdate)).thenReturn(subjectObject);
         when(subjectObject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(isOverride);
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(isRsMaintainer);
+        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(hasRsAuthorisation);
     }
 }
