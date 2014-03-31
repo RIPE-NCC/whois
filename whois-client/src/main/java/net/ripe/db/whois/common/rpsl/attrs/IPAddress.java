@@ -28,6 +28,7 @@ public class IPAddress {
             throw new AttributeParseException("Invalid ip address", value);
         }
 
+        // TODO: [AH] add support for this operation in IpInterval
         final int maxPrefix = ipInterval instanceof Ipv4Resource ? 32 : 128;
         if (ipInterval.getPrefixLength() != maxPrefix) {
             throw new AttributeParseException("Not a single address", value);

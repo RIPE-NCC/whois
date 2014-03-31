@@ -10,8 +10,8 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
-import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
@@ -28,8 +28,13 @@ import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertI
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static net.ripe.db.whois.query.support.PatternCountMatcher.matchesPatternCount;
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @Category(IntegrationTest.class)
 public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
@@ -442,6 +447,16 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "The content of the attributes of the route6 class are defined below:\n" +
                 "\n" +
                 "route6\n"));
+
+        assertThat(response, containsString("" +
+                "pingable\n" +
+                "\n" +
+                "   Allows a network operator to advertise an IP address of a node that\n" +
+                "   should be reachable from outside networks. This node can be used as a\n" +
+                "   destination address for diagnostic tests. The IP address must be\n" +
+                "   within the address range of the prefix containing this attribute.\n" +
+                "\n" +
+                "     \n"));
     }
 
     @Test

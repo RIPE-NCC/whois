@@ -64,7 +64,7 @@ public final class CIString implements Comparable<CIString>, CharSequence {
         }
 
         if (o instanceof String) {
-            return lcValue.equals(((String) o).toLowerCase());
+            return value.equalsIgnoreCase((String) o);
         }
 
         return getClass() == o.getClass() && lcValue.equals(((CIString) o).lcValue);

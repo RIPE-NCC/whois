@@ -20,13 +20,13 @@ import java.util.Set;
 
 @Component
 @Path("/user")
-public class OrganisationsForSSOAuthService {
+public class UserOrgFinderService {
 
-    private final InverseOrgFinder orgFinder;
+    private final UserOrgFinder orgFinder;
     private final WhoisObjectClientMapper whoisObjectMapper;
 
     @Autowired
-    public OrganisationsForSSOAuthService(final InverseOrgFinder orgFinder) {
+    public UserOrgFinderService(final UserOrgFinder orgFinder) {
         this.orgFinder = orgFinder;
         // TODO: [AH] autowire
         this.whoisObjectMapper = new WhoisObjectClientMapper("");

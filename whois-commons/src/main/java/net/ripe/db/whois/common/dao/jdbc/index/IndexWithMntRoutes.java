@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
+import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -66,7 +66,7 @@ class IndexWithMntRoutes extends IndexWithReference {
                 lookupTableName,
                 lookupColumnName);
 
-        return jdbcTemplate.query(query, new RpslObjectResultSetExtractor(), value);
+        return jdbcTemplate.query(query, new RpslObjectInfoResultSetExtractor(), value);
     }
 
     @Override

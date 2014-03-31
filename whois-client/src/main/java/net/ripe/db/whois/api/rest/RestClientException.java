@@ -21,6 +21,13 @@ public class RestClientException extends RuntimeException {
                 new ErrorMessage(new Message(Messages.Type.ERROR, message)));
     }
 
+    public RestClientException(final Throwable cause) {
+        super(cause);
+        this.errorMessages = Collections.singletonList(
+                new ErrorMessage(new Message(Messages.Type.ERROR, cause.getMessage())));
+    }
+
+
     @Override
     public String toString() {
         return StringUtils.join(errorMessages, '\n');

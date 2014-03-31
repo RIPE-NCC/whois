@@ -12,6 +12,7 @@
     <context:component-scan base-package="net.ripe.db.whois.internal,net.ripe.db.whois.api.httpserver,net.ripe.db.whois.common.sso"/>
 
     <bean class="net.ripe.db.whois.common.domain.IpRanges"/>
+    <bean class="net.ripe.db.whois.common.domain.Maintainers"/>
     <bean class="net.ripe.db.whois.api.rest.RestClient"/>
 
     <!--datasource bean definitions copied from applicationContext-common.xml-->
