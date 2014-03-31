@@ -45,7 +45,12 @@ public class AutnumStatusValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(PreparedUpdate update, UpdateContext updateContext) {
+    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+
+        if (!update.getUpdatedObject().containsAttribute(AttributeType.STATUS)) {
+            updateContext.addMessage(update, ValidationMessages.missingMandatoryAttribute(AttributeType.STATUS));
+            return;
+        }
 
         if (updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
             return;
@@ -54,92 +59,59 @@ public class AutnumStatusValidator implements BusinessRuleValidator {
         switch (update.getAction()) {
             case CREATE:
                 validateCreate(update, updateContext);
-                return;
+                break;
             case MODIFY:
                 validateModify(update, updateContext);
-                return;
+                break;
             default:
-                return;
         }
     }
 
     private void validateCreate(final PreparedUpdate update, final UpdateContext updateContext) {
         final boolean mntByRs = isMaintainedByRsMaintainer(update);
 
-        if (update.getUpdatedObject().containsAttribute(AttributeType.STATUS)) {
+        final AutnumStatus status = AutnumStatus.valueOf(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
 
-            final AutnumStatus status = AutnumStatus.valueOf(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
-
-            if (mntByRs) {
-                if (status != AutnumStatus.ASSIGNED) {
-                    updateContext.addMessage(update, UpdateMessages.invalidStatusMustBeAssigned(status));
-                }
-            } else {
-                if (status != AutnumStatus.OTHER) {
-                    updateContext.addMessage(update, UpdateMessages.invalidStatusMustBeOther(status));
-                    return;
-                }
+        if (mntByRs) {
+            if (status != AutnumStatus.ASSIGNED) {
+                updateContext.addMessage(update, UpdateMessages.invalidStatusMustBeAssigned(status));
             }
-
         } else {
-
-            if (!mntByRs) {
-                // TODO: generated OTHER if not specified?
-                updateContext.addMessage(update, ValidationMessages.missingMandatoryAttribute(AttributeType.STATUS));
-                return;
-            } else {
-                // TODO: rs maintainer, generate ASSIGNED status
+            if (status != AutnumStatus.OTHER) {
+                updateContext.addMessage(update, UpdateMessages.invalidStatusMustBeOther(status));
             }
-
         }
-
     }
 
     private void validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
 
         final boolean mntByRs = isMaintainedByRsMaintainer(update);
 
-        if (update.getUpdatedObject().containsAttribute(AttributeType.STATUS)) {
-            final AutnumStatus status = AutnumStatus.valueOf(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
+        final AutnumStatus status = AutnumStatus.valueOf(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
 
-            if (update.getReferenceObject().containsAttribute(AttributeType.STATUS)) {
-                final AutnumStatus previousStatus = AutnumStatus.valueOf(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
+        if (update.getReferenceObject().containsAttribute(AttributeType.STATUS)) {
+            final AutnumStatus previousStatus = AutnumStatus.valueOf(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
 
-                if (mntByRs && !isAuthorisedByRsMaintainer(update, updateContext)) {
-                    if ((previousStatus == AutnumStatus.LEGACY) && (status == AutnumStatus.ASSIGNED)) {
-                        updateContext.addMessage(update, UpdateMessages.statusCanOnlyBeChangedByRsMaintainer());
-                        return;
-                    }
-                }
-            } else {
-                if (mntByRs && !isAuthorisedByRsMaintainer(update, updateContext)) {
-                    updateContext.addMessage(update, UpdateMessages.statusCanOnlyBeAddedByRsMaintainer(status));
+            if (mntByRs && !isAuthorisedByRsMaintainer(update, updateContext)) {
+                if ((previousStatus == AutnumStatus.LEGACY) && (status == AutnumStatus.ASSIGNED)) {
+                    updateContext.addMessage(update, UpdateMessages.statusCanOnlyBeChangedByRsMaintainer());
                     return;
                 }
             }
-
-            if (!mntByRs) {
-                if (status != AutnumStatus.OTHER) {
-                    updateContext.addMessage(update, UpdateMessages.invalidStatusMustBeOther(status));
-                    return;
-                }
-            } else {
-                if (status != AutnumStatus.ASSIGNED) {
-                    updateContext.addMessage(update, UpdateMessages.invalidStatusMustBeAssigned(status));
-                    return;
-                }
-            }
-
         } else {
+            if (mntByRs && !isAuthorisedByRsMaintainer(update, updateContext)) {
+                updateContext.addMessage(update, UpdateMessages.statusCanOnlyBeAddedByRsMaintainer(status));
+                return;
+            }
+        }
 
-            if (update.getReferenceObject().containsAttribute(AttributeType.STATUS)) {
-                if (mntByRs) {
-                    // TODO: generate ASSIGNED status
-                } else {
-                    final AutnumStatus previousStatus = AutnumStatus.valueOf(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS).toUpperCase());
-                    updateContext.addMessage(update, UpdateMessages.statusCannotBeRemoved(previousStatus));
-                    return;
-                }
+        if (!mntByRs) {
+            if (status != AutnumStatus.OTHER) {
+                updateContext.addMessage(update, UpdateMessages.invalidStatusMustBeOther(status));
+            }
+        } else {
+            if (status != AutnumStatus.ASSIGNED) {
+                updateContext.addMessage(update, UpdateMessages.invalidStatusMustBeAssigned(status));
             }
         }
     }
