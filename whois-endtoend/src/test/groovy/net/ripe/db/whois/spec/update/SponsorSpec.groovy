@@ -48,7 +48,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 """,
                 "AS222 - AS333": """\
                 as-block:       AS222 - AS333
-                descr:          ARIN ASN block
+                descr:          RIPE NCC ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
                 changed:        dbtest@ripe.net
@@ -184,6 +184,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -246,6 +247,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -311,6 +313,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA-TEST
@@ -468,6 +471,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-OFA10-TEST
@@ -547,6 +551,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-RIR-TEST
@@ -628,6 +633,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA-TEST
@@ -709,6 +715,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA-TEST
@@ -782,6 +789,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-OFA10-TEST
@@ -882,6 +890,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA2-TEST
@@ -978,6 +987,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA2-TEST
@@ -1079,6 +1089,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1174,6 +1185,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1269,6 +1281,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA2-TEST
@@ -1368,6 +1381,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA2-TEST
@@ -1465,6 +1479,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1565,6 +1580,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1754,6 +1770,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1862,6 +1879,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1969,6 +1987,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -2072,6 +2091,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-OFA10-TEST
@@ -2180,6 +2200,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-OFA10-TEST
@@ -2287,6 +2308,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-OFA10-TEST
