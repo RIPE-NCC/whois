@@ -122,7 +122,7 @@ public class StatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.incorrectChildStatus("ALLOCATED PA", "ALLOCATED PI"));
+        verify(updateContext).addMessage(update, UpdateMessages.incorrectChildStatus("ALLOCATED PA", "ALLOCATED PI", "192.0/32"));
     }
 
     @Test

@@ -279,8 +279,8 @@ public final class UpdateMessages {
         return new Message(Messages.Type.ERROR, "%s parent has incorrect status: %s", type.getName(), parentStatus);
     }
 
-    public static Message incorrectChildStatus(final CharSequence givenStatus, final CharSequence childStatus) {
-        return new Message(Type.ERROR, "Status %s not allowed when more specific object has status %s", givenStatus, childStatus);
+    public static Message incorrectChildStatus(final CharSequence givenStatus, final CharSequence childStatus, final CharSequence moreSpecificObject) {
+        return new Message(Type.ERROR, "Status %s not allowed when more specific object '%s' has status %s", givenStatus, moreSpecificObject, childStatus);
     }
 
     public static Message objectLacksStatus(final CharSequence familyMember, final CharSequence parentInetnum) {
