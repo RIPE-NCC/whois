@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -108,9 +109,14 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
-        final String result = RestTest.target(getPort(), "whois/abuse-contact/193.0.0.0 - 193.0.0.255")
+        String result = null;
+        try {
+            result = RestTest.target(getPort(), "whois/abuse-contact/193.0.0.0 - 193.0.0.255")
                 .request()
                 .get(String.class);
+        } catch (ClientErrorException e) {
+            System.err.println(e.getResponse().readEntity(String.class));
+        }
 
         assertThat(result, is("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

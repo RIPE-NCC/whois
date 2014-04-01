@@ -594,6 +594,11 @@ public enum AttributeType implements Documented {
             .doc("Specifies the registry where the object is registered. Should be \"RIPE\" for the RIPE Database.")
             .syntax(SOURCE_SYNTAX)),
 
+    SPONSORING_ORG(new Builder("sponsoring-org", "sp")
+            .doc("Points to an existing organisation object representing the sponsoring organisation responsible for the resource.")
+            .syntax(GENERATED_SYNTAX)
+            .references(ObjectType.ORGANISATION)),
+
     STATUS(new Builder("status", "st")
             .doc("Specifies the status of the address range represented by inetnum or inet6num object.")
             .syntax(STATUS_SYNTAX)),

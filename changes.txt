@@ -1,3 +1,6 @@
+## next
+[all] attribute "sponsoring-org" added to inetnum, inet6num and aut-num
+
 ## 1.72
 [web, api] Better integration with other Ripe services:
 Introduced Single Sign On (SSO) for Ripe Database web interface.

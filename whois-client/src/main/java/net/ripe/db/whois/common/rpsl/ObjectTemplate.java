@@ -9,14 +9,125 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang.WordUtils;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Cardinality.MULTIPLE;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Cardinality.SINGLE;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key;
-import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.*;
-import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.*;
-import static net.ripe.db.whois.common.rpsl.AttributeType.*;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.INVERSE_KEY;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.LOOKUP_KEY;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.PRIMARY_KEY;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.GENERATED;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.MANDATORY;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.OPTIONAL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AGGR_BNDRY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AGGR_MTD;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ALIAS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ASSIGNMENT_SIZE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AS_BLOCK;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AS_NAME;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AS_SET;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AUTH;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AUTHOR;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AUT_NUM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.CERTIF;
+import static net.ripe.db.whois.common.rpsl.AttributeType.CHANGED;
+import static net.ripe.db.whois.common.rpsl.AttributeType.COMPONENTS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.DEFAULT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.DESCR;
+import static net.ripe.db.whois.common.rpsl.AttributeType.DOMAIN;
+import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ENCRYPTION;
+import static net.ripe.db.whois.common.rpsl.AttributeType.EXPORT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.EXPORT_COMPS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.EXPORT_VIA;
+import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
+import static net.ripe.db.whois.common.rpsl.AttributeType.FILTER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.FILTER_SET;
+import static net.ripe.db.whois.common.rpsl.AttributeType.FINGERPR;
+import static net.ripe.db.whois.common.rpsl.AttributeType.FORM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
+import static net.ripe.db.whois.common.rpsl.AttributeType.HOLES;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IFADDR;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IMPORT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IMPORT_VIA;
+import static net.ripe.db.whois.common.rpsl.AttributeType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.INETNUM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.INET_RTR;
+import static net.ripe.db.whois.common.rpsl.AttributeType.INJECT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.INTERFACE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IRT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IRT_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.KEY_CERT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.LANGUAGE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.LOCAL_AS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MBRS_BY_REF;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MEMBERS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MEMBER_OF;
+import static net.ripe.db.whois.common.rpsl.AttributeType.METHOD;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNTNER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_DOMAINS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_IRT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_LOWER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_REF;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_ROUTES;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_DEFAULT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_EXPORT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_FILTER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_IMPORT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_MEMBERS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_PEER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_PEERING;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NETNAME;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NIC_HDL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NSERVER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORGANISATION;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_TYPE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORIGIN;
+import static net.ripe.db.whois.common.rpsl.AttributeType.OWNER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PEER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PEERING;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PEERING_SET;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PHONE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PINGABLE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PING_HDL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.POEM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.POETIC_FORM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.REFERRAL_BY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.REF_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.REMARKS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ROUTE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ROUTE6;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ROUTE_SET;
+import static net.ripe.db.whois.common.rpsl.AttributeType.RTR_SET;
+import static net.ripe.db.whois.common.rpsl.AttributeType.SIGNATURE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.SOURCE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.SPONSORING_ORG;
+import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.TEXT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.UPD_TO;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
 
 public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     private static final Map<ObjectType, ObjectTemplate> TEMPLATE_MAP;
@@ -65,6 +176,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(MP_DEFAULT, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
@@ -131,6 +243,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, MANDATORY, SINGLE),
@@ -153,6 +266,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, MANDATORY, SINGLE),
@@ -567,7 +681,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                 final AttributeTemplate attributeTemplate = attributeTemplateMap.get(attributeType);
                 if (attributeTemplate == null) {
                     objectMessages.addMessage(attribute, ValidationMessages.invalidAttributeForObject(attributeType));
-                } else if (!attributeTemplate.getRequirement().equals(GENERATED)) {
+                } else {
                     attribute.validateSyntax(rpslObjectType, objectMessages);
                     attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
                 }
@@ -588,11 +702,11 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         final AttributeType attributeType = attributeTemplate.getAttributeType();
         final int attributeTypeCount = attributeCount.get(attributeType);
 
-        if (MANDATORY.equals(attributeTemplate.getRequirement()) && attributeTypeCount == 0) {
+        if (attributeTemplate.getRequirement() == MANDATORY && attributeTypeCount == 0) {
             objectMessages.addMessage(ValidationMessages.missingMandatoryAttribute(attributeType));
         }
 
-        if (SINGLE.equals(attributeTemplate.getCardinality()) && attributeTypeCount > 1) {
+        if ((attributeTemplate.getCardinality() == SINGLE || attributeTemplate.getRequirement() == GENERATED) && attributeTypeCount > 1) {
             objectMessages.addMessage(ValidationMessages.tooManyAttributesOfType(attributeType));
         }
     }
