@@ -11,10 +11,9 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
-import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotFoundException;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -84,12 +83,11 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
         try {
             RestTest.target(getPort(), "whois/search?query-string=ORG-SPONSOR&inverse-attribute=sponsoring-org").request().get(String.class);
             fail();
-        } catch (ClientErrorException e) {
+        } catch (NotFoundException e) {
+            // TODO: this should be 400 bad request really
             final String response = e.getResponse().readEntity(String.class);
             assertThat(response, containsString("attribute is not searchable"));
             assertThat(response, containsString("is not an inverse searchable attribute"));
-            // TODO: this should be 400 bad request really
-            assertThat(e.getResponse().getStatus(), is(404));
         }
     }
 

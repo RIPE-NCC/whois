@@ -675,13 +675,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create autnum with sponsoring-org, org not LIR"() {
-        given:
-        databaseHelper.addObject("" +
-                "mntner: RIPE-NCC-HM-MNT\n" +
-                "mnt-by: RIPE-NCC-HM-MNT\n" +
-                "auth: MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss. #hm\n" +
-                "source: TEST\n"
-                )
       when:
         def update = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
@@ -704,13 +697,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create autnum with sponsoring-org succeeds"() {
-      given:
-        databaseHelper.addObject("" +
-                "mntner: RIPE-NCC-HM-MNT\n" +
-                "mnt-by: RIPE-NCC-HM-MNT\n" +
-                "auth: MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss. #hm\n" +
-                "source: TEST\n"
-        )
       when:
         def update = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
@@ -772,18 +758,11 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "modify autnum add sponsoring-org succeeds"() {
-      given:
-        databaseHelper.addObject("" +
-                "mntner: RIPE-NCC-HM-MNT\n" +
-                "mnt-by: RIPE-NCC-HM-MNT\n" +
-                "auth: MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss. #hm\n" +
-                "source: TEST\n"
-        )
-
       when:
         def create = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
+                status:         ASSIGNED
                 member-of:      AS-TESTSET
                 descr:          other description
                 admin-c:        AP1-TEST
@@ -803,6 +782,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         def update = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
+                status:         ASSIGNED
                 member-of:      AS-TESTSET
                 sponsoring-org: ORG-NCC1-RIPE
                 descr:          other description
@@ -826,6 +806,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         def create = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
+                status:         OTHER
                 member-of:      AS-TESTSET
                 sponsoring-org: ORG-NCC1-RIPE
                 descr:          other description
@@ -843,6 +824,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         def delete = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
+                status:         OTHER
                 member-of:      AS-TESTSET
                 sponsoring-org: ORG-NCC1-RIPE
                 descr:          other description
