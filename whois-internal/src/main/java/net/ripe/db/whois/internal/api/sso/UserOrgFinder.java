@@ -62,7 +62,7 @@ public class UserOrgFinder {
             if (refOrBy == MntByOrRef.MNT_REF && isOrgMntByRS(orgId)) {
                 filteredOrgIds.add(orgId);
             }
-            if (refOrBy == MntByOrRef.MNT_BY && !isOrgMntByRS(orgId)) {
+            if (refOrBy == MntByOrRef.MNT_BY) {
                 filteredOrgIds.add(orgId);
             }
         }
