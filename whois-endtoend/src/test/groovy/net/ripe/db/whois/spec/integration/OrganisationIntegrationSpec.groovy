@@ -193,7 +193,9 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         result =~ /FAIL/
-        result =~ /Error:   This org-type value can only be set by administrative mntners/
+        result =~ /Error:   "org-type:" value can only be changed by the RIPE NCC for this
+            organisation.
+            Please contact "ncc@ripe.net" to change the name./
     }
 
     def "orgtype LIR (and others) passes when mnt-by from rip.config in create"() {
@@ -233,7 +235,9 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         def result = syncUpdate update
 
       then:
-        result =~ /\*\*\*Error:   This org-type value can only be set by administrative mntners/
+        result =~ /\*\*\*Error:   "org-type:" value can only be changed by the RIPE NCC for this
+            organisation.
+            Please contact "ncc@ripe.net" to change the name./
     }
 
     def "other mntners than powermaintainers fail update"() {
@@ -255,7 +259,9 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         def result = syncUpdate update
 
       then:
-        result =~ /\*\*\*Error:   This org-type value can only be set by administrative mntners/
+        result =~ /\*\*\*Error:   "org-type:" value can only be changed by the RIPE NCC for this
+            organisation.
+            Please contact "ncc@ripe.net" to change the name./
     }
 
     def "create auth by pwrmntner succeeds"() {
@@ -684,7 +690,9 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """)
       then:
-        response =~ /Error:   The org attribute value can only be set by administrative mntners/
+        response =~ /"org:" value can only be changed by the RIPE NCC for this
+            organisation.
+            Please contact "ncc@ripe.net" to change the name./
     }
 
     def "org attribute changed RS mntner not override"() {
@@ -849,7 +857,9 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
       then:
-        response =~ /Error:   The org name can only be set by administrative mntners/
+        response =~ /Error:   "org-name:" value can only be changed by the RIPE NCC for this
+            organisation.
+            Please contact "ncc@ripe.net" to change the name./
     }
 
     def "org-name changed organisation ref by resource with RSmntner auth by RS mntner"() {

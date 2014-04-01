@@ -191,15 +191,18 @@ public final class UpdateMessages {
     }
 
     public static Message invalidMaintainerForOrganisationType() {
-        return new Message(Type.ERROR, "This org-type value can only be set by administrative mntners");
+        return new Message(Type.ERROR, "\"org-type:\" value can only be changed by the RIPE NCC for this organisation.\n" +
+                "Please contact \"ncc@ripe.net\" to change the name.");
     }
 
     public static Message cantChangeOrgAttribute() {
-        return new Message(Type.ERROR, "The org attribute value can only be set by administrative mntners");
+        return new Message(Type.ERROR, "\"org:\" value can only be changed by the RIPE NCC for this organisation.\n" +
+                "Please contact \"ncc@ripe.net\" to change the name.");
     }
 
     public static Message cantChangeOrgName() {
-        return new Message(Type.ERROR, "The org name can only be set by administrative mntners");
+        return new Message(Type.ERROR, "\"org-name:\" value can only be changed by the RIPE NCC for this organisation.\n" +
+                "Please contact \"ncc@ripe.net\" to change the name.");
     }
 
     public static Message countryNotRecognised(final CharSequence country) {
