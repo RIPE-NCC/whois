@@ -68,6 +68,7 @@ public class Update implements UpdateContainer {
         return paragraph.getCredentials().has(PgpCredential.class) || paragraph.getCredentials().has(X509Credential.class);
     }
 
+    /** checks presence of credential only */
     public boolean isOverride() {
         return paragraph.getCredentials().has(OverrideCredential.class);
     }

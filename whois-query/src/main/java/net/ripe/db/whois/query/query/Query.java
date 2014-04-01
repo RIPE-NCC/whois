@@ -14,10 +14,10 @@ import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryParser;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.QueryMessages;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 // TODO: [AH] further separate concerns of query parsing and business logic
-// TODO: [AH] incorporate fact that queries/lookups also come from REST API (so they are not parsed but generated programatically)
+// TODO: [AH] merge QueryBuilder and Query to cooperate better
 @Immutable
 public class Query {
     public static final EnumSet<ObjectType> ABUSE_CONTACT_OBJECT_TYPES = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
@@ -45,42 +45,8 @@ public class Query {
             new CombinationValidator(),
             new SearchKeyValidator(),
             new TagValidator(),
-            new VersionValidator());
-
-    public static enum MatchOperation {
-        MATCH_EXACT_OR_FIRST_LEVEL_LESS_SPECIFIC(),
-        MATCH_EXACT(QueryFlag.EXACT),
-        MATCH_FIRST_LEVEL_LESS_SPECIFIC(QueryFlag.ONE_LESS),
-        MATCH_EXACT_AND_ALL_LEVELS_LESS_SPECIFIC(QueryFlag.ALL_LESS),
-        MATCH_FIRST_LEVEL_MORE_SPECIFIC(QueryFlag.ONE_MORE),
-        MATCH_ALL_LEVELS_MORE_SPECIFIC(QueryFlag.ALL_MORE);
-
-        private final QueryFlag queryFlag;
-
-        private MatchOperation() {
-            this(null);
-        }
-
-        private MatchOperation(final QueryFlag queryFlag) {
-            this.queryFlag = queryFlag;
-        }
-
-        boolean hasFlag() {
-            return queryFlag != null;
-        }
-
-        public QueryFlag getQueryFlag() {
-            return queryFlag;
-        }
-    }
-
-    public static enum SystemInfoOption {
-        VERSION, TYPES, SOURCES
-    }
-
-    public static enum Origin {
-        LEGACY, REST
-    }
+            new VersionValidator(),
+            new InverseValidator());
 
     private final QueryParser queryParser;
     private final Messages messages = new Messages();
@@ -92,9 +58,11 @@ public class Query {
     private final MatchOperation matchOperation;
     private final SearchKey searchKey;
 
+    // TODO: [AH] these fields should be part of QueryContext, not Query
     private List<String> passwords;
     private String ssoToken;
     private Origin origin;
+    private boolean trusted;
 
     private Query(final String query, final Origin origin) {
         try {
@@ -148,6 +116,14 @@ public class Query {
 
     public String getSsoToken() {
         return ssoToken;
+    }
+
+    public boolean isTrusted() {
+        return trusted;
+    }
+
+    public void setTrusted(boolean trusted) {
+        this.trusted = trusted;
     }
 
     public boolean via(Origin origin) {
@@ -475,7 +451,7 @@ public class Query {
                 }
             }
         }
-       return Collections.unmodifiableSet(objectTypes);
+        return Collections.unmodifiableSet(objectTypes);
     }
 
     private Set<ObjectType> generateAndFilterObjectTypes() {
@@ -544,20 +520,10 @@ public class Query {
         for (final String attributeType : attributeTypes) {
             try {
                 final AttributeType type = AttributeType.getByName(attributeType);
-                switch (type) {
-                    case PERSON:
-                        ret.addAll(Arrays.asList(AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
-                        break;
-
-                    case AUTH:
-                        final String auth = queryParser.getSearchKey().toUpperCase();
-                        if (auth.startsWith("SSO ") || auth.startsWith("MD5-PW ")) {
-                            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.inverseSearchNotAllowed());
-                        }
-                        break;
-
-                    default:
-                        ret.add(type);
+                if (AttributeType.PERSON.equals(type)) {
+                    ret.addAll(Arrays.asList(AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
+                } else {
+                    ret.add(type);
                 }
             } catch (IllegalArgumentException e) {
                 throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidAttributeType(attributeType));
@@ -604,5 +570,40 @@ public class Query {
 
     public boolean matchesObjectTypeAndAttribute(final ObjectType objectType, final AttributeType attributeType) {
         return ObjectTemplate.getTemplate(objectType).getLookupAttributes().contains(attributeType) && AttributeMatcher.fetchableBy(attributeType, this);
+    }
+
+    public static enum MatchOperation {
+        MATCH_EXACT_OR_FIRST_LEVEL_LESS_SPECIFIC(),
+        MATCH_EXACT(QueryFlag.EXACT),
+        MATCH_FIRST_LEVEL_LESS_SPECIFIC(QueryFlag.ONE_LESS),
+        MATCH_EXACT_AND_ALL_LEVELS_LESS_SPECIFIC(QueryFlag.ALL_LESS),
+        MATCH_FIRST_LEVEL_MORE_SPECIFIC(QueryFlag.ONE_MORE),
+        MATCH_ALL_LEVELS_MORE_SPECIFIC(QueryFlag.ALL_MORE);
+
+        private final QueryFlag queryFlag;
+
+        private MatchOperation() {
+            this(null);
+        }
+
+        private MatchOperation(final QueryFlag queryFlag) {
+            this.queryFlag = queryFlag;
+        }
+
+        boolean hasFlag() {
+            return queryFlag != null;
+        }
+
+        public QueryFlag getQueryFlag() {
+            return queryFlag;
+        }
+    }
+
+    public static enum SystemInfoOption {
+        VERSION, TYPES, SOURCES
+    }
+
+    public static enum Origin {
+        LEGACY, REST
     }
 }

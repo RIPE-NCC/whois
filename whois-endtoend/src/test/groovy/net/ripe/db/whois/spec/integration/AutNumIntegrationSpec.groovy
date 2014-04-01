@@ -652,4 +652,211 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
         response =~ /SUCCESS/
     }
+
+    def "create autnum with sponsoring-org, no RS mntner"() {
+      when:
+        def create = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                member-of:      AS-TESTSET
+                sponsoring-org: ORG-NCC1-RIPE
+                descr:          other description
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: emptypassword
+                password: update
+                """.stripIndent()))
+
+      then:
+        create =~ /Error:   "sponsoring-org" value is managed by RIPE NCC/
+    }
+
+    def "create autnum with sponsoring-org, org not LIR"() {
+        given:
+        databaseHelper.addObject("" +
+                "mntner: RIPE-NCC-HM-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "auth: MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss. #hm\n" +
+                "source: TEST\n"
+                )
+      when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                member-of:      AS-TESTSET
+                sponsoring-org: ORG-OTO1-TEST
+                descr:          other description
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         RIPE-NCC-HM-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: emptypassword
+                password: update
+                password: hm
+                """.stripIndent()))
+
+      then:
+        update =~ /Error:   Referenced object must have org-type LIR/
+    }
+
+    def "create autnum with sponsoring-org succeeds"() {
+      given:
+        databaseHelper.addObject("" +
+                "mntner: RIPE-NCC-HM-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "auth: MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss. #hm\n" +
+                "source: TEST\n"
+        )
+      when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                member-of:      AS-TESTSET
+                sponsoring-org: ORG-NCC1-RIPE
+                descr:          other description
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         RIPE-NCC-HM-MNT
+                mnt-by:         UPD-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: emptypassword
+                password: update
+                password: hm
+                """.stripIndent()))
+
+      then:
+        update =~ /Create SUCCEEDED: \[aut-num\] AS400/
+    }
+
+    def "modify autnum add sponsoring-org, no RS mntner"() {
+      when:
+        def create = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                member-of:      AS-TESTSET
+                descr:          other description
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: emptypassword
+                password: update
+                """.stripIndent()))
+      then:
+        create =~ /Create SUCCEEDED/
+
+      when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                member-of:      AS-TESTSET
+                sponsoring-org: ORG-NCC1-RIPE
+                descr:          other description
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: emptypassword
+                password: update
+                """.stripIndent()))
+
+      then:
+        update =~ /Error:   "sponsoring-org" value is managed by RIPE NCC/
+    }
+
+    def "modify autnum add sponsoring-org succeeds"() {
+      given:
+        databaseHelper.addObject("" +
+                "mntner: RIPE-NCC-HM-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "auth: MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss. #hm\n" +
+                "source: TEST\n"
+        )
+
+      when:
+        def create = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                member-of:      AS-TESTSET
+                descr:          other description
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: emptypassword
+                password: update
+                password: hm
+                """.stripIndent()))
+      then:
+        create =~ /Create SUCCEEDED/
+
+      when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                member-of:      AS-TESTSET
+                sponsoring-org: ORG-NCC1-RIPE
+                descr:          other description
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: emptypassword
+                password: update
+                password: hm
+                """.stripIndent()))
+
+      then:
+        update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
+    }
+
+    def "delete autnum with sponsoring-org"() {
+      when:
+        def create = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                member-of:      AS-TESTSET
+                sponsoring-org: ORG-NCC1-RIPE
+                descr:          other description
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:denis,override1
+                """.stripIndent()))
+      then:
+        create =~ /Create SUCCEEDED/
+
+      when:
+        def delete = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                member-of:      AS-TESTSET
+                sponsoring-org: ORG-NCC1-RIPE
+                descr:          other description
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                delete:         no reason
+                password: emptypassword
+                password: update
+                """.stripIndent()))
+
+      then:
+        delete =~ /Delete SUCCEEDED: \[aut-num\] AS400/
+    }
 }
