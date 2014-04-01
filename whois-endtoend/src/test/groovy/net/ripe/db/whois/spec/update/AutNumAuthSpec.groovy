@@ -87,6 +87,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             "AS200": """
                 aut-num:        AS200
                 as-name:        ASTEST
+                status:         ASSIGNED
                 descr:          description
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
@@ -558,6 +559,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         def message = syncUpdate("""
                 aut-num:        AS250
                 as-name:      ASTEST
+                status:       ASSIGNED
                 descr:        TEST TELEKOM
                 remarks:      following import is missing the 'and'
                 remarks:      from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
@@ -1409,6 +1411,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
+                status:         ASSIGNED
                 descr:          description
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
@@ -1451,6 +1454,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
+                status:         ASSIGNED
                 descr:          description
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
@@ -1501,6 +1505,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
+                status:         ASSIGNED
                 descr:          description
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
@@ -1549,6 +1554,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
+                status:         ASSIGNED
                 descr:          description
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
@@ -1594,6 +1600,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
+                status:         ASSIGNED
                 descr:          description
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
@@ -1637,6 +1644,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
+                status:         ASSIGNED
                 descr:          description
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
@@ -1679,6 +1687,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
+                status:         ASSIGNED
                 descr:          description
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
@@ -1723,6 +1732,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        As0
                 as-name:        End-User-1
+                status:         ASSIGNED
                 descr:          description
                 import:         from AS01 accept ANY
                 import:         from AS2.1 accept ANY
