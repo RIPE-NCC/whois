@@ -3,6 +3,8 @@ package net.ripe.db.whois.update.handler;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -34,10 +36,12 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AttributeGeneratorTest {
-    @Mock Update update;
-    @Mock UpdateContext updateContext;
-    @Mock KeyWrapperFactory keyWrapperFactory;
-    @InjectMocks AttributeGenerator subject;
+    @Mock private Update update;
+    @Mock private UpdateContext updateContext;
+    @Mock private KeyWrapperFactory keyWrapperFactory;
+    @Mock private Maintainers maintainers;
+    @Mock private RpslObjectDao rpslObjectDao;
+    @InjectMocks private AttributeGenerator subject;
 
     @Test
     public void generate_attributes_for_x509_certificate() {
